@@ -1,0 +1,41 @@
+@startmindmap
+<style>
+mindmapDiagram {
+  node {
+    BackgroundColor white
+    ' Shadowing 0.0
+  }
+  arrow {
+    ' LineStyle 4
+    LineThickness 2
+    ' LineColor green
+  }
+  :depth(0) {
+    FontSize 40
+  }
+  :depth(1) {
+      BackGroundColor white
+  }
+  ' boxless {
+  '   FontColor darkgreen
+  ' }
+  .todo {
+    FontColor gray
+  }
+}
+</style>
+* <b>OpossumUI</b>
+--_ <b> Opossum Input JSON (.gz) </b>
+--- opossum-tool/oss-review-toolkit
+----_ OSS Review Toolkit JSON / YAML
+--- opossum-tool/opossum.lib.hs
+----_ ScanCode JSON
+----_ SPDX-2.2 JSON / YAML
+----_ OWASP Dependency-Check JSON
+----_ Opossum Input JSON (.gz)
+' --_ SPDX-2.2 JSON / YAML <<todo>>
+++_ <b> Opossum Output JSON </b>
+++_ <b> SPDX-2.2 (Lite) JSON / YAML </b>
+++_ CSV attributions list
+++_ CSV follow-up list
+@endmindmap

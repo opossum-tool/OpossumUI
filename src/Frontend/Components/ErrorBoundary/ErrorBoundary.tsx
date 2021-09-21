@@ -1,0 +1,95 @@
+// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
+import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
+import { connect } from 'react-redux';
+import { IpcChannel } from '../../../shared/ipc-channels';
+import { SendErrorInformationArgs } from '../../../shared/shared-types';
+import { AnyAction } from 'redux';
+import { resetViewState } from '../../state/actions/view-actions/view-actions';
+import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { OpossumColors } from '../../shared-styles';
+
+const styles = createStyles({
+  root: {
+    background: OpossumColors.lightBlue,
+    width: '100vw',
+    height: '100vh',
+  },
+});
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+interface DispatchProps {
+  resetState(): void;
+}
+
+interface ErrorBoundaryProps extends DispatchProps, WithStyles<typeof styles> {
+  children: ReactNode;
+}
+
+class ProtoErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  componentDidMount(): void {
+    window.ipcRenderer.on(IpcChannel.RestoreFrontend, () => {
+      this.props.resetState();
+      this.setState({ hasError: false });
+    });
+  }
+
+  componentWillUnmount(): void {
+    window.ipcRenderer.removeListener(IpcChannel.RestoreFrontend, () => {
+      this.props.resetState();
+      this.setState({ hasError: false });
+    });
+  }
+
+  static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    const sendErrorInformationArgs: SendErrorInformationArgs = {
+      error,
+      errorInfo,
+    };
+    window.ipcRenderer.invoke(
+      IpcChannel.SendErrorInformation,
+      sendErrorInformationArgs
+    );
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return <div className={this.props.classes.root}> </div>;
+    }
+
+    return this.props.children;
+  }
+}
+
+function mapDispatchToProps(dispatch: Dispatch<AnyAction>): DispatchProps {
+  return {
+    resetState: (): void => {
+      dispatch(resetResourceState());
+      dispatch(resetViewState());
+    },
+  };
+}
+
+export const ErrorBoundary = connect(
+  null,
+  mapDispatchToProps
+)(withStyles(styles)(ProtoErrorBoundary));

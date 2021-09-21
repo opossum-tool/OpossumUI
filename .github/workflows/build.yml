@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+# SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    env:
+      USE_SYSTEM_7ZA: 'true'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest] # add windows-latest to os array
+        include:
+          - os: ubuntu-latest
+            SHIP: ship-linux
+          - os: macos-latest
+            SHIP: ship-mac
+    #          - os: windows-latest
+    #            SHIP: ship-win
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - run: yarn install
+      - run: yarn lint-check
+      - run: yarn compile-all
+      - run: yarn test
+
+      - run: yarn ${{matrix.SHIP}}

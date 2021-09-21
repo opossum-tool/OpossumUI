@@ -1,0 +1,154 @@
+// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { IpcRenderer } from 'electron';
+import React from 'react';
+import {
+  Attributions,
+  PackageInfo,
+  ResourcesToAttributions,
+} from '../../../../shared/shared-types';
+import { DiscreteConfidence } from '../../../enums/enums';
+import {
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import {
+  setManualData,
+  setTemporaryPackageInfo,
+} from '../../../state/actions/resource-actions/all-views-simple-actions';
+
+const testManualLicense = 'Manual attribution license.';
+const testManualLicense2 = 'Another manual attribution license.';
+const testTemporaryPackageInfo: PackageInfo = {
+  packageName: 'React',
+  packageVersion: '16.5.0',
+  licenseText: testManualLicense,
+};
+const testTemporaryPackageInfo2: PackageInfo = {
+  packageName: 'Vue.js',
+  packageVersion: '2.6.11',
+  licenseText: testManualLicense2,
+};
+
+function getTestTemporaryAndExternalStateWithParentAttribution(
+  store: EnhancedTestStore,
+  selectedResourceId: string,
+  temporaryPackageInfo: PackageInfo
+): void {
+  const manualAttributions: Attributions = {
+    uuid_1: testTemporaryPackageInfo,
+    uuid_2: testTemporaryPackageInfo2,
+  };
+  const resourcesToManualAttributions: ResourcesToAttributions = {
+    '/test_parent': ['uuid_1'],
+    '/test_parent/test_child_with_own_attr': ['uuid_2'],
+  };
+
+  store.dispatch(
+    loadFromFile(
+      getParsedInputFile({}, manualAttributions, resourcesToManualAttributions)
+    )
+  );
+  store.dispatch(
+    setManualData(manualAttributions, resourcesToManualAttributions)
+  );
+  store.dispatch(setSelectedResourceId(selectedResourceId));
+  store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+}
+
+let originalIpcRenderer: IpcRenderer;
+
+describe('The ResourceDetailsAttributionColumn', () => {
+  beforeAll(() => {
+    originalIpcRenderer = global.window.ipcRenderer;
+    global.window.ipcRenderer = {
+      on: jest.fn(),
+      removeListener: jest.fn(),
+      invoke: jest.fn(),
+    } as unknown as IpcRenderer;
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  afterAll(() => {
+    // Important to restore the original value.
+    global.window.ipcRenderer = originalIpcRenderer;
+  });
+
+  test('renders TextBoxes with right titles and content', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+      comment: 'some comment',
+      packageName: 'Some package',
+      packageVersion: '16.5.0',
+      copyright: 'Copyright Doe Inc. 2019',
+      licenseText: 'Permission is hereby granted',
+    };
+    const { queryAllByText, getByDisplayValue, store } =
+      renderComponentWithStore(
+        <ResourceDetailsAttributionColumn showParentAttributions={true} />
+      );
+    store.dispatch(setSelectedResourceId('test_id'));
+    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+
+    expect(queryAllByText('Confidence')).toBeTruthy();
+    expect(
+      getByDisplayValue(
+        (
+          testTemporaryPackageInfo.attributionConfidence as unknown as number
+        ).toString()
+      )
+    );
+    expect(queryAllByText('Comment')).toBeTruthy();
+    expect(getByDisplayValue(testTemporaryPackageInfo.comment as string));
+    expect(queryAllByText('Name')).toBeTruthy();
+    expect(getByDisplayValue(testTemporaryPackageInfo.packageName as string));
+    expect(queryAllByText('Version')).toBeTruthy();
+    expect(
+      getByDisplayValue(testTemporaryPackageInfo.packageVersion as string)
+    );
+    expect(queryAllByText('Copyright')).toBeTruthy();
+    expect(getByDisplayValue(testTemporaryPackageInfo.copyright as string));
+    expect(
+      queryAllByText('License Text (to appear in attribution document)')
+    ).toBeTruthy();
+    expect(getByDisplayValue('Permission is hereby granted', { exact: false }));
+  });
+
+  test('shows parent attribution if overrideParentMode is true', () => {
+    const { getByText, store } = renderComponentWithStore(
+      <ResourceDetailsAttributionColumn showParentAttributions={true} />
+    );
+    getTestTemporaryAndExternalStateWithParentAttribution(
+      store,
+      '/test_parent/test_child',
+      testTemporaryPackageInfo
+    );
+
+    expect(getByText('React'));
+    expect(getByText('16.5.0'));
+    expect(getByText(testManualLicense));
+  });
+
+  test('does not show parent attribution if overrideParentMode is false', () => {
+    const { queryByText, store } = renderComponentWithStore(
+      <ResourceDetailsAttributionColumn showParentAttributions={false} />
+    );
+    getTestTemporaryAndExternalStateWithParentAttribution(
+      store,
+      '/test_parent/test_child',
+      testTemporaryPackageInfo2
+    );
+
+    expect(queryByText('React')).toBeFalsy();
+    expect(queryByText('16.5.0')).toBeFalsy();
+    expect(queryByText(testManualLicense)).toBeFalsy();
+  });
+});

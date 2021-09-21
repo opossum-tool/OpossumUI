@@ -1,0 +1,80 @@
+// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { screen } from '@testing-library/react';
+import React from 'react';
+import {
+  AttributionIdWithCount,
+  Attributions,
+} from '../../../../shared/shared-types';
+import { PackagePanelTitle } from '../../../enums/enums';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { expectPackageInPackagePanel } from '../../../test-helpers/test-helpers';
+import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
+import { PanelData } from '../../ResourceDetailsTabs/resource-details-tabs-helpers';
+
+describe('The AggregatedAttributionsPanel', () => {
+  test('renders', () => {
+    const testManualAttributions: Attributions = {
+      uuid1: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+      },
+      uuid2: {
+        packageName: 'JQuery',
+      },
+      uuid3: {
+        packageVersion: '16',
+      },
+    };
+    const testManualAttributionIds: Array<AttributionIdWithCount> = [
+      { attributionId: 'uuid1' },
+      { attributionId: 'uuid2' },
+      { attributionId: 'uuid3' },
+    ];
+    const testExternalAttributions: Attributions = {
+      uuid1: {
+        packageName: 'React',
+        packageVersion: '17.0.0',
+      },
+    };
+    const testExternalAttributionIds: Array<AttributionIdWithCount> = [
+      { attributionId: 'uuid1' },
+    ];
+    const testPanelPackages: Array<PanelData> = [
+      {
+        title: PackagePanelTitle.ContainedManualPackages,
+        attributionIdsWithCount: testManualAttributionIds,
+        attributions: testManualAttributions,
+      },
+      {
+        title: PackagePanelTitle.ContainedExternalPackages,
+        attributionIdsWithCount: testExternalAttributionIds,
+        attributions: testExternalAttributions,
+      },
+    ];
+    renderComponentWithStore(
+      <AggregatedAttributionsPanel
+        panelData={testPanelPackages}
+        isAddToPackageEnabled={true}
+      />
+    );
+    expectPackageInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      'Attributions in Folder Content'
+    );
+    expectPackageInPackagePanel(
+      screen,
+      'JQuery',
+      'Attributions in Folder Content'
+    );
+    expectPackageInPackagePanel(
+      screen,
+      'React, 17.0.0',
+      'Signals in Folder Content'
+    );
+  });
+});

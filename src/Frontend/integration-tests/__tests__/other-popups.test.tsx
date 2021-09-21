@@ -1,0 +1,387 @@
+// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { fireEvent, screen } from '@testing-library/react';
+import { IpcRenderer } from 'electron';
+import React from 'react';
+import { IpcChannel } from '../../../shared/ipc-channels';
+import {
+  PackageInfo,
+  ParsedFileContent,
+  SaveFileArgs,
+} from '../../../shared/shared-types';
+import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
+import {
+  clickOnButton,
+  clickOnCardInAddToAttributionList,
+  clickOnElementInResourceBrowser,
+  clickOnPathInPopupWithResources,
+  clickOnTab,
+  EMPTY_PARSED_FILE_CONTENT,
+  expectButton,
+  expectButtonInContextMenu,
+  expectErrorPopupIsNotShown,
+  expectErrorPopupIsShown,
+  expectPackageInPackagePanel,
+  expectPackagePanelShown,
+  expectUnsavedChangesPopupIsNotShown,
+  expectUnsavedChangesPopupIsShown,
+  expectValueInAddToAttributionList,
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+  getOpenResourcesIconForPackagePanel,
+  insertValueIntoTextBox,
+  mockElectronIpcRendererOn,
+  TEST_TIMEOUT,
+} from '../../test-helpers/test-helpers';
+import { App } from '../../Components/App/App';
+
+import { TIME_POPUP_IS_DISPLAYED } from '../../Components/ErrorPopup/ErrorPopup';
+import { ButtonTitle, DiscreteConfidence } from '../../enums/enums';
+
+let originalIpcRenderer: IpcRenderer;
+
+jest.setTimeout(TEST_TIMEOUT);
+
+function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
+  window.ipcRenderer.on
+    // @ts-ignore
+    .mockImplementation(
+      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
+    );
+}
+
+function mockSaveFileRequestChannel(): void {
+  window.ipcRenderer.on
+    // @ts-ignore
+    .mockImplementationOnce(
+      mockElectronIpcRendererOn(IpcChannel.SaveFileRequest, true)
+    );
+}
+
+describe('Other popups of the app', () => {
+  beforeAll(() => {
+    originalIpcRenderer = global.window.ipcRenderer;
+    global.window.ipcRenderer = {
+      on: jest.fn(),
+      removeListener: jest.fn(),
+      invoke: jest.fn(),
+    } as unknown as IpcRenderer;
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  afterAll(() => {
+    // Important to restore the original value.
+    global.window.ipcRenderer = originalIpcRenderer;
+  });
+
+  test('warning popup appears and cancel button works', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            licenseText: 'Permission is hereby granted',
+          },
+          uuid_2: {
+            packageName: 'Vue',
+            packageVersion: '1.2.0',
+            licenseText: 'Permission is not granted',
+          },
+        },
+        resourcesToAttributions: {
+          '/firstResource.js': ['uuid_1'],
+          '/secondResource.js': ['uuid_2'],
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectButton(screen, ButtonTitle.Save, true);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+    insertValueIntoTextBox(screen, 'Name', 'new Name');
+    expectValueInTextBox(screen, 'Name', 'new Name');
+
+    expectButton(screen, ButtonTitle.Save, false);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectUnsavedChangesPopupIsNotShown(screen);
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    expectUnsavedChangesPopupIsShown(screen);
+
+    clickOnButton(screen, ButtonTitle.Cancel);
+    expectUnsavedChangesPopupIsNotShown(screen);
+    expectValueInTextBox(screen, 'Name', 'new Name');
+    expectButton(screen, ButtonTitle.Save, false);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    clickOnButton(screen, ButtonTitle.Save);
+
+    insertValueIntoTextBox(screen, 'Name', 'another new Name');
+    expectValueInTextBox(screen, 'Name', 'another new Name');
+
+    expectButton(screen, ButtonTitle.Save, false);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectUnsavedChangesPopupIsNotShown(screen);
+    clickOnTab(screen, 'All Attributions Tab');
+    expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
+    clickOnCardInAddToAttributionList(screen, 'Vue, 1.2.0');
+    expectUnsavedChangesPopupIsShown(screen);
+  });
+
+  test('warning popup appears and save button works', () => {
+    const testInitialPackageName = 'InitialPackageName';
+    const testPackageName = 'React - changed';
+    const expectedNewAttribution: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+      packageName: testPackageName,
+    };
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: testInitialPackageName,
+          },
+        },
+        resourcesToAttributions: {
+          '/firstResource.js': ['uuid_1'],
+        },
+      },
+    };
+
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectValueInTextBox(screen, 'Name', testInitialPackageName);
+    expectButton(screen, ButtonTitle.Save, true);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+
+    insertValueIntoTextBox(screen, 'Name', testPackageName);
+    expectValueInTextBox(screen, 'Name', testPackageName);
+    expectButton(screen, ButtonTitle.Save, false);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectUnsavedChangesPopupIsNotShown(screen);
+
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    expectUnsavedChangesPopupIsShown(screen);
+
+    clickOnButton(screen, ButtonTitle.Save);
+
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: {
+        uuid_1: expectedNewAttribution,
+      },
+      resourcesToAttributions: {
+        '/firstResource.js': ['uuid_1'],
+      },
+      resolvedExternalAttributions: new Set(),
+    };
+
+    // @ts-ignore
+    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+    ]);
+    expectUnsavedChangesPopupIsNotShown(screen);
+    expectValueNotInTextBox(screen, 'Name', testPackageName);
+    expectButton(screen, ButtonTitle.Save, true);
+  });
+
+  test('warning popup appears and save for all button works', () => {
+    const testInitialPackageName = 'InitialPackageName';
+    const testPackageName = 'React - changed';
+    const expectedNewAttribution: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+      packageName: testPackageName,
+    };
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: testInitialPackageName,
+          },
+        },
+        resourcesToAttributions: {
+          '/firstResource.js': ['uuid_1'],
+          '/secondResource.js': ['uuid_1'],
+        },
+      },
+    };
+
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectValueInTextBox(screen, 'Name', testInitialPackageName);
+    expectButton(screen, ButtonTitle.Save, true);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+
+    insertValueIntoTextBox(screen, 'Name', testPackageName);
+    expectValueInTextBox(screen, 'Name', testPackageName);
+    expectButton(screen, ButtonTitle.Save, false);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectUnsavedChangesPopupIsNotShown(screen);
+
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    expectUnsavedChangesPopupIsShown(screen);
+
+    clickOnButton(screen, ButtonTitle.SaveForAll);
+
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: {
+        uuid_1: expectedNewAttribution,
+      },
+      resourcesToAttributions: {
+        '/firstResource.js': ['uuid_1'],
+        '/secondResource.js': ['uuid_1'],
+      },
+      resolvedExternalAttributions: new Set(),
+    };
+    // @ts-ignore
+    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+    ]);
+    expectUnsavedChangesPopupIsNotShown(screen);
+    expectButton(screen, ButtonTitle.Save, true);
+    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+  });
+
+  test('opens working popup with file list when clicking on show resources icon', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        root: { src: { file_2: 1 } },
+        file: 1,
+        directory_manual: { subdirectory_manual: { file_manual: 1 } },
+      },
+      manualAttributions: {
+        attributions: {
+          uuid_1: { packageName: 'React' },
+        },
+        resourcesToAttributions: {
+          '/directory_manual/subdirectory_manual/': ['uuid_1'],
+        },
+      },
+      externalAttributions: {
+        attributions: {
+          uuid_1: {
+            source: {
+              name: 'HC',
+              documentConfidence: 99.0,
+            },
+            packageName: 'JQuery',
+          },
+        },
+        resourcesToAttributions: {
+          '/root/src/': ['uuid_1'],
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, '/');
+
+    expectPackagePanelShown(screen, 'Signals in Folder Content');
+    expectPackageInPackagePanel(screen, 'JQuery', 'Signals in Folder Content');
+
+    fireEvent.click(getOpenResourcesIconForPackagePanel(screen, 'JQuery'));
+    clickOnPathInPopupWithResources(screen, '/root/src/');
+    expectPackageInPackagePanel(screen, 'JQuery', 'High Compute');
+  });
+
+  jest.useFakeTimers();
+  test('error popup works correctly for invalid PURL entry', () => {
+    const testInvalidPurl = 'invalidPurl';
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'InitialPackageName',
+          },
+        },
+        resourcesToAttributions: { '/firstResource.js': ['uuid_1'] },
+      },
+    };
+
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+
+    mockSaveFileRequestChannel();
+    insertValueIntoTextBox(screen, 'PURL', testInvalidPurl);
+
+    // Trigger sending signal in IpcChannel without the clicking on save button
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+
+    expectErrorPopupIsShown(screen);
+    jest.advanceTimersByTime(TIME_POPUP_IS_DISPLAYED);
+    expectErrorPopupIsNotShown(screen);
+  });
+
+  test('saving works correctly with valid PURL entry with no popup', () => {
+    const testValidPurl =
+      'pkg:testtype/testnamespace/testname@testversion?testqualifiers#testsubpath';
+    const expectedNewAttribution: PackageInfo = {
+      attributionConfidence: 80,
+      packageType: 'testtype',
+      packageNamespace: 'testnamespace',
+      packageName: 'testname',
+      packageVersion: 'testversion',
+      packagePURLAppendix: '?testqualifiers=#testsubpath',
+    };
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'InitialPackageName',
+          },
+        },
+        resourcesToAttributions: { '/firstResource.js': ['uuid_1'] },
+      },
+    };
+
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+
+    mockSaveFileRequestChannel();
+    insertValueIntoTextBox(screen, 'PURL', testValidPurl);
+
+    // Trigger sending signal in IpcChannel without the clicking on save button
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+
+    expectErrorPopupIsNotShown(screen);
+
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: {
+        uuid_1: expectedNewAttribution,
+      },
+      resourcesToAttributions: {
+        '/firstResource.js': ['uuid_1'],
+      },
+      resolvedExternalAttributions: new Set(),
+    };
+
+    // @ts-ignore
+    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+    ]);
+  });
+});

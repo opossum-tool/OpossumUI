@@ -1,0 +1,34 @@
+# dependencies
+/node_modules
+
+# testing
+/coverage
+/src/commitInfo.json
+/example-files/*_attributions.json
+/example-files/*_follow_up.csv
+/example-files/*_component_list.csv
+/example-files/*.spdx.yaml
+/example-files/*.spdx.json
+/example-files/performance_tests/*_attributions.json
+/example-files/performance_tests/*_follow_up.csv
+/example-files/performance_tests/*_component_list.csv
+
+# production
+/build
+
+# release
+/release
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+yarn-debug.log*
+yarn-error.log*
+
+.idea
+/opossumUI.iml
+/notices

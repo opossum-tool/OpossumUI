@@ -1,0 +1,119 @@
+{
+  "id": "#OpossumOutputFileSchema",
+  "title": "Opossum output schema",
+  "description": "Output files mainly consist of selected attribution information for parts of the input file tree and metadata.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "description": "An ID for the compliance scan, copied from the input file."
+        },
+        "fileCreationDate": {
+          "type": "string",
+          "description": "Only for documentation, arbitrary format."
+        }
+      },
+      "required": ["projectId", "fileCreationDate"],
+      "additionalProperties": false
+    },
+    "manualAttributions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "packageName": {
+            "type": "string",
+            "description": "Name of the package (part of a package URL)"
+          },
+          "packageVersion": {
+            "type": "string",
+            "description": "Version of the package (part of a package URL)"
+          },
+          "packageNamespace": {
+            "type": "string",
+            "description": "Namespace of the pacakge, e.g. Github user (part of a package URL)"
+          },
+          "packageType": {
+            "type": "string",
+            "description": "Protocol of the package, e.g. npm, maven (part of a package URL)"
+          },
+          "packagePURLAppendix": {
+            "type": "string",
+            "description": "Qualifiers and subpaths of a package URL"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL for the source website of the package"
+          },
+          "licenseName": {
+            "type": "string",
+            "description": "Name of the license, ideally SPDX identifier but can also contain arbitrary names"
+          },
+          "licenseText": {
+            "type": "string",
+            "description": "Text of the license"
+          },
+          "attributionConfidence": {
+            "type": "number",
+            "description": "How much the information is trusted (0: bad, 100: good)",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "comment": {
+            "type": "string",
+            "description": "Additional human-readable comments about the attribution that don't fit into other fields"
+          },
+          "copyright": {
+            "type": "string",
+            "description": "Copyright of the package"
+          },
+          "firstParty": {
+            "type": "boolean",
+            "description": "Indicates that something is first-party code."
+          },
+          "preSelected": {
+            "type": "boolean",
+            "description": "Indicates that an attribution was pre-selected from the input file."
+          },
+          "excludeFromNotice": {
+            "type": "boolean",
+            "description": "Indicates that an attribution should not be included in a notice file."
+          },
+          "followUp": {
+            "type": "string",
+            "description": "Indicates that an attribution is problematic and needs to be followed up."
+          },
+          "originId": {
+            "type": "string",
+            "description": "Can be set to track a signal from the tooling that generated the input file. Copied from the input file"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "resourcesToAttributions": {
+      "type": "object",
+      "description": "Map from a path in the resource tree (e.g. `/folder/subfolder/`, `/folder/file`, note the mandatory slashes at the beginning and end) to a list of attribution IDs.",
+      "additionalProperties": {
+        "type": "array",
+        "description": "List of attribution IDs",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "resolvedExternalAttributions": {
+      "type": "array",
+      "description": "List of attribution IDs for input signals that are resolved.",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["metadata", "manualAttributions", "resourcesToAttributions"],
+  "additionalProperties": true
+}

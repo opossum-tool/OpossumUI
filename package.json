@@ -1,0 +1,151 @@
+{
+  "name": "opossum-ui",
+  "description": "The OpossumUI enables the editing of attribution information that is assigned to a resource tree.",
+  "license": "Apache-2.0",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "./",
+  "dependencies": {
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.60",
+    "@reduxjs/toolkit": "^1.6.1",
+    "clsx": "^1.1.1",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-is-dev": "^2.0.0",
+    "electron-log": "^4.4.1",
+    "fast-csv": "^4.3.6",
+    "jsonschema": "^1.2.6",
+    "lodash": "^4.17.21",
+    "packageurl-js": "^0.0.5",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.2.4",
+    "react-window": "^1.8.5",
+    "redux": "^4.1.0",
+    "redux-thunk": "^2.3.0",
+    "spdx-tools-ts": "file:./spdx-tools-ts",
+    "stream-json": "^1.7.2",
+    "upath": "^2.0.1",
+    "uuid": "^8.3.0",
+    "write-file-atomic": "^3.0.3"
+  },
+  "devDependencies": {
+    "@material-ui/types": "^5.1.0",
+    "@testing-library/dom": "^8.1.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
+    "@testing-library/user-event": "^13.2.1",
+    "@types/electron-devtools-installer": "^2.2.0",
+    "@types/jest": "^26.0.24",
+    "@types/lodash": "^4.14.172",
+    "@types/react": "^17.0.15",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-redux": "^7.1.18",
+    "@types/react-window": "^1.8.5",
+    "@types/stream-json": "^1.7.1",
+    "@types/uuid": "^8.3.1",
+    "@types/write-file-atomic": "^3.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
+    "concurrently": "^6.2.0",
+    "electron": "^13.1.7",
+    "electron-builder": "^22.11.7",
+    "electron-packager": "^15.4.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jest-dom": "^3.9.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react-hooks": "^4.1.2",
+    "eslint-plugin-testing-library": "^4.10.1",
+    "husky": "4.3.8",
+    "jest-each": "^27.0.6",
+    "jest-fixtures": "^0.6.0",
+    "lint-staged": "^11.1.1",
+    "mockdate": "^3.0.5",
+    "nunjucks": "^3.2.3",
+    "prettier": "^2.3.2",
+    "react-scripts": "4.0.3",
+    "redux-devtools-extension": "^2.13.9",
+    "typescript": "^4.3.5",
+    "wait-on": "^6.0.0"
+  },
+  "scripts": {
+    "start": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "build": "yarn generate-notice && yarn update-commit-hash && react-scripts build && tsc -p src/ElectronBackend",
+    "win-build": "yarn win-generate-notice && yarn win-update-commit-hash && react-scripts build && tsc -p src/ElectronBackend",
+    "compile-all": "yarn update-commit-hash && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
+    "test": "react-scripts test --watchAll=false",
+    "unit-test": "yarn test -w 1",
+    "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
+    "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
+    "copyright-lint-check": "reuse lint",
+    "update-commit-hash": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\";\n",
+    "win-update-commit-hash": "echo {\"commitInfo\" : \"unknown-version\" } > \"src\\commitInfo.json\"",
+    "generate-notice": "mkdir -p notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
+    "win-generate-notice": "if not exist notices mkdir notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
+    "ship-linux": "yarn build && electron-builder --linux --x64 --publish never",
+    "ship-win": "yarn build && electron-builder --win --x64 --publish never",
+    "win-ship-win": "yarn win-build && electron-builder --win --x64 --publish never",
+    "ship-mac": "yarn build && electron-packager . opossum-ui --ignore=^/release --ignore=^/src --ignore=^/example-files --ignore=^/run_precommit.sh --ignore=^/README.md --ignore=__tests__ --platform=darwin arch=x64 --overwrite --out=release/macOS --icon src/ElectronBackend/logo/icon.icns",
+    "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
+    "clean": "rm -rf ./build/ ./release/"
+  },
+  "main": "build/ElectronBackend/app.js",
+  "build": {
+    "appId": "resource-browser_electron",
+    "directories": {
+      "buildResources": "build",
+      "output": "release/linux_and_windows"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/ElectronBackend/logo/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "src/ElectronBackend/logo/icon.png"
+    },
+    "extraMetadata": {
+      "main": "build/ElectronBackend/app.js"
+    },
+    "extraResources": [
+      "./notices/**",
+      "./src/ElectronBackend/logo/icon.png",
+      "./src/ElectronBackend/logo/icon.icns"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "./run_precommit.sh"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "jest": {
+    "resetMocks": false
+  }
+}

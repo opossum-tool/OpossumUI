@@ -1,0 +1,17 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/opossum-tool/opossumUI
+
+Files: *.json
+       *.json.gz
+       .prettierrc
+       **.gitignore
+       **yarn.lock
+Copyright: Facebook, Inc. and its affiliates
+           TNG Technology Consulting GmbH <https://www.tngtech.com>
+License: Apache-2.0
+
+Files: docs/*
+       src/ElectronBackend/logo/*
+Copyright: Facebook, Inc. and its affiliates
+           TNG Technology Consulting GmbH <https://www.tngtech.com>
+License: CC0-1.0

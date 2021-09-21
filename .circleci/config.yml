@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+# SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+version: 2.1
+
+jobs:
+  reuse-lint:
+    docker:
+      - image: cimg/python:3.9.7
+    steps:
+      - checkout
+      - run: pip3 install --user reuse
+      - run: reuse lint
+  build-and-test:
+    docker:
+      - image: cimg/node:16.8.0
+    steps:
+      - checkout
+
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --pure-lockfile --non-interactive
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+
+      - run: yarn lint-check
+      - run: yarn compile-all
+
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run: yarn unit-test
+            - run: yarn build
+
+      - when:
+          condition:
+            and:
+              - equal: [ main, << pipeline.git.branch >> ]
+              - matches: { pattern: "^OpossumUI-.+$", value: << pipeline.git.tag >> }
+          steps:
+            - run:
+                name: Build applications if on master
+                command: .circleci/build_opossum_frontend.sh
+            - store_artifacts:
+                path: /home/circleci/project/notices/
+            - store_artifacts:
+                path: /home/circleci/project/README.md
+            - store_artifacts:
+                path: /home/circleci/project/release/builds
+                destination: opossum-ui
+
+workflows:
+  workflow:
+    jobs:
+      - reuse-lint
+      - build-and-test

@@ -1,0 +1,39 @@
+// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import { makeStyles } from '@material-ui/core/styles';
+import { OpossumColors } from '../../shared-styles';
+
+export const useAttributionColumnStyles = makeStyles({
+  panel: {
+    marginBottom: 5,
+    padding: 6,
+    paddingBottom: 0,
+    background: OpossumColors.lightestBlue,
+    border: `1px ${OpossumColors.lightestBlue} solid`,
+  },
+  displayRow: {
+    display: 'flex',
+  },
+  textBox: {
+    marginBottom: 6,
+    flex: 1,
+  },
+  rightTextBox: {
+    marginLeft: 8,
+  },
+  textBoxInvalidInput: {
+    '& textarea': {
+      color: OpossumColors.orange,
+    },
+  },
+  checkBox: {
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    marginRight: 12,
+    marginLeft: -2,
+  },
+});
