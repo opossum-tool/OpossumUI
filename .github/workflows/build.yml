@@ -11,20 +11,17 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
-    env:
-      USE_SYSTEM_7ZA: 'true'
-
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest] # add windows-latest to os array
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             SHIP: ship-linux
           - os: macos-latest
             SHIP: ship-mac
-    #          - os: windows-latest
-    #            SHIP: ship-win
+          - os: windows-latest
+            SHIP: ship-win
 
     steps:
       - name: Check out Git repository
@@ -38,6 +35,7 @@ jobs:
       - run: yarn install
       - run: yarn lint-check
       - run: yarn compile-all
-      - run: yarn test
+      - if: matrix.os != "windows-latest"
+        run: yarn test
 
       - run: yarn ${{matrix.SHIP}}
