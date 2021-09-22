@@ -16,6 +16,7 @@ import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { OpossumColors } from '../../shared-styles';
 
 const countAndSearchOffset = 100;
 
@@ -23,6 +24,7 @@ const useStyles = makeStyles({
   root: {
     width: '100%',
     display: 'flex',
+    backgroundColor: OpossumColors.white,
   },
   attributionList: {
     width: '30%',
