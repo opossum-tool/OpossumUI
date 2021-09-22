@@ -16,6 +16,7 @@ interface ListProps {
   cardVerticalDistance?: number;
   alwaysShowHorizontalScrollBar?: boolean;
   addPaddingBottom?: boolean;
+  allowHorizontalScrolling?: boolean;
 }
 
 const useStyles = makeStyles({
@@ -26,10 +27,7 @@ const useStyles = makeStyles({
 function maxHeightWasGiven(
   max: NumberOfDisplayedItems | Height
 ): max is Height {
-  if ((max as Height).height) {
-    return true;
-  }
-  return false;
+  return !!(max as Height).height;
 }
 
 export function List(props: ListProps): ReactElement {
@@ -64,7 +62,17 @@ export function List(props: ListProps): ReactElement {
         }: {
           index: number;
           style: CSSProperties;
-        }): ReactElement => <div style={style}>{props.getListItem(index)}</div>}
+        }): ReactElement => (
+          <div
+            style={
+              props.allowHorizontalScrolling
+                ? { ...style, minWidth: '100%', width: 'fit-content' }
+                : style
+            }
+          >
+            {props.getListItem(index)}
+          </div>
+        )}
       </VirtualizedList>
     </div>
   );
