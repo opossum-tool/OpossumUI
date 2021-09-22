@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+# SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Release
+on: release
+
+jobs:
+  publish_artifact:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            SHIP: ship-linux
+            FILE: release/linux_and_windows/opossum-ui-*.AppImage
+          - os: macos-latest
+            SHIP: ship-mac
+            FILE: release/macOS/opossum-ui-darwin-x64.zip
+          - os: windows-latest
+            SHIP: ship-win
+            FILE: release/linux_and_windows/opossum-ui Setup*.exe
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@v1
+
+      -name: Install Node.js, NPM and Yarn
+       uses: actions/setup-node@v1
+       with:
+         node-version: 16
+      - run: yarn install
+      - run: yarn ${{maxtrix.SHIP}}
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ matrix.FILE }}

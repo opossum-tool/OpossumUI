@@ -35,7 +35,7 @@ jobs:
       - run: yarn install
       - run: yarn lint-check
       - run: yarn compile-all
-      - if: matrix.os != "windows-latest"
+      - if: ${{ matrix.os != 'windows-latest' }}
         run: yarn test
 
-      - run: yarn ${{matrix.SHIP}}
+      - run: yarn ${{ matrix.SHIP }}
