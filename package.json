@@ -95,7 +95,7 @@
     "generate-notice:win32": "if not exist notices mkdir notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
     "ship-linux": "yarn build && electron-builder --linux --x64 --publish never",
     "ship-win": "yarn build && electron-builder --win --x64 --publish never",
-    "ship-mac": "yarn build && electron-packager . opossum-ui --ignore=^/release --ignore=^/src --ignore=^/example-files --ignore=^/run_precommit.sh --ignore=^/README.md --ignore=__tests__ --platform=darwin arch=x64 --overwrite --out=release/macOS --icon src/ElectronBackend/logo/icon.icns && zip -r -q release/macOS/opossum-ui-darwin-x64/ release/macOS/opossum-ui-darwin-x64.zip",
+    "ship-mac": "yarn build && electron-packager . opossum-ui --ignore=^/release --ignore=^/src --ignore=^/example-files --ignore=^/run_precommit.sh --ignore=^/README.md --ignore=__tests__ --platform=darwin arch=x64 --overwrite --out=release/macOS --icon src/ElectronBackend/logo/icon.icns && zip -r -q 'release/macOS/opossum-ui-darwin-x64.zip' 'release/macOS/opossum-ui-darwin-x64/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
     "clean": "rm -rf ./build/ ./release/"
   },
