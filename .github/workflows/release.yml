@@ -29,10 +29,10 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@v1
 
-      -name: Install Node.js, NPM and Yarn
-       uses: actions/setup-node@v1
-       with:
-         node-version: 16
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
       - run: yarn install
       - run: yarn ${{maxtrix.SHIP}}
       - name: Upload release asset
