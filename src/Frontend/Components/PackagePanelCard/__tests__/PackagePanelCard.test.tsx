@@ -16,36 +16,60 @@ import {
 import { ListCardConfig, ListCardContent } from '../../../types/types';
 
 const testCardContent: ListCardContent = { name: 'Test' };
-const testcardConfig: ListCardConfig = { firstParty: true };
+const testCardConfig: ListCardConfig = { firstParty: true };
+const testCardWithManyIconsConfig: ListCardConfig = {
+  firstParty: true,
+  followUp: true,
+  excludeFromNotice: true,
+};
 
 describe('The PackagePanelCard', () => {
-  test('renders', () => {
+  test('renders content', () => {
     const { getByText } = renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
         attributionId={'/'}
-        cardConfig={testcardConfig}
+        cardConfig={testCardConfig}
       />
     );
 
     expect(getByText('Test'));
   });
-  test('renders firstParty Icon and show resources Icon', () => {
+
+  test('renders only first party icon and show resources icon', () => {
+    const { getByLabelText, queryByLabelText } = renderComponentWithStore(
+      <PackagePanelCard
+        onClick={doNothing}
+        cardContent={testCardContent}
+        attributionId={'/'}
+        cardConfig={testCardConfig}
+      />
+    );
+
+    expect(getByLabelText('show resources'));
+    expect(getByLabelText('First party icon'));
+    expect(queryByLabelText('Exclude from notice icon')).toBeFalsy();
+    expect(queryByLabelText('Follow-up icon')).toBeFalsy();
+  });
+
+  test('renders many icons at once', () => {
     const { getByLabelText } = renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
         attributionId={'/'}
-        cardConfig={testcardConfig}
+        cardConfig={testCardWithManyIconsConfig}
       />
     );
 
-    expect(getByLabelText('First party icon'));
     expect(getByLabelText('show resources'));
+    expect(getByLabelText('First party icon'));
+    expect(getByLabelText('Exclude from notice icon'));
+    expect(getByLabelText('Follow-up icon'));
   });
 
-  test('has working resources Icon', () => {
+  test('has working resources icon', () => {
     const manualAttributions: Attributions = {
       uuid_1: { packageName: 'Test package' },
     };
@@ -58,7 +82,7 @@ describe('The PackagePanelCard', () => {
         onClick={doNothing}
         cardContent={testCardContent}
         attributionId={'uuid_1'}
-        cardConfig={testcardConfig}
+        cardConfig={testCardConfig}
       />
     );
     store.dispatch(setManualData(manualAttributions, resourcesToAttributions));

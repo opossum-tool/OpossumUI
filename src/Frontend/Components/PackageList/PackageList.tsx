@@ -63,6 +63,7 @@ export function PackageList(props: PackageListProps): ReactElement {
       isExternalAttribution: props.isExternalAttribution,
       firstParty: packageInfo.firstParty,
       excludeFromNotice: packageInfo.excludeFromNotice,
+      followUp: Boolean(packageInfo.followUp),
     };
 
     function onIconClick(): void {

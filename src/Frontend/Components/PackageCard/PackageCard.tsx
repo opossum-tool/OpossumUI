@@ -4,15 +4,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { AddIcon, FirstPartyIcon } from '../Icons/Icons';
+import {
+  AddIcon,
+  ExcludeFromNoticeIcon,
+  FirstPartyIcon,
+  FollowUpIcon,
+} from '../Icons/Icons';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from './package-card-helpers';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
+import { OpossumColors } from '../../shared-styles';
 
 const useStyles = makeStyles({
   hiddenIcon: {
     visibility: 'hidden',
+  },
+  followUpIcon: {
+    color: OpossumColors.lightRed,
+  },
+  excludeFromNoticeIcon: {
+    color: OpossumColors.grey,
   },
 });
 
@@ -25,6 +37,16 @@ interface PackageCardProps {
   openResourcesIcon?: JSX.Element;
 }
 
+function getKey(
+  prefix: string,
+  cardContent: ListCardContent,
+  packageLabels: Array<string>
+): string {
+  return `${prefix}-${cardContent.name}-${cardContent.packageVersion}-${
+    packageLabels[0] || ''
+  }`;
+}
+
 export function PackageCard(props: PackageCardProps): ReactElement | null {
   const classes = useStyles();
   const packageLabels = getCardLabels(props.cardContent);
@@ -33,25 +55,36 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       className={props.cardConfig.isResolved ? classes.hiddenIcon : undefined}
       onClick={props.onIconClick}
       label={packageLabels[0] || ''}
-      key={`add-icon-${props.cardContent.name}-${
-        props.cardContent.packageVersion
-      }-${packageLabels[0] || ''}`}
+      key={getKey('add-icon', props.cardContent, packageLabels)}
     />
   ) : undefined;
 
-  const firstPartyIcon = props.cardConfig.firstParty ? (
-    <FirstPartyIcon
-      key={`first-party-icon-${props.cardContent.name}-${
-        props.cardContent.packageVersion
-      }-${packageLabels[0] || ''}`}
-    />
-  ) : undefined;
   const rightIcons: Array<JSX.Element> = [];
   if (props.openResourcesIcon) {
     rightIcons.push(props.openResourcesIcon);
   }
-  if (firstPartyIcon) {
-    rightIcons.push(firstPartyIcon);
+  if (props.cardConfig.firstParty) {
+    rightIcons.push(
+      <FirstPartyIcon
+        key={getKey('first-party-icon', props.cardContent, packageLabels)}
+      />
+    );
+  }
+  if (props.cardConfig.excludeFromNotice) {
+    rightIcons.push(
+      <ExcludeFromNoticeIcon
+        key={getKey('exclude-icon', props.cardContent, packageLabels)}
+        className={classes.excludeFromNoticeIcon}
+      />
+    );
+  }
+  if (props.cardConfig.followUp) {
+    rightIcons.push(
+      <FollowUpIcon
+        key={getKey('follow-up-icon', props.cardContent, packageLabels)}
+        className={classes.followUpIcon}
+      />
+    );
   }
 
   return (

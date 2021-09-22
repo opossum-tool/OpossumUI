@@ -58,6 +58,7 @@ export function AllAttributionsPanel(
       isPreSelected: Boolean(packageInfo.preSelected),
       firstParty: packageInfo.firstParty,
       excludeFromNotice: packageInfo.excludeFromNotice,
+      followUp: Boolean(packageInfo.followUp),
     };
 
     return (

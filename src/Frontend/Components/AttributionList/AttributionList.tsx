@@ -53,6 +53,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
       isPreSelected: Boolean(attribution.preSelected),
       firstParty: attribution.firstParty,
       excludeFromNotice: attribution.excludeFromNotice,
+      followUp: Boolean(attribution.followUp),
     };
 
     return (
