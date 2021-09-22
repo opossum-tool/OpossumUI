@@ -5,7 +5,14 @@
 
 name: Build
 
-on: push
+on:
+  push:
+    branches:
+      - main
+
+  pull_request: :
+    branches:
+      - main
 
 jobs:
   build:
@@ -23,8 +30,8 @@ jobs:
             SHIP: ship-linux
           - os: macos-latest
             SHIP: ship-mac
-    #          - os: windows-latest
-    #            SHIP: ship-win
+#              - os: windows-latest
+#                SHIP: ship-win
 
     steps:
       - name: Check out Git repository
