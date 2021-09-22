@@ -5,12 +5,12 @@
 
 import * as fs from 'fs';
 // @ts-ignore
-import { cleanupTempDirs, createTempDirSync } from 'jest-fixtures';
 import * as path from 'path';
 import * as upath from 'upath';
 import { OpossumOutputFile } from '../../types/types';
 import { FollowUp } from '../../../shared/shared-types';
 import { writeJsonToFile } from '../writeJsonToFile';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 
 const attributions: OpossumOutputFile = {
   metadata: {
@@ -46,17 +46,14 @@ const attributions: OpossumOutputFile = {
 };
 
 describe('writeJsonToFile', () => {
-  afterEach(() => {
-    cleanupTempDirs();
-  });
-
   test('Test writeJsonToFile', () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
     writeJsonToFile(jsonPath, attributions);
 
     const content = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
     expect(fs.existsSync(jsonPath)).toBe(true);
     expect(content).toStrictEqual(attributions);
+    deleteFolder(temporaryPath);
   });
 });

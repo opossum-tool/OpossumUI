@@ -82,7 +82,7 @@
     "compile-all": "yarn update-commit-hash && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test": "yarn update-commit-hash && run-script-os",
     "test:darwin:linux": "react-scripts test --watchAll=false",
-    "test:win32": "EXIT 1",
+    "test:win32": "react-scripts test --watchAll=false",
     "unit-test": "yarn test -w 1",
     "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
     "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
