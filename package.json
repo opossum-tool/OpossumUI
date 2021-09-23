@@ -80,7 +80,7 @@
     "start": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
     "build": "yarn generate-notice && yarn update-commit-hash && react-scripts build && tsc -p src/ElectronBackend",
     "compile-all": "yarn update-commit-hash && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
-    "test": "run-script-os",
+    "test": "yarn update-commit-hash && run-script-os",
     "test:darwin:linux": "react-scripts test --watchAll=false",
     "test:win32": "EXIT 1",
     "unit-test": "yarn test -w 1",
