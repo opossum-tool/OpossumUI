@@ -27,7 +27,7 @@ const useStyles = makeStyles({
 function maxHeightWasGiven(
   max: NumberOfDisplayedItems | Height
 ): max is Height {
-  return !!(max as Height).height;
+  return Boolean((max as Height).height);
 }
 
 export function List(props: ListProps): ReactElement {
