@@ -10,6 +10,7 @@ import {
   BaseUrlsForSources,
   FollowUp,
   FrequentLicences,
+  Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import {
@@ -17,6 +18,60 @@ import {
   RawBaseUrlsForSources,
   RawFrequentLicense,
 } from '../types/types';
+import { canHaveChildren } from '../../Frontend/util/can-have-children';
+
+function addTrailingSlashIfAbsent(resourcePath: string): string {
+  return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
+}
+
+function getListOfResourcePaths(
+  basePath: string,
+  resourceName: string,
+  resources: Resources
+): Array<string> {
+  const fullResourcePath =
+    basePath + resourceName + (canHaveChildren(resources) ? '/' : '');
+
+  return [fullResourcePath].concat(
+    Object.keys(resources)
+      .map((childPath) =>
+        getListOfResourcePaths(
+          fullResourcePath,
+          childPath,
+          resources[childPath] as Resources
+        )
+      )
+      .flat()
+  );
+}
+
+export function getAllResourcePaths(resources: Resources): Set<string> {
+  return new Set(getListOfResourcePaths('', '', resources));
+}
+
+export function sanitizeResourcesToAttributions(
+  resources: Resources,
+  rawResourcesToAttributions: ResourcesToAttributions
+): ResourcesToAttributions {
+  const allResourcePaths = getAllResourcePaths(resources);
+
+  return Object.fromEntries(
+    Object.entries(rawResourcesToAttributions).reduce(
+      (accumulatedResult: Array<[string, string[]]>, [path, attributions]) => {
+        const pathWithSlashes = addTrailingSlashIfAbsent(path);
+
+        if (allResourcePaths.has(path)) {
+          accumulatedResult.push([path, attributions]);
+        } else if (allResourcePaths.has(pathWithSlashes)) {
+          accumulatedResult.push([pathWithSlashes, attributions]);
+        }
+
+        return accumulatedResult;
+      },
+      []
+    )
+  );
+}
 
 export function cleanNonExistentAttributions(
   webContents: WebContents,

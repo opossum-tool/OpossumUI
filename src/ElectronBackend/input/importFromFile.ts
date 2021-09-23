@@ -19,6 +19,7 @@ import {
   parseFrequentLicenses,
   sanitizeRawAttributions,
   sanitizeRawBaseUrlsForSources,
+  sanitizeResourcesToAttributions,
 } from './cleanInputData';
 import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
 import {
@@ -90,6 +91,12 @@ export async function loadJsonFromFilePath(
     parsingResult.frequentLicenses
   );
 
+  log.info('Sanitizing external resources to attributions');
+  const resourcesToExternalAttributions = sanitizeResourcesToAttributions(
+    parsingResult.resources,
+    parsingResult.resourcesToAttributions
+  );
+
   log.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
     metadata: parsingResult.metadata,
@@ -106,7 +113,7 @@ export async function loadJsonFromFilePath(
     },
     externalAttributions: {
       attributions: externalAttributions,
-      resourcesToAttributions: parsingResult.resourcesToAttributions,
+      resourcesToAttributions: resourcesToExternalAttributions,
     },
     frequentLicenses: frequentLicenses,
     resolvedExternalAttributions: cleanNonExistentResolvedExternalSignals(
