@@ -64,6 +64,7 @@ export const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
   baseUrlsForSources: {},
+  externalAttributionSources: {},
 };
 
 export function getParsedInputFile(

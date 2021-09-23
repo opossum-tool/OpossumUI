@@ -15,6 +15,7 @@ import {
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
+  ExternalAttributionSources,
 } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { PathPredicate, ProgressBarData, State } from '../../types/types';
@@ -191,4 +192,10 @@ export function getIsSavingDisabled(state: State): boolean {
 
 export function getBaseUrlsForSources(state: State): BaseUrlsForSources {
   return state.resourceState.allViews.baseUrlsForSources;
+}
+
+export function getExternalAttributionSources(
+  state: State
+): ExternalAttributionSources {
+  return state.resourceState.allViews.externalAttributionSources;
 }

@@ -112,6 +112,8 @@ There are additional fields which are optional:
   }
 ```
 
+[comment]: <> (TODO: new key)
+
 #### Output file
 
 Contains 4 main fields:

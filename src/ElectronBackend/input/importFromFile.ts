@@ -33,6 +33,10 @@ import { writeJsonToFile } from '../output/writeJsonToFile';
 import { cloneDeep } from 'lodash';
 import log from 'electron-log';
 import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
+import {
+  ATTRIBUTION_SOURCES,
+  combineExternalAttributionSources,
+} from './externalAttributionSources';
 
 function isJsonParsingError(
   object: ParsedOpossumInputFile | JsonParsingError
@@ -126,6 +130,10 @@ export async function loadJsonFromFilePath(
     baseUrlsForSources: sanitizeRawBaseUrlsForSources(
       parsingResult.baseUrlsForSources
     ),
+    externalAttributionSources: combineExternalAttributionSources([
+      parsingResult.externalAttributionSources ?? {},
+      ATTRIBUTION_SOURCES,
+    ]),
   };
   log.info('Sending data to electron frontend');
   webContents.send(IpcChannel.FileLoaded, parsedFileContent);

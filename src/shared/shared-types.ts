@@ -102,6 +102,7 @@ export interface ParsedFileContent {
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
   baseUrlsForSources: BaseUrlsForSources;
+  externalAttributionSources: ExternalAttributionSources;
 }
 
 export interface BaseUrlsForSources {
@@ -161,4 +162,11 @@ export type ExportArgsType =
 
 export interface OpenLinkArgs {
   link: string;
+}
+
+export interface ExternalAttributionSources {
+  [source: string]: {
+    name: string;
+    priority: number;
+  };
 }

@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  ExternalAttributionSources,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -68,6 +69,7 @@ export interface ParsedOpossumInputFile {
   attributionBreakpoints?: Array<string>;
   filesWithChildren?: Array<string>;
   baseUrlsForSources?: RawBaseUrlsForSources;
+  externalAttributionSources?: ExternalAttributionSources;
 }
 
 export interface RawBaseUrlsForSources {
