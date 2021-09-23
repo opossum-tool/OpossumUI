@@ -9,56 +9,23 @@ SPDX-License-Identifier: CC0-1.0
 
 ## How to get & run OpossumUI
 
-### Prerequisites
+### Get the latest release
 
-The following software is required for the building process:
-
-- [git](https://git-scm.com/),
-- [node.js](https://nodejs.org/) 14+,
-- [yarn](https://yarnpkg.com/en/),
-- [wine](https://www.winehq.org/) (only to build the Windows version on a Unix-based OS).
-
-### Repo setup
-
-Clone the OpossumUI repo. E.g. run in a terminal:
-
-````bash
-git clone git@github.com:opossum-tool/opossumUI.git
-````
-
-Install dependencies & setup the working environment running:
-
-````bash
-yarn install
-````
-
-### Building on a Unix-based system (linux, macOS)
-
-To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`. **Important:** wine must be
-installed to build a Windows installer. To build for all three systems run `yarn ship`.
-
-The built release(s) can be found under */release/linux_and_windows* or */release/macOS*
-
-### Building on Windows
-
-To build a Windows installer run `yarn win-ship-win`. Building of non-Windows version on Windows is currently not
-supported.
-
-*WARNING: The repo has to be cloned with `lf `unix-style line ending.*
+Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
 ### Running the app
 
 #### Linux
 
-Run the executable *OpossumUI-0.1.0.AppImage*
+Run the executable _OpossumUI-0.1.0.AppImage_
 
 #### macOS
 
-Run *OpossumUI* in *OpossumUI-darwin-x64/*.
+Run _OpossumUI_ in _OpossumUI-darwin-x64/_.
 
 #### Windows
 
-Run *OpossumUI Setup 0.1.0.exe* to install the OpossumUI. Then open *OpossumUI* from the start menu.
+Run _OpossumUI Setup 0.1.0.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
 
 ## Working with OpossumUI
 
@@ -73,7 +40,7 @@ The output file must be in the same folder as the input file and called `[NAME_O
 to be recognized by the app.
 
 To open the input file in the app, click the _Open File_ button on the left of the top bar (or on the entry in the
-_File_ menu with the same name). 
+_File_ menu with the same name).
 
 ![integration](./docs/user_guide_screenshots/open_file.png)
 
@@ -87,7 +54,7 @@ To search for a path, open the `Edit` menu and select `Search for Files and Fold
 
 It is possible to directly export data to files. The following formats are available:
 
-- Follow-Up: Just the items marked as follow-up are present in this file as csv file. 
+- Follow-Up: Just the items marked as follow-up are present in this file as csv file.
 - Compact component list: All attributions are present as csv file.
 - Detailed component list: All attributions are present as csv file.
 - SPDX JSON: All attributions are listed as JSON file.
@@ -133,7 +100,7 @@ while seeing which signals have been found by the remote tools. The page has two
 #### Folders and inferred attributions
 
 In the case that a folder receives an attribution this attribution is also inferred to all its children that
-do not have their own attribution. Therefore, adding an attribution to a folder affects its children if these 
+do not have their own attribution. Therefore, adding an attribution to a folder affects its children if these
 are not attributed themselves. The inference stops once a folder or a file is hit that has a differing attribution.
 
 #### Resource Tree
@@ -147,7 +114,7 @@ structure:
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
 ![integration](./docs/user_guide_screenshots/filetree.png)
-  
+
 The coloring scheme reads as follows:
 
 - **red** indicates the presence of signals but no attribution for the resource itself,
@@ -158,17 +125,16 @@ The coloring scheme reads as follows:
 - **blue** indicates the presence of signals in children but no attribution of the resource itself.
 
 On the interpretation of breakpoints: **Breakpoints** are special folders that are included to visually collect a set of
-dependencies. These folders cannot have any signal or attribution. Furthermore, no attribution is inferred beyond 
+dependencies. These folders cannot have any signal or attribution. Furthermore, no attribution is inferred beyond
 such a breakpoint.
-
 
 #### Selected Resource Panel
 
-The `Selected Resource Panel` shows the path of the selected resource at the top. If the input file contains information 
+The `Selected Resource Panel` shows the path of the selected resource at the top. If the input file contains information
 about the location of the file (`baseUrlsForSources`) an icon to externally open the file is shown.
 
-Below the path, the element is divided into two columns. In the `Attribution Selection Column`, in the center of the 
-screen, attributions and signals related to the selected resource are listed. In the `Attribution Details Column` on 
+Below the path, the element is divided into two columns. In the `Attribution Selection Column`, in the center of the
+screen, attributions and signals related to the selected resource are listed. In the `Attribution Details Column` on
 the right, additional information is shown for the selected attribution/signal.
 
 ![integration](./docs/user_guide_screenshots/selected_resource_panel.png)
@@ -262,7 +228,7 @@ the respective attribution.
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
 signal in the App for the current input/output files, and it will not have any consequence in the DB.
 
-### Attribution  View
+### Attribution View
 
 ![integration](./docs/user_guide_screenshots/attribution_view.png)
 
@@ -286,7 +252,7 @@ The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. 
 
 - Only information for the **selected attribution** are shown, in a fashion almost identical to
   the `Selected Resource Panel`. They are always editable.
-- The _SAVE_ and _Delete_ buttons allow  saving/deleting the selected attribution. Note that the changes affect multiple
+- The _SAVE_ and _Delete_ buttons allow saving/deleting the selected attribution. Note that the changes affect multiple
   resources if the selected attribution is linked to multiple resources.
 - A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
   selected resource in the `Audit View`.

@@ -35,6 +35,20 @@ Resolves #123
 OpossumUI is an Electron app written in TypeScript.
 The frontend uses React (where functional components are used whenever possible) with Redux for state management.
 
+### Repo setup
+
+Clone the OpossumUI repo. E.g. run the following command in a terminal:
+
+```bash
+git clone git@github.com:opossum-tool/OpossumUI.git
+```
+
+To install dependencies and set up the working environment, go to the repository root directory and run:
+
+```bash
+yarn install
+```
+
 All useful scripts are listed in the package.json and can be run through `yarn` and can be called after cloning the repository and installing all dependencies.
 To start the app based on the current state of the code, including automatic updates after changes to the frontend, execute:
 
@@ -55,16 +69,19 @@ Prettier is used as a code formatter.
 
 The following software is required for working on the repository:
 
-- a Unix-based OS,
 - [git](https://git-scm.com/),
 - [node.js](https://nodejs.org/) 14+,
 - [yarn](https://yarnpkg.com/en/),
 - [reuse.software](https://reuse.software/) (to check that copyright information is provided),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
 
-### How to build the project
+### Building the app
 
-See the [user's quick start guide](README.md#user_quick_start_guide).
+To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`.
+To build for all three systems run `yarn ship`.
+**Important:** wine must be installed to build a Windows installer on a non-Windows system.
+
+The built release(s) can be found under _/release/linux_and_windows_ or _/release/macOS_
 
 ### <a id="file_formats"></a> File formats
 
@@ -87,9 +104,13 @@ There are additional fields which are optional:
 
 - `attributionBreakpoints`: a list of folder paths where attribution inference stops, e.g. `node_modules`."
 - `filesWithChildren`: a list of folders that are treated as files. This can be used to attach another file tree to files like `package.json`, usually also setting an attribution breakpoint.
-- `baseUrlsForSources`: a map from paths to the respective base url. The base url should contain a {path} placeholder. E.g. `"baseUrlsForSources": {
-  "/": "https://github.com/opossum-tool/opossumUI/blob/main/{path}"
-  }`
+- `baseUrlsForSources`: a map from paths to the respective base url. The base url should contain a {path} placeholder. E.g.
+
+```
+  "baseUrlsForSources": {
+    "/": "https://github.com/opossum-tool/opossumUI/blob/main/{path}"
+  }
+```
 
 #### Output file
 
