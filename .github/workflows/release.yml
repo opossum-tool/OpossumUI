@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 16
       - run: yarn install
-      - run: yarn ${{maxtrix.SHIP}}
+      - run: yarn ${{ matrix.SHIP }}
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
         with:
