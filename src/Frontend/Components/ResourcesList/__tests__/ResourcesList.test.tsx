@@ -14,6 +14,7 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 
 describe('The ResourcesList', () => {
   const resourceIdsOfSelectedAttributionId = [
@@ -70,5 +71,28 @@ describe('The ResourcesList', () => {
       '/folder1/folder2/',
       '/folder1/folder2/resource_1',
     ]);
+  });
+
+  test('clicking on a header does nothing', () => {
+    const onClickCallback = jest.fn();
+    const { store } = renderComponentWithStore(
+      <ResourcesList
+        resourceIds={[
+          ...resourceIdsOfSelectedAttributionId,
+          'Header',
+          '/folder3/folder4/',
+        ]}
+        onClickCallback={onClickCallback}
+        headerIndices={[resourceIdsOfSelectedAttributionId.length]}
+      />
+    );
+    store.dispatch(navigateToView(View.Attribution));
+    store.dispatch(setSelectedResourceId('/'));
+
+    fireEvent.click(screen.getByText('Header'));
+
+    expect(onClickCallback).toHaveBeenCalledTimes(0);
+    expect(getSelectedResourceId(store.getState())).toBe('/');
+    expect(getSelectedView(store.getState())).toBe(View.Attribution);
   });
 });

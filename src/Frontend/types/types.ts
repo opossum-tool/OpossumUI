@@ -64,6 +64,7 @@ export interface ListCardConfig {
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   followUp?: boolean;
+  isHeader?: boolean;
 }
 
 export interface PathPredicate {

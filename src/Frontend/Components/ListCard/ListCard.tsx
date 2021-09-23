@@ -18,6 +18,8 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     height: defaultCardHeight,
+  },
+  hover: {
     '&:hover': {
       cursor: 'pointer',
     },
@@ -108,6 +110,20 @@ const useStyles = makeStyles({
       fontSize: '0.85rem',
     },
   },
+  excludeFromNotice: {
+    color: OpossumColors.darkBlue,
+  },
+  header: {
+    background: OpossumColors.white,
+    '&.MuiTypography-body2': {
+      fontWeight: 'bold',
+    },
+    height: 20,
+    textAlign: 'left',
+    '&:hover': {
+      background: OpossumColors.white,
+    },
+  },
 });
 
 interface ListCardProps {
@@ -141,6 +157,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         classes.root,
         props.cardConfig.isResource ? classes.resource : classes.package,
         props.cardConfig.isExternalAttribution && classes.externalAttribution,
+        props.cardConfig.isHeader ? classes.header : classes.hover,
         props.cardConfig.isSelected && classes.selected,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
         props.cardConfig.isResolved && classes.resolved
@@ -164,7 +181,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         <MuiTypography
           variant={'body2'}
           className={clsx(
-            classes.textLine,
+            props.cardConfig.isHeader ? classes.header : classes.textLine,
             props.cardConfig.isResource
               ? classes.textShortenedFromLeftSide
               : classes.textShortened
@@ -190,9 +207,9 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           </MuiTypography>
         ) : null}
       </div>
-      <div className={classes.iconColumn}>
-        {props.rightIcons ? props.rightIcons : null}
-      </div>
+      {props.rightIcons ? (
+        <div className={classes.iconColumn}>{props.rightIcons}</div>
+      ) : null}
     </div>
   );
 }

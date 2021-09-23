@@ -23,6 +23,7 @@ const useStyles = makeStyles({
 
 interface ResourcesListProps {
   resourceIds: Array<string>;
+  headerIndices?: Array<number>;
   maxHeight?: number;
   onClickCallback?: () => void;
 }
@@ -32,7 +33,9 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
 
   const isFileWithChildren = useSelector(getIsFileWithChildren);
   const dispatch = useDispatch();
-  const sortedResourcePaths = props.resourceIds.sort();
+  const sortedResourcePaths = props.headerIndices
+    ? props.resourceIds
+    : props.resourceIds.sort();
   const onClickCallback = props.onClickCallback ?? doNothing;
 
   function getResourceCard(index: number): ReactElement {
@@ -41,6 +44,16 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
     function onPathClick(): void {
       dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath));
       onClickCallback();
+    }
+
+    if (props.headerIndices && props.headerIndices.includes(index)) {
+      return (
+        <ListCard
+          text={resourcePath}
+          onClick={doNothing}
+          cardConfig={{ isHeader: true }}
+        />
+      );
     }
 
     return (

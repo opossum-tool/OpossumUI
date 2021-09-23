@@ -13,6 +13,12 @@ import {
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { useWindowHeight } from '../../util/use-window-height';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import {
+  insertHeaderForOtherFolderResourceIds,
+  mergeCurrentAndOtherFolderResourceIds,
+  splitResourceItToCurrentAndOtherFolder,
+} from './resource-path-popup-helpers';
 
 const heightOffset = 300;
 
@@ -35,6 +41,7 @@ interface ResourcePathPopupProps {
 
 export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   const classes = useStyles();
+  const folderPath = useSelector(getSelectedResourceId);
 
   const externalAttributionsToResources = useSelector(
     getExternalAttributionsToResources
@@ -43,9 +50,22 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
     getManualAttributionsToResources
   );
 
-  const resourceIds = props.isExternalAttribution
+  let allResourceIds = props.isExternalAttribution
     ? externalAttributionsToResources[props.attributionId]
     : manualAttributionsToResources[props.attributionId];
+
+  const [currentFolderResourceIds, otherFolderResourceIds] =
+    splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
+
+  const headerIndices = insertHeaderForOtherFolderResourceIds(
+    currentFolderResourceIds,
+    otherFolderResourceIds
+  );
+  allResourceIds = mergeCurrentAndOtherFolderResourceIds(
+    currentFolderResourceIds,
+    otherFolderResourceIds
+  );
+
   const header = `Resources for selected ${
     props.isExternalAttribution ? 'signal' : 'attribution'
   }`;
@@ -61,8 +81,9 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       content={
         <div className={classes.resourceListContainer}>
           <ResourcesList
-            resourceIds={resourceIds}
+            resourceIds={allResourceIds}
             maxHeight={useWindowHeight() - heightOffset}
+            headerIndices={headerIndices}
           />
         </div>
       }
