@@ -4,11 +4,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import fs from 'fs';
+import { v4 as uuid4 } from 'uuid';
 
 export function createTempFolder(): string {
-  return fs.mkdtempSync(`temp-folder-${Date.now()}`);
+  return fs.mkdtempSync(`temp-folder-${uuid4()}`);
 }
 
-export function deleteFolder(folderName: string): void {
-  fs.rmdirSync(folderName, { recursive: true });
+export function deleteFolder(folderPath: string): void {
+  fs.rm(folderPath, { recursive: true }, (err) => {
+    if (err) {
+      console.error(err.message);
+      return;
+    }
+  });
 }
