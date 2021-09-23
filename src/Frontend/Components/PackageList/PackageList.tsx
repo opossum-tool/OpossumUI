@@ -25,6 +25,7 @@ interface PackageListProps {
   isExternalAttribution: boolean;
   preSelectedExternalAttributionIdsForSelectedResource: Array<string>;
   isAddToPackageEnabled: boolean;
+  selectedResourceId: string;
 }
 
 export function PackageList(props: PackageListProps): ReactElement {
@@ -53,12 +54,14 @@ export function PackageList(props: PackageListProps): ReactElement {
       (attributionIdWithCount) =>
         attributionIdWithCount.attributionId === attributionId
     )[0].childrenWithAttributionCount;
+    const isPreselected = props.isExternalAttribution
+      ? props.preSelectedExternalAttributionIdsForSelectedResource.includes(
+          attributionId
+        )
+      : packageInfo.preSelected;
     const cardConfig: ListCardConfig = {
       isSelected: attributionId === props.selectedAttributionId,
-      isPreSelected:
-        props.preSelectedExternalAttributionIdsForSelectedResource.includes(
-          attributionId
-        ),
+      isPreSelected: isPreselected,
       isResolved: props.resolvedAttributionIds.has(attributionId),
       isExternalAttribution: props.isExternalAttribution,
       firstParty: packageInfo.firstParty,
@@ -77,6 +80,7 @@ export function PackageList(props: PackageListProps): ReactElement {
         key={`PackageCard-${packageInfo.packageName}-${index}`}
         packageCount={packageCount}
         cardContent={{
+          id: `package-${props.selectedResourceId}-${attributionId}`,
           name: packageInfo.packageName,
           packageVersion: packageInfo.packageVersion,
           copyright: packageInfo.copyright,

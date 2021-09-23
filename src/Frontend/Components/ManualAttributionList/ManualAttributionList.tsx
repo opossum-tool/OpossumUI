@@ -14,6 +14,7 @@ const addNewAttributionButtonTitle = 'Add new attribution';
 const addNewAttributionButtonId = 'ADD_NEW_ATTRIBUTION_ID';
 
 interface ManualAttributionListProps {
+  selectedResourceId: string;
   attributions: Attributions;
   selectedAttributionId: string | null;
   onCardClick(attributionId: string, isButton?: boolean): void;
@@ -69,6 +70,7 @@ export function ManualAttributionList(
         cardConfig={cardConfig}
         key={`AttributionCard-${attribution.packageName}-${attributionId}`}
         cardContent={{
+          id: `manual-${props.selectedResourceId}-${attributionId}`,
           name: attribution.packageName,
           packageVersion: attribution.packageVersion,
           copyright: attribution.copyright,

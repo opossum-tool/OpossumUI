@@ -44,6 +44,7 @@ export interface Height {
 export type KeysOfPackageInfo = keyof PackageInfo;
 
 export interface ListCardContent {
+  id: string;
   name?: string;
   packageVersion?: string;
   copyright?: string;

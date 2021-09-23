@@ -141,6 +141,7 @@ export function PackagePanel(
               props.title === PackagePanelTitle.ContainedExternalPackages
             }
             isAddToPackageEnabled={props.isAddToPackageEnabled}
+            selectedResourceId={selectedResourceId}
           />
         </div>
       ))}

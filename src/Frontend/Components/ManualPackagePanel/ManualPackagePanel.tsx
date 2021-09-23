@@ -15,6 +15,7 @@ import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionsOfSelectedResource,
   getAttributionsOfSelectedResourceOrClosestParent,
+  getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { Button } from '../Button/Button';
 import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
@@ -60,6 +61,8 @@ export function ManualPackagePanel(
     getAttributionsOfSelectedResourceOrClosestParent
   );
 
+  const selectedResourceId: string = useSelector(getSelectedResourceId);
+
   const shownAttributionsOfResource: Attributions = props.overrideParentMode
     ? attributionIdsOfSelectedResource
     : selectedResourceOrClosestParentAttributions;
@@ -87,6 +90,7 @@ export function ManualPackagePanel(
           : 'Attributions'}
       </MuiTypography>
       <ManualAttributionList
+        selectedResourceId={selectedResourceId}
         attributions={shownAttributionsOfResource}
         selectedAttributionId={selectedAttributionId}
         isAddNewAttributionItemShown={props.showAddNewAttributionButton}
