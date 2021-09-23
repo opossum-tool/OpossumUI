@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC0-1.0
 # Contributors (sorted alphabetically)
 
 * **[Anton Bauhofer](https://github.com/antonbauhofer)** (<anton.bauhofer@tngtech.com>)
-* **[Benedikt Richter](https://github.com/benedikt-richter)**
+* **[Benedikt Richter](https://github.com/benedikt-richter)** (<benedikt.richter@tngtech.com>)
 * **[Benjamin Petek](https://github.com/b-petek)**
 * **[Indira Bhatt](https://github.com/indirabhatt)** (<Indira.bhatt@gmail.com>)
 * **[Jakob Schubert](https://github.com/JakobSchubert)**
