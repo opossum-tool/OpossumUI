@@ -60,6 +60,7 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
   resources: {
     a: 1,
+    folder: {},
   },
   externalAttributions: {
     [externalAttributionUuid]: {
@@ -85,7 +86,10 @@ const inputFileContent: ParsedOpossumInputFile = {
       defaultText: 'MIT license text',
     },
   ],
-  resourcesToAttributions: { '/a': [externalAttributionUuid] },
+  resourcesToAttributions: {
+    '/a': [externalAttributionUuid],
+    '/folder': [externalAttributionUuid],
+  },
 };
 
 const expectedFileContent: ParsedFileContent = {
@@ -93,7 +97,7 @@ const expectedFileContent: ParsedFileContent = {
     ...EMPTY_PROJECT_METADATA,
     projectTitle: 'Test Title',
   },
-  resources: { a: 1 },
+  resources: { a: 1, folder: {} },
   manualAttributions: {
     attributions: {},
     resourcesToAttributions: {},
@@ -118,6 +122,7 @@ const expectedFileContent: ParsedFileContent = {
     },
     resourcesToAttributions: {
       '/a': [externalAttributionUuid],
+      '/folder/': [externalAttributionUuid],
     },
   },
   frequentLicenses: {
