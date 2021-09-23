@@ -12,12 +12,13 @@ import { ListCard } from '../ListCard/ListCard';
 import { doNothing } from '../../util/do-nothing';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { getIsFileWithChildren } from '../../state/selectors/all-views-resource-selectors';
+import { OpossumColors } from '../../shared-styles';
 
 const useStyles = makeStyles({
   root: {
-    flex: 1,
     marginTop: 6,
     marginBottom: 4,
+    backgroundColor: OpossumColors.white,
   },
 });
 
@@ -66,6 +67,7 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
         max={max}
         length={sortedResourcePaths.length}
         addPaddingBottom={true}
+        allowHorizontalScrolling={true}
       />
     </div>
   );
