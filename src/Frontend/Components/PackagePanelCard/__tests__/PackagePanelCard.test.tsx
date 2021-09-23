@@ -15,12 +15,15 @@ import {
 } from '../../../../shared/shared-types';
 import { ListCardConfig, ListCardContent } from '../../../types/types';
 
-const testCardContent: ListCardContent = { name: 'Test' };
+const testCardContent: ListCardContent = { id: '1', name: 'Test' };
 const testCardConfig: ListCardConfig = { firstParty: true };
 const testCardWithManyIconsConfig: ListCardConfig = {
   firstParty: true,
   followUp: true,
   excludeFromNotice: true,
+};
+const testCardWithPreSelectedConfig: ListCardConfig = {
+  isPreSelected: true,
 };
 
 describe('The PackagePanelCard', () => {
@@ -51,6 +54,7 @@ describe('The PackagePanelCard', () => {
     expect(getByLabelText('First party icon'));
     expect(queryByLabelText('Exclude from notice icon')).toBeFalsy();
     expect(queryByLabelText('Follow-up icon')).toBeFalsy();
+    expect(queryByLabelText('Pre-selected icon')).toBeFalsy();
   });
 
   test('renders many icons at once', () => {
@@ -67,6 +71,20 @@ describe('The PackagePanelCard', () => {
     expect(getByLabelText('First party icon'));
     expect(getByLabelText('Exclude from notice icon'));
     expect(getByLabelText('Follow-up icon'));
+  });
+
+  test('renders pre-selected icon', () => {
+    const { getByLabelText } = renderComponentWithStore(
+      <PackagePanelCard
+        onClick={doNothing}
+        cardContent={testCardContent}
+        attributionId={'/'}
+        cardConfig={testCardWithPreSelectedConfig}
+      />
+    );
+
+    expect(getByLabelText('show resources'));
+    expect(getByLabelText('Pre-selected icon'));
   });
 
   test('has working resources icon', () => {

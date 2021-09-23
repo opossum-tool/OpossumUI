@@ -48,18 +48,6 @@ const useStyles = makeStyles({
       background: OpossumColors.middleBlueOnHover,
     },
   },
-  preSelected: {
-    background: `linear-gradient(to right, ${OpossumColors.almostWhiteBlue}, ${OpossumColors.lighterBlue})`,
-    '&:hover': {
-      background: `linear-gradient(to right, ${OpossumColors.lighterBlue}, ${OpossumColors.lightBlueOnHover})`,
-    },
-  },
-  preSelectedAndSelected: {
-    background: `linear-gradient(to right, ${OpossumColors.lightestBlue}, ${OpossumColors.middleBlue})`,
-    '&:hover': {
-      background: `linear-gradient(to right, ${OpossumColors.lightBlue}, ${OpossumColors.middleBlueOnHover})`,
-    },
-  },
   resolved: {
     opacity: 0.5,
   },
@@ -149,12 +137,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         props.cardConfig.isResource ? classes.resource : classes.package,
         props.cardConfig.isExternalAttribution && classes.externalAttribution,
         props.cardConfig.isSelected && classes.selected,
-        props.cardConfig.isResolved && classes.resolved,
-        props.cardConfig.isPreSelected
-          ? props.cardConfig.isSelected
-            ? classes.preSelectedAndSelected
-            : classes.preSelected
-          : null
+        props.cardConfig.isResolved && classes.resolved
       )}
       onClick={props.onClick}
     >

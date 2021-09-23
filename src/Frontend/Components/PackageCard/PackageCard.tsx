@@ -9,6 +9,7 @@ import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  PreSelectedIcon,
 } from '../Icons/Icons';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from './package-card-helpers';
@@ -37,14 +38,8 @@ interface PackageCardProps {
   openResourcesIcon?: JSX.Element;
 }
 
-function getKey(
-  prefix: string,
-  cardContent: ListCardContent,
-  packageLabels: Array<string>
-): string {
-  return `${prefix}-${cardContent.name}-${cardContent.packageVersion}-${
-    packageLabels[0] || ''
-  }`;
+function getKey(prefix: string, cardContent: ListCardContent): string {
+  return `${prefix}-${cardContent.id}`;
 }
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
@@ -55,7 +50,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       className={props.cardConfig.isResolved ? classes.hiddenIcon : undefined}
       onClick={props.onIconClick}
       label={packageLabels[0] || ''}
-      key={getKey('add-icon', props.cardContent, packageLabels)}
+      key={getKey('add-icon', props.cardContent)}
     />
   ) : undefined;
 
@@ -65,15 +60,13 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   }
   if (props.cardConfig.firstParty) {
     rightIcons.push(
-      <FirstPartyIcon
-        key={getKey('first-party-icon', props.cardContent, packageLabels)}
-      />
+      <FirstPartyIcon key={getKey('first-party-icon', props.cardContent)} />
     );
   }
   if (props.cardConfig.excludeFromNotice) {
     rightIcons.push(
       <ExcludeFromNoticeIcon
-        key={getKey('exclude-icon', props.cardContent, packageLabels)}
+        key={getKey('exclude-icon', props.cardContent)}
         className={classes.excludeFromNoticeIcon}
       />
     );
@@ -81,9 +74,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   if (props.cardConfig.followUp) {
     rightIcons.push(
       <FollowUpIcon
-        key={getKey('follow-up-icon', props.cardContent, packageLabels)}
+        key={getKey('follow-up-icon', props.cardContent)}
         className={classes.followUpIcon}
       />
+    );
+  }
+  if (props.cardConfig.isPreSelected) {
+    rightIcons.push(
+      <PreSelectedIcon key={getKey('pre-selected-icon', props.cardContent)} />
     );
   }
 

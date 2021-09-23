@@ -18,10 +18,11 @@ import WidgetsIcon from '@material-ui/icons/Widgets';
 import FolderOutlinedIcon from '@material-ui/icons/Folder';
 import DescriptionIcon from '@material-ui/icons/Description';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ReplayIcon from '@material-ui/icons/Replay';
+import LocalParkingIcon from '@material-ui/icons/LocalParking';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 
 const useStyles = makeStyles({
@@ -324,5 +325,17 @@ export function FileIcon({
         className ?? classes.resourceDefaultColor
       )}
     />
+  );
+}
+
+export function PreSelectedIcon(props: IconProps): ReactElement {
+  const classes = useStyles();
+  return (
+    <MuiTooltip classes={{ tooltip: classes.tooltip }} title="was pre-selected">
+      <LocalParkingIcon
+        aria-label={'Pre-selected icon'}
+        className={clsx(classes.nonClickableIcon, props.className)}
+      />
+    </MuiTooltip>
   );
 }

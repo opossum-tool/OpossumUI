@@ -68,6 +68,7 @@ export function AllAttributionsPanel(
         cardConfig={cardConfig}
         key={`PackageCard-${packageInfo.packageName}-${attributionId}`}
         cardContent={{
+          id: `all-attributions-${attributionId}`,
           name: packageInfo.packageName,
           packageVersion: packageInfo.packageVersion,
           copyright: packageInfo.copyright,

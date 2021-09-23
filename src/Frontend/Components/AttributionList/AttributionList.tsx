@@ -62,6 +62,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
         cardConfig={cardConfig}
         key={`AttributionCard-${attribution.packageName}-${attributionId}`}
         cardContent={{
+          id: `attribution-list-${attributionId}`,
           name: attribution.packageName,
           packageVersion: attribution.packageVersion,
           copyright: attribution.copyright,

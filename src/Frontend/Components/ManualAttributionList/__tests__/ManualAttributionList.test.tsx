@@ -31,6 +31,7 @@ describe('The ManualAttributionList', () => {
   test('renders', () => {
     const { getByText } = render(
       <ManualAttributionList
+        selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         onCardClick={mockCallback}
@@ -43,6 +44,7 @@ describe('The ManualAttributionList', () => {
   test('renders first party icon', () => {
     const { getByText, getByLabelText } = render(
       <ManualAttributionList
+        selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         onCardClick={doNothing}
@@ -55,6 +57,7 @@ describe('The ManualAttributionList', () => {
   test('renders button', () => {
     const { getByText } = render(
       <ManualAttributionList
+        selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         isAddNewAttributionItemShown={true}
@@ -69,6 +72,7 @@ describe('The ManualAttributionList', () => {
   test('sets selectedAttributionId on click', () => {
     const { getByText } = render(
       <ManualAttributionList
+        selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         onCardClick={mockCallback}
@@ -100,6 +104,7 @@ describe('The ManualAttributionList', () => {
     };
     const { container } = render(
       <ManualAttributionList
+        selectedResourceId="/folder/"
         attributions={testPackages}
         selectedAttributionId={''}
         onCardClick={mockCallback}
