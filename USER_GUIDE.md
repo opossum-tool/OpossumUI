@@ -50,15 +50,15 @@ supported.
 
 #### Linux
 
-Run the executable *opossum-ui-0.1.0.AppImage*
+Run the executable *OpossumUI-0.1.0.AppImage*
 
 #### macOS
 
-Run *opossum-ui* in *opossum-ui-darwin-x64/*.
+Run *OpossumUI* in *OpossumUI-darwin-x64/*.
 
 #### Windows
 
-Run *opossum-ui Setup 0.1.0.exe* to install the OpossumUI. Then open *opossum-ui* from the start menu.
+Run *OpossumUI Setup 0.1.0.exe* to install the OpossumUI. Then open *OpossumUI* from the start menu.
 
 ## Working with OpossumUI
 

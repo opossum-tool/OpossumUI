@@ -112,15 +112,15 @@ supported.
 
 #### Linux
 
-Run the executable _opossum-ui-0.1.0.AppImage_
+Run the executable _OpossumUI-0.1.0.AppImage_
 
 #### macOS
 
-Run _opossum-ui_ in _opossum-ui-darwin-x64/_.
+Run _OpossumUI_ in _OpossumUI-darwin-x64/_.
 
 #### Windows
 
-Run _opossum-ui Setup 0.1.0.exe_ to install the OpossumUI. Then open _opossum-ui_ from the start menu.
+Run _OpossumUI Setup 0.1.0.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
 
 ## Working with OpossumUI
 

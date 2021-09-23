@@ -17,11 +17,11 @@ yarn ship-linux
 yarn ship-mac
 yarn ship-win
 cd release/macOS/
-zip -r -q "opossum-ui-mac.zip" "opossum-ui-darwin-x64/"
+zip -r -q "OpossumUI-mac.zip" "OpossumUI-darwin-x64/"
 mkdir "/home/circleci/project/release/builds"
-mv "/home/circleci/project/release/linux_and_windows/opossum-ui-0.1.0.AppImage" "/home/circleci/project/release/builds/opossum-ui-linux-${commit}.AppImage"
-mv "/home/circleci/project/release/macOS/opossum-ui-mac.zip" "/home/circleci/project/release/builds/opossum-ui-mac-${commit}.zip"
-mv "/home/circleci/project/release/linux_and_windows/opossum-ui Setup 0.1.0.exe" "/home/circleci/project/release/builds/opossum-ui-windows-${commit}.exe"
-test -e "/home/circleci/project/release/builds/opossum-ui-linux-${commit}.AppImage"
-test -e "/home/circleci/project/release/builds/opossum-ui-mac-${commit}.zip"
-test -e "/home/circleci/project/release/builds/opossum-ui-windows-${commit}.exe"
+mv "/home/circleci/project/release/linux_and_windows/OpossumUI-0.1.0.AppImage" "/home/circleci/project/release/builds/OpossumUI-linux-${commit}.AppImage"
+mv "/home/circleci/project/release/macOS/OpossumUI-mac.zip" "/home/circleci/project/release/builds/OpossumUI-mac-${commit}.zip"
+mv "/home/circleci/project/release/linux_and_windows/OpossumUI Setup 0.1.0.exe" "/home/circleci/project/release/builds/OpossumUI-windows-${commit}.exe"
+test -e "/home/circleci/project/release/builds/OpossumUI-linux-${commit}.AppImage"
+test -e "/home/circleci/project/release/builds/OpossumUI-mac-${commit}.zip"
+test -e "/home/circleci/project/release/builds/OpossumUI-windows-${commit}.exe"

@@ -57,7 +57,7 @@ jobs:
                 path: /home/circleci/project/README.md
             - store_artifacts:
                 path: /home/circleci/project/release/builds
-                destination: opossum-ui
+                destination: OpossumUI
 
 workflows:
   workflow:
