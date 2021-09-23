@@ -65,7 +65,6 @@
     "eslint-plugin-testing-library": "^4.10.1",
     "husky": "4.3.8",
     "jest-each": "^27.0.6",
-    "jest-fixtures": "^0.6.0",
     "lint-staged": "^11.1.1",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
