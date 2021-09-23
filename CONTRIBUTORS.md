@@ -18,6 +18,9 @@ SPDX-License-Identifier: CC0-1.0
 * **[Michael Cheng](https://github.com/syotfs)** (<m@priorart.io>)
 * **[Nico Carl](https://github.com/nicarl)**
 * **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
+* **Adam Woffinden** (<woffindenag@gmail.com>)
+* **Alma Chao** (<alma@almachao.com>)
+
 
 [Full contributors list](https://github.com/opossum-tool/OpossumUI/contributors).
 
