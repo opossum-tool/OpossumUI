@@ -28,6 +28,7 @@ export const OpossumColors = {
   disabledGrey: 'hsla(0, 0%, 0%, 0.26)',
   disabledButtonGrey: 'hsla(0, 0%, 0%, 0.13)',
   red: 'hsl(0, 100%, 45%)',
+  lightRed: 'hsl(0, 100%, 60%)',
   green: 'hsl(146, 50%, 45%)',
 };
 

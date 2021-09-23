@@ -10,12 +10,14 @@ import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 
+const defaultCardHeight = 40;
+
 const useStyles = makeStyles({
   root: {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
-    height: 40,
+    height: defaultCardHeight,
     '&:hover': {
       cursor: 'pointer',
     },
@@ -88,12 +90,17 @@ const useStyles = makeStyles({
     height: 19,
     width: 26,
     textAlign: 'center',
+    writingMode: 'horizontal-tb',
   },
   iconColumn: {
-    flexDirection: 'column',
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'start',
     alignItems: 'flex-end',
+    flexWrap: 'wrap-reverse',
+    // fix for width of column flexbox container not growing after wrap
+    // -> use row flexbox with vertical writing mode
+    writingMode: 'vertical-lr',
+    height: defaultCardHeight,
   },
   textLines: {
     margin: '0 6px 0 0',
@@ -107,9 +114,6 @@ const useStyles = makeStyles({
     '&.MuiTypography-body2': {
       fontSize: '0.85rem',
     },
-  },
-  excludeFromNotice: {
-    color: OpossumColors.darkBlue,
   },
 });
 
@@ -150,8 +154,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           ? props.cardConfig.isSelected
             ? classes.preSelectedAndSelected
             : classes.preSelected
-          : null,
-        props.cardConfig.excludeFromNotice && classes.excludeFromNotice
+          : null
       )}
       onClick={props.onClick}
     >
