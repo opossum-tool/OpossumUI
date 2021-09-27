@@ -219,9 +219,7 @@ function getBasePaths(resourceFilePath: string | Buffer | URL): {
     resourceFilePath.toString(),
     getFileExtension(resourceFilePath)
   );
-  const parent_folder = path.resolve(
-    path.join(upath.toUnix(resourceFilePath.toString()), '/../')
-  );
+  const parent_folder = path.dirname(resourceFilePath.toString());
   const basePath = path.join(upath.toUnix(parent_folder), '/');
   return { baseFileName, basePath };
 }

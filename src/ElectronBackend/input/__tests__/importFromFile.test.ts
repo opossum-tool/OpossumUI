@@ -5,7 +5,6 @@
 
 import { BrowserWindow, dialog } from 'electron';
 // @ts-ignore
-import { cleanupTempDirs, createTempDirSync } from 'jest-fixtures';
 import path from 'path';
 import upath from 'upath';
 import { NIL as uuidNil } from 'uuid';
@@ -27,6 +26,7 @@ import * as fs from 'fs';
 import * as zlib from 'zlib';
 import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling';
 import writeFileAtomic from 'write-file-atomic';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 
 jest.mock('electron', () => ({
   dialog: {
@@ -152,11 +152,10 @@ const validMetadata = {
 describe('Test of loading function', () => {
   afterEach(() => {
     jest.resetAllMocks();
-    cleanupTempDirs();
   });
 
   test('Handles Parsing error correctly', async () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const corruptJsonPath = path.join(
       upath.toUnix(temporaryPath),
       'corrupt_test.json'
@@ -188,11 +187,12 @@ describe('Test of loading function', () => {
     expect(getMessageBoxForParsingError).toHaveBeenCalled();
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
     assertAttributionFilePath();
+    deleteFolder(temporaryPath);
   });
 
   describe('Load file and parse file successfully, no attribution file', () => {
     test('for json file', async () => {
-      const temporaryPath: string = createTempDirSync();
+      const temporaryPath: string = createTempFolder();
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
       writeJsonToFile(jsonPath, inputFileContent);
       // @ts-ignore
@@ -209,10 +209,11 @@ describe('Test of loading function', () => {
 
       expect(dialog.showMessageBox).not.toBeCalled();
       assertAttributionFilePath();
+      deleteFolder(temporaryPath);
     });
 
     test('for json.gz file', async () => {
-      const temporaryPath: string = createTempDirSync();
+      const temporaryPath: string = createTempFolder();
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json.gz');
       fs.writeFileSync(
         jsonPath,
@@ -232,12 +233,13 @@ describe('Test of loading function', () => {
       );
       expect(dialog.showMessageBox).not.toBeCalled();
       assertAttributionFilePath();
+      deleteFolder(temporaryPath);
     });
   });
 
   test('Load file and parse json successfully, attribution file', async () => {
     const testUuid: string = uuidNil;
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const jsonName = 'test.json';
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
     const attributionJsonPath = path.join(
@@ -289,6 +291,7 @@ describe('Test of loading function', () => {
       detailedBomFilePath,
       inputFileContent.metadata.projectTitle
     );
+    deleteFolder(temporaryPath);
   });
 
   test('Load file and parse json successfully, attribution file and preSelected attributions', async () => {
@@ -330,7 +333,7 @@ describe('Test of loading function', () => {
         '/': 'https://github.com/opossum-tool/opossumUI/',
       },
     };
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const jsonName = 'test.json';
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
     const attributionJsonPath = path.join(
@@ -426,6 +429,7 @@ describe('Test of loading function', () => {
       compactBomFilePath,
       detailedBomFilePath
     );
+    deleteFolder(temporaryPath);
   });
 
   test('Load file and parse json successfully, custom metadata', async () => {
@@ -442,7 +446,7 @@ describe('Test of loading function', () => {
         },
       },
     };
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const jsonName = 'test.json';
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
 
@@ -464,6 +468,7 @@ describe('Test of loading function', () => {
       expectedLoadedFile
     );
     expect(dialog.showMessageBox).not.toBeCalled();
+    deleteFolder(temporaryPath);
   });
 });
 

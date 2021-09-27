@@ -5,7 +5,6 @@
 
 import * as fs from 'fs';
 // @ts-ignore
-import { cleanupTempDirs, createTempDir } from 'jest-fixtures';
 import * as path from 'path';
 import * as upath from 'upath';
 import {
@@ -15,6 +14,7 @@ import {
 import { getHeadersFromColumns, writeCsvToFile } from '../writeCsvToFile';
 import { getPackageInfoKeys } from '../../../shared/shared-util';
 import { KeysOfAttributionInfo } from '../../types/types';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 
 const testCsvHeader =
   '"Index";"Confidence";"Comment";"Package Name";"Package Version";"Package Namespace";' +
@@ -22,10 +22,6 @@ const testCsvHeader =
   '"Follow-up";"Origin Attribution ID";"pre-selected";"exclude-from-notice";"Resources"';
 
 describe('writeCsvToFile', () => {
-  afterEach(() => {
-    cleanupTempDirs();
-  });
-
   test('writeCsvToFile short', async () => {
     const testFollowUpAttributionsWithResources: AttributionsWithResources = {
       key1: {
@@ -40,7 +36,7 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const temporaryPath: string = await createTempDir();
+    const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
       ...getPackageInfoKeys(),
@@ -58,6 +54,7 @@ describe('writeCsvToFile', () => {
     expect(content).toContain(
       '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/b"'
     );
+    deleteFolder(temporaryPath);
   });
 
   test('writeCsvToFile custom header', async () => {
@@ -73,7 +70,7 @@ describe('writeCsvToFile', () => {
         resources: ['/a/c/bla.mm', '/b'],
       },
     };
-    const temporaryPath: string = await createTempDir();
+    const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     const columns: Array<KeysOfAttributionInfo> = [
       'packageName',
@@ -91,6 +88,7 @@ describe('writeCsvToFile', () => {
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
+    deleteFolder(temporaryPath);
   });
 
   test('writeCsvToFile shorten resources', async () => {
@@ -107,7 +105,7 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const temporaryPath: string = await createTempDir();
+    const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(
       csvPath,
@@ -125,6 +123,7 @@ describe('writeCsvToFile', () => {
       '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm\n' +
         '/b"'
     );
+    deleteFolder(temporaryPath);
   });
 
   test('writeCsvToFile shorten resources long', async () => {
@@ -151,7 +150,7 @@ describe('writeCsvToFile', () => {
       manyResources.slice(0, 225).join('\n') +
       ' ... (resources shortened, 25 paths are not displayed)';
 
-    const temporaryPath: string = await createTempDir();
+    const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(
       csvPath,
@@ -168,6 +167,7 @@ describe('writeCsvToFile', () => {
     expect(content).toContain(
       `"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"${expectedResources}"`
     );
+    deleteFolder(temporaryPath);
   });
 
   test('writeCsvToFile for attributions', async () => {
@@ -186,7 +186,7 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const temporaryPath: string = await createTempDir();
+    const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(csvPath, testFollowUpAttributions, columns, false);
 
@@ -196,6 +196,7 @@ describe('writeCsvToFile', () => {
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
+    deleteFolder(temporaryPath);
   });
 
   test('writeCsvToFile long', async () => {
@@ -440,7 +441,7 @@ describe('writeCsvToFile', () => {
     const expectedLicenseText =
       testLicenseText.substring(0, 30000) + '... (text shortened)';
 
-    const temporaryPath: string = await createTempDir();
+    const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
       ...getPackageInfoKeys(),
@@ -470,6 +471,7 @@ describe('writeCsvToFile', () => {
     expect(content).toContain(
       '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/other"'
     );
+    deleteFolder(temporaryPath);
   });
 });
 

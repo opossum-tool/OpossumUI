@@ -5,7 +5,6 @@
 
 import fs from 'fs';
 // @ts-ignore
-import { cleanupTempDirs, createTempDirSync } from 'jest-fixtures';
 import { NIL as uuidNil } from 'uuid';
 import path from 'path';
 import zlib from 'zlib';
@@ -17,6 +16,7 @@ import {
 } from '../../types/types';
 import { parseOpossumInputFile, parseOpossumOutputFile } from '../parseFile';
 import { cloneDeep, set } from 'lodash';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 
 const testUuid: string = uuidNil;
 const correctInput: ParsedOpossumInputFile = {
@@ -105,12 +105,11 @@ const corruptInput = {
 describe('parseResources', () => {
   afterEach(() => {
     jest.resetAllMocks();
-    cleanupTempDirs();
   });
 
   test('reads an input.json file correctly', async () => {
     const testFileContent = correctInput;
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
       'resources.json'
@@ -119,6 +118,7 @@ describe('parseResources', () => {
 
     const resources = await parseOpossumInputFile(resourcesPath);
     expect(resources).toStrictEqual(testFileContent);
+    deleteFolder(temporaryPath);
   });
 
   test('reads custom metadata correctly', async () => {
@@ -134,7 +134,7 @@ describe('parseResources', () => {
         },
       },
     };
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
       'resources.json'
@@ -144,11 +144,12 @@ describe('parseResources', () => {
     const resources = await parseOpossumInputFile(resourcesPath);
 
     expect(resources).toStrictEqual(testFileContent);
+    deleteFolder(temporaryPath);
   });
 
   test('returns JSONParsingError on an incorrect Resource.json file', async () => {
     const testFileContent = corruptInput;
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
       'resources.json'
@@ -160,11 +161,12 @@ describe('parseResources', () => {
       message: expect.any(String),
       type: 'jsonParsingError',
     });
+    deleteFolder(temporaryPath);
   });
 
   test('reads an input.json.gz file correctly', async () => {
     const testFileContent = zlib.gzipSync(JSON.stringify(correctInput));
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
       'resources.json.gz'
@@ -173,11 +175,12 @@ describe('parseResources', () => {
 
     const resources = await parseOpossumInputFile(resourcesPath);
     expect(resources).toStrictEqual(correctInput);
+    deleteFolder(temporaryPath);
   });
 
   test('returns JSONParsingError on an incorrect Resource.json.gz file', async () => {
     const testFileContent = zlib.gzipSync(JSON.stringify(corruptInput));
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
       'resources.json.gz'
@@ -189,6 +192,7 @@ describe('parseResources', () => {
       message: expect.any(String),
       type: 'jsonParsingError',
     });
+    deleteFolder(temporaryPath);
   });
 });
 
@@ -218,11 +222,10 @@ describe('parseOpossumOutputFile', () => {
 
   afterEach(() => {
     jest.resetAllMocks();
-    cleanupTempDirs();
   });
 
   test('reads a correct file', () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
       'test_attributions.json'
@@ -232,10 +235,11 @@ describe('parseOpossumOutputFile', () => {
     const attributions = parseOpossumOutputFile(attributionPath);
 
     expect(attributions).toStrictEqual(testCorrectParsedFileContent);
+    deleteFolder(temporaryPath);
   });
 
   test('throws when reading an incorrect file', () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
       'test_attributions.json'
@@ -248,10 +252,11 @@ describe('parseOpossumOutputFile', () => {
     expect(() => parseOpossumOutputFile(attributionPath)).toThrow(
       `Error: ${attributionPath} is not a valid attribution file.`
     );
+    deleteFolder(temporaryPath);
   });
 
   test('tolerates an attribution file with wrong projectId', () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
       'test_attributions.json'
@@ -275,5 +280,6 @@ describe('parseOpossumOutputFile', () => {
     const attributions = parseOpossumOutputFile(attributionPath);
 
     expect(attributions).toStrictEqual(parsedFileContentWithWrongProjectId);
+    deleteFolder(temporaryPath);
   });
 });

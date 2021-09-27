@@ -18,7 +18,6 @@ import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { createWindow } from '../createWindow';
 // @ts-ignore
-import { cleanupTempDirs, createTempDirSync } from 'jest-fixtures';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   _exportFileAndOpenFolder,
@@ -34,6 +33,7 @@ import each from 'jest-each';
 import path from 'path';
 import upath from 'upath';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 
 jest.mock('electron', () => ({
   app: {
@@ -99,10 +99,6 @@ const mockDate = 1603976726737;
 MockDate.set(new Date(mockDate));
 
 describe('getOpenFileListener', () => {
-  afterEach(() => {
-    cleanupTempDirs();
-  });
-
   each([
     ['json/path.json', 'path.json'],
     ['json/path%20with%2Fencoding.json', 'path with/encoding.json'],
@@ -144,7 +140,7 @@ describe('getOpenFileListener', () => {
       jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
     );
 
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const jsonPath = path.join(
       upath.toUnix(temporaryPath),
       'path_attributions.json'
@@ -164,6 +160,7 @@ describe('getOpenFileListener', () => {
       expect.anything(),
       expectedPath
     );
+    deleteFolder(temporaryPath);
   });
 
   test('handles _attributions.json files correctly if .json.gz present', async () => {
@@ -179,7 +176,7 @@ describe('getOpenFileListener', () => {
       jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
     );
 
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const jsonPath = path.join(
       upath.toUnix(temporaryPath),
       'path_attributions.json'
@@ -199,6 +196,7 @@ describe('getOpenFileListener', () => {
       expect.anything(),
       expectedPath
     );
+    deleteFolder(temporaryPath);
   });
 
   test('sets title to project title if available', async () => {

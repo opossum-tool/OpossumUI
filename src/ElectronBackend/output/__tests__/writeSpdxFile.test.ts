@@ -4,20 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // @ts-ignore
-import { cleanupTempDirs, createTempDirSync } from 'jest-fixtures';
 import path from 'path';
 import upath from 'upath';
 import fs from 'fs';
 import { writeSpdxFile } from '../writeSpdxFile';
 import { Attributions, ExportType } from '../../../shared/shared-types';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 
 describe('writeSpdxFile', () => {
-  afterEach(() => {
-    cleanupTempDirs();
-  });
-
   it('writes a yaml for empty attributions', () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const yamlPath = path.join(upath.toUnix(temporaryPath), 'test.yaml');
     writeSpdxFile(yamlPath, {
       type: ExportType.SpdxDocumentYaml,
@@ -27,10 +23,11 @@ describe('writeSpdxFile', () => {
     expect(fs.existsSync(yamlPath)).toBe(true);
     const fileContent = fs.readFileSync(yamlPath, 'utf-8');
     expect(fileContent).not.toBeNull();
+    deleteFolder(temporaryPath);
   });
 
   it('writes a json for empty attributions', () => {
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const yamlPath = path.join(upath.toUnix(temporaryPath), 'test.json');
     writeSpdxFile(yamlPath, {
       type: ExportType.SpdxDocumentJson,
@@ -40,6 +37,7 @@ describe('writeSpdxFile', () => {
     expect(fs.existsSync(yamlPath)).toBe(true);
     const fileContent = fs.readFileSync(yamlPath, 'utf-8');
     expect(fileContent).toContain('SPDX-2.2');
+    deleteFolder(temporaryPath);
   });
 
   it('writes a file for attributions', () => {
@@ -57,7 +55,7 @@ describe('writeSpdxFile', () => {
       },
     };
 
-    const temporaryPath: string = createTempDirSync();
+    const temporaryPath: string = createTempFolder();
     const yamlPath = path.join(upath.toUnix(temporaryPath), 'test.yaml');
     writeSpdxFile(yamlPath, {
       type: ExportType.SpdxDocumentYaml,
@@ -74,5 +72,6 @@ describe('writeSpdxFile', () => {
     expect(fileContent).toContain(
       'referenceLocator: pkg:npm/second-test-Package@2.1'
     );
+    deleteFolder(temporaryPath);
   });
 });
