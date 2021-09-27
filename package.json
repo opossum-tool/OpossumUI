@@ -11,6 +11,7 @@
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@reduxjs/toolkit": "^1.6.1",
     "clsx": "^1.1.1",
+    "cross-env": "^7.0.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
     "electron-log": "^4.4.1",
@@ -76,7 +77,9 @@
     "wait-on": "^6.0.0"
   },
   "scripts": {
-    "start": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "start": "run-script-os",
+    "start:darwin:linux": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "start:win32": "start /b wait-on http://localhost:3000 ^&^& electron . & yarn build & cross-env BROWSER=none react-scripts start",
     "build": "yarn generate-notice && yarn update-commit-hash && react-scripts build && tsc -p src/ElectronBackend",
     "compile-all": "yarn update-commit-hash && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test": "yarn update-commit-hash && react-scripts test --watchAll=false",
