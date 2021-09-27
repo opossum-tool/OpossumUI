@@ -8,12 +8,19 @@ import React, { ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup } from '../ButtonGroup/ButtonGroup';
+import MuiTypography from '@material-ui/core/Typography';
 import {
   getContextMenuButtonConfigs,
   getMainButtonConfigs,
 } from './attribution-column-helpers';
 
+const preSelectedLabel = 'Attribution was pre-selected';
+
 const useStyles = makeStyles({
+  preSelectedLabel: {
+    marginLeft: 10,
+    marginTop: 12,
+  },
   buttonRow: {
     position: 'absolute',
     bottom: 0,
@@ -50,35 +57,40 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
   const classes = useStyles();
 
   return (
-    <div className={classes.buttonRow}>
-      {props.showButtonGroup ? (
-        <ButtonGroup
-          isHidden={props.areButtonsHidden}
-          mainButtonConfigs={getMainButtonConfigs(
-            props.temporaryPackageInfo,
-            props.isSavingDisabled,
-            props.onSaveButtonClick,
-            props.onSaveForAllButtonClick,
-            Boolean(props.showSaveForAllButton)
-          )}
-          contextMenuButtonConfigs={getContextMenuButtonConfigs(
-            props.packageInfoWereModified,
-            props.onDeleteButtonClick,
-            props.onDeleteForAllButtonClick,
-            Boolean(props.hideDeleteButtons),
-            props.onUndoButtonClick,
-            Boolean(props.showSaveForAllButton)
-          )}
-        />
-      ) : (
-        <ToggleButton
-          buttonText={'hide'}
-          className={classes.resolveButton}
-          selected={props.selectedPackageIsResolved}
-          handleChange={props.resolvedToggleHandler}
-          ariaLabel={'resolve attribution'}
-        />
-      )}
+    <div className={classes.preSelectedLabel}>
+      {props.temporaryPackageInfo.preSelected ? (
+        <MuiTypography variant={'subtitle1'}>{preSelectedLabel}</MuiTypography>
+      ) : null}
+      <div className={classes.buttonRow}>
+        {props.showButtonGroup ? (
+          <ButtonGroup
+            isHidden={props.areButtonsHidden}
+            mainButtonConfigs={getMainButtonConfigs(
+              props.temporaryPackageInfo,
+              props.isSavingDisabled,
+              props.onSaveButtonClick,
+              props.onSaveForAllButtonClick,
+              Boolean(props.showSaveForAllButton)
+            )}
+            contextMenuButtonConfigs={getContextMenuButtonConfigs(
+              props.packageInfoWereModified,
+              props.onDeleteButtonClick,
+              props.onDeleteForAllButtonClick,
+              Boolean(props.hideDeleteButtons),
+              props.onUndoButtonClick,
+              Boolean(props.showSaveForAllButton)
+            )}
+          />
+        ) : (
+          <ToggleButton
+            buttonText={'hide'}
+            className={classes.resolveButton}
+            selected={props.selectedPackageIsResolved}
+            handleChange={props.resolvedToggleHandler}
+            ariaLabel={'resolve attribution'}
+          />
+        )}
+      </div>
     </div>
   );
 }

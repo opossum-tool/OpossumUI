@@ -15,7 +15,10 @@ import {
   useStylesReportTableHeader,
 } from '../ReportTableHeader/ReportTableHeader';
 import { List } from '../List/List';
-import { ReportTableItem } from '../ReportTableItem/ReportTableItem';
+import {
+  ReportTableItem,
+  reportTableRowHeight,
+} from '../ReportTableItem/ReportTableItem';
 import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
 import clsx from 'clsx';
 import { OpossumColors } from '../../shared-styles';
@@ -145,7 +148,7 @@ export function Table(props: TableProps): ReactElement | null {
           <div className={classes.tableWidth}>
             <List
               length={attributionsIds.length}
-              cardVerticalDistance={160}
+              cardVerticalDistance={reportTableRowHeight}
               max={{ height: maxHeight }}
               getListItem={getReportTableItem}
             />

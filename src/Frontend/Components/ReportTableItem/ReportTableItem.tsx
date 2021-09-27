@@ -16,6 +16,7 @@ import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  PreSelectedIcon,
 } from '../Icons/Icons';
 import { AttributionInfo, TableConfig, tableConfigs } from '../Table/Table';
 import { makeStyles } from '@material-ui/core/styles';
@@ -24,19 +25,22 @@ import { PathPredicate } from '../../types/types';
 import { useStylesReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import { Source } from '../../../shared/shared-types';
 
+export const reportTableRowHeight = 190;
+const padding = 10;
+
 const useStyles = makeStyles({
   tableData: {
     overflow: 'auto',
     whiteSpace: 'pre-line',
-    padding: 10,
-    height: 140,
+    padding: padding,
+    height: reportTableRowHeight - 2 * padding,
   },
   iconTableData: {
     overflow: 'hidden',
     whiteSpace: 'pre-line',
     paddingTop: 7,
     paddingBottom: 7,
-    height: 140,
+    height: reportTableRowHeight - 2 * padding,
     textAlign: 'center',
   },
   tableCell: {
@@ -78,6 +82,10 @@ const useStyles = makeStyles({
   excludeFromNoticeIcon: {
     border: `2px ${OpossumColors.grey} solid`,
     color: OpossumColors.grey,
+  },
+  preSelectedIcon: {
+    border: `2px ${OpossumColors.brown} solid`,
+    color: OpossumColors.brown,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,
@@ -230,6 +238,14 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           <>
             <ExcludeFromNoticeIcon
               className={clsx(classes.icon, classes.excludeFromNoticeIcon)}
+            />{' '}
+            <br />
+          </>
+        )}
+        {attributionInfo.preSelected && (
+          <>
+            <PreSelectedIcon
+              className={clsx(classes.icon, classes.preSelectedIcon)}
             />{' '}
             <br />
           </>
