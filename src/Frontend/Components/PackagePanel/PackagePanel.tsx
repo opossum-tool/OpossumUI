@@ -25,12 +25,14 @@ import {
 import { PackageList } from '../PackageList/PackageList';
 import {
   getExternalAttributions,
+  getExternalAttributionSources,
   getResourcesToExternalAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsWithCountForSource,
-  getSortedPrettifiedSources,
+  getSortedSources,
 } from './package-panel-helpers';
+import { prettifySource } from '../../util/prettify-source';
 
 const useStyles = makeStyles({
   root: {
@@ -59,6 +61,7 @@ export function PackagePanel(
   const resourcesToExternalAttributions = useSelector(
     getResourcesToExternalAttributions
   );
+  const attributionSources = useSelector(getExternalAttributionSources);
   const dispatch = useDispatch();
 
   function getPreSelectedExternalAttributionIdsForSelectedResource(): Array<string> {
@@ -103,17 +106,20 @@ export function PackagePanel(
     }
   }
 
-  const sources = getSortedPrettifiedSources(
+  const sortedSources = getSortedSources(
     props.attributions,
-    props.attributionIdsWithCount
+    props.attributionIdsWithCount,
+    attributionSources
   );
 
   return (
     <div className={classes.root}>
-      {sources.map((sourceName) => (
+      {sortedSources.map((sourceName) => (
         <div key={`PackageListForSource-${sourceName}`}>
           {sourceName ? (
-            <MuiTypography variant={'body2'}>{sourceName}</MuiTypography>
+            <MuiTypography variant={'body2'}>
+              {prettifySource(sourceName, attributionSources)}
+            </MuiTypography>
           ) : null}
           <PackageList
             attributionIdsWithCount={getAttributionIdsWithCountForSource(

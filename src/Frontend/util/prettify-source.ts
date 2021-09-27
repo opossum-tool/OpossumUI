@@ -3,10 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionSources } from '../enums/enums';
+import { ExternalAttributionSources } from '../../shared/shared-types';
 
-export function prettifySource(source: string): string {
-  return source in AttributionSources
-    ? AttributionSources[source as keyof typeof AttributionSources]
-    : source;
+export function prettifySource(
+  source: string,
+  attributionSources: ExternalAttributionSources
+): string {
+  return attributionSources[source] ? attributionSources[source].name : source;
 }

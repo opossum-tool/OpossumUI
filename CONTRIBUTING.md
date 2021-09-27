@@ -111,8 +111,17 @@ There are additional fields which are optional:
     "/": "https://github.com/opossum-tool/opossumUI/blob/main/{path}"
   }
 ```
+- `externalAttributionSources`: used to store a mapping of short names for attribution sources to full names and priorities used for sorting in the PackagePanel. Entries with smaller numbers have a higher priority. E.g.:
 
-[comment]: <> (TODO: new key)
+```
+  "externalAttributionSources": {
+    SC: {
+      name: "ScanCode", 
+      priority: 1
+    }
+  }
+```
+
 
 #### Output file
 

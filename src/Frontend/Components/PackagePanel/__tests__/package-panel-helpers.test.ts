@@ -9,8 +9,9 @@ import {
 } from '../../../../shared/shared-types';
 import {
   getAttributionIdsWithCountForSource,
-  getSortedPrettifiedSources,
+  getSortedSources,
 } from '../package-panel-helpers';
+import { ATTRIBUTION_SOURCES } from '../../../../ElectronBackend/input/externalAttributionSources';
 
 describe('PackagePanel helpers', () => {
   const testAttributionIds: Array<AttributionIdWithCount> = [
@@ -73,7 +74,7 @@ describe('PackagePanel helpers', () => {
   };
 
   test('getAttributionIdsWithCountForSource returns attributionIdsWithCountForSource', () => {
-    const sourceName = 'Suggested';
+    const sourceName = 'MERGER';
     const expectedAttributionIdsWithCountForSource: Array<AttributionIdWithCount> =
       [
         {
@@ -101,26 +102,34 @@ describe('PackagePanel helpers', () => {
     ).toEqual([]);
   });
 
-  test('getSources returns sorted prettified sources', () => {
+  test('getSources returns sorted sources', () => {
     const expectedSortedSources = [
-      'Suggested',
-      'High High Compute (old scan)',
-      'ScanCode',
-      'High Compute',
-      'Hint',
+      'MERGER',
+      'REUSER:HHC',
+      'SC',
+      'HC',
+      'HINT',
       'a_unknown',
       'b_unknown',
     ];
     expect(
-      getSortedPrettifiedSources(testAttributions, testAttributionIds)
+      getSortedSources(
+        testAttributions,
+        testAttributionIds,
+        ATTRIBUTION_SOURCES
+      )
     ).toEqual(expectedSortedSources);
   });
 
   test('getSources returns empty array for no attributionIds', () => {
-    expect(getSortedPrettifiedSources(testAttributions, [])).toEqual([]);
+    expect(getSortedSources(testAttributions, [], ATTRIBUTION_SOURCES)).toEqual(
+      []
+    );
   });
 
   test('getSources returns empty string for no attributions', () => {
-    expect(getSortedPrettifiedSources({}, testAttributionIds)).toEqual(['']);
+    expect(
+      getSortedSources({}, testAttributionIds, ATTRIBUTION_SOURCES)
+    ).toEqual(['']);
   });
 });

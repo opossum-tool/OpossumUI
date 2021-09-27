@@ -40,6 +40,8 @@ import { App } from '../../Components/App/App';
 
 import { TIME_POPUP_IS_DISPLAYED } from '../../Components/ErrorPopup/ErrorPopup';
 import { ButtonTitle, DiscreteConfidence } from '../../enums/enums';
+import { setExternalAttributionSources } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { ATTRIBUTION_SOURCES } from '../../../ElectronBackend/input/externalAttributionSources';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -288,7 +290,8 @@ describe('Other popups of the app', () => {
       },
     };
     mockElectronBackend(mockChannelReturn);
-    renderComponentWithStore(<App />);
+    const { store } = renderComponentWithStore(<App />);
+    store.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
 
     clickOnElementInResourceBrowser(screen, '/');
 

@@ -47,16 +47,3 @@ export enum ButtonTitle {
   SaveForAll = 'Save for all',
   Undo = 'Undo',
 }
-
-export enum AttributionSources {
-  HC = 'High Compute',
-  HHC = 'High High Compute',
-  SC = 'ScanCode',
-  MS = 'Metadata Scanner',
-  MERGER = 'Suggested',
-  HINT = 'Hint',
-  'REUSER:HC' = 'High Compute (old scan)',
-  'REUSER:HHC' = 'High High Compute (old scan)',
-  'REUSER:SC' = 'ScanCode (old scan)',
-  'REUSER:MS' = 'Metadata Scanner (old scan)',
-}

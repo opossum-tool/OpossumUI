@@ -5,6 +5,7 @@
 
 import { prettifySource } from '../prettify-source';
 import each from 'jest-each';
+import { ATTRIBUTION_SOURCES } from '../../../ElectronBackend/input/externalAttributionSources';
 
 describe('prettifySource', () => {
   each([
@@ -22,7 +23,7 @@ describe('prettifySource', () => {
   ]).it(
     'transforms known sources and only those',
     (src: string, expectedResult: string) => {
-      expect(prettifySource(src)).toBe(expectedResult);
+      expect(prettifySource(src, ATTRIBUTION_SOURCES)).toBe(expectedResult);
     }
   );
 });

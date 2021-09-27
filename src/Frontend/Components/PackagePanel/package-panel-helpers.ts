@@ -6,27 +6,14 @@
 import {
   AttributionIdWithCount,
   Attributions,
+  ExternalAttributionSources,
   Source,
 } from '../../../shared/shared-types';
-import { AttributionSources } from '../../enums/enums';
-import { prettifySource } from '../../util/prettify-source';
 
-const ATTRIBUTION_SOURCES_ORDER: Array<string> = [
-  AttributionSources.MERGER,
-  AttributionSources.HHC,
-  AttributionSources.MS,
-  AttributionSources['REUSER:HHC'],
-  AttributionSources['REUSER:MS'],
-  AttributionSources['REUSER:SC'],
-  AttributionSources['REUSER:HC'],
-  AttributionSources.SC,
-  AttributionSources.HC,
-  AttributionSources.HINT,
-];
-
-export function getSortedPrettifiedSources(
+export function getSortedSources(
   attributions: Attributions,
-  attributionIdsWithCount: Array<AttributionIdWithCount>
+  attributionIdsWithCount: Array<AttributionIdWithCount>,
+  attributionSources: ExternalAttributionSources
 ): Array<string> {
   function reducer(
     sources: Set<string>,
@@ -43,22 +30,32 @@ export function getSortedPrettifiedSources(
     attributionIdsWithCount.reduce(reducer, new Set())
   );
 
-  const prettifiedSources = sources.map(prettifySource);
-  return sortSources(prettifiedSources);
+  return sortSources(sources, attributionSources);
 }
 
-function sortSources(sources: Array<string>): Array<string> {
-  const existingKnownSources: Array<string> = ATTRIBUTION_SOURCES_ORDER.filter(
-    (attributionSource) => sources.includes(attributionSource)
-  );
-  const existingUnknownSources: Array<string> = sources
-    .filter(
-      (attributionSource) =>
-        !ATTRIBUTION_SOURCES_ORDER.includes(attributionSource)
-    )
-    .sort();
+function sortSources(
+  sources: Array<string>,
+  attributionSources: ExternalAttributionSources
+): Array<string> {
+  const existingUnknownSources: Array<string> = [];
 
-  return existingKnownSources.concat(existingUnknownSources);
+  const sortedExistingKnownSources = sources
+    .reduce((existingKnownSources: Array<string>, source: string) => {
+      if (attributionSources.hasOwnProperty(source)) {
+        existingKnownSources.push(source);
+      } else {
+        existingUnknownSources.push(source);
+      }
+      return existingKnownSources;
+    }, [])
+    .sort((sourceA, sourceB) => {
+      return (
+        attributionSources[sourceA]?.priority -
+        attributionSources[sourceB]?.priority
+      );
+    });
+
+  return sortedExistingKnownSources.concat(existingUnknownSources.sort());
 }
 
 export function getAttributionIdsWithCountForSource(
@@ -71,7 +68,7 @@ export function getAttributionIdsWithCountForSource(
       attributions[attributionIdWithCount.attributionId]?.source;
 
     return sourceName
-      ? Boolean(source?.name && prettifySource(source.name) === sourceName)
+      ? Boolean(source?.name && source?.name === sourceName)
       : !source;
   });
 }
