@@ -318,95 +318,182 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
 });
 
 describe('_removeAttributionsFromChildrenAndParents', () => {
-  const testManualData: AttributionData = {
-    attributions: {
-      uuid1: {
-        packageName: 'React',
-      },
-      uuid2: {
-        packageName: 'Vue',
-      },
-      uuid3: {
-        packageName: 'Angular',
-      },
-    },
-    resourcesToAttributions: {
-      '/first/': ['uuid1', 'uuid3'],
-      '/first/second/': ['uuid3', 'uuid1'],
-      '/first/second/third/': ['uuid2', 'uuid1'],
-      '/first/second/third/fourth': ['uuid1', 'uuid3'],
-    },
-    attributionsToResources: {
-      uuid1: [
-        '/first/',
-        '/first/second/',
-        '/first/second/third/',
-        '/first/second/third/fourth',
-      ],
-      uuid2: ['/first/second/third/'],
-      uuid3: ['/first/', '/first/second/', '/first/second/third/fourth'],
-    },
-    resourcesWithAttributedChildren: {
-      '/': new Set<string>()
-        .add('/first/')
-        .add('/first/second/')
-        .add('/first/second/third/')
-        .add('/first/second/third/fourth'),
-      '/first/': new Set<string>()
-        .add('/first/second/')
-        .add('/first/second/third/')
-        .add('/first/second/third/fourth'),
-      '/first/second/': new Set<string>()
-        .add('/first/second/third/')
-        .add('/first/second/third/fourth'),
-      '/first/second/third/': new Set<string>().add(
-        '/first/second/third/fourth'
-      ),
-    },
-  };
-
-  const testSelectedResourceId = '/first/second/';
-
-  const expectedStrippedManualData: AttributionData = {
-    attributions: {
-      uuid1: {
-        packageName: 'React',
-      },
-      uuid2: {
-        packageName: 'Vue',
-      },
-      uuid3: {
-        packageName: 'Angular',
-      },
-    },
-    resourcesToAttributions: {
-      '/first/': ['uuid1', 'uuid3'],
-      '/first/second/third/': ['uuid1', 'uuid2'],
-      '/first/second/third/fourth': ['uuid1', 'uuid3'],
-    },
-    attributionsToResources: {
-      uuid1: ['/first/', '/first/second/third/', '/first/second/third/fourth'],
-      uuid2: ['/first/second/third/'],
-      uuid3: ['/first/', '/first/second/third/fourth'],
-    },
-    resourcesWithAttributedChildren: {
-      '/': new Set<string>()
-        .add('/first/')
-        .add('/first/second/third/')
-        .add('/first/second/third/fourth'),
-      '/first/': new Set<string>()
-        .add('/first/second/third/')
-        .add('/first/second/third/fourth'),
-      '/first/second/': new Set<string>()
-        .add('/first/second/third/')
-        .add('/first/second/third/fourth'),
-      '/first/second/third/': new Set<string>().add(
-        '/first/second/third/fourth'
-      ),
-    },
-  };
-
   test('matching and non-matching children attributions', () => {
+    const testManualData: AttributionData = {
+      attributions: {
+        uuid1: {
+          packageName: 'React',
+        },
+        uuid2: {
+          packageName: 'Vue',
+        },
+        uuid3: {
+          packageName: 'Angular',
+        },
+      },
+      resourcesToAttributions: {
+        '/first/': ['uuid1', 'uuid3'],
+        '/first/second/': ['uuid3', 'uuid1'],
+        '/first/second/third/': ['uuid2', 'uuid1'],
+        '/first/second/third/fourth': ['uuid1', 'uuid3'],
+      },
+      attributionsToResources: {
+        uuid1: [
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
+        uuid2: ['/first/second/third/'],
+        uuid3: ['/first/', '/first/second/', '/first/second/third/fourth'],
+      },
+      resourcesWithAttributedChildren: {
+        '/': new Set<string>()
+          .add('/first/')
+          .add('/first/second/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/': new Set<string>()
+          .add('/first/second/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/': new Set<string>()
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/third/': new Set<string>().add(
+          '/first/second/third/fourth'
+        ),
+      },
+    };
+
+    const testSelectedResourceId = '/first/second/';
+
+    const expectedStrippedManualData: AttributionData = {
+      attributions: {
+        uuid1: {
+          packageName: 'React',
+        },
+        uuid2: {
+          packageName: 'Vue',
+        },
+        uuid3: {
+          packageName: 'Angular',
+        },
+      },
+      resourcesToAttributions: {
+        '/first/': ['uuid1', 'uuid3'],
+        '/first/second/third/': ['uuid1', 'uuid2'],
+        '/first/second/third/fourth': ['uuid1', 'uuid3'],
+      },
+      attributionsToResources: {
+        uuid1: [
+          '/first/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
+        uuid2: ['/first/second/third/'],
+        uuid3: ['/first/', '/first/second/third/fourth'],
+      },
+      resourcesWithAttributedChildren: {
+        '/': new Set<string>()
+          .add('/first/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/': new Set<string>()
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/': new Set<string>()
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/third/': new Set<string>().add(
+          '/first/second/third/fourth'
+        ),
+      },
+    };
+
+    _removeAttributionsFromChildrenAndParents(
+      testManualData,
+      [testSelectedResourceId],
+      () => false
+    );
+    expect(testManualData).toEqual(expectedStrippedManualData);
+  });
+
+  test('child has subset of attributions from parent', () => {
+    const testManualData: AttributionData = {
+      attributions: {
+        uuid1: {
+          packageName: 'React',
+        },
+        uuid2: {
+          packageName: 'Vue',
+        },
+      },
+      resourcesToAttributions: {
+        '/first/second/third/': ['uuid2', 'uuid1'],
+        '/first/second/third/fourth': ['uuid1'],
+      },
+      attributionsToResources: {
+        uuid1: ['/first/second/third/', '/first/second/third/fourth'],
+        uuid2: ['/first/second/third/'],
+      },
+      resourcesWithAttributedChildren: {
+        '/': new Set<string>()
+          .add('/first/')
+          .add('/first/second/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/': new Set<string>()
+          .add('/first/second/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/': new Set<string>()
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/third/': new Set<string>().add(
+          '/first/second/third/fourth'
+        ),
+      },
+    };
+
+    const testSelectedResourceId = '/first/second/third/fourth/';
+
+    const expectedStrippedManualData: AttributionData = {
+      attributions: {
+        uuid1: {
+          packageName: 'React',
+        },
+        uuid2: {
+          packageName: 'Vue',
+        },
+      },
+      resourcesToAttributions: {
+        '/first/second/third/': ['uuid1', 'uuid2'],
+        '/first/second/third/fourth': ['uuid1'],
+      },
+      attributionsToResources: {
+        uuid1: ['/first/second/third/', '/first/second/third/fourth'],
+        uuid2: ['/first/second/third/'],
+      },
+      resourcesWithAttributedChildren: {
+        '/': new Set<string>()
+          .add('/first/')
+          .add('/first/second/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/': new Set<string>()
+          .add('/first/second/')
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/': new Set<string>()
+          .add('/first/second/third/')
+          .add('/first/second/third/fourth'),
+        '/first/second/third/': new Set<string>().add(
+          '/first/second/third/fourth'
+        ),
+      },
+    };
+
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],

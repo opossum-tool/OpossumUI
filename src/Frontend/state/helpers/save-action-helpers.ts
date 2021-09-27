@@ -393,8 +393,8 @@ function removeManualAttributionFromChildIfInferable(
 
   if (
     isEqual(
-      manualData.resourcesToAttributions[closestParentWithAttribution].sort(),
-      manualData.resourcesToAttributions[childId].sort()
+      manualData.resourcesToAttributions[closestParentWithAttribution]?.sort(),
+      manualData.resourcesToAttributions[childId]?.sort()
     )
   ) {
     const childAttributions: Array<string> =
