@@ -9,17 +9,17 @@ SPDX-License-Identifier: CC0-1.0
 
 OpossumUI is a tool to
 
-* discover open source software used in applications.
-* review licenses.
-* generate reports from an open source code scan.
+- discover open source software used in applications.
+- review licenses.
+- generate reports from an open source code scan.
 
 ## Features
 
-* use of multiple scanners (open source and/or proprietary).
-* currently integrates with OSS Review Toolkit and ScanCode.
-* unified interface for browsing scanner evidence.
-* simple navigation through the codebase’s file tree.
-* create attributions for individual files or groups.
+- use of multiple scanners (open source and/or proprietary).
+- currently integrates with OSS Review Toolkit and ScanCode.
+- unified interface for browsing scanner evidence.
+- simple navigation through the codebase’s file tree.
+- create attributions for individual files or groups.
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/opossum-tool/opossumUI/blob/main/LICENSES/Apache-2.0.txt)
 [![REUSE status](https://api.reuse.software/badge/git.fsfe.org/reuse/api)](https://api.reuse.software/info/git.fsfe.org/reuse/api)
@@ -58,7 +58,7 @@ outputted in different formats.
 
 To work with OpossumUI, an input file can be opened to visualize and edit license compliance data of a project. When
 opening an input file for the first time, an accompanying output file with the naming convention
-"[INPUT NAME]_attributions.json" is created in the same directory as the input file.
+"[INPUT NAME]\_attributions.json" is created in the same directory as the input file.
 
 ## Generating input files
 
@@ -71,42 +71,9 @@ For details of the file format, see [Contributing](CONTRIBUTING.md#file_formats)
 
 ## How to get & run OpossumUI
 
-### Prerequisites
+### Get the latest release
 
-The following software is required for the building process:
-
-- [git](https://git-scm.com/),
-- [node.js](https://nodejs.org/) 14+,
-- [yarn](https://yarnpkg.com/en/),
-- [wine](https://www.winehq.org/) (only to build the Windows version on a Unix-based OS).
-
-### Repo setup
-
-Clone the OpossumUI repo. E.g. run the following command in a terminal:
-
-```bash
-git clone git@github.com:opossum-tool/opossumUI.git
-```
-
-To install dependencies and set up the working environment, run:
-
-```bash
-yarn install
-```
-
-### Building on a Unix-based system (linux, macOS)
-
-To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`. **Important:** wine must be
-installed to build a Windows installer. To build for all three systems run `yarn ship`.
-
-The built release(s) can be found under _/release/linux_and_windows_ or _/release/macOS_
-
-### Building on Windows
-
-To build a Windows installer run `yarn win-ship-win`. Building of non-Windows version on Windows is currently not
-supported.
-
-*WARNING: The repo has to be cloned with `lf` unix-style line ending.*
+Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
 ### Running the app
 
