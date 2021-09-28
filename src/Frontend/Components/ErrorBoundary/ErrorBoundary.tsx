@@ -21,6 +21,14 @@ const styles = createStyles({
   },
 });
 
+// catches errors that are not thrown during render
+// it's known to fire twice in dev mode: https://github.com/facebook/react/issues/19613
+window.addEventListener('error', (event): void => {
+  sendErrorInfo(event.error, {
+    componentStack: event.error.stack || '',
+  });
+});
+
 interface ErrorBoundaryState {
   hasError: boolean;
 }
@@ -31,6 +39,17 @@ interface DispatchProps {
 
 interface ErrorBoundaryProps extends DispatchProps, WithStyles<typeof styles> {
   children: ReactNode;
+}
+
+function sendErrorInfo(error: Error, errorInfo: ErrorInfo): void {
+  const sendErrorInformationArgs: SendErrorInformationArgs = {
+    error,
+    errorInfo,
+  };
+  window.ipcRenderer.invoke(
+    IpcChannel.SendErrorInformation,
+    sendErrorInformationArgs
+  );
 }
 
 class ProtoErrorBoundary extends React.Component<
@@ -61,14 +80,7 @@ class ProtoErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    const sendErrorInformationArgs: SendErrorInformationArgs = {
-      error,
-      errorInfo,
-    };
-    window.ipcRenderer.invoke(
-      IpcChannel.SendErrorInformation,
-      sendErrorInformationArgs
-    );
+    sendErrorInfo(error, errorInfo);
   }
 
   render(): ReactNode {
