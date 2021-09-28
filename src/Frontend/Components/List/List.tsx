@@ -8,6 +8,15 @@ import { FixedSizeList as VirtualizedList } from 'react-window';
 import { Height, NumberOfDisplayedItems } from '../../types/types';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
+import { OpossumColors } from '../../shared-styles';
+
+const useStyles = makeStyles({
+  root: {
+    backgroundColor: OpossumColors.white,
+  },
+  paddingBottomScrollbar: { paddingBottom: 18 },
+  horizontalScrollbarFix: { overflowX: 'scroll' },
+});
 
 interface ListProps {
   length: number;
@@ -19,11 +28,6 @@ interface ListProps {
   allowHorizontalScrolling?: boolean;
 }
 
-const useStyles = makeStyles({
-  paddingBottomScrollbar: { paddingBottom: 18 },
-  horizontalScrollbarFix: { overflowX: 'scroll' },
-});
-
 function maxHeightWasGiven(
   max: NumberOfDisplayedItems | Height
 ): max is Height {
@@ -33,17 +37,16 @@ function maxHeightWasGiven(
 export function List(props: ListProps): ReactElement {
   const classes = useStyles();
   const cardHeight = props.cardVerticalDistance || 24;
-  const minHeight = cardHeight + 6;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
     : props.max.numberOfDisplayedItems * (cardHeight + 1);
   const currentHeight = props.length * (cardHeight + 1);
   const listHeight = props.alwaysShowHorizontalScrollBar
-    ? maxHeight + 1
-    : Math.min(currentHeight, maxHeight) + 1;
+    ? maxHeight
+    : Math.min(currentHeight, maxHeight);
 
   return (
-    <div style={{ minHeight }}>
+    <div className={classes.root} style={{ maxHeight: currentHeight }}>
       <VirtualizedList
         height={listHeight}
         width={'vertical'}
@@ -66,7 +69,11 @@ export function List(props: ListProps): ReactElement {
           <div
             style={
               props.allowHorizontalScrolling
-                ? { ...style, minWidth: '100%', width: 'fit-content' }
+                ? {
+                    ...style,
+                    minWidth: '100%',
+                    width: 'fit-content',
+                  }
                 : style
             }
           >
