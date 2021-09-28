@@ -15,11 +15,12 @@ import {
 } from './attribution-column-helpers';
 
 const preSelectedLabel = 'Attribution was pre-selected';
+const markedForReplacementLabel = 'Attribution is marked for replacement';
 
 const useStyles = makeStyles({
   preSelectedLabel: {
     marginLeft: 10,
-    marginTop: 12,
+    marginTop: 5,
   },
   buttonRow: {
     position: 'absolute',
@@ -49,6 +50,7 @@ interface ButtonRowProps {
   hideUnmarkForReplacementButton: boolean;
   hideOnReplaceMarkedByButton: boolean;
   deactivateReplaceMarkedByButton: boolean;
+  selectedPackageIsMarkedForReplacement: boolean;
   onSaveButtonClick(): void;
   onSaveForAllButtonClick(): void;
   onDeleteButtonClick(): void;
@@ -67,6 +69,11 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
     <div className={classes.preSelectedLabel}>
       {props.temporaryPackageInfo.preSelected ? (
         <MuiTypography variant={'subtitle1'}>{preSelectedLabel}</MuiTypography>
+      ) : null}
+      {props.selectedPackageIsMarkedForReplacement ? (
+        <MuiTypography variant={'subtitle1'}>
+          {markedForReplacementLabel}
+        </MuiTypography>
       ) : null}
       <div className={classes.buttonRow}>
         {props.showButtonGroup ? (

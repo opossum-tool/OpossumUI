@@ -63,6 +63,7 @@ interface AttributionColumnProps {
   showParentAttributions?: boolean;
   showManualAttributionData: boolean;
   resetViewIfThisIdChanges?: string;
+  selectedAttributionIsMarkedForReplacement?: boolean;
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -232,6 +233,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           selectedPackage,
           resolvedExternalAttributions
         )}
+        selectedPackageIsMarkedForReplacement={
+          props.selectedAttributionIsMarkedForReplacement
+            ? props.selectedAttributionIsMarkedForReplacement
+            : false
+        }
         onUndoButtonClick={(): void => {
           dispatch(setTemporaryPackageInfo(initialPackageInfo));
         }}
