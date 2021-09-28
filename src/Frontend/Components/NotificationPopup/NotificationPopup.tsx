@@ -49,8 +49,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
     return (): void => window.removeEventListener('keydown', onKeyDown);
   }, [onEscapeKeyDown]);
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  function handleOnClose(event: object, reason: string): void {
+  function handleOnClose(event: unknown, reason: string): void {
     switch (reason) {
       case 'backdropClick':
         if (props.onBackdropClick) {
