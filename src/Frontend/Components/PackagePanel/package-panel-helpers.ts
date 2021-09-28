@@ -51,7 +51,10 @@ function sortSources(
     .sort((sourceA, sourceB) => {
       return (
         attributionSources[sourceA]?.priority -
-        attributionSources[sourceB]?.priority
+          attributionSources[sourceB]?.priority ||
+        attributionSources[sourceA]?.name.localeCompare(
+          attributionSources[sourceB]?.name
+        )
       );
     });
 

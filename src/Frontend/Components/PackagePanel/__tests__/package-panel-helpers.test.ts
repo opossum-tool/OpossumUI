@@ -6,6 +6,7 @@
 import {
   AttributionIdWithCount,
   Attributions,
+  ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import {
   getAttributionIdsWithCountForSource,
@@ -131,5 +132,35 @@ describe('PackagePanel helpers', () => {
     expect(
       getSortedSources({}, testAttributionIds, ATTRIBUTION_SOURCES)
     ).toEqual(['']);
+  });
+
+  test('getSources sorts alphabetically if priority is identical', () => {
+    const testAttributionSources: ExternalAttributionSources = {
+      MERGER: { name: 'Suggested', priority: 1 },
+      HHC: { name: 'High High Compute', priority: 1 },
+      MS: { name: 'Metadata Scanner', priority: 1 },
+      'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 1 },
+      'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 1 },
+      'REUSER:SC': { name: 'ScanCode (old scan)', priority: 1 },
+      'REUSER:HC': { name: 'High Compute (old scan)', priority: 1 },
+      SC: { name: 'ScanCode', priority: 1 },
+      HC: { name: 'High Compute', priority: 1 },
+      HINT: { name: 'Hint', priority: 1 },
+    };
+    expect(
+      getSortedSources(
+        testAttributions,
+        testAttributionIds,
+        testAttributionSources
+      )
+    ).toEqual([
+      'HC', // High Compute
+      'REUSER:HHC', // High High Compute (old scan)
+      'HINT', // Hint
+      'SC', // ScanCode
+      'MERGER', // Suggested
+      'a_unknown',
+      'b_unknown',
+    ]);
   });
 });
