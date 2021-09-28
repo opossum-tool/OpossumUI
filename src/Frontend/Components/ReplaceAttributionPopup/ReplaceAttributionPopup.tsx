@@ -10,10 +10,14 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { doNothing } from '../../util/do-nothing';
 import MuiTypography from '@material-ui/core/Typography';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import {
+  getAttributionIdMarkedForReplacement,
+  getSelectedAttributionId,
+} from '../../state/selectors/attribution-view-resource-selectors';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { makeStyles } from '@material-ui/core/styles';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 
 const useStyles = makeStyles({
   typography: {
@@ -26,11 +30,21 @@ export function ReplaceAttributionPopup(): ReactElement {
 
   const dispatch = useDispatch();
   const attributions = useSelector(getManualAttributions);
-  const markedAttributionId = useSelector(getSelectedAttributionId); //TODO replace by markedAttributionId
+  const markedAttributionId = useSelector(getAttributionIdMarkedForReplacement);
   const selectedAttributionId = useSelector(getSelectedAttributionId);
 
   function handleCancelClick(): void {
     dispatch(closePopup());
+  }
+
+  function handleOkClick(): void {
+    dispatch(
+      savePackageInfo(
+        null,
+        markedAttributionId,
+        attributions[selectedAttributionId]
+      )
+    );
   }
 
   function getAttributionCard(attributionId: string): ReactElement {
@@ -72,7 +86,7 @@ export function ReplaceAttributionPopup(): ReactElement {
       content={content}
       header={'Warning'}
       leftButtonTitle={ButtonTitle.Replace}
-      onLeftButtonClick={doNothing}
+      onLeftButtonClick={handleOkClick}
       rightButtonTitle={ButtonTitle.Cancel}
       onRightButtonClick={handleCancelClick}
       isOpen={true}
