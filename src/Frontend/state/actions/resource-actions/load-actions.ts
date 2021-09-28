@@ -8,6 +8,7 @@ import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
+  setExternalAttributionSources,
   setExternalData,
   setFilesWithChildren,
   setFrequentLicences,
@@ -49,6 +50,12 @@ export function loadFromFile(
     dispatch(setProjectMetadata(parsedFileContent.metadata));
 
     dispatch(setBaseUrlsForSources(parsedFileContent.baseUrlsForSources));
+
+    dispatch(
+      setExternalAttributionSources(
+        parsedFileContent.externalAttributionSources
+      )
+    );
 
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
       dispatch(addResolvedExternalAttribution(attribution))

@@ -204,6 +204,26 @@
       "type": "object",
       "description": "Map from paths to the respective base url. The base url should contain a {path} placeholder. E.g. https://github.com/opossum-tool/opossumUI/blob/main/{path}",
       "additionalProperties": true
+    },
+    "externalAttributionSources": {
+      "type": "object",
+      "description": "A mapping of attribution sources to prettified names and priority, which is used for ordering in the PackagePanel. The lower the number the further up the source appears in the PackagePanel.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "priority"
+        ]
+      }
     }
   }
 }

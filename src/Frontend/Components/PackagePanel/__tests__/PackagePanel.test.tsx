@@ -13,6 +13,8 @@ import { PackagePanelTitle } from '../../../enums/enums';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { PackagePanel } from '../PackagePanel';
 import { getByText } from '@testing-library/dom';
+import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
 describe('The PackagePanel', () => {
   test('renders TextBoxes with right content', () => {
@@ -67,7 +69,7 @@ describe('The PackagePanel', () => {
         packageName: 'JQuery 2',
       },
     };
-    renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <PackagePanel
         attributionIdsWithCount={testAttributionIds}
         attributions={testAttributions}
@@ -75,6 +77,7 @@ describe('The PackagePanel', () => {
         isAddToPackageEnabled={true}
       />
     );
+    store.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;
     expect(getByText(hhcPanel, 'JQuery'));

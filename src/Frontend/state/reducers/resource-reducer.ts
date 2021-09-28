@@ -6,6 +6,7 @@
 import {
   AttributionData,
   BaseUrlsForSources,
+  ExternalAttributionSources,
   FrequentLicences,
   PackageInfo,
   ProjectMetadata,
@@ -32,6 +33,7 @@ import {
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
+  ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILE_SEARCH,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
@@ -81,6 +83,7 @@ export const initialResourceState: ResourceState = {
     isSavingDisabled: false,
     metadata: EMPTY_PROJECT_METADATA,
     baseUrlsForSources: {},
+    externalAttributionSources: {},
   },
   auditView: {
     selectedResourceId: '',
@@ -111,6 +114,7 @@ export type ResourceState = {
     isSavingDisabled: boolean;
     metadata: ProjectMetadata;
     baseUrlsForSources: BaseUrlsForSources;
+    externalAttributionSources: ExternalAttributionSources;
   };
   auditView: {
     selectedResourceId: string;
@@ -159,6 +163,14 @@ export const resourceState = (
       return {
         ...state,
         allViews: { ...state.allViews, baseUrlsForSources: action.payload },
+      };
+    case ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES:
+      return {
+        ...state,
+        allViews: {
+          ...state.allViews,
+          externalAttributionSources: action.payload,
+        },
       };
     case ACTION_SET_TEMPORARY_PACKAGE_INFO:
       return {

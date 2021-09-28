@@ -19,6 +19,7 @@ import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
   getExternalAttributions,
+  getExternalAttributionSources,
   getExternalAttributionsToResources,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
@@ -36,6 +37,7 @@ import {
 import {
   resetResourceState,
   setBaseUrlsForSources,
+  setExternalAttributionSources,
   setExternalData,
   setFrequentLicences,
   setManualData,
@@ -312,6 +314,19 @@ describe('The load and navigation simple actions', () => {
     testStore.dispatch(setBaseUrlsForSources({ '/': 'github.com' }));
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({
       '/': 'github.com',
+    });
+  });
+
+  test('sets and gets externalAttributionSources', () => {
+    const testStore = createTestAppStore();
+    expect(getExternalAttributionSources(testStore.getState())).toEqual({});
+    testStore.dispatch(
+      setExternalAttributionSources({
+        SC: { name: 'Scancode', priority: 1 },
+      })
+    );
+    expect(getExternalAttributionSources(testStore.getState())).toEqual({
+      SC: { name: 'Scancode', priority: 1 },
     });
   });
 });

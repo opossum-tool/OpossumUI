@@ -12,6 +12,7 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
+  ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import { PanelPackage } from '../../../types/types';
 
@@ -61,6 +62,8 @@ export const ACTION_SET_FILE_SEARCH = 'ACTION_SET_FILE_SEARCH';
 export const ACTION_SET_PROJECT_METADATA = 'ACTION_SET_PROJECT_METADATA';
 export const ACTION_SET_BASE_URLS_FOR_SOURCES =
   'ACTION_SET_BASE_URLS_FOR_SOURCES';
+export const ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES =
+  'ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -90,7 +93,8 @@ export type ResourceAction =
   | RemoveResolvedExternalAttribution
   | SetProjectMetadata
   | SetFileSearch
-  | SetBaseUrlsForSources;
+  | SetBaseUrlsForSources
+  | SetExternalAttributionSources;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -246,4 +250,9 @@ export interface SetProjectMetadata {
 export interface SetBaseUrlsForSources {
   type: typeof ACTION_SET_BASE_URLS_FOR_SOURCES;
   payload: BaseUrlsForSources;
+}
+
+export interface SetExternalAttributionSources {
+  type: typeof ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES;
+  payload: ExternalAttributionSources;
 }

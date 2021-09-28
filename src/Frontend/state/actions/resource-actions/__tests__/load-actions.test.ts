@@ -20,6 +20,7 @@ import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
+  getExternalAttributionSources,
   getExternalData,
   getFilesWithChildren,
   getFrequentLicensesNameOrder,
@@ -31,6 +32,7 @@ import {
 import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
 import { loadFromFile } from '../load-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
+import { ATTRIBUTION_SOURCES } from '../../../../../shared/shared-constants';
 
 const testResources: Resources = {
   thirdParty: {
@@ -110,6 +112,7 @@ describe('loadFromFile', () => {
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
       baseUrlsForSources: testBaseUrlsForSources,
+      externalAttributionSources: ATTRIBUTION_SOURCES,
     };
     const expectedResources: Resources = testResources;
     const expectedManualData: AttributionData = {
@@ -177,6 +180,9 @@ describe('loadFromFile', () => {
 
     expect(getBaseUrlsForSources(testStore.getState())).toEqual(
       testBaseUrlsForSources
+    );
+    expect(getExternalAttributionSources(testStore.getState())).toEqual(
+      ATTRIBUTION_SOURCES
     );
   });
 });

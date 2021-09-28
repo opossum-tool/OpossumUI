@@ -6,27 +6,14 @@
 import {
   AttributionIdWithCount,
   Attributions,
+  ExternalAttributionSources,
   Source,
 } from '../../../shared/shared-types';
-import { AttributionSources } from '../../enums/enums';
-import { prettifySource } from '../../util/prettify-source';
 
-const ATTRIBUTION_SOURCES_ORDER: Array<string> = [
-  AttributionSources.MERGER,
-  AttributionSources.HHC,
-  AttributionSources.MS,
-  AttributionSources['REUSER:HHC'],
-  AttributionSources['REUSER:MS'],
-  AttributionSources['REUSER:SC'],
-  AttributionSources['REUSER:HC'],
-  AttributionSources.SC,
-  AttributionSources.HC,
-  AttributionSources.HINT,
-];
-
-export function getSortedPrettifiedSources(
+export function getSortedSources(
   attributions: Attributions,
-  attributionIdsWithCount: Array<AttributionIdWithCount>
+  attributionIdsWithCount: Array<AttributionIdWithCount>,
+  attributionSources: ExternalAttributionSources
 ): Array<string> {
   function reducer(
     sources: Set<string>,
@@ -43,22 +30,42 @@ export function getSortedPrettifiedSources(
     attributionIdsWithCount.reduce(reducer, new Set())
   );
 
-  const prettifiedSources = sources.map(prettifySource);
-  return sortSources(prettifiedSources);
+  return sortSources(sources, attributionSources);
 }
 
-function sortSources(sources: Array<string>): Array<string> {
-  const existingKnownSources: Array<string> = ATTRIBUTION_SOURCES_ORDER.filter(
-    (attributionSource) => sources.includes(attributionSource)
+function sortSources(
+  sources: Array<string>,
+  attributionSources: ExternalAttributionSources
+): Array<string> {
+  const { knownSources, unknownSources } = sources.reduce(
+    (
+      encounteredSources: {
+        knownSources: Array<string>;
+        unknownSources: Array<string>;
+      },
+      source: string
+    ) => {
+      if (attributionSources.hasOwnProperty(source)) {
+        encounteredSources.knownSources.push(source);
+      } else {
+        encounteredSources.unknownSources.push(source);
+      }
+      return encounteredSources;
+    },
+    { knownSources: [], unknownSources: [] }
   );
-  const existingUnknownSources: Array<string> = sources
-    .filter(
-      (attributionSource) =>
-        !ATTRIBUTION_SOURCES_ORDER.includes(attributionSource)
-    )
-    .sort();
 
-  return existingKnownSources.concat(existingUnknownSources);
+  const sortedKnownSources = knownSources.sort((sourceA, sourceB) => {
+    return (
+      attributionSources[sourceA]?.priority -
+        attributionSources[sourceB]?.priority ||
+      attributionSources[sourceA]?.name.localeCompare(
+        attributionSources[sourceB]?.name
+      )
+    );
+  });
+
+  return sortedKnownSources.concat(unknownSources.sort());
 }
 
 export function getAttributionIdsWithCountForSource(
@@ -71,7 +78,7 @@ export function getAttributionIdsWithCountForSource(
       attributions[attributionIdWithCount.attributionId]?.source;
 
     return sourceName
-      ? Boolean(source?.name && prettifySource(source.name) === sourceName)
+      ? Boolean(source?.name && source?.name === sourceName)
       : !source;
   });
 }

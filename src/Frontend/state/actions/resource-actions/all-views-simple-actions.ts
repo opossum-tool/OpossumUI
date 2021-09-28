@@ -11,6 +11,7 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
+  ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import { getAttributionDataFromSetAttributionDataPayload } from '../../helpers/action-and-reducer-helpers';
 import {
@@ -36,6 +37,8 @@ import {
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryPackageInfoAction,
+  SetExternalAttributionSources,
+  ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {
@@ -136,5 +139,14 @@ export function setBaseUrlsForSources(
   return {
     type: ACTION_SET_BASE_URLS_FOR_SOURCES,
     payload: baseUrlsForSources,
+  };
+}
+
+export function setExternalAttributionSources(
+  externalAttributionSources: ExternalAttributionSources
+): SetExternalAttributionSources {
+  return {
+    type: ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
+    payload: externalAttributionSources,
   };
 }

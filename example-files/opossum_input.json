@@ -228,5 +228,11 @@
   "baseUrlsForSources": {
     "/": "https://github.com/opossum-tool/opossumUI/{path}?test=87583cf6c5d859bef90ee2b37fffe7a485c4d7a2",
     "/Frontend/": "https://github.com/opossum-tool/opossumUI/{path}?test=87583cf6c5d859bef90ee2b37fffe7a485c4d7a4"
+  },
+  "externalAttributionSources": {
+    "SC": {
+      "name": "ScanCode",
+      "priority": 1
+    }
   }
 }

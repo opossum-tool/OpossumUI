@@ -6,11 +6,13 @@
 import {
   AttributionIdWithCount,
   Attributions,
+  ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import {
   getAttributionIdsWithCountForSource,
-  getSortedPrettifiedSources,
+  getSortedSources,
 } from '../package-panel-helpers';
+import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
 describe('PackagePanel helpers', () => {
   const testAttributionIds: Array<AttributionIdWithCount> = [
@@ -73,7 +75,7 @@ describe('PackagePanel helpers', () => {
   };
 
   test('getAttributionIdsWithCountForSource returns attributionIdsWithCountForSource', () => {
-    const sourceName = 'Suggested';
+    const sourceName = 'MERGER';
     const expectedAttributionIdsWithCountForSource: Array<AttributionIdWithCount> =
       [
         {
@@ -101,26 +103,64 @@ describe('PackagePanel helpers', () => {
     ).toEqual([]);
   });
 
-  test('getSources returns sorted prettified sources', () => {
+  test('getSources returns sorted sources', () => {
     const expectedSortedSources = [
-      'Suggested',
-      'High High Compute (old scan)',
-      'ScanCode',
-      'High Compute',
-      'Hint',
+      'MERGER',
+      'REUSER:HHC',
+      'SC',
+      'HC',
+      'HINT',
       'a_unknown',
       'b_unknown',
     ];
     expect(
-      getSortedPrettifiedSources(testAttributions, testAttributionIds)
+      getSortedSources(
+        testAttributions,
+        testAttributionIds,
+        ATTRIBUTION_SOURCES
+      )
     ).toEqual(expectedSortedSources);
   });
 
   test('getSources returns empty array for no attributionIds', () => {
-    expect(getSortedPrettifiedSources(testAttributions, [])).toEqual([]);
+    expect(getSortedSources(testAttributions, [], ATTRIBUTION_SOURCES)).toEqual(
+      []
+    );
   });
 
   test('getSources returns empty string for no attributions', () => {
-    expect(getSortedPrettifiedSources({}, testAttributionIds)).toEqual(['']);
+    expect(
+      getSortedSources({}, testAttributionIds, ATTRIBUTION_SOURCES)
+    ).toEqual(['']);
+  });
+
+  test('getSources sorts alphabetically if priority is identical', () => {
+    const testAttributionSources: ExternalAttributionSources = {
+      MERGER: { name: 'Suggested', priority: 1 },
+      HHC: { name: 'High High Compute', priority: 1 },
+      MS: { name: 'Metadata Scanner', priority: 1 },
+      'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 1 },
+      'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 1 },
+      'REUSER:SC': { name: 'ScanCode (old scan)', priority: 1 },
+      'REUSER:HC': { name: 'High Compute (old scan)', priority: 1 },
+      SC: { name: 'ScanCode', priority: 1 },
+      HC: { name: 'High Compute', priority: 1 },
+      HINT: { name: 'Hint', priority: 1 },
+    };
+    expect(
+      getSortedSources(
+        testAttributions,
+        testAttributionIds,
+        testAttributionSources
+      )
+    ).toEqual([
+      'HC', // High Compute
+      'REUSER:HHC', // High High Compute (old scan)
+      'HINT', // Hint
+      'SC', // ScanCode
+      'MERGER', // Suggested
+      'a_unknown',
+      'b_unknown',
+    ]);
   });
 });

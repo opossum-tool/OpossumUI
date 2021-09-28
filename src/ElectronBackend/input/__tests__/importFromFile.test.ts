@@ -90,6 +90,10 @@ const inputFileContent: ParsedOpossumInputFile = {
     '/a': [externalAttributionUuid],
     '/folder': [externalAttributionUuid],
   },
+  externalAttributionSources: {
+    SC: { name: 'Scancode', priority: 1000 },
+    OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
+  },
 };
 
 const expectedFileContent: ParsedFileContent = {
@@ -135,6 +139,19 @@ const expectedFileContent: ParsedFileContent = {
   attributionBreakpoints: new Set(),
   filesWithChildren: new Set(),
   baseUrlsForSources: {},
+  externalAttributionSources: {
+    SC: { name: 'Scancode', priority: 1000 },
+    OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
+    MERGER: { name: 'Suggested', priority: 1 },
+    HHC: { name: 'High High Compute', priority: 2 },
+    MS: { name: 'Metadata Scanner', priority: 3 },
+    'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 4 },
+    'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 5 },
+    'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
+    'REUSER:HC': { name: 'High Compute (old scan)', priority: 7 },
+    HC: { name: 'High Compute', priority: 9 },
+    HINT: { name: 'Hint', priority: 10 },
+  },
 };
 
 const validAttribution: PackageInfo = {
@@ -332,6 +349,10 @@ describe('Test of loading function', () => {
       baseUrlsForSources: {
         '/': 'https://github.com/opossum-tool/opossumUI/',
       },
+      externalAttributionSources: {
+        SC: { name: 'ScanCode', priority: 1000 },
+        OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
+      },
     };
     const temporaryPath: string = createTempFolder();
     const jsonName = 'test.json';
@@ -413,6 +434,19 @@ describe('Test of loading function', () => {
       filesWithChildren: new Set(['/some/package.json/']),
       baseUrlsForSources: {
         '/': 'https://github.com/opossum-tool/opossumUI/',
+      },
+      externalAttributionSources: {
+        SC: { name: 'ScanCode', priority: 1000 },
+        OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
+        MERGER: { name: 'Suggested', priority: 1 },
+        HHC: { name: 'High High Compute', priority: 2 },
+        MS: { name: 'Metadata Scanner', priority: 3 },
+        'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 4 },
+        'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 5 },
+        'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
+        'REUSER:HC': { name: 'High Compute (old scan)', priority: 7 },
+        HC: { name: 'High Compute', priority: 9 },
+        HINT: { name: 'Hint', priority: 10 },
       },
     };
 
