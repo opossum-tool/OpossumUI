@@ -31,6 +31,7 @@ import {
   getFirstPartyChangeHandler,
   getFollowUpChangeHandler,
   getLicenseTextMaxRows,
+  getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   selectedPackageIsResolved,
 } from './attribution-column-helpers';
@@ -40,6 +41,11 @@ import { LicenseSubPanel } from './LicenseSubPanel';
 import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
 import { generatePurlFromPackageInfo, parsePurl } from '../../util/handle-purl';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import {
+  getAttributionIdMarkedForReplacement,
+  getSelectedAttributionId,
+} from '../../state/selectors/attribution-view-resource-selectors';
 
 const useStyles = makeStyles({
   root: {
@@ -91,6 +97,18 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   }, [props.resetViewIfThisIdChanges]);
   const copyrightRows = isLicenseTextShown ? 1 : 6;
   const commentRows = isLicenseTextShown ? 1 : Math.max(licenseTextRows - 2, 1);
+
+  const selectedAttributionId = useSelector(getSelectedAttributionId);
+  const attributionIdMarkedForReplacement = useSelector(
+    getAttributionIdMarkedForReplacement
+  );
+  const mergeButtonDisplayState = getMergeButtonsDisplayState(
+    view,
+    attributionIdMarkedForReplacement,
+    selectedAttributionId,
+    packageInfoWereModified,
+    Boolean(temporaryPackageInfo.preSelected)
+  );
 
   const [temporaryPurl, setTemporaryPurl] = useState<string>('');
   const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
@@ -220,6 +238,27 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         showSaveForAllButton={props.showSaveForAllButton}
         areButtonsHidden={props.areButtonsHidden}
         hideDeleteButtons={props.hideDeleteButtons}
+        hideMarkForReplacementButton={
+          mergeButtonDisplayState.hideMarkForReplacementButton
+        }
+        onMarkForReplacementButtonClick={(): void => {
+          dispatch(setAttributionIdMarkedForReplacement(selectedAttributionId));
+        }}
+        hideUnmarkForReplacementButton={
+          mergeButtonDisplayState.hideUnmarkForReplacementButton
+        }
+        onUnmarkForReplacementButtonClick={(): void => {
+          dispatch(setAttributionIdMarkedForReplacement(''));
+        }}
+        hideOnReplaceMarkedByButton={
+          mergeButtonDisplayState.hideOnReplaceMarkedByButton
+        }
+        deactivateReplaceMarkedByButton={
+          mergeButtonDisplayState.deactivateReplaceMarkedByButton
+        }
+        onReplaceMarkedByButtonClick={(): void => {
+          //TODO open popup
+        }}
       />
     </div>
   );

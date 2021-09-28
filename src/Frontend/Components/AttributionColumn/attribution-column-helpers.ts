@@ -160,7 +160,14 @@ export function getContextMenuButtonConfigs(
   onDeleteForAllButtonClick: () => void,
   hideDeleteButtons: boolean,
   onUndoButtonClick: () => void,
-  showSaveForAllButton: boolean
+  showSaveForAllButton: boolean,
+  onMarkForReplacementButtonClick: () => void,
+  hideMarkForReplacementButton: boolean,
+  onUnmarkForReplacementButtonClick: () => void,
+  hideUnmarkForReplacementButton: boolean,
+  onReplaceMarkedByButtonClick: () => void,
+  hideOnReplaceMarkedByButton: boolean,
+  deactivateReplaceMarkedByButton: boolean
 ): Array<ContextMenuItem> {
   return [
     {
@@ -178,5 +185,59 @@ export function getContextMenuButtonConfigs(
       onClick: onDeleteForAllButtonClick,
       hidden: hideDeleteButtons || !showSaveForAllButton,
     },
+    {
+      buttonTitle: ButtonTitle.MarkForReplacement,
+      onClick: onMarkForReplacementButtonClick,
+      hidden: hideMarkForReplacementButton,
+    },
+    {
+      buttonTitle: ButtonTitle.UnmarkForReplacement,
+      onClick: onUnmarkForReplacementButtonClick,
+      hidden: hideUnmarkForReplacementButton,
+    },
+    {
+      buttonTitle: ButtonTitle.ReplaceMarkedBy,
+      disabled: deactivateReplaceMarkedByButton,
+      onClick: onReplaceMarkedByButtonClick,
+      hidden: hideOnReplaceMarkedByButton,
+    },
   ];
+}
+
+interface MergeButtonDisplayState {
+  hideMarkForReplacementButton: boolean;
+  hideUnmarkForReplacementButton: boolean;
+  hideOnReplaceMarkedByButton: boolean;
+  deactivateReplaceMarkedByButton: boolean;
+}
+
+export function getMergeButtonsDisplayState(
+  currentView: View,
+  attributionIdMarkedForReplacement: string,
+  selectedAttributionId: string,
+  packageInfoWereModified: boolean,
+  attributionIsPreSelected: boolean
+): MergeButtonDisplayState {
+  const isAttributionView = currentView === View.Attribution;
+  const anyAttributionMarkedForReplacement =
+    attributionIdMarkedForReplacement !== '';
+  const selectedAttributionIsMarkedForReplacement =
+    selectedAttributionId === attributionIdMarkedForReplacement;
+
+  return {
+    hideMarkForReplacementButton:
+      !isAttributionView ||
+      anyAttributionMarkedForReplacement ||
+      selectedAttributionIsMarkedForReplacement,
+    hideUnmarkForReplacementButton:
+      !isAttributionView ||
+      !anyAttributionMarkedForReplacement ||
+      !selectedAttributionIsMarkedForReplacement,
+    hideOnReplaceMarkedByButton:
+      !isAttributionView ||
+      !anyAttributionMarkedForReplacement ||
+      selectedAttributionIsMarkedForReplacement,
+    deactivateReplaceMarkedByButton:
+      packageInfoWereModified || attributionIsPreSelected,
+  };
 }

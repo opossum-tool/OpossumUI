@@ -6,6 +6,7 @@
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import {
   getLicenseTextMaxRows,
+  getMergeButtonsDisplayState,
   selectedPackageIsResolved,
 } from '../attribution-column-helpers';
 
@@ -46,5 +47,97 @@ describe('The AttributionColumn helpers', () => {
         new Set<string>().add('321')
       )
     ).toEqual(false);
+  });
+});
+
+describe('getMergeButtonsDisplayState', () => {
+  it('does not show buttons when outside of attribution view', () => {
+    expect(
+      getMergeButtonsDisplayState(View.Audit, '', '', false, false)
+    ).toStrictEqual({
+      hideMarkForReplacementButton: true,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: true,
+      deactivateReplaceMarkedByButton: false,
+    });
+  });
+
+  it('does not show markForReplacementButton when another attribution is selected for replacement', () => {
+    expect(
+      getMergeButtonsDisplayState(
+        View.Attribution,
+        'other_attr',
+        'attr',
+        false,
+        false
+      )
+    ).toStrictEqual({
+      hideMarkForReplacementButton: true,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: false,
+      deactivateReplaceMarkedByButton: false,
+    });
+  });
+
+  it('shows unMarkForReplacementButton when attribution is already selected for replacement', () => {
+    expect(
+      getMergeButtonsDisplayState(
+        View.Attribution,
+        'attr',
+        'attr',
+        false,
+        false
+      )
+    ).toStrictEqual({
+      hideMarkForReplacementButton: true,
+      hideUnmarkForReplacementButton: false,
+      hideOnReplaceMarkedByButton: true,
+      deactivateReplaceMarkedByButton: false,
+    });
+  });
+
+  it('does not show unMarkForReplacementButton when attribution is not selected', () => {
+    expect(
+      getMergeButtonsDisplayState(View.Attribution, '', 'attr', false, false)
+    ).toStrictEqual({
+      hideMarkForReplacementButton: false,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: true,
+      deactivateReplaceMarkedByButton: false,
+    });
+  });
+
+  it('deactivates ReplaceMarkedByButton when packageInfo were modified', () => {
+    expect(
+      getMergeButtonsDisplayState(
+        View.Attribution,
+        'attr2',
+        'attr',
+        true,
+        false
+      )
+    ).toStrictEqual({
+      hideMarkForReplacementButton: true,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: false,
+      deactivateReplaceMarkedByButton: true,
+    });
+  });
+
+  it('deactivates ReplaceMarkedByButton when attribution is preselected', () => {
+    expect(
+      getMergeButtonsDisplayState(
+        View.Attribution,
+        'attr2',
+        'attr',
+        false,
+        true
+      )
+    ).toStrictEqual({
+      hideMarkForReplacementButton: true,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: false,
+      deactivateReplaceMarkedByButton: true,
+    });
   });
 });
