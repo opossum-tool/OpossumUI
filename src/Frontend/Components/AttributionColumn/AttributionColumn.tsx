@@ -46,6 +46,8 @@ import {
   getAttributionIdMarkedForReplacement,
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { PopupType } from '../../enums/enums';
 
 const useStyles = makeStyles({
   root: {
@@ -257,7 +259,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           mergeButtonDisplayState.deactivateReplaceMarkedByButton
         }
         onReplaceMarkedByButtonClick={(): void => {
-          //TODO open popup
+          dispatch(openPopup(PopupType.ReplaceAttributionPopup));
         }}
       />
     </div>

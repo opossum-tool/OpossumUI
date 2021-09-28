@@ -18,6 +18,7 @@ import { getManualAttributions } from '../../state/selectors/all-views-resource-
 import { PackageCard } from '../PackageCard/PackageCard';
 import { makeStyles } from '@material-ui/core/styles';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 
 const useStyles = makeStyles({
   typography: {
@@ -45,6 +46,8 @@ export function ReplaceAttributionPopup(): ReactElement {
         attributions[selectedAttributionId]
       )
     );
+    dispatch(setAttributionIdMarkedForReplacement(''));
+    dispatch(closePopup());
   }
 
   function getAttributionCard(attributionId: string): ReactElement {
