@@ -17,7 +17,6 @@ import { openFileDialog } from '../openFileDialog';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { createWindow } from '../createWindow';
-// @ts-ignore
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   _exportFileAndOpenFolder,

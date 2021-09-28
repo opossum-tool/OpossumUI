@@ -179,8 +179,8 @@ describe('Test of loading function', () => {
     );
     const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
     writeJsonToFile(jsonPath, inputFileContent);
-    // @ts-ignore
-    Date.now = jest.fn(() => '1');
+
+    Date.now = jest.fn(() => 1);
 
     // @ts-ignore
     dialog.showMessageBox.mockImplementationOnce(
@@ -212,8 +212,8 @@ describe('Test of loading function', () => {
       const temporaryPath: string = createTempFolder();
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
       writeJsonToFile(jsonPath, inputFileContent);
-      // @ts-ignore
-      Date.now = jest.fn(() => '1');
+
+      Date.now = jest.fn(() => 1);
 
       setGlobalBackendState({});
       await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
@@ -237,8 +237,7 @@ describe('Test of loading function', () => {
         zlib.gzipSync(JSON.stringify(inputFileContent))
       );
 
-      // @ts-ignore
-      Date.now = jest.fn(() => '1');
+      Date.now = jest.fn(() => 1);
 
       setGlobalBackendState({});
       await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
@@ -288,7 +287,7 @@ describe('Test of loading function', () => {
       resolvedExternalAttributions: [],
     };
     writeJsonToFile(attributionJsonPath, attributions);
-    // @ts-ignore
+
     Date.now = jest.fn(() => 1);
 
     const globalBackendState = {
@@ -376,7 +375,6 @@ describe('Test of loading function', () => {
 
     writeJsonToFile(jsonPath, inputFileContentWithPreselectedAttribution);
 
-    // @ts-ignore
     Date.now = jest.fn(() => 1);
 
     const globalBackendState = {
@@ -486,7 +484,6 @@ describe('Test of loading function', () => {
 
     writeJsonToFile(jsonPath, inputFileContentWithCustomMetadata);
 
-    // @ts-ignore
     Date.now = jest.fn(() => 1);
 
     setGlobalBackendState({});
