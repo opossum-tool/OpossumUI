@@ -41,7 +41,7 @@ import { App } from '../../Components/App/App';
 import { TIME_POPUP_IS_DISPLAYED } from '../../Components/ErrorPopup/ErrorPopup';
 import { ButtonTitle, DiscreteConfidence } from '../../enums/enums';
 import { setExternalAttributionSources } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { ATTRIBUTION_SOURCES } from '../../../ElectronBackend/input/externalAttributionSources';
+import { ATTRIBUTION_SOURCES } from '../../../shared/shared-constants';
 
 let originalIpcRenderer: IpcRenderer;
 

@@ -33,10 +33,8 @@ import { writeJsonToFile } from '../output/writeJsonToFile';
 import { cloneDeep } from 'lodash';
 import log from 'electron-log';
 import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
-import {
-  ATTRIBUTION_SOURCES,
-  combineExternalAttributionSources,
-} from './externalAttributionSources';
+import { combineExternalAttributionSources } from './externalAttributionSources';
+import { ATTRIBUTION_SOURCES } from '../../shared/shared-constants';
 
 function isJsonParsingError(
   object: ParsedOpossumInputFile | JsonParsingError

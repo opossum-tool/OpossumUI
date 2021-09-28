@@ -3,11 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  ATTRIBUTION_SOURCES,
-  combineExternalAttributionSources,
-} from '../externalAttributionSources';
+import { combineExternalAttributionSources } from '../externalAttributionSources';
 import { ExternalAttributionSources } from '../../../shared/shared-types';
+import { ATTRIBUTION_SOURCES } from '../../../shared/shared-constants';
 
 describe('combineExternalAttributionSources', () => {
   test('handles empty list', () => {

@@ -37,28 +37,35 @@ function sortSources(
   sources: Array<string>,
   attributionSources: ExternalAttributionSources
 ): Array<string> {
-  const existingUnknownSources: Array<string> = [];
-
-  const sortedExistingKnownSources = sources
-    .reduce((existingKnownSources: Array<string>, source: string) => {
+  const { knownSources, unknownSources } = sources.reduce(
+    (
+      encounteredSources: {
+        knownSources: Array<string>;
+        unknownSources: Array<string>;
+      },
+      source: string
+    ) => {
       if (attributionSources.hasOwnProperty(source)) {
-        existingKnownSources.push(source);
+        encounteredSources.knownSources.push(source);
       } else {
-        existingUnknownSources.push(source);
+        encounteredSources.unknownSources.push(source);
       }
-      return existingKnownSources;
-    }, [])
-    .sort((sourceA, sourceB) => {
-      return (
-        attributionSources[sourceA]?.priority -
-          attributionSources[sourceB]?.priority ||
-        attributionSources[sourceA]?.name.localeCompare(
-          attributionSources[sourceB]?.name
-        )
-      );
-    });
+      return encounteredSources;
+    },
+    { knownSources: [], unknownSources: [] }
+  );
 
-  return sortedExistingKnownSources.concat(existingUnknownSources.sort());
+  const sortedKnownSources = knownSources.sort((sourceA, sourceB) => {
+    return (
+      attributionSources[sourceA]?.priority -
+        attributionSources[sourceB]?.priority ||
+      attributionSources[sourceA]?.name.localeCompare(
+        attributionSources[sourceB]?.name
+      )
+    );
+  });
+
+  return sortedKnownSources.concat(unknownSources.sort());
 }
 
 export function getAttributionIdsWithCountForSource(

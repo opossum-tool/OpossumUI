@@ -14,7 +14,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { PackagePanel } from '../PackagePanel';
 import { getByText } from '@testing-library/dom';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { ATTRIBUTION_SOURCES } from '../../../../ElectronBackend/input/externalAttributionSources';
+import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
 describe('The PackagePanel', () => {
   test('renders TextBoxes with right content', () => {

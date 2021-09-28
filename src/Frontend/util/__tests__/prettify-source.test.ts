@@ -5,7 +5,7 @@
 
 import { prettifySource } from '../prettify-source';
 import each from 'jest-each';
-import { ATTRIBUTION_SOURCES } from '../../../ElectronBackend/input/externalAttributionSources';
+import { ATTRIBUTION_SOURCES } from '../../../shared/shared-constants';
 
 describe('prettifySource', () => {
   each([

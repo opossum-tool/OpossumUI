@@ -12,7 +12,7 @@ import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
 } from '../package-panel-helpers';
-import { ATTRIBUTION_SOURCES } from '../../../../ElectronBackend/input/externalAttributionSources';
+import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
 describe('PackagePanel helpers', () => {
   const testAttributionIds: Array<AttributionIdWithCount> = [

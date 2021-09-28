@@ -32,7 +32,7 @@ import {
 import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
 import { loadFromFile } from '../load-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
-import { ATTRIBUTION_SOURCES } from '../../../../../ElectronBackend/input/externalAttributionSources';
+import { ATTRIBUTION_SOURCES } from '../../../../../shared/shared-constants';
 
 const testResources: Resources = {
   thirdParty: {

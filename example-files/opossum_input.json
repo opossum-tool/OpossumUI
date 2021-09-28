@@ -231,7 +231,7 @@
   },
   "externalAttributionSources": {
     "SC": {
-      "name": "Scancode",
+      "name": "ScanCode",
       "priority": 1
     }
   }
