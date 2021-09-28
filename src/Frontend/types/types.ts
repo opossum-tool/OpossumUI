@@ -58,6 +58,7 @@ export interface ListCardConfig {
   isResource?: true;
   isExternalAttribution?: boolean;
   isSelected?: boolean;
+  isMarkedForReplacement?: boolean;
   isResolved?: boolean;
   isPreSelected?: boolean;
   excludeFromNotice?: boolean;

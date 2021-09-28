@@ -23,6 +23,7 @@ const useStyles = makeStyles({
 interface AttributionListProps {
   attributions: Attributions;
   selectedAttributionId: string | null;
+  attributionIdMarkedForReplacement: string | null;
   onCardClick(attributionId: string, isButton?: boolean): void;
   className?: string;
   maxHeight: number;
@@ -44,12 +45,17 @@ export function AttributionList(props: AttributionListProps): ReactElement {
       return attributionId === props.selectedAttributionId;
     }
 
+    function isMarkedForReplacement(): boolean {
+      return attributionId === props.attributionIdMarkedForReplacement;
+    }
+
     function onClick(): void {
       props.onCardClick(attributionId);
     }
 
     const cardConfig: ListCardConfig = {
       isSelected: isSelected(),
+      isMarkedForReplacement: isMarkedForReplacement(),
       isPreSelected: Boolean(attribution.preSelected),
       firstParty: attribution.firstParty,
       excludeFromNotice: attribution.excludeFromNotice,
