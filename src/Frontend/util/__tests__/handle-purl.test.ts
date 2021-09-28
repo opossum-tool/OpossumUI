@@ -51,7 +51,7 @@ describe('generatePurlFromPackageInfo', () => {
     expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
   });
 
-  test('generates a valid Purl', () => {
+  test('generates a valid Purl without appendix', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
@@ -73,14 +73,15 @@ describe('generatePurlFromPackageInfo', () => {
     expect(generatePurlFromPackageInfo(testPackageInfo)).toBe('');
   });
 
-  test('returns undefined when no packageType is given is given', () => {
+  test('generates Purl with generic type when no packageType is given', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
       packageVersion: 'version',
     };
+    const expectedPurl = 'pkg:generic/namespace/name@version';
 
-    expect(generatePurlFromPackageInfo(testPackageInfo)).toBe('');
+    expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
   });
 });
 

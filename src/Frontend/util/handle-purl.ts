@@ -38,9 +38,12 @@ export function parsePurl(potentialPurl: string): ParsedPurl {
 }
 
 export function generatePurlFromPackageInfo(packageInfo: PackageInfo): string {
-  return packageInfo.packageType && packageInfo.packageName
+  return (packageInfo.packageNamespace ||
+    packageInfo.packageType ||
+    packageInfo.packagePURLAppendix) &&
+    packageInfo.packageName
     ? new PackageURL(
-        packageInfo.packageType,
+        packageInfo.packageType ? packageInfo.packageType : 'generic',
         packageInfo?.packageNamespace,
         packageInfo.packageName,
         packageInfo?.packageVersion,
