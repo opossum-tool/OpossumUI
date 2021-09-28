@@ -47,6 +47,7 @@ export enum ButtonTitle {
   Save = 'Save',
   SaveForAll = 'Save for all',
   Undo = 'Undo',
+  Replace = 'Replace',
   MarkForReplacement = 'Mark for replacement',
   UnmarkForReplacement = 'Unmark for replacement',
   ReplaceMarkedBy = 'Replace marked by',
