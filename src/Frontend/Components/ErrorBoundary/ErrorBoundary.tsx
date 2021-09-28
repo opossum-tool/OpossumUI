@@ -25,7 +25,7 @@ const styles = createStyles({
 // it's known to fire twice in dev mode: https://github.com/facebook/react/issues/19613
 window.addEventListener('error', (event): void => {
   sendErrorInfo(event.error, {
-    componentStack: event.error.stack || '',
+    componentStack: event.error.stack,
   });
 });
 
