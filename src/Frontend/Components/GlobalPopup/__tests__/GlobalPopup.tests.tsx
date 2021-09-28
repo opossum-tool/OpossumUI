@@ -4,47 +4,53 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import {
-  openErrorPopup,
-  openFileSearchPopup,
-  openNotSavedPopup,
-  openProjectMetadataPopup,
-} from '../../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { GlobalPopup } from '../GlobalPopup';
+import { PopupType } from '../../../enums/enums';
+import { screen } from '@testing-library/react';
 
 describe('The GlobalPopUp', () => {
   test('does not open by default', () => {
-    const { queryByText } = renderComponentWithStore(<GlobalPopup />);
+    renderComponentWithStore(<GlobalPopup />);
 
-    expect(queryByText('Warning')).toBeFalsy();
+    expect(screen.queryByText('Warning')).toBeFalsy();
   });
 
   test('opens the NotSavedPopup', () => {
-    const { queryByText, store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openNotSavedPopup());
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.NotSavedPopup));
 
-    expect(queryByText('Warning')).toBeTruthy();
+    expect(screen.queryByText('Warning')).toBeTruthy();
   });
 
   test('opens the ErrorPopup', () => {
-    const { queryByText, store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openErrorPopup());
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.ErrorPopup));
 
-    expect(queryByText('Error')).toBeTruthy();
+    expect(screen.queryByText('Error')).toBeTruthy();
   });
 
   test('opens the FileSearchPopup', () => {
-    const { queryByText, store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openFileSearchPopup());
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.FileSearchPopup));
 
-    expect(queryByText('Search for Files and Directories')).toBeTruthy();
+    expect(screen.queryByText('Search for Files and Directories')).toBeTruthy();
   });
 
   test('opens the ProjectMetadataPopup', () => {
-    const { queryByText, store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openProjectMetadataPopup());
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
 
-    expect(queryByText('Project Metadata')).toBeTruthy();
+    expect(screen.queryByText('Project Metadata')).toBeTruthy();
+  });
+
+  test('opens the ReplaceAttributionPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.ReplaceAttributionPopup));
+
+    expect(
+      screen.queryByText('This removes the following attribution')
+    ).toBeTruthy();
   });
 });

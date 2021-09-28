@@ -11,6 +11,7 @@ import {
 import { State } from '../../../types/types';
 import {
   DiscreteConfidence,
+  PopupType,
   SavePackageInfoOperation,
 } from '../../../enums/enums';
 import { packageInfoHasNoSignificantFields } from '../../../util/package-info-has-no-significant-fields';
@@ -50,12 +51,10 @@ import {
   UnlinkResourceFromAttributionAction,
   UpdateAttribution,
 } from './types';
-import {
-  openErrorPopup,
-  openNotSavedPopup,
-} from '../view-actions/view-actions';
+
 import { isEmpty } from 'lodash';
 import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
+import { openPopup } from '../view-actions/view-actions';
 
 export function setIsSavingDisabled(
   isSavingDisabled: boolean
@@ -73,7 +72,7 @@ export function savePackageInfoIfSavingIsNotDisabled(
 ): SimpleThunkAction {
   return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
     if (getIsSavingDisabled(getState())) {
-      dispatch(openErrorPopup());
+      dispatch(openPopup(PopupType.ErrorPopup));
       return;
     }
     dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
@@ -195,7 +194,7 @@ export function addManualAttributionToSelectedResource(
 ): SimpleThunkAction {
   return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
         savePackageInfo(
@@ -213,7 +212,7 @@ export function addSignalToSelectedResource(
 ): SimpleThunkAction {
   return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
         savePackageInfo(

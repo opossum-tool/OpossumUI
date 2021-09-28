@@ -6,10 +6,7 @@
 import { PopupType, View } from '../../enums/enums';
 import {
   ACTION_CLOSE_POPUP,
-  ACTION_OPEN_ERROR_POPUP,
-  ACTION_OPEN_FILE_SEARCH_POPUP,
-  ACTION_OPEN_NOT_SAVED_POPUP,
-  ACTION_OPEN_PROJECT_METADATA_POPUP,
+  ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -50,25 +47,10 @@ export function viewState(
         ...state,
         openPopup: null,
       };
-    case ACTION_OPEN_NOT_SAVED_POPUP:
+    case ACTION_OPEN_POPUP:
       return {
         ...state,
-        openPopup: PopupType.NotSavedPopup,
-      };
-    case ACTION_OPEN_ERROR_POPUP:
-      return {
-        ...state,
-        openPopup: PopupType.ErrorPopup,
-      };
-    case ACTION_OPEN_FILE_SEARCH_POPUP:
-      return {
-        ...state,
-        openPopup: PopupType.FileSearchPopup,
-      };
-    case ACTION_OPEN_PROJECT_METADATA_POPUP:
-      return {
-        ...state,
-        openPopup: PopupType.ProjectMetadataPopup,
+        openPopup: action.payload,
       };
     default:
       return state;

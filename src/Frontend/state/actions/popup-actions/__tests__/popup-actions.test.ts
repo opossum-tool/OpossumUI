@@ -17,9 +17,9 @@ import {
   getTargetView,
 } from '../../../selectors/view-selector';
 import {
-  openNotSavedPopup,
   setTargetView,
   navigateToView,
+  openPopup,
 } from '../../view-actions/view-actions';
 import {
   changeSelectedAttributionIdOrOpenUnsavedPopup,
@@ -441,7 +441,7 @@ describe('The actions called from the unsaved popup', () => {
       testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test' }));
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
-      testStore.dispatch(openNotSavedPopup());
+      testStore.dispatch(openPopup(PopupType.NotSavedPopup));
       testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
       testStore.dispatch(saveTemporaryPackageInfoAndNavigateToTargetView());
 
@@ -479,7 +479,7 @@ describe('The actions called from the unsaved popup', () => {
       testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test' }));
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
-      testStore.dispatch(openNotSavedPopup());
+      testStore.dispatch(openPopup(PopupType.NotSavedPopup));
       testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
       testStore.dispatch(navigateToTargetResourceOrAttribution());
       return testStore.getState();
