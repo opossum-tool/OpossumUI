@@ -6,9 +6,13 @@
 import { dialog, BrowserWindow } from 'electron';
 
 export function openFileDialog(): Array<string> | undefined {
-  // @ts-ignore
-  return dialog.showOpenDialogSync(BrowserWindow.getFocusedWindow(), {
-    properties: ['openFile'],
-    filters: [{ name: 'Opossum Input File', extensions: ['json', 'json.gz'] }],
-  });
+  const window = BrowserWindow.getFocusedWindow();
+  return window
+    ? dialog.showOpenDialogSync(window, {
+        properties: ['openFile'],
+        filters: [
+          { name: 'Opossum Input File', extensions: ['json', 'json.gz'] },
+        ],
+      })
+    : undefined;
 }

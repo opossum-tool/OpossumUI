@@ -542,15 +542,15 @@ export function expectValuesInProgressbarTooltip(
   filesWithOnlyPreSelectedAttributions: number,
   filesWithOnlySignals: number
 ): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (global as any).document.createRange = (): unknown => ({
-    setStart: (): void => {},
-    setEnd: (): void => {},
-    commonAncestorContainer: {
-      nodeName: 'BODY',
-      ownerDocument: document,
-    },
-  });
+  (global as typeof globalThis).document.createRange = (): Range =>
+    ({
+      setStart: (): void => {},
+      setEnd: (): void => {},
+      commonAncestorContainer: {
+        nodeName: 'BODY',
+        ownerDocument: document,
+      },
+    } as unknown as Range);
   jest.useFakeTimers();
   const progressBar = screen.getByLabelText('ProgressBar');
   fireEvent.mouseOver(progressBar);
