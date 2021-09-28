@@ -5,10 +5,12 @@
 
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
+  setAttributionIdMarkedForReplacement,
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
 } from '../attribution-view-simple-actions';
 import {
+  getAttributionIdMarkedForReplacement,
   getSelectedAttributionId,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
@@ -28,5 +30,15 @@ describe('The load and navigation simple actions', () => {
 
     testStore.dispatch(setTargetSelectedAttributionId('test'));
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('test');
+  });
+
+  test('sets and gets attributionIdMarkedForReplacement', () => {
+    const testStore = createTestAppStore();
+    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe('');
+
+    testStore.dispatch(setAttributionIdMarkedForReplacement('test'));
+    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe(
+      'test'
+    );
   });
 });

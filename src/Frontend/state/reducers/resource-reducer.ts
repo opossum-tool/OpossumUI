@@ -29,6 +29,7 @@ import {
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
+  ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_EXPANDED_IDS,
@@ -95,6 +96,7 @@ export const initialResourceState: ResourceState = {
   attributionView: {
     selectedAttributionId: '',
     targetSelectedAttributionId: '',
+    attributionIdMarkedForReplacement: '',
   },
   fileSearchPopup: {
     fileSearch: '',
@@ -126,6 +128,7 @@ export type ResourceState = {
   attributionView: {
     selectedAttributionId: string;
     targetSelectedAttributionId: string;
+    attributionIdMarkedForReplacement: string;
   };
   fileSearchPopup: {
     fileSearch: string;
@@ -276,6 +279,14 @@ export const resourceState = (
         attributionView: {
           ...state.attributionView,
           targetSelectedAttributionId: action.payload,
+        },
+      };
+    case ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT:
+      return {
+        ...state,
+        attributionView: {
+          ...state.attributionView,
+          attributionIdMarkedForReplacement: action.payload,
         },
       };
     case ACTION_SET_IS_SAVING_DISABLED:
