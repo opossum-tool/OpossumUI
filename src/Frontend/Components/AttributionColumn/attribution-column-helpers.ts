@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ButtonTitle, View } from '../../enums/enums';
+import { View } from '../../enums/enums';
 import React from 'react';
 import { FollowUp, PackageInfo } from '../../../shared/shared-types';
 import { SimpleThunkDispatch } from '../../state/actions/types';
@@ -14,8 +14,24 @@ import {
   removeResolvedExternalAttribution,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { saveManualAndResolvedAttributionsToFile } from '../../state/actions/resource-actions/save-actions';
-import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+
+const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
+const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
+
+export function getDisplayTexts(
+  temporaryPackageInfo: PackageInfo,
+  selectedAttributionId: string,
+  attributionIdMarkedForReplacement: string
+): Array<string> {
+  const displayTexts = [];
+  if (temporaryPackageInfo.preSelected) {
+    displayTexts.push(PRE_SELECTED_LABEL);
+  }
+  if (selectedAttributionId === attributionIdMarkedForReplacement) {
+    displayTexts.push(MARKED_FOR_REPLACEMENT_LABEL);
+  }
+  return displayTexts;
+}
 
 export function getLicenseTextMaxRows(
   windowHeight: number,
@@ -125,83 +141,6 @@ export function getLicenseTextLabelText(
         isEditable ? 'Insert notice text if necessary.' : ''
       }`
     : 'License Text (to appear in attribution document)';
-}
-
-export function getMainButtonConfigs(
-  temporaryPackageInfo: PackageInfo,
-  isSavingDisabled: boolean,
-  onSaveButtonClick: () => void,
-  onSaveForAllButtonClick: () => void,
-  showSaveForAllButton: boolean
-): Array<MainButtonConfig> {
-  return [
-    {
-      buttonText: temporaryPackageInfo.preSelected
-        ? ButtonTitle.Confirm
-        : ButtonTitle.Save,
-      disabled: isSavingDisabled,
-      onClick: onSaveButtonClick,
-      hidden: false,
-    },
-    {
-      buttonText: temporaryPackageInfo.preSelected
-        ? ButtonTitle.ConfirmForAll
-        : ButtonTitle.SaveForAll,
-      disabled: isSavingDisabled,
-      onClick: onSaveForAllButtonClick,
-      hidden: !showSaveForAllButton,
-    },
-  ];
-}
-
-export function getContextMenuButtonConfigs(
-  packageInfoWereModified: boolean,
-  onDeleteButtonClick: () => void,
-  onDeleteForAllButtonClick: () => void,
-  hideDeleteButtons: boolean,
-  onUndoButtonClick: () => void,
-  showSaveForAllButton: boolean,
-  onMarkForReplacementButtonClick: () => void,
-  hideMarkForReplacementButton: boolean,
-  onUnmarkForReplacementButtonClick: () => void,
-  hideUnmarkForReplacementButton: boolean,
-  onReplaceMarkedByButtonClick: () => void,
-  hideOnReplaceMarkedByButton: boolean,
-  deactivateReplaceMarkedByButton: boolean
-): Array<ContextMenuItem> {
-  return [
-    {
-      buttonTitle: ButtonTitle.Undo,
-      disabled: !packageInfoWereModified,
-      onClick: onUndoButtonClick,
-    },
-    {
-      buttonTitle: ButtonTitle.Delete,
-      onClick: onDeleteButtonClick,
-      hidden: hideDeleteButtons,
-    },
-    {
-      buttonTitle: ButtonTitle.DeleteForAll,
-      onClick: onDeleteForAllButtonClick,
-      hidden: hideDeleteButtons || !showSaveForAllButton,
-    },
-    {
-      buttonTitle: ButtonTitle.MarkForReplacement,
-      onClick: onMarkForReplacementButtonClick,
-      hidden: hideMarkForReplacementButton,
-    },
-    {
-      buttonTitle: ButtonTitle.UnmarkForReplacement,
-      onClick: onUnmarkForReplacementButtonClick,
-      hidden: hideUnmarkForReplacementButton,
-    },
-    {
-      buttonTitle: ButtonTitle.ReplaceMarkedBy,
-      disabled: deactivateReplaceMarkedByButton,
-      onClick: onReplaceMarkedByButtonClick,
-      hidden: hideOnReplaceMarkedByButton,
-    },
-  ];
 }
 
 interface MergeButtonDisplayState {

@@ -5,20 +5,13 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
-import { PackageInfo } from '../../../shared/shared-types';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
-import { ButtonGroup } from '../ButtonGroup/ButtonGroup';
+import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import MuiTypography from '@material-ui/core/Typography';
-import {
-  getContextMenuButtonConfigs,
-  getMainButtonConfigs,
-} from './attribution-column-helpers';
-
-const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
-const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 const useStyles = makeStyles({
-  preSelectedLabel: {
+  root: {
     marginLeft: 10,
     marginTop: 5,
   },
@@ -39,70 +32,29 @@ const useStyles = makeStyles({
 interface ButtonRowProps {
   showButtonGroup: boolean;
   areButtonsHidden?: boolean;
-  temporaryPackageInfo: PackageInfo;
-  isSavingDisabled: boolean;
-  showSaveForAllButton?: boolean;
-  packageInfoWereModified: boolean;
-  initialPackageInfo: PackageInfo;
-  hideDeleteButtons?: boolean;
   selectedPackageIsResolved: boolean;
-  hideMarkForReplacementButton: boolean;
-  hideUnmarkForReplacementButton: boolean;
-  hideOnReplaceMarkedByButton: boolean;
-  deactivateReplaceMarkedByButton: boolean;
-  selectedPackageIsMarkedForReplacement: boolean;
-  onSaveButtonClick(): void;
-  onSaveForAllButtonClick(): void;
-  onDeleteButtonClick(): void;
-  onDeleteForAllButtonClick(): void;
-  onUndoButtonClick(): void;
   resolvedToggleHandler(): void;
-  onMarkForReplacementButtonClick(): void;
-  onUnmarkForReplacementButtonClick(): void;
-  onReplaceMarkedByButtonClick(): void;
+  displayTexts: Array<string>;
+  mainButtonConfigs: Array<MainButtonConfig>;
+  contextMenuButtonConfigs?: Array<ContextMenuItem>;
 }
 
 export function ButtonRow(props: ButtonRowProps): ReactElement {
   const classes = useStyles();
 
   return (
-    <div className={classes.preSelectedLabel}>
-      {props.temporaryPackageInfo.preSelected ? (
-        <MuiTypography variant={'subtitle1'}>
-          {PRE_SELECTED_LABEL}
+    <div className={classes.root}>
+      {props.displayTexts.map((text, index) => (
+        <MuiTypography variant={'subtitle1'} key={`${text}-${index}`}>
+          {text}
         </MuiTypography>
-      ) : null}
-      {props.selectedPackageIsMarkedForReplacement ? (
-        <MuiTypography variant={'subtitle1'}>
-          {MARKED_FOR_REPLACEMENT_LABEL}
-        </MuiTypography>
-      ) : null}
+      ))}
       <div className={classes.buttonRow}>
         {props.showButtonGroup ? (
           <ButtonGroup
             isHidden={props.areButtonsHidden}
-            mainButtonConfigs={getMainButtonConfigs(
-              props.temporaryPackageInfo,
-              props.isSavingDisabled,
-              props.onSaveButtonClick,
-              props.onSaveForAllButtonClick,
-              Boolean(props.showSaveForAllButton)
-            )}
-            contextMenuButtonConfigs={getContextMenuButtonConfigs(
-              props.packageInfoWereModified,
-              props.onDeleteButtonClick,
-              props.onDeleteForAllButtonClick,
-              Boolean(props.hideDeleteButtons),
-              props.onUndoButtonClick,
-              Boolean(props.showSaveForAllButton),
-              props.onMarkForReplacementButtonClick,
-              Boolean(props.hideMarkForReplacementButton),
-              props.onUnmarkForReplacementButtonClick,
-              Boolean(props.hideUnmarkForReplacementButton),
-              props.onReplaceMarkedByButtonClick,
-              Boolean(props.hideOnReplaceMarkedByButton),
-              Boolean(props.deactivateReplaceMarkedByButton)
-            )}
+            mainButtonConfigs={props.mainButtonConfigs}
+            contextMenuButtonConfigs={props.contextMenuButtonConfigs}
           />
         ) : (
           <ToggleButton
