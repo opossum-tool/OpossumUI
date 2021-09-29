@@ -15,6 +15,9 @@ import MuiListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import UndoIcon from '@material-ui/icons/Undo';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import MergeTypeIcon from '@material-ui/icons/MergeType';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { ButtonTitle } from '../../enums/enums';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -30,6 +33,11 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   [ButtonTitle.Delete]: <DeleteIcon fontSize="small" />,
   [ButtonTitle.DeleteForAll]: <DeleteForeverIcon fontSize="small" />,
   [ButtonTitle.Undo]: <UndoIcon fontSize="small" />,
+  [ButtonTitle.MarkForReplacement]: (
+    <CheckBoxOutlineBlankIcon fontSize="small" />
+  ),
+  [ButtonTitle.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
+  [ButtonTitle.ReplaceMarkedBy]: <MergeTypeIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {

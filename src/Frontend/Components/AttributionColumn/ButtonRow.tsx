@@ -45,12 +45,19 @@ interface ButtonRowProps {
   initialPackageInfo: PackageInfo;
   hideDeleteButtons?: boolean;
   selectedPackageIsResolved: boolean;
+  hideMarkForReplacementButton: boolean;
+  hideUnmarkForReplacementButton: boolean;
+  hideOnReplaceMarkedByButton: boolean;
+  deactivateReplaceMarkedByButton: boolean;
   onSaveButtonClick(): void;
   onSaveForAllButtonClick(): void;
   onDeleteButtonClick(): void;
   onDeleteForAllButtonClick(): void;
   onUndoButtonClick(): void;
   resolvedToggleHandler(): void;
+  onMarkForReplacementButtonClick(): void;
+  onUnmarkForReplacementButtonClick(): void;
+  onReplaceMarkedByButtonClick(): void;
 }
 
 export function ButtonRow(props: ButtonRowProps): ReactElement {
@@ -78,7 +85,14 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
               props.onDeleteForAllButtonClick,
               Boolean(props.hideDeleteButtons),
               props.onUndoButtonClick,
-              Boolean(props.showSaveForAllButton)
+              Boolean(props.showSaveForAllButton),
+              props.onMarkForReplacementButtonClick,
+              Boolean(props.hideMarkForReplacementButton),
+              props.onUnmarkForReplacementButtonClick,
+              Boolean(props.hideUnmarkForReplacementButton),
+              props.onReplaceMarkedByButtonClick,
+              Boolean(props.hideOnReplaceMarkedByButton),
+              Boolean(props.deactivateReplaceMarkedByButton)
             )}
           />
         ) : (
