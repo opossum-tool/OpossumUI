@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import { ButtonTitle, PopupType, View } from '../../../enums/enums';
@@ -58,38 +58,38 @@ describe('NotSavedPopup and do not change view', () => {
   });
 
   test('renders a NotSavedPopup', () => {
-    const { queryByText, store } = renderComponentWithStore(<NotSavedPopup />);
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
 
-    expect(queryByText('Warning')).toBeTruthy();
-    fireEvent.click(queryByText(ButtonTitle.Save) as Element);
+    expect(screen.queryByText('Warning')).toBeTruthy();
+    fireEvent.click(screen.queryByText(ButtonTitle.Save) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
   test('renders a NotSavedPopup and click cancel', () => {
-    const { queryByText, store } = renderComponentWithStore(<NotSavedPopup />);
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
 
-    expect(queryByText('There are unsaved changes.')).toBeTruthy();
-    fireEvent.click(queryByText('Cancel') as Element);
+    expect(screen.queryByText('There are unsaved changes.')).toBeTruthy();
+    fireEvent.click(screen.queryByText('Cancel') as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('');
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
   test('renders a NotSavedPopup and click reset', () => {
-    const { queryByText, store } = renderComponentWithStore(<NotSavedPopup />);
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
     store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
 
-    expect(queryByText('Warning')).toBeTruthy();
+    expect(screen.queryByText('Warning')).toBeTruthy();
     expect(getTemporaryPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
     });
 
-    fireEvent.click(queryByText(ButtonTitle.Undo) as Element);
+    fireEvent.click(screen.queryByText(ButtonTitle.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryPackageInfo(store.getState())).toEqual({});
@@ -114,38 +114,38 @@ describe('NotSavedPopup and change view', () => {
   });
 
   test('renders a NotSavedPopup', () => {
-    const { queryByText, store } = renderComponentWithStore(<NotSavedPopup />);
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
 
-    expect(queryByText('Warning')).toBeTruthy();
-    fireEvent.click(queryByText(ButtonTitle.Save) as Element);
+    expect(screen.queryByText('Warning')).toBeTruthy();
+    fireEvent.click(screen.queryByText(ButtonTitle.Save) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(isAttributionViewSelected(store.getState())).toBe(true);
   });
 
   test('renders a NotSavedPopup and click cancel', () => {
-    const { queryByText, store } = renderComponentWithStore(<NotSavedPopup />);
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
 
-    expect(queryByText('Warning')).toBeTruthy();
-    fireEvent.click(queryByText('Cancel') as Element);
+    expect(screen.queryByText('Warning')).toBeTruthy();
+    fireEvent.click(screen.queryByText('Cancel') as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('');
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
   test('renders a NotSavedPopup and click reset', () => {
-    const { queryByText, store } = renderComponentWithStore(<NotSavedPopup />);
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
     store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
 
-    expect(queryByText('Warning')).toBeTruthy();
+    expect(screen.queryByText('Warning')).toBeTruthy();
     expect(getTemporaryPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
     });
 
-    fireEvent.click(queryByText(ButtonTitle.Undo) as Element);
+    fireEvent.click(screen.queryByText(ButtonTitle.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryPackageInfo(store.getState())).toEqual({});

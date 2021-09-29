@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -71,7 +71,7 @@ describe('The AllAttributionsPanel', () => {
       uuid1: { packageName: 'name 1' },
       uuid2: { packageName: 'name 2' },
     };
-    const { getByText } = renderComponentWithStore(
+    renderComponentWithStore(
       <AllAttributionsPanel
         attributions={testAttributions}
         selectedAttributionId={null}
@@ -79,12 +79,12 @@ describe('The AllAttributionsPanel', () => {
         isAddToPackageEnabled={true}
       />
     );
-    getByText('name 1');
-    getByText('name 2');
+    screen.getByText('name 1');
+    screen.getByText('name 2');
   });
 
   test('does not show resource attribution of selected resource and next attributed parent', () => {
-    const { queryByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <AllAttributionsPanel
         attributions={testManualAttributions}
         selectedAttributionId={testManualAttributionUuid2}
@@ -106,9 +106,9 @@ describe('The AllAttributionsPanel', () => {
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
-    expect(queryByText('Typescript, 1.0')).toBeFalsy();
-    expect(queryByText('React, 2.0')).toBeTruthy();
-    expect(queryByText('Vue, 3.0')).toBeTruthy();
+    expect(screen.queryByText('Typescript, 1.0')).toBeFalsy();
+    expect(screen.queryByText('React, 2.0')).toBeTruthy();
+    expect(screen.queryByText('Vue, 3.0')).toBeTruthy();
   });
 
   test('has search functionality', () => {
@@ -120,7 +120,7 @@ describe('The AllAttributionsPanel', () => {
       },
       uuid2: { packageName: 'name 2', copyright: '(c)' },
     };
-    const { getByText, getByRole } = renderComponentWithStore(
+    renderComponentWithStore(
       <AllAttributionsPanel
         attributions={testAttributions}
         selectedAttributionId={null}
@@ -128,18 +128,18 @@ describe('The AllAttributionsPanel', () => {
         isAddToPackageEnabled={true}
       />
     );
-    getByText('name 1');
-    getByText('name 2');
+    screen.getByText('name 1');
+    screen.getByText('name 2');
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name 1' },
     });
-    getByText('name 1');
+    screen.getByText('name 1');
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name' },
     });
-    getByText('name 1');
-    getByText('name 2');
+    screen.getByText('name 1');
+    screen.getByText('name 2');
   });
 });

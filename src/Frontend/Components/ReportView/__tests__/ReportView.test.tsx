@@ -53,7 +53,7 @@ describe('The ReportView', () => {
       nameOrder: ['MIT', 'GPL'],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
-    const { getByText, store } = renderComponentWithStore(<ReportView />);
+    const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -64,16 +64,14 @@ describe('The ReportView', () => {
       )
     );
     store.dispatch(setFrequentLicences(testFrequentLicenses));
-    expect(getByText('Test package'));
-    expect(getByText('MIT text'));
-    expect(getByText('Test other package'));
-    expect(getByText('Some other license text'));
+    expect(screen.getByText('Test package'));
+    expect(screen.getByText('MIT text'));
+    expect(screen.getByText('Test other package'));
+    expect(screen.getByText('Some other license text'));
   });
 
   test('filters Follow-ups', () => {
-    const { queryByText, getByText, store } = renderComponentWithStore(
-      <ReportView />
-    );
+    const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -83,19 +81,17 @@ describe('The ReportView', () => {
         )
       )
     );
-    expect(getByText('Test package'));
-    expect(getByText('Test other package'));
+    expect(screen.getByText('Test package'));
+    expect(screen.getByText('Test other package'));
 
     clickOnCheckbox(screen, 'Show only follow-up (1)');
 
-    expect(getByText('Test other package'));
-    expect(queryByText('Test package')).toBe(null);
+    expect(screen.getByText('Test other package'));
+    expect(screen.queryByText('Test package')).toBe(null);
   });
 
   test('filters Follow-ups such that nothing left still shows checkbox', () => {
-    const { queryByText, getByText, store } = renderComponentWithStore(
-      <ReportView />
-    );
+    const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -105,12 +101,12 @@ describe('The ReportView', () => {
         )
       )
     );
-    expect(getByText('Test package'));
+    expect(screen.getByText('Test package'));
 
     clickOnCheckbox(screen, 'Show only follow-up (0)');
-    expect(queryByText('Test package')).toBe(null);
+    expect(screen.queryByText('Test package')).toBe(null);
 
     clickOnCheckbox(screen, 'Show only follow-up (0)');
-    expect(getByText('Test package'));
+    expect(screen.getByText('Test package'));
   });
 });

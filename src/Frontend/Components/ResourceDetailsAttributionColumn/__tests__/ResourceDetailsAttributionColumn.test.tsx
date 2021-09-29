@@ -23,6 +23,7 @@ import {
   setManualData,
   setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { screen } from '@testing-library/react';
 
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
@@ -91,39 +92,48 @@ describe('The ResourceDetailsAttributionColumn', () => {
       copyright: 'Copyright Doe Inc. 2019',
       licenseText: 'Permission is hereby granted',
     };
-    const { queryAllByText, getByDisplayValue, store } =
-      renderComponentWithStore(
-        <ResourceDetailsAttributionColumn showParentAttributions={true} />
-      );
+    const { store } = renderComponentWithStore(
+      <ResourceDetailsAttributionColumn showParentAttributions={true} />
+    );
     store.dispatch(setSelectedResourceId('test_id'));
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
 
-    expect(queryAllByText('Confidence')).toBeTruthy();
+    expect(screen.queryAllByText('Confidence')).toBeTruthy();
     expect(
-      getByDisplayValue(
+      screen.getByDisplayValue(
         (
           testTemporaryPackageInfo.attributionConfidence as unknown as number
         ).toString()
       )
     );
-    expect(queryAllByText('Comment')).toBeTruthy();
-    expect(getByDisplayValue(testTemporaryPackageInfo.comment as string));
-    expect(queryAllByText('Name')).toBeTruthy();
-    expect(getByDisplayValue(testTemporaryPackageInfo.packageName as string));
-    expect(queryAllByText('Version')).toBeTruthy();
+    expect(screen.queryAllByText('Comment')).toBeTruthy();
     expect(
-      getByDisplayValue(testTemporaryPackageInfo.packageVersion as string)
+      screen.getByDisplayValue(testTemporaryPackageInfo.comment as string)
     );
-    expect(queryAllByText('Copyright')).toBeTruthy();
-    expect(getByDisplayValue(testTemporaryPackageInfo.copyright as string));
+    expect(screen.queryAllByText('Name')).toBeTruthy();
     expect(
-      queryAllByText('License Text (to appear in attribution document)')
+      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+    );
+    expect(screen.queryAllByText('Version')).toBeTruthy();
+    expect(
+      screen.getByDisplayValue(
+        testTemporaryPackageInfo.packageVersion as string
+      )
+    );
+    expect(screen.queryAllByText('Copyright')).toBeTruthy();
+    expect(
+      screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
+    );
+    expect(
+      screen.queryAllByText('License Text (to appear in attribution document)')
     ).toBeTruthy();
-    expect(getByDisplayValue('Permission is hereby granted', { exact: false }));
+    expect(
+      screen.getByDisplayValue('Permission is hereby granted', { exact: false })
+    );
   });
 
   test('shows parent attribution if overrideParentMode is true', () => {
-    const { getByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />
     );
     getTestTemporaryAndExternalStateWithParentAttribution(
@@ -132,13 +142,13 @@ describe('The ResourceDetailsAttributionColumn', () => {
       testTemporaryPackageInfo
     );
 
-    expect(getByText('React'));
-    expect(getByText('16.5.0'));
-    expect(getByText(testManualLicense));
+    expect(screen.getByText('React'));
+    expect(screen.getByText('16.5.0'));
+    expect(screen.getByText(testManualLicense));
   });
 
   test('does not show parent attribution if overrideParentMode is false', () => {
-    const { queryByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={false} />
     );
     getTestTemporaryAndExternalStateWithParentAttribution(
@@ -147,8 +157,8 @@ describe('The ResourceDetailsAttributionColumn', () => {
       testTemporaryPackageInfo2
     );
 
-    expect(queryByText('React')).toBeFalsy();
-    expect(queryByText('16.5.0')).toBeFalsy();
-    expect(queryByText(testManualLicense)).toBeFalsy();
+    expect(screen.queryByText('React')).toBeFalsy();
+    expect(screen.queryByText('16.5.0')).toBeFalsy();
+    expect(screen.queryByText(testManualLicense)).toBeFalsy();
   });
 });

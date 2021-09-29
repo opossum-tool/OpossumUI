@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { doNothing } from '../../../util/do-nothing';
@@ -29,7 +29,7 @@ describe('The AttributionList', () => {
   });
 
   test('renders', () => {
-    const { getByText } = render(
+    render(
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
@@ -38,12 +38,12 @@ describe('The AttributionList', () => {
         title={'title'}
       />
     );
-    expect(getByText('Test package, 1.0'));
+    expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   test('renders first party icon', () => {
-    const { getByText, getByLabelText } = render(
+    render(
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
@@ -52,12 +52,12 @@ describe('The AttributionList', () => {
         title={'title'}
       />
     );
-    expect(getByText('Test package, 1.0'));
-    expect(getByLabelText('First party icon'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByLabelText('First party icon'));
   });
 
   test('sets selectedAttributionId on click', () => {
-    const { getByText } = render(
+    render(
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
@@ -66,7 +66,7 @@ describe('The AttributionList', () => {
         title={'title'}
       />
     );
-    const attributionCard = getByText('Test package, 1.0');
+    const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeTruthy();
     fireEvent.click(attributionCard);
     expect(mockCallback.mock.calls.length).toBe(1);

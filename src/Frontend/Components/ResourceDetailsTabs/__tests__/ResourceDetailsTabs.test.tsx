@@ -28,7 +28,7 @@ describe('The ResourceDetailsTabs', () => {
       uuid_1: { packageName: 'jQuery' },
     };
 
-    const { getByText, queryByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ResourceDetailsTabs
         isAllAttributionsTabEnabled={true}
         isAddToPackageEnabled={true}
@@ -41,13 +41,13 @@ describe('The ResourceDetailsTabs', () => {
     act(() => {
       store.dispatch(setSelectedResourceId('/fileWithoutAttribution'));
     });
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(queryByText('Signals')).toBeFalsy();
+    expect(screen.queryByText('Signals')).toBeFalsy();
 
     clickOnTab(screen, 'Signals & Content Tab');
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
   });
 
   test('has All Attributions Tab disabled when no addable attribution is present', () => {
@@ -61,7 +61,7 @@ describe('The ResourceDetailsTabs', () => {
       '/fileWithAttribution': ['uuid_1'],
     };
 
-    const { getByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ResourceDetailsTabs
         isAllAttributionsTabEnabled={true}
         isAddToPackageEnabled={true}
@@ -80,9 +80,9 @@ describe('The ResourceDetailsTabs', () => {
     act(() => {
       store.dispatch(setSelectedResourceId('/fileWithAttribution'));
     });
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
   });
 });

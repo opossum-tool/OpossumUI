@@ -8,24 +8,25 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { PathBar } from '../PathBar';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setFilesWithChildren } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { screen } from '@testing-library/react';
 
 describe('The PathBar', () => {
   test('renders a path', () => {
     const testPath = '/test_path';
 
-    const { getByText, store } = renderComponentWithStore(<PathBar />);
+    const { store } = renderComponentWithStore(<PathBar />);
     store.dispatch(setSelectedResourceId(testPath));
 
-    expect(getByText(testPath));
+    expect(screen.getByText(testPath));
   });
 
   test('renders a path of a file with children', () => {
     const testPath = '/test_path/';
 
-    const { getByText, store } = renderComponentWithStore(<PathBar />);
+    const { store } = renderComponentWithStore(<PathBar />);
     store.dispatch(setSelectedResourceId(testPath));
     store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));
 
-    expect(getByText(testPath.slice(0, -1)));
+    expect(screen.getByText(testPath.slice(0, -1)));
   });
 });

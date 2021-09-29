@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/dom';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -66,9 +66,7 @@ describe('ProgressBar', () => {
       '/folder2/file2': [testExternalAttributionUuid],
     };
 
-    const { getByLabelText, getByText, store } = renderComponentWithStore(
-      <ProgressBar />
-    );
+    const { store } = renderComponentWithStore(<ProgressBar />);
     store.dispatch(
       setProgressBarData(
         testResources,
@@ -79,16 +77,16 @@ describe('ProgressBar', () => {
       )
     );
 
-    const progressBar = getByLabelText('ProgressBar');
+    const progressBar = screen.getByLabelText('ProgressBar');
     fireEvent.mouseOver(progressBar);
     act(() => {
       jest.runAllTimers();
     });
-    expect(getByText(/Number of files: 6/)).toBeDefined();
+    expect(screen.getByText(/Number of files: 6/)).toBeDefined();
     expect(
-      getByText(/Files with attributions: 3/) &&
-        getByText(/Files with only pre-selected attributions: 1/) &&
-        getByText(/Files with only signals: 1/)
+      screen.getByText(/Files with attributions: 3/) &&
+        screen.getByText(/Files with only pre-selected attributions: 1/) &&
+        screen.getByText(/Files with only signals: 1/)
     ).toBeDefined();
   });
 

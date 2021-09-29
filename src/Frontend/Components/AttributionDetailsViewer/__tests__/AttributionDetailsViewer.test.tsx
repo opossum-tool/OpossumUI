@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import { DiscreteConfidence, View } from '../../../enums/enums';
@@ -84,16 +84,14 @@ describe('The AttributionDetailsViewer', () => {
         packageName: 'JQuery',
       },
     };
-    const { getByRole, getByText, store } = renderComponentWithStore(
-      <AttributionDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
     store.dispatch(loadFromFile(getParsedInputFile({}, manualAttributions)));
     store.dispatch(navigateToView(View.Attribution));
     store.dispatch(setSelectedAttributionId('uuid_1'));
     store.dispatch(setTemporaryPackageInfo(expectedPackageInfo));
-    expect(getByText('React'));
+    expect(screen.getByText('React'));
 
-    fireEvent.click(getByRole('button', { name: 'Save' }) as Element);
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }) as Element);
     expect(getManualAttributions(store.getState()).uuid_1).toEqual(
       expectedPackageInfo
     );

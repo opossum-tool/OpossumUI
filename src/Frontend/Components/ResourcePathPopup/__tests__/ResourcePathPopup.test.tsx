@@ -16,6 +16,7 @@ import {
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useDispatch } from 'react-redux';
+import { screen } from '@testing-library/react';
 
 interface HelperComponentProps {
   isExternalAttribution: boolean;
@@ -48,20 +49,18 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
 
 describe('ResourcePathPopup', () => {
   test('renders resources for manual Attributions', () => {
-    const { queryByText } = renderComponentWithStore(
-      <HelperComponent isExternalAttribution={false} />
-    );
+    renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
-    expect(queryByText('Resources for selected attribution')).toBeTruthy();
-    expect(queryByText('/thirdParty')).toBeTruthy();
+    expect(
+      screen.queryByText('Resources for selected attribution')
+    ).toBeTruthy();
+    expect(screen.queryByText('/thirdParty')).toBeTruthy();
   });
 
   test('renders resources for external Attributions', () => {
-    const { queryByText } = renderComponentWithStore(
-      <HelperComponent isExternalAttribution={true} />
-    );
+    renderComponentWithStore(<HelperComponent isExternalAttribution={true} />);
 
-    expect(queryByText('Resources for selected signal')).toBeTruthy();
-    expect(queryByText('/firstParty')).toBeTruthy();
+    expect(screen.queryByText('Resources for selected signal')).toBeTruthy();
+    expect(screen.queryByText('/firstParty')).toBeTruthy();
   });
 });

@@ -8,7 +8,7 @@ import { View } from '../../../enums/enums';
 import { ResourcesList } from '../ResourcesList';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { getSelectedView } from '../../../state/selectors/view-selector';
 import {
   getExpandedIds,
@@ -22,19 +22,19 @@ describe('The ResourcesList', () => {
   ];
 
   test('component renders', () => {
-    const { getByText } = renderComponentWithStore(
+    renderComponentWithStore(
       <ResourcesList resourceIds={resourceIdsOfSelectedAttributionId} />
     );
-    expect(getByText('/folder1/folder2/resource_1')).toBeTruthy();
-    expect(getByText('resource_2')).toBeTruthy();
+    expect(screen.getByText('/folder1/folder2/resource_1')).toBeTruthy();
+    expect(screen.getByText('resource_2')).toBeTruthy();
   });
   test('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
-    const { getByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ResourcesList resourceIds={resourceIdsOfSelectedAttributionId} />
     );
     store.dispatch(navigateToView(View.Attribution));
 
-    fireEvent.click(getByText('/folder1/folder2/resource_1'));
+    fireEvent.click(screen.getByText('/folder1/folder2/resource_1'));
 
     expect(getSelectedResourceId(store.getState())).toBe(
       '/folder1/folder2/resource_1'
@@ -49,7 +49,7 @@ describe('The ResourcesList', () => {
   });
   test('clicking on a path changes the view, selectedResourceId and expandedResources with user callback', () => {
     const onClickCallback = jest.fn();
-    const { getByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ResourcesList
         resourceIds={resourceIdsOfSelectedAttributionId}
         onClickCallback={onClickCallback}
@@ -57,7 +57,7 @@ describe('The ResourcesList', () => {
     );
     store.dispatch(navigateToView(View.Attribution));
 
-    fireEvent.click(getByText('/folder1/folder2/resource_1'));
+    fireEvent.click(screen.getByText('/folder1/folder2/resource_1'));
 
     expect(onClickCallback).toHaveBeenCalled();
     expect(getSelectedResourceId(store.getState())).toBe(

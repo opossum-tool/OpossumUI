@@ -44,46 +44,44 @@ describe('ResourceBrowser', () => {
       },
     };
 
-    const { getByText, queryByText, store } = renderComponentWithStore(
-      <ResourceBrowser />
-    );
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
 
-    expect(getByText('/'));
-    expect(getByText('root'));
-    expect(getByText('thirdParty'));
-    expect(queryByText('src')).toBeNull();
-    fireEvent.click(queryByText('root') as Element);
+    expect(screen.getByText('/'));
+    expect(screen.getByText('root'));
+    expect(screen.getByText('thirdParty'));
+    expect(screen.queryByText('src')).toBeNull();
+    fireEvent.click(screen.queryByText('root') as Element);
 
-    expect(getByText('root'));
-    expect(getByText('readme.md'));
-    expect(queryByText('something.js')).toBeNull();
+    expect(screen.getByText('root'));
+    expect(screen.getByText('readme.md'));
+    expect(screen.queryByText('something.js')).toBeNull();
     expect(getSelectedResourceId(store.getState())).toBe('/root/');
 
-    fireEvent.click(queryByText('src') as Element);
-    expect(getByText('something.js'));
+    fireEvent.click(screen.queryByText('src') as Element);
+    expect(screen.getByText('something.js'));
     expect(getSelectedResourceId(store.getState())).toBe('/root/src/');
 
-    fireEvent.click(queryByText('src') as Element);
-    expect(queryByText('something.js')).not.toBeNull();
+    fireEvent.click(screen.queryByText('src') as Element);
+    expect(screen.queryByText('something.js')).not.toBeNull();
 
     collapseFolderByClickingOnIcon(screen, '/root/src/');
-    expect(queryByText('something.js')).toBeNull();
+    expect(screen.queryByText('something.js')).toBeNull();
 
-    fireEvent.click(queryByText('src') as Element);
-    expect(getByText('something.js'));
+    fireEvent.click(screen.queryByText('src') as Element);
+    expect(screen.getByText('something.js'));
 
-    fireEvent.click(queryByText('root') as Element);
-    expect(getByText('something.js'));
-    expect(getByText('src'));
+    fireEvent.click(screen.queryByText('root') as Element);
+    expect(screen.getByText('something.js'));
+    expect(screen.getByText('src'));
 
     collapseFolderByClickingOnIcon(screen, '/root/');
-    expect(queryByText('something.js')).not.toBeTruthy();
-    expect(queryByText('src')).not.toBeTruthy();
+    expect(screen.queryByText('something.js')).not.toBeTruthy();
+    expect(screen.queryByText('src')).not.toBeTruthy();
 
-    fireEvent.click(queryByText('root') as Element);
-    expect(queryByText('something.js')).not.toBeTruthy();
-    expect(getByText('src'));
+    fireEvent.click(screen.queryByText('root') as Element);
+    expect(screen.queryByText('something.js')).not.toBeTruthy();
+    expect(screen.getByText('src'));
   });
 
   test('opens folders recursively', () => {
@@ -98,25 +96,23 @@ describe('ResourceBrowser', () => {
       },
     };
 
-    const { getByText, queryByText, store } = renderComponentWithStore(
-      <ResourceBrowser />
-    );
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
 
-    expect(getByText('/'));
-    expect(getByText('parentDirectory'));
-    expect(queryByText('childDirectory')).not.toBeTruthy();
-    expect(queryByText('GrandchildDirectory')).not.toBeTruthy();
-    expect(queryByText('package_1.tr.gz')).not.toBeTruthy();
-    expect(queryByText('package_2.tr.gz')).not.toBeTruthy();
+    expect(screen.getByText('/'));
+    expect(screen.getByText('parentDirectory'));
+    expect(screen.queryByText('childDirectory')).not.toBeTruthy();
+    expect(screen.queryByText('GrandchildDirectory')).not.toBeTruthy();
+    expect(screen.queryByText('package_1.tr.gz')).not.toBeTruthy();
+    expect(screen.queryByText('package_2.tr.gz')).not.toBeTruthy();
 
-    fireEvent.click(queryByText('parentDirectory') as Element);
-    expect(getByText('/'));
-    expect(getByText('parentDirectory'));
-    expect(getByText('childDirectory'));
-    expect(getByText('GrandchildDirectory'));
-    expect(getByText('package_1.tr.gz'));
-    expect(getByText('package_2.tr.gz'));
+    fireEvent.click(screen.queryByText('parentDirectory') as Element);
+    expect(screen.getByText('/'));
+    expect(screen.getByText('parentDirectory'));
+    expect(screen.getByText('childDirectory'));
+    expect(screen.getByText('GrandchildDirectory'));
+    expect(screen.getByText('package_1.tr.gz'));
+    expect(screen.getByText('package_2.tr.gz'));
   });
 
   test('Resource browser renders icons', () => {
@@ -142,9 +138,7 @@ describe('ResourceBrowser', () => {
       '/root/src/': [testUuid],
     };
 
-    const { queryByText, store } = renderComponentWithStore(
-      <ResourceBrowser />
-    );
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
     store.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)
@@ -156,23 +150,23 @@ describe('ResourceBrowser', () => {
       )
     );
 
-    expect(queryByText('/')).toBeTruthy();
-    expect(queryByText('root')).toBeTruthy();
+    expect(screen.queryByText('/')).toBeTruthy();
+    expect(screen.queryByText('root')).toBeTruthy();
     expectIconToExist(screen, 'Signal icon', 'root', false);
     expectResourceIconLabelToBe(
       screen,
       'root',
       'Directory icon containing signals'
     );
-    expect(queryByText('src')).toBeNull();
+    expect(screen.queryByText('src')).toBeNull();
 
-    fireEvent.click(queryByText('root') as Element);
-    expect(queryByText('src')).toBeTruthy();
+    fireEvent.click(screen.queryByText('root') as Element);
+    expect(screen.queryByText('src')).toBeTruthy();
     expectIconToExist(screen, 'Signal icon', 'src', true);
     expectResourceIconLabelToBe(screen, 'src', 'Directory icon with signal');
 
-    fireEvent.click(queryByText('src') as Element);
-    expect(queryByText('something.js')).toBeTruthy();
+    fireEvent.click(screen.queryByText('src') as Element);
+    expect(screen.queryByText('something.js')).toBeTruthy();
     expectIconToExist(screen, 'Signal icon', 'something.js', false);
     expectResourceIconLabelToBe(
       screen,
@@ -203,12 +197,11 @@ describe('ResourceBrowser', () => {
       'a_package.exe': 1,
     };
 
-    const { getByText, queryByText, queryAllByText, store } =
-      renderComponentWithStore(<ResourceBrowser />);
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
 
-    expect(getByText('/'));
-    expect(queryByText('doesntExist')).toBeNull();
+    expect(screen.getByText('/'));
+    expect(screen.queryByText('doesntExist')).toBeNull();
 
     const expectedSequence: Array<string> = [
       'a_package.exe',
@@ -216,7 +209,7 @@ describe('ResourceBrowser', () => {
       'c_package.exe',
       'd_package.exe',
     ];
-    const allPackages = queryAllByText(/package/);
+    const allPackages = screen.queryAllByText(/package/);
     const actualSequence = allPackages.map((p) => {
       if (p.firstChild) {
         return p.firstChild.textContent;
@@ -234,11 +227,10 @@ describe('ResourceBrowser', () => {
       d_package_folder: {},
     };
 
-    const { getByText, queryByText, queryAllByText, store } =
-      renderComponentWithStore(<ResourceBrowser />);
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
-    expect(getByText('/'));
-    expect(queryByText('doesntExist')).toBeNull();
+    expect(screen.getByText('/'));
+    expect(screen.queryByText('doesntExist')).toBeNull();
 
     const expectedSequence: Array<string> = [
       'c_package_folder',
@@ -247,7 +239,7 @@ describe('ResourceBrowser', () => {
       'b_package.exe',
     ];
 
-    const allPackages = queryAllByText(/package/);
+    const allPackages = screen.queryAllByText(/package/);
     const actualSequence = allPackages.map((p) => {
       if (p.firstChild) {
         return p.firstChild.textContent;
@@ -266,13 +258,12 @@ describe('ResourceBrowser', () => {
       'package.json': {},
     };
 
-    const { getByText, queryByText, queryAllByText, store } =
-      renderComponentWithStore(<ResourceBrowser />);
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
     store.dispatch(setFilesWithChildren(new Set(['/package.json/'])));
 
-    expect(getByText('/'));
-    expect(queryByText('doesntExist')).toBeNull();
+    expect(screen.getByText('/'));
+    expect(screen.queryByText('doesntExist')).toBeNull();
 
     const expectedSequence: Array<string> = [
       'a_package_folder',
@@ -282,7 +273,7 @@ describe('ResourceBrowser', () => {
       'z_package.exe',
     ];
 
-    const allPackages = queryAllByText(/package/);
+    const allPackages = screen.queryAllByText(/package/);
     const actualSequence = allPackages.map((p) => {
       if (p.firstChild) {
         return p.firstChild.textContent;

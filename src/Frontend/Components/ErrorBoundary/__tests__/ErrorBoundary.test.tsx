@@ -10,6 +10,7 @@ import { initialViewState } from '../../../state/reducers/view-reducer';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { IpcChannel } from '../../../../shared/ipc-channels';
+import { screen } from '@testing-library/react';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -39,7 +40,7 @@ describe('ErrorBoundary', () => {
   }
 
   test('renders its children', () => {
-    const { getByText } = renderComponentWithStore(
+    renderComponentWithStore(
       <ErrorBoundary>
         <TestComponent throws={false} />
       </ErrorBoundary>
@@ -48,14 +49,14 @@ describe('ErrorBoundary', () => {
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
     expect(window.ipcRenderer.on).toHaveBeenCalledTimes(1);
 
-    getByText('Test');
+    screen.getByText('Test');
   });
 
   test('renders fallback and restores state', () => {
     // we expect warnings that we do not want to see
     jest.spyOn(console, 'error').mockImplementation();
 
-    const { queryByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ErrorBoundary>
         <TestComponent throws={true} />
       </ErrorBoundary>
@@ -75,6 +76,6 @@ describe('ErrorBoundary', () => {
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(store.getState().viewState).toMatchObject(initialViewState);
 
-    expect(queryByText('Test')).toBeFalsy();
+    expect(screen.queryByText('Test')).toBeFalsy();
   });
 });

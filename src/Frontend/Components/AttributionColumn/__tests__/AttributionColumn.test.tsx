@@ -65,26 +65,21 @@ describe('The AttributionColumn', () => {
       licenseName: 'Made up license name',
       url: 'www.1999.com',
     };
-    const {
-      getByDisplayValue,
-      queryByText,
-      getByLabelText,
-      queryAllByText,
-      store,
-    } = renderComponentWithStore(
-      <AttributionColumn
-        isEditable={true}
-        displayPackageInfo={testTemporaryPackageInfo}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
-        onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveForAllButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteForAllButtonClick={doNothing}
-      />
-    );
+    const { getByDisplayValue, getByLabelText, queryAllByText, store } =
+      renderComponentWithStore(
+        <AttributionColumn
+          isEditable={true}
+          displayPackageInfo={testTemporaryPackageInfo}
+          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          onSaveButtonClick={doNothing}
+          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          onSaveForAllButtonClick={doNothing}
+          showManualAttributionData={true}
+          saveFileRequestListener={doNothing}
+          onDeleteButtonClick={doNothing}
+          onDeleteForAllButtonClick={doNothing}
+        />
+      );
     store.dispatch(setSelectedResourceId('test_id'));
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
 
@@ -104,7 +99,7 @@ describe('The AttributionColumn', () => {
     );
     expect(queryAllByText('(Defined in parent folder)')).toHaveLength(0);
     expect(queryAllByText('Override parent')).toHaveLength(0);
-    expect(queryByText('Source')).toBeFalsy();
+    expect(screen.queryByText('Source')).toBeFalsy();
     expect(getByLabelText('Copyright'));
     expect(getByDisplayValue(testTemporaryPackageInfo.copyright as string));
     expect(getByLabelText('License Name'));

@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ListCard } from '../ListCard';
 
 describe('The ListCard', () => {
   test('renders text with no count', () => {
-    const { getByText } = render(
+    render(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -19,12 +19,12 @@ describe('The ListCard', () => {
       />
     );
 
-    expect(getByText('card text'));
-    expect(getByText('card text of second line'));
+    expect(screen.getByText('card text'));
+    expect(screen.getByText('card text of second line'));
   });
 
   test('renders text with small count', () => {
-    const { getByText } = render(
+    render(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -34,13 +34,13 @@ describe('The ListCard', () => {
       />
     );
 
-    expect(getByText('card text'));
-    expect(getByText('card text of second line'));
-    expect(getByText('13'));
+    expect(screen.getByText('card text'));
+    expect(screen.getByText('card text of second line'));
+    expect(screen.getByText('13'));
   });
 
   test('renders text with medium count', () => {
-    const { getByText } = render(
+    render(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -50,13 +50,13 @@ describe('The ListCard', () => {
       />
     );
 
-    expect(getByText('card text'));
-    expect(getByText('card text of second line'));
-    expect(getByText('13k'));
+    expect(screen.getByText('card text'));
+    expect(screen.getByText('card text of second line'));
+    expect(screen.getByText('13k'));
   });
 
   test('renders text with large count', () => {
-    const { getByText } = render(
+    render(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -66,8 +66,8 @@ describe('The ListCard', () => {
       />
     );
 
-    expect(getByText('card text'));
-    expect(getByText('card text of second line'));
-    expect(getByText('1M'));
+    expect(screen.getByText('card text'));
+    expect(screen.getByText('card text of second line'));
+    expect(screen.getByText('1M'));
   });
 });
