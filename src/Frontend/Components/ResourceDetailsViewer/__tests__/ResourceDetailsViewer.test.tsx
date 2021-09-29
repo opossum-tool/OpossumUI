@@ -146,9 +146,7 @@ describe('The ResourceDetailsViewer', () => {
   );
 
   test('renders a ExternalPackageCard', () => {
-    const { getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(setSelectedResourceId('/test_id'));
     const externalAttributions: Attributions = {
       uuid_1: {
@@ -176,14 +174,12 @@ describe('The ResourceDetailsViewer', () => {
     );
     store.dispatch(setTemporaryPackageInfo({}));
 
-    expect(getByText('Signals'));
-    expect(getByText('JQuery'));
+    expect(screen.getByText('Signals'));
+    expect(screen.getByText('JQuery'));
   });
 
   test('renders Contained External Packages', () => {
-    const { getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     const externalAttributions: Attributions = {
       uuid_2: {
         packageName: 'JQuery',
@@ -212,8 +208,8 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('/test_id/'));
     store.dispatch(setTemporaryPackageInfo({}));
 
-    expect(getByText('Signals in Folder Content'));
-    expect(getByText('JQuery, 1.0'));
+    expect(screen.getByText('Signals in Folder Content'));
+    expect(screen.getByText('JQuery, 1.0'));
   });
 
   test('selects an external package and a manual package, showing the right info', () => {
@@ -229,7 +225,7 @@ describe('The ResourceDetailsViewer', () => {
       },
     };
     const resourcesToExternalAttributions = { '/test_id': ['uuid_2'] };
-    const { getByText, queryByRole, store } = renderComponentWithStore(
+    const { queryByRole, store } = renderComponentWithStore(
       <ResourceDetailsViewer />
     );
     store.dispatch(setSelectedResourceId('/test_id'));
@@ -245,10 +241,10 @@ describe('The ResourceDetailsViewer', () => {
       )
     );
 
-    fireEvent.click(getByText('jQuery, 16.5.0') as Element);
-    expect(getByText('jQuery'));
-    expect(getByText('16.5.0'));
-    expect(getByText('JQuery'));
+    fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
+    expect(screen.getByText('jQuery'));
+    expect(screen.getByText('16.5.0'));
+    expect(screen.getByText('JQuery'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -260,7 +256,7 @@ describe('The ResourceDetailsViewer', () => {
       testExternalLicense
     );
 
-    fireEvent.click(getByText('JQuery') as Element);
+    fireEvent.click(screen.getByText('JQuery') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -273,7 +269,7 @@ describe('The ResourceDetailsViewer', () => {
     );
     expect(queryByRole('button', { name: 'Save' })).toBeFalsy();
 
-    fireEvent.click(getByText('jQuery, 16.5.0') as Element);
+    fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -304,7 +300,7 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_2'],
     };
-    const { getByText, getByLabelText, store } = renderComponentWithStore(
+    const { getByLabelText, store } = renderComponentWithStore(
       <ResourceDetailsViewer />
     );
     store.dispatch(setSelectedResourceId('/test_id'));
@@ -320,8 +316,8 @@ describe('The ResourceDetailsViewer', () => {
       )
     );
 
-    fireEvent.click(getByText('jQuery, 16.5.0') as Element);
-    expect(getByText('JQuery'));
+    fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
+    expect(screen.getByText('JQuery'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -333,7 +329,7 @@ describe('The ResourceDetailsViewer', () => {
       testExternalLicense
     );
 
-    fireEvent.click(getByText('JQuery') as Element);
+    fireEvent.click(screen.getByText('JQuery') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -345,7 +341,7 @@ describe('The ResourceDetailsViewer', () => {
       testExternalLicense
     );
 
-    fireEvent.click(getByText('jQuery, 16.5.0') as Element);
+    fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -358,7 +354,7 @@ describe('The ResourceDetailsViewer', () => {
     );
 
     fireEvent.click(getByLabelText('add JQuery') as Element);
-    fireEvent.click(getByText('Attributions') as Element);
+    fireEvent.click(screen.getByText('Attributions') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -372,7 +368,7 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   test('selects the manual package view after you added an external package', () => {
-    const { getByText, getByLabelText, store } = renderComponentWithStore(
+    const { getByLabelText, store } = renderComponentWithStore(
       <ResourceDetailsViewer />
     );
 
@@ -411,7 +407,7 @@ describe('The ResourceDetailsViewer', () => {
       )
     );
 
-    fireEvent.click(getByText('Other package') as Element);
+    fireEvent.click(screen.getByText('Other package') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -447,17 +443,15 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   test('shows parent attribution if child has no other attribution', () => {
-    const { getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
       testTemporaryPackageInfo
     );
 
-    expect(getByText('jQuery'));
-    expect(getByText('16.5.0'));
+    expect(screen.getByText('jQuery'));
+    expect(screen.getByText('16.5.0'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -466,17 +460,15 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   test('does not show parent attribution if child has another attribution', () => {
-    const { getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child_with_own_attr',
       testTemporaryPackageInfo2
     );
 
-    expect(getByText('Vue.js'));
-    expect(getByText('2.6.11'));
+    expect(screen.getByText('Vue.js'));
+    expect(screen.getByText('2.6.11'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -492,24 +484,22 @@ describe('The ResourceDetailsViewer', () => {
       uuid_1: testTemporaryPackageInfo,
     };
     const manualPackagePanelLabel = `${testTemporaryPackageInfo.packageName}, ${testTemporaryPackageInfo.packageVersion}`;
-    const { queryByText, getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
       loadFromFile(getParsedInputFile(testResources, manualAttributions))
     );
 
     store.dispatch(setSelectedResourceId('/fileWithoutAttribution'));
-    expect(getByText('Signals'));
-    expect(queryByText(manualPackagePanelLabel)).toBeFalsy();
+    expect(screen.getByText('Signals'));
+    expect(screen.queryByText(manualPackagePanelLabel)).toBeFalsy();
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(queryByText('Signals')).toBeFalsy();
-    expect(getByText(manualPackagePanelLabel));
+    expect(screen.queryByText('Signals')).toBeFalsy();
+    expect(screen.getByText(manualPackagePanelLabel));
 
     clickOnTab(screen, 'Signals & Content Tab');
-    expect(getByText('Signals'));
-    expect(queryByText(manualPackagePanelLabel)).toBeFalsy();
+    expect(screen.getByText('Signals'));
+    expect(screen.queryByText(manualPackagePanelLabel)).toBeFalsy();
   });
 
   test('shows disabled add to package tab if no assignable package is present', () => {
@@ -522,9 +512,7 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/fileWithAttribution': ['uuid_1'],
     };
-    const { getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -536,10 +524,10 @@ describe('The ResourceDetailsViewer', () => {
     );
 
     store.dispatch(setSelectedResourceId('/fileWithAttribution'));
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
   });
 
   test('shows disabled add to package tab if override parent has not been clicked', () => {
@@ -553,9 +541,7 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/folderWithAttribution/': ['uuid_1'],
     };
-    const { getByText, store } = renderComponentWithStore(
-      <ResourceDetailsViewer />
-    );
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -569,14 +555,14 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(
       setSelectedResourceId('/folderWithAttribution/childrenFile')
     );
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(getByText('Signals'));
+    expect(screen.getByText('Signals'));
   });
 
   test('hides the package info for attribution breakpoints unless a signal is selected', () => {
-    const { queryByText, getByText, store } = renderComponentWithStore(
+    const { queryByText, store } = renderComponentWithStore(
       <ResourceDetailsViewer />
     );
 
@@ -607,14 +593,14 @@ describe('The ResourceDetailsViewer', () => {
       })
     );
 
-    expect(queryByText('Attributions')).toBeFalsy();
-    expect(queryByText('Add new attribution')).toBeFalsy();
-    expect(queryByText('1st party')).toBeFalsy();
+    expect(screen.queryByText('Attributions')).toBeFalsy();
+    expect(screen.queryByText('Add new attribution')).toBeFalsy();
+    expect(screen.queryByText('1st party')).toBeFalsy();
     expect(
       queryByText('License Text (to appear in attribution document)')
     ).toBeFalsy();
 
-    fireEvent.click(getByText('Other package') as Element);
+    fireEvent.click(screen.getByText('Other package') as Element);
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',

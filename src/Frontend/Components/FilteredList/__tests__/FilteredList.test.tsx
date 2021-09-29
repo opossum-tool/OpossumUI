@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -29,7 +29,7 @@ describe('The FilteredList', () => {
         packageVersion: 'packageVersion',
       },
     };
-    const { getByText, queryByText, getByRole } = renderComponentWithStore(
+    const { getByRole } = renderComponentWithStore(
       <FilteredList
         attributions={testAttributions}
         attributionIds={['uuid1', 'uuid2', 'uuid3']}
@@ -39,43 +39,43 @@ describe('The FilteredList', () => {
         max={{ numberOfDisplayedItems: 20 }}
       />
     );
-    getByText('uuid1');
-    getByText('uuid2');
-    getByText('uuid3');
+    screen.getByText('uuid1');
+    screen.getByText('uuid2');
+    screen.getByText('uuid3');
 
     fireEvent.change(getByRole('searchbox'), {
       target: { value: 'name 1' },
     });
-    getByText('uuid1');
-    expect(queryByText('uuid2')).toBeNull();
-    expect(queryByText('uuid3')).toBeNull();
+    screen.getByText('uuid1');
+    expect(screen.queryByText('uuid2')).toBeNull();
+    expect(screen.queryByText('uuid3')).toBeNull();
 
     fireEvent.change(getByRole('searchbox'), {
       target: { value: 'name' },
     });
-    getByText('uuid1');
-    getByText('uuid2');
-    expect(queryByText('uuid3')).toBeNull();
+    screen.getByText('uuid1');
+    screen.getByText('uuid2');
+    expect(screen.queryByText('uuid3')).toBeNull();
 
     fireEvent.change(getByRole('searchbox'), {
       target: { value: '(C)' },
     });
-    expect(queryByText('uuid1')).toBeNull();
-    getByText('uuid2');
-    expect(queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid1')).toBeNull();
+    screen.getByText('uuid2');
+    expect(screen.queryByText('uuid3')).toBeNull();
 
     fireEvent.change(getByRole('searchbox'), {
       target: { value: 'NAME 2' },
     });
-    getByText('uuid1');
-    getByText('uuid2');
-    expect(queryByText('uuid3')).toBeNull();
+    screen.getByText('uuid1');
+    screen.getByText('uuid2');
+    expect(screen.queryByText('uuid3')).toBeNull();
 
     fireEvent.change(getByRole('searchbox'), {
       target: { value: 'comment' },
     });
-    expect(queryByText('uuid1')).toBeNull();
-    expect(queryByText('uuid2')).toBeNull();
-    expect(queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid1')).toBeNull();
+    expect(screen.queryByText('uuid2')).toBeNull();
+    expect(screen.queryByText('uuid3')).toBeNull();
   });
 });

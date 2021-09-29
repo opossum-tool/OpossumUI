@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ManualPackagePanel } from '../ManualPackagePanel';
@@ -14,7 +14,7 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 describe('The ManualPackagePanel', () => {
   test('shows default and input attributions', () => {
     const mockOnOverride = jest.fn();
-    const { getByText, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <ManualPackagePanel
         showParentAttributions={false}
         overrideParentMode={false}
@@ -36,13 +36,13 @@ describe('The ManualPackagePanel', () => {
     );
     store.dispatch(setSelectedResourceId('/file'));
 
-    expect(getByText('React'));
-    expect(getByText('Add new attribution'));
+    expect(screen.getByText('React'));
+    expect(screen.getByText('Add new attribution'));
   });
 
   test('Shows hint and override button for parent attribution', () => {
     const mockOnOverride = jest.fn();
-    const { queryAllByText } = renderComponentWithStore(
+    renderComponentWithStore(
       <ManualPackagePanel
         showParentAttributions={true}
         overrideParentMode={false}
@@ -50,7 +50,7 @@ describe('The ManualPackagePanel', () => {
         onOverrideParentClick={mockOnOverride}
       />
     );
-    const overrideButtonQuery = queryAllByText('Override parent');
+    const overrideButtonQuery = screen.queryAllByText('Override parent');
     expect(overrideButtonQuery).toHaveLength(1);
 
     const overrideButton = overrideButtonQuery[0];

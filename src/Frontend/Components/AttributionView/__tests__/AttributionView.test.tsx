@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -19,7 +19,6 @@ import {
   getParsedInputFile,
 } from '../../../test-helpers/test-helpers';
 import { AttributionView } from '../AttributionView';
-import { screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 
 let originalIpcRenderer: IpcRenderer;
@@ -66,9 +65,7 @@ describe('The Attribution View', () => {
   ];
 
   test('renders', () => {
-    const { getByRole, getByText, store } = renderComponentWithStore(
-      <AttributionView />
-    );
+    const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -79,20 +76,18 @@ describe('The Attribution View', () => {
       )
     );
     store.dispatch(navigateToView(View.Attribution));
-    expect(getByText('All Attributions (2)'));
-    expect(getByText('Test package, 1.0'));
-    expect(getByText('Test other package, 2.0'));
+    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByText('Test other package, 2.0'));
 
-    fireEvent.click(getByText('Test package, 1.0') as Element);
-    expect(getByText('Test package'));
-    expect(getByRole('button', { name: 'Save' }));
-    expect(getByText('test resource'));
+    fireEvent.click(screen.getByText('Test package, 1.0') as Element);
+    expect(screen.getByText('Test package'));
+    expect(screen.getByRole('button', { name: 'Save' }));
+    expect(screen.getByText('test resource'));
   });
 
   test('filters Follow-ups', () => {
-    const { queryByText, getByText, store } = renderComponentWithStore(
-      <AttributionView />
-    );
+    const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFile(
@@ -103,13 +98,13 @@ describe('The Attribution View', () => {
       )
     );
     store.dispatch(navigateToView(View.Attribution));
-    expect(getByText('All Attributions (2)'));
-    expect(getByText('Test package, 1.0'));
-    expect(getByText('Test other package, 2.0'));
+    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByText('Test other package, 2.0'));
 
     clickOnCheckbox(screen, 'Show only follow-up (1)');
 
-    expect(getByText('Test other package, 2.0'));
-    expect(queryByText('Test package, 1.0')).toBe(null);
+    expect(screen.getByText('Test other package, 2.0'));
+    expect(screen.queryByText('Test package, 1.0')).toBe(null);
   });
 });

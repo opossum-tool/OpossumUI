@@ -6,11 +6,12 @@
 import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ErrorPopup } from '../ErrorPopup';
+import { screen } from '@testing-library/react';
 
 describe('Error popup ', () => {
   test('renders', () => {
-    const { queryByText } = renderComponentWithStore(<ErrorPopup />);
+    renderComponentWithStore(<ErrorPopup />);
 
-    expect(queryByText('Error')).toBeTruthy();
+    expect(screen.queryByText('Error')).toBeTruthy();
   });
 });

@@ -28,7 +28,7 @@ const testCardWithPreSelectedConfig: ListCardConfig = {
 
 describe('The PackagePanelCard', () => {
   test('renders content', () => {
-    const { getByText } = renderComponentWithStore(
+    renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
@@ -37,11 +37,11 @@ describe('The PackagePanelCard', () => {
       />
     );
 
-    expect(getByText('Test'));
+    expect(screen.getByText('Test'));
   });
 
   test('renders only first party icon and show resources icon', () => {
-    const { getByLabelText, queryByLabelText } = renderComponentWithStore(
+    renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
@@ -50,15 +50,15 @@ describe('The PackagePanelCard', () => {
       />
     );
 
-    expect(getByLabelText('show resources'));
-    expect(getByLabelText('First party icon'));
-    expect(queryByLabelText('Exclude from notice icon')).toBeFalsy();
-    expect(queryByLabelText('Follow-up icon')).toBeFalsy();
-    expect(queryByLabelText('Pre-selected icon')).toBeFalsy();
+    expect(screen.getByLabelText('show resources'));
+    expect(screen.getByLabelText('First party icon'));
+    expect(screen.queryByLabelText('Exclude from notice icon')).toBeFalsy();
+    expect(screen.queryByLabelText('Follow-up icon')).toBeFalsy();
+    expect(screen.queryByLabelText('Pre-selected icon')).toBeFalsy();
   });
 
   test('renders many icons at once', () => {
-    const { getByLabelText } = renderComponentWithStore(
+    renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
@@ -67,14 +67,14 @@ describe('The PackagePanelCard', () => {
       />
     );
 
-    expect(getByLabelText('show resources'));
-    expect(getByLabelText('First party icon'));
-    expect(getByLabelText('Exclude from notice icon'));
-    expect(getByLabelText('Follow-up icon'));
+    expect(screen.getByLabelText('show resources'));
+    expect(screen.getByLabelText('First party icon'));
+    expect(screen.getByLabelText('Exclude from notice icon'));
+    expect(screen.getByLabelText('Follow-up icon'));
   });
 
   test('renders pre-selected icon', () => {
-    const { getByLabelText } = renderComponentWithStore(
+    renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
@@ -83,8 +83,8 @@ describe('The PackagePanelCard', () => {
       />
     );
 
-    expect(getByLabelText('show resources'));
-    expect(getByLabelText('Pre-selected icon'));
+    expect(screen.getByLabelText('show resources'));
+    expect(screen.getByLabelText('Pre-selected icon'));
   });
 
   test('has working resources icon', () => {

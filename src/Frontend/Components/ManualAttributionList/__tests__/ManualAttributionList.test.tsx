@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { doNothing } from '../../../util/do-nothing';
@@ -29,7 +29,7 @@ describe('The ManualAttributionList', () => {
   });
 
   test('renders', () => {
-    const { getByText } = render(
+    render(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
@@ -37,12 +37,12 @@ describe('The ManualAttributionList', () => {
         onCardClick={mockCallback}
       />
     );
-    expect(getByText('Test package, 1.0'));
+    expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   test('renders first party icon', () => {
-    const { getByText, getByLabelText } = render(
+    render(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
@@ -50,12 +50,12 @@ describe('The ManualAttributionList', () => {
         onCardClick={doNothing}
       />
     );
-    expect(getByText('Test package, 1.0'));
-    expect(getByLabelText('First party icon'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByLabelText('First party icon'));
   });
 
   test('renders button', () => {
-    const { getByText } = render(
+    render(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
@@ -64,8 +64,8 @@ describe('The ManualAttributionList', () => {
         onCardClick={mockCallback}
       />
     );
-    expect(getByText('Test package, 1.0'));
-    expect(getByText('Add new attribution'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByText('Add new attribution'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 

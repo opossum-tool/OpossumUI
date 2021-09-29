@@ -14,7 +14,7 @@ describe('NotificationPopup', () => {
     const onCenterLeftButtonClick = jest.fn();
     const onCenterRightButtonClick = jest.fn();
 
-    const { queryByText } = render(
+    render(
       <NotificationPopup
         content={'content text'}
         header={'header text'}
@@ -30,8 +30,8 @@ describe('NotificationPopup', () => {
       />
     );
 
-    expect(queryByText('header text')).toBeTruthy();
-    expect(queryByText('content text')).toBeTruthy();
+    expect(screen.queryByText('header text')).toBeTruthy();
+    expect(screen.queryByText('content text')).toBeTruthy();
 
     fireEvent.click(screen.getByText('leftButtonTitle'));
     expect(onLeftButtonClick).toHaveBeenCalled();
@@ -44,7 +44,7 @@ describe('NotificationPopup', () => {
   });
 
   test('renders open popup with component', () => {
-    const { queryByText } = render(
+    render(
       <NotificationPopup
         content={<div>{'test component'}</div>}
         header={'header text'}
@@ -52,8 +52,8 @@ describe('NotificationPopup', () => {
       />
     );
 
-    expect(queryByText('header text')).toBeTruthy();
-    expect(queryByText('test component')).toBeTruthy();
+    expect(screen.queryByText('header text')).toBeTruthy();
+    expect(screen.queryByText('test component')).toBeTruthy();
   });
 
   test('executes function on escape key', () => {

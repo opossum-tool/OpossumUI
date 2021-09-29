@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { ToggleButton } from '../ToggleButton';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('ToggleButton', () => {
   test('renders a button', () => {
-    const { queryByText } = render(
+    render(
       <ToggleButton
         buttonText={'Test'}
         selected={false}
@@ -19,6 +19,6 @@ describe('ToggleButton', () => {
       />
     );
 
-    fireEvent.click(queryByText('Test') as Element);
+    fireEvent.click(screen.queryByText('Test') as Element);
   });
 });
