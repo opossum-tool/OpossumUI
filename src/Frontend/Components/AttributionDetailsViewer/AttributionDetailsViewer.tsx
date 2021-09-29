@@ -25,6 +25,8 @@ import {
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useWindowHeight } from '../../util/use-window-height';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { PopupType } from '../../enums/enums';
 
 const useStyles = makeStyles({
   root: {
@@ -81,8 +83,12 @@ export function AttributionDetailsViewer(): ReactElement | null {
   const setUpdateTemporaryPackageInfoFor =
     setUpdateTemporaryPackageInfoForCreator(dispatch, temporaryPackageInfo);
 
-  function deleteAttributionForAll(): void {
-    dispatch(deleteAttributionForAllAndSave(selectedAttributionId));
+  function deleteAttribution(): void {
+    if (temporaryPackageInfo.preSelected) {
+      dispatch(deleteAttributionForAllAndSave(selectedAttributionId));
+    } else {
+      dispatch(openPopup(PopupType.ConfirmDeletionPopup));
+    }
   }
 
   return selectedAttributionId ? (
@@ -104,7 +110,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
         onSaveButtonClick={dispatchSavePackageInfo}
         onSaveForAllButtonClick={(): void => {}}
-        onDeleteButtonClick={deleteAttributionForAll}
+        onDeleteButtonClick={deleteAttribution}
         onDeleteForAllButtonClick={(): void => {}}
         setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
           dispatch(setTemporaryPackageInfo(packageInfo));

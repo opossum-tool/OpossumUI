@@ -53,4 +53,24 @@ describe('The GlobalPopUp', () => {
       screen.queryByText('This removes the following attribution')
     ).toBeTruthy();
   });
+
+  test('opens the ConfirmDeletionPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.ConfirmDeletionPopup));
+
+    expect(
+      screen.queryByText('Do you really want to delete this attribution?')
+    ).toBeTruthy();
+  });
+
+  test('opens the ConfirmDeletionForAllPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.ConfirmDeletionForAllPopup));
+
+    expect(
+      screen.queryByText(
+        'Do you really want to delete this attribution for all files?'
+      )
+    ).toBeTruthy();
+  });
 });
