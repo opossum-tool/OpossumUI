@@ -13,8 +13,8 @@ Contributions are very welcome. The following will provide some helpful guidelin
 
 ### Commits
 
-Commit messages should be clear and fully elaborate the context and the reason of a change.
-If your commit refers to an issue, please post-fix it with the issue number, e.g.
+Commit messages should be clear and fully elaborate the context and the reason of a change. If your commit refers to an
+issue, please post-fix it with the issue number, e.g.
 
 ```
 Issue: #123
@@ -32,8 +32,15 @@ Resolves #123
 
 ## Developer's guide
 
-OpossumUI is an Electron app written in TypeScript.
-The frontend uses React (where functional components are used whenever possible) with Redux for state management.
+OpossumUI is an Electron app written in TypeScript. The frontend uses React (where functional components are used
+whenever possible) with Redux for state management.
+
+### OS
+
+Development under Linux and macOS is fully supported: Development under Windows has currently the following limitations:
+
+- only Windows executables can be built,
+- "version unknown" is written in the built app instead of the commit hash
 
 ### Repo setup
 
@@ -49,8 +56,9 @@ To install dependencies and set up the working environment, go to the repository
 yarn install
 ```
 
-All useful scripts are listed in the package.json and can be run through `yarn` and can be called after cloning the repository and installing all dependencies.
-To start the app based on the current state of the code, including automatic updates after changes to the frontend, execute:
+All useful scripts are listed in the package.json and can be run through `yarn` and can be called after cloning the
+repository and installing all dependencies. To start the app based on the current state of the code, including automatic
+updates after changes to the frontend, execute:
 
 ```
 yarn start
@@ -77,8 +85,8 @@ The following software is required for working on the repository:
 
 ### Building the app
 
-To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`.
-To build for all three systems run `yarn ship`.
+To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`. To build for all three
+systems run `yarn ship`.
 **Important:** wine must be installed to build a Windows installer on a non-Windows system.
 
 The built release(s) can be found under _/release/linux_and_windows_ or _/release/macOS_
@@ -103,8 +111,10 @@ It has to be generated through external tools and provided to the app. Contains 
 There are additional fields which are optional:
 
 - `attributionBreakpoints`: a list of folder paths where attribution inference stops, e.g. `node_modules`."
-- `filesWithChildren`: a list of folders that are treated as files. This can be used to attach another file tree to files like `package.json`, usually also setting an attribution breakpoint.
-- `baseUrlsForSources`: a map from paths to the respective base url. The base url should contain a {path} placeholder. E.g.
+- `filesWithChildren`: a list of folders that are treated as files. This can be used to attach another file tree to
+  files like `package.json`, usually also setting an attribution breakpoint.
+- `baseUrlsForSources`: a map from paths to the respective base url. The base url should contain a {path} placeholder.
+  E.g.
 
 ```
   "baseUrlsForSources": {

@@ -49,6 +49,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "concurrently": "^6.2.0",
+    "cross-env": "^7.0.3",
     "electron": "^13.1.7",
     "electron-builder": "^22.11.7",
     "electron-packager": "^15.4.0",
@@ -76,7 +77,9 @@
     "wait-on": "^6.0.0"
   },
   "scripts": {
-    "start": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "start": "run-script-os",
+    "start:darwin:linux": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "start:win32": "start /b wait-on http://localhost:3000 ^&^& electron . & yarn build & cross-env BROWSER=none react-scripts start",
     "build": "yarn generate-notice && yarn update-commit-hash && react-scripts build && tsc -p src/ElectronBackend",
     "compile-all": "yarn update-commit-hash && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test": "yarn update-commit-hash && react-scripts test --watchAll=false",
