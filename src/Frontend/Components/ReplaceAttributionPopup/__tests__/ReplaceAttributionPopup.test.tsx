@@ -38,7 +38,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<ReplaceAttributionPopup />);
     setupTestState(store);
 
-    expect(screen.queryByText('Warning')).toBeTruthy();
+    expect(screen.queryByText('Replacing an attribution')).toBeTruthy();
     expect(screen.queryByText('React')).toBeTruthy();
     expect(screen.queryByText('Vue')).toBeTruthy();
 

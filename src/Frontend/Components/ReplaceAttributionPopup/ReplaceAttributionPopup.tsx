@@ -24,6 +24,9 @@ const useStyles = makeStyles({
   typography: {
     margin: 5,
   },
+  contentRoot: {
+    maxWidth: 430,
+  },
 });
 
 export function ReplaceAttributionPopup(): ReactElement {
@@ -72,7 +75,7 @@ export function ReplaceAttributionPopup(): ReactElement {
   }
 
   const content = (
-    <div>
+    <div className={classes.contentRoot}>
       <MuiTypography className={classes.typography}>
         This removes the following attribution
       </MuiTypography>
@@ -87,7 +90,7 @@ export function ReplaceAttributionPopup(): ReactElement {
   return (
     <NotificationPopup
       content={content}
-      header={'Warning'}
+      header={'Replacing an attribution'}
       leftButtonTitle={ButtonTitle.Replace}
       onLeftButtonClick={handleOkClick}
       rightButtonTitle={ButtonTitle.Cancel}

@@ -51,8 +51,4 @@ export enum ButtonTitle {
   MarkForReplacement = 'Mark for replacement',
   UnmarkForReplacement = 'Unmark for replacement',
   ReplaceMarkedBy = 'Replace marked by',
-  Replace = 'Replace',
-  MarkForReplacement = 'Mark for replacement',
-  UnmarkForReplacement = 'Unmark for replacement',
-  ReplaceMarkedBy = 'Replace marked by',
 }
