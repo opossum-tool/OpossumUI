@@ -14,8 +14,8 @@ import {
   getMainButtonConfigs,
 } from './attribution-column-helpers';
 
-const preSelectedLabel = 'Attribution was pre-selected';
-const markedForReplacementLabel = 'Attribution is marked for replacement';
+const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
+const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
 
 const useStyles = makeStyles({
   preSelectedLabel: {
@@ -68,11 +68,13 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
   return (
     <div className={classes.preSelectedLabel}>
       {props.temporaryPackageInfo.preSelected ? (
-        <MuiTypography variant={'subtitle1'}>{preSelectedLabel}</MuiTypography>
+        <MuiTypography variant={'subtitle1'}>
+          {PRE_SELECTED_LABEL}
+        </MuiTypography>
       ) : null}
       {props.selectedPackageIsMarkedForReplacement ? (
         <MuiTypography variant={'subtitle1'}>
-          {markedForReplacementLabel}
+          {MARKED_FOR_REPLACEMENT_LABEL}
         </MuiTypography>
       ) : null}
       <div className={classes.buttonRow}>

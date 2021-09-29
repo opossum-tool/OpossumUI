@@ -23,7 +23,7 @@ const useStyles = makeStyles({
 interface AttributionListProps {
   attributions: Attributions;
   selectedAttributionId: string | null;
-  attributionIdMarkedForReplacement: string | null;
+  attributionIdMarkedForReplacement: string;
   onCardClick(attributionId: string, isButton?: boolean): void;
   className?: string;
   maxHeight: number;
