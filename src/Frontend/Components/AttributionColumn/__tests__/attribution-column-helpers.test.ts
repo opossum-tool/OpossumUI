@@ -62,7 +62,7 @@ describe('getMergeButtonsDisplayState', () => {
     });
   });
 
-  it('does not show markForReplacementButton when another attribution is selected for replacement', () => {
+  it('does show markForReplacementButton when another attribution is selected for replacement', () => {
     expect(
       getMergeButtonsDisplayState(
         View.Attribution,
@@ -72,7 +72,7 @@ describe('getMergeButtonsDisplayState', () => {
         false
       )
     ).toStrictEqual({
-      hideMarkForReplacementButton: true,
+      hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
       hideOnReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: false,
@@ -117,7 +117,7 @@ describe('getMergeButtonsDisplayState', () => {
         false
       )
     ).toStrictEqual({
-      hideMarkForReplacementButton: true,
+      hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
       hideOnReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,
@@ -134,7 +134,7 @@ describe('getMergeButtonsDisplayState', () => {
         true
       )
     ).toStrictEqual({
-      hideMarkForReplacementButton: true,
+      hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
       hideOnReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,

@@ -226,9 +226,7 @@ export function getMergeButtonsDisplayState(
 
   return {
     hideMarkForReplacementButton:
-      !isAttributionView ||
-      anyAttributionMarkedForReplacement ||
-      selectedAttributionIsMarkedForReplacement,
+      !isAttributionView || selectedAttributionIsMarkedForReplacement,
     hideUnmarkForReplacementButton:
       !isAttributionView ||
       !anyAttributionMarkedForReplacement ||
