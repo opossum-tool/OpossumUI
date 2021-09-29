@@ -36,7 +36,7 @@ describe('TopBar', () => {
   });
 
   test('renders an Open file icon', () => {
-    const { queryByLabelText, store } = renderComponentWithStore(<TopBar />);
+    const { store } = renderComponentWithStore(<TopBar />);
     expect(window.ipcRenderer.on).toHaveBeenCalledTimes(6);
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel['FileLoaded'],
@@ -63,7 +63,7 @@ describe('TopBar', () => {
       expect.anything()
     );
 
-    fireEvent.click(queryByLabelText('open file') as Element);
+    fireEvent.click(screen.queryByLabelText('open file') as Element);
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(

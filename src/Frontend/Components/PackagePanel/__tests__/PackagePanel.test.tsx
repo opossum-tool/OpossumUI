@@ -80,10 +80,12 @@ describe('The PackagePanel', () => {
     store.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     expect(getByText(hhcPanel, 'JQuery'));
 
     const highComputePanel = screen.getByText('other')
       .parentElement as HTMLElement;
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     expect(getByText(highComputePanel, 'React, 16.5.0'));
 
     expect(screen.getByText('JQuery 2'));

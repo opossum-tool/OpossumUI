@@ -70,7 +70,7 @@ describe('The ManualAttributionList', () => {
   });
 
   test('sets selectedAttributionId on click', () => {
-    const { getByText } = render(
+    render(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
@@ -78,7 +78,7 @@ describe('The ManualAttributionList', () => {
         onCardClick={mockCallback}
       />
     );
-    const attributionCard = getByText('Test package, 1.0');
+    const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeTruthy();
     fireEvent.click(attributionCard);
     expect(mockCallback.mock.calls.length).toBe(1);

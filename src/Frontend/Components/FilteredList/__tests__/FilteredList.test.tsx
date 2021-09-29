@@ -29,7 +29,7 @@ describe('The FilteredList', () => {
         packageVersion: 'packageVersion',
       },
     };
-    const { getByRole } = renderComponentWithStore(
+    renderComponentWithStore(
       <FilteredList
         attributions={testAttributions}
         attributionIds={['uuid1', 'uuid2', 'uuid3']}
@@ -43,35 +43,35 @@ describe('The FilteredList', () => {
     screen.getByText('uuid2');
     screen.getByText('uuid3');
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name 1' },
     });
     screen.getByText('uuid1');
     expect(screen.queryByText('uuid2')).toBeNull();
     expect(screen.queryByText('uuid3')).toBeNull();
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name' },
     });
     screen.getByText('uuid1');
     screen.getByText('uuid2');
     expect(screen.queryByText('uuid3')).toBeNull();
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: '(C)' },
     });
     expect(screen.queryByText('uuid1')).toBeNull();
     screen.getByText('uuid2');
     expect(screen.queryByText('uuid3')).toBeNull();
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'NAME 2' },
     });
     screen.getByText('uuid1');
     screen.getByText('uuid2');
     expect(screen.queryByText('uuid3')).toBeNull();
 
-    fireEvent.change(getByRole('searchbox'), {
+    fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'comment' },
     });
     expect(screen.queryByText('uuid1')).toBeNull();

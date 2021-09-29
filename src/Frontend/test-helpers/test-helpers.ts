@@ -10,7 +10,7 @@ import {
   queryByLabelText,
   queryByText,
   within,
-} from '@testing-library/dom';
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, Screen } from '@testing-library/react';
 import { Dispatch, SetStateAction } from 'react';
@@ -105,6 +105,7 @@ export function expectPackageInPackagePanel(
   packagePanelName: string
 ): void {
   const packagesPanel = getPackagePanel(screen, packagePanelName);
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(queryByText(packagesPanel, packageName)).toBeTruthy();
 }
 
@@ -114,6 +115,7 @@ export function clickOnPackageInPackagePanel(
   packagePanelName: string
 ): void {
   fireEvent.click(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     getByText(getPackagePanel(screen, packagePanelName), packageName)
   );
 }
@@ -123,6 +125,7 @@ export function clickOnPathInPopupWithResources(
   path: string
 ): void {
   const popupWithResources = getPopupWithResources(screen);
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   fireEvent.click(getByText(popupWithResources, path));
 }
 
@@ -135,6 +138,7 @@ export function getOpenResourcesIconForPackagePanel(
   screen: Screen,
   packageName: string
 ): HTMLElement {
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   return getByLabelText(
     getPackagePanel(screen, packageName),
     'show resources'
@@ -155,6 +159,7 @@ export function expectValueInManualPackagePanel(
   screen: Screen,
   packageName: string
 ): void {
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   getByText(
     screen.getByText('Attributions').parentElement as HTMLElement,
     packageName
@@ -166,6 +171,7 @@ export function expectValueNotInManualPackagePanel(
   packageName: string
 ): void {
   expect(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     queryByText(
       screen.getByText('Attributions').parentElement as HTMLElement,
       packageName
@@ -193,6 +199,7 @@ function getValueInManualPackagePanelForParentAttribution(
   screen: Screen,
   packageName: string
 ): HTMLElement {
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   return getByText(
     screen.getByText('Attributions (from parents)')
       .parentElement as HTMLElement,
@@ -209,6 +216,7 @@ export function expectPackageNotInPackagePanel(
     (screen.getByText(packagePanelName).parentElement as HTMLElement)
       .parentElement as HTMLElement
   ).parentElement as HTMLElement;
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(queryByText(packagesPanel, packageName)).not.toBeTruthy();
 }
 
@@ -323,9 +331,11 @@ export function expectIconToExist(
   const treeItem = screen.getByText(resourceName);
   expectedToExist
     ? expect(
+        // eslint-disable-next-line testing-library/prefer-screen-queries
         queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
       ).not.toBeNull()
     : expect(
+        // eslint-disable-next-line testing-library/prefer-screen-queries
         queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
       ).toBeNull();
 }
@@ -337,6 +347,7 @@ export function expectResourceIconLabelToBe(
 ): void {
   const treeItem = screen.getByText(resourceName);
   expect(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
   ).not.toBeNull();
 }
@@ -358,6 +369,7 @@ export function expectValueInTextBox(
   value: string
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   getByText(textBox, value);
 }
 
@@ -367,6 +379,7 @@ export function expectValueNotInTextBox(
   value: string
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(queryByText(textBox, value)).not.toBeTruthy();
 }
 
@@ -376,6 +389,7 @@ export function getElementInResourceBrowser(
 ): HTMLElement {
   const resourceBrowser = screen.getByLabelText('resource browser');
 
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   return getByText(resourceBrowser, resourceId);
 }
 
@@ -394,6 +408,7 @@ export function clickAddIconOnCardInAttributionList(
   screen: Screen,
   value: string
 ): void {
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   fireEvent.click(getByTitle(getCardInAttributionList(screen, value), 'add'));
 }
 
@@ -409,6 +424,7 @@ export function expectAddIconInAddToAttributionCardIsHidden(
   value: string
 ): void {
   expect(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     getByTitle(getCardInAttributionList(screen, value), 'add')
   ).toHaveStyle('visibility: hidden');
 }
@@ -418,6 +434,7 @@ export function expectAddIconInAddToAttributionCardIsNotHidden(
   value: string
 ): void {
   expect(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     getByTitle(getCardInAttributionList(screen, value), 'add')
   ).not.toHaveStyle('visibility: hidden');
 }
@@ -466,6 +483,7 @@ export function expectValueInAddToAttributionList(
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
   ).parentElement as HTMLElement;
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(getByText(addToAttributionList, value));
 }
 
@@ -480,6 +498,7 @@ export function expectValueNotInAddToAttributionList(
     (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
       .parentElement as HTMLElement
   ).parentElement as HTMLElement;
+  // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(queryByText(addToAttributionList, value)).toBeNull();
 }
 

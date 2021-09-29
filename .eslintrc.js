@@ -10,18 +10,6 @@ module.exports = {
     node: true,
     jest: true,
   },
-  parser: '@typescript-eslint/parser',
-  extends: [
-    'plugin:react/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-    'prettier',
-    'plugin:react-hooks/recommended',
-  ],
-  globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
-  },
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -29,6 +17,19 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
     project: ['tsconfig.json', 'src/ElectronBackend/tsconfig.json'],
+  },
+  parser: '@typescript-eslint/parser',
+  extends: [
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    'prettier',
+    'plugin:react-hooks/recommended',
+    'plugin:testing-library/react',
+  ],
+  globals: {
+    Atomics: 'readonly',
+    SharedArrayBuffer: 'readonly',
   },
   plugins: ['react', 'prettier', 'testing-library'],
   settings: {
@@ -46,6 +47,7 @@ module.exports = {
     '@typescript-eslint/await-thenable': 2,
     '@typescript-eslint/require-await': 2,
     'react/prop-types': 'off',
+    'testing-library/no-node-access': 'off', // TODO: remove this line and fix warnings
     quotes: [2, 'single', { avoidEscape: true }],
   },
 };
