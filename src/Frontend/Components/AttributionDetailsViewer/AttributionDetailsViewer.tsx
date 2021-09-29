@@ -20,7 +20,6 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
-  getAttributionIdMarkedForReplacement,
   getResourceIdsOfSelectedAttribution,
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
@@ -57,9 +56,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
   const resourceIdsOfSelectedAttributionId: Array<string> = useSelector(
     getResourceIdsOfSelectedAttribution,
     isEqual
-  );
-  const attributionIdMarkedForReplacement: string = useSelector(
-    getAttributionIdMarkedForReplacement
   );
 
   const resourceListMaxHeight = useWindowHeight() - 86;
@@ -114,9 +110,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
           dispatch(setTemporaryPackageInfo(packageInfo));
         }}
         saveFileRequestListener={saveFileRequestListener}
-        selectedAttributionIsMarkedForReplacement={
-          selectedAttributionId === attributionIdMarkedForReplacement
-        }
       />
     </div>
   ) : null;
