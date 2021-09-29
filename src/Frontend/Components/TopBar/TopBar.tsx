@@ -19,7 +19,7 @@ import {
   ExportType,
   ParsedFileContent,
 } from '../../../shared/shared-types';
-import { View } from '../../enums/enums';
+import { PopupType, View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
@@ -40,12 +40,10 @@ import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
 import { OpenFileIcon } from '../Icons/Icons';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { OpossumColors } from '../../shared-styles';
-import {
-  openFileSearchPopup,
-  openProjectMetadataPopup,
-} from '../../state/actions/view-actions/view-actions';
+
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 
 const useStyles = makeStyles({
   root: {
@@ -225,7 +223,7 @@ export function TopBar(): ReactElement {
     showSearchPopUp: boolean
   ): void {
     if (showSearchPopUp) {
-      dispatch(openFileSearchPopup());
+      dispatch(openPopup(PopupType.FileSearchPopup));
     }
   }
 
@@ -234,7 +232,7 @@ export function TopBar(): ReactElement {
     showProjectMetadataPopup: boolean
   ): void {
     if (showProjectMetadataPopup) {
-      dispatch(openProjectMetadataPopup());
+      dispatch(openPopup(PopupType.ProjectMetadataPopup));
     }
   }
 

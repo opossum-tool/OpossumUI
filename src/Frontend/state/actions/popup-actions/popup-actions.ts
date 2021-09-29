@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackagePanelTitle, View } from '../../../enums/enums';
+import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import {
   getAttributionIdToSaveTo,
@@ -21,9 +21,9 @@ import {
 import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
 import {
   closePopup,
-  openNotSavedPopup,
   setTargetView,
   navigateToView,
+  openPopup,
 } from '../view-actions/view-actions';
 import {
   savePackageInfo,
@@ -47,7 +47,7 @@ export function navigateToSelectedPathOrOpenUnsavedPopup(
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetSelectedResourceId(resourcePath));
       dispatch(setTargetView(View.Audit));
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(openResourceInResourceBrowser(resourcePath));
     }
@@ -61,7 +61,7 @@ export function changeSelectedAttributionIdOrOpenUnsavedPopup(
     const manualAttributions = getManualAttributions(getState());
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetSelectedAttributionId(attributionId));
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(setSelectedAttributionId(attributionId));
       dispatch(setTemporaryPackageInfo(manualAttributions[attributionId]));
@@ -76,7 +76,7 @@ export function setViewOrOpenUnsavedPopup(
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetView(selectedView));
       dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(navigateToView(selectedView));
     }
@@ -89,7 +89,7 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
   return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetSelectedResourceId(resourceId));
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(setSelectedResourceId(resourceId));
     }
@@ -102,7 +102,7 @@ export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
 ): SimpleThunkAction {
   return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
         setDisplayedPackageAndResetTemporaryPackageInfo({
@@ -120,7 +120,7 @@ export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
 ): SimpleThunkAction {
   return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
-      dispatch(openNotSavedPopup());
+      dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
         setDisplayedPackageAndResetTemporaryPackageInfo({

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
@@ -72,19 +72,19 @@ describe('TopBar', () => {
   });
 
   test('switches between views', () => {
-    const { queryByText, store } = renderComponentWithStore(<TopBar />);
+    const { store } = renderComponentWithStore(<TopBar />);
 
-    fireEvent.click(queryByText('Audit') as Element);
+    fireEvent.click(screen.queryByText('Audit') as Element);
     expect(isAuditViewSelected(store.getState())).toBe(true);
     expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(false);
 
-    fireEvent.click(queryByText('Attribution') as Element);
+    fireEvent.click(screen.queryByText('Attribution') as Element);
     expect(isAuditViewSelected(store.getState())).toBe(false);
     expect(isAttributionViewSelected(store.getState())).toBe(true);
     expect(isReportViewSelected(store.getState())).toBe(false);
 
-    fireEvent.click(queryByText('Report') as Element);
+    fireEvent.click(screen.queryByText('Report') as Element);
     expect(isAuditViewSelected(store.getState())).toBe(false);
     expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(true);

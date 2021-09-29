@@ -14,6 +14,7 @@ export enum PopupType {
   NotSavedPopup = 'NotSavedPopup',
   FileSearchPopup = 'FileSearchPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
+  ReplaceAttributionPopup = 'ReplaceAttributionPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -46,4 +47,5 @@ export enum ButtonTitle {
   Save = 'Save',
   SaveForAll = 'Save for all',
   Undo = 'Undo',
+  Replace = 'Replace',
 }

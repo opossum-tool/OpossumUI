@@ -8,17 +8,17 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import {
   getOpenPopup,
   getSelectedView,
-  isReportViewSelected,
+  getTargetView,
   isAttributionViewSelected,
   isAuditViewSelected,
-  getTargetView,
+  isReportViewSelected,
 } from '../../../selectors/view-selector';
 import {
   closePopup,
-  openNotSavedPopup,
+  navigateToView,
+  openPopup,
   resetViewState,
   setTargetView,
-  navigateToView,
 } from '../view-actions';
 
 describe('view actions', () => {
@@ -94,7 +94,7 @@ describe('view actions', () => {
   test('resets view state', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
-    testStore.dispatch(openNotSavedPopup());
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetView(View.Audit));
 
     expect(isAttributionViewSelected(testStore.getState())).toBe(true);
@@ -117,13 +117,13 @@ describe('popup actions', () => {
 
   test('open NotSavedPopup', () => {
     const testStore = createTestAppStore();
-    testStore.dispatch(openNotSavedPopup());
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
   });
 
   test('close NotSavedPopup', () => {
     const testStore = createTestAppStore();
-    testStore.dispatch(openNotSavedPopup());
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(closePopup());
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });

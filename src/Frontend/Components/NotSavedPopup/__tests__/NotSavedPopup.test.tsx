@@ -6,9 +6,9 @@
 import { fireEvent } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
-import { ButtonTitle, View } from '../../../enums/enums';
+import { ButtonTitle, PopupType, View } from '../../../enums/enums';
 import {
-  openNotSavedPopup,
+  openPopup,
   setTargetView,
 } from '../../../state/actions/view-actions/view-actions';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
@@ -32,7 +32,7 @@ import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 
 function setupTestState(store: EnhancedTestStore, targetView?: View): void {
-  store.dispatch(openNotSavedPopup());
+  store.dispatch(openPopup(PopupType.NotSavedPopup));
   store.dispatch(setTargetSelectedResourceId('test_id'));
   store.dispatch(setSelectedResourceId(''));
   store.dispatch(loadFromFile(getEmptyParsedInputFile()));
