@@ -16,6 +16,7 @@ import {
   _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions,
   _removeAttributionsFromChildrenAndParents,
   _removeManualAttributionFromChildrenIfAllAreIdentical,
+  attributionsAreEqual,
   createManualAttribution,
   deleteManualAttribution,
   updateManualAttribution,
@@ -560,5 +561,60 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
         testAttributionId
       )
     ).toEqual(expectedOutput);
+  });
+});
+
+describe('The attributionsAreEqual function', () => {
+  test('are equal if identical', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'testpackage',
+      packageVersion: '2.0',
+      licenseText: 'Permission is hereby granted',
+    };
+    const testOtherPackageInfo: PackageInfo = {
+      packageName: 'testpackage',
+      packageVersion: '2.0',
+      licenseText: 'Permission is hereby granted',
+    };
+
+    expect(attributionsAreEqual(testPackageInfo, testOtherPackageInfo)).toBe(
+      true
+    );
+  });
+
+  test('are equal if differing only by confidence', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'testpackage',
+      packageVersion: '2.0',
+      licenseText: 'Permission is hereby granted',
+    };
+    const testOtherPackageInfo: PackageInfo = {
+      packageName: 'testpackage',
+      packageVersion: '2.0',
+      licenseText: 'Permission is hereby granted',
+      attributionConfidence: 80,
+    };
+
+    expect(attributionsAreEqual(testPackageInfo, testOtherPackageInfo)).toBe(
+      true
+    );
+  });
+
+  test('are not equal', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'other testpackage',
+      packageVersion: '2.0',
+      licenseText: 'Permission is hereby granted',
+    };
+    const testOtherPackageInfo: PackageInfo = {
+      packageName: 'testpackage',
+      packageVersion: '2.0',
+      licenseText: 'Permission is hereby granted',
+      attributionConfidence: 80,
+    };
+
+    expect(attributionsAreEqual(testPackageInfo, testOtherPackageInfo)).toBe(
+      false
+    );
   });
 });

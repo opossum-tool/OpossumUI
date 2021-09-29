@@ -571,7 +571,6 @@ describe('The App in Audit View', () => {
     expectValueInAddToAttributionList(screen, 'Angular, 10');
 
     clickAddIconOnCardInAttributionList(screen, 'Vue, 1.2.0');
-    expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
     expectValueInAddToAttributionList(screen, 'Angular, 10');
     expectValueInTextBox(
       screen,
@@ -581,12 +580,6 @@ describe('The App in Audit View', () => {
     expectValueInTextBox(screen, 'Name', 'Vue');
 
     expectValueInAddToAttributionList(screen, 'Angular, 10');
-    expectValueInTextBox(
-      screen,
-      'License Text (to appear in attribution document)',
-      'Permission is not granted'
-    );
-    expectValueInTextBox(screen, 'Name', 'Vue');
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     clickOnTab(screen, 'All Attributions Tab');

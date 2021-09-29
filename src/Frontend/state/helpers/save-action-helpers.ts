@@ -457,7 +457,17 @@ export function attributionForTemporaryPackageInfoExists(
 ): boolean {
   const manualAttributions = getManualAttributions(state);
   return Object.values(manualAttributions).some((packageInfo) =>
-    isEqual(packageInfo, packageInfoToMatch)
+    attributionsAreEqual(packageInfo, packageInfoToMatch)
+  );
+}
+
+export function attributionsAreEqual(
+  attribution: PackageInfo,
+  otherAttribution: PackageInfo
+): boolean {
+  return isEqual(
+    { ...attribution, attributionConfidence: 0 },
+    { ...otherAttribution, attributionConfidence: 0 }
   );
 }
 

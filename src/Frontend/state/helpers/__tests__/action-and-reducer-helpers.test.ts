@@ -15,6 +15,7 @@ import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { attributionForTemporaryPackageInfoExists } from '../save-action-helpers';
 import { NIL as uuidNil } from 'uuid';
 import { computeChildrenWithAttributions } from '../action-and-reducer-helpers';
+import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The attributionForTemporaryPackageInfoExists function', () => {
   test('checks if manual attributions exist', () => {
@@ -43,6 +44,7 @@ describe('The attributionForTemporaryPackageInfoExists function', () => {
         packageVersion: '2.0',
         packageName: 'React',
         licenseText: ' test license text',
+        attributionConfidence: DiscreteConfidence.High,
       },
       [testManualAttributionUuid3]: {
         packageVersion: '3.0',
