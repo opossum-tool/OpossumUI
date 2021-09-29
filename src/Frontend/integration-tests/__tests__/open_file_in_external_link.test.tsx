@@ -32,7 +32,7 @@ function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
     );
 }
 
-describe('The to to link button', () => {
+describe('The go to link button', () => {
   beforeAll(() => {
     originalIpcRenderer = global.window.ipcRenderer;
     global.window.ipcRenderer = {
