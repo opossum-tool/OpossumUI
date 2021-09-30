@@ -384,6 +384,12 @@ export const resourceState = (
           ? ''
           : state.attributionView.selectedAttributionId;
 
+      const newAttributionIdMarkedForReplacement: string =
+        state.attributionView.attributionIdMarkedForReplacement ===
+        action.payload
+          ? ''
+          : state.attributionView.attributionIdMarkedForReplacement;
+
       return {
         ...state,
         allViews: {
@@ -406,6 +412,8 @@ export const resourceState = (
         attributionView: {
           ...state.attributionView,
           selectedAttributionId: newSelectedAttributionId,
+          attributionIdMarkedForReplacement:
+            newAttributionIdMarkedForReplacement,
         },
       };
     case ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING:
