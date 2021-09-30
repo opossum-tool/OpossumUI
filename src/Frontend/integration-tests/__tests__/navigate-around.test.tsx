@@ -260,7 +260,7 @@ describe('The App integration', () => {
     clickOnElementInResourceBrowser(screen, 'something.js');
 
     insertValueIntoTextBox(screen, 'License Name', 'gpl-2.0');
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     goToView(screen, View.Report);
     screen.getByText('gpl-2.0');
@@ -269,7 +269,7 @@ describe('The App integration', () => {
     goToView(screen, View.Audit);
     insertValueIntoTextBox(screen, 'License Name', 'GPL-2.0');
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     goToView(screen, View.Report);
     screen.getByText('GPL-2.0');
     screen.getByText('frequent license');
@@ -277,7 +277,7 @@ describe('The App integration', () => {
     goToView(screen, View.Audit);
     insertValueIntoTextBox(screen, 'License Name', 'Apac');
     fireEvent.click(screen.getByText('Apache'));
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     goToView(screen, View.Report);
     screen.getByText('Apache');
     screen.getByText('Apache license');
