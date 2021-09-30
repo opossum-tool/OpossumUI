@@ -256,7 +256,7 @@ The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. 
   resources if the selected attribution is linked to multiple resources.
 - The _Mark for replacement_ button allows to mark an attribution for replacement. After marking an attribution.
   One can navigate to another attribution and press the _Replace marked_ button. This opens a popup. In the popup,
-  clicking the _Replace_ button removes the marked attribution and replaces it this the currently selected one.
+  clicking the _Replace_ button removes the marked attribution and replaces it by the currently selected one.
 - A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
   selected resource in the `Audit View`.
 
