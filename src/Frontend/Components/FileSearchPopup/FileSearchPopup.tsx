@@ -7,7 +7,7 @@ import React, { ReactElement, useState } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { useDispatch } from 'react-redux';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonTitle } from '../../enums/enums';
+import { ButtonText } from '../../enums/enums';
 import { ResourcesList } from '../ResourcesList/ResourcesList';
 import { FileSearchTextField } from '../FileSearchTextField/FileSearchTextField';
 import { useWindowHeight } from '../../util/use-window-height';
@@ -41,7 +41,7 @@ export function FileSearchPopup(): ReactElement {
       header={'Search for Files and Directories'}
       isOpen={true}
       fullWidth={true}
-      rightButtonTitle={ButtonTitle.Cancel}
+      rightButtonText={ButtonText.Cancel}
       onBackdropClick={close}
       onEscapeKeyDown={close}
       onRightButtonClick={close}

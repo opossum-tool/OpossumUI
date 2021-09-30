@@ -8,7 +8,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
-import { ButtonTitle } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 
 describe('Button group', () => {
   const mainButtonConfigs: Array<MainButtonConfig> = [
@@ -43,12 +43,12 @@ describe('Button group', () => {
   test('renders context menu', () => {
     const contextMenuItems: Array<ContextMenuItem> = [
       {
-        buttonTitle: ButtonTitle.Save,
+        buttonText: ButtonText.Save,
         disabled: false,
         onClick: doNothing,
       },
       {
-        buttonTitle: ButtonTitle.SaveForAll,
+        buttonText: ButtonText.SaveForAll,
         disabled: true,
         onClick: doNothing,
         hidden: true,
@@ -63,7 +63,7 @@ describe('Button group', () => {
     );
     fireEvent.click(screen.getByLabelText('button-context-menu'));
 
-    screen.getByText(ButtonTitle.Save);
-    expect(screen.queryByText(ButtonTitle.SaveForAll)).toBe(null);
+    screen.getByText(ButtonText.Save);
+    expect(screen.queryByText(ButtonText.SaveForAll)).toBe(null);
   });
 });

@@ -15,10 +15,10 @@ import { doNothing } from '../../util/do-nothing';
 interface NotificationPopupProps {
   header: string;
   content: ReactElement | string;
-  leftButtonTitle?: string;
-  centerLeftButtonTitle?: string;
-  centerRightButtonTitle?: string;
-  rightButtonTitle?: string;
+  leftButtonText?: string;
+  centerLeftButtonText?: string;
+  centerRightButtonText?: string;
+  rightButtonText?: string;
   isLeftButtonDisabled?: boolean;
   isCenterLeftButtonDisabled?: boolean;
   isCenterRightButtonDisabled?: boolean;
@@ -78,33 +78,33 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
         )}
       </MuiDialogContent>
       <MuiDialogActions>
-        {props.leftButtonTitle && props.onLeftButtonClick ? (
+        {props.leftButtonText && props.onLeftButtonClick ? (
           <Button
-            buttonText={props.leftButtonTitle}
+            buttonText={props.leftButtonText}
             onClick={props.onLeftButtonClick}
             isDark={true}
             disabled={props.isLeftButtonDisabled}
           />
         ) : null}
-        {props.centerLeftButtonTitle && props.onCenterLeftButtonClick ? (
+        {props.centerLeftButtonText && props.onCenterLeftButtonClick ? (
           <Button
-            buttonText={props.centerLeftButtonTitle}
+            buttonText={props.centerLeftButtonText}
             onClick={props.onCenterLeftButtonClick}
             isDark={false}
             disabled={props.isCenterLeftButtonDisabled}
           />
         ) : null}
-        {props.centerRightButtonTitle && props.onCenterRightButtonClick ? (
+        {props.centerRightButtonText && props.onCenterRightButtonClick ? (
           <Button
-            buttonText={props.centerRightButtonTitle}
+            buttonText={props.centerRightButtonText}
             onClick={props.onCenterRightButtonClick}
             isDark={false}
             disabled={props.isCenterRightButtonDisabled}
           />
         ) : null}
-        {props.rightButtonTitle && props.onRightButtonClick ? (
+        {props.rightButtonText && props.onRightButtonClick ? (
           <Button
-            buttonText={props.rightButtonTitle}
+            buttonText={props.rightButtonText}
             onClick={props.onRightButtonClick}
             isDark={false}
             disabled={props.isRightButtonDisabled}

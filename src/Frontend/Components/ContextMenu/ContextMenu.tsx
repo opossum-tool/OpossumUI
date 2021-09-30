@@ -18,7 +18,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import { ButtonTitle } from '../../enums/enums';
+import { ButtonText } from '../../enums/enums';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
@@ -28,21 +28,21 @@ const useStyles = makeStyles({
 });
 
 const BUTTON_TITLE_TO_ICON_MAP: {
-  [buttonTitle in ButtonTitle]?: JSX.Element;
+  [buttonText in ButtonText]?: JSX.Element;
 } = {
-  [ButtonTitle.Delete]: <DeleteIcon fontSize="small" />,
-  [ButtonTitle.DeleteForAll]: <DeleteForeverIcon fontSize="small" />,
-  [ButtonTitle.Undo]: <UndoIcon fontSize="small" />,
-  [ButtonTitle.MarkForReplacement]: (
+  [ButtonText.Delete]: <DeleteIcon fontSize="small" />,
+  [ButtonText.DeleteForAll]: <DeleteForeverIcon fontSize="small" />,
+  [ButtonText.Undo]: <UndoIcon fontSize="small" />,
+  [ButtonText.MarkForReplacement]: (
     <CheckBoxOutlineBlankIcon fontSize="small" />
   ),
-  [ButtonTitle.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
-  [ButtonTitle.ReplaceMarkedBy]: <MergeTypeIcon fontSize="small" />,
+  [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
+  [ButtonText.ReplaceMarkedBy]: <MergeTypeIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {
   onClick(): void;
-  buttonTitle: ButtonTitle;
+  buttonText: ButtonText;
   disabled?: boolean;
   hidden?: boolean;
 }
@@ -106,9 +106,9 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
             role={'button'}
           >
             <MuiListItemIcon className={iconClasses.icon}>
-              {BUTTON_TITLE_TO_ICON_MAP[menuItem.buttonTitle]}
+              {BUTTON_TITLE_TO_ICON_MAP[menuItem.buttonText]}
             </MuiListItemIcon>
-            <MuiListItemText primary={menuItem.buttonTitle} />
+            <MuiListItemText primary={menuItem.buttonText} />
           </MuiMenuItem>
         ))}
       </MuiMenu>

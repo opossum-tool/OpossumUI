@@ -8,7 +8,7 @@ import { IpcRenderer } from 'electron';
 import React from 'react';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import { ParsedFileContent, SaveFileArgs } from '../../../shared/shared-types';
-import { ButtonTitle, DiscreteConfidence, View } from '../../enums/enums';
+import { ButtonText, DiscreteConfidence, View } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickAddNewAttributionButton,
@@ -108,18 +108,18 @@ describe('The App in Audit View', () => {
 
     clickOnElementInResourceBrowser(screen, 'something.js');
     expectValueInTextBox(screen, 'Name', 'InitialPackageName');
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
 
     insertValueIntoTextBox(screen, 'Name', testPackageName);
     expectValueInTextBox(screen, 'Name', testPackageName);
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.Undo);
+    clickOnButtonInContextMenu(screen, ButtonText.Undo);
     expectValueNotInTextBox(screen, 'Name', testPackageName);
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
 
     insertValueIntoTextBox(screen, 'Name', testPackageName);
     expectValueInTextBox(screen, 'Name', testPackageName);
@@ -128,11 +128,11 @@ describe('The App in Audit View', () => {
     expect(
       screen.queryAllByText(`Low (${DiscreteConfidence.Low})`).length
     ).toBeTruthy();
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
     expectElementsInAutoCompleteAndSelectFirst(screen, testLicenseNames);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
@@ -155,8 +155,8 @@ describe('The App in Audit View', () => {
       [IpcChannel['SaveFile'], expectedSaveFileArgs],
     ]);
 
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
   });
 
   test('save and save for all buttons are shown and work', () => {
@@ -187,30 +187,30 @@ describe('The App in Audit View', () => {
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
-    expectButton(screen, ButtonTitle.SaveForAll, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButton(screen, ButtonText.SaveForAll, true);
 
     insertValueIntoTextBox(screen, 'Name', 'Typescript');
     expectValueInTextBox(screen, 'Name', 'Typescript');
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
-    expectButton(screen, ButtonTitle.SaveForAll, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButton(screen, ButtonText.SaveForAll, false);
 
-    clickOnButton(screen, ButtonTitle.SaveForAll);
+    clickOnButton(screen, ButtonText.SaveForAll);
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Typescript');
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
-    expectButton(screen, ButtonTitle.SaveForAll, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButton(screen, ButtonText.SaveForAll, true);
 
     insertValueIntoTextBox(screen, 'Name', 'Vue');
     expectValueInTextBox(screen, 'Name', 'Vue');
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
-    expectButton(screen, ButtonTitle.SaveForAll, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButton(screen, ButtonText.SaveForAll, false);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'Typescript');
 
@@ -218,10 +218,10 @@ describe('The App in Audit View', () => {
 
     insertValueIntoTextBox(screen, 'Name', 'Angular');
     expectValueInTextBox(screen, 'Name', 'Angular');
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     expectValueInManualPackagePanel(screen, 'Angular');
     expectValueInManualPackagePanel(screen, 'Typescript, 16.5.0');
@@ -271,10 +271,10 @@ describe('The App in Audit View', () => {
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInTextBox(screen, 'Confidence', '10');
     expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
-    expectButton(screen, ButtonTitle.Confirm);
-    expectButton(screen, ButtonTitle.ConfirmForAll);
+    expectButton(screen, ButtonText.Confirm);
+    expectButton(screen, ButtonText.ConfirmForAll);
 
-    clickOnButton(screen, ButtonTitle.Confirm);
+    clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Confidence', '10');
     expectValueInTextBox(
       screen,
@@ -282,8 +282,8 @@ describe('The App in Audit View', () => {
       `High (${DiscreteConfidence.High})`
     );
     expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
-    expectButtonInContextMenuIsNotShown(screen, ButtonTitle.Confirm);
-    expectButtonIsNotShown(screen, ButtonTitle.ConfirmForAll);
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.Confirm);
+    expectButtonIsNotShown(screen, ButtonText.ConfirmForAll);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -293,8 +293,8 @@ describe('The App in Audit View', () => {
       'Confidence',
       `High (${DiscreteConfidence.High})`
     );
-    expectButton(screen, ButtonTitle.Confirm);
-    expectButton(screen, ButtonTitle.ConfirmForAll);
+    expectButton(screen, ButtonText.Confirm);
+    expectButton(screen, ButtonText.ConfirmForAll);
 
     clickOnButton(screen, 'Confirm for all');
     expectValueNotInTextBox(screen, 'Confidence', '10');
@@ -304,8 +304,8 @@ describe('The App in Audit View', () => {
       `High (${DiscreteConfidence.High})`
     );
     expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
-    expectButtonInContextMenuIsNotShown(screen, ButtonTitle.Confirm);
-    expectButtonIsNotShown(screen, ButtonTitle.ConfirmForAll);
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.Confirm);
+    expectButtonIsNotShown(screen, ButtonText.ConfirmForAll);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
     expectValueNotInTextBox(screen, 'Confidence', '10');
@@ -314,8 +314,8 @@ describe('The App in Audit View', () => {
       'Confidence',
       `High (${DiscreteConfidence.High})`
     );
-    expectButtonIsNotShown(screen, ButtonTitle.Confirm);
-    expectButtonIsNotShown(screen, ButtonTitle.ConfirmForAll);
+    expectButtonIsNotShown(screen, ButtonText.Confirm);
+    expectButtonIsNotShown(screen, ButtonText.ConfirmForAll);
 
     clickOnElementInResourceBrowser(screen, 'fourthResource.js');
     expectValueInTextBox(screen, 'Confidence', '90');
@@ -325,10 +325,10 @@ describe('The App in Audit View', () => {
       `High (${DiscreteConfidence.High})`
     );
     expectValueInTextBox(screen, 'Name', 'Vue');
-    expectButton(screen, ButtonTitle.Confirm);
-    expectButtonIsNotShown(screen, ButtonTitle.ConfirmForAll);
+    expectButton(screen, ButtonText.Confirm);
+    expectButtonIsNotShown(screen, ButtonText.ConfirmForAll);
 
-    clickOnButton(screen, ButtonTitle.Confirm);
+    clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Confidence', '90');
     expectValueInTextBox(
       screen,
@@ -336,7 +336,7 @@ describe('The App in Audit View', () => {
       `High (${DiscreteConfidence.High})`
     );
     expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
-    expectButtonIsNotShown(screen, ButtonTitle.Confirm);
+    expectButtonIsNotShown(screen, ButtonText.Confirm);
   });
 
   test('delete buttons are shown and work', () => {
@@ -384,26 +384,26 @@ describe('The App in Audit View', () => {
     expectValueInTextBox(screen, 'Confidence', '10');
     expectValuesInProgressbarTooltip(screen, 5, 5, 0, 0);
 
-    expectButtonInContextMenu(screen, ButtonTitle.Delete);
-    expectButtonInContextMenu(screen, ButtonTitle.DeleteForAll);
+    expectButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonInContextMenu(screen, ButtonText.DeleteForAll);
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.Delete);
+    clickOnButtonInContextMenu(screen, ButtonText.Delete);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 4, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
 
-    expectButtonInContextMenu(screen, ButtonTitle.Delete);
-    expectButtonInContextMenu(screen, ButtonTitle.DeleteForAll);
+    expectButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonInContextMenu(screen, ButtonText.DeleteForAll);
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.DeleteForAll);
+    clickOnButtonInContextMenu(screen, ButtonText.DeleteForAll);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 2, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
     expectValueNotInTextBox(screen, 'Name', 'React');
-    expectButtonInContextMenuIsNotShown(screen, ButtonTitle.Delete);
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.Delete);
 
     goToView(screen, View.Attribution);
     expectResourceBrowserIsNotShown(screen);
@@ -411,10 +411,10 @@ describe('The App in Audit View', () => {
     fireEvent.click(screen.getByText('Vue, 1.2.0') as Element);
     expectValueInTextBox(screen, 'Name', 'Vue');
 
-    expectButtonInContextMenu(screen, ButtonTitle.Delete);
-    expectButtonInContextMenuIsNotShown(screen, ButtonTitle.DeleteForAll);
+    expectButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.DeleteForAll);
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.Delete);
+    clickOnButtonInContextMenu(screen, ButtonText.Delete);
     expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 });

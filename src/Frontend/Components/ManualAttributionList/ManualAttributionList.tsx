@@ -10,7 +10,7 @@ import { List } from '../List/List';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
 
-const addNewAttributionButtonTitle = 'Add new attribution';
+const addNewAttributionButtonText = 'Add new attribution';
 const addNewAttributionButtonId = 'ADD_NEW_ATTRIBUTION_ID';
 
 interface ManualAttributionListProps {
@@ -31,7 +31,7 @@ export function ManualAttributionList(
 
   if (props.isAddNewAttributionItemShown) {
     attributions[addNewAttributionButtonId] = {
-      packageName: addNewAttributionButtonTitle,
+      packageName: addNewAttributionButtonText,
     };
     attributionIds.push(addNewAttributionButtonId);
   }

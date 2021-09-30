@@ -7,24 +7,24 @@ import { ContextMenu, ContextMenuItem } from '../ContextMenu';
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
-import { ButtonTitle } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 
 describe('The ContextMenu', () => {
   test('renders and handles click', () => {
     const onClickMock = jest.fn();
     const menuItems: Array<ContextMenuItem> = [
       {
-        buttonTitle: ButtonTitle.Undo,
+        buttonText: ButtonText.Undo,
         disabled: true,
         onClick: doNothing,
       },
       {
-        buttonTitle: ButtonTitle.Save,
+        buttonText: ButtonText.Save,
         disabled: false,
         onClick: onClickMock,
       },
       {
-        buttonTitle: ButtonTitle.SaveForAll,
+        buttonText: ButtonText.SaveForAll,
         disabled: false,
         onClick: doNothing,
         hidden: true,
@@ -32,9 +32,9 @@ describe('The ContextMenu', () => {
     ];
     render(<ContextMenu menuItems={menuItems} />);
 
-    expect(screen.getByText(ButtonTitle.Undo));
-    expect(screen.getByText(ButtonTitle.Save));
-    expect(screen.queryByText(ButtonTitle.SaveForAll)).toBe(null);
+    expect(screen.getByText(ButtonText.Undo));
+    expect(screen.getByText(ButtonText.Save));
+    expect(screen.queryByText(ButtonText.SaveForAll)).toBe(null);
 
     const buttonDisabledAttribute = screen
       .getByLabelText('button-context-menu')
@@ -42,7 +42,7 @@ describe('The ContextMenu', () => {
 
     expect(buttonDisabledAttribute).toBeFalsy();
 
-    fireEvent.click(screen.getByText(ButtonTitle.Save));
+    fireEvent.click(screen.getByText(ButtonText.Save));
 
     expect(onClickMock).toBeCalled();
   });
@@ -50,12 +50,12 @@ describe('The ContextMenu', () => {
   test('is disabled if no enabled button present', () => {
     const menuItems: Array<ContextMenuItem> = [
       {
-        buttonTitle: ButtonTitle.Undo,
+        buttonText: ButtonText.Undo,
         disabled: true,
         onClick: doNothing,
       },
       {
-        buttonTitle: ButtonTitle.SaveForAll,
+        buttonText: ButtonText.SaveForAll,
         disabled: false,
         onClick: doNothing,
         hidden: true,

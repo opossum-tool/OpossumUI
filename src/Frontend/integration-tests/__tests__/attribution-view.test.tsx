@@ -12,7 +12,7 @@ import {
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../shared/shared-types';
-import { ButtonTitle, DiscreteConfidence, View } from '../../enums/enums';
+import { ButtonText, DiscreteConfidence, View } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnButton,
@@ -107,7 +107,7 @@ describe('The App in attribution view', () => {
 
     fireEvent.click(screen.getByText('Vue, 2.6.0') as Element);
     expectUnsavedChangesPopupIsShown(screen);
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     expectValueInTextBox(screen, 'Name', 'Vue');
     expectValueInTextBox(screen, 'Version', '2.6.0');
@@ -171,7 +171,7 @@ describe('The App in attribution view', () => {
 
     fireEvent.click(screen.getByText('Vue, 2.6.0') as Element);
     expectUnsavedChangesPopupIsShown(screen);
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(screen, 'PURL', '');
 
     fireEvent.click(screen.getByText('curl, 7.56.1-1.1.') as Element);
@@ -187,15 +187,15 @@ describe('The App in attribution view', () => {
     insertValueIntoTextBox(screen, 'PURL', 'invalid-purl');
     expectValueInTextBox(screen, 'Name', 'curl');
     expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
 
     insertValueIntoTextBox(screen, 'PURL', 'pkg:test/name@version');
     expectValueInTextBox(screen, 'Name', 'name');
     expectValueInTextBox(screen, 'Version', 'version');
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
-    clickOnButton(screen, ButtonTitle.Save);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    clickOnButton(screen, ButtonText.Save);
 
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
@@ -298,13 +298,13 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
 
     insertValueIntoTextBox(screen, 'Name', 'Angular');
-    clickOnButtonInContextMenu(screen, ButtonTitle.Undo);
+    clickOnButtonInContextMenu(screen, ButtonText.Undo);
 
     expectValueInTextBox(screen, 'Name', 'jQuery');
     expectValueNotInTextBox(screen, 'Name', 'Angular');
 
     insertValueIntoTextBox(screen, 'Name', 'Angular');
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     expectValueInTextBox(screen, 'Name', 'Angular');
     expectValueNotInTextBox(screen, 'Name', 'jQuery');
@@ -370,7 +370,7 @@ describe('The App in attribution view', () => {
     insertValueIntoTextBox(screen, 'Name', '');
     insertValueIntoTextBox(screen, 'Version', '');
     insertValueIntoTextBox(screen, 'Comment', '');
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
     // @ts-ignore
@@ -431,21 +431,21 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'jQuery');
     screen.getByText('/root/src/file_1');
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.MarkForReplacement);
+    clickOnButtonInContextMenu(screen, ButtonText.MarkForReplacement);
 
     fireEvent.click(screen.getByText('React, 16.0.0') as Element);
     expectValueInTextBox(screen, 'Name', 'React');
     screen.getByText('/root/src/file_2');
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.ReplaceMarkedBy);
+    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarkedBy);
     expectReplaceAttributionPopupIsShown(screen);
-    clickOnButton(screen, ButtonTitle.Cancel);
+    clickOnButton(screen, ButtonText.Cancel);
     expect(screen.queryByText('jQuery, 16.0.0')).toBeTruthy();
     expectReplaceAttributionPopupIsNotShown(screen);
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.ReplaceMarkedBy);
+    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarkedBy);
     expectReplaceAttributionPopupIsShown(screen);
-    clickOnButton(screen, ButtonTitle.Replace);
+    clickOnButton(screen, ButtonText.Replace);
     expectValueInTextBox(screen, 'Name', 'React');
     expectReplaceAttributionPopupIsNotShown(screen);
     expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();

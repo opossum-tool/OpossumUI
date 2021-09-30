@@ -36,7 +36,7 @@ import {
 } from '../../test-helpers/test-helpers';
 import { App } from '../../Components/App/App';
 
-import { ButtonTitle, View } from '../../enums/enums';
+import { ButtonText, View } from '../../enums/enums';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -136,14 +136,14 @@ describe('Not saved popup of the app', () => {
     goToView(screen, View.Attribution);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Cancel);
+    clickOnButton(screen, ButtonText.Cancel);
     getElementInResourceBrowser(screen, 'root');
     expectValueInTextBox(screen, 'Name', 'Angular');
 
     goToView(screen, View.Attribution);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Undo);
+    clickOnButton(screen, ButtonText.Undo);
     expectResourceBrowserIsNotShown(screen);
 
     goToView(screen, View.Audit);
@@ -155,7 +155,7 @@ describe('Not saved popup of the app', () => {
     goToView(screen, View.Attribution);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     expect(screen.getByText('Angular'));
     expectResourceBrowserIsNotShown(screen);
   });
@@ -174,14 +174,14 @@ describe('Not saved popup of the app', () => {
     goToView(screen, View.Report);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Cancel);
+    clickOnButton(screen, ButtonText.Cancel);
     getElementInResourceBrowser(screen, 'root');
     expectValueInTextBox(screen, 'Name', 'Angular');
 
     goToView(screen, View.Report);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     expect(screen.getByText('Angular'));
     expectResourceBrowserIsNotShown(screen);
 
@@ -205,14 +205,14 @@ describe('Not saved popup of the app', () => {
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Cancel);
+    clickOnButton(screen, ButtonText.Cancel);
     expect(screen.getByText('React, 16.0.0'));
     expectValueInTextBox(screen, 'Name', 'Angular');
 
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Undo);
+    clickOnButton(screen, ButtonText.Undo);
     getElementInResourceBrowser(screen, 'root');
 
     clickOnElementInResourceBrowser(screen, 'root');
@@ -229,7 +229,7 @@ describe('Not saved popup of the app', () => {
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     getElementInResourceBrowser(screen, 'root');
 
     clickOnElementInResourceBrowser(screen, 'root');
@@ -243,7 +243,7 @@ describe('Not saved popup of the app', () => {
     clickOnProgressBar(screen);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Undo);
+    clickOnButton(screen, ButtonText.Undo);
     getElementInResourceBrowser(screen, 'root');
 
     goToView(screen, View.Attribution);
@@ -270,7 +270,7 @@ describe('Not saved popup of the app', () => {
       clickAddIconOnCardInAttributionList(screen, 'Vue, 2.6.0');
       expectUnsavedChangesPopupIsShown(screen);
 
-      clickOnButton(screen, ButtonTitle.Cancel);
+      clickOnButton(screen, ButtonText.Cancel);
       clickOnTab(screen, 'All Attributions Tab');
       clickAddIconOnCardInAttributionList(screen, 'React, 16.0.0');
       expectUnsavedChangesPopupIsShown(screen);
@@ -371,13 +371,13 @@ describe('Not saved popup of the app', () => {
     fireEvent.click(getCardInAttributionList(screen, 'JQuery'));
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Cancel);
+    clickOnButton(screen, ButtonText.Cancel);
     expectValueInTextBox(screen, 'Name', 'My great manual package');
 
     fireEvent.click(getCardInAttributionList(screen, 'JQuery'));
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButtonInContextMenu(screen, ButtonTitle.Undo);
+    clickOnButtonInContextMenu(screen, ButtonText.Undo);
 
     // This behavior could be changed in the future. One could jump to JQuery.
     expectValueNotInTextBox(screen, 'Name', 'My great manual package');

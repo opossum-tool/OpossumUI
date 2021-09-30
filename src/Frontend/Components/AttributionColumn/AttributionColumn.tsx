@@ -5,7 +5,7 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import React, { ChangeEvent, ReactElement, useEffect, useState } from 'react';
+import React, { ChangeEvent, ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -16,38 +16,39 @@ import {
   wereTemporaryPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import { useWindowHeight } from '../../util/use-window-height';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { setIsSavingDisabled } from '../../state/actions/resource-actions/save-actions';
 import { IpcRendererEvent } from 'electron';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import {
   getDiscreteConfidenceChangeHandler,
+  getDisplayTexts,
   getExcludeFromNoticeChangeHandler,
   getFirstPartyChangeHandler,
   getFollowUpChangeHandler,
-  getLicenseTextMaxRows,
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   selectedPackageIsResolved,
+  usePurl,
+  useRows,
 } from './attribution-column-helpers';
 import { PackageSubPanel } from './PackageSubPanel';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
 import { LicenseSubPanel } from './LicenseSubPanel';
 import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
-import { generatePurlFromPackageInfo, parsePurl } from '../../util/handle-purl';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { PopupType } from '../../enums/enums';
+import { ButtonText, PopupType } from '../../enums/enums';
+import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 const useStyles = makeStyles({
   root: {
@@ -79,6 +80,7 @@ interface AttributionColumnProps {
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const classes = useStyles();
 
+  const dispatch = useDispatch();
   const initialPackageInfo = useSelector(getPackageInfoOfSelected);
   const selectedPackage = useSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useSelector(
@@ -89,21 +91,28 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   );
   const packageInfoWereModified = useSelector(wereTemporaryPackageInfoModified);
   const isSavingDisabled = useSelector(getIsSavingDisabled);
-  const dispatch = useDispatch();
-
-  const view = useSelector(getSelectedView);
-  const licenseTextRows = getLicenseTextMaxRows(useWindowHeight(), view);
-  const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
-  useEffect(() => {
-    setIsLicenseTextShown(false);
-  }, [props.resetViewIfThisIdChanges]);
-  const copyrightRows = isLicenseTextShown ? 1 : 6;
-  const commentRows = isLicenseTextShown ? 1 : Math.max(licenseTextRows - 2, 1);
-
   const selectedAttributionId = useSelector(getSelectedAttributionId);
   const attributionIdMarkedForReplacement = useSelector(
     getAttributionIdMarkedForReplacement
   );
+  const view = useSelector(getSelectedView);
+
+  const {
+    isLicenseTextShown,
+    setIsLicenseTextShown,
+    licenseTextRows,
+    copyrightRows,
+    commentRows,
+  } = useRows(view, props.resetViewIfThisIdChanges);
+  const { temporaryPurl, isDisplayedPurlValid, handlePurlChange } = usePurl(
+    dispatch,
+    packageInfoWereModified,
+    temporaryPackageInfo,
+    props.displayPackageInfo,
+    selectedPackage
+  );
+  const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
+
   const mergeButtonDisplayState = getMergeButtonsDisplayState(
     view,
     attributionIdMarkedForReplacement,
@@ -112,43 +121,74 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     Boolean(temporaryPackageInfo.preSelected)
   );
 
-  const [temporaryPurl, setTemporaryPurl] = useState<string>('');
-  const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
-  useEffect(() => {
-    dispatch(
-      setIsSavingDisabled(
-        (!packageInfoWereModified || !isDisplayedPurlValid) &&
-          !temporaryPackageInfo.preSelected
-      )
-    );
-  }, [
-    dispatch,
-    packageInfoWereModified,
-    isDisplayedPurlValid,
+  const mainButtonConfigs: Array<MainButtonConfig> = [
+    {
+      buttonText: temporaryPackageInfo.preSelected
+        ? ButtonText.Confirm
+        : ButtonText.Save,
+      disabled: isSavingDisabled,
+      onClick: props.onSaveButtonClick,
+      hidden: false,
+    },
+    {
+      buttonText: temporaryPackageInfo.preSelected
+        ? ButtonText.ConfirmForAll
+        : ButtonText.SaveForAll,
+      disabled: isSavingDisabled,
+      onClick: props.onSaveForAllButtonClick,
+      hidden: !Boolean(props.showSaveForAllButton),
+    },
+  ];
+
+  const contextMenuButtonConfigs: Array<ContextMenuItem> = [
+    {
+      buttonText: ButtonText.Undo,
+      disabled: !packageInfoWereModified,
+      onClick: (): void => {
+        dispatch(setTemporaryPackageInfo(initialPackageInfo));
+      },
+    },
+    {
+      buttonText: ButtonText.Delete,
+      onClick: props.onDeleteButtonClick,
+      hidden: Boolean(props.hideDeleteButtons),
+    },
+    {
+      buttonText: ButtonText.DeleteForAll,
+      onClick: props.onDeleteForAllButtonClick,
+      hidden:
+        Boolean(props.hideDeleteButtons) ||
+        !Boolean(props.showSaveForAllButton),
+    },
+    {
+      buttonText: ButtonText.MarkForReplacement,
+      onClick: (): void => {
+        dispatch(setAttributionIdMarkedForReplacement(selectedAttributionId));
+      },
+      hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
+    },
+    {
+      buttonText: ButtonText.UnmarkForReplacement,
+      onClick: (): void => {
+        dispatch(setAttributionIdMarkedForReplacement(''));
+      },
+      hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
+    },
+    {
+      buttonText: ButtonText.ReplaceMarkedBy,
+      disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
+      onClick: (): void => {
+        dispatch(openPopup(PopupType.ReplaceAttributionPopup));
+      },
+      hidden: mergeButtonDisplayState.hideOnReplaceMarkedByButton,
+    },
+  ];
+
+  const displayTexts = getDisplayTexts(
     temporaryPackageInfo,
-  ]);
-  useEffect(() => {
-    setTemporaryPurl(
-      generatePurlFromPackageInfo(props.displayPackageInfo) || ''
-    );
-  }, [props.displayPackageInfo, selectedPackage]);
-  function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
-    setTemporaryPurl(event.target.value);
-    const { isValid, purl } = parsePurl(event.target.value);
-    if (isValid && purl) {
-      dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
-          packageName: purl.packageName,
-          packageVersion: purl.packageVersion,
-          packageNamespace: purl.packageNamespace,
-          packageType: purl.packageType,
-          packagePURLAppendix: purl.packagePURLAppendix,
-        })
-      );
-    }
-  }
-  const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
+    selectedAttributionId,
+    attributionIdMarkedForReplacement
+  );
 
   function listener(event: IpcRendererEvent, resetState: boolean): void {
     if (resetState) {
@@ -217,14 +257,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       />
       <ButtonRow
         showButtonGroup={props.showManualAttributionData}
-        temporaryPackageInfo={temporaryPackageInfo}
-        initialPackageInfo={initialPackageInfo}
-        isSavingDisabled={isSavingDisabled}
-        onDeleteButtonClick={props.onDeleteButtonClick}
-        onDeleteForAllButtonClick={props.onDeleteForAllButtonClick}
-        onSaveButtonClick={props.onSaveButtonClick}
-        onSaveForAllButtonClick={props.onSaveForAllButtonClick}
-        packageInfoWereModified={packageInfoWereModified}
         resolvedToggleHandler={getResolvedToggleHandler(
           selectedPackage,
           resolvedExternalAttributions,
@@ -234,36 +266,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           selectedPackage,
           resolvedExternalAttributions
         )}
-        selectedPackageIsMarkedForReplacement={
-          selectedAttributionId === attributionIdMarkedForReplacement
-        }
-        onUndoButtonClick={(): void => {
-          dispatch(setTemporaryPackageInfo(initialPackageInfo));
-        }}
-        showSaveForAllButton={props.showSaveForAllButton}
         areButtonsHidden={props.areButtonsHidden}
-        hideDeleteButtons={props.hideDeleteButtons}
-        hideMarkForReplacementButton={
-          mergeButtonDisplayState.hideMarkForReplacementButton
-        }
-        onMarkForReplacementButtonClick={(): void => {
-          dispatch(setAttributionIdMarkedForReplacement(selectedAttributionId));
-        }}
-        hideUnmarkForReplacementButton={
-          mergeButtonDisplayState.hideUnmarkForReplacementButton
-        }
-        onUnmarkForReplacementButtonClick={(): void => {
-          dispatch(setAttributionIdMarkedForReplacement(''));
-        }}
-        hideOnReplaceMarkedByButton={
-          mergeButtonDisplayState.hideOnReplaceMarkedByButton
-        }
-        deactivateReplaceMarkedByButton={
-          mergeButtonDisplayState.deactivateReplaceMarkedByButton
-        }
-        onReplaceMarkedByButtonClick={(): void => {
-          dispatch(openPopup(PopupType.ReplaceAttributionPopup));
-        }}
+        mainButtonConfigs={mainButtonConfigs}
+        contextMenuButtonConfigs={contextMenuButtonConfigs}
+        displayTexts={displayTexts}
       />
     </div>
   );
