@@ -15,7 +15,7 @@ import {
   SpdxPackage,
 } from '../types';
 jest.mock('uuid', () => ({
-  v4: () => 'testUUID',
+  v4: (): string => 'testUUID',
 }));
 
 jest.useFakeTimers('modern').setSystemTime(new Date('2020-01-01').getTime());

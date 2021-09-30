@@ -227,7 +227,7 @@ function generatePurlFromPackage(pkg: Package): string {
 }
 
 function isPackageEmpty(pkg: Package): boolean {
-  function shouldNotBeCalled(neverCalled: never): never {
+  function shouldNotBeCalled(_neverCalled: never): never {
     throw new Error();
   }
   function getIsValueNonEmpty(
@@ -246,7 +246,8 @@ function isPackageEmpty(pkg: Package): boolean {
       case 'comment':
         return Boolean;
       case 'dependencies':
-        return (dependencies: Array<Package>) => dependencies.length !== 0;
+        return (dependencies: Array<Package>): boolean =>
+          dependencies.length !== 0;
       default:
         shouldNotBeCalled(key);
     }
