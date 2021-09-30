@@ -57,6 +57,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
     getResourceIdsOfSelectedAttribution,
     isEqual
   );
+
   const resourceListMaxHeight = useWindowHeight() - 86;
 
   const dispatch = useDispatch();

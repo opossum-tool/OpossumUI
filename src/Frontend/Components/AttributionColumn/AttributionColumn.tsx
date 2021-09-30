@@ -234,6 +234,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           selectedPackage,
           resolvedExternalAttributions
         )}
+        selectedPackageIsMarkedForReplacement={
+          selectedAttributionId === attributionIdMarkedForReplacement
+        }
         onUndoButtonClick={(): void => {
           dispatch(setTemporaryPackageInfo(initialPackageInfo));
         }}

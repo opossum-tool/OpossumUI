@@ -10,7 +10,10 @@ import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import {
+  getAttributionIdMarkedForReplacement,
+  getSelectedAttributionId,
+} from '../../state/selectors/attribution-view-resource-selectors';
 import { useFollowUpFilter } from '../../util/use-follow-up-filter';
 import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
@@ -42,6 +45,9 @@ export function AttributionView(): ReactElement {
   const dispatch = useDispatch();
   const attributions: Attributions = useSelector(getManualAttributions);
   const selectedAttributionId: string = useSelector(getSelectedAttributionId);
+  const attributionIdMarkedForReplacement: string = useSelector(
+    getAttributionIdMarkedForReplacement
+  );
 
   const { filterForFollowUp, handleFilterChange, getFilteredAttributions } =
     useFollowUpFilter();
@@ -64,6 +70,7 @@ export function AttributionView(): ReactElement {
       <AttributionList
         attributions={filteredAttributions}
         selectedAttributionId={selectedAttributionId}
+        attributionIdMarkedForReplacement={attributionIdMarkedForReplacement}
         onCardClick={onCardClick}
         className={classes.attributionList}
         maxHeight={useWindowHeight() - topBarOffset - countAndSearchOffset}

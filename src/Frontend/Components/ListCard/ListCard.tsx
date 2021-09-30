@@ -48,6 +48,12 @@ const useStyles = makeStyles({
       background: OpossumColors.middleBlueOnHover,
     },
   },
+  markedForReplacement: {
+    borderRightWidth: 'medium',
+    borderRightColor: OpossumColors.brown,
+    background: OpossumColors.lightGrey,
+    color: OpossumColors.grey,
+  },
   resolved: {
     opacity: 0.5,
   },
@@ -137,6 +143,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         props.cardConfig.isResource ? classes.resource : classes.package,
         props.cardConfig.isExternalAttribution && classes.externalAttribution,
         props.cardConfig.isSelected && classes.selected,
+        props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
         props.cardConfig.isResolved && classes.resolved
       )}
       onClick={props.onClick}

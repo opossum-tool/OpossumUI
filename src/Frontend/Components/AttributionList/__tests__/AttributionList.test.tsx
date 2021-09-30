@@ -33,6 +33,7 @@ describe('The AttributionList', () => {
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
+        attributionIdMarkedForReplacement={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
@@ -47,6 +48,7 @@ describe('The AttributionList', () => {
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
+        attributionIdMarkedForReplacement={''}
         onCardClick={doNothing}
         maxHeight={1000}
         title={'title'}
@@ -61,6 +63,7 @@ describe('The AttributionList', () => {
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
+        attributionIdMarkedForReplacement={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
@@ -94,6 +97,7 @@ describe('The AttributionList', () => {
       <AttributionList
         attributions={testPackages}
         selectedAttributionId={''}
+        attributionIdMarkedForReplacement={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
