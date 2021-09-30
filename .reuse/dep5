@@ -3,7 +3,7 @@ Source: https://github.com/opossum-tool/opossumUI
 
 Files: *.json
        *.json.gz
-       .prettierrc
+       *.prettierrc
        **.gitignore
        **yarn.lock
 Copyright: Facebook, Inc. and its affiliates
