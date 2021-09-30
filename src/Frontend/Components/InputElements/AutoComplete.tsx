@@ -45,9 +45,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
   }
 
   const inputValue = props.text || '';
-  const inputValueIndexInOptions: number = props.options
-    .map((name) => name)
-    .indexOf(inputValue);
+  const inputValueIndexInOptions: number = props.options.indexOf(inputValue);
   const isInputValueInOptions: boolean = inputValueIndexInOptions > -1;
 
   return (
