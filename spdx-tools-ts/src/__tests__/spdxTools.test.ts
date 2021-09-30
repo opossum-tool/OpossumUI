@@ -95,7 +95,7 @@ describe('createSpdxDocument', () => {
     });
   });
 
-  it('creates correct document in case of two attributions one without license', () => {
+  it('creates correct document in case of four attributions one without license one spdx license', () => {
     const attribution1: Package = {
       copyright: 'copyright 1',
       license: 'license 1',
@@ -110,21 +110,39 @@ describe('createSpdxDocument', () => {
     };
     const attribution2: Package = {
       copyright: 'copyright 2',
-
       name: 'name 2',
       namespace: 'namespace 2',
       dependencies: [],
       comment: "I'm a comment",
     };
+    const attribution3: Package = {
+      copyright: 'copyright 3',
+      name: 'name 3',
+      namespace: 'namespace 3',
+      dependencies: [],
+      comment: "I'm a comment",
+      license: 'license 1',
+      licenseText: 'license text 1',
+    };
+    const attribution4: Package = {
+      copyright: 'copyright 4',
+      name: 'name 4',
+      namespace: 'namespace 4',
+      dependencies: [],
+      comment: "I'm a comment",
+      license: 'MIT',
+      licenseText: 'license text 4',
+    };
     const spdxDocument = createSpdxDocument('Opossum', {
-      dependencies: [attribution1, attribution2],
+      dependencies: [attribution1, attribution2, attribution3, attribution4],
     });
     expect(spdxDocument).toStrictEqual({
       ...expectedBaseSpdxDocument,
       hasExtractedLicensingInfos: [
         {
           extractedText: 'license text 1',
-          licenseId: 'LicenseRef-license-1-0',
+          licenseId:
+            'LicenseRef-license-1-a1401ff7c639df0803dcc2629a6bc4ac6c03fdec',
           name: 'license 1',
         },
       ],
@@ -144,7 +162,8 @@ describe('createSpdxDocument', () => {
           ],
           filesAnalyzed: false,
           homepage: 'url 1',
-          licenseConcluded: 'LicenseRef-license-1-0',
+          licenseConcluded:
+            'LicenseRef-license-1-a1401ff7c639df0803dcc2629a6bc4ac6c03fdec',
           licenseDeclared: 'NOASSERTION',
           licenseInfoFromFiles: 'NOASSERTION',
           name: 'name 1',
@@ -163,6 +182,33 @@ describe('createSpdxDocument', () => {
           name: 'name 2',
           versionInfo: 'NOASSERTION',
         },
+        {
+          SPDXID: 'SPDXRef-Package-name-3-2',
+          comment: "I'm a comment",
+          copyrightText: 'copyright 3',
+          downloadLocation: 'NOASSERTION',
+          externalRefs: [],
+          filesAnalyzed: false,
+          licenseConcluded:
+            'LicenseRef-license-1-a1401ff7c639df0803dcc2629a6bc4ac6c03fdec',
+          licenseDeclared: 'NOASSERTION',
+          licenseInfoFromFiles: 'NOASSERTION',
+          name: 'name 3',
+          versionInfo: 'NOASSERTION',
+        },
+        {
+          SPDXID: 'SPDXRef-Package-name-4-3',
+          comment: "I'm a comment",
+          copyrightText: 'copyright 4',
+          downloadLocation: 'NOASSERTION',
+          externalRefs: [],
+          filesAnalyzed: false,
+          licenseConcluded: 'MIT',
+          licenseDeclared: 'NOASSERTION',
+          licenseInfoFromFiles: 'NOASSERTION',
+          name: 'name 4',
+          versionInfo: 'NOASSERTION',
+        },
       ],
       relationships: [
         expectedRootRelationship,
@@ -175,6 +221,16 @@ describe('createSpdxDocument', () => {
           relatedSpdxElement: SPDXID_OF_ROOT_PACKAGE,
           relationshipType: 'DEPENDENCY_OF',
           spdxElementId: 'SPDXRef-Package-name-2-1',
+        },
+        {
+          relatedSpdxElement: 'SPDXRef-RootPackage',
+          relationshipType: 'DEPENDENCY_OF',
+          spdxElementId: 'SPDXRef-Package-name-3-2',
+        },
+        {
+          relatedSpdxElement: 'SPDXRef-RootPackage',
+          relationshipType: 'DEPENDENCY_OF',
+          spdxElementId: 'SPDXRef-Package-name-4-3',
         },
       ],
     });

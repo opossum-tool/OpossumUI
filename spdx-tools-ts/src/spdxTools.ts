@@ -15,6 +15,8 @@ import {
 } from './types';
 import yaml from 'js-yaml';
 import { PackageURL } from 'packageurl-js';
+import * as spdxLicenseJson from 'spdx-license-ids/index.json';
+import hash from 'object-hash';
 
 const DEFAULT_PACKAGE_RELATION = 'DEPENDENCY_OF';
 const DEFAULT_DOCUMENT_ID = 'SPDXRef-DOCUMENT';
@@ -139,19 +141,29 @@ function addNonRootPackages(
   spdxPackages: Array<SpdxPackage>,
   spdxExternalRelationships: Array<SpdxExternalRelationship>
 ): void {
+  const alreadyUsedLicenses: Array<string> = [];
+
   packages.forEach((pkg, index) => {
     if (isPackageEmpty(pkg)) {
       return;
     }
 
-    let licenseSpdxId = '';
-    if (pkg.license || pkg.licenseText) {
-      licenseSpdxId = getLicenseSpdxId(pkg, index);
+    const licenseText = pkg.licenseText;
+    const licenseName = pkg.license || '';
+    const licenseIsNonEmpty = licenseName || licenseText;
+    const licenseSpdxId = getLicenseSpdxId(pkg);
+
+    if (
+      licenseIsNonEmpty &&
+      !isSpdxLicense(pkg.license) &&
+      !alreadyUsedLicenses.includes(licenseSpdxId)
+    ) {
       const spdxLicenseInfo: SpdxLicenseInfo = {
         licenseId: licenseSpdxId,
-        extractedText: pkg.licenseText || 'NOASSERTION',
-        name: pkg.license || 'NOASSERTION',
+        extractedText: licenseText || 'NOASSERTION',
+        name: licenseName || 'NOASSERTION',
       };
+      alreadyUsedLicenses.push(licenseSpdxId);
       spdxLicenseInfos.push(spdxLicenseInfo);
     }
 
@@ -160,7 +172,7 @@ function addNonRootPackages(
       SPDXID: packageSpdxId,
       name: pkg.name || 'NOASSERTION',
       versionInfo: pkg.version || 'NOASSERTION',
-      licenseConcluded: licenseSpdxId || 'NOASSERTION',
+      licenseConcluded: licenseIsNonEmpty ? licenseSpdxId : 'NOASSERTION',
       licenseDeclared: 'NOASSERTION',
       copyrightText: pkg.copyright || 'NONE',
       comment: pkg.comment,
@@ -193,10 +205,14 @@ function getPackageSpdxId(pkg: Package, index: number): string {
   }-${index}`;
 }
 
-function getLicenseSpdxId(pkg: Package, index: number): string {
-  return `LicenseRef-${
-    pkg.license ? pkg.license.replace(/[^a-zA-Z0-9-.]+/g, '-') : ''
-  }-${index}`;
+function getLicenseSpdxId(pkg: Package): string {
+  const licenseName = pkg.license;
+
+  return licenseName && isSpdxLicense(licenseName)
+    ? licenseName
+    : `LicenseRef-${
+        licenseName ? licenseName.replace(/[^a-zA-Z0-9-.]+/g, '-') : ''
+      }-${hash({ licenseText: pkg.licenseText, licenseName: pkg.license })}`;
 }
 
 function getExternalRefs(pkg: Package): Array<SpdxExternalRef> {
@@ -257,5 +273,11 @@ function isPackageEmpty(pkg: Package): boolean {
     Object.entries(pkg).filter((entry) =>
       getIsValueNonEmpty(entry[0] as keyof Package)(entry[1])
     ).length === 0
+  );
+}
+
+function isSpdxLicense(licenseName?: string): boolean {
+  return Boolean(
+    licenseName && Object.values(spdxLicenseJson).includes(licenseName)
   );
 }
