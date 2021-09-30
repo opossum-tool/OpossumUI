@@ -46,7 +46,7 @@ describe('writeSpdxFile', () => {
         packageName: 'test-Package',
         packageVersion: '1.1',
         licenseText: 'test license text',
-        licenseName: 'MIT',
+        licenseName: 'license name',
       },
       uuid_2: {
         packageName: 'second-test-Package',
@@ -68,7 +68,7 @@ describe('writeSpdxFile', () => {
     expect(fileContent).toContain('spdxVersion: SPDX-2.2');
     expect(fileContent).toContain('name: test-Package');
     expect(fileContent).toContain('extractedText: test license text');
-    expect(fileContent).toContain('name: MIT');
+    expect(fileContent).toContain('name: license name');
     expect(fileContent).toContain(
       'referenceLocator: pkg:npm/second-test-Package@2.1'
     );
