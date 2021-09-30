@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -228,5 +228,58 @@ describe('The App integration', () => {
     goToView(screen, View.Attribution);
 
     expect(screen.queryByText('Linked Resources')).toBeFalsy();
+  });
+
+  test('recognizes frequent licenses and shows full license text in report view', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'something.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            licenseText: '',
+          },
+        },
+        resourcesToAttributions: {
+          '/something.js': ['uuid_1'],
+        },
+      },
+      frequentLicenses: {
+        nameOrder: ['GPL-2.0', 'Apache'],
+        texts: {
+          'GPL-2.0': 'frequent license',
+          Apache: 'Apache license',
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'something.js');
+
+    insertValueIntoTextBox(screen, 'License Name', 'gpl-2.0');
+    clickOnButton(screen, ButtonTitle.Save);
+
+    goToView(screen, View.Report);
+    screen.getByText('gpl-2.0');
+    expect(screen.queryByText('frequent license')).toBeFalsy();
+
+    goToView(screen, View.Audit);
+    insertValueIntoTextBox(screen, 'License Name', 'GPL-2.0');
+
+    clickOnButton(screen, ButtonTitle.Save);
+    goToView(screen, View.Report);
+    screen.getByText('GPL-2.0');
+    screen.getByText('frequent license');
+
+    goToView(screen, View.Audit);
+    insertValueIntoTextBox(screen, 'License Name', 'Apac');
+    fireEvent.click(screen.getByText('Apache'));
+    clickOnButton(screen, ButtonTitle.Save);
+    goToView(screen, View.Report);
+    screen.getByText('Apache');
+    screen.getByText('Apache license');
   });
 });

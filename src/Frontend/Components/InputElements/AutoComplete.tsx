@@ -45,9 +45,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
   }
 
   const inputValue = props.text || '';
-  const inputValueIndexInOptions: number = props.options
-    .map((name) => name.toLowerCase())
-    .indexOf(inputValue.toLowerCase());
+  const inputValueIndexInOptions: number = props.options.indexOf(inputValue);
   const isInputValueInOptions: boolean = inputValueIndexInOptions > -1;
 
   return (
@@ -58,11 +56,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
         options={props.options}
         disableClearable={true}
         disabled={!props.isEditable}
-        inputValue={
-          isInputValueInOptions
-            ? props.options[inputValueIndexInOptions]
-            : inputValue
-        }
+        inputValue={inputValue}
         onInputChange={onInputChange}
         renderInput={(params): ReactElement => {
           const paramsWithAdornment = props.endAdornmentText
