@@ -366,23 +366,31 @@ export const resourceState = (
         },
       };
     case ACTION_DELETE_ATTRIBUTION:
+      const attributionToDeleteId = action.payload;
       const manualDataAfterDeletion: AttributionData = deleteManualAttribution(
         state.allViews.manualData,
-        action.payload,
+        attributionToDeleteId,
         getAttributionBreakpointCheckForResourceState(state)
       );
 
       const newDisplayedPanelPackage: PanelPackage | null =
         state.auditView.displayedPanelPackage?.panel ===
           PackagePanelTitle.ManualPackages &&
-        state.auditView.displayedPanelPackage.attributionId === action.payload
+        state.auditView.displayedPanelPackage.attributionId ===
+          attributionToDeleteId
           ? { ...state.auditView.displayedPanelPackage, attributionId: '' }
           : state.auditView.displayedPanelPackage;
 
       const newSelectedAttributionId: string =
-        state.attributionView.selectedAttributionId === action.payload
+        state.attributionView.selectedAttributionId === attributionToDeleteId
           ? ''
           : state.attributionView.selectedAttributionId;
+
+      const newAttributionIdMarkedForReplacement: string =
+        state.attributionView.attributionIdMarkedForReplacement ===
+        attributionToDeleteId
+          ? ''
+          : state.attributionView.attributionIdMarkedForReplacement;
 
       return {
         ...state,
@@ -406,6 +414,8 @@ export const resourceState = (
         attributionView: {
           ...state.attributionView,
           selectedAttributionId: newSelectedAttributionId,
+          attributionIdMarkedForReplacement:
+            newAttributionIdMarkedForReplacement,
         },
       };
     case ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING:

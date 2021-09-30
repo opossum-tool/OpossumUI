@@ -35,13 +35,19 @@ import {
   getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
+import {
+  getAttributionIdMarkedForReplacement,
+  getSelectedAttributionId,
+} from '../../../selectors/attribution-view-resource-selectors';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/audit-view-resource-selectors';
 import {
   setResources,
   setTemporaryPackageInfo,
 } from '../all-views-simple-actions';
-import { setSelectedAttributionId } from '../attribution-view-simple-actions';
+import {
+  setAttributionIdMarkedForReplacement,
+  setSelectedAttributionId,
+} from '../attribution-view-simple-actions';
 import {
   addResolvedExternalAttribution,
   setDisplayedPackage,
@@ -921,10 +927,16 @@ describe('The deleteAttributionForAllAndSave action', () => {
         )
       )
     );
+    testStore.dispatch(setSelectedAttributionId('reactUuid'));
+    testStore.dispatch(setAttributionIdMarkedForReplacement('reactUuid'));
 
     testStore.dispatch(deleteAttributionForAllAndSave('reactUuid'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryPackageInfo(testStore.getState())).toEqual({});
+    expect(getSelectedAttributionId(testStore.getState())).toEqual('');
+    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toEqual(
+      ''
+    );
   });
 });
 
