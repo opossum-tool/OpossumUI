@@ -175,7 +175,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
     },
     {
-      buttonText: ButtonText.ReplaceMarkedBy,
+      buttonText: ButtonText.ReplaceMarked,
       disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
       onClick: (): void => {
         dispatch(openPopup(PopupType.ReplaceAttributionPopup));

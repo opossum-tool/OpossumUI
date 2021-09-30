@@ -51,8 +51,7 @@ const useStyles = makeStyles({
   markedForReplacement: {
     borderRightWidth: 'medium',
     borderRightColor: OpossumColors.brown,
-    background: OpossumColors.lightGrey,
-    color: OpossumColors.grey,
+    borderRadius: 2,
   },
   resolved: {
     opacity: 0.5,

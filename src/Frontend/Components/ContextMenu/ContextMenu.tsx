@@ -37,7 +37,7 @@ const BUTTON_TITLE_TO_ICON_MAP: {
     <CheckBoxOutlineBlankIcon fontSize="small" />
   ),
   [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
-  [ButtonText.ReplaceMarkedBy]: <MergeTypeIcon fontSize="small" />,
+  [ButtonText.ReplaceMarked]: <MergeTypeIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {
