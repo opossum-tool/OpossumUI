@@ -162,7 +162,7 @@ In the `Attribution Selection Column` the following sub-panels may be present:
 - `Add to Attribution Sub-Panel` (accessible via the `ALL ATTRIBUTIONS` tab).
 
 The `Attributions Sub-Panel` shows a list of all attributions that are assigned to the selected resource.
-**Pre-selected** attributions are signaled by a gradient in the color. They can be confirmed, therefore being considered
+**Pre-selected** attributions are signaled by an `P` icon. They can be confirmed, therefore being considered
 attributions in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and
 attributions are both written in the output file. Clicking on one of the
 attributions, shows the details of that attribution in the `Attribution Details Column`. Clicking on _Add new
@@ -177,7 +177,7 @@ of the signals of the selected resource and the attributions and signals of the 
 folder. Clicking on the one of the listed items, shows the details of the respective attribution/signal in the
 `Attribution Details Column`. By clicking the **+ icon** of an item, the respective attribution/signal can be added to
 the attributions of the selected resource. In the `Signals Sub-Panel` signals that were used to create the pre-selected
-attributions are shown with a gradient, even if the relative attributions have been deleted. The cards in the
+attributions are shown with an `P` icon, even if the relative attributions have been deleted. The cards in the
 ` ... in folder content` sub-panels also show the number of resources in the folder that are linked to the shown
 attribution.
 
@@ -241,10 +241,10 @@ the `Audit View` and has two main components:
 #### Attribution List
 
 All existing attributions are listed and can be selected. **Pre-selected**
-attributions are signaled by a gradient in the color. They can be confirmed, which converts them into attributions
+attributions are signaled by an `P` icon. They can be confirmed, which converts them into attributions
 in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
 attributions are both written in the output file. On top there is a checkbox that allows
-for filtering for attributions marked for follow-up.
+for filtering for attributions marked for follow-up. 
 
 #### Selected Attribution Panel
 
@@ -254,6 +254,9 @@ The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. 
   the `Selected Resource Panel`. They are always editable.
 - The _SAVE_ and _Delete_ buttons allow saving/deleting the selected attribution. Note that the changes affect multiple
   resources if the selected attribution is linked to multiple resources.
+- The _Mark for replacement_ button allows to mark an attribution for replacement. After marking an attribution.
+  One can navigate to another attribution and press the _Replace marked_ button. This opens a popup. In the popup,
+  clicking the _Replace_ button removes the marked attribution and replaces it this the currently selected one.
 - A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
   selected resource in the `Audit View`.
 
