@@ -21,6 +21,8 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   expectButtonInContextMenu,
+  expectReplaceAttributionPopupIsNotShown,
+  expectReplaceAttributionPopupIsShown,
   expectResourceBrowserIsNotShown,
   expectUnsavedChangesPopupIsShown,
   expectValueInTextBox,
@@ -371,6 +373,86 @@ describe('The App in attribution view', () => {
     clickOnButton(screen, ButtonTitle.Save);
 
     expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    // @ts-ignore
+    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+      [IpcChannel['OpenFile']],
+      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+    ]);
+  });
+
+  test('replaces attributions', () => {
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: {
+        uuid_2: {
+          comment: 'ManualPackage',
+          packageName: 'React',
+          packageVersion: '16.0.0',
+        },
+      },
+      resolvedExternalAttributions: new Set(),
+      resourcesToAttributions: {
+        '/root/src/file_1': ['uuid_2'],
+        '/root/src/file_2': ['uuid_2'],
+      },
+    };
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        root: { src: { file_1: 1, file_2: 1 } },
+        file: 1,
+      },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'jQuery',
+            packageVersion: '16.0.0',
+            comment: 'ManualPackage',
+          },
+          uuid_2: {
+            packageName: 'React',
+            packageVersion: '16.0.0',
+            comment: 'ManualPackage',
+          },
+        },
+        resourcesToAttributions: {
+          '/root/src/file_1': ['uuid_1'],
+          '/root/src/file_2': ['uuid_2'],
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnOpenFileIcon(screen);
+    goToView(screen, View.Attribution);
+    expectResourceBrowserIsNotShown(screen);
+
+    fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
+    expectValueInTextBox(screen, 'Name', 'jQuery');
+    screen.getByText('/root/src/file_1');
+
+    clickOnButtonInContextMenu(screen, ButtonTitle.MarkForReplacement);
+
+    fireEvent.click(screen.getByText('React, 16.0.0') as Element);
+    expectValueInTextBox(screen, 'Name', 'React');
+    screen.getByText('/root/src/file_2');
+
+    clickOnButtonInContextMenu(screen, ButtonTitle.ReplaceMarkedBy);
+    expectReplaceAttributionPopupIsShown(screen);
+    clickOnButton(screen, ButtonTitle.Cancel);
+    expect(screen.queryByText('jQuery, 16.0.0')).toBeTruthy();
+    expectReplaceAttributionPopupIsNotShown(screen);
+
+    clickOnButtonInContextMenu(screen, ButtonTitle.ReplaceMarkedBy);
+    expectReplaceAttributionPopupIsShown(screen);
+    clickOnButton(screen, ButtonTitle.Replace);
+    expectValueInTextBox(screen, 'Name', 'React');
+    expectReplaceAttributionPopupIsNotShown(screen);
+    expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    screen.getByText('/root/src/file_1');
+    screen.getByText('/root/src/file_2');
+
+    // make sure resources are now linked to React attribution
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
       [IpcChannel['OpenFile']],

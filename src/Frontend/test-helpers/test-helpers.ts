@@ -454,6 +454,16 @@ export function expectUnsavedChangesPopupIsNotShown(screen: Screen): void {
   expect(screen.queryByText('Warning')).toBeNull();
 }
 
+export function expectReplaceAttributionPopupIsShown(screen: Screen): void {
+  expect(screen.getByText('This removes the following attribution'));
+}
+
+export function expectReplaceAttributionPopupIsNotShown(screen: Screen): void {
+  expect(
+    screen.queryByText('This removes the following attribution')
+  ).toBeFalsy();
+}
+
 export function expectValueInAddToAttributionList(
   screen: Screen,
   value: string

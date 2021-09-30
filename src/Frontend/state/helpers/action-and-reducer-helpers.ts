@@ -11,10 +11,10 @@ import {
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import isEqual from 'lodash/isEqual';
 import { getParents } from './get-parents';
 import {
   _addParentsToResourcesWithAttributedChildrenNoMutation,
+  attributionsAreEqual,
   deleteChildrenFromAttributedResources,
 } from './save-action-helpers';
 
@@ -24,7 +24,7 @@ export function getMatchingAttributionId(
 ): string {
   return (
     Object.keys(attributions).find((id) =>
-      isEqual(attributions[id], packageInfoToMatch)
+      attributionsAreEqual(attributions[id], packageInfoToMatch)
     ) || ''
   );
 }

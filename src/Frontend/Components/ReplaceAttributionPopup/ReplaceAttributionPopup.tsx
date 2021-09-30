@@ -10,14 +10,22 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { doNothing } from '../../util/do-nothing';
 import MuiTypography from '@material-ui/core/Typography';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import {
+  getAttributionIdMarkedForReplacement,
+  getSelectedAttributionId,
+} from '../../state/selectors/attribution-view-resource-selectors';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { makeStyles } from '@material-ui/core/styles';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 
 const useStyles = makeStyles({
   typography: {
     margin: 5,
+  },
+  contentRoot: {
+    maxWidth: 430,
   },
 });
 
@@ -26,10 +34,22 @@ export function ReplaceAttributionPopup(): ReactElement {
 
   const dispatch = useDispatch();
   const attributions = useSelector(getManualAttributions);
-  const markedAttributionId = useSelector(getSelectedAttributionId); //TODO replace by markedAttributionId
+  const markedAttributionId = useSelector(getAttributionIdMarkedForReplacement);
   const selectedAttributionId = useSelector(getSelectedAttributionId);
 
   function handleCancelClick(): void {
+    dispatch(closePopup());
+  }
+
+  function handleOkClick(): void {
+    dispatch(
+      savePackageInfo(
+        null,
+        markedAttributionId,
+        attributions[selectedAttributionId]
+      )
+    );
+    dispatch(setAttributionIdMarkedForReplacement(''));
     dispatch(closePopup());
   }
 
@@ -55,7 +75,7 @@ export function ReplaceAttributionPopup(): ReactElement {
   }
 
   const content = (
-    <div>
+    <div className={classes.contentRoot}>
       <MuiTypography className={classes.typography}>
         This removes the following attribution
       </MuiTypography>
@@ -70,9 +90,9 @@ export function ReplaceAttributionPopup(): ReactElement {
   return (
     <NotificationPopup
       content={content}
-      header={'Warning'}
+      header={'Replacing an attribution'}
       leftButtonTitle={ButtonTitle.Replace}
-      onLeftButtonClick={doNothing}
+      onLeftButtonClick={handleOkClick}
       rightButtonTitle={ButtonTitle.Cancel}
       onRightButtonClick={handleCancelClick}
       isOpen={true}
