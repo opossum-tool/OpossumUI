@@ -5,7 +5,7 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import React, { ChangeEvent, ReactElement, useEffect, useState } from 'react';
+import React, { ChangeEvent, ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -16,12 +16,10 @@ import {
   wereTemporaryPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import { useWindowHeight } from '../../util/use-window-height';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { setIsSavingDisabled } from '../../state/actions/resource-actions/save-actions';
 import { IpcRendererEvent } from 'electron';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -31,17 +29,17 @@ import {
   getExcludeFromNoticeChangeHandler,
   getFirstPartyChangeHandler,
   getFollowUpChangeHandler,
-  getLicenseTextMaxRows,
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   selectedPackageIsResolved,
+  usePurl,
+  useRows,
 } from './attribution-column-helpers';
 import { PackageSubPanel } from './PackageSubPanel';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
 import { LicenseSubPanel } from './LicenseSubPanel';
 import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
-import { generatePurlFromPackageInfo, parsePurl } from '../../util/handle-purl';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
@@ -80,6 +78,7 @@ interface AttributionColumnProps {
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const classes = useStyles();
 
+  const dispatch = useDispatch();
   const initialPackageInfo = useSelector(getPackageInfoOfSelected);
   const selectedPackage = useSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useSelector(
@@ -90,68 +89,27 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   );
   const packageInfoWereModified = useSelector(wereTemporaryPackageInfoModified);
   const isSavingDisabled = useSelector(getIsSavingDisabled);
-  const dispatch = useDispatch();
-
-  const view = useSelector(getSelectedView);
-  const licenseTextRows = getLicenseTextMaxRows(useWindowHeight(), view);
-  const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
-  useEffect(() => {
-    setIsLicenseTextShown(false);
-  }, [props.resetViewIfThisIdChanges]);
-  const copyrightRows = isLicenseTextShown ? 1 : 6;
-  const commentRows = isLicenseTextShown ? 1 : Math.max(licenseTextRows - 2, 1);
-
   const selectedAttributionId = useSelector(getSelectedAttributionId);
   const attributionIdMarkedForReplacement = useSelector(
     getAttributionIdMarkedForReplacement
   );
+  const view = useSelector(getSelectedView);
 
-  const [temporaryPurl, setTemporaryPurl] = useState<string>('');
-  const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
-  useEffect(() => {
-    dispatch(
-      setIsSavingDisabled(
-        (!packageInfoWereModified || !isDisplayedPurlValid) &&
-          !temporaryPackageInfo.preSelected
-      )
-    );
-  }, [
+  const {
+    isLicenseTextShown,
+    setIsLicenseTextShown,
+    licenseTextRows,
+    copyrightRows,
+    commentRows,
+  } = useRows(view, props.resetViewIfThisIdChanges);
+  const { temporaryPurl, isDisplayedPurlValid, handlePurlChange } = usePurl(
     dispatch,
     packageInfoWereModified,
-    isDisplayedPurlValid,
     temporaryPackageInfo,
-  ]);
-  useEffect(() => {
-    setTemporaryPurl(
-      generatePurlFromPackageInfo(props.displayPackageInfo) || ''
-    );
-  }, [props.displayPackageInfo, selectedPackage]);
-  function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
-    setTemporaryPurl(event.target.value);
-    const { isValid, purl } = parsePurl(event.target.value);
-    if (isValid && purl) {
-      dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
-          packageName: purl.packageName,
-          packageVersion: purl.packageVersion,
-          packageNamespace: purl.packageNamespace,
-          packageType: purl.packageType,
-          packagePURLAppendix: purl.packagePURLAppendix,
-        })
-      );
-    }
-  }
+    props.displayPackageInfo,
+    selectedPackage
+  );
   const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
-
-  function listener(event: IpcRendererEvent, resetState: boolean): void {
-    if (resetState) {
-      props.saveFileRequestListener();
-    }
-  }
-  useIpcRenderer(IpcChannel.SaveFileRequest, listener, [
-    props.saveFileRequestListener,
-  ]);
 
   const mergeButtonDisplayState = getMergeButtonsDisplayState(
     view,
@@ -229,6 +187,15 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     selectedAttributionId,
     attributionIdMarkedForReplacement
   );
+
+  function listener(event: IpcRendererEvent, resetState: boolean): void {
+    if (resetState) {
+      props.saveFileRequestListener();
+    }
+  }
+  useIpcRenderer(IpcChannel.SaveFileRequest, listener, [
+    props.saveFileRequestListener,
+  ]);
 
   return (
     <div className={clsx(classes.root)}>

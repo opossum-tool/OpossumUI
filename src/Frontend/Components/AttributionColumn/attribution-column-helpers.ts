@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { View } from '../../enums/enums';
-import React from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FollowUp, PackageInfo } from '../../../shared/shared-types';
 import { SimpleThunkDispatch } from '../../state/actions/types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -13,7 +13,12 @@ import {
   addResolvedExternalAttribution,
   removeResolvedExternalAttribution,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
-import { saveManualAndResolvedAttributionsToFile } from '../../state/actions/resource-actions/save-actions';
+import {
+  saveManualAndResolvedAttributionsToFile,
+  setIsSavingDisabled,
+} from '../../state/actions/resource-actions/save-actions';
+import { useWindowHeight } from '../../util/use-window-height';
+import { generatePurlFromPackageInfo, parsePurl } from '../../util/handle-purl';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
 const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
@@ -176,5 +181,90 @@ export function getMergeButtonsDisplayState(
       selectedAttributionIsMarkedForReplacement,
     deactivateReplaceMarkedByButton:
       packageInfoWereModified || attributionIsPreSelected,
+  };
+}
+
+export function usePurl(
+  dispatch: SimpleThunkDispatch,
+  packageInfoWereModified: boolean,
+  temporaryPackageInfo: PackageInfo,
+  displayPackageInfo: PackageInfo,
+  selectedPackage: PanelPackage | null
+): {
+  temporaryPurl: string;
+  isDisplayedPurlValid: boolean;
+  handlePurlChange: (event: React.ChangeEvent<{ value: string }>) => void;
+} {
+  const [temporaryPurl, setTemporaryPurl] = useState<string>('');
+  const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
+
+  useEffect(() => {
+    dispatch(
+      setIsSavingDisabled(
+        (!packageInfoWereModified || !isDisplayedPurlValid) &&
+          !temporaryPackageInfo.preSelected
+      )
+    );
+  }, [
+    dispatch,
+    packageInfoWereModified,
+    isDisplayedPurlValid,
+    temporaryPackageInfo,
+  ]);
+
+  useEffect(() => {
+    setTemporaryPurl(generatePurlFromPackageInfo(displayPackageInfo) || '');
+  }, [displayPackageInfo, selectedPackage]);
+
+  function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
+    setTemporaryPurl(event.target.value);
+    const { isValid, purl } = parsePurl(event.target.value);
+    if (isValid && purl) {
+      dispatch(
+        setTemporaryPackageInfo({
+          ...temporaryPackageInfo,
+          packageName: purl.packageName,
+          packageVersion: purl.packageVersion,
+          packageNamespace: purl.packageNamespace,
+          packageType: purl.packageType,
+          packagePURLAppendix: purl.packagePURLAppendix,
+        })
+      );
+    }
+  }
+
+  return {
+    temporaryPurl,
+    isDisplayedPurlValid,
+    handlePurlChange,
+  };
+}
+
+export function useRows(
+  view: View,
+  resetViewIfThisIdChanges = ''
+): {
+  isLicenseTextShown: boolean;
+  setIsLicenseTextShown: Dispatch<SetStateAction<boolean>>;
+  licenseTextRows: number;
+  copyrightRows: number;
+  commentRows: number;
+} {
+  const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
+  const licenseTextRows = getLicenseTextMaxRows(useWindowHeight(), view);
+
+  useEffect(() => {
+    setIsLicenseTextShown(false);
+  }, [resetViewIfThisIdChanges]);
+
+  const copyrightRows = isLicenseTextShown ? 1 : 6;
+  const commentRows = isLicenseTextShown ? 1 : Math.max(licenseTextRows - 2, 1);
+
+  return {
+    isLicenseTextShown,
+    setIsLicenseTextShown,
+    licenseTextRows,
+    copyrightRows,
+    commentRows,
   };
 }
