@@ -437,13 +437,13 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'React');
     screen.getByText('/root/src/file_2');
 
-    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarkedBy);
+    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Cancel);
     expect(screen.queryByText('jQuery, 16.0.0')).toBeTruthy();
     expectReplaceAttributionPopupIsNotShown(screen);
 
-    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarkedBy);
+    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Replace);
     expectValueInTextBox(screen, 'Name', 'React');

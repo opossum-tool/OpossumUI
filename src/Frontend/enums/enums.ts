@@ -50,5 +50,5 @@ export enum ButtonText {
   Replace = 'Replace',
   MarkForReplacement = 'Mark for replacement',
   UnmarkForReplacement = 'Unmark for replacement',
-  ReplaceMarkedBy = 'Replace marked by',
+  ReplaceMarked = 'Replace marked',
 }
