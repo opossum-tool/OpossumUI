@@ -38,7 +38,7 @@ export enum DiscreteConfidence {
   Low = 20,
 }
 
-export enum ButtonTitle {
+export enum ButtonText {
   Cancel = 'Cancel',
   Confirm = 'Confirm',
   ConfirmForAll = 'Confirm for all',

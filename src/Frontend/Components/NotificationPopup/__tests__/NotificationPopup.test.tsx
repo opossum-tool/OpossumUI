@@ -18,13 +18,13 @@ describe('NotificationPopup', () => {
       <NotificationPopup
         content={'content text'}
         header={'header text'}
-        leftButtonTitle={'leftButtonTitle'}
+        leftButtonText={'leftButtonText'}
         onLeftButtonClick={onLeftButtonClick}
-        rightButtonTitle={'rightButtonTitle'}
+        rightButtonText={'rightButtonText'}
         onRightButtonClick={onRightButtonClick}
-        centerLeftButtonTitle={'centerLeftButtonTitle'}
+        centerLeftButtonText={'centerLeftButtonText'}
         onCenterLeftButtonClick={onCenterLeftButtonClick}
-        centerRightButtonTitle={'centerRightButtonTitle'}
+        centerRightButtonText={'centerRightButtonText'}
         onCenterRightButtonClick={onCenterRightButtonClick}
         isOpen={true}
       />
@@ -33,13 +33,13 @@ describe('NotificationPopup', () => {
     expect(screen.queryByText('header text')).toBeTruthy();
     expect(screen.queryByText('content text')).toBeTruthy();
 
-    fireEvent.click(screen.getByText('leftButtonTitle'));
+    fireEvent.click(screen.getByText('leftButtonText'));
     expect(onLeftButtonClick).toHaveBeenCalled();
-    fireEvent.click(screen.getByText('rightButtonTitle'));
+    fireEvent.click(screen.getByText('rightButtonText'));
     expect(onRightButtonClick).toHaveBeenCalled();
-    fireEvent.click(screen.getByText('centerLeftButtonTitle'));
+    fireEvent.click(screen.getByText('centerLeftButtonText'));
     expect(onCenterLeftButtonClick).toHaveBeenCalled();
-    fireEvent.click(screen.getByText('centerRightButtonTitle'));
+    fireEvent.click(screen.getByText('centerRightButtonText'));
     expect(onCenterRightButtonClick).toHaveBeenCalled();
   });
 

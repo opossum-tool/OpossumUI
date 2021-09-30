@@ -80,7 +80,7 @@ export function ProjectMetadataPopup(): ReactElement {
       header={'Project Metadata'}
       isOpen={true}
       fullWidth={true}
-      rightButtonTitle={'Close'}
+      rightButtonText={'Close'}
       onBackdropClick={close}
       onEscapeKeyDown={close}
       onRightButtonClick={close}

@@ -6,7 +6,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
-import { ButtonTitle, PopupType, View } from '../../../enums/enums';
+import { ButtonText, PopupType, View } from '../../../enums/enums';
 import {
   openPopup,
   setTargetView,
@@ -62,7 +62,7 @@ describe('NotSavedPopup and do not change view', () => {
     setupTestState(store);
 
     expect(screen.queryByText('Warning')).toBeTruthy();
-    fireEvent.click(screen.queryByText(ButtonTitle.Save) as Element);
+    fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(isAuditViewSelected(store.getState())).toBe(true);
@@ -89,7 +89,7 @@ describe('NotSavedPopup and do not change view', () => {
       packageName: 'test name',
     });
 
-    fireEvent.click(screen.queryByText(ButtonTitle.Undo) as Element);
+    fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryPackageInfo(store.getState())).toEqual({});
@@ -118,7 +118,7 @@ describe('NotSavedPopup and change view', () => {
     setupTestState(store, View.Attribution);
 
     expect(screen.queryByText('Warning')).toBeTruthy();
-    fireEvent.click(screen.queryByText(ButtonTitle.Save) as Element);
+    fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(isAttributionViewSelected(store.getState())).toBe(true);
@@ -145,7 +145,7 @@ describe('NotSavedPopup and change view', () => {
       packageName: 'test name',
     });
 
-    fireEvent.click(screen.queryByText(ButtonTitle.Undo) as Element);
+    fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryPackageInfo(store.getState())).toEqual({});

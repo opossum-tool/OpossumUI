@@ -5,7 +5,7 @@
 
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ButtonTitle, View } from '../../enums/enums';
+import { ButtonText, View } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   closePopup,
@@ -66,21 +66,21 @@ export function NotSavedPopup(): ReactElement {
     <NotificationPopup
       content={content}
       header={'Warning'}
-      leftButtonTitle={ButtonTitle.Save}
+      leftButtonText={ButtonText.Save}
       isLeftButtonDisabled={isSavingDisabled}
       onLeftButtonClick={
         showSaveForAllButton ? handleSaveClick : handleSaveForAllClick
       }
-      centerLeftButtonTitle={
-        showSaveForAllButton ? ButtonTitle.SaveForAll : undefined
+      centerLeftButtonText={
+        showSaveForAllButton ? ButtonText.SaveForAll : undefined
       }
       isCenterLeftButtonDisabled={isSavingDisabled}
       onCenterLeftButtonClick={
         showSaveForAllButton ? handleSaveForAllClick : undefined
       }
-      centerRightButtonTitle={ButtonTitle.Undo}
+      centerRightButtonText={ButtonText.Undo}
       onCenterRightButtonClick={handleUndoClick}
-      rightButtonTitle={ButtonTitle.Cancel}
+      rightButtonText={ButtonText.Cancel}
       onRightButtonClick={handleCancelClick}
       isOpen={true}
     />

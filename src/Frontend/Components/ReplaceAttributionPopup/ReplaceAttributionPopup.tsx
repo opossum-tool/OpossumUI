@@ -5,7 +5,7 @@
 
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ButtonTitle } from '../../enums/enums';
+import { ButtonText } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { doNothing } from '../../util/do-nothing';
@@ -91,9 +91,9 @@ export function ReplaceAttributionPopup(): ReactElement {
     <NotificationPopup
       content={content}
       header={'Replacing an attribution'}
-      leftButtonTitle={ButtonTitle.Replace}
+      leftButtonText={ButtonText.Replace}
       onLeftButtonClick={handleOkClick}
-      rightButtonTitle={ButtonTitle.Cancel}
+      rightButtonText={ButtonText.Cancel}
       onRightButtonClick={handleCancelClick}
       isOpen={true}
     />

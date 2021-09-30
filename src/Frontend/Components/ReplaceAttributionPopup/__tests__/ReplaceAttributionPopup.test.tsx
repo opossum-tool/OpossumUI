@@ -5,7 +5,7 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import { ButtonTitle, PopupType } from '../../../enums/enums';
+import { ButtonText, PopupType } from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import {
   EnhancedTestStore,
@@ -80,7 +80,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.queryByText('React')).toBeTruthy();
     expect(screen.queryByText('Vue')).toBeTruthy();
 
-    fireEvent.click(screen.queryByText(ButtonTitle.Cancel) as Element);
+    fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
   });
 
@@ -92,7 +92,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.queryByText('React')).toBeTruthy();
     expect(screen.queryByText('Vue')).toBeTruthy();
 
-    fireEvent.click(screen.queryByText(ButtonTitle.Replace) as Element);
+    fireEvent.click(screen.queryByText(ButtonText.Replace) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
 
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(

@@ -46,7 +46,9 @@ import {
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonTitle, PopupType } from '../../enums/enums';
+import { ButtonText, PopupType } from '../../enums/enums';
+import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 const useStyles = makeStyles({
   root: {
@@ -119,61 +121,61 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     Boolean(temporaryPackageInfo.preSelected)
   );
 
-  const mainButtonConfigs = [
+  const mainButtonConfigs: Array<MainButtonConfig> = [
     {
       buttonText: temporaryPackageInfo.preSelected
-        ? ButtonTitle.Confirm
-        : ButtonTitle.Save,
+        ? ButtonText.Confirm
+        : ButtonText.Save,
       disabled: isSavingDisabled,
       onClick: props.onSaveButtonClick,
       hidden: false,
     },
     {
       buttonText: temporaryPackageInfo.preSelected
-        ? ButtonTitle.ConfirmForAll
-        : ButtonTitle.SaveForAll,
+        ? ButtonText.ConfirmForAll
+        : ButtonText.SaveForAll,
       disabled: isSavingDisabled,
       onClick: props.onSaveForAllButtonClick,
       hidden: !Boolean(props.showSaveForAllButton),
     },
   ];
 
-  const contextMenuButtonConfigs = [
+  const contextMenuButtonConfigs: Array<ContextMenuItem> = [
     {
-      buttonTitle: ButtonTitle.Undo,
+      buttonText: ButtonText.Undo,
       disabled: !packageInfoWereModified,
       onClick: (): void => {
         dispatch(setTemporaryPackageInfo(initialPackageInfo));
       },
     },
     {
-      buttonTitle: ButtonTitle.Delete,
+      buttonText: ButtonText.Delete,
       onClick: props.onDeleteButtonClick,
       hidden: Boolean(props.hideDeleteButtons),
     },
     {
-      buttonTitle: ButtonTitle.DeleteForAll,
+      buttonText: ButtonText.DeleteForAll,
       onClick: props.onDeleteForAllButtonClick,
       hidden:
         Boolean(props.hideDeleteButtons) ||
         !Boolean(props.showSaveForAllButton),
     },
     {
-      buttonTitle: ButtonTitle.MarkForReplacement,
+      buttonText: ButtonText.MarkForReplacement,
       onClick: (): void => {
         dispatch(setAttributionIdMarkedForReplacement(selectedAttributionId));
       },
       hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
     },
     {
-      buttonTitle: ButtonTitle.UnmarkForReplacement,
+      buttonText: ButtonText.UnmarkForReplacement,
       onClick: (): void => {
         dispatch(setAttributionIdMarkedForReplacement(''));
       },
       hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
     },
     {
-      buttonTitle: ButtonTitle.ReplaceMarkedBy,
+      buttonText: ButtonText.ReplaceMarkedBy,
       disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
       onClick: (): void => {
         dispatch(openPopup(PopupType.ReplaceAttributionPopup));

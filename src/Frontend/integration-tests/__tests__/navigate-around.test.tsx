@@ -30,7 +30,7 @@ import {
 } from '../../test-helpers/test-helpers';
 import { App } from '../../Components/App/App';
 
-import { ButtonTitle, View } from '../../enums/enums';
+import { ButtonText, View } from '../../enums/enums';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -103,33 +103,33 @@ describe('The App integration', () => {
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'jQuery');
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
-    expectButton(screen, ButtonTitle.SaveForAll, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButton(screen, ButtonText.SaveForAll, true);
 
     insertValueIntoTextBox(screen, 'Name', 'Typescript');
     expectValueInTextBox(screen, 'Name', 'Typescript');
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
-    expectButton(screen, ButtonTitle.SaveForAll, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButton(screen, ButtonText.SaveForAll, false);
 
-    clickOnButton(screen, ButtonTitle.SaveForAll);
+    clickOnButton(screen, ButtonText.SaveForAll);
     expectValueNotInTextBox(screen, 'Name', 'jQuery');
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Typescript');
-    expectButton(screen, ButtonTitle.Save, true);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, true);
-    expectButton(screen, ButtonTitle.SaveForAll, true);
+    expectButton(screen, ButtonText.Save, true);
+    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButton(screen, ButtonText.SaveForAll, true);
 
     // save another attribution
     clickAddNewAttributionButton(screen);
 
     insertValueIntoTextBox(screen, 'Name', 'Angular');
     expectValueInTextBox(screen, 'Name', 'Angular');
-    expectButton(screen, ButtonTitle.Save, false);
-    expectButtonInContextMenu(screen, ButtonTitle.Undo, false);
+    expectButton(screen, ButtonText.Save, false);
+    expectButtonInContextMenu(screen, ButtonText.Undo, false);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     expectValueInManualPackagePanel(screen, 'Angular');
     expectValueInManualPackagePanel(screen, 'Typescript, 16.5.0');
@@ -139,7 +139,7 @@ describe('The App integration', () => {
     insertValueIntoTextBox(screen, 'Name', '');
     expectValueNotInTextBox(screen, 'Name', 'Angular');
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     expectValueNotInManualPackagePanel(screen, 'Angular');
     expectValueInManualPackagePanel(screen, 'Typescript, 16.5.0');
@@ -154,7 +154,7 @@ describe('The App integration', () => {
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueNotInManualPackagePanel(screen, 'Angular');
     expectValueInManualPackagePanel(screen, 'Typescript, 1');
@@ -176,10 +176,10 @@ describe('The App integration', () => {
     //try going to the other resource
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectUnsavedChangesPopupIsShown(screen);
-    clickOnButton(screen, ButtonTitle.Cancel);
+    clickOnButton(screen, ButtonText.Cancel);
 
     expectValueInTextBox(screen, 'Version', '1000');
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     //actually go
     clickOnElementInResourceBrowser(screen, 'secondResource.js');

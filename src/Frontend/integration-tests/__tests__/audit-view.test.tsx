@@ -13,7 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { ButtonTitle, DiscreteConfidence } from '../../enums/enums';
+import { ButtonText, DiscreteConfidence } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickAddIconOnCardInAttributionList,
@@ -227,7 +227,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'file_manual');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInManualPackagePanelForParentAttribution(screen, 'React');
-    expectButtonInContextMenuIsNotShown(screen, ButtonTitle.Delete);
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.Delete);
 
     clickOnValueInManualPackagePanelForParentAttribution(screen, 'React');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -237,7 +237,7 @@ describe('The App in Audit View', () => {
     expectValueNotInTextBox(screen, 'Name', 'React');
 
     insertValueIntoTextBox(screen, 'Name', 'Angular');
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(screen, 'Name', 'Angular');
   });
 
@@ -304,7 +304,7 @@ describe('The App in Audit View', () => {
     expectValueNotInTextBox(screen, 'Comment', 'React comment');
     expectValueInTextBox(screen, 'Comment', '');
     expectValueInTextBox(screen, 'Name', 'React');
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     clickOnElementInResourceBrowser(screen, 'withManualAttribution.js');
     expectValueInTextBox(screen, 'Name', 'Vue');
@@ -646,7 +646,7 @@ describe('The App in Audit View', () => {
       ''
     );
 
-    clickOnButton(screen, ButtonTitle.Save);
+    clickOnButton(screen, ButtonText.Save);
 
     clickOnElementInResourceBrowser(screen, '/');
     expectPackageInPackagePanel(
