@@ -91,7 +91,7 @@ describe('ProgressBar', () => {
   });
 
   test('ProgressBar renders without progress data', () => {
-    const { queryByLabelText } = renderComponentWithStore(<ProgressBar />);
-    expect(queryByLabelText('ProgressBar')).toBeFalsy();
+    renderComponentWithStore(<ProgressBar />);
+    expect(screen.queryByLabelText('ProgressBar')).toBeFalsy();
   });
 });

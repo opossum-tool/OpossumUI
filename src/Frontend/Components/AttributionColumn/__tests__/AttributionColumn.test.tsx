@@ -65,60 +65,7 @@ describe('The AttributionColumn', () => {
       licenseName: 'Made up license name',
       url: 'www.1999.com',
     };
-    const { getByDisplayValue, getByLabelText, queryAllByText, store } =
-      renderComponentWithStore(
-        <AttributionColumn
-          isEditable={true}
-          displayPackageInfo={testTemporaryPackageInfo}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
-          onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
-          showManualAttributionData={true}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
-        />
-      );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
-
-    expect(queryAllByText('Confidence')).toHaveLength(2);
-    expect(
-      getByDisplayValue(
-        (
-          testTemporaryPackageInfo.attributionConfidence as unknown as number
-        ).toString()
-      )
-    );
-    expect(queryAllByText('Name')).toHaveLength(2);
-    expect(getByDisplayValue(testTemporaryPackageInfo.packageName as string));
-    expect(queryAllByText('Version')).toHaveLength(2);
-    expect(
-      getByDisplayValue(testTemporaryPackageInfo.packageVersion as string)
-    );
-    expect(queryAllByText('(Defined in parent folder)')).toHaveLength(0);
-    expect(queryAllByText('Override parent')).toHaveLength(0);
-    expect(screen.queryByText('Source')).toBeFalsy();
-    expect(getByLabelText('Copyright'));
-    expect(getByDisplayValue(testTemporaryPackageInfo.copyright as string));
-    expect(getByLabelText('License Name'));
-    expect(getByDisplayValue(testTemporaryPackageInfo.licenseName as string));
-    expect(getByLabelText('URL'));
-    expect(getByDisplayValue(testTemporaryPackageInfo.url as string));
-    expect(getByLabelText(/License Text/));
-    expect(getByDisplayValue('Permission is hereby granted', { exact: false }));
-    expect(getByLabelText('Comment'));
-    expect(getByDisplayValue(testTemporaryPackageInfo.comment as string));
-    expect(queryAllByText('PURL')).toHaveLength(2);
-    expect(getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix'));
-  });
-
-  test('renders a TextBox for the source, if it is defined', () => {
-    const testTemporaryPackageInfo: PackageInfo = {
-      source: { name: 'The Source', documentConfidence: 10 },
-    };
-    const { getByDisplayValue, store } = renderComponentWithStore(
+    const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
         displayPackageInfo={testTemporaryPackageInfo}
@@ -135,7 +82,75 @@ describe('The AttributionColumn', () => {
     store.dispatch(setSelectedResourceId('test_id'));
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
 
-    expect(getByDisplayValue((testTemporaryPackageInfo.source as Source).name));
+    expect(screen.queryAllByText('Confidence')).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(
+        (
+          testTemporaryPackageInfo.attributionConfidence as unknown as number
+        ).toString()
+      )
+    );
+    expect(screen.queryAllByText('Name')).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+    );
+    expect(screen.queryAllByText('Version')).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(
+        testTemporaryPackageInfo.packageVersion as string
+      )
+    );
+    expect(screen.queryAllByText('(Defined in parent folder)')).toHaveLength(0);
+    expect(screen.queryAllByText('Override parent')).toHaveLength(0);
+    expect(screen.queryByText('Source')).toBeFalsy();
+    expect(screen.getByLabelText('Copyright'));
+    expect(
+      screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
+    );
+    expect(screen.getByLabelText('License Name'));
+    expect(
+      screen.getByDisplayValue(testTemporaryPackageInfo.licenseName as string)
+    );
+    expect(screen.getByLabelText('URL'));
+    expect(screen.getByDisplayValue(testTemporaryPackageInfo.url as string));
+    expect(screen.getByLabelText(/License Text/));
+    expect(
+      screen.getByDisplayValue('Permission is hereby granted', { exact: false })
+    );
+    expect(screen.getByLabelText('Comment'));
+    expect(
+      screen.getByDisplayValue(testTemporaryPackageInfo.comment as string)
+    );
+    expect(screen.queryAllByText('PURL')).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix')
+    );
+  });
+
+  test('renders a TextBox for the source, if it is defined', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      source: { name: 'The Source', documentConfidence: 10 },
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveForAllButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteForAllButtonClick={doNothing}
+      />
+    );
+    store.dispatch(setSelectedResourceId('test_id'));
+    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+
+    expect(
+      screen.getByDisplayValue((testTemporaryPackageInfo.source as Source).name)
+    );
   });
 
   test('renders a checkbox for Follow-up', () => {
@@ -201,7 +216,7 @@ describe('The AttributionColumn', () => {
 
     test('shows standard text if editable and non frequent license', () => {
       const testTemporaryPackageInfo: PackageInfo = { packageName: 'jQuery' };
-      const { getByLabelText } = renderComponentWithStore(
+      renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
           displayPackageInfo={testTemporaryPackageInfo}
@@ -217,7 +232,9 @@ describe('The AttributionColumn', () => {
       );
 
       expect(
-        getByLabelText('License Text (to appear in attribution document)')
+        screen.getByLabelText(
+          'License Text (to appear in attribution document)'
+        )
       );
     });
 

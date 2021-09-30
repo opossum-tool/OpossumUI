@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { StyledTreeItemLabel } from '../StyledTreeItemLabel';
 
 describe('StyledTreeItemLabel', () => {
   test('renders a file without information', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -25,13 +25,15 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Attribution icon')).toBeNull();
-    expect(queryByLabelText('File icon without information')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryByLabelText('Attribution icon')).toBeNull();
+    expect(
+      screen.queryByLabelText('File icon without information')
+    ).toBeTruthy();
   });
 
   test('renders a folder with attribution', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={true}
@@ -46,12 +48,14 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Directory icon with attribution')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(
+      screen.queryByLabelText('Directory icon with attribution')
+    ).toBeTruthy();
   });
 
   test('renders a folder with signal and icon', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -66,13 +70,13 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Signal icon')).not.toBeNull();
-    expect(queryByLabelText('Directory icon with signal')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryByLabelText('Signal icon')).not.toBeNull();
+    expect(screen.queryByLabelText('Directory icon with signal')).toBeTruthy();
   });
 
   test('renders a folder with resolved signal and icon', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -87,13 +91,15 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Signal icon')).not.toBeNull();
-    expect(queryByLabelText('Directory icon without information')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryByLabelText('Signal icon')).not.toBeNull();
+    expect(
+      screen.queryByLabelText('Directory icon without information')
+    ).toBeTruthy();
   });
 
   test('renders a file with resolved signal and icon', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={true}
@@ -108,13 +114,13 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Signal icon')).not.toBeNull();
-    expect(queryByLabelText('File icon with attribution')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryByLabelText('Signal icon')).not.toBeNull();
+    expect(screen.queryByLabelText('File icon with attribution')).toBeTruthy();
   });
 
   test('renders a folder with contained signals', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -129,12 +135,14 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Directory icon containing signals')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(
+      screen.queryByLabelText('Directory icon containing signals')
+    ).toBeTruthy();
   });
 
   test('renders a folder with contained attributions', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -149,14 +157,14 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
     expect(
-      queryByLabelText('Directory icon containing attributions')
+      screen.queryByLabelText('Directory icon containing attributions')
     ).toBeTruthy();
   });
 
   test('renders a file with parent attribution', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -171,14 +179,14 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
     expect(
-      queryByLabelText('Directory icon with parent attribution')
+      screen.queryByLabelText('Directory icon with parent attribution')
     ).toBeTruthy();
   });
 
   test('renders a folder without information', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -193,12 +201,14 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Directory icon without information')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(
+      screen.queryByLabelText('Directory icon without information')
+    ).toBeTruthy();
   });
 
   test('renders a breakpoint', () => {
-    const { queryAllByText, queryByLabelText } = render(
+    render(
       <StyledTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
@@ -213,7 +223,7 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(queryAllByText('Test label')).toBeTruthy();
-    expect(queryByLabelText('Breakpoint icon')).toBeTruthy();
+    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.queryByLabelText('Breakpoint icon')).toBeTruthy();
   });
 });

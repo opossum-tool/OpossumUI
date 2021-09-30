@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ChangeEvent } from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { TextBox } from '../TextBox';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('The TextBox', () => {
   test('renders text and label', () => {
-    const { queryAllByText, getByDisplayValue } = render(
+    render(
       <TextBox
         title={'Test Title'}
         text={'Test Content'}
@@ -22,7 +22,7 @@ describe('The TextBox', () => {
       />
     );
 
-    expect(queryAllByText('Test Title')).toHaveLength(2);
-    expect(getByDisplayValue('Test Content'));
+    expect(screen.queryAllByText('Test Title')).toHaveLength(2);
+    expect(screen.getByDisplayValue('Test Content'));
   });
 });

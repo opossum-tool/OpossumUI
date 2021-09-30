@@ -45,33 +45,42 @@ describe('The AttributionDetailsViewer', () => {
       copyright: 'Copyright Doe 2019',
       licenseText: 'Permission is hereby granted',
     };
-    const { queryAllByText, getByDisplayValue, store } =
-      renderComponentWithStore(<AttributionDetailsViewer />);
+    const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
     store.dispatch(setSelectedAttributionId('test_id'));
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
 
-    expect(queryAllByText('Confidence')).toBeTruthy();
+    expect(screen.queryAllByText('Confidence')).toBeTruthy();
     expect(
-      getByDisplayValue(
+      screen.getByDisplayValue(
         (
           testTemporaryPackageInfo.attributionConfidence as unknown as number
         ).toString()
       )
     );
-    expect(queryAllByText('Comment')).toBeTruthy();
-    expect(getByDisplayValue(testTemporaryPackageInfo.comment as string));
-    expect(queryAllByText('Name')).toBeTruthy();
-    expect(getByDisplayValue(testTemporaryPackageInfo.packageName as string));
-    expect(queryAllByText('Version')).toBeTruthy();
+    expect(screen.queryAllByText('Comment')).toBeTruthy();
     expect(
-      getByDisplayValue(testTemporaryPackageInfo.packageVersion as string)
+      screen.getByDisplayValue(testTemporaryPackageInfo.comment as string)
     );
-    expect(queryAllByText('Copyright')).toBeTruthy();
-    expect(getByDisplayValue(testTemporaryPackageInfo.copyright as string));
+    expect(screen.queryAllByText('Name')).toBeTruthy();
     expect(
-      queryAllByText('License Text (to appear in attribution document)')
+      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+    );
+    expect(screen.queryAllByText('Version')).toBeTruthy();
+    expect(
+      screen.getByDisplayValue(
+        testTemporaryPackageInfo.packageVersion as string
+      )
+    );
+    expect(screen.queryAllByText('Copyright')).toBeTruthy();
+    expect(
+      screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
+    );
+    expect(
+      screen.queryAllByText('License Text (to appear in attribution document)')
     ).toBeTruthy();
-    expect(getByDisplayValue('Permission is hereby granted', { exact: false }));
+    expect(
+      screen.getByDisplayValue('Permission is hereby granted', { exact: false })
+    );
   });
 
   test('saves temporary info', () => {
