@@ -187,7 +187,8 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const displayTexts = getDisplayTexts(
     temporaryPackageInfo,
     selectedAttributionId,
-    attributionIdMarkedForReplacement
+    attributionIdMarkedForReplacement,
+    view
   );
 
   function listener(event: IpcRendererEvent, resetState: boolean): void {

@@ -26,13 +26,17 @@ const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
 export function getDisplayTexts(
   temporaryPackageInfo: PackageInfo,
   selectedAttributionId: string,
-  attributionIdMarkedForReplacement: string
+  attributionIdMarkedForReplacement: string,
+  view: View
 ): Array<string> {
   const displayTexts = [];
   if (temporaryPackageInfo.preSelected) {
     displayTexts.push(PRE_SELECTED_LABEL);
   }
-  if (selectedAttributionId === attributionIdMarkedForReplacement) {
+  if (
+    view === 'Attribution' &&
+    selectedAttributionId === attributionIdMarkedForReplacement
+  ) {
     displayTexts.push(MARKED_FOR_REPLACEMENT_LABEL);
   }
   return displayTexts;
