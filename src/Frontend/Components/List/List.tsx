@@ -8,14 +8,13 @@ import { FixedSizeList as VirtualizedList } from 'react-window';
 import { Height, NumberOfDisplayedItems } from '../../types/types';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import { OpossumColors } from '../../shared-styles';
 
 const useStyles = makeStyles({
-  root: {
-    backgroundColor: OpossumColors.white,
-  },
   paddingBottomScrollbar: { paddingBottom: 18 },
   horizontalScrollbarFix: { overflowX: 'scroll' },
+  deactivateScrollbar: {
+    overflowY: 'hidden',
+  },
 });
 
 interface ListProps {
@@ -46,7 +45,7 @@ export function List(props: ListProps): ReactElement {
     : Math.min(currentHeight, maxHeight);
 
   return (
-    <div className={classes.root} style={{ maxHeight: currentHeight }}>
+    <div style={{ maxHeight: currentHeight }}>
       <VirtualizedList
         height={listHeight}
         width={'vertical'}
@@ -58,6 +57,7 @@ export function List(props: ListProps): ReactElement {
             : null,
           props.addPaddingBottom ? classes.paddingBottomScrollbar : null
         )}
+        style={currentHeight < maxHeight ? { overflowY: 'hidden' } : {}}
       >
         {({
           index,

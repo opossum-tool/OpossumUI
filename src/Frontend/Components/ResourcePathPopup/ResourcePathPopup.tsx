@@ -20,6 +20,9 @@ const useStyles = makeStyles({
   header: {
     whiteSpace: 'nowrap',
   },
+  resourceListContainer: {
+    overflowY: 'hidden',
+  },
 });
 
 interface ResourcePathPopupProps {
@@ -56,10 +59,12 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       onBackdropClick={props.closePopup}
       onEscapeKeyDown={props.closePopup}
       content={
-        <ResourcesList
-          resourceIds={resourceIds}
-          maxHeight={useWindowHeight() - heightOffset}
-        />
+        <div className={classes.resourceListContainer}>
+          <ResourcesList
+            resourceIds={resourceIds}
+            maxHeight={useWindowHeight() - heightOffset}
+          />
+        </div>
       }
       isOpen={props.isOpen}
       fullWidth={true}
