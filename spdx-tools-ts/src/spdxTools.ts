@@ -141,7 +141,7 @@ function addNonRootPackages(
   spdxPackages: Array<SpdxPackage>,
   spdxExternalRelationships: Array<SpdxExternalRelationship>
 ): void {
-  const alreadyUsedLicenses: Array<string> = [];
+  const alreadyUsedLicenses = new Set<string>();
 
   packages.forEach((pkg, index) => {
     if (isPackageEmpty(pkg)) {
@@ -151,19 +151,20 @@ function addNonRootPackages(
     const licenseText = pkg.licenseText;
     const licenseName = pkg.license || '';
     const licenseIsNonEmpty = licenseName || licenseText;
-    const licenseSpdxId = getLicenseSpdxId(pkg);
+    const licenseIsSpdxLicense = isSpdxLicense(pkg.license);
+    const licenseSpdxId = getLicenseSpdxId(pkg, licenseIsSpdxLicense);
 
     if (
       licenseIsNonEmpty &&
-      !isSpdxLicense(pkg.license) &&
-      !alreadyUsedLicenses.includes(licenseSpdxId)
+      !licenseIsSpdxLicense &&
+      !alreadyUsedLicenses.has(licenseSpdxId)
     ) {
       const spdxLicenseInfo: SpdxLicenseInfo = {
         licenseId: licenseSpdxId,
         extractedText: licenseText || 'NOASSERTION',
         name: licenseName || 'NOASSERTION',
       };
-      alreadyUsedLicenses.push(licenseSpdxId);
+      alreadyUsedLicenses.add(licenseSpdxId);
       spdxLicenseInfos.push(spdxLicenseInfo);
     }
 
@@ -205,10 +206,10 @@ function getPackageSpdxId(pkg: Package, index: number): string {
   }-${index}`;
 }
 
-function getLicenseSpdxId(pkg: Package): string {
+function getLicenseSpdxId(pkg: Package, licenseIsSpdxLicense: boolean): string {
   const licenseName = pkg.license;
 
-  return licenseName && isSpdxLicense(licenseName)
+  return licenseName && licenseIsSpdxLicense
     ? licenseName
     : `LicenseRef-${
         licenseName ? licenseName.replace(/[^a-zA-Z0-9-.]+/g, '-') : ''
