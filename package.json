@@ -47,7 +47,7 @@
     "@types/uuid": "^8.3.1",
     "@types/write-file-atomic": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
-    "@typescript-eslint/parser": "^4.29.0",
+    "@typescript-eslint/parser": "^4.32.0",
     "concurrently": "^6.3.0",
     "cross-env": "^7.0.3",
     "electron": "^13.1.7",
