@@ -46,7 +46,6 @@ const useStyles = makeStyles({
     height: '100%',
   },
   treeItemLabel: {
-    flex: 1,
     height: 19,
     whiteSpace: 'nowrap',
     '&:hover': {
