@@ -57,7 +57,7 @@ export function List(props: ListProps): ReactElement {
             : null,
           props.addPaddingBottom ? classes.paddingBottomScrollbar : null
         )}
-        style={currentHeight < maxHeight ? { overflowY: 'hidden' } : {}}
+        style={currentHeight < maxHeight ? { overflow: 'auto hidden' } : {}}
       >
         {({
           index,
