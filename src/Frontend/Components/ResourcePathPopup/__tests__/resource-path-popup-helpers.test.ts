@@ -3,44 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  insertHeaderForOtherFolderResourceIds,
-  splitResourceItToCurrentAndOtherFolder,
-} from '../resource-path-popup-helpers';
-
-describe('insertHeaderForOtherFolderResourceIds', () => {
-  test('inserts headers if resources in other folders present', () => {
-    const currentFolderResourceIds = ['resource_1'];
-    const otherFolderResourceIds = ['resource_2', 'resource_3'];
-
-    const headerIndices = insertHeaderForOtherFolderResourceIds(
-      currentFolderResourceIds,
-      otherFolderResourceIds
-    );
-
-    expect(headerIndices).toStrictEqual([1, 2]);
-    expect(currentFolderResourceIds).toStrictEqual([
-      'resource_1',
-      '',
-      'Resources in Other Folders',
-    ]);
-    expect(otherFolderResourceIds).toStrictEqual(['resource_2', 'resource_3']);
-  });
-
-  test('inserts no headers if no resources in other folders present', () => {
-    const currentFolderResourceIds = ['resource_1'];
-    const otherFolderResourceIds: string[] = [];
-
-    const headerIndices = insertHeaderForOtherFolderResourceIds(
-      currentFolderResourceIds,
-      otherFolderResourceIds
-    );
-
-    expect(headerIndices).toStrictEqual([]);
-    expect(currentFolderResourceIds).toStrictEqual(['resource_1']);
-    expect(otherFolderResourceIds).toStrictEqual([]);
-  });
-});
+import { splitResourceItToCurrentAndOtherFolder } from '../resource-path-popup-helpers';
 
 describe('splitResourceItToCurrentAndOtherFolder', () => {
   test('splits resource ids correctly', () => {
@@ -51,7 +14,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     ];
     const folderPath = '/folder_1/';
 
-    const [currentFolderResourceIds, otherFolderResourceIds] =
+    const { currentFolderResourceIds, otherFolderResourceIds } =
       splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
 
     expect(currentFolderResourceIds).toStrictEqual([
@@ -65,7 +28,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     const allResourceIds = undefined;
     const folderPath = '/folder_1/';
 
-    const [currentFolderResourceIds, otherFolderResourceIds] =
+    const { currentFolderResourceIds, otherFolderResourceIds } =
       // @ts-ignore
       splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
 

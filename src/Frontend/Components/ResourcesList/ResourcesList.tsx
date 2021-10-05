@@ -13,6 +13,8 @@ import { doNothing } from '../../util/do-nothing';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { getIsFileWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
+import { ResourcesListBatch, ResourcesListItem } from '../../types/types';
+import { convertResourcesListBatchesToResourcesListItems } from './resource-list-helpers';
 
 const useStyles = makeStyles({
   root: {
@@ -22,8 +24,7 @@ const useStyles = makeStyles({
 });
 
 interface ResourcesListProps {
-  resourceIds: Array<string>;
-  headerIndices?: Array<number>;
+  resourcesListBatches: Array<ResourcesListBatch>;
   maxHeight?: number;
   onClickCallback?: () => void;
 }
@@ -33,37 +34,39 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
 
   const isFileWithChildren = useSelector(getIsFileWithChildren);
   const dispatch = useDispatch();
-  const sortedResourcePaths = props.headerIndices
-    ? props.resourceIds
-    : props.resourceIds.sort();
   const onClickCallback = props.onClickCallback ?? doNothing;
 
+  props.resourcesListBatches.forEach((resourcesListBatch) => {
+    resourcesListBatch.resourceIds.sort();
+  });
+
+  const resourcesListItems: Array<ResourcesListItem> =
+    convertResourcesListBatchesToResourcesListItems(props.resourcesListBatches);
+
   function getResourceCard(index: number): ReactElement {
-    const resourcePath: string = sortedResourcePaths[index];
+    const cardText: string = resourcesListItems[index].text;
 
     function onPathClick(): void {
-      dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath));
+      dispatch(navigateToSelectedPathOrOpenUnsavedPopup(cardText));
       onClickCallback();
-    }
-
-    if (props.headerIndices && props.headerIndices.includes(index)) {
-      return (
-        <ListCard
-          text={resourcePath}
-          onClick={doNothing}
-          cardConfig={{ isHeader: true }}
-        />
-      );
     }
 
     return (
       <ListCard
-        text={removeTrailingSlashIfFileWithChildren(
-          resourcePath,
-          isFileWithChildren
-        )}
-        onClick={onPathClick}
-        cardConfig={{ isResource: true }}
+        text={
+          resourcesListItems[index].isHeader
+            ? cardText
+            : removeTrailingSlashIfFileWithChildren(
+                cardText,
+                isFileWithChildren
+              )
+        }
+        onClick={resourcesListItems[index].isHeader ? doNothing : onPathClick}
+        cardConfig={
+          resourcesListItems[index].isHeader
+            ? { isHeader: true }
+            : { isResource: true }
+        }
       />
     );
   }
@@ -77,7 +80,7 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
       <List
         getListItem={getResourceCard}
         max={max}
-        length={sortedResourcePaths.length}
+        length={resourcesListItems.length}
         addPaddingBottom={true}
         allowHorizontalScrolling={true}
       />

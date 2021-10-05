@@ -3,31 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export function insertHeaderForOtherFolderResourceIds(
-  currentFolderResourceIds: string[],
-  otherFolderResourceIds: string[]
-): number[] {
-  const headerIndices: number[] = [];
-  const otherFolderResourceIdsHeader = 'Resources in Other Folders';
-
-  if (otherFolderResourceIds.length > 0) {
-    headerIndices.push(
-      currentFolderResourceIds.length,
-      currentFolderResourceIds.length + 1
-    );
-
-    currentFolderResourceIds.push('', otherFolderResourceIdsHeader);
-    otherFolderResourceIds.sort();
-  }
-  return headerIndices;
-}
-
 export function splitResourceItToCurrentAndOtherFolder(
-  allResourceIds: string[],
+  allResourceIds: Array<string>,
   folderPath: string
-): [string[], string[]] {
-  const currentFolderResourceIds: string[] = [];
-  const otherFolderResourceIds: string[] = [];
+): {
+  currentFolderResourceIds: Array<string>;
+  otherFolderResourceIds: Array<string>;
+} {
+  const currentFolderResourceIds: Array<string> = [];
+  const otherFolderResourceIds: Array<string> = [];
 
   (allResourceIds ?? []).forEach((resourceId) => {
     resourceId.startsWith(folderPath)
@@ -35,18 +19,8 @@ export function splitResourceItToCurrentAndOtherFolder(
       : otherFolderResourceIds.push(resourceId);
   });
   currentFolderResourceIds.sort();
-  return [currentFolderResourceIds, otherFolderResourceIds];
-}
-
-export function mergeCurrentAndOtherFolderResourceIds(
-  currentFolderResourceIds: string[],
-  otherFolderResourceIds: string[]
-): string[] {
-  const allResourceIds = [];
-  for (const resourceId of currentFolderResourceIds)
-    allResourceIds.push(resourceId);
-
-  for (const resourceId of otherFolderResourceIds)
-    allResourceIds.push(resourceId);
-  return allResourceIds;
+  return {
+    currentFolderResourceIds: currentFolderResourceIds,
+    otherFolderResourceIds: otherFolderResourceIds,
+  };
 }

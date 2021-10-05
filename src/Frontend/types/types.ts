@@ -70,3 +70,13 @@ export interface ListCardConfig {
 export interface PathPredicate {
   (path: string): boolean;
 }
+
+export interface ResourcesListBatch {
+  resourceIds: Array<string>;
+  header?: string;
+}
+
+export interface ResourcesListItem {
+  text: string;
+  isHeader?: boolean;
+}

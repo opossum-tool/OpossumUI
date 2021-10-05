@@ -24,14 +24,23 @@ describe('The ResourcesList', () => {
 
   test('component renders', () => {
     renderComponentWithStore(
-      <ResourcesList resourceIds={resourceIdsOfSelectedAttributionId} />
+      <ResourcesList
+        resourcesListBatches={[
+          { resourceIds: resourceIdsOfSelectedAttributionId },
+        ]}
+      />
     );
     expect(screen.getByText('/folder1/folder2/resource_1')).toBeTruthy();
     expect(screen.getByText('resource_2')).toBeTruthy();
   });
+
   test('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
     const { store } = renderComponentWithStore(
-      <ResourcesList resourceIds={resourceIdsOfSelectedAttributionId} />
+      <ResourcesList
+        resourcesListBatches={[
+          { resourceIds: resourceIdsOfSelectedAttributionId },
+        ]}
+      />
     );
     store.dispatch(navigateToView(View.Attribution));
 
@@ -48,11 +57,14 @@ describe('The ResourcesList', () => {
       '/folder1/folder2/resource_1',
     ]);
   });
+
   test('clicking on a path changes the view, selectedResourceId and expandedResources with user callback', () => {
     const onClickCallback = jest.fn();
     const { store } = renderComponentWithStore(
       <ResourcesList
-        resourceIds={resourceIdsOfSelectedAttributionId}
+        resourcesListBatches={[
+          { resourceIds: resourceIdsOfSelectedAttributionId },
+        ]}
         onClickCallback={onClickCallback}
       />
     );
@@ -77,13 +89,16 @@ describe('The ResourcesList', () => {
     const onClickCallback = jest.fn();
     const { store } = renderComponentWithStore(
       <ResourcesList
-        resourceIds={[
-          ...resourceIdsOfSelectedAttributionId,
-          'Header',
-          '/folder3/folder4/',
+        resourcesListBatches={[
+          {
+            header: 'Header',
+            resourceIds: [
+              ...resourceIdsOfSelectedAttributionId,
+              '/folder3/folder4/',
+            ],
+          },
         ]}
         onClickCallback={onClickCallback}
-        headerIndices={[resourceIdsOfSelectedAttributionId.length]}
       />
     );
     store.dispatch(navigateToView(View.Attribution));

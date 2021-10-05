@@ -14,11 +14,8 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { useWindowHeight } from '../../util/use-window-height';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
-import {
-  insertHeaderForOtherFolderResourceIds,
-  mergeCurrentAndOtherFolderResourceIds,
-  splitResourceItToCurrentAndOtherFolder,
-} from './resource-path-popup-helpers';
+import { splitResourceItToCurrentAndOtherFolder } from './resource-path-popup-helpers';
+import { ResourcesListBatch } from '../../types/types';
 
 const heightOffset = 300;
 
@@ -50,25 +47,26 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
     getManualAttributionsToResources
   );
 
-  let allResourceIds = props.isExternalAttribution
+  const allResourceIds = props.isExternalAttribution
     ? externalAttributionsToResources[props.attributionId]
     : manualAttributionsToResources[props.attributionId];
 
-  const [currentFolderResourceIds, otherFolderResourceIds] =
-    splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
+  const resourcesListBatches: Array<ResourcesListBatch> = [];
 
-  const headerIndices = insertHeaderForOtherFolderResourceIds(
-    currentFolderResourceIds,
-    otherFolderResourceIds
-  );
-  allResourceIds = mergeCurrentAndOtherFolderResourceIds(
-    currentFolderResourceIds,
-    otherFolderResourceIds
-  );
+  const { currentFolderResourceIds, otherFolderResourceIds } =
+    splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
 
   const header = `Resources for selected ${
     props.isExternalAttribution ? 'signal' : 'attribution'
   }`;
+
+  resourcesListBatches.push({ resourceIds: currentFolderResourceIds });
+  if (otherFolderResourceIds.length > 0) {
+    resourcesListBatches.push({
+      header: 'Resources in Other Folders',
+      resourceIds: otherFolderResourceIds,
+    });
+  }
 
   return (
     <NotificationPopup
@@ -81,9 +79,8 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       content={
         <div className={classes.resourceListContainer}>
           <ResourcesList
-            resourceIds={allResourceIds}
+            resourcesListBatches={resourcesListBatches}
             maxHeight={useWindowHeight() - heightOffset}
-            headerIndices={headerIndices}
           />
         </div>
       }
