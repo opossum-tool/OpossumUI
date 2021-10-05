@@ -15,7 +15,7 @@ import {
 } from './types';
 import yaml from 'js-yaml';
 import { PackageURL } from 'packageurl-js';
-import * as spdxLicenseJson from 'spdx-license-ids/index.json';
+import { default as spdxLicenseJson } from 'spdx-license-ids/index.json';
 import hash from 'object-hash';
 
 const DEFAULT_PACKAGE_RELATION = 'DEPENDENCY_OF';
@@ -278,7 +278,5 @@ function isPackageEmpty(pkg: Package): boolean {
 }
 
 function isSpdxLicense(licenseName?: string): boolean {
-  return Boolean(
-    licenseName && Object.values(spdxLicenseJson).includes(licenseName)
-  );
+  return Boolean(licenseName && spdxLicenseJson.includes(licenseName));
 }
