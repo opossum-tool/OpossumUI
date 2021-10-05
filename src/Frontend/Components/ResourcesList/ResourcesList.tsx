@@ -17,7 +17,6 @@ import { OpossumColors } from '../../shared-styles';
 const useStyles = makeStyles({
   root: {
     marginTop: 6,
-    marginBottom: 4,
     backgroundColor: OpossumColors.white,
   },
 });
