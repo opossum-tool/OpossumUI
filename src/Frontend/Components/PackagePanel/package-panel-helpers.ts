@@ -57,8 +57,10 @@ function sortSources(
 
   const sortedKnownSources = knownSources.sort((sourceA, sourceB) => {
     return (
-      attributionSources[sourceA]?.priority -
-        attributionSources[sourceB]?.priority ||
+      -(
+        attributionSources[sourceA]?.priority -
+        attributionSources[sourceB]?.priority
+      ) ||
       attributionSources[sourceA]?.name.localeCompare(
         attributionSources[sourceB]?.name
       )
