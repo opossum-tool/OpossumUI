@@ -10,13 +10,15 @@ export const ACTION_SET_VIEW = 'ACTION_SET_VIEW';
 export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
+export const ACTION_SET_FOLLOW_UP_FILTER = 'ACTION_SET_FOLLOW_UP_FILTER';
 
 export type ViewAction =
   | SetView
   | SetTargetView
   | ClosePopupAction
   | ResetViewStateAction
-  | OpenPopupAction;
+  | OpenPopupAction
+  | SetFollowUpFilter;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -39,4 +41,9 @@ export interface ClosePopupAction {
 export interface OpenPopupAction {
   type: typeof ACTION_OPEN_POPUP;
   payload: PopupType;
+}
+
+export interface SetFollowUpFilter {
+  type: typeof ACTION_SET_FOLLOW_UP_FILTER;
+  payload: boolean;
 }

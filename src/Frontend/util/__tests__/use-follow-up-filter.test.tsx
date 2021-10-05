@@ -3,10 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { act, render } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import React from 'react';
 import { Attributions, FollowUp } from '../../../shared/shared-types';
 import { useFollowUpFilter } from '../use-follow-up-filter';
+import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 
 describe('useFollowUpFilter', () => {
   let hookResult: ReturnType<typeof useFollowUpFilter>;
@@ -38,7 +39,7 @@ describe('useFollowUpFilter', () => {
   };
 
   test('returns working handleFilterChange', () => {
-    render(<TestComponent />);
+    renderComponentWithStore(<TestComponent />);
 
     expect(hookResult.filterForFollowUp).toBe(false);
     act(() => {
@@ -52,7 +53,7 @@ describe('useFollowUpFilter', () => {
   });
 
   test('returns working getFilteredAttributions', () => {
-    render(<TestComponent />);
+    renderComponentWithStore(<TestComponent />);
 
     expect(hookResult.filterForFollowUp).toBe(false);
     let filteredAttributions = hookResult.getFilteredAttributions(

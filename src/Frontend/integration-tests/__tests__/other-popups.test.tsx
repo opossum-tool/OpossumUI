@@ -15,7 +15,7 @@ import {
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnButton,
-  clickOnCardInAddToAttributionList,
+  clickOnCardInAttributionList,
   clickOnElementInResourceBrowser,
   clickOnPathInPopupWithResources,
   clickOnTab,
@@ -133,7 +133,7 @@ describe('Other popups of the app', () => {
     expectUnsavedChangesPopupIsNotShown(screen);
     clickOnTab(screen, 'All Attributions Tab');
     expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
-    clickOnCardInAddToAttributionList(screen, 'Vue, 1.2.0');
+    clickOnCardInAttributionList(screen, 'Vue, 1.2.0');
     expectUnsavedChangesPopupIsShown(screen);
   });
 

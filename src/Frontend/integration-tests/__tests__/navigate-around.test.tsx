@@ -12,6 +12,8 @@ import { renderComponentWithStore } from '../../test-helpers/render-component-wi
 import {
   clickAddNewAttributionButton,
   clickOnButton,
+  clickOnCardInAttributionList,
+  clickOnCheckbox,
   clickOnEditIconForElement,
   clickOnElementInResourceBrowser,
   clickOnPackageInPackagePanel,
@@ -281,5 +283,81 @@ describe('The App integration', () => {
     goToView(screen, View.Report);
     screen.getByText('Apache');
     screen.getByText('Apache license');
+  });
+
+  test('app persists follow-up filter when changing views', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        folder1: { folder2: { file1: 1 } },
+        file2: 1,
+      },
+
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            source: {
+              name: 'HC',
+              documentConfidence: 50.0,
+            },
+            packageName: 'JQuery',
+            followUp: 'FOLLOW_UP',
+          },
+          uuid_2: {
+            source: {
+              name: 'SC',
+              documentConfidence: 9.0,
+            },
+            packageName: 'Angular',
+          },
+          uuid_3: {
+            source: {
+              name: 'REUSE:SC',
+              documentConfidence: 90.0,
+            },
+            packageName: 'Vue',
+          },
+        },
+        resourcesToAttributions: {
+          '/folder1/folder2/file1': ['uuid_1'],
+          '/file2': ['uuid_2'],
+          '/folder1/folder2': ['uuid_3'],
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+
+    renderComponentWithStore(<App />);
+
+    goToView(screen, View.Attribution);
+    screen.getByText('JQuery');
+    screen.getByText('Angular');
+    screen.getByText('Vue');
+    screen.getByText('Show only follow-up (1)');
+
+    clickOnCardInAttributionList(screen, 'Vue');
+    clickOnCheckbox(screen, 'Follow-up');
+    clickOnButton(screen, ButtonText.Save);
+    screen.getByText('Show only follow-up (2)');
+
+    clickOnCheckbox(screen, 'Show only follow-up (2)');
+    screen.getByText('JQuery');
+    expect(screen.queryByText('Angular')).toBeFalsy();
+    screen.getAllByText('Vue');
+
+    goToView(screen, View.Report);
+    screen.getByText('JQuery');
+    expect(screen.queryByText('Angular')).toBeFalsy();
+    screen.getByText('Vue');
+
+    clickOnCheckbox(screen, 'Show only follow-up (2)');
+    screen.getByText('JQuery');
+    screen.getByText('Angular');
+    screen.getByText('Vue');
+
+    goToView(screen, View.Attribution);
+    screen.getByText('JQuery');
+    screen.getByText('Angular');
+    screen.getAllByText('Vue');
   });
 });

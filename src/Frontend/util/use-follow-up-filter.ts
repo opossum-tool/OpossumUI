@@ -4,12 +4,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import pickBy from 'lodash/pickBy';
-import { useState } from 'react';
 import {
   Attributions,
   AttributionsWithResources,
   PackageInfo,
 } from '../../shared/shared-types';
+import { areOnlyFollowUpAttributionsShown } from '../state/selectors/view-selector';
+import { useSelector } from 'react-redux';
+import { setFollowUpFilter } from '../state/actions/view-actions/view-actions';
+import { useDispatch } from 'react-redux';
 
 export function useFollowUpFilter(): {
   filterForFollowUp: boolean;
@@ -18,9 +21,11 @@ export function useFollowUpFilter(): {
     attributions: AttributionsWithResources | Attributions
   ): AttributionsWithResources | Attributions;
 } {
-  const [filterForFollowUp, setFilterForFollowUp] = useState(false);
+  const dispatch = useDispatch();
+
+  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
   function handleFilterChange(): void {
-    setFilterForFollowUp(!filterForFollowUp);
+    dispatch(setFollowUpFilter(!filterForFollowUp));
   }
   function getFilteredAttributions(
     attributions: AttributionsWithResources | Attributions
