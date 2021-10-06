@@ -10,7 +10,8 @@ import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup';
 
 describe('The ConfirmDeletionPopup', () => {
   test('renders', () => {
-    const expectedContent = 'Do you really want to delete this attribution?';
+    const expectedContent =
+      'Do you really want to delete this attribution for the current file?';
     const expectedHeader = 'Confirm Deletion';
 
     renderComponentWithStore(<ConfirmDeletionPopup />);

@@ -28,13 +28,15 @@ export function ConfirmDeletionPopup(): ReactElement {
   const dispatch = useDispatch();
 
   function deleteAttributionForResource(): void {
-    if (view == View.Audit && attributionIdOfSelectedPackageInManualPanel) {
-      dispatch(
-        deleteAttributionAndSave(
-          selectedResourceId,
-          attributionIdOfSelectedPackageInManualPanel
-        )
-      );
+    if (view === View.Audit) {
+      if (attributionIdOfSelectedPackageInManualPanel) {
+        dispatch(
+          deleteAttributionAndSave(
+            selectedResourceId,
+            attributionIdOfSelectedPackageInManualPanel
+          )
+        );
+      }
     } else {
       dispatch(deleteAttributionForAllAndSave(selectedAttributionId));
     }
@@ -43,7 +45,9 @@ export function ConfirmDeletionPopup(): ReactElement {
   return (
     <ConfirmationPopup
       onConfirmation={deleteAttributionForResource}
-      content={'Do you really want to delete this attribution?'}
+      content={
+        'Do you really want to delete this attribution for the current file?'
+      }
       header={'Confirm Deletion'}
     />
   );

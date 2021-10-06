@@ -59,7 +59,9 @@ describe('The GlobalPopUp', () => {
     store.dispatch(openPopup(PopupType.ConfirmDeletionPopup));
 
     expect(
-      screen.queryByText('Do you really want to delete this attribution?')
+      screen.queryByText(
+        'Do you really want to delete this attribution for the current file?'
+      )
     ).toBeTruthy();
   });
 
