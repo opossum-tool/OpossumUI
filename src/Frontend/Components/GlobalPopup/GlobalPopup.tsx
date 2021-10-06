@@ -12,6 +12,8 @@ import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { FileSearchPopup } from '../FileSearchPopup/FileSearchPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttributionPopup';
+import { ConfirmDeletionForAllPopup } from '../ConfirmDeletionForAllPopup/ConfirmDeletionForAllPopup';
+import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -25,6 +27,10 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ProjectMetadataPopup />;
     case PopupType.ReplaceAttributionPopup:
       return <ReplaceAttributionPopup />;
+    case PopupType.ConfirmDeletionForAllPopup:
+      return <ConfirmDeletionForAllPopup />;
+    case PopupType.ConfirmDeletionPopup:
+      return <ConfirmDeletionPopup />;
     default:
       return null;
   }

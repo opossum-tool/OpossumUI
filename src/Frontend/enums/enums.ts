@@ -15,6 +15,8 @@ export enum PopupType {
   FileSearchPopup = 'FileSearchPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
   ReplaceAttributionPopup = 'ReplaceAttributionPopup',
+  ConfirmDeletionPopup = 'ConfirmDeletionPopup',
+  ConfirmDeletionForAllPopup = 'ConfirmDeletionForAllPopup',
 }
 
 export enum SavePackageInfoOperation {

@@ -339,7 +339,7 @@ describe('The App in Audit View', () => {
     expectButtonIsNotShown(screen, ButtonText.Confirm);
   });
 
-  test('delete buttons are shown and work', () => {
+  test('delete buttons are shown and work for non-preselected with popup', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -388,6 +388,8 @@ describe('The App in Audit View', () => {
     expectButtonInContextMenu(screen, ButtonText.DeleteForAll);
 
     clickOnButtonInContextMenu(screen, ButtonText.Delete);
+    expectButton(screen, ButtonText.Confirm);
+    clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 4, 0, 0);
 
@@ -398,6 +400,8 @@ describe('The App in Audit View', () => {
     expectButtonInContextMenu(screen, ButtonText.DeleteForAll);
 
     clickOnButtonInContextMenu(screen, ButtonText.DeleteForAll);
+    expectButton(screen, ButtonText.Confirm);
+    clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 2, 0, 0);
 
@@ -415,6 +419,92 @@ describe('The App in Audit View', () => {
     expectButtonInContextMenuIsNotShown(screen, ButtonText.DeleteForAll);
 
     clickOnButtonInContextMenu(screen, ButtonText.Delete);
+    expectButton(screen, ButtonText.Confirm);
+    clickOnButton(screen, ButtonText.Confirm);
+    expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
+  });
+
+  test('delete buttons are shown and work for preselected without popup', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        'firstResource.js': 1,
+        'secondResource.js': 1,
+        'thirdResource.js': 1,
+        'fourthResource.js': 1,
+        'fifthResource.js': 1,
+      },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            licenseText: 'Permission is hereby granted',
+            comment: 'Attribution of multiple resources',
+            attributionConfidence: 10,
+            preSelected: true,
+          },
+          uuid_2: {
+            packageName: 'Vue',
+            packageVersion: '1.2.0',
+            licenseText: 'Permission is not granted',
+            comment: 'Attribution of one resources',
+            attributionConfidence: 90,
+            preSelected: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/firstResource.js': ['uuid_1'],
+          '/secondResource.js': ['uuid_1'],
+          '/thirdResource.js': ['uuid_1'],
+          '/fourthResource.js': ['uuid_2'],
+          '/fifthResource.js': ['uuid_2'],
+        },
+      },
+    };
+
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(screen, 'Confidence', '10');
+    expectValuesInProgressbarTooltip(screen, 5, 0, 5, 0);
+
+    expectButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonInContextMenu(screen, ButtonText.DeleteForAll);
+
+    clickOnButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonIsNotShown(screen, ButtonText.Confirm);
+    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValuesInProgressbarTooltip(screen, 5, 0, 4, 0);
+
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    expectValueInTextBox(screen, 'Name', 'React');
+
+    expectButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonInContextMenu(screen, ButtonText.DeleteForAll);
+
+    clickOnButtonInContextMenu(screen, ButtonText.DeleteForAll);
+    expectButtonIsNotShown(screen, ButtonText.Confirm);
+    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValuesInProgressbarTooltip(screen, 5, 0, 2, 0);
+
+    clickOnElementInResourceBrowser(screen, 'thirdResource.js');
+    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.Delete);
+
+    goToView(screen, View.Attribution);
+    expectResourceBrowserIsNotShown(screen);
+
+    fireEvent.click(screen.getByText('Vue, 1.2.0') as Element);
+    expectValueInTextBox(screen, 'Name', 'Vue');
+
+    expectButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonInContextMenuIsNotShown(screen, ButtonText.DeleteForAll);
+
+    clickOnButtonInContextMenu(screen, ButtonText.Delete);
+    expectButtonIsNotShown(screen, ButtonText.Confirm);
     expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 });

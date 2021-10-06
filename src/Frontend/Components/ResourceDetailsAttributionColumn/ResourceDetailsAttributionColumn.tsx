@@ -6,7 +6,7 @@
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PackageInfo } from '../../../shared/shared-types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
   getExternalData,
   getManualData,
@@ -33,6 +33,7 @@ import {
   getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 
 interface ResourceDetailsAttributionColumnProps {
   showParentAttributions: boolean;
@@ -77,24 +78,32 @@ export function ResourceDetailsAttributionColumn(
     );
   }
 
-  function deleteAttributionForAll(): void {
-    if (attributionIdOfSelectedPackageInManualPanel) {
-      dispatch(
-        deleteAttributionForAllAndSave(
-          attributionIdOfSelectedPackageInManualPanel
-        )
-      );
+  function openConfirmDeletionPopup(): void {
+    if (displayPackageInfo.preSelected) {
+      if (attributionIdOfSelectedPackageInManualPanel) {
+        dispatch(
+          deleteAttributionAndSave(
+            selectedResourceId,
+            attributionIdOfSelectedPackageInManualPanel
+          )
+        );
+      }
+    } else {
+      dispatch(openPopup(PopupType.ConfirmDeletionPopup));
     }
   }
 
-  function deleteAttributionForResource(): void {
-    if (attributionIdOfSelectedPackageInManualPanel) {
-      dispatch(
-        deleteAttributionAndSave(
-          selectedResourceId,
-          attributionIdOfSelectedPackageInManualPanel
-        )
-      );
+  function openConfirmDeletionForAllPopup(): void {
+    if (displayPackageInfo.preSelected) {
+      if (attributionIdOfSelectedPackageInManualPanel) {
+        dispatch(
+          deleteAttributionForAllAndSave(
+            attributionIdOfSelectedPackageInManualPanel
+          )
+        );
+      }
+    } else {
+      dispatch(openPopup(PopupType.ConfirmDeletionForAllPopup));
     }
   }
 
@@ -173,8 +182,8 @@ export function ResourceDetailsAttributionColumn(
         dispatch(setTemporaryPackageInfo(packageInfo));
       }}
       saveFileRequestListener={saveFileRequestListener}
-      onDeleteButtonClick={deleteAttributionForResource}
-      onDeleteForAllButtonClick={deleteAttributionForAll}
+      onDeleteButtonClick={openConfirmDeletionPopup}
+      onDeleteForAllButtonClick={openConfirmDeletionForAllPopup}
     />
   ) : null;
 }
