@@ -3,17 +3,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { act } from '@testing-library/react';
 import React from 'react';
 import { Attributions, FollowUp } from '../../../shared/shared-types';
-import { useFollowUpFilter } from '../use-follow-up-filter';
+import { provideFollowUpFilter } from '../provide-follow-up-filter';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
+import { useDispatch } from 'react-redux';
 
 describe('useFollowUpFilter', () => {
-  let hookResult: ReturnType<typeof useFollowUpFilter>;
+  let hookResult: ReturnType<typeof provideFollowUpFilter>;
 
-  const TestComponent: React.FunctionComponent = () => {
-    hookResult = useFollowUpFilter();
+  const TestComponentWithFilter: React.FunctionComponent = () => {
+    const dispatch = useDispatch();
+    hookResult = provideFollowUpFilter(true, dispatch);
+    return null;
+  };
+
+  const TestComponentWithoutFilter: React.FunctionComponent = () => {
+    const dispatch = useDispatch();
+    hookResult = provideFollowUpFilter(false, dispatch);
     return null;
   };
 
@@ -38,38 +45,25 @@ describe('useFollowUpFilter', () => {
     followUp: FollowUp,
   };
 
-  test('returns working handleFilterChange', () => {
-    renderComponentWithStore(<TestComponent />);
+  test('returns working getFilteredAttributions with follow-up filter', () => {
+    renderComponentWithStore(<TestComponentWithFilter />);
 
-    expect(hookResult.filterForFollowUp).toBe(false);
-    act(() => {
-      hookResult.handleFilterChange();
-    });
     expect(hookResult.filterForFollowUp).toBe(true);
-    act(() => {
-      hookResult.handleFilterChange();
-    });
-    expect(hookResult.filterForFollowUp).toBe(false);
-  });
-
-  test('returns working getFilteredAttributions', () => {
-    renderComponentWithStore(<TestComponent />);
-
-    expect(hookResult.filterForFollowUp).toBe(false);
-    let filteredAttributions = hookResult.getFilteredAttributions(
-      testManualAttributions
-    );
-    expect(filteredAttributions).toBe(testManualAttributions);
-
-    act(() => {
-      hookResult.handleFilterChange();
-    });
-    expect(hookResult.filterForFollowUp).toBe(true);
-    filteredAttributions = hookResult.getFilteredAttributions(
+    const filteredAttributions = hookResult.getFilteredAttributions(
       testManualAttributions
     );
     expect(filteredAttributions).toEqual({
       [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],
     });
+  });
+
+  test('returns working getFilteredAttributions without filter', () => {
+    renderComponentWithStore(<TestComponentWithoutFilter />);
+
+    expect(hookResult.filterForFollowUp).toBe(false);
+    const filteredAttributions = hookResult.getFilteredAttributions(
+      testManualAttributions
+    );
+    expect(filteredAttributions).toBe(testManualAttributions);
   });
 });

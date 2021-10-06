@@ -18,14 +18,14 @@ export interface ViewState {
   view: View;
   targetView: View | null;
   openPopup: PopupType | null;
-  showOnlyFollowUp: boolean;
+  filterForFollowUp: boolean;
 }
 
 export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   openPopup: null,
-  showOnlyFollowUp: false,
+  filterForFollowUp: false,
 };
 
 export function viewState(
@@ -58,7 +58,7 @@ export function viewState(
     case ACTION_SET_FOLLOW_UP_FILTER:
       return {
         ...state,
-        showOnlyFollowUp: action.payload,
+        filterForFollowUp: action.payload,
       };
     default:
       return state;

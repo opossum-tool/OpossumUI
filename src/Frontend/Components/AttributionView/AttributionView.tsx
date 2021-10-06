@@ -14,13 +14,14 @@ import {
   getAttributionIdMarkedForReplacement,
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
-import { useFollowUpFilter } from '../../util/use-follow-up-filter';
-import { useWindowHeight } from '../../util/use-window-height';
+import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
+import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { OpossumColors } from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
+import { areOnlyFollowUpAttributionsShown } from '../../state/selectors/view-selector';
 
 const countAndSearchOffset = 119;
 
@@ -49,9 +50,12 @@ export function AttributionView(): ReactElement {
   const attributionIdMarkedForReplacement: string = useSelector(
     getAttributionIdMarkedForReplacement
   );
+  const originalFilterForFollowUp = useSelector(
+    areOnlyFollowUpAttributionsShown
+  );
 
   const { filterForFollowUp, handleFilterChange, getFilteredAttributions } =
-    useFollowUpFilter();
+    provideFollowUpFilter(originalFilterForFollowUp, dispatch);
 
   function onCardClick(attributionId: string): void {
     dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));

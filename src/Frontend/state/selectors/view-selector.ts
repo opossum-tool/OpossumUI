@@ -31,5 +31,5 @@ export function getOpenPopup(state: State): null | PopupType {
 }
 
 export function areOnlyFollowUpAttributionsShown(state: State): boolean {
-  return state.viewState.showOnlyFollowUp;
+  return state.viewState.filterForFollowUp;
 }

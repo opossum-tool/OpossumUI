@@ -9,21 +9,19 @@ import {
   AttributionsWithResources,
   PackageInfo,
 } from '../../shared/shared-types';
-import { areOnlyFollowUpAttributionsShown } from '../state/selectors/view-selector';
-import { useSelector } from 'react-redux';
 import { setFollowUpFilter } from '../state/actions/view-actions/view-actions';
-import { useDispatch } from 'react-redux';
+import { SimpleThunkDispatch } from '../state/actions/types';
 
-export function useFollowUpFilter(): {
+export function provideFollowUpFilter(
+  filterForFollowUp: boolean,
+  dispatch: SimpleThunkDispatch
+): {
   filterForFollowUp: boolean;
   handleFilterChange: () => void;
   getFilteredAttributions(
     attributions: AttributionsWithResources | Attributions
   ): AttributionsWithResources | Attributions;
 } {
-  const dispatch = useDispatch();
-
-  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
   function handleFilterChange(): void {
     dispatch(setFollowUpFilter(!filterForFollowUp));
   }
