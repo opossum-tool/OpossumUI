@@ -97,7 +97,9 @@
     "ship-win": "yarn build && electron-builder --win --x64 --publish never",
     "ship-mac": "yarn build && electron-packager . OpossumUI --ignore=^/release --ignore=^/src --ignore=^/example-files --ignore=^/run_precommit.sh --ignore=^/README.md --ignore=__tests__ --platform=darwin arch=x64 --overwrite --out=release/macOS --icon src/ElectronBackend/logo/icon.icns && zip -r -q 'release/macOS/OpossumUI-darwin-x64.zip' 'release/macOS/OpossumUI-darwin-x64/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
-    "clean": "rm -rf ./build/ ./release/"
+    "clean": "rm -rf ./build/ ./release/",
+    "postinstall": "husky install",
+    "pre-commit": "lint-staged"
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
@@ -142,11 +144,6 @@
     "**/*.{ts,tsx}": [
       "./run_precommit.sh"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "jest": {
     "resetMocks": false
