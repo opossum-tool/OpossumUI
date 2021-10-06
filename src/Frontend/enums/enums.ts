@@ -4,34 +4,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export enum View {
-  Audit = 'Audit',
   Attribution = 'Attribution',
+  Audit = 'Audit',
   Report = 'Report',
 }
 
 export enum PopupType {
   ErrorPopup = 'ErrorPopup',
-  NotSavedPopup = 'NotSavedPopup',
   FileSearchPopup = 'FileSearchPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
+  NotSavedPopup = 'NotSavedPopup',
   ReplaceAttributionPopup = 'ReplaceAttributionPopup',
   ConfirmDeletionPopup = 'ConfirmDeletionPopup',
-  ConfirmDeletionForAllPopup = 'ConfirmDeletionForAllPopup',
+  ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
 }
 
 export enum SavePackageInfoOperation {
   Create = 'Create',
-  Update = 'Update',
   Delete = 'Delete',
   Link = 'Link',
   Replace = 'Replace',
+  Update = 'Update',
 }
 
 export enum PackagePanelTitle {
-  ExternalPackages = 'Signals',
-  ContainedManualPackages = 'Attributions in Folder Content',
-  ContainedExternalPackages = 'Signals in Folder Content',
   AllAttributions = 'All Attributions',
+  ContainedExternalPackages = 'Signals in Folder Content',
+  ContainedManualPackages = 'Attributions in Folder Content',
+  ExternalPackages = 'Signals',
   ManualPackages = 'Attributions',
 }
 
@@ -43,14 +43,15 @@ export enum DiscreteConfidence {
 export enum ButtonText {
   Cancel = 'Cancel',
   Confirm = 'Confirm',
-  ConfirmForAll = 'Confirm for all',
+  ConfirmGlobally = 'Confirm globally',
   Delete = 'Delete',
-  DeleteForAll = 'Delete for all',
-  Save = 'Save',
-  SaveForAll = 'Save for all',
-  Undo = 'Undo',
-  Replace = 'Replace',
+  DeleteGlobally = 'Delete globally',
+  Hide = 'Hide',
   MarkForReplacement = 'Mark for replacement',
-  UnmarkForReplacement = 'Unmark for replacement',
+  Save = 'Save',
+  SaveGlobally = 'Save globally',
+  Replace = 'Replace',
   ReplaceMarked = 'Replace marked',
+  Undo = 'Undo',
+  UnmarkForReplacement = 'Unmark for replacement',
 }

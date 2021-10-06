@@ -25,6 +25,7 @@ import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
 } from '../shared-constants';
+import { ButtonText } from '../enums/enums';
 
 export const TEST_TIMEOUT = 15000;
 
@@ -244,7 +245,7 @@ export function clickOnButton(screen: Screen, buttonLabel: string): void {
 
 export function expectButton(
   screen: Screen,
-  buttonLabel: string,
+  buttonLabel: ButtonText,
   disabled?: boolean
 ): void {
   const button = getButton(screen, buttonLabel);
@@ -259,14 +260,14 @@ export function expectButton(
 
 export function expectButtonIsNotShown(
   screen: Screen,
-  buttonLabel: string
+  buttonLabel: ButtonText
 ): void {
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
 }
 
 export function getButtonInContextMenu(
   screen: Screen,
-  buttonLabel: string
+  buttonLabel: ButtonText
 ): HTMLElement {
   fireEvent.click(screen.getByLabelText('button-context-menu'));
   const button = getButton(screen, buttonLabel);
@@ -277,14 +278,14 @@ export function getButtonInContextMenu(
 
 export function clickOnButtonInContextMenu(
   screen: Screen,
-  buttonLabel: string
+  buttonLabel: ButtonText
 ): void {
   fireEvent.click(getButtonInContextMenu(screen, buttonLabel));
 }
 
 export function expectButtonInContextMenu(
   screen: Screen,
-  buttonLabel: string,
+  buttonLabel: ButtonText,
   disabled?: boolean
 ): void {
   const button = getButtonInContextMenu(screen, buttonLabel);
@@ -299,7 +300,7 @@ export function expectButtonInContextMenu(
 
 export function expectButtonInContextMenuIsNotShown(
   screen: Screen,
-  buttonLabel: string
+  buttonLabel: ButtonText
 ): void {
   fireEvent.click(screen.getByLabelText('button-context-menu'));
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();

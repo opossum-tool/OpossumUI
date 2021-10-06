@@ -31,7 +31,7 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   [buttonText in ButtonText]?: JSX.Element;
 } = {
   [ButtonText.Delete]: <DeleteIcon fontSize="small" />,
-  [ButtonText.DeleteForAll]: <DeleteForeverIcon fontSize="small" />,
+  [ButtonText.DeleteGlobally]: <DeleteForeverIcon fontSize="small" />,
   [ButtonText.Undo]: <UndoIcon fontSize="small" />,
   [ButtonText.MarkForReplacement]: (
     <CheckBoxOutlineBlankIcon fontSize="small" />

@@ -6,19 +6,19 @@
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
-import { deleteAttributionForAllAndSave } from '../../state/actions/resource-actions/save-actions';
+import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/audit-view-resource-selectors';
 
-export function ConfirmDeletionForAllPopup(): ReactElement {
+export function ConfirmDeletionGloballyPopup(): ReactElement {
   const attributionIdOfSelectedPackageInManualPanel: string | null =
     useSelector(getAttributionIdOfDisplayedPackageInManualPanel);
 
   const dispatch = useDispatch();
 
-  function deleteAttributionForAll(): void {
+  function deleteAttributionGlobally(): void {
     if (attributionIdOfSelectedPackageInManualPanel) {
       dispatch(
-        deleteAttributionForAllAndSave(
+        deleteAttributionGloballyAndSave(
           attributionIdOfSelectedPackageInManualPanel
         )
       );
@@ -27,7 +27,7 @@ export function ConfirmDeletionForAllPopup(): ReactElement {
 
   return (
     <ConfirmationPopup
-      onConfirmation={deleteAttributionForAll}
+      onConfirmation={deleteAttributionGlobally}
       content={'Do you really want to delete this attribution for all files?'}
       header={'Confirm Deletion'}
     />

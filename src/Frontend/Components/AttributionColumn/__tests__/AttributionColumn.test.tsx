@@ -72,11 +72,11 @@ describe('The AttributionColumn', () => {
         setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
         setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveForAllButtonClick={doNothing}
+        onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
-        onDeleteForAllButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
       />
     );
     store.dispatch(setSelectedResourceId('test_id'));
@@ -138,11 +138,11 @@ describe('The AttributionColumn', () => {
         setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
         setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveForAllButtonClick={doNothing}
+        onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
-        onDeleteForAllButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
       />
     );
     store.dispatch(setSelectedResourceId('test_id'));
@@ -162,11 +162,11 @@ describe('The AttributionColumn', () => {
         setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
         setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveForAllButtonClick={doNothing}
+        onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
-        onDeleteForAllButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
       />
     );
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
@@ -185,11 +185,11 @@ describe('The AttributionColumn', () => {
         setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
         setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveForAllButtonClick={doNothing}
+        onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
-        onDeleteForAllButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
       />
     );
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
@@ -223,11 +223,11 @@ describe('The AttributionColumn', () => {
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
+          onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
+          onDeleteGloballyButtonClick={doNothing}
         />
       );
 
@@ -250,11 +250,11 @@ describe('The AttributionColumn', () => {
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
+          onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
+          onDeleteGloballyButtonClick={doNothing}
         />
       );
       const testFrequentLicenses: FrequentLicences = {
@@ -278,11 +278,11 @@ describe('The AttributionColumn', () => {
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
+          onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
+          onDeleteGloballyButtonClick={doNothing}
         />
       );
       const testFrequentLicenses: FrequentLicences = {
@@ -309,11 +309,11 @@ describe('The AttributionColumn', () => {
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
+          onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
+          onDeleteGloballyButtonClick={doNothing}
         />
       );
 
@@ -338,11 +338,11 @@ describe('The AttributionColumn', () => {
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
+          onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
+          onDeleteGloballyButtonClick={doNothing}
         />
       );
       store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
@@ -391,11 +391,11 @@ describe('The AttributionColumn', () => {
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
-          onSaveForAllButtonClick={doNothing}
+          onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={false}
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
-          onDeleteForAllButtonClick={doNothing}
+          onDeleteGloballyButtonClick={doNothing}
         />
       );
       store.dispatch(setResources({}));

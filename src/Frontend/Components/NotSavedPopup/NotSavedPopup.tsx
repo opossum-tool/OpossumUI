@@ -32,7 +32,7 @@ export function NotSavedPopup(): ReactElement {
   const attributionsToResources = useSelector(getManualAttributionsToResources);
   const view = useSelector(getSelectedView);
   const isSavingDisabled = useSelector(getIsSavingDisabled);
-  const showSaveForAllButton =
+  const showSaveGloballyButton =
     view === View.Audit &&
     hasAttributionMultipleResources(
       currentAttributionId,
@@ -43,7 +43,7 @@ export function NotSavedPopup(): ReactElement {
     dispatch(unlinkAttributionAndSavePackageInfoAndNavigateToTargetView());
   }
 
-  function handleSaveForAllClick(): void {
+  function handleSaveGloballyClick(): void {
     dispatch(saveTemporaryPackageInfoAndNavigateToTargetView());
   }
 
@@ -69,14 +69,14 @@ export function NotSavedPopup(): ReactElement {
       leftButtonText={ButtonText.Save}
       isLeftButtonDisabled={isSavingDisabled}
       onLeftButtonClick={
-        showSaveForAllButton ? handleSaveClick : handleSaveForAllClick
+        showSaveGloballyButton ? handleSaveClick : handleSaveGloballyClick
       }
       centerLeftButtonText={
-        showSaveForAllButton ? ButtonText.SaveForAll : undefined
+        showSaveGloballyButton ? ButtonText.SaveGlobally : undefined
       }
       isCenterLeftButtonDisabled={isSavingDisabled}
       onCenterLeftButtonClick={
-        showSaveForAllButton ? handleSaveForAllClick : undefined
+        showSaveGloballyButton ? handleSaveGloballyClick : undefined
       }
       centerRightButtonText={ButtonText.Undo}
       onCenterRightButtonClick={handleUndoClick}

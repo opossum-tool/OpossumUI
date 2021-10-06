@@ -57,7 +57,7 @@ import { loadFromFile } from '../load-actions';
 import {
   addManualAttributionToSelectedResource,
   addSignalToSelectedResource,
-  deleteAttributionForAllAndSave,
+  deleteAttributionGloballyAndSave,
   saveManualAndResolvedAttributionsToFile,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
@@ -862,7 +862,7 @@ describe('The deleteAttributionAndSave action', () => {
   });
 });
 
-describe('The deleteAttributionForAllAndSave action', () => {
+describe('The deleteAttributionGloballyAndSave action', () => {
   let originalIpcRenderer: IpcRenderer;
 
   beforeAll(() => {
@@ -930,7 +930,7 @@ describe('The deleteAttributionForAllAndSave action', () => {
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
     testStore.dispatch(setAttributionIdMarkedForReplacement('reactUuid'));
 
-    testStore.dispatch(deleteAttributionForAllAndSave('reactUuid'));
+    testStore.dispatch(deleteAttributionGloballyAndSave('reactUuid'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryPackageInfo(testStore.getState())).toEqual({});
     expect(getSelectedAttributionId(testStore.getState())).toEqual('');

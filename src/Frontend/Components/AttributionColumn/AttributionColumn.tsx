@@ -61,7 +61,7 @@ interface AttributionColumnProps {
   isEditable: boolean;
   areButtonsHidden?: boolean;
   displayPackageInfo: PackageInfo;
-  showSaveForAllButton?: boolean;
+  showSaveGloballyButton?: boolean;
   hideDeleteButtons?: boolean;
   showParentAttributions?: boolean;
   showManualAttributionData: boolean;
@@ -70,9 +70,9 @@ interface AttributionColumnProps {
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSaveButtonClick(): void;
-  onSaveForAllButtonClick(): void;
+  onSaveGloballyButtonClick(): void;
   onDeleteButtonClick(): void;
-  onDeleteForAllButtonClick(): void;
+  onDeleteGloballyButtonClick(): void;
   saveFileRequestListener(): void;
   setTemporaryPackageInfo(packageInfo: PackageInfo): void;
 }
@@ -132,11 +132,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     },
     {
       buttonText: temporaryPackageInfo.preSelected
-        ? ButtonText.ConfirmForAll
-        : ButtonText.SaveForAll,
+        ? ButtonText.ConfirmGlobally
+        : ButtonText.SaveGlobally,
       disabled: isSavingDisabled,
-      onClick: props.onSaveForAllButtonClick,
-      hidden: !Boolean(props.showSaveForAllButton),
+      onClick: props.onSaveGloballyButtonClick,
+      hidden: !Boolean(props.showSaveGloballyButton),
     },
   ];
 
@@ -154,11 +154,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       hidden: Boolean(props.hideDeleteButtons),
     },
     {
-      buttonText: ButtonText.DeleteForAll,
-      onClick: props.onDeleteForAllButtonClick,
+      buttonText: ButtonText.DeleteGlobally,
+      onClick: props.onDeleteGloballyButtonClick,
       hidden:
         Boolean(props.hideDeleteButtons) ||
-        !Boolean(props.showSaveForAllButton),
+        !Boolean(props.showSaveGloballyButton),
     },
     {
       buttonText: ButtonText.MarkForReplacement,

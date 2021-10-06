@@ -105,21 +105,21 @@ describe('The App integration', () => {
     expectValueInTextBox(screen, 'Name', 'jQuery');
     expectButton(screen, ButtonText.Save, true);
     expectButtonInContextMenu(screen, ButtonText.Undo, true);
-    expectButton(screen, ButtonText.SaveForAll, true);
+    expectButton(screen, ButtonText.SaveGlobally, true);
 
     insertValueIntoTextBox(screen, 'Name', 'Typescript');
     expectValueInTextBox(screen, 'Name', 'Typescript');
     expectButton(screen, ButtonText.Save, false);
     expectButtonInContextMenu(screen, ButtonText.Undo, false);
-    expectButton(screen, ButtonText.SaveForAll, false);
+    expectButton(screen, ButtonText.SaveGlobally, false);
 
-    clickOnButton(screen, ButtonText.SaveForAll);
+    clickOnButton(screen, ButtonText.SaveGlobally);
     expectValueNotInTextBox(screen, 'Name', 'jQuery');
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Typescript');
     expectButton(screen, ButtonText.Save, true);
     expectButtonInContextMenu(screen, ButtonText.Undo, true);
-    expectButton(screen, ButtonText.SaveForAll, true);
+    expectButton(screen, ButtonText.SaveGlobally, true);
 
     // save another attribution
     clickAddNewAttributionButton(screen);

@@ -237,7 +237,7 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButton(screen, ButtonText.SaveForAll);
+    clickOnButton(screen, ButtonText.SaveGlobally);
 
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {

@@ -24,7 +24,7 @@ describe('The ContextMenu', () => {
         onClick: onClickMock,
       },
       {
-        buttonText: ButtonText.SaveForAll,
+        buttonText: ButtonText.SaveGlobally,
         disabled: false,
         onClick: doNothing,
         hidden: true,
@@ -34,7 +34,7 @@ describe('The ContextMenu', () => {
 
     expect(screen.getByText(ButtonText.Undo));
     expect(screen.getByText(ButtonText.Save));
-    expect(screen.queryByText(ButtonText.SaveForAll)).toBe(null);
+    expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
 
     const buttonDisabledAttribute = screen
       .getByLabelText('button-context-menu')
@@ -55,7 +55,7 @@ describe('The ContextMenu', () => {
         onClick: doNothing,
       },
       {
-        buttonText: ButtonText.SaveForAll,
+        buttonText: ButtonText.SaveGlobally,
         disabled: false,
         onClick: doNothing,
         hidden: true,

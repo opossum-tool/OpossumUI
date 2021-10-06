@@ -22,7 +22,7 @@ import {
 } from './resource-details-attribution-column-helpers';
 import {
   deleteAttributionAndSave,
-  deleteAttributionForAllAndSave,
+  deleteAttributionGloballyAndSave,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
   unlinkAttributionAndSavePackageInfo,
@@ -93,17 +93,17 @@ export function ResourceDetailsAttributionColumn(
     }
   }
 
-  function openConfirmDeletionForAllPopup(): void {
+  function openConfirmDeletionGloballyPopup(): void {
     if (displayPackageInfo.preSelected) {
       if (attributionIdOfSelectedPackageInManualPanel) {
         dispatch(
-          deleteAttributionForAllAndSave(
+          deleteAttributionGloballyAndSave(
             attributionIdOfSelectedPackageInManualPanel
           )
         );
       }
     } else {
-      dispatch(openPopup(PopupType.ConfirmDeletionForAllPopup));
+      dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup));
     }
   }
 
@@ -124,7 +124,7 @@ export function ResourceDetailsAttributionColumn(
     externalData.attributions
   );
 
-  const showSaveForAllButton: boolean = hasAttributionMultipleResources(
+  const showSaveGloballyButton: boolean = hasAttributionMultipleResources(
     attributionIdOfSelectedPackageInManualPanel,
     manualData.attributionsToResources
   );
@@ -166,24 +166,24 @@ export function ResourceDetailsAttributionColumn(
       }
       displayPackageInfo={displayPackageInfo}
       showParentAttributions={props.showParentAttributions}
-      showSaveForAllButton={showSaveForAllButton}
+      showSaveGloballyButton={showSaveGloballyButton}
       hideDeleteButtons={hideDeleteButtons}
       setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoForCreator(
         dispatch,
         temporaryPackageInfo
       )}
       onSaveButtonClick={
-        showSaveForAllButton
+        showSaveGloballyButton
           ? dispatchUnlinkAttributionAndSavePackageInfo
           : dispatchSavePackageInfo
       }
-      onSaveForAllButtonClick={dispatchSavePackageInfo}
+      onSaveGloballyButtonClick={dispatchSavePackageInfo}
       setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
         dispatch(setTemporaryPackageInfo(packageInfo));
       }}
       saveFileRequestListener={saveFileRequestListener}
       onDeleteButtonClick={openConfirmDeletionPopup}
-      onDeleteForAllButtonClick={openConfirmDeletionForAllPopup}
+      onDeleteGloballyButtonClick={openConfirmDeletionGloballyPopup}
     />
   ) : null;
 }
