@@ -57,7 +57,10 @@ export function sanitizeResourcesToAttributions(
 
   return Object.fromEntries(
     Object.entries(rawResourcesToAttributions).reduce(
-      (accumulatedResult: Array<[string, string[]]>, [path, attributions]) => {
+      (
+        accumulatedResult: Array<[string, Array<string>]>,
+        [path, attributions]
+      ) => {
         const pathWithSlashes = addTrailingSlashIfAbsent(path);
 
         if (allResourcePaths.has(path)) {

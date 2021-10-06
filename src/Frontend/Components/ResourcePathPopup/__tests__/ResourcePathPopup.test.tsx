@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { doNothing } from '../../../util/do-nothing';
 import { ResourcePathPopup } from '../ResourcePathPopup';
 import {
@@ -16,6 +19,7 @@ import {
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useDispatch } from 'react-redux';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { screen } from '@testing-library/react';
 
 interface HelperComponentProps {
@@ -32,6 +36,7 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
   };
   const resourcesToExternalAttributions: ResourcesToAttributions = {
     '/firstParty': ['uuid_1'],
+    '/folder/anotherFirstParty': ['uuid_1'],
   };
 
   dispatch(setExternalData(attributions, resourcesToExternalAttributions));
@@ -48,6 +53,8 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
 }
 
 describe('ResourcePathPopup', () => {
+  const resourcesInOtherFoldersHeader = 'Resources in Other Folders';
+
   test('renders resources for manual Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
@@ -62,5 +69,28 @@ describe('ResourcePathPopup', () => {
 
     expect(screen.queryByText('Resources for selected signal')).toBeTruthy();
     expect(screen.queryByText('/firstParty')).toBeTruthy();
+  });
+
+  test('renders subheader, if resources in other folders exist', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId('/folder/anotherFirstParty'));
+    renderComponentWithStore(<HelperComponent isExternalAttribution={true} />, {
+      store: testStore,
+    });
+
+    expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeTruthy();
+    expect(screen.queryByText('/firstParty')).toBeTruthy();
+    expect(screen.queryByText('/folder/anotherFirstParty')).toBeTruthy();
+  });
+
+  test('renders no subheader, if no resources in other folders exist', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId('/thirdParty'));
+    renderComponentWithStore(
+      <HelperComponent isExternalAttribution={false} />,
+      { store: testStore }
+    );
+    expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeFalsy();
+    expect(screen.queryByText('/thirdParty')).toBeTruthy();
   });
 });

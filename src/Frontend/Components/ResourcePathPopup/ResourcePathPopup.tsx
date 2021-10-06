@@ -13,6 +13,9 @@ import {
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { useWindowHeight } from '../../util/use-window-height';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import { splitResourceIdsToCurrentAndOtherFolder } from './resource-path-popup-helpers';
+import { ResourcesListBatch } from '../../types/types';
 
 const heightOffset = 300;
 
@@ -35,6 +38,7 @@ interface ResourcePathPopupProps {
 
 export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   const classes = useStyles();
+  const folderPath = useSelector(getSelectedResourceId);
 
   const externalAttributionsToResources = useSelector(
     getExternalAttributionsToResources
@@ -43,12 +47,31 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
     getManualAttributionsToResources
   );
 
-  const resourceIds = props.isExternalAttribution
+  const allResourceIds = props.isExternalAttribution
     ? externalAttributionsToResources[props.attributionId]
     : manualAttributionsToResources[props.attributionId];
+
   const header = `Resources for selected ${
     props.isExternalAttribution ? 'signal' : 'attribution'
   }`;
+
+  function getResourcesListBatches(): Array<ResourcesListBatch> {
+    const resourcesListBatches: Array<ResourcesListBatch> = [];
+
+    const { currentFolderResourceIds, otherFolderResourceIds } =
+      splitResourceIdsToCurrentAndOtherFolder(allResourceIds, folderPath);
+
+    resourcesListBatches.push({ resourceIds: currentFolderResourceIds });
+    if (otherFolderResourceIds.length > 0) {
+      resourcesListBatches.push({
+        header: 'Resources in Other Folders',
+        resourceIds: otherFolderResourceIds,
+      });
+    }
+    return resourcesListBatches;
+  }
+
+  const resourcesListBatches = getResourcesListBatches();
 
   return (
     <NotificationPopup
@@ -61,7 +84,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       content={
         <div className={classes.resourceListContainer}>
           <ResourcesList
-            resourceIds={resourceIds}
+            resourcesListBatches={resourcesListBatches}
             maxHeight={useWindowHeight() - heightOffset}
           />
         </div>

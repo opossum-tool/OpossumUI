@@ -105,7 +105,7 @@ export function addUnresolvedAttributionsToResourcesWithAttributedChildren(
 
 export function removeResolvedAttributionsFromResourcesWithAttributedChildren(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
-  resourceIds: string[]
+  resourceIds: Array<string>
 ): void {
   resourceIds.forEach((resourceId) => {
     deleteChildrenFromAttributedResources(

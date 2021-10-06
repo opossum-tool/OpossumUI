@@ -24,7 +24,10 @@ function getPathsFromResourcesHelper(
     }`;
     paths.push(path);
     if (canHaveChildren(resource)) {
-      const newPaths: string[] = getPathsFromResourcesHelper(resource, path);
+      const newPaths: Array<string> = getPathsFromResourcesHelper(
+        resource,
+        path
+      );
       // Do not replace with spread operator (can lead to stack overflow exception)
       newPaths.forEach((path) => {
         paths.push(path);

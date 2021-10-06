@@ -98,7 +98,9 @@ export function AttributionDetailsViewer(): ReactElement | null {
           Linked Resources
         </MuiTypography>
         <ResourcesList
-          resourceIds={resourceIdsOfSelectedAttributionId}
+          resourcesListBatches={[
+            { resourceIds: resourceIdsOfSelectedAttributionId },
+          ]}
           maxHeight={resourceListMaxHeight}
         />
       </div>

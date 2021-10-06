@@ -28,7 +28,7 @@ export function FileSearchPopup(): ReactElement {
     <>
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />
       <ResourcesList
-        resourceIds={filteredPaths}
+        resourcesListBatches={[{ resourceIds: filteredPaths }]}
         maxHeight={resourceListMaxHeightInPx}
         onClickCallback={close}
       />
