@@ -47,13 +47,13 @@ export function ReportView(): ReactElement {
   );
   const frequentLicenseTexts = useSelector(getFrequentLicensesTexts);
   const isFileWithChildren = useSelector(getIsFileWithChildren);
-  const originalFilterForFollowUp = useSelector(
-    areOnlyFollowUpAttributionsShown
-  );
+  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
   const dispatch = useDispatch();
 
-  const { filterForFollowUp, handleFilterChange, getFilteredAttributions } =
-    provideFollowUpFilter(originalFilterForFollowUp, dispatch);
+  const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
+    filterForFollowUp,
+    dispatch
+  );
 
   const attributionsWithResources = getAttributionsWithResources(
     attributions,

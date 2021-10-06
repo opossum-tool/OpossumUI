@@ -15,7 +15,7 @@ import {
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
-import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
+import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -50,12 +50,12 @@ export function AttributionView(): ReactElement {
   const attributionIdMarkedForReplacement: string = useSelector(
     getAttributionIdMarkedForReplacement
   );
-  const originalFilterForFollowUp = useSelector(
-    areOnlyFollowUpAttributionsShown
-  );
+  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
 
-  const { filterForFollowUp, handleFilterChange, getFilteredAttributions } =
-    provideFollowUpFilter(originalFilterForFollowUp, dispatch);
+  const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
+    filterForFollowUp,
+    dispatch
+  );
 
   function onCardClick(attributionId: string): void {
     dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));

@@ -3,27 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { Attributions, FollowUp } from '../../../shared/shared-types';
 import { provideFollowUpFilter } from '../provide-follow-up-filter';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
-import { useDispatch } from 'react-redux';
+import { createTestAppStore } from '../../test-helpers/render-component-with-store';
 
 describe('useFollowUpFilter', () => {
-  let hookResult: ReturnType<typeof provideFollowUpFilter>;
-
-  const TestComponentWithFilter: React.FunctionComponent = () => {
-    const dispatch = useDispatch();
-    hookResult = provideFollowUpFilter(true, dispatch);
-    return null;
-  };
-
-  const TestComponentWithoutFilter: React.FunctionComponent = () => {
-    const dispatch = useDispatch();
-    hookResult = provideFollowUpFilter(false, dispatch);
-    return null;
-  };
-
   const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';
   const testOtherManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120003';
   const testManualAttributions: Attributions = {};
@@ -46,10 +30,9 @@ describe('useFollowUpFilter', () => {
   };
 
   test('returns working getFilteredAttributions with follow-up filter', () => {
-    renderComponentWithStore(<TestComponentWithFilter />);
-
-    expect(hookResult.filterForFollowUp).toBe(true);
-    const filteredAttributions = hookResult.getFilteredAttributions(
+    const store = createTestAppStore();
+    const result = provideFollowUpFilter(true, store.dispatch);
+    const filteredAttributions = result.getFilteredAttributions(
       testManualAttributions
     );
     expect(filteredAttributions).toEqual({
@@ -58,10 +41,9 @@ describe('useFollowUpFilter', () => {
   });
 
   test('returns working getFilteredAttributions without filter', () => {
-    renderComponentWithStore(<TestComponentWithoutFilter />);
-
-    expect(hookResult.filterForFollowUp).toBe(false);
-    const filteredAttributions = hookResult.getFilteredAttributions(
+    const store = createTestAppStore();
+    const result = provideFollowUpFilter(false, store.dispatch);
+    const filteredAttributions = result.getFilteredAttributions(
       testManualAttributions
     );
     expect(filteredAttributions).toBe(testManualAttributions);

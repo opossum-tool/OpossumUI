@@ -16,7 +16,6 @@ export function provideFollowUpFilter(
   filterForFollowUp: boolean,
   dispatch: SimpleThunkDispatch
 ): {
-  filterForFollowUp: boolean;
   handleFilterChange: () => void;
   getFilteredAttributions(
     attributions: AttributionsWithResources | Attributions
@@ -33,5 +32,5 @@ export function provideFollowUpFilter(
       : attributions;
   }
 
-  return { filterForFollowUp, handleFilterChange, getFilteredAttributions };
+  return { handleFilterChange, getFilteredAttributions };
 }
