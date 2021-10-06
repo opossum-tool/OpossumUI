@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export function splitResourceItToCurrentAndOtherFolder(
+export function splitResourceIdsToCurrentAndOtherFolder(
   allResourceIds: Array<string>,
   folderPath: string
 ): {
@@ -13,12 +13,11 @@ export function splitResourceItToCurrentAndOtherFolder(
   const currentFolderResourceIds: Array<string> = [];
   const otherFolderResourceIds: Array<string> = [];
 
-  (allResourceIds ?? []).forEach((resourceId) => {
+  allResourceIds?.forEach((resourceId) => {
     resourceId.startsWith(folderPath)
       ? currentFolderResourceIds.push(resourceId)
       : otherFolderResourceIds.push(resourceId);
   });
-  currentFolderResourceIds.sort();
   return {
     currentFolderResourceIds: currentFolderResourceIds,
     otherFolderResourceIds: otherFolderResourceIds,

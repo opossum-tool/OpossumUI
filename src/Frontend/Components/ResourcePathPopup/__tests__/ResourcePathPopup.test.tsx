@@ -53,6 +53,8 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
 }
 
 describe('ResourcePathPopup', () => {
+  const resourcesInOtherFoldersHeader = 'Resources in Other Folders';
+
   test('renders resources for manual Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
@@ -75,8 +77,8 @@ describe('ResourcePathPopup', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={true} />, {
       store: testStore,
     });
-    expect(screen.queryByText('Resources in Other Folders')).toBeTruthy();
 
+    expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeTruthy();
     expect(screen.queryByText('/firstParty')).toBeTruthy();
     expect(screen.queryByText('/folder/anotherFirstParty')).toBeTruthy();
   });
@@ -88,7 +90,7 @@ describe('ResourcePathPopup', () => {
       <HelperComponent isExternalAttribution={false} />,
       { store: testStore }
     );
-    expect(screen.queryByText('Resources in Other Folders')).toBeFalsy();
+    expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeFalsy();
     expect(screen.queryByText('/thirdParty')).toBeTruthy();
   });
 });

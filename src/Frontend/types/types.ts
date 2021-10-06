@@ -75,8 +75,3 @@ export interface ResourcesListBatch {
   resourceIds: Array<string>;
   header?: string;
 }
-
-export interface ResourcesListItem {
-  text: string;
-  isHeader?: boolean;
-}

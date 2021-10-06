@@ -13,8 +13,8 @@ import { doNothing } from '../../util/do-nothing';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { getIsFileWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
-import { ResourcesListBatch, ResourcesListItem } from '../../types/types';
 import { convertResourcesListBatchesToResourcesListItems } from './resource-list-helpers';
+import { ResourcesListBatch } from '../../types/types';
 
 const useStyles = makeStyles({
   root: {
@@ -29,6 +29,11 @@ interface ResourcesListProps {
   onClickCallback?: () => void;
 }
 
+export interface ResourcesListItem {
+  text: string;
+  isHeader?: boolean;
+}
+
 export function ResourcesList(props: ResourcesListProps): ReactElement {
   const classes = useStyles();
 
@@ -36,15 +41,16 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
   const dispatch = useDispatch();
   const onClickCallback = props.onClickCallback ?? doNothing;
 
-  props.resourcesListBatches.forEach((resourcesListBatch) => {
-    resourcesListBatch.resourceIds.sort();
-  });
-
   const resourcesListItems: Array<ResourcesListItem> =
     convertResourcesListBatchesToResourcesListItems(props.resourcesListBatches);
 
   function getResourceCard(index: number): ReactElement {
     const cardText: string = resourcesListItems[index].text;
+    const isHeader = resourcesListItems[index].isHeader;
+
+    const formattedText = isHeader
+      ? cardText
+      : removeTrailingSlashIfFileWithChildren(cardText, isFileWithChildren);
 
     function onPathClick(): void {
       dispatch(navigateToSelectedPathOrOpenUnsavedPopup(cardText));
@@ -53,20 +59,9 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
 
     return (
       <ListCard
-        text={
-          resourcesListItems[index].isHeader
-            ? cardText
-            : removeTrailingSlashIfFileWithChildren(
-                cardText,
-                isFileWithChildren
-              )
-        }
-        onClick={resourcesListItems[index].isHeader ? doNothing : onPathClick}
-        cardConfig={
-          resourcesListItems[index].isHeader
-            ? { isHeader: true }
-            : { isResource: true }
-        }
+        text={formattedText}
+        onClick={isHeader ? doNothing : onPathClick}
+        cardConfig={isHeader ? { isHeader: true } : { isResource: true }}
       />
     );
   }

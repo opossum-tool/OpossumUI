@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { splitResourceItToCurrentAndOtherFolder } from '../resource-path-popup-helpers';
+import { splitResourceIdsToCurrentAndOtherFolder } from '../resource-path-popup-helpers';
 
 describe('splitResourceItToCurrentAndOtherFolder', () => {
   test('splits resource ids correctly', () => {
@@ -14,14 +14,21 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     ];
     const folderPath = '/folder_1/';
 
-    const { currentFolderResourceIds, otherFolderResourceIds } =
-      splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
-
-    expect(currentFolderResourceIds).toStrictEqual([
+    const expectedOtherFolderResourceIds = ['/folder_2/resource_3'];
+    const expectedCurrentFolderResourceIds = [
       '/folder_1/',
       '/folder_1/resource_1',
-    ]);
-    expect(otherFolderResourceIds).toStrictEqual(['/folder_2/resource_3']);
+    ];
+
+    const { currentFolderResourceIds, otherFolderResourceIds } =
+      splitResourceIdsToCurrentAndOtherFolder(allResourceIds, folderPath);
+
+    expect(currentFolderResourceIds).toStrictEqual(
+      expectedCurrentFolderResourceIds
+    );
+    expect(otherFolderResourceIds).toStrictEqual(
+      expectedOtherFolderResourceIds
+    );
   });
 
   test('handles undefined allResourceIds correctly', () => {
@@ -30,7 +37,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
 
     const { currentFolderResourceIds, otherFolderResourceIds } =
       // @ts-ignore
-      splitResourceItToCurrentAndOtherFolder(allResourceIds, folderPath);
+      splitResourceIdsToCurrentAndOtherFolder(allResourceIds, folderPath);
 
     expect(currentFolderResourceIds).toStrictEqual([]);
     expect(otherFolderResourceIds).toStrictEqual([]);

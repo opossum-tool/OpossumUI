@@ -3,12 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ResourcesListBatch, ResourcesListItem } from '../../types/types';
+import { ResourcesListItem } from './ResourcesList';
+import { ResourcesListBatch } from '../../types/types';
 
 export function convertResourcesListBatchesToResourcesListItems(
   resourcesListBatches: Array<ResourcesListBatch>
 ): Array<ResourcesListItem> {
   const resourcesListItems: Array<ResourcesListItem> = [];
+
+  resourcesListBatches.forEach((resourcesListBatch) => {
+    resourcesListBatch.resourceIds.sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' })
+    );
+  });
+
   resourcesListBatches.forEach((resourcesListBatch) => {
     if (resourcesListBatch.header) {
       if (resourcesListItems.length > 0) {

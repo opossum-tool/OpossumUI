@@ -15,6 +15,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { ResourcesListBatch } from '../../../types/types';
 
 describe('The ResourcesList', () => {
   const resourceIdsOfSelectedAttributionId = [
@@ -22,13 +23,20 @@ describe('The ResourcesList', () => {
     'resource_2',
   ];
 
+  const resourcesListBatches: Array<ResourcesListBatch> = [
+    { resourceIds: resourceIdsOfSelectedAttributionId },
+  ];
+
+  const expectedExpandedIds = [
+    '/',
+    '/folder1/',
+    '/folder1/folder2/',
+    '/folder1/folder2/resource_1',
+  ];
+
   test('component renders', () => {
     renderComponentWithStore(
-      <ResourcesList
-        resourcesListBatches={[
-          { resourceIds: resourceIdsOfSelectedAttributionId },
-        ]}
-      />
+      <ResourcesList resourcesListBatches={resourcesListBatches} />
     );
     expect(screen.getByText('/folder1/folder2/resource_1')).toBeTruthy();
     expect(screen.getByText('resource_2')).toBeTruthy();
@@ -36,71 +44,56 @@ describe('The ResourcesList', () => {
 
   test('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
     const { store } = renderComponentWithStore(
-      <ResourcesList
-        resourcesListBatches={[
-          { resourceIds: resourceIdsOfSelectedAttributionId },
-        ]}
-      />
+      <ResourcesList resourcesListBatches={resourcesListBatches} />
     );
     store.dispatch(navigateToView(View.Attribution));
+    const examplePath = '/folder1/folder2/resource_1';
 
-    fireEvent.click(screen.getByText('/folder1/folder2/resource_1'));
+    fireEvent.click(screen.getByText(examplePath));
 
-    expect(getSelectedResourceId(store.getState())).toBe(
-      '/folder1/folder2/resource_1'
-    );
+    expect(getSelectedResourceId(store.getState())).toBe(examplePath);
     expect(getSelectedView(store.getState())).toBe(View.Audit);
-    expect(getExpandedIds(store.getState())).toMatchObject([
-      '/',
-      '/folder1/',
-      '/folder1/folder2/',
-      '/folder1/folder2/resource_1',
-    ]);
+    expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
   });
 
   test('clicking on a path changes the view, selectedResourceId and expandedResources with user callback', () => {
     const onClickCallback = jest.fn();
     const { store } = renderComponentWithStore(
       <ResourcesList
-        resourcesListBatches={[
-          { resourceIds: resourceIdsOfSelectedAttributionId },
-        ]}
+        resourcesListBatches={resourcesListBatches}
         onClickCallback={onClickCallback}
       />
     );
     store.dispatch(navigateToView(View.Attribution));
+    const examplePath = '/folder1/folder2/resource_1';
 
-    fireEvent.click(screen.getByText('/folder1/folder2/resource_1'));
+    fireEvent.click(screen.getByText(examplePath));
 
     expect(onClickCallback).toHaveBeenCalled();
-    expect(getSelectedResourceId(store.getState())).toBe(
-      '/folder1/folder2/resource_1'
-    );
+    expect(getSelectedResourceId(store.getState())).toBe(examplePath);
     expect(getSelectedView(store.getState())).toBe(View.Audit);
-    expect(getExpandedIds(store.getState())).toMatchObject([
-      '/',
-      '/folder1/',
-      '/folder1/folder2/',
-      '/folder1/folder2/resource_1',
-    ]);
+    expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
   });
 
   test('clicking on a header does nothing', () => {
     const onClickCallback = jest.fn();
+    const resourcesListBatchesWithHeader: Array<ResourcesListBatch> = [
+      {
+        header: 'Header',
+        resourceIds: [
+          ...resourceIdsOfSelectedAttributionId,
+          '/folder3/folder4/',
+        ],
+      },
+    ];
+
     const { store } = renderComponentWithStore(
       <ResourcesList
-        resourcesListBatches={[
-          {
-            header: 'Header',
-            resourceIds: [
-              ...resourceIdsOfSelectedAttributionId,
-              '/folder3/folder4/',
-            ],
-          },
-        ]}
+        resourcesListBatches={resourcesListBatchesWithHeader}
         onClickCallback={onClickCallback}
       />
     );
+
     store.dispatch(navigateToView(View.Attribution));
     store.dispatch(setSelectedResourceId('/'));
 
