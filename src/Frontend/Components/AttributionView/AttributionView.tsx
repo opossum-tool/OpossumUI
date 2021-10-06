@@ -15,13 +15,14 @@ import {
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { useFollowUpFilter } from '../../util/use-follow-up-filter';
-import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
+import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { OpossumColors } from '../../shared-styles';
+import { topBarHeight } from '../TopBar/TopBar';
 
-const countAndSearchOffset = 100;
+const countAndSearchOffset = 119;
 
 const useStyles = makeStyles({
   root: {
@@ -73,7 +74,7 @@ export function AttributionView(): ReactElement {
         attributionIdMarkedForReplacement={attributionIdMarkedForReplacement}
         onCardClick={onCardClick}
         className={classes.attributionList}
-        maxHeight={useWindowHeight() - topBarOffset - countAndSearchOffset}
+        maxHeight={useWindowHeight() - topBarHeight - countAndSearchOffset}
         title={title}
         topRightElement={
           <Checkbox

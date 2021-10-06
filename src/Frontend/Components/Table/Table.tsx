@@ -19,9 +19,10 @@ import {
   ReportTableItem,
   reportTableRowHeight,
 } from '../ReportTableItem/ReportTableItem';
-import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
+import { useWindowHeight } from '../../util/use-window-height';
 import clsx from 'clsx';
 import { OpossumColors } from '../../shared-styles';
+import { topBarHeight } from '../TopBar/TopBar';
 
 const useStyles = makeStyles({
   root: {
@@ -120,7 +121,7 @@ interface TableProps {
 export function Table(props: TableProps): ReactElement | null {
   const classes = { ...useStylesReportTableHeader(), ...useStyles() };
   const tableHeaderOffset = 110;
-  const maxHeight = useWindowHeight() - topBarOffset - tableHeaderOffset;
+  const maxHeight = useWindowHeight() - topBarHeight - tableHeaderOffset;
   const attributionsIds = useMemo(() => {
     return Object.keys(props.attributionsWithResources);
   }, [props.attributionsWithResources]);

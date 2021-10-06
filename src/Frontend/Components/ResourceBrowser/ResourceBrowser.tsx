@@ -20,7 +20,7 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { renderTree } from './renderTree';
 import { List } from '../List/List';
-import { topBarOffset, useWindowHeight } from '../../util/use-window-height';
+import { useWindowHeight } from '../../util/use-window-height';
 import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setExpandedIds } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import {
@@ -34,6 +34,7 @@ import {
 } from '../../shared-styles';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { topBarHeight } from '../TopBar/TopBar';
 
 const useStyles = makeStyles({
   root: {
@@ -103,7 +104,7 @@ export function ResourceBrowser(): ReactElement | null {
 
   const dispatch = useDispatch();
 
-  const treeHeight: number = useWindowHeight() - topBarOffset;
+  const treeHeight: number = useWindowHeight() - topBarHeight - 4;
 
   function handleToggle(nodeIdsToExpand: Array<string>): void {
     let newExpandedNodeIds = [...expandedIds];
