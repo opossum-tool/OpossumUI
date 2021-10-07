@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ListCard } from '../ListCard';
 
@@ -69,5 +69,21 @@ describe('The ListCard', () => {
     expect(screen.getByText('card text'));
     expect(screen.getByText('card text of second line'));
     expect(screen.getByText('1M'));
+  });
+  test('executes onRightClick on right click', () => {
+    const onRightClick = jest.fn().mockName('rightClick');
+
+    render(
+      <ListCard
+        text={'card text'}
+        secondLineText={'card text of second line'}
+        onClick={doNothing}
+        onRightClick={onRightClick}
+        cardConfig={{}}
+      />
+    );
+    fireEvent.contextMenu(screen.queryByText('card text') as HTMLElement);
+
+    expect(onRightClick).toHaveBeenCalled();
   });
 });
