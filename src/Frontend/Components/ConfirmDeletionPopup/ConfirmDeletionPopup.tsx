@@ -13,7 +13,7 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import {
   deleteAttributionAndSave,
-  deleteAttributionForAllAndSave,
+  deleteAttributionGloballyAndSave,
 } from '../../state/actions/resource-actions/save-actions';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 import { View } from '../../enums/enums';
@@ -38,7 +38,7 @@ export function ConfirmDeletionPopup(): ReactElement {
         );
       }
     } else {
-      dispatch(deleteAttributionForAllAndSave(selectedAttributionId));
+      dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
     }
   }
 

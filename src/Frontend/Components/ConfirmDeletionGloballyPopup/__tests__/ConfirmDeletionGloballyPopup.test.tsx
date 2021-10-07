@@ -6,15 +6,15 @@
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { screen } from '@testing-library/react';
 import React from 'react';
-import { ConfirmDeletionForAllPopup } from '../ConfirmDeletionForAllPopup';
+import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup';
 
-describe('The ConfirmDeletionForAllPopup', () => {
+describe('The ConfirmDeletionGloballyPopup', () => {
   test('renders', () => {
     const expectedContent =
       'Do you really want to delete this attribution for all files?';
     const expectedHeader = 'Confirm Deletion';
 
-    renderComponentWithStore(<ConfirmDeletionForAllPopup />);
+    renderComponentWithStore(<ConfirmDeletionGloballyPopup />);
 
     expect(screen.queryByText(expectedContent)).toBeTruthy();
     expect(screen.queryByText(expectedHeader)).toBeTruthy();

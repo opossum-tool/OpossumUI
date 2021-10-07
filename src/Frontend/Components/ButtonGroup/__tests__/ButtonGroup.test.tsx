@@ -48,7 +48,7 @@ describe('Button group', () => {
         onClick: doNothing,
       },
       {
-        buttonText: ButtonText.SaveForAll,
+        buttonText: ButtonText.SaveGlobally,
         disabled: true,
         onClick: doNothing,
         hidden: true,
@@ -64,6 +64,6 @@ describe('Button group', () => {
     fireEvent.click(screen.getByLabelText('button-context-menu'));
 
     screen.getByText(ButtonText.Save);
-    expect(screen.queryByText(ButtonText.SaveForAll)).toBe(null);
+    expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
   });
 });

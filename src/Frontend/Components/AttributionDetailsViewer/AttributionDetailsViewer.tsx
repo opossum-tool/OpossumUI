@@ -14,7 +14,7 @@ import { ResourcesList } from '../ResourcesList/ResourcesList';
 import { setUpdateTemporaryPackageInfoForCreator } from '../ResourceDetailsAttributionColumn/resource-details-attribution-column-helpers';
 import { isEqual } from 'lodash';
 import {
-  deleteAttributionForAllAndSave,
+  deleteAttributionGloballyAndSave,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
@@ -85,7 +85,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
 
   function deleteAttribution(): void {
     if (temporaryPackageInfo.preSelected) {
-      dispatch(deleteAttributionForAllAndSave(selectedAttributionId));
+      dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
     } else {
       dispatch(openPopup(PopupType.ConfirmDeletionPopup));
     }
@@ -111,9 +111,9 @@ export function AttributionDetailsViewer(): ReactElement | null {
         displayPackageInfo={temporaryPackageInfo}
         setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
         onSaveButtonClick={dispatchSavePackageInfo}
-        onSaveForAllButtonClick={(): void => {}}
+        onSaveGloballyButtonClick={(): void => {}}
         onDeleteButtonClick={deleteAttribution}
-        onDeleteForAllButtonClick={(): void => {}}
+        onDeleteGloballyButtonClick={(): void => {}}
         setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
           dispatch(setTemporaryPackageInfo(packageInfo));
         }}

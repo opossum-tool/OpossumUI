@@ -225,7 +225,7 @@ export function addSignalToSelectedResource(
   };
 }
 
-export function deleteAttributionForAllAndSave(
+export function deleteAttributionGloballyAndSave(
   attributionId: string
 ): SimpleThunkAction {
   return (dispatch: SimpleThunkDispatch): void => {
@@ -244,7 +244,7 @@ export function deleteAttributionAndSave(
     if (attributionsToResources[attributionId].length > 1) {
       dispatch(unlinkResourceFromAttributionAndSave(resourceId, attributionId));
     } else {
-      dispatch(deleteAttributionForAllAndSave(attributionId));
+      dispatch(deleteAttributionGloballyAndSave(attributionId));
     }
   };
 }

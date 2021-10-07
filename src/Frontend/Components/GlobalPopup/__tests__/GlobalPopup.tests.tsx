@@ -65,9 +65,9 @@ describe('The GlobalPopUp', () => {
     ).toBeTruthy();
   });
 
-  test('opens the ConfirmDeletionForAllPopup', () => {
+  test('opens the ConfirmDeletionGloballyPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ConfirmDeletionForAllPopup));
+    store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup));
 
     expect(
       screen.queryByText(

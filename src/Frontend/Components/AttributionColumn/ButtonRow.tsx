@@ -9,6 +9,7 @@ import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import MuiTypography from '@material-ui/core/Typography';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { ButtonText } from '../../enums/enums';
 
 const useStyles = makeStyles({
   root: {
@@ -58,7 +59,7 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
           />
         ) : (
           <ToggleButton
-            buttonText={'hide'}
+            buttonText={ButtonText.Hide}
             className={classes.resolveButton}
             selected={props.selectedPackageIsResolved}
             handleChange={props.resolvedToggleHandler}

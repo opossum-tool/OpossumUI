@@ -209,20 +209,20 @@ The `Attribution Details Column`, if editable, shows the following buttons:
 
 - _SAVE_, saves the edited information for the selected resource only, removing the **pre-selected** attribute if
   present.
-- _SAVE FOR ALL_, (shown only if the attribution of the selected resource is also linked to other resources) saves the
+- _SAVE GLOBALLY_, (shown only if the attribution of the selected resource is also linked to other resources) saves the
   changes for all the linked resources. The same can also be done by pressing _Ctrl + S_.
 - _CONFIRM_, removes the **pre-selected** attribute from the attribution for the selected resource only.
-- _CONFIRM FOR ALL_, (shown only if the attribution of the selected resource is also linked to other resources) removes
+- _CONFIRM GLOBALLY_, (shown only if the attribution of the selected resource is also linked to other resources) removes
   the **pre-selected** attribute from the attribution for all linked resources.
 - _..._, opens a menu with the following buttons:
   - _Undo_, discards the changes,
   - _Delete_, deletes the attribution of the selected resource only.
-  - _Delete For All_, (shown only if the attribution of the selected resource is also linked to other resources)
+  - _Delete Globally_, (shown only if the attribution of the selected resource is also linked to other resources)
     deletes the attribution for all the linked resources.
 
-The _SAVE_ / _SAVE FOR ALL_ and _Undo_ buttons are disabled if no change has been made.
+The _SAVE_ / _SAVE GLOBALLY_ and _Undo_ buttons are disabled if no change has been made.
 
-When all fields except for the _confidence_ field are empty, pressing the _SAVE_ or the _SAVE FOR ALL_ button deletes
+When all fields except for the _confidence_ field are empty, pressing the _SAVE_ or the _SAVE GLOBALLY_ button deletes
 the respective attribution.
 
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
