@@ -5,8 +5,6 @@
 
 import { useEffect, useState } from 'react';
 
-export const topBarOffset = 50;
-
 export function useWindowHeight(): number {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   useEffect(() => {

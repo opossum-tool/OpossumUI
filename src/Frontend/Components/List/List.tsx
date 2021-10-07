@@ -11,10 +11,6 @@ import clsx from 'clsx';
 
 const useStyles = makeStyles({
   paddingBottomScrollbar: { paddingBottom: 18 },
-  horizontalScrollbarFix: { overflowX: 'scroll' },
-  deactivateScrollbar: {
-    overflowY: 'hidden',
-  },
 });
 
 interface ListProps {
@@ -38,8 +34,8 @@ export function List(props: ListProps): ReactElement {
   const cardHeight = props.cardVerticalDistance || 24;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
-    : props.max.numberOfDisplayedItems * (cardHeight + 1);
-  const currentHeight = props.length * (cardHeight + 1);
+    : props.max.numberOfDisplayedItems * cardHeight;
+  const currentHeight = props.length * cardHeight;
   const listHeight = props.alwaysShowHorizontalScrollBar
     ? maxHeight
     : Math.min(currentHeight, maxHeight);
@@ -52,12 +48,13 @@ export function List(props: ListProps): ReactElement {
         itemSize={cardHeight}
         itemCount={props.length}
         className={clsx(
-          props.alwaysShowHorizontalScrollBar
-            ? classes.horizontalScrollbarFix
-            : null,
           props.addPaddingBottom ? classes.paddingBottomScrollbar : null
         )}
-        style={currentHeight < maxHeight ? { overflow: 'auto hidden' } : {}}
+        style={{
+          overflow: `${
+            props.alwaysShowHorizontalScrollBar ? 'scroll' : 'auto'
+          } ${currentHeight < maxHeight ? 'hidden' : 'auto'}`,
+        }}
       >
         {({
           index,

@@ -45,9 +45,11 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 
+export const topBarHeight = 36;
+
 const useStyles = makeStyles({
   root: {
-    height: 36,
+    height: topBarHeight,
     background: OpossumColors.darkBlue,
     display: 'flex',
   },
