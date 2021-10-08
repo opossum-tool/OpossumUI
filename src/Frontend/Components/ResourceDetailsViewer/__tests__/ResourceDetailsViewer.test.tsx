@@ -63,8 +63,8 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
   store.dispatch(
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
-        manualAttributions: manualAttributions,
-        resourcesToManualAttributions: resourcesToManualAttributions,
+        manualAttributions,
+        resourcesToManualAttributions,
       })
     )
   );
@@ -232,10 +232,10 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: { a: { b: 1 } },
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
-          externalAttributions: externalAttributions,
-          resourcesToExternalAttributions: resourcesToExternalAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
+          externalAttributions,
+          resourcesToExternalAttributions,
         })
       )
     );
@@ -305,10 +305,10 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: { a: { b: 1 } },
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
-          externalAttributions: externalAttributions,
-          resourcesToExternalAttributions: resourcesToExternalAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
+          externalAttributions,
+          resourcesToExternalAttributions,
         })
       )
     );
@@ -394,10 +394,10 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: { a: { b: 1 } },
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
-          externalAttributions: externalAttributions,
-          resourcesToExternalAttributions: resourcesToExternalAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
+          externalAttributions,
+          resourcesToExternalAttributions,
         })
       )
     );
@@ -473,10 +473,15 @@ describe('The ResourceDetailsViewer', () => {
 
   test('shows enabled add to package tab if assignable packages are present', () => {
     const testResources: Resources = {
-      fileWithoutAttribution: 1,
+      root: {
+        fileWithoutAttribution: 1,
+      },
     };
     const manualAttributions: Attributions = {
       uuid_1: testTemporaryPackageInfo,
+    };
+    const resourcesToManualAttributions: ResourcesToAttributions = {
+      fileWithoutAttribution: ['uuid_1'],
     };
     const manualPackagePanelLabel = `${testTemporaryPackageInfo.packageName}, ${testTemporaryPackageInfo.packageVersion}`;
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
@@ -484,12 +489,13 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
-          manualAttributions: manualAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
         })
       )
     );
 
-    store.dispatch(setSelectedResourceId('/fileWithoutAttribution'));
+    store.dispatch(setSelectedResourceId('/root/'));
     expect(screen.getByText('Signals'));
     expect(screen.queryByText(manualPackagePanelLabel)).toBeFalsy();
 
@@ -517,8 +523,8 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
         })
       )
     );
@@ -546,8 +552,8 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
         })
       )
     );
@@ -582,10 +588,10 @@ describe('The ResourceDetailsViewer', () => {
       loadFromFile({
         ...getParsedInputFileEnrichedWithTestData({
           resources: { a: { b: 1 } },
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
-          externalAttributions: externalAttributions,
-          resourcesToExternalAttributions: resourcesToExternalAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
+          externalAttributions,
+          resourcesToExternalAttributions,
         }),
         attributionBreakpoints: new Set(['/test_id']),
       })

@@ -5,15 +5,19 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { doNothing } from '../../../util/do-nothing';
 import { PackagePanelCard } from '../PackagePanelCard';
-import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   Attributions,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { ListCardConfig, ListCardContent } from '../../../types/types';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 
 const testCardContent: ListCardContent = { id: '1', name: 'Test' };
 const testCardConfig: ListCardConfig = { firstParty: true };
@@ -27,27 +31,52 @@ const testCardWithPreSelectedConfig: ListCardConfig = {
 };
 
 describe('The PackagePanelCard', () => {
+  const testManualAttributions: Attributions = {
+    uuid1: {
+      packageName: 'React',
+      packageVersion: '16.5.0',
+    },
+  };
+
   test('renders content', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
-        attributionId={'/'}
+        attributionId={'uuid1'}
         cardConfig={testCardConfig}
-      />
+      />,
+      { store: testStore }
     );
 
     expect(screen.getByText('Test'));
   });
 
   test('renders only first party icon and show resources icon', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
-        attributionId={'/'}
+        attributionId={'uuid1'}
         cardConfig={testCardConfig}
-      />
+      />,
+      { store: testStore }
     );
 
     expect(screen.getByLabelText('show resources'));
@@ -58,13 +87,22 @@ describe('The PackagePanelCard', () => {
   });
 
   test('renders many icons at once', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
-        attributionId={'/'}
+        attributionId={'uuid1'}
         cardConfig={testCardWithManyIconsConfig}
-      />
+      />,
+      { store: testStore }
     );
 
     expect(screen.getByLabelText('show resources'));
@@ -74,13 +112,22 @@ describe('The PackagePanelCard', () => {
   });
 
   test('renders pre-selected icon', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
-        attributionId={'/'}
+        attributionId={'uuid1'}
         cardConfig={testCardWithPreSelectedConfig}
-      />
+      />,
+      { store: testStore }
     );
 
     expect(screen.getByLabelText('show resources'));
@@ -94,16 +141,24 @@ describe('The PackagePanelCard', () => {
     const resourcesToAttributions: ResourcesToAttributions = {
       '/thirdParty': ['uuid_1'],
     };
-
-    const { store } = renderComponentWithStore(
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions,
+          resourcesToManualAttributions: resourcesToAttributions,
+        })
+      )
+    );
+    renderComponentWithStore(
       <PackagePanelCard
         onClick={doNothing}
         cardContent={testCardContent}
         attributionId={'uuid_1'}
         cardConfig={testCardConfig}
-      />
+      />,
+      { store: testStore }
     );
-    store.dispatch(setManualData(manualAttributions, resourcesToAttributions));
 
     expect(screen.getByLabelText('show resources'));
     expect(screen.queryByLabelText('Resources for signal')).toBeNull();

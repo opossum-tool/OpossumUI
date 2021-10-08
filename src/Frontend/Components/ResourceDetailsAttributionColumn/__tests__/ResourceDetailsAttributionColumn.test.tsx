@@ -55,7 +55,7 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
   store.dispatch(
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
-        manualAttributions: manualAttributions,
+        manualAttributions,
         resourcesToManualAttributions: resourcesToManualAttributions,
       })
     )

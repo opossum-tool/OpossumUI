@@ -46,7 +46,6 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   const manualAttributionsToResources = useSelector(
     getManualAttributionsToResources
   );
-
   const allResourceIds = props.isExternalAttribution
     ? externalAttributionsToResources[props.attributionId]
     : manualAttributionsToResources[props.attributionId];

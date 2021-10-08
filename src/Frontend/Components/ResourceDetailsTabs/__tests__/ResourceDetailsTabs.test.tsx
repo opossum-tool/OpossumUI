@@ -22,7 +22,9 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 describe('The ResourceDetailsTabs', () => {
   test('switches between tabs', () => {
     const testResources: Resources = {
-      fileWithoutAttribution: 1,
+      root: {
+        fileWithoutAttribution: 1,
+      },
     };
     const manualAttributions: Attributions = {
       uuid_1: { packageName: 'jQuery' },
@@ -38,13 +40,13 @@ describe('The ResourceDetailsTabs', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
-          manualAttributions: manualAttributions,
+          manualAttributions,
         })
       )
     );
 
     act(() => {
-      store.dispatch(setSelectedResourceId('/fileWithoutAttribution'));
+      store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
     });
     expect(screen.getByText('Signals'));
 
@@ -76,8 +78,8 @@ describe('The ResourceDetailsTabs', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
-          manualAttributions: manualAttributions,
-          resourcesToManualAttributions: resourcesToManualAttributions,
+          manualAttributions,
+          resourcesToManualAttributions,
         })
       )
     );

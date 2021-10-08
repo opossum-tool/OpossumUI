@@ -30,16 +30,4 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
       expectedOtherFolderResourceIds
     );
   });
-
-  test('handles undefined allResourceIds correctly', () => {
-    const allResourceIds = undefined;
-    const folderPath = '/folder_1/';
-
-    const { currentFolderResourceIds, otherFolderResourceIds } =
-      // @ts-ignore
-      splitResourceIdsToCurrentAndOtherFolder(allResourceIds, folderPath);
-
-    expect(currentFolderResourceIds).toStrictEqual([]);
-    expect(otherFolderResourceIds).toStrictEqual([]);
-  });
 });
