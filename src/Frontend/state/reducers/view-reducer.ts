@@ -10,6 +10,7 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
+  ACTION_SET_FOLLOW_UP_FILTER,
   ViewAction,
 } from '../actions/view-actions/types';
 
@@ -17,12 +18,14 @@ export interface ViewState {
   view: View;
   targetView: View | null;
   openPopup: PopupType | null;
+  filterForFollowUp: boolean;
 }
 
 export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   openPopup: null,
+  filterForFollowUp: false,
 };
 
 export function viewState(
@@ -51,6 +54,11 @@ export function viewState(
       return {
         ...state,
         openPopup: action.payload,
+      };
+    case ACTION_SET_FOLLOW_UP_FILTER:
+      return {
+        ...state,
+        filterForFollowUp: action.payload,
       };
     default:
       return state;

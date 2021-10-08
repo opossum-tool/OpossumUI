@@ -29,3 +29,7 @@ export function getTargetView(state: State): View | null {
 export function getOpenPopup(state: State): null | PopupType {
   return state.viewState.openPopup;
 }
+
+export function areOnlyFollowUpAttributionsShown(state: State): boolean {
+  return state.viewState.filterForFollowUp;
+}

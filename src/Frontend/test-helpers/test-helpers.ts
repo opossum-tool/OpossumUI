@@ -413,7 +413,7 @@ export function clickAddIconOnCardInAttributionList(
   fireEvent.click(getByTitle(getCardInAttributionList(screen, value), 'add'));
 }
 
-export function clickOnCardInAddToAttributionList(
+export function clickOnCardInAttributionList(
   screen: Screen,
   value: string
 ): void {

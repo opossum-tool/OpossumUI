@@ -21,10 +21,11 @@ import {
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getAttributionsWithResources } from '../../util/get-attributions-with-resources';
-import { useFollowUpFilter } from '../../util/use-follow-up-filter';
+import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Table } from '../Table/Table';
 import { OpossumColors } from '../../shared-styles';
+import { areOnlyFollowUpAttributionsShown } from '../../state/selectors/view-selector';
 
 const useStyles = makeStyles({
   root: {
@@ -46,9 +47,13 @@ export function ReportView(): ReactElement {
   );
   const frequentLicenseTexts = useSelector(getFrequentLicensesTexts);
   const isFileWithChildren = useSelector(getIsFileWithChildren);
+  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
   const dispatch = useDispatch();
-  const { filterForFollowUp, handleFilterChange, getFilteredAttributions } =
-    useFollowUpFilter();
+
+  const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
+    filterForFollowUp,
+    dispatch
+  );
 
   const attributionsWithResources = getAttributionsWithResources(
     attributions,

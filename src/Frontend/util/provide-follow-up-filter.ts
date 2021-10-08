@@ -4,23 +4,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import pickBy from 'lodash/pickBy';
-import { useState } from 'react';
 import {
   Attributions,
   AttributionsWithResources,
   PackageInfo,
 } from '../../shared/shared-types';
+import { setFollowUpFilter } from '../state/actions/view-actions/view-actions';
+import { SimpleThunkDispatch } from '../state/actions/types';
 
-export function useFollowUpFilter(): {
-  filterForFollowUp: boolean;
+export function provideFollowUpFilter(
+  filterForFollowUp: boolean,
+  dispatch: SimpleThunkDispatch
+): {
   handleFilterChange: () => void;
   getFilteredAttributions(
     attributions: AttributionsWithResources | Attributions
   ): AttributionsWithResources | Attributions;
 } {
-  const [filterForFollowUp, setFilterForFollowUp] = useState(false);
   function handleFilterChange(): void {
-    setFilterForFollowUp(!filterForFollowUp);
+    dispatch(setFollowUpFilter(!filterForFollowUp));
   }
   function getFilteredAttributions(
     attributions: AttributionsWithResources | Attributions
@@ -30,5 +32,5 @@ export function useFollowUpFilter(): {
       : attributions;
   }
 
-  return { filterForFollowUp, handleFilterChange, getFilteredAttributions };
+  return { handleFilterChange, getFilteredAttributions };
 }
