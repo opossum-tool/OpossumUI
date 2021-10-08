@@ -9,7 +9,6 @@ import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
-import { doNothing } from '../../util/do-nothing';
 
 const defaultCardHeight = 40;
 
@@ -165,7 +164,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         props.cardConfig.isResolved && classes.resolved
       )}
       onClick={props.onClick}
-      onContextMenu={props.onRightClick ? props.onRightClick : doNothing}
+      onContextMenu={props.onRightClick}
     >
       <div className={classes.iconColumn}>
         {props.leftIcon ? props.leftIcon : null}
