@@ -17,7 +17,7 @@ export function parsePurl(potentialPurl: string): ParsedPurl {
     let packagePURLAppendix;
     if (potentialPurl) {
       packageURL = PackageURL.fromString(potentialPurl);
-      packagePURLAppendix = generatePurlAppendix(packageURL);
+      packagePURLAppendix = generatePurlAppendix(packageURL, potentialPurl);
     }
 
     return {
@@ -53,7 +53,10 @@ export function generatePurlFromPackageInfo(packageInfo: PackageInfo): string {
     : '';
 }
 
-export function generatePurlAppendix(purl: PackageURL): string {
+export function generatePurlAppendix(
+  purl: PackageURL,
+  potentialPurl: string
+): string {
   const purlWithoutQualifiersAndSubpath = new PackageURL(
     purl.type,
     purl.namespace,
@@ -65,5 +68,12 @@ export function generatePurlAppendix(purl: PackageURL): string {
   const purlWithoutAppendix: string =
     purlWithoutQualifiersAndSubpath.toString();
 
-  return purl.toString().split(purlWithoutAppendix)[1];
+  // PackageURL.toString() returns a trailing "=" if there is a qualifier.
+  // It is removed except the user typed it
+  const purlWithCorrectLastCharacter =
+    purl.toString().endsWith('=') && !potentialPurl.endsWith('=')
+      ? purl.toString().slice(0, -1)
+      : purl.toString();
+
+  return purlWithCorrectLastCharacter.split(purlWithoutAppendix)[1];
 }

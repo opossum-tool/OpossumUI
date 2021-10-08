@@ -86,7 +86,7 @@ describe('generatePurlFromPackageInfo', () => {
 });
 
 describe('generatePurlAppendix', () => {
-  test('return the purl appendix', () => {
+  test('return the purl appendix without subpath', () => {
     const testPackageUrl = new PackageURL(
       'type',
       'namespace',
@@ -95,10 +95,56 @@ describe('generatePurlAppendix', () => {
       {
         qualifiers: '',
       },
+      undefined
+    );
+    const expectedPurlAppendix = '?qualifiers';
+
+    expect(
+      generatePurlAppendix(
+        testPackageUrl,
+        'pkg:type/namespace/name@version?qualifiers'
+      )
+    ).toBe(expectedPurlAppendix);
+  });
+
+  test('return the purl appendix with subpath', () => {
+    const testPackageUrl = new PackageURL(
+      'type',
+      'namespace',
+      'name',
+      'version',
+      undefined,
       'subpath'
     );
-    const expectedPurlAppendix = '?qualifiers=#subpath';
+    const expectedPurlAppendix = '#subpath';
 
-    expect(generatePurlAppendix(testPackageUrl)).toBe(expectedPurlAppendix);
+    expect(
+      generatePurlAppendix(
+        testPackageUrl,
+        'pkg:type/namespace/name@version?qualifiers'
+      )
+    ).toBe(expectedPurlAppendix);
+  });
+
+  test('return the purl appendix', () => {
+    const testPackageUrl = new PackageURL(
+      'type',
+      'namespace',
+      'name',
+      'version',
+      {
+        key: 'value',
+        key2: 'value2',
+      },
+      '/path/to/submodule'
+    );
+    const expectedPurlAppendix = '?key=value&key2=value2#/path/to/submodule';
+
+    expect(
+      generatePurlAppendix(
+        testPackageUrl,
+        'pkg:type/namespace/name@version?key=value&key2=value2#/path/to/submodule'
+      )
+    ).toBe(expectedPurlAppendix);
   });
 });

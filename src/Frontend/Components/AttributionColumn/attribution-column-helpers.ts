@@ -221,9 +221,17 @@ export function usePurl(
   }, [displayPackageInfo, selectedPackage]);
 
   function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
-    setTemporaryPurl(event.target.value);
-    const { isValid, purl } = parsePurl(event.target.value);
-    if (isValid && purl) {
+    const enteredPurl = event.target.value;
+    setTemporaryPurl(enteredPurl);
+    // TODO: this is a quick fix. The entire handling of the PURL should be
+    //       refactored to always show the string the user entered instead of
+    //       parsing and resembling it over and over again.
+    const purlEndsOnSpecialCharacter = ['?', '#', '@', '&'].includes(
+      enteredPurl.slice(-1)
+    );
+    const { isValid, purl } = parsePurl(enteredPurl);
+
+    if (isValid && purl && !purlEndsOnSpecialCharacter) {
       dispatch(
         setTemporaryPackageInfo({
           ...temporaryPackageInfo,
