@@ -13,7 +13,7 @@ import {
 } from '../../../../shared/shared-types';
 import {
   clickOnTab,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/test-helpers';
 import { act, screen } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -35,7 +35,12 @@ describe('The ResourceDetailsTabs', () => {
       />
     );
     store.dispatch(
-      loadFromFile(getParsedInputFile(testResources, manualAttributions))
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: manualAttributions,
+        })
+      )
     );
 
     act(() => {
@@ -69,11 +74,11 @@ describe('The ResourceDetailsTabs', () => {
     );
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          manualAttributions,
-          resourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+        })
       )
     );
 

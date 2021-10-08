@@ -7,7 +7,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ManualPackagePanel } from '../ManualPackagePanel';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 
@@ -24,14 +24,14 @@ describe('The ManualPackagePanel', () => {
     );
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { file: 1 },
-          {
+        getParsedInputFileEnrichedWithTestData({
+          resources: { file: 1 },
+          manualAttributions: {
             uuid1: { packageName: 'React' },
             uuid2: { packageName: 'Angular' },
           },
-          { '/file': ['uuid1'] }
-        )
+          resourcesToManualAttributions: { '/file': ['uuid1'] },
+        })
       )
     );
     store.dispatch(setSelectedResourceId('/file'));

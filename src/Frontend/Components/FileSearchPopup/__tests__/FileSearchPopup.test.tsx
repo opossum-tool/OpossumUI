@@ -12,7 +12,7 @@ import {
 import { FileSearchPopup } from '../FileSearchPopup';
 import { Resources } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import { act } from 'react-dom/test-utils';
 import each from 'jest-each';
 
@@ -51,7 +51,11 @@ describe('FileSearch popup ', () => {
     'search for %s results in %s results',
     (search: string, expected_results: number) => {
       const store = createTestAppStore();
-      store.dispatch(loadFromFile(getParsedInputFile(testResources)));
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({ resources: testResources })
+        )
+      );
 
       renderComponentWithStore(<FileSearchPopup />, { store });
 
@@ -82,7 +86,11 @@ describe('FileSearch popup ', () => {
 
   test('has debounced search', () => {
     const store = createTestAppStore();
-    store.dispatch(loadFromFile(getParsedInputFile(testResources)));
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({ resources: testResources })
+      )
+    );
 
     const smallWaitTimeInMs = 50;
 
@@ -113,7 +121,11 @@ describe('FileSearch popup ', () => {
 
   test('has search with state', () => {
     const store = createTestAppStore();
-    store.dispatch(loadFromFile(getParsedInputFile(testResources)));
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({ resources: testResources })
+      )
+    );
 
     renderComponentWithStore(<FileSearchPopup />, { store });
 

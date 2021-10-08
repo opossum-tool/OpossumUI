@@ -13,14 +13,12 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, Screen } from '@testing-library/react';
-import { Dispatch, SetStateAction } from 'react';
 import {
   Attributions,
   ParsedFileContent,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { doNothing } from '../util/do-nothing';
 import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
@@ -39,14 +37,6 @@ export function mockElectronIpcRendererOn(
       null,
       channel === mockChannel ? mockChannelReturn : undefined
     );
-}
-
-export function getDoNothingStateSetter(): Dispatch<SetStateAction<unknown>> {
-  return doNothing as unknown as Dispatch<SetStateAction<unknown>>;
-}
-
-export function getEmptyParsedInputFile(): ParsedFileContent {
-  return getParsedInputFile();
 }
 
 export const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
@@ -68,35 +58,30 @@ export const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   externalAttributionSources: {},
 };
 
-export function getParsedInputFile(
-  resources?: Resources,
-  manualAttributions?: Attributions,
-  resourcesToManualAttributions?: ResourcesToAttributions,
-  externalAttributions?: Attributions,
-  resourcesToExternalAttributions?: ResourcesToAttributions,
-  attributionBreakpoints?: Set<string>,
-  filesWithChildren?: Set<string>
-): ParsedFileContent {
+export function getParsedInputFileEnrichedWithTestData(testData: {
+  resources?: Resources;
+  manualAttributions?: Attributions;
+  resourcesToManualAttributions?: ResourcesToAttributions;
+  externalAttributions?: Attributions;
+  resourcesToExternalAttributions?: ResourcesToAttributions;
+  attributionBreakpoints?: Set<string>;
+  filesWithChildren?: Set<string>;
+}): ParsedFileContent {
   return {
     ...EMPTY_PARSED_FILE_CONTENT,
-    resources: resources ? resources : {},
+    resources: testData.resources || {},
     manualAttributions: {
-      attributions: manualAttributions ? manualAttributions : {},
-      resourcesToAttributions: resourcesToManualAttributions
-        ? resourcesToManualAttributions
-        : {},
+      attributions: testData.manualAttributions || {},
+      resourcesToAttributions: testData.resourcesToManualAttributions || {},
     },
     externalAttributions: {
-      attributions: externalAttributions ? externalAttributions : {},
-      resourcesToAttributions: resourcesToExternalAttributions
-        ? resourcesToExternalAttributions
+      attributions: testData.externalAttributions
+        ? testData.externalAttributions
         : {},
+      resourcesToAttributions: testData.resourcesToExternalAttributions || {},
     },
-
-    attributionBreakpoints: attributionBreakpoints
-      ? attributionBreakpoints
-      : new Set(),
-    filesWithChildren: filesWithChildren ? filesWithChildren : new Set(),
+    attributionBreakpoints: testData.attributionBreakpoints || new Set(),
+    filesWithChildren: testData.filesWithChildren || new Set(),
   };
 }
 

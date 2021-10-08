@@ -13,7 +13,7 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import { getParsedInputFile } from '../../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/test-helpers';
 import { ProgressBarData } from '../../../../types/types';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
@@ -264,13 +264,13 @@ describe('The load and navigation simple actions', () => {
     expect(getProgressBarData(testStore.getState())).toBeNull();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions,
-          testExternalAttributions,
-          testResourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
       )
     );
 

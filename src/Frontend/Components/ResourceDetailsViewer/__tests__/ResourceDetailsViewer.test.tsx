@@ -20,7 +20,7 @@ import {
   clickOnTab,
   expectValueInTextBox,
   expectValueNotInTextBox,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/test-helpers';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -62,7 +62,10 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 
   store.dispatch(
     loadFromFile(
-      getParsedInputFile({}, manualAttributions, resourcesToManualAttributions)
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions: manualAttributions,
+        resourcesToManualAttributions: resourcesToManualAttributions,
+      })
     )
   );
   store.dispatch(setSelectedResourceId(selectedResourceId));
@@ -106,23 +109,26 @@ describe('The ResourceDetailsViewer', () => {
     'preselects the first manual attribution and the first manual attribution from parent correctly, ' +
       'despite the alphabetical ordering',
     () => {
+      const testManualAttributions: Attributions = {
+        alphabetically_first: {
+          packageName: 'aaaaa',
+          licenseName: 'MIT',
+        },
+        alphabetically_second: {
+          packageName: 'bbbbb',
+          licenseName: 'MIT',
+        },
+      };
       const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
       store.dispatch(
         loadFromFile(
-          getParsedInputFile(
-            { '/': { file: 1 } },
-            {
-              alphabetically_first: {
-                packageName: 'aaaaa',
-                licenseName: 'MIT',
-              },
-              alphabetically_second: {
-                packageName: 'bbbbb',
-                licenseName: 'MIT',
-              },
+          getParsedInputFileEnrichedWithTestData({
+            resources: { '/': { file: 1 } },
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: {
+              '/': ['alphabetically_second', 'alphabetically_first'],
             },
-            { '/': ['alphabetically_second', 'alphabetically_first'] }
-          )
+          })
         )
       );
 
@@ -161,13 +167,10 @@ describe('The ResourceDetailsViewer', () => {
 
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          {},
-          {},
-          {},
-          externalAttributions,
-          resourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: externalAttributions,
+          resourcesToExternalAttributions: resourcesToExternalAttributions,
+        })
       )
     );
     store.dispatch(
@@ -196,13 +199,10 @@ describe('The ResourceDetailsViewer', () => {
     };
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          {},
-          {},
-          {},
-          externalAttributions,
-          resourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: externalAttributions,
+          resourcesToExternalAttributions: resourcesToExternalAttributions,
+        })
       )
     );
 
@@ -230,13 +230,13 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('/test_id'));
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: { a: { b: 1 } },
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+          externalAttributions: externalAttributions,
+          resourcesToExternalAttributions: resourcesToExternalAttributions,
+        })
       )
     );
 
@@ -303,13 +303,13 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('/test_id'));
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: { a: { b: 1 } },
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+          externalAttributions: externalAttributions,
+          resourcesToExternalAttributions: resourcesToExternalAttributions,
+        })
       )
     );
 
@@ -392,13 +392,13 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('/test_id'));
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: { a: { b: 1 } },
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+          externalAttributions: externalAttributions,
+          resourcesToExternalAttributions: resourcesToExternalAttributions,
+        })
       )
     );
 
@@ -481,7 +481,12 @@ describe('The ResourceDetailsViewer', () => {
     const manualPackagePanelLabel = `${testTemporaryPackageInfo.packageName}, ${testTemporaryPackageInfo.packageVersion}`;
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
-      loadFromFile(getParsedInputFile(testResources, manualAttributions))
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: manualAttributions,
+        })
+      )
     );
 
     store.dispatch(setSelectedResourceId('/fileWithoutAttribution'));
@@ -510,11 +515,11 @@ describe('The ResourceDetailsViewer', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          manualAttributions,
-          resourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+        })
       )
     );
 
@@ -539,11 +544,11 @@ describe('The ResourceDetailsViewer', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          manualAttributions,
-          resourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+        })
       )
     );
 
@@ -575,13 +580,13 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('/test_id'));
     store.dispatch(
       loadFromFile({
-        ...getParsedInputFile(
-          { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions
-        ),
+        ...getParsedInputFileEnrichedWithTestData({
+          resources: { a: { b: 1 } },
+          manualAttributions: manualAttributions,
+          resourcesToManualAttributions: resourcesToManualAttributions,
+          externalAttributions: externalAttributions,
+          resourcesToExternalAttributions: resourcesToExternalAttributions,
+        }),
         attributionBreakpoints: new Set(['/test_id']),
       })
     );

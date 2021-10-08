@@ -11,7 +11,7 @@ import {
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { wereTemporaryPackageInfoModified } from '../all-views-resource-selectors';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import { PackagePanelTitle } from '../../../enums/enums';
 import {
   setDisplayedPackage,
@@ -95,7 +95,9 @@ describe('getWerePackageInfoModified', () => {
 
   test('returns false when only confidence is set and true when attribution is created', () => {
     const testStore = createTestAppStore();
-    testStore.dispatch(loadFromFile(getParsedInputFile(testResources)));
+    testStore.dispatch(
+      loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
+    );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
     testStore.dispatch(setTemporaryPackageInfo({ attributionConfidence: 20 }));

@@ -11,7 +11,7 @@ import {
 } from '../../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import { getParsedInputFile } from '../../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/test-helpers';
 import { PanelPackage } from '../../../../types/types';
 import {
   getManualData,
@@ -70,11 +70,11 @@ describe('resetTemporaryPackageInfo', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(navigateToView(View.Audit));
@@ -102,7 +102,11 @@ describe('resetTemporaryPackageInfo', () => {
 
     const testStore = createTestAppStore();
     testStore.dispatch(
-      loadFromFile(getParsedInputFile({}, testManualAttributions))
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
     );
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setSelectedAttributionId('uuid1'));
@@ -208,11 +212,11 @@ describe('setDisplayedPackageAndResetTemporaryPackageInfo', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     expect(getDisplayedPackage(testStore.getState())).toBeNull();
@@ -278,11 +282,11 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          initialResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: initialResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedResourceId('/parent/child'));
