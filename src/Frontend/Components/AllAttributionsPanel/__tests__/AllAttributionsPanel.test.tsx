@@ -5,30 +5,17 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
+import { Attributions } from '../../../../shared/shared-types';
 import {
-  Attributions,
-  Resources,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { AllAttributionsPanel } from '../AllAttributionsPanel';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 
 describe('The AllAttributionsPanel', () => {
-  const testResources: Resources = {
-    thirdParty: {
-      'package_1.tr.gz': 1,
-      'package_2.tr.gz': 1,
-    },
-    root: {
-      src: {
-        'something.js': 1,
-      },
-      'readme.md': 1,
-    },
-  };
   const testManualAttributionUuid1 = '374ba87a-f68b-11ea-adc1-0242ac120002';
   const testManualAttributionUuid2 = '374bac4e-f68b-11ea-adc1-0242ac120002';
   const testManualAttributionUuid3 = '374bar8a-f68b-11ea-adc1-0242ac120002';
@@ -49,11 +36,6 @@ describe('The AllAttributionsPanel', () => {
       licenseText: ' test license text',
     },
   };
-  const testResourcesToManualAttributions: ResourcesToAttributions = {
-    '/root/': [testManualAttributionUuid1],
-    '/root/src/': [testManualAttributionUuid2],
-    '/thirdParty/': [testManualAttributionUuid3],
-  };
 
   test('renders empty list', () => {
     renderComponentWithStore(
@@ -71,19 +53,36 @@ describe('The AllAttributionsPanel', () => {
       uuid1: { packageName: 'name 1' },
       uuid2: { packageName: 'name 2' },
     };
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <AllAttributionsPanel
         attributions={testAttributions}
         selectedAttributionId={null}
         attributionIds={['uuid1', 'uuid2']}
         isAddToPackageEnabled={true}
-      />
+      />,
+      { store: testStore }
     );
     screen.getByText('name 1');
     screen.getByText('name 2');
   });
 
   test('does not show resource attribution of selected resource and next attributed parent', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
+    );
     const { store } = renderComponentWithStore(
       <AllAttributionsPanel
         attributions={testManualAttributions}
@@ -93,16 +92,8 @@ describe('The AllAttributionsPanel', () => {
           testManualAttributionUuid3,
         ]}
         isAddToPackageEnabled={true}
-      />
-    );
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
-      )
+      />,
+      { store: testStore }
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
@@ -120,13 +111,22 @@ describe('The AllAttributionsPanel', () => {
       },
       uuid2: { packageName: 'name 2', copyright: '(c)' },
     };
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <AllAttributionsPanel
         attributions={testAttributions}
         selectedAttributionId={null}
         attributionIds={['uuid1', 'uuid2']}
         isAddToPackageEnabled={true}
-      />
+      />,
+      { store: testStore }
     );
     screen.getByText('name 1');
     screen.getByText('name 2');

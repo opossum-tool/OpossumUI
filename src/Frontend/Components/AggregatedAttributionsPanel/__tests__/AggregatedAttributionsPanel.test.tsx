@@ -10,10 +10,17 @@ import {
   Attributions,
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../enums/enums';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { expectPackageInPackagePanel } from '../../../test-helpers/test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import {
+  expectPackageInPackagePanel,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/test-helpers';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
 import { PanelData } from '../../ResourceDetailsTabs/resource-details-tabs-helpers';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 
 describe('The AggregatedAttributionsPanel', () => {
   test('renders', () => {
@@ -55,12 +62,23 @@ describe('The AggregatedAttributionsPanel', () => {
         attributions: testExternalAttributions,
       },
     ];
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+          externalAttributions: testExternalAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <AggregatedAttributionsPanel
         panelData={testPanelPackages}
         isAddToPackageEnabled={true}
-      />
+      />,
+      { store: testStore }
     );
+
     expectPackageInPackagePanel(
       screen,
       'React, 16.5.0',

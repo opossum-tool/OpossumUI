@@ -13,7 +13,7 @@ import {
 } from '../../../../shared/shared-types';
 import {
   clickOnTab,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/test-helpers';
 import { act, screen } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -22,7 +22,9 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 describe('The ResourceDetailsTabs', () => {
   test('switches between tabs', () => {
     const testResources: Resources = {
-      fileWithoutAttribution: 1,
+      root: {
+        fileWithoutAttribution: 1,
+      },
     };
     const manualAttributions: Attributions = {
       uuid_1: { packageName: 'jQuery' },
@@ -35,11 +37,16 @@ describe('The ResourceDetailsTabs', () => {
       />
     );
     store.dispatch(
-      loadFromFile(getParsedInputFile(testResources, manualAttributions))
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions,
+        })
+      )
     );
 
     act(() => {
-      store.dispatch(setSelectedResourceId('/fileWithoutAttribution'));
+      store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
     });
     expect(screen.getByText('Signals'));
 
@@ -69,11 +76,11 @@ describe('The ResourceDetailsTabs', () => {
     );
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
           manualAttributions,
-          resourcesToManualAttributions
-        )
+          resourcesToManualAttributions,
+        })
       )
     );
 

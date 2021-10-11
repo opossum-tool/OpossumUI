@@ -21,7 +21,7 @@ import {
   EnhancedTestStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { getEmptyParsedInputFile } from '../../../test-helpers/test-helpers';
+import { EMPTY_PARSED_FILE_CONTENT } from '../../../test-helpers/test-helpers';
 import { NotSavedPopup } from '../NotSavedPopup';
 import {
   setSelectedResourceId,
@@ -35,7 +35,7 @@ function setupTestState(store: EnhancedTestStore, targetView?: View): void {
   store.dispatch(openPopup(PopupType.NotSavedPopup));
   store.dispatch(setTargetSelectedResourceId('test_id'));
   store.dispatch(setSelectedResourceId(''));
-  store.dispatch(loadFromFile(getEmptyParsedInputFile()));
+  store.dispatch(loadFromFile(EMPTY_PARSED_FILE_CONTENT));
   targetView && store.dispatch(setTargetView(targetView));
 }
 

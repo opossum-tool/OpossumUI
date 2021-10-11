@@ -18,7 +18,7 @@ import {
   setSelectedResourceId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionIdsOfSelectedResource,
@@ -73,11 +73,14 @@ describe('The audit view resource selectors', () => {
     const reactPackage: PackageInfo = { packageName: 'React' };
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { file: 1 },
-          { uuid1: reactPackage, uuid2: { packageName: 'Angular' } },
-          { '/file': ['uuid1'] }
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: { file: 1 },
+          manualAttributions: {
+            uuid1: reactPackage,
+            uuid2: { packageName: 'Angular' },
+          },
+          resourcesToManualAttributions: { '/file': ['uuid1'] },
+        })
       )
     );
 

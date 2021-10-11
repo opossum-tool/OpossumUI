@@ -16,7 +16,7 @@ import { navigateToView } from '../../../state/actions/view-actions/view-actions
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   clickOnCheckbox,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/test-helpers';
 import { AttributionView } from '../AttributionView';
 import { IpcRenderer } from 'electron';
@@ -68,13 +68,14 @@ describe('The Attribution View', () => {
     const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { ['test resource']: 1 },
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: { ['test resource']: 1 },
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
+
     store.dispatch(navigateToView(View.Attribution));
     expect(screen.getByText('All Attributions (2)'));
     expect(screen.getByText('Test package, 1.0'));
@@ -90,11 +91,11 @@ describe('The Attribution View', () => {
     const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { ['test resource']: 1 },
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: { ['test resource']: 1 },
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     store.dispatch(navigateToView(View.Attribution));

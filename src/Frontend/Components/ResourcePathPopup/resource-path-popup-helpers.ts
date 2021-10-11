@@ -13,13 +13,13 @@ export function splitResourceIdsToCurrentAndOtherFolder(
   const currentFolderResourceIds: Array<string> = [];
   const otherFolderResourceIds: Array<string> = [];
 
-  allResourceIds?.forEach((resourceId) => {
+  allResourceIds.forEach((resourceId) => {
     resourceId.startsWith(folderPath)
       ? currentFolderResourceIds.push(resourceId)
       : otherFolderResourceIds.push(resourceId);
   });
   return {
-    currentFolderResourceIds: currentFolderResourceIds,
-    otherFolderResourceIds: otherFolderResourceIds,
+    currentFolderResourceIds,
+    otherFolderResourceIds,
   };
 }

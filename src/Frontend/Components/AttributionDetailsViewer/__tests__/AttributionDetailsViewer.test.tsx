@@ -12,7 +12,7 @@ import { getManualAttributions } from '../../../state/selectors/all-views-resour
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
 import { IpcRenderer } from 'electron';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -88,13 +88,19 @@ describe('The AttributionDetailsViewer', () => {
       attributionConfidence: DiscreteConfidence.High,
       packageName: 'React',
     };
-    const manualAttributions: Attributions = {
+    const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'JQuery',
       },
     };
     const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
-    store.dispatch(loadFromFile(getParsedInputFile({}, manualAttributions)));
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+        })
+      )
+    );
     store.dispatch(navigateToView(View.Attribution));
     store.dispatch(setSelectedAttributionId('uuid_1'));
     store.dispatch(setTemporaryPackageInfo(expectedPackageInfo));

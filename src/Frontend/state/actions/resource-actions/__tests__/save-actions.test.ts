@@ -21,7 +21,7 @@ import {
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   EMPTY_PARSED_FILE_CONTENT,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
 } from '../../../../test-helpers/test-helpers';
 import { ProgressBarData } from '../../../../types/types';
 import {
@@ -452,11 +452,11 @@ describe('The savePackageInfo action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedResourceId('/something.js'));
@@ -499,11 +499,11 @@ describe('The savePackageInfo action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
 
@@ -535,11 +535,11 @@ describe('The savePackageInfo action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
 
@@ -594,13 +594,14 @@ describe('The savePackageInfo action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testInitialManualAttributions,
-          testInitialResourcesToManualAttributions,
-          { uuid_1: { copyright: 'copyright' } },
-          { '/somethingElse.js': ['uuid_1'] }
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+          externalAttributions: { uuid_1: { copyright: 'copyright' } },
+          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
+        })
       )
     );
     expect(getProgressBarData(testStore.getState())).toEqual(
@@ -673,13 +674,13 @@ describe('The savePackageInfo action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions,
-          testExternalAttributions,
-          testResourcesToExternalAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
       )
     );
     expect(getProgressBarData(testStore.getState())).toEqual(
@@ -755,11 +756,12 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testInitialManualAttributions,
-          testInitialResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+        })
       )
     );
 
@@ -807,11 +809,11 @@ describe('The deleteAttributionAndSave action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
 
@@ -848,11 +850,11 @@ describe('The deleteAttributionAndSave action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
 
@@ -920,11 +922,12 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testInitialManualAttributions,
-          testInitialResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
@@ -962,11 +965,11 @@ describe('The addManualAttributionToSelectedResource action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
@@ -996,11 +999,11 @@ describe('The addManualAttributionToSelectedResource action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
@@ -1040,11 +1043,11 @@ describe('The addSignalToSelectedResource action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
@@ -1090,11 +1093,11 @@ describe('The addSignalToSelectedResource action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     testStore.dispatch(setSelectedResourceId('/root/'));

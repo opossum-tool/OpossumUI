@@ -41,7 +41,7 @@ import {
   getCardInAttributionList,
   getElementInResourceBrowser,
   getOpenFileIcon,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
   insertValueIntoTextBox,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
@@ -471,11 +471,11 @@ describe('The App in Audit View', () => {
         '/thirdResource.js': ['uuid_3'],
       };
       mockElectronBackend(
-        getParsedInputFile(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       );
 
       renderComponentWithStore(<App />);
@@ -556,11 +556,11 @@ describe('The App in Audit View', () => {
       '/thirdResource.js': ['uuid_3'],
     };
     mockElectronBackend(
-      getParsedInputFile(
-        testResources,
-        testManualAttributions,
-        testResourcesToManualAttributions
-      )
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
     );
 
     renderComponentWithStore(<App />);
@@ -616,11 +616,11 @@ describe('The App in Audit View', () => {
       '/thirdResource.js': ['uuid_3'],
     };
     mockElectronBackend(
-      getParsedInputFile(
-        testResources,
-        testManualAttributions,
-        testResourcesToManualAttributions
-      )
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
     );
 
     renderComponentWithStore(<App />);
@@ -696,14 +696,14 @@ describe('The App in Audit View', () => {
     };
     const attributionBreakpoints = new Set<string>().add('/folder1/');
     mockElectronBackend(
-      getParsedInputFile(
-        testResources,
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testExternalAttributions,
-        testResourcesToExternalAttributions,
-        attributionBreakpoints
-      )
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        attributionBreakpoints: attributionBreakpoints,
+      })
     );
 
     renderComponentWithStore(<App />);

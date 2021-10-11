@@ -15,7 +15,7 @@ import {
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFile } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 import {
   setAttributionIdMarkedForReplacement,
   setSelectedAttributionId,
@@ -44,11 +44,11 @@ function setupTestState(store: EnhancedTestStore): void {
   store.dispatch(setAttributionIdMarkedForReplacement('test_marked_id'));
   store.dispatch(
     loadFromFile(
-      getParsedInputFile(
-        testResources,
-        testAttributions,
-        testResourcesToManualAttributions
-      )
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
     )
   );
 }

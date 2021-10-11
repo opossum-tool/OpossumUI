@@ -10,11 +10,16 @@ import {
   Attributions,
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../enums/enums';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { PackagePanel } from '../PackagePanel';
 import { getByText } from '@testing-library/dom';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
 
 describe('The PackagePanel', () => {
   test('renders TextBoxes with right content', () => {
@@ -36,19 +41,29 @@ describe('The PackagePanel', () => {
       },
       uuid3: { source: testSource },
     };
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testAttributions,
+        })
+      )
+    );
     renderComponentWithStore(
       <PackagePanel
         attributionIdsWithCount={testAttributionIds}
         attributions={testAttributions}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
-      />
+      />,
+      { store: testStore }
     );
 
     expect(screen.getByText('React, 16.5.0'));
     expect(screen.getByText('JQuery'));
     expect(screen.getAllByLabelText('show resources'));
   });
+
   test('groups by source and prettifies known sources', () => {
     const testAttributionIds: Array<AttributionIdWithCount> = [
       { attributionId: 'uuid1' },
@@ -69,15 +84,24 @@ describe('The PackagePanel', () => {
         packageName: 'JQuery 2',
       },
     };
-    const { store } = renderComponentWithStore(
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testAttributions,
+        })
+      )
+    );
+    renderComponentWithStore(
       <PackagePanel
         attributionIdsWithCount={testAttributionIds}
         attributions={testAttributions}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
-      />
+      />,
+      { store: testStore }
     );
-    store.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
+    testStore.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;
     // eslint-disable-next-line testing-library/prefer-screen-queries

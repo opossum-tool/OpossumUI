@@ -9,18 +9,20 @@ import {
   Attributions,
   FollowUp,
   FrequentLicences,
+  Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   clickOnCheckbox,
-  getParsedInputFile,
+  getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/test-helpers';
 import { ReportView } from '../ReportView';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setFrequentLicences } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('The ReportView', () => {
+  const testResources: Resources = { ['test resource']: 1 };
   const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';
   const testOtherManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120003';
   const testManualAttributions: Attributions = {};
@@ -56,11 +58,11 @@ describe('The ReportView', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { ['test resource']: 1 },
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     store.dispatch(setFrequentLicences(testFrequentLicenses));
@@ -74,11 +76,11 @@ describe('The ReportView', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { ['test resource']: 1 },
-          testManualAttributions,
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     expect(screen.getByText('Test package'));
@@ -94,11 +96,13 @@ describe('The ReportView', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
-        getParsedInputFile(
-          { ['test resource']: 1 },
-          { [testManualUuid]: testManualAttributions[testManualUuid] },
-          testResourcesToManualAttributions
-        )
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: {
+            [testManualUuid]: testManualAttributions[testManualUuid],
+          },
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
     expect(screen.getByText('Test package'));

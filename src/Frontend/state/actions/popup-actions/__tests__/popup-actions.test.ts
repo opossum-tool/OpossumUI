@@ -33,7 +33,7 @@ import {
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
 } from '../popup-actions';
 import { PanelPackage, State } from '../../../../types/types';
-import { getParsedInputFile } from '../../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/test-helpers';
 import {
   AttributionData,
   Attributions,
@@ -101,7 +101,10 @@ describe('The actions checking for unsaved changes', () => {
         const testStore = createTestAppStore();
         testStore.dispatch(
           loadFromFile(
-            getParsedInputFile(testResources, testManualAttributions)
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testManualAttributions,
+            })
           )
         );
 
@@ -140,7 +143,12 @@ describe('The actions checking for unsaved changes', () => {
       };
       const testStore = createTestAppStore();
       testStore.dispatch(
-        loadFromFile(getParsedInputFile(testResources, testManualAttributions))
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+          })
+        )
       );
 
       testStore.dispatch(setSelectedResourceId('selectedResource'));
@@ -228,11 +236,11 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
-          getParsedInputFile(
-            testResources,
-            testManualAttributions,
-            testResourcesToManualAttributions
-          )
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
         )
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
@@ -247,11 +255,11 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
-          getParsedInputFile(
-            testResources,
-            testManualAttributions,
-            testResourcesToManualAttributions
-          )
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
         )
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
@@ -288,11 +296,11 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
-          getParsedInputFile(
-            testResources,
-            testAttributions,
-            testResourcesToManualAttributions
-          )
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
         )
       );
 
@@ -331,11 +339,11 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
-          getParsedInputFile(
-            testResources,
-            testAttributions,
-            testResourcesToManualAttributions
-          )
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
         )
       );
 
@@ -397,11 +405,12 @@ describe('The actions called from the unsaved popup', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
-          getParsedInputFile(
-            testResources,
-            testInitialManualAttributions,
-            testInitialResourcesToManualAttributions
-          )
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testInitialManualAttributions,
+            resourcesToManualAttributions:
+              testInitialResourcesToManualAttributions,
+          })
         )
       );
       testStore.dispatch(setSelectedResourceId('/something.js'));
@@ -436,7 +445,9 @@ describe('The actions called from the unsaved popup', () => {
         selectedResource: 1,
         newSelectedResource: 1,
       };
-      testStore.dispatch(loadFromFile(getParsedInputFile(testResources)));
+      testStore.dispatch(
+        loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
+      );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
       testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test' }));
       testStore.dispatch(navigateToView(View.Audit));
