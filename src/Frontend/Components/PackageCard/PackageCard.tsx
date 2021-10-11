@@ -92,6 +92,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       cardConfig={props.cardConfig}
       count={props.packageCount}
       onClick={props.onClick}
+      onRightClick={(): void => {
+        // TODO: replace
+        console.log('this should open a context menu');
+      }}
       leftIcon={leftIcon}
       rightIcons={rightIcons}
     />
