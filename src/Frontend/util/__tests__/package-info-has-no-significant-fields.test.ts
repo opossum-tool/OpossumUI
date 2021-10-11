@@ -15,6 +15,12 @@ describe('The test package', () => {
     { originId: 'another-uuid', attributionConfidence: 100 },
     { followUp: FollowUp },
     { excludeFromNotice: true },
+    {
+      source: {
+        name: 'test name',
+        documentConfidence: 1,
+      },
+    },
   ]).it('has no significant fields', (packageInfo: PackageInfo) => {
     expect(packageInfoHasNoSignificantFields(packageInfo)).toBe(true);
   });
