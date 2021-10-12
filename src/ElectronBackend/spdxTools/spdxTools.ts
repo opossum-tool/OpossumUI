@@ -244,8 +244,8 @@ function generatePurlFromPackage(pkg: Package): string {
 }
 
 function isPackageEmpty(pkg: Package): boolean {
-  function shouldNotBeCalled(_neverCalled: never): never {
-    throw new Error();
+  function shouldNotBeCalled(neverCalled: never): never {
+    throw new Error(`The case of key "${neverCalled}" is not handled.`);
   }
   function getIsValueNonEmpty(
     key: keyof Package

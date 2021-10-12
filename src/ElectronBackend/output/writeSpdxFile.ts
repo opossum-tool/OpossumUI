@@ -4,12 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import path from 'path';
-import {
-  createSpdxDocument,
-  createSpdxJson,
-  createSpdxPackage,
-  createSpdxYaml,
-} from 'spdx-tools-ts';
 import fs from 'fs';
 import {
   ExportSpdxDocumentJsonArgs,
@@ -17,7 +11,13 @@ import {
   ExportType,
   PackageInfo,
 } from '../../shared/shared-types';
-import { SpdxDocument } from 'spdx-tools-ts/build/types';
+import {
+  createSpdxDocument,
+  createSpdxJson,
+  createSpdxPackage,
+  createSpdxYaml,
+} from '../spdxTools/spdxTools';
+import { SpdxDocument } from '../spdxTools/types';
 
 const CREATOR_TOOL = 'Opossum';
 
