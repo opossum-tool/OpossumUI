@@ -6,9 +6,10 @@
 import React, { ReactElement } from 'react';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import { Button } from '../Button/Button';
-import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { ContextMenuButton } from '../ContextMenuButton/ContextMenuButton';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
+import { ContextMenuItem } from '../ContextMenu/WithContextMenu';
 
 const useStyles = makeStyles({
   root: {
@@ -48,7 +49,7 @@ export function ButtonGroup(props: ButtonGroupProps): ReactElement | null {
             />
           ))}
         {props.contextMenuButtonConfigs ? (
-          <ContextMenu menuItems={props.contextMenuButtonConfigs} />
+          <ContextMenuButton menuItems={props.contextMenuButtonConfigs} />
         ) : null}
       </MuiButtonGroup>
     </div>

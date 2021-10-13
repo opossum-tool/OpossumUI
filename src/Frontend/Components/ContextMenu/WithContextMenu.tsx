@@ -6,10 +6,6 @@
 import React, { ReactElement, useState } from 'react';
 import MuiMenu from '@material-ui/core/Menu';
 import MuiMenuItem from '@material-ui/core/MenuItem';
-import MuiMoreVertIcon from '@material-ui/icons/MoreVert';
-import MuiButton from '@material-ui/core/Button';
-import { useButtonStyles } from '../Button/button-styles';
-import clsx from 'clsx';
 import MuiListItemIcon from '@material-ui/core/ListItemIcon';
 import MuiListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -20,6 +16,7 @@ import MergeTypeIcon from '@material-ui/icons/MergeType';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { ButtonText } from '../../enums/enums';
 import { makeStyles } from '@material-ui/core/styles';
+import { PopoverPosition, PopoverReference } from '@material-ui/core';
 
 const useStyles = makeStyles({
   icon: {
@@ -47,53 +44,76 @@ export interface ContextMenuItem {
   hidden?: boolean;
 }
 
+export type ContextMenuActivation = 'onRightClick' | 'onLeftClick' | 'both';
+
 interface ContextMenuProps {
   menuItems: Array<ContextMenuItem>;
+  children: React.ReactNode;
+  activation: ContextMenuActivation;
 }
 
-export function ContextMenu(props: ContextMenuProps): ReactElement | null {
-  const buttonClasses = useButtonStyles();
+export function WithContextMenu(props: ContextMenuProps): ReactElement | null {
   const iconClasses = useStyles();
 
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
-  const isContextMenuOpen = Boolean(anchorElement);
-
-  function handleClose(): void {
-    setAnchorElement(null);
-  }
-
-  function handleClick(event: React.MouseEvent<HTMLElement>): void {
-    setAnchorElement(event.currentTarget);
-  }
+  const [anchorPosition, setAnchorPosition] = useState<
+    undefined | PopoverPosition
+  >(undefined);
 
   const displayedMenuItems = props.menuItems.filter(
     (menuItem) => !menuItem.hidden
   );
 
-  const contextMenuIsDisabled =
-    displayedMenuItems.filter((menuItem) => !menuItem.disabled).length === 0;
+  const isContextMenuOpen =
+    displayedMenuItems.length > 0 &&
+    (Boolean(anchorElement) || Boolean(anchorPosition));
+
+  const anchorAttributes =
+    props.activation === 'onLeftClick'
+      ? {
+          anchorEl: anchorElement,
+        }
+      : {
+          anchorReference: 'anchorPosition',
+          anchorPosition: anchorPosition,
+        };
+
+  const clickHandlers =
+    props.activation === 'onRightClick'
+      ? {
+          onContextMenu: handleClick,
+        }
+      : props.activation === 'onLeftClick'
+      ? { onClick: handleClick }
+      : { onClick: handleClick, onContextMenu: handleClick };
+
+  function handleClose(): void {
+    setAnchorPosition(undefined);
+    setAnchorElement(null);
+  }
+
+  function handleClick(event: React.MouseEvent<HTMLElement>): void {
+    setAnchorPosition({
+      left: event.clientX - 2,
+      top: event.clientY - 4,
+    });
+    setAnchorElement(event.currentTarget);
+  }
 
   return displayedMenuItems ? (
     <>
-      <MuiButton
-        onClick={handleClick}
-        aria-label={'button-context-menu'}
-        key={'button-group-context-menu'}
-        className={clsx(
-          !contextMenuIsDisabled
-            ? buttonClasses.light
-            : buttonClasses.disabledLight,
-          'MuiButtonGroup-grouped MuiButtonGroup-groupedHorizontal'
-        )}
-        disabled={contextMenuIsDisabled}
+      <div
+        onClick={clickHandlers.onClick}
+        onContextMenu={clickHandlers.onContextMenu}
       >
-        <MuiMoreVertIcon />
-      </MuiButton>
+        {props.children}
+      </div>
       <MuiMenu
         open={isContextMenuOpen}
-        anchorEl={anchorElement}
-        keepMounted
         onClose={handleClose}
+        anchorReference={anchorAttributes.anchorReference as PopoverReference}
+        anchorEl={anchorAttributes.anchorEl}
+        anchorPosition={anchorAttributes.anchorPosition}
       >
         {displayedMenuItems.map((menuItem, idx) => (
           <MuiMenuItem

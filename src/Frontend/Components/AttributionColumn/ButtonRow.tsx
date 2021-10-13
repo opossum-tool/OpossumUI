@@ -8,8 +8,8 @@ import React, { ReactElement } from 'react';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import MuiTypography from '@material-ui/core/Typography';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ButtonText } from '../../enums/enums';
+import { ContextMenuItem } from '../ContextMenu/WithContextMenu';
 
 const useStyles = makeStyles({
   root: {
