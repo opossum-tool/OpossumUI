@@ -132,7 +132,6 @@ interface ListCardProps {
   cardConfig: ListCardConfig;
   count?: number;
   onClick(): void;
-  onRightClick?: () => void;
   leftIcon?: JSX.Element;
   rightIcons?: Array<JSX.Element>;
 }
@@ -164,7 +163,6 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         props.cardConfig.isResolved && classes.resolved
       )}
       onClick={props.onClick}
-      onContextMenu={props.onRightClick}
     >
       <div className={classes.iconColumn}>
         {props.leftIcon ? props.leftIcon : null}

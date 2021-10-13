@@ -18,7 +18,15 @@ import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@material-ui/icons/Add';
 import clsx from 'clsx';
+import {
+  ContextMenuItem,
+  WithContextMenu,
+} from '../ContextMenu/WithContextMenu';
+import { ButtonText } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
+import { useSelector } from 'react-redux';
+import { getManualAttributionsToResources } from '../../state/selectors/all-views-resource-selectors';
+import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -35,11 +43,13 @@ const useStyles = makeStyles({
 
 interface PackageCardProps {
   cardContent: ListCardContent;
+  attributionId: string;
   packageCount?: number;
   cardConfig: ListCardConfig;
   onClick(): void;
   onIconClick?(): void;
   openResourcesIcon?: JSX.Element;
+  hideContextMenu?: boolean;
 }
 
 function getKey(prefix: string, cardContent: ListCardContent): string {
@@ -67,7 +77,19 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     />
   ) : undefined;
 
+  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
+  const isPreselected = Boolean(props.cardConfig.isPreSelected);
+  const attributionsToResources = useSelector(getManualAttributionsToResources);
+
+  const showGlobalButtons =
+    !Boolean(isExternalAttribution) &&
+    hasAttributionMultipleResources(
+      props.attributionId,
+      attributionsToResources
+    );
+
   const rightIcons: Array<JSX.Element> = [];
+
   if (props.openResourcesIcon) {
     rightIcons.push(props.openResourcesIcon);
   }
@@ -98,19 +120,52 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     );
   }
 
+  const contextMenuItems: Array<ContextMenuItem> =
+    props.hideContextMenu || !props.attributionId
+      ? []
+      : [
+          {
+            buttonText: ButtonText.Delete,
+            onClick: doNothing,
+            hidden: isExternalAttribution,
+          },
+          {
+            buttonText: ButtonText.DeleteGlobally,
+            onClick: doNothing,
+            hidden: isExternalAttribution || !showGlobalButtons,
+          },
+          {
+            buttonText: ButtonText.Confirm,
+            onClick: doNothing,
+            hidden: !isPreselected || isExternalAttribution,
+          },
+          {
+            buttonText: ButtonText.ConfirmGlobally,
+            onClick: doNothing,
+            hidden: !isPreselected || !showGlobalButtons,
+          },
+          {
+            buttonText: ButtonText.ShowResources,
+            onClick: doNothing,
+          },
+          {
+            buttonText: ButtonText.Hide,
+            onClick: doNothing,
+            hidden: !isExternalAttribution,
+          },
+        ];
+
   return (
-    <ListCard
-      text={packageLabels[0] || ''}
-      secondLineText={packageLabels[1] || undefined}
-      cardConfig={props.cardConfig}
-      count={props.packageCount}
-      onClick={props.onClick}
-      onRightClick={(): void => {
-        // TODO: replace
-        console.log('this should open a context menu');
-      }}
-      leftIcon={leftIcon}
-      rightIcons={rightIcons}
-    />
+    <WithContextMenu menuItems={contextMenuItems} activation={'onRightClick'}>
+      <ListCard
+        text={packageLabels[0] || ''}
+        secondLineText={packageLabels[1] || undefined}
+        cardConfig={props.cardConfig}
+        count={props.packageCount}
+        onClick={props.onClick}
+        leftIcon={leftIcon}
+        rightIcons={rightIcons}
+      />
+    </WithContextMenu>
   );
 }

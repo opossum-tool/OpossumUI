@@ -19,7 +19,7 @@ import {
   clickOnPackageInPackagePanel,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
-  expectButtonInContextMenu,
+  expectButtonInContextMenuButton,
   expectUnsavedChangesPopupIsShown,
   expectValueInManualPackagePanel,
   expectValueInTextBox,
@@ -82,7 +82,7 @@ describe('The App integration', () => {
         },
         resourcesToAttributions: {
           '/firstResource.js': ['uuid_1'],
-          '/secondResource.js': ['uuid_1'],
+          '/secondResource.js': ['uuid_1', 'uuid_2'],
         },
       },
       externalAttributions: {
@@ -106,13 +106,13 @@ describe('The App integration', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'jQuery');
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
     expectButton(screen, ButtonText.SaveGlobally, true);
 
     insertValueIntoTextBox(screen, 'Name', 'Typescript');
     expectValueInTextBox(screen, 'Name', 'Typescript');
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     expectButton(screen, ButtonText.SaveGlobally, false);
 
     clickOnButton(screen, ButtonText.SaveGlobally);
@@ -120,7 +120,7 @@ describe('The App integration', () => {
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Typescript');
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
     expectButton(screen, ButtonText.SaveGlobally, true);
 
     // save another attribution
@@ -129,7 +129,7 @@ describe('The App integration', () => {
     insertValueIntoTextBox(screen, 'Name', 'Angular');
     expectValueInTextBox(screen, 'Name', 'Angular');
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
 
     clickOnButton(screen, ButtonText.Save);
 
