@@ -47,7 +47,6 @@ interface PackageCardProps {
   onIconClick?(): void;
   openResourcesIcon?: JSX.Element;
   hideContextMenu?: boolean;
-  hideResourceSpecificButtons?: boolean;
 }
 
 function getKey(prefix: string, cardContent: ListCardContent): string {
@@ -79,17 +78,12 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const isPreselected = Boolean(props.cardConfig.isPreSelected);
   const attributionsToResources = useSelector(getManualAttributionsToResources);
 
-  const hideResourceSpecificButtons = Boolean(
-    props.hideResourceSpecificButtons
-  );
-
   const showGlobalButtons =
     !Boolean(isExternalAttribution) &&
-    (hasAttributionMultipleResources(
+    hasAttributionMultipleResources(
       props.attributionId,
       attributionsToResources
-    ) ||
-      hideResourceSpecificButtons);
+    );
 
   const rightIcons: Array<JSX.Element> = [];
 
@@ -130,7 +124,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           {
             buttonText: ButtonText.Delete,
             onClick: doNothing,
-            hidden: isExternalAttribution || hideResourceSpecificButtons,
+            hidden: isExternalAttribution,
           },
           {
             buttonText: ButtonText.DeleteGlobally,
@@ -140,10 +134,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           {
             buttonText: ButtonText.Confirm,
             onClick: doNothing,
-            hidden:
-              !isPreselected ||
-              isExternalAttribution ||
-              hideResourceSpecificButtons,
+            hidden: !isPreselected || isExternalAttribution,
           },
           {
             buttonText: ButtonText.ConfirmGlobally,
