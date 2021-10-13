@@ -60,8 +60,10 @@ export function ReplaceAttributionPopup(): ReactElement {
 
     return (
       <PackageCard
+        attributionId={attributionId}
         onClick={doNothing}
         cardConfig={{}}
+        hideContextMenu={true}
         cardContent={{
           id: `attribution-list-${attributionId}`,
           name: attribution?.packageName,

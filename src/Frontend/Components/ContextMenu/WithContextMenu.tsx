@@ -17,10 +17,16 @@ import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { ButtonText } from '../../enums/enums';
 import { makeStyles } from '@material-ui/core/styles';
 import { PopoverPosition, PopoverReference } from '@material-ui/core';
+import { OpossumColors } from '../../shared-styles';
 
 const useStyles = makeStyles({
   icon: {
     marginRight: -20,
+  },
+  menuItem: {
+    '&:hover': {
+      backgroundColor: OpossumColors.lightBlueOnHover,
+    },
   },
 });
 
@@ -124,6 +130,7 @@ export function WithContextMenu(props: ContextMenuProps): ReactElement | null {
             }}
             disabled={menuItem.disabled}
             role={'button'}
+            className={iconClasses.menuItem}
           >
             <MuiListItemIcon className={iconClasses.icon}>
               {BUTTON_TITLE_TO_ICON_MAP[menuItem.buttonText]}

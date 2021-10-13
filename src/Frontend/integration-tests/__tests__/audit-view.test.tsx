@@ -26,7 +26,7 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectAddIconInAddToAttributionCardIsHidden,
   expectAddIconInAddToAttributionCardIsNotHidden,
-  expectButtonInContextMenuIsNotShown,
+  expectButtonInContextMenuButtonIsNotShown,
   expectPackageInPackagePanel,
   expectPackagePanelNotShown,
   expectPackagePanelShown,
@@ -229,7 +229,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'file_manual');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInManualPackagePanelForParentAttribution(screen, 'React');
-    expectButtonInContextMenuIsNotShown(screen, ButtonText.Delete);
+    expectButtonInContextMenuButtonIsNotShown(screen, ButtonText.Delete);
 
     clickOnValueInManualPackagePanelForParentAttribution(screen, 'React');
     expectValueInTextBox(screen, 'Name', 'React');
