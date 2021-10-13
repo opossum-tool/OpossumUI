@@ -13,6 +13,7 @@ import { IpcRenderer } from 'electron';
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { clickGoToLinkButton } from '../../../test-helpers/test-helpers';
+import each from 'jest-each';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -33,28 +34,36 @@ describe('The GoToLinkButton', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  test('navigates to correct link', () => {
-    const testPath =
-      '/parent_directory/child_directory/directory_in_source_tree/file';
-    const testBaseUrlsForSources: BaseUrlsForSources = {
-      '/parent_directory/child_directory/':
-        'https://www.testurl.com/code/{path}?base=123456789',
-    };
-    const expectedLink =
-      'https://www.testurl.com/code/directory_in_source_tree/file?base=123456789';
+  each([
+    [
+      '/parent_directory/child_directory/directory_in_source_tree/file',
+      'https://www.testurl.com/code/directory_in_source_tree/file?base=123456789',
+    ],
+    [
+      '/parent_directory/child_directory/',
+      'https://www.testurl.com/code/?base=123456789',
+    ],
+  ]).test(
+    'navigates to correct link for %s',
+    (path: string, expected_link: string) => {
+      const testBaseUrlsForSources: BaseUrlsForSources = {
+        '/parent_directory/': 'https://www.othertesturl.com/code/{path}',
+        '/parent_directory/child_directory/':
+          'https://www.testurl.com/code/{path}?base=123456789',
+      };
+      const { store } = renderComponentWithStore(<GoToLinkButton />);
+      store.dispatch(setSelectedResourceId(path));
+      store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 
-    const { store } = renderComponentWithStore(<GoToLinkButton />);
-    store.dispatch(setSelectedResourceId(testPath));
-    store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
+      expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
+      expect(screen.getByLabelText('open link in browser'));
+      clickGoToLinkButton(screen);
 
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
-    expect(screen.getByLabelText('open link in browser'));
-    clickGoToLinkButton(screen);
-
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['OpenLink'],
-      { link: expectedLink }
-    );
-  });
+      expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
+      expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
+        IpcChannel['OpenLink'],
+        { link: expected_link }
+      );
+    }
+  );
 });

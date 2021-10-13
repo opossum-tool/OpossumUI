@@ -38,7 +38,9 @@ export function GoToLinkButton(props: GoToLinkProps): ReactElement {
   );
 
   function getOpenLinkArgs(): OpenLinkArgs {
-    const sortedParents = getParents(path).sort((a, b) => b.length - a.length);
+    const sortedParents = getParents(path)
+      .concat([path])
+      .sort((a, b) => b.length - a.length);
 
     let link = '';
     for (let index = 0; index < sortedParents.length; index++) {
