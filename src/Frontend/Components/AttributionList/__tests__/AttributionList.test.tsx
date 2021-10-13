@@ -3,11 +3,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionList } from '../AttributionList';
+import {
+  createTestAppStore,
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+
+function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
+  const store = createTestAppStore();
+  store.dispatch(
+    loadFromFile(
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions: manualAttributions,
+      })
+    )
+  );
+  return store;
+}
 
 describe('The AttributionList', () => {
   const packages: Attributions = {
@@ -29,7 +48,9 @@ describe('The AttributionList', () => {
   });
 
   test('renders', () => {
-    render(
+    const store = getTestStore(packages);
+
+    renderComponentWithStore(
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
@@ -37,14 +58,17 @@ describe('The AttributionList', () => {
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
-      />
+      />,
+      { store: store }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   test('renders first party icon', () => {
-    render(
+    const store = getTestStore(packages);
+
+    renderComponentWithStore(
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
@@ -52,14 +76,17 @@ describe('The AttributionList', () => {
         onCardClick={doNothing}
         maxHeight={1000}
         title={'title'}
-      />
+      />,
+      { store: store }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
   });
 
   test('sets selectedAttributionId on click', () => {
-    render(
+    const store = getTestStore(packages);
+
+    renderComponentWithStore(
       <AttributionList
         attributions={packages}
         selectedAttributionId={''}
@@ -67,7 +94,8 @@ describe('The AttributionList', () => {
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
-      />
+      />,
+      { store: store }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeTruthy();
@@ -93,7 +121,9 @@ describe('The AttributionList', () => {
         copyright: 'Copyright John Doe 2',
       },
     };
-    const { container } = render(
+    const store = getTestStore(testPackages);
+
+    const { container } = renderComponentWithStore(
       <AttributionList
         attributions={testPackages}
         selectedAttributionId={''}
@@ -101,7 +131,8 @@ describe('The AttributionList', () => {
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
-      />
+      />,
+      { store: store }
     );
 
     expect(container.childNodes[0].textContent).toContain('zz Test package');

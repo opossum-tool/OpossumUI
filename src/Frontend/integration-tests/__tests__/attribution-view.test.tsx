@@ -16,11 +16,11 @@ import { ButtonText, DiscreteConfidence, View } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnButton,
-  clickOnButtonInContextMenu,
+  clickOnButtonInContextMenuButton,
   clickOnOpenFileIcon,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
-  expectButtonInContextMenu,
+  expectButtonInContextMenuButton,
   expectReplaceAttributionPopupIsNotShown,
   expectReplaceAttributionPopupIsShown,
   expectResourceBrowserIsNotShown,
@@ -188,13 +188,13 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'curl');
     expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
 
     insertValueIntoTextBox(screen, 'PURL', 'pkg:test/name@version');
     expectValueInTextBox(screen, 'Name', 'name');
     expectValueInTextBox(screen, 'Version', 'version');
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     clickOnButton(screen, ButtonText.Save);
 
     const expectedSaveFileArgs: SaveFileArgs = {
@@ -298,7 +298,7 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
 
     insertValueIntoTextBox(screen, 'Name', 'Angular');
-    clickOnButtonInContextMenu(screen, ButtonText.Undo);
+    clickOnButtonInContextMenuButton(screen, ButtonText.Undo);
 
     expectValueInTextBox(screen, 'Name', 'jQuery');
     expectValueNotInTextBox(screen, 'Name', 'Angular');
@@ -431,19 +431,19 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'jQuery');
     screen.getByText('/root/src/file_1');
 
-    clickOnButtonInContextMenu(screen, ButtonText.MarkForReplacement);
+    clickOnButtonInContextMenuButton(screen, ButtonText.MarkForReplacement);
 
     fireEvent.click(screen.getByText('React, 16.0.0') as Element);
     expectValueInTextBox(screen, 'Name', 'React');
     screen.getByText('/root/src/file_2');
 
-    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarked);
+    clickOnButtonInContextMenuButton(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Cancel);
     expect(screen.getByText('jQuery, 16.0.0')).toBeTruthy();
     expectReplaceAttributionPopupIsNotShown(screen);
 
-    clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarked);
+    clickOnButtonInContextMenuButton(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Replace);
     expectValueInTextBox(screen, 'Name', 'React');

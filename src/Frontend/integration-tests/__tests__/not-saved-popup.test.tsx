@@ -13,7 +13,7 @@ import {
   clickAddIconOnCardInAttributionList,
   clickAddNewAttributionButton,
   clickOnButton,
-  clickOnButtonInContextMenu,
+  clickOnButtonInContextMenuButton,
   clickOnElementInResourceBrowser,
   clickOnOpenFileIcon,
   clickOnProgressBar,
@@ -377,7 +377,7 @@ describe('Not saved popup of the app', () => {
     fireEvent.click(getCardInAttributionList(screen, 'JQuery'));
     expectUnsavedChangesPopupIsShown(screen);
 
-    clickOnButtonInContextMenu(screen, ButtonText.Undo);
+    clickOnButtonInContextMenuButton(screen, ButtonText.Undo);
 
     // This behavior could be changed in the future. One could jump to JQuery.
     expectValueNotInTextBox(screen, 'Name', 'My great manual package');

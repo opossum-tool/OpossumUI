@@ -21,7 +21,7 @@ import {
   clickOnTab,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
-  expectButtonInContextMenu,
+  expectButtonInContextMenuButton,
   expectErrorPopupIsNotShown,
   expectErrorPopupIsShown,
   expectPackageInPackagePanel,
@@ -108,12 +108,12 @@ describe('Other popups of the app', () => {
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
     insertValueIntoTextBox(screen, 'Name', 'new Name');
     expectValueInTextBox(screen, 'Name', 'new Name');
 
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectUnsavedChangesPopupIsShown(screen);
@@ -122,14 +122,14 @@ describe('Other popups of the app', () => {
     expectUnsavedChangesPopupIsNotShown(screen);
     expectValueInTextBox(screen, 'Name', 'new Name');
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     clickOnButton(screen, ButtonText.Save);
 
     insertValueIntoTextBox(screen, 'Name', 'another new Name');
     expectValueInTextBox(screen, 'Name', 'another new Name');
 
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
     clickOnTab(screen, 'All Attributions Tab');
     expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
@@ -165,12 +165,12 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', testInitialPackageName);
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
 
     insertValueIntoTextBox(screen, 'Name', testPackageName);
     expectValueInTextBox(screen, 'Name', testPackageName);
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -226,12 +226,12 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', testInitialPackageName);
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
 
     insertValueIntoTextBox(screen, 'Name', testPackageName);
     expectValueInTextBox(screen, 'Name', testPackageName);
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenu(screen, ButtonText.Undo, false);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -255,7 +255,7 @@ describe('Other popups of the app', () => {
     ]);
     expectUnsavedChangesPopupIsNotShown(screen);
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenu(screen, ButtonText.Undo, true);
+    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
   });
 
   test('opens working popup with file list when clicking on show resources icon', () => {

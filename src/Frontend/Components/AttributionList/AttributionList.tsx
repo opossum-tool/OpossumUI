@@ -64,6 +64,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
 
     return (
       <PackageCard
+        attributionId={attributionId}
         onClick={onClick}
         cardConfig={cardConfig}
         key={`AttributionCard-${attribution.packageName}-${attributionId}`}

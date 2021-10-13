@@ -33,6 +33,7 @@ export function PackagePanelCard(props: PackagePanelCardProps): ReactElement {
         displayedAttributionName={getCardLabels(props.cardContent)[0] || ''}
       />
       <PackageCard
+        attributionId={props.attributionId}
         cardContent={props.cardContent}
         onClick={props.onClick}
         onIconClick={props.onIconClick}

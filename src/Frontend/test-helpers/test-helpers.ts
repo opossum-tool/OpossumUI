@@ -296,7 +296,7 @@ export function expectButtonIsNotShown(
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
 }
 
-export function getButtonInContextMenu(
+export function getButtonInContextMenuButton(
   screen: Screen,
   buttonLabel: ButtonText
 ): HTMLElement {
@@ -307,19 +307,19 @@ export function getButtonInContextMenu(
   return button;
 }
 
-export function clickOnButtonInContextMenu(
+export function clickOnButtonInContextMenuButton(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  fireEvent.click(getButtonInContextMenu(screen, buttonLabel));
+  fireEvent.click(getButtonInContextMenuButton(screen, buttonLabel));
 }
 
-export function expectButtonInContextMenu(
+export function expectButtonInContextMenuButton(
   screen: Screen,
   buttonLabel: ButtonText,
   disabled?: boolean
 ): void {
-  const button = getButtonInContextMenu(screen, buttonLabel);
+  const button = getButtonInContextMenuButton(screen, buttonLabel);
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
   if (disabled) {
@@ -329,7 +329,7 @@ export function expectButtonInContextMenu(
   }
 }
 
-export function expectButtonInContextMenuIsNotShown(
+export function expectButtonInContextMenuButtonIsNotShown(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
@@ -520,11 +520,14 @@ export function expectValueInAddToAttributionList(
   const addToAttributionList = (
     (
       (
-        (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-          .parentElement as HTMLElement
+        (
+          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+            .parentElement as HTMLElement
+        ).parentElement as HTMLElement
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
   ).parentElement as HTMLElement;
+
   // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(getByText(addToAttributionList, value));
 }

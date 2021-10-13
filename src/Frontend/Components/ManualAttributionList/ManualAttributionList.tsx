@@ -66,6 +66,9 @@ export function ManualAttributionList(
 
     return (
       <PackageCard
+        attributionId={
+          attributionId === addNewAttributionButtonId ? '' : attributionId
+        }
         onClick={onClick}
         cardConfig={cardConfig}
         key={`AttributionCard-${attribution.packageName}-${attributionId}`}
