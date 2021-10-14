@@ -1,0 +1,34 @@
+// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: CC0-1.0
+
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.202.3/containers/typescript-node
+{
+	"name": "Node.js & TypeScript",
+	"runArgs": ["--init"],
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": { 
+			"VARIANT": "16-bullseye"
+		}
+	},
+
+	"settings": {},
+
+	"extensions": [
+		"dbaeumer.vscode-eslint"
+	],
+
+	// "forwardPorts": [],
+
+	"postCreateCommand": "yarn install",
+
+	"remoteUser": "node",
+	"features": {
+		"git": "latest",
+		"desktop-lite": "latest",
+		"python": "latest"
+	}
+}
