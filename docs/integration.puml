@@ -32,6 +32,7 @@ mindmapDiagram {
 ----_ ScanCode JSON
 ----_ SPDX-2.2 JSON / YAML
 ----_ OWASP Dependency-Check JSON
+----_ SCANOSS JSON
 ----_ Opossum Input JSON (.gz)
 ' --_ SPDX-2.2 JSON / YAML <<todo>>
 ++_ <b> Opossum Output JSON </b>

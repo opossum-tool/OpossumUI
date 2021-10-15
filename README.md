@@ -95,23 +95,72 @@ Run _OpossumUI Setup 0.1.0.exe_ to install the OpossumUI. Then open _OpossumUI_ 
 
 For an in-depth explanation, read the [Users's Guide](USER_GUIDE.md).
 
+## <a id="file_formats"></a> File formats
+
+JSON schemas for both the [input](src/ElectronBackend/input/OpossumInputFileSchema.json)
+and [output](src/ElectronBackend/input/OpossumOutputFileSchema.json) files are available. Example files can be found
+under [example files](example-files/).
+
+### Input file
+
+It has to be generated through external tools and provided to the app. Contains 5 main fields:
+
+- `metadata`: contains some project-level information,
+- `resources`: defines the file tree,
+- `externalAttributions`: contains all attributions which are provided as signals (preselected signals will be
+  automatically used by the app to create attributions in the output file),
+- `resourcesToAttributions`: links attributions to file paths,
+- `frequentlicenses`: A list of licenses that can be selected in a dropdown when the user enters a license name.
+
+There are additional fields which are optional:
+
+- `attributionBreakpoints`: a list of folder paths where attribution inference stops, e.g. `node_modules`."
+- `filesWithChildren`: a list of folders that are treated as files. This can be used to attach another file tree to
+  files like `package.json`, usually also setting an attribution breakpoint.
+- `baseUrlsForSources`: a map from paths to the respective base url. The base url should contain a {path} placeholder.
+  E.g.
+  ```
+    "baseUrlsForSources": {
+      "/": "https://github.com/opossum-tool/opossumUI/blob/main/{path}"
+    }
+  ```
+- `externalAttributionSources`: used to store a mapping of short names for attribution sources to full names and priorities used for sorting in the PackagePanel. Entries with higher numbers have a higher priority. E.g.:
+  ```
+    "externalAttributionSources": {
+      SC: {
+        name: "ScanCode",
+        priority: 1
+      }
+    }
+  ```
+
+### Output file
+
+Contains 4 main fields:
+
+- `metadata`: contains some project-level information,
+- `manualAttributions`: contains all attributions created by the user or preselected,
+- `resourcesToAttributions`: links attributions to file paths,
+- `resolvedExternalAttributions`: used to store which signal attributions have been resolved, as they are hidden in the
+  UI.
+
 ### Exporting data
 
 In addition to the default output file, OpossumUI provides the following export options.
 
-### Exporting SPDX documents:
+#### Exporting SPDX documents:
 
 An SPDX document can be exported in the json and the yaml format through the _Export_ ⟶ _SPDX (yaml)_ and _SPDX (json)_
 option in the _File_ menu.
 
-### Exporting BOM-like CSV files:
+#### Exporting BOM-like CSV files:
 
 These can be exported through the _Export_ ⟶ _Compact / Detailed component list_ option in the _File_ menu. Both
 component list files contain a list of all attributions that are present in the project, including package name,
 version, copyright, license name and URL. In addition, the detailed component list is more comprehensive and includes
 the PURL and its subcomponents, as well as the license texts.
 
-### Exporting follow-up document:
+#### Exporting follow-up document:
 
 This can be exported through the _Export_ ⟶ _Follow-Up_ option in the _File_ menu. Similar to the component list, it
 contains attributions with licenses flagged for legal review through the _Follow-Up_ checkbox in the UI.
