@@ -28,7 +28,6 @@
 	"remoteUser": "node",
 	"features": {
 		"git": "latest",
-		"desktop-lite": "latest",
 		"python": "latest"
 	}
 }
