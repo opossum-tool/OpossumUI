@@ -13,22 +13,30 @@ Contributions are very welcome. The following will provide some helpful guidelin
 
 ### Commits
 
-Commit messages should be clear and fully elaborate the context and the reason of a change. If your commit refers to an
-issue, please post-fix it with the issue number, e.g.
+Each commit should be atomic and pass all tests. Logically unrelated changes should not be gathered in one commit.
 
+Commit messages should be clear and fully elaborate the context and the reason for a change. The first line should
+contain a brief imperative summary starting with a capitalized character and be followed by a more detailed
+explanatory text separated by an empty line. If your commit refers to an issue, please post-fix it with the
+issue number.
+
+Example:
 ```
-Issue: #123
+Short summary of changes (72 characters or less)
+
+More detailed explanatory text, if necessary. This text can have 
+several lines.
+
+Issue: #123  (this line is optional)
 ```
 
 Furthermore, commits should be signed off according to the [DCO](DCO.md).
 
-### Pull Requests
+### Pull requests
 
-If your Pull Request resolves an issue, please add a respective line to the end, like
-
-```
-Resolves #123
-```
+Pull requests should have a clear description that fully elaborates the context and the reason for a change.
+The corresponding template should be used. If your pull request resolves an issue, please add a respective
+line to the end.
 
 ## Developer's guide
 
