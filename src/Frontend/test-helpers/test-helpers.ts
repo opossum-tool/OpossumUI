@@ -9,6 +9,7 @@ import {
   getByTitle,
   queryByLabelText,
   queryByText,
+  screen,
   within,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -339,6 +340,56 @@ export function expectButtonInContextMenuButtonIsNotShown(
   if (screen.queryByRole('presentation')) {
     fireEvent.click(screen.getByRole('presentation').firstChild as Element);
   }
+}
+
+export function expectButtonInPackageCardContextMenu(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(cardLabel);
+  const button = getButton(screen, buttonLabel);
+  const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
+
+  expect(buttonAttribute && buttonAttribute.value).toBe('false');
+}
+
+export function expectButtonInPackageCardContextMenuIsNotShown(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(cardLabel);
+  expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+}
+
+export function expectContextMenuIsNotShown(
+  screen: Screen,
+  cardLabel: string
+): void {
+  openContextMenuOnCardPackageCard(cardLabel);
+
+  expectButtonInPackageCardContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.ShowResources
+  );
+
+  expectButtonInPackageCardContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.Hide
+  );
+
+  expectButtonInPackageCardContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.Delete
+  );
+}
+
+export function openContextMenuOnCardPackageCard(cardLabel: string): void {
+  fireEvent.contextMenu(screen.getByText(cardLabel) as Element);
 }
 
 export function clickOnTab(screen: Screen, tabLabel: string): void {
