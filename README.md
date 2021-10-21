@@ -5,6 +5,8 @@ SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 SPDX-License-Identifier: CC0-1.0
 -->
 
+![logo](docs/logo.png)
+
 # OpossumUI: A compliance audit/review frontend.
 
 OpossumUI is a tool to
