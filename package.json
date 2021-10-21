@@ -41,7 +41,7 @@
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/jest": "^27.0.2",
     "@types/js-yaml": "^4.0.3",
-    "@types/lodash": "^4.14.175",
+    "@types/lodash": "^4.14.176",
     "@types/object-hash": "^2.2.1",
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.10",
