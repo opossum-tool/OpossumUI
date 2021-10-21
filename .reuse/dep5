@@ -10,6 +10,11 @@ Copyright: Facebook, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: Apache-2.0
 
+Files: docs/logo.png
+Copyright: Facebook, Inc. and its affiliates
+           TNG Technology Consulting GmbH <https://www.tngtech.com>
+License: Apache-2.0
+
 Files: docs/*
        src/ElectronBackend/logo/*
        .github/pull_request_template.md
