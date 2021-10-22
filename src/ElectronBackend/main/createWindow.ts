@@ -16,7 +16,8 @@ export async function createWindow(): Promise<BrowserWindow> {
     height: 1080,
     webPreferences: {
       contextIsolation: false,
-      nodeIntegration: false,
+      nodeIntegration: true,
+      enableRemoteModule: true,
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
   });

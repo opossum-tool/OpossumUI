@@ -48,6 +48,7 @@ module.exports = {
     '@typescript-eslint/require-await': 2,
     'react/prop-types': 'off',
     'testing-library/no-node-access': 'off', // TODO: remove this line and fix warnings
+    'testing-library/no-await-sync-query': 'off', // TODO: remove this line and fix warnings
     quotes: [2, 'single', { avoidEscape: true }],
   },
 };
