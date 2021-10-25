@@ -3,27 +3,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { EnhancedStore } from '@reduxjs/toolkit';
 import { render, RenderResult } from '@testing-library/react';
 import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
-import { AnyAction, Middleware, Store } from 'redux';
-import { SimpleThunkAction } from '../state/actions/types';
+import { Store } from 'redux';
 import { createAppStore } from '../state/configure-store';
-import { State } from '../types/types';
+import { AppThunkDispatch } from '../state/types';
 
-export type EnhancedTestStore = EnhancedStore<
-  State, // @ts-ignore
-  SimpleThunkAction | AnyAction,
-  [Middleware]
->;
+export interface EnhancedTestStore extends Store {
+  dispatch: AppThunkDispatch;
+}
 
 interface RenderResultWithStore extends RenderResult {
   store: EnhancedTestStore;
 }
 
 export function createTestAppStore(): EnhancedTestStore {
-  return createAppStore() as EnhancedTestStore;
+  return createAppStore();
 }
 
 export const renderComponentWithStore = (

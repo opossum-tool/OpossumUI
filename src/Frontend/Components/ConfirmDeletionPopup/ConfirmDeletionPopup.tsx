@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import {
@@ -19,13 +19,13 @@ import { getSelectedAttributionId } from '../../state/selectors/attribution-view
 import { View } from '../../enums/enums';
 
 export function ConfirmDeletionPopup(): ReactElement {
-  const view = useSelector(getSelectedView);
-  const selectedResourceId = useSelector(getSelectedResourceId);
-  const selectedAttributionId = useSelector(getSelectedAttributionId);
+  const view = useAppSelector(getSelectedView);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const attributionIdOfSelectedPackageInManualPanel: string | null =
-    useSelector(getAttributionIdOfDisplayedPackageInManualPanel);
+    useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function deleteAttributionForResource(): void {
     if (view === View.Audit) {

@@ -7,7 +7,6 @@ import MuiPaper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTypography from '@material-ui/core/Typography/Typography';
 import React, { ReactElement } from 'react';
-import { useDispatch } from 'react-redux';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -16,6 +15,7 @@ import { FilteredList } from '../FilteredList/FilteredList';
 import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
+import { useAppDispatch } from '../../state/hooks';
 
 const useStyles = makeStyles({
   root: {
@@ -35,7 +35,7 @@ export function AllAttributionsPanel(
   props: AllAttributionsPanelProps
 ): ReactElement {
   const classes = useStyles();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function getPackagePanelCard(attributionId: string): ReactElement | null {
     const packageInfo = props.attributions && props.attributions[attributionId];

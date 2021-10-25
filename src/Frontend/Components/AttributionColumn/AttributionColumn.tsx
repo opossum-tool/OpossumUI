@@ -6,7 +6,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+
 import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -49,6 +49,7 @@ import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText, PopupType } from '../../enums/enums';
 import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   root: {
@@ -80,22 +81,24 @@ interface AttributionColumnProps {
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const classes = useStyles();
 
-  const dispatch = useDispatch();
-  const initialPackageInfo = useSelector(getPackageInfoOfSelected);
-  const selectedPackage = useSelector(getDisplayedPackage);
-  const resolvedExternalAttributions = useSelector(
+  const dispatch = useAppDispatch();
+  const initialPackageInfo = useAppSelector(getPackageInfoOfSelected);
+  const selectedPackage = useAppSelector(getDisplayedPackage);
+  const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
   );
-  const temporaryPackageInfo: PackageInfo = useSelector(
+  const temporaryPackageInfo: PackageInfo = useAppSelector(
     getTemporaryPackageInfo
   );
-  const packageInfoWereModified = useSelector(wereTemporaryPackageInfoModified);
-  const isSavingDisabled = useSelector(getIsSavingDisabled);
-  const selectedAttributionId = useSelector(getSelectedAttributionId);
-  const attributionIdMarkedForReplacement = useSelector(
+  const packageInfoWereModified = useAppSelector(
+    wereTemporaryPackageInfoModified
+  );
+  const isSavingDisabled = useAppSelector(getIsSavingDisabled);
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const attributionIdMarkedForReplacement = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const view = useSelector(getSelectedView);
+  const view = useAppSelector(getSelectedView);
 
   const {
     isLicenseTextShown,

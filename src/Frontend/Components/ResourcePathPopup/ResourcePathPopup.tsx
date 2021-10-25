@@ -7,7 +7,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ResourcesList } from '../ResourcesList/ResourcesList';
-import { useSelector } from 'react-redux';
 import {
   getExternalAttributionsToResources,
   getManualAttributionsToResources,
@@ -16,6 +15,7 @@ import { useWindowHeight } from '../../util/use-window-height';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { splitResourceIdsToCurrentAndOtherFolder } from './resource-path-popup-helpers';
 import { ResourcesListBatch } from '../../types/types';
+import { useAppSelector } from '../../state/hooks';
 
 const heightOffset = 300;
 
@@ -38,12 +38,12 @@ interface ResourcePathPopupProps {
 
 export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   const classes = useStyles();
-  const folderPath = useSelector(getSelectedResourceId);
+  const folderPath = useAppSelector(getSelectedResourceId);
 
-  const externalAttributionsToResources = useSelector(
+  const externalAttributionsToResources = useAppSelector(
     getExternalAttributionsToResources
   );
-  const manualAttributionsToResources = useSelector(
+  const manualAttributionsToResources = useAppSelector(
     getManualAttributionsToResources
   );
   const allResourceIds = props.isExternalAttribution

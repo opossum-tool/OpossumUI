@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useSelector } from 'react-redux';
 import { PopupType } from '../../enums/enums';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
@@ -14,6 +13,7 @@ import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPop
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttributionPopup';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
+import { useAppSelector } from '../../state/hooks';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -37,6 +37,6 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
 }
 
 export function GlobalPopup(): ReactElement | null {
-  const openPopupType = useSelector(getOpenPopup);
+  const openPopupType = useAppSelector(getOpenPopup);
   return getPopupComponent(openPopupType);
 }

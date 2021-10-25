@@ -6,7 +6,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTooltip from '@material-ui/core/Tooltip';
 import React, { ReactElement } from 'react';
-import { useSelector } from 'react-redux';
 import { getProgressBarData } from '../../state/selectors/all-views-resource-selectors';
 import { ProgressBarData } from '../../types/types';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
@@ -15,6 +14,7 @@ import {
   getProgressBarTooltipText,
   useOnProgressBarClick,
 } from './progress-bar-helpers';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   root: {
@@ -42,7 +42,7 @@ const useStyles = makeStyles({
 export function ProgressBar(): ReactElement {
   const classes = useStyles();
   const progressBarData: ProgressBarData | null =
-    useSelector(getProgressBarData);
+    useAppSelector(getProgressBarData);
 
   const onProgressBarClick = useOnProgressBarClick(
     progressBarData?.filesWithSignalOnly || []

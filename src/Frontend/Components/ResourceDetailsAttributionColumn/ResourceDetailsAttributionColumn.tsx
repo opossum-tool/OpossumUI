@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
@@ -42,19 +42,19 @@ interface ResourceDetailsAttributionColumnProps {
 export function ResourceDetailsAttributionColumn(
   props: ResourceDetailsAttributionColumnProps
 ): ReactElement | null {
-  const manualData = useSelector(getManualData);
-  const externalData = useSelector(getExternalData);
+  const manualData = useAppSelector(getManualData);
+  const externalData = useAppSelector(getExternalData);
   const displayedPackage: PanelPackage | null =
-    useSelector(getDisplayedPackage);
-  const selectedResourceId = useSelector(getSelectedResourceId);
+    useAppSelector(getDisplayedPackage);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdOfSelectedPackageInManualPanel: string | null =
-    useSelector(getAttributionIdOfDisplayedPackageInManualPanel);
-  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
-  const selectedResourceIsAttributionBreakpoint = useSelector(
+    useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
+  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const selectedResourceIsAttributionBreakpoint = useAppSelector(
     isAttributionBreakpoint(selectedResourceId)
   );
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function dispatchUnlinkAttributionAndSavePackageInfo(): void {
     if (attributionIdOfSelectedPackageInManualPanel) {

@@ -5,7 +5,6 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { PanelPackage } from '../../types/types';
 import { ManualPackagePanel } from '../ManualPackagePanel/ManualPackagePanel';
 import { PathBar } from '../PathBar/PathBar';
@@ -26,6 +25,7 @@ import {
   resourceBrowserWidthInPixels,
 } from '../../shared-styles';
 import { isAttributionBreakpoint } from '../../state/selectors/all-views-resource-selectors';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   root: {
@@ -61,19 +61,19 @@ export function ResourceDetailsViewer(): ReactElement | null {
   const [overrideParentMode, setOverrideParentMode] = useState<boolean>(false);
 
   const displayedPackage: PanelPackage | null =
-    useSelector(getDisplayedPackage);
-  const selectedResourceId = useSelector(getSelectedResourceId);
+    useAppSelector(getDisplayedPackage);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResourceClosestParent: Array<string> =
-    useSelector(getAttributionIdsOfSelectedResourceClosestParent, isEqual);
-  const attributionIdsOfSelectedResource: Array<string> = useSelector(
+    useAppSelector(getAttributionIdsOfSelectedResourceClosestParent, isEqual);
+  const attributionIdsOfSelectedResource: Array<string> = useAppSelector(
     getAttributionIdsOfSelectedResource,
     isEqual
   );
-  const resourceIsAttributionBreakpoint: boolean = useSelector(
+  const resourceIsAttributionBreakpoint: boolean = useAppSelector(
     isAttributionBreakpoint(selectedResourceId)
   );
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setOverrideParentMode(false);

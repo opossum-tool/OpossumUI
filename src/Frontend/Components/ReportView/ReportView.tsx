@@ -5,7 +5,7 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   Attributions,
   AttributionsToResources,
@@ -41,14 +41,14 @@ const useStyles = makeStyles({
 
 export function ReportView(): ReactElement {
   const classes = useStyles();
-  const attributions: Attributions = useSelector(getManualAttributions);
-  const attributionsToResources: AttributionsToResources = useSelector(
+  const attributions: Attributions = useAppSelector(getManualAttributions);
+  const attributionsToResources: AttributionsToResources = useAppSelector(
     getManualAttributionsToResources
   );
-  const frequentLicenseTexts = useSelector(getFrequentLicensesTexts);
-  const isFileWithChildren = useSelector(getIsFileWithChildren);
-  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
-  const dispatch = useDispatch();
+  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
+  const isFileWithChildren = useAppSelector(getIsFileWithChildren);
+  const filterForFollowUp = useAppSelector(areOnlyFollowUpAttributionsShown);
+  const dispatch = useAppDispatch();
 
   const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
     filterForFollowUp,

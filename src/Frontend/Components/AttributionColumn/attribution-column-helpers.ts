@@ -6,7 +6,7 @@
 import { View } from '../../enums/enums';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FollowUp, PackageInfo } from '../../../shared/shared-types';
-import { SimpleThunkDispatch } from '../../state/actions/types';
+import { AppThunkDispatch } from '../../state/types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { PanelPackage } from '../../types/types';
 import {
@@ -55,7 +55,7 @@ export function getLicenseTextMaxRows(
 
 export function getDiscreteConfidenceChangeHandler(
   temporaryPackageInfo: PackageInfo,
-  dispatch: SimpleThunkDispatch
+  dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<{ value: unknown }>) => void {
   return (event): void => {
     dispatch(
@@ -69,7 +69,7 @@ export function getDiscreteConfidenceChangeHandler(
 
 export function getFollowUpChangeHandler(
   temporaryPackageInfo: PackageInfo,
-  dispatch: SimpleThunkDispatch
+  dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
@@ -83,7 +83,7 @@ export function getFollowUpChangeHandler(
 
 export function getExcludeFromNoticeChangeHandler(
   temporaryPackageInfo: PackageInfo,
-  dispatch: SimpleThunkDispatch
+  dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
@@ -97,7 +97,7 @@ export function getExcludeFromNoticeChangeHandler(
 
 export function getFirstPartyChangeHandler(
   temporaryPackageInfo: PackageInfo,
-  dispatch: SimpleThunkDispatch
+  dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
@@ -112,7 +112,7 @@ export function getFirstPartyChangeHandler(
 export function getResolvedToggleHandler(
   selectedPackage: PanelPackage | null,
   resolvedExternalAttributions: Set<string>,
-  dispatch: SimpleThunkDispatch
+  dispatch: AppThunkDispatch
 ): () => void {
   return (): void => {
     if (selectedPackage) {
@@ -189,7 +189,7 @@ export function getMergeButtonsDisplayState(
 }
 
 export function usePurl(
-  dispatch: SimpleThunkDispatch,
+  dispatch: AppThunkDispatch,
   packageInfoWereModified: boolean,
   temporaryPackageInfo: PackageInfo,
   displayPackageInfo: PackageInfo,

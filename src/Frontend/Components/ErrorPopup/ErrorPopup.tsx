@@ -5,13 +5,13 @@
 
 import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useDispatch } from 'react-redux';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
 
 export const TIME_POPUP_IS_DISPLAYED = 1500;
 
 export function ErrorPopup(): ReactElement {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function close(): void {
     dispatch(closePopup());

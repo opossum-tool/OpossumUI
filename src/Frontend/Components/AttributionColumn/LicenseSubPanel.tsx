@@ -7,7 +7,6 @@ import MuiPaper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { useSelector } from 'react-redux';
 import { PackageInfo } from '../../../shared/shared-types';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
@@ -20,6 +19,7 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   expansionPanel: {
@@ -65,7 +65,9 @@ interface LicenseSubPanelProps {
 export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
   const classes = { ...useAttributionColumnStyles(), ...useStyles() };
 
-  const frequentLicensesNameOrder = useSelector(getFrequentLicensesNameOrder);
+  const frequentLicensesNameOrder = useAppSelector(
+    getFrequentLicensesNameOrder
+  );
 
   function toggleIsLicenseTextShown(): void {
     props.setIsLicenseTextShown(!props.isLicenseTextShown);

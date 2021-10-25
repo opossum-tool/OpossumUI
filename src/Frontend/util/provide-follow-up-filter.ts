@@ -10,11 +10,11 @@ import {
   PackageInfo,
 } from '../../shared/shared-types';
 import { setFollowUpFilter } from '../state/actions/view-actions/view-actions';
-import { SimpleThunkDispatch } from '../state/actions/types';
+import { AppThunkDispatch } from '../state/types';
 
 export function provideFollowUpFilter(
   filterForFollowUp: boolean,
-  dispatch: SimpleThunkDispatch
+  dispatch: AppThunkDispatch
 ): {
   handleFilterChange: () => void;
   getFilteredAttributions(

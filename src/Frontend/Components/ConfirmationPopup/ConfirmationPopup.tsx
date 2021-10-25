@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useDispatch } from 'react-redux';
 import { ButtonText } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
 
 interface ConfirmationPopupProps {
   onConfirmation(): void;
@@ -16,7 +16,7 @@ interface ConfirmationPopupProps {
 }
 
 export function ConfirmationPopup(props: ConfirmationPopupProps): ReactElement {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function handleDeletionClick(): void {
     props.onConfirmation();

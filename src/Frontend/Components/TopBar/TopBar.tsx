@@ -9,7 +9,7 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { IpcRendererEvent } from 'electron';
 import pick from 'lodash/pick';
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import {
   Attributions,
@@ -86,13 +86,13 @@ const useStyles = makeStyles({
 export function TopBar(): ReactElement {
   const classes = useStyles();
 
-  const resources = useSelector(getResources);
-  const manualData = useSelector(getManualData);
-  const selectedView = useSelector(getSelectedView);
-  const attributionBreakpoints = useSelector(getAttributionBreakpoints);
-  const filesWithChildren = useSelector(getFilesWithChildren);
-  const frequentLicenseTexts = useSelector(getFrequentLicensesTexts);
-  const dispatch = useDispatch();
+  const resources = useAppSelector(getResources);
+  const manualData = useAppSelector(getManualData);
+  const selectedView = useAppSelector(getSelectedView);
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
+  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
+  const dispatch = useAppDispatch();
 
   function fileLoadedListener(
     event: IpcRendererEvent,

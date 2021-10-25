@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ParsedFileContent } from '../../../../shared/shared-types';
-import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
@@ -21,8 +21,8 @@ import { addResolvedExternalAttribution } from './audit-view-simple-actions';
 
 export function loadFromFile(
   parsedFileContent: ParsedFileContent
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
     dispatch(setResources(parsedFileContent.resources));
 
     dispatch(

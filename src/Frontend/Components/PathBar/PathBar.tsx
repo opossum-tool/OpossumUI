@@ -7,12 +7,12 @@ import React, { ReactElement } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTypography from '@material-ui/core/Typography';
 import MuiTooltip from '@material-ui/core/Tooltip';
-import { useSelector } from 'react-redux';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { getIsFileWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   root: {
@@ -37,8 +37,8 @@ const useStyles = makeStyles({
 
 export function PathBar(): ReactElement | null {
   const classes = useStyles();
-  const path = useSelector(getSelectedResourceId);
-  const isFileWithChildren = useSelector(getIsFileWithChildren);
+  const path = useAppSelector(getSelectedResourceId);
+  const isFileWithChildren = useAppSelector(getIsFileWithChildren);
 
   return path ? (
     <div className={classes.root}>

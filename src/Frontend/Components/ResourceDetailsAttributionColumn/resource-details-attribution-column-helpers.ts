@@ -6,7 +6,7 @@
 import { ChangeEvent } from 'react';
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { SimpleThunkDispatch } from '../../state/actions/types';
+import { AppThunkDispatch } from '../../state/types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { PanelPackage } from '../../types/types';
 
@@ -40,7 +40,7 @@ export function getDisplayPackageInfo(
 }
 
 export function setUpdateTemporaryPackageInfoForCreator(
-  dispatch: SimpleThunkDispatch,
+  dispatch: AppThunkDispatch,
   temporaryPackageInfo: PackageInfo
 ) {
   return (propertyToUpdate: string) => {

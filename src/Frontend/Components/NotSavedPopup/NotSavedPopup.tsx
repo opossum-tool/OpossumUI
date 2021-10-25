@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ButtonText, View } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
@@ -27,11 +27,13 @@ import { setTargetSelectedAttributionId } from '../../state/actions/resource-act
 import { setTargetSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 
 export function NotSavedPopup(): ReactElement {
-  const dispatch = useDispatch();
-  const currentAttributionId = useSelector(getAttributionIdToSaveTo);
-  const attributionsToResources = useSelector(getManualAttributionsToResources);
-  const view = useSelector(getSelectedView);
-  const isSavingDisabled = useSelector(getIsSavingDisabled);
+  const dispatch = useAppDispatch();
+  const currentAttributionId = useAppSelector(getAttributionIdToSaveTo);
+  const attributionsToResources = useAppSelector(
+    getManualAttributionsToResources
+  );
+  const view = useAppSelector(getSelectedView);
+  const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const showSaveGloballyButton =
     view === View.Audit &&
     hasAttributionMultipleResources(

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AttributionData } from '../../../../shared/shared-types';
-import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { PanelPackage, State } from '../../../types/types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { getSelectedView, getTargetView } from '../../selectors/view-selector';
@@ -30,8 +30,8 @@ import {
 } from '../../selectors/audit-view-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
 
-export function resetTemporaryPackageInfo(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function resetTemporaryPackageInfo(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const view: View = getSelectedView(getState());
 
     switch (view) {
@@ -55,8 +55,8 @@ export function resetTemporaryPackageInfo(): SimpleThunkAction {
   };
 }
 
-export function setSelectedResourceOrAttributionIdToTargetValue(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedView = getSelectedView(getState());
     const targetSelectedView = getTargetView(getState());
     if (selectedView === View.Audit) {
@@ -82,8 +82,8 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): SimpleThunkAc
 
 export function openResourceInResourceBrowser(
   resourceId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
     dispatch(setExpandedIds(getParents(resourceId).concat([resourceId])));
     dispatch(setSelectedResourceId(resourceId));
     dispatch(navigateToView(View.Audit));
@@ -92,15 +92,15 @@ export function openResourceInResourceBrowser(
 
 export function setDisplayedPackageAndResetTemporaryPackageInfo(
   panelPackage: PanelPackage
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));
     dispatch(resetTemporaryPackageInfo());
   };
 }
 
-export function resetSelectedPackagePanelIfContainedAttributionWasRemoved(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function resetSelectedPackagePanelIfContainedAttributionWasRemoved(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId: string = getSelectedResourceId(getState());
     const manualData: AttributionData = getManualData(getState());
     const AttributionIdsOfResource: Array<string> =
