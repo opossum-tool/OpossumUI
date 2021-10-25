@@ -21,28 +21,28 @@ describe('The GlobalPopUp', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.NotSavedPopup));
 
-    expect(screen.queryByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeTruthy();
   });
 
   test('opens the ErrorPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.ErrorPopup));
 
-    expect(screen.queryByText('Error')).toBeTruthy();
+    expect(screen.getByText('Error')).toBeTruthy();
   });
 
   test('opens the FileSearchPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.FileSearchPopup));
 
-    expect(screen.queryByText('Search for Files and Directories')).toBeTruthy();
+    expect(screen.getByText('Search for Files and Directories')).toBeTruthy();
   });
 
   test('opens the ProjectMetadataPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
 
-    expect(screen.queryByText('Project Metadata')).toBeTruthy();
+    expect(screen.getByText('Project Metadata')).toBeTruthy();
   });
 
   test('opens the ReplaceAttributionPopup', () => {
@@ -50,7 +50,7 @@ describe('The GlobalPopUp', () => {
     store.dispatch(openPopup(PopupType.ReplaceAttributionPopup));
 
     expect(
-      screen.queryByText('This removes the following attribution')
+      screen.getByText('This removes the following attribution')
     ).toBeTruthy();
   });
 
@@ -59,7 +59,7 @@ describe('The GlobalPopUp', () => {
     store.dispatch(openPopup(PopupType.ConfirmDeletionPopup));
 
     expect(
-      screen.queryByText(
+      screen.getByText(
         'Do you really want to delete this attribution for the current file?'
       )
     ).toBeTruthy();
@@ -70,7 +70,7 @@ describe('The GlobalPopUp', () => {
     store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup));
 
     expect(
-      screen.queryByText(
+      screen.getByText(
         'Do you really want to delete this attribution for all files?'
       )
     ).toBeTruthy();

@@ -24,7 +24,7 @@ describe('The ProjectMetadataPopup', () => {
     store.dispatch(setProjectMetadata(testMetadata));
 
     renderComponentWithStore(<ProjectMetadataPopup />, { store });
-    expect(screen.queryByText('test-id')).toBeTruthy();
+    expect(screen.getByText('test-id')).toBeTruthy();
   });
 
   test('formats projectId, projectTitle and fileCreationDate', () => {
@@ -38,9 +38,9 @@ describe('The ProjectMetadataPopup', () => {
     store.dispatch(setProjectMetadata(testMetadata));
 
     renderComponentWithStore(<ProjectMetadataPopup />, { store });
-    expect(screen.queryByText('Project Title')).toBeTruthy();
-    expect(screen.queryByText('Project ID')).toBeTruthy();
-    expect(screen.queryByText('File Creation Date')).toBeTruthy();
+    expect(screen.getByText('Project Title')).toBeTruthy();
+    expect(screen.getByText('Project ID')).toBeTruthy();
+    expect(screen.getByText('File Creation Date')).toBeTruthy();
   });
 
   test('displays custom user metadata', () => {
@@ -56,8 +56,8 @@ describe('The ProjectMetadataPopup', () => {
     store.dispatch(setProjectMetadata(testMetadata));
 
     renderComponentWithStore(<ProjectMetadataPopup />, { store });
-    expect(screen.queryByText('foo', { exact: false })).toBeTruthy();
-    expect(screen.queryByText('bar', { exact: false })).toBeTruthy();
-    expect(screen.queryByText('testObject', { exact: false })).toBeTruthy();
+    expect(screen.getByText('foo', { exact: false })).toBeTruthy();
+    expect(screen.getByText('bar', { exact: false })).toBeTruthy();
+    expect(screen.getByText('testObject', { exact: false })).toBeTruthy();
   });
 });

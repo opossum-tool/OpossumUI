@@ -58,17 +58,15 @@ describe('ResourcePathPopup', () => {
   test('renders resources for manual Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
-    expect(
-      screen.queryByText('Resources for selected attribution')
-    ).toBeTruthy();
-    expect(screen.queryByText('/thirdParty')).toBeTruthy();
+    expect(screen.getByText('Resources for selected attribution')).toBeTruthy();
+    expect(screen.getByText('/thirdParty')).toBeTruthy();
   });
 
   test('renders resources for external Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={true} />);
 
-    expect(screen.queryByText('Resources for selected signal')).toBeTruthy();
-    expect(screen.queryByText('/firstParty')).toBeTruthy();
+    expect(screen.getByText('Resources for selected signal')).toBeTruthy();
+    expect(screen.getByText('/firstParty')).toBeTruthy();
   });
 
   test('renders subheader, if resources in other folders exist', () => {
@@ -78,9 +76,9 @@ describe('ResourcePathPopup', () => {
       store: testStore,
     });
 
-    expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeTruthy();
-    expect(screen.queryByText('/firstParty')).toBeTruthy();
-    expect(screen.queryByText('/folder/anotherFirstParty')).toBeTruthy();
+    expect(screen.getByText(resourcesInOtherFoldersHeader)).toBeTruthy();
+    expect(screen.getByText('/firstParty')).toBeTruthy();
+    expect(screen.getByText('/folder/anotherFirstParty')).toBeTruthy();
   });
 
   test('renders no subheader, if no resources in other folders exist', () => {
@@ -91,6 +89,6 @@ describe('ResourcePathPopup', () => {
       { store: testStore }
     );
     expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeFalsy();
-    expect(screen.queryByText('/thirdParty')).toBeTruthy();
+    expect(screen.getByText('/thirdParty')).toBeTruthy();
   });
 });

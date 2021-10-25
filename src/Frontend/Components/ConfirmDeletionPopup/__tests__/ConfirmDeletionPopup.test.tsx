@@ -16,7 +16,7 @@ describe('The ConfirmDeletionPopup', () => {
 
     renderComponentWithStore(<ConfirmDeletionPopup />);
 
-    expect(screen.queryByText(expectedContent)).toBeTruthy();
-    expect(screen.queryByText(expectedHeader)).toBeTruthy();
+    expect(screen.getByText(expectedContent)).toBeTruthy();
+    expect(screen.getByText(expectedHeader)).toBeTruthy();
   });
 });

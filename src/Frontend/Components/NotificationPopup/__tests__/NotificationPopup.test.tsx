@@ -30,8 +30,8 @@ describe('NotificationPopup', () => {
       />
     );
 
-    expect(screen.queryByText('header text')).toBeTruthy();
-    expect(screen.queryByText('content text')).toBeTruthy();
+    expect(screen.getByText('header text')).toBeTruthy();
+    expect(screen.getByText('content text')).toBeTruthy();
 
     fireEvent.click(screen.getByText('leftButtonText'));
     expect(onLeftButtonClick).toHaveBeenCalled();
@@ -52,8 +52,8 @@ describe('NotificationPopup', () => {
       />
     );
 
-    expect(screen.queryByText('header text')).toBeTruthy();
-    expect(screen.queryByText('test component')).toBeTruthy();
+    expect(screen.getByText('header text')).toBeTruthy();
+    expect(screen.getByText('test component')).toBeTruthy();
   });
 
   test('executes function on escape key', () => {
