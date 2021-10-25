@@ -98,8 +98,8 @@ describe('The AllAttributionsPanel', () => {
 
     store.dispatch(setSelectedResourceId('/root/'));
     expect(screen.queryByText('Typescript, 1.0')).toBeFalsy();
-    expect(screen.queryByText('React, 2.0')).toBeTruthy();
-    expect(screen.queryByText('Vue, 3.0')).toBeTruthy();
+    expect(screen.getByText('React, 2.0')).toBeTruthy();
+    expect(screen.getByText('Vue, 3.0')).toBeTruthy();
   });
 
   test('has search functionality', () => {

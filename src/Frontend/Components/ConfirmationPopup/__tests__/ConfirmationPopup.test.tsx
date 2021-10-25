@@ -21,8 +21,8 @@ describe('The ConfirmationPopup', () => {
         header={header}
       />
     );
-    expect(screen.queryByText(content)).toBeTruthy();
-    expect(screen.queryByText(header)).toBeTruthy();
+    expect(screen.getByText(content)).toBeTruthy();
+    expect(screen.getByText(header)).toBeTruthy();
     fireEvent.click(screen.queryByText(ButtonText.Confirm) as Element);
     expect(onClick).toHaveBeenCalled();
   });

@@ -38,7 +38,7 @@ describe('FileSearch popup ', () => {
   test('renders', () => {
     renderComponentWithStore(<FileSearchPopup />);
     expect(
-      screen.queryByText('Search for Files and Directories', { exact: false })
+      screen.getByText('Search for Files and Directories', { exact: false })
     ).toBeTruthy();
   });
 
@@ -65,10 +65,8 @@ describe('FileSearch popup ', () => {
 
       expect(screen.queryAllByText('/', { exact: false })).toHaveLength(9);
 
-      act(() => {
-        fireEvent.change(screen.getByRole('searchbox'), {
-          target: { value: search },
-        });
+      fireEvent.change(screen.getByRole('searchbox'), {
+        target: { value: search },
       });
 
       act(() => {
@@ -100,15 +98,11 @@ describe('FileSearch popup ', () => {
       jest.advanceTimersByTime(debounceWaitTimeInMs);
     });
 
-    act(() => {
-      fireEvent.change(screen.getByRole('searchbox'), {
-        target: { value: '31231' },
-      });
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: '31231' },
     });
 
-    act(() => {
-      jest.advanceTimersByTime(smallWaitTimeInMs);
-    });
+    jest.advanceTimersByTime(smallWaitTimeInMs);
 
     expect(screen.queryAllByText('/', { exact: false })).toHaveLength(9);
 
@@ -129,10 +123,8 @@ describe('FileSearch popup ', () => {
 
     renderComponentWithStore(<FileSearchPopup />, { store });
 
-    act(() => {
-      fireEvent.change(screen.getByRole('searchbox'), {
-        target: { value: '/eagleBlu/' },
-      });
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: '/eagleBlu/' },
     });
     cleanup();
 

@@ -16,7 +16,7 @@ describe('The ConfirmDeletionGloballyPopup', () => {
 
     renderComponentWithStore(<ConfirmDeletionGloballyPopup />);
 
-    expect(screen.queryByText(expectedContent)).toBeTruthy();
-    expect(screen.queryByText(expectedHeader)).toBeTruthy();
+    expect(screen.getByText(expectedContent)).toBeTruthy();
+    expect(screen.getByText(expectedHeader)).toBeTruthy();
   });
 });

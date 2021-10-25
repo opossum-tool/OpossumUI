@@ -99,7 +99,7 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('test_id'));
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
 
-    expect(screen.queryAllByText('Name')).toBeTruthy();
+    expect(screen.queryAllByText('Name'));
     expect(
       screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
     );
@@ -279,7 +279,7 @@ describe('The ResourceDetailsViewer', () => {
       'License Text (to appear in attribution document)',
       testExternalLicense
     );
-    expect(screen.queryByRole('button', { name: 'Save' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeTruthy();
   });
 
   test('adds an external package to a manual package', () => {

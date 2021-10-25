@@ -25,11 +25,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
     expect(screen.queryByLabelText('Attribution icon')).toBeNull();
-    expect(
-      screen.queryByLabelText('File icon without information')
-    ).toBeTruthy();
+    expect(screen.getByLabelText('File icon without information')).toBeTruthy();
   });
 
   test('renders a folder with attribution', () => {
@@ -48,9 +46,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
     expect(
-      screen.queryByLabelText('Directory icon with attribution')
+      screen.getByLabelText('Directory icon with attribution')
     ).toBeTruthy();
   });
 
@@ -70,9 +68,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
-    expect(screen.queryByLabelText('Signal icon')).not.toBeNull();
-    expect(screen.queryByLabelText('Directory icon with signal')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByLabelText('Signal icon')).not.toBeNull();
+    expect(screen.getByLabelText('Directory icon with signal')).toBeTruthy();
   });
 
   test('renders a folder with resolved signal and icon', () => {
@@ -91,10 +89,10 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
-    expect(screen.queryByLabelText('Signal icon')).not.toBeNull();
+    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByLabelText('Signal icon')).not.toBeNull();
     expect(
-      screen.queryByLabelText('Directory icon without information')
+      screen.getByLabelText('Directory icon without information')
     ).toBeTruthy();
   });
 
@@ -114,9 +112,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
-    expect(screen.queryByLabelText('Signal icon')).not.toBeNull();
-    expect(screen.queryByLabelText('File icon with attribution')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByLabelText('Signal icon')).not.toBeNull();
+    expect(screen.getByLabelText('File icon with attribution')).toBeTruthy();
   });
 
   test('renders a folder with contained signals', () => {
@@ -135,9 +133,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
     expect(
-      screen.queryByLabelText('Directory icon containing signals')
+      screen.getByLabelText('Directory icon containing signals')
     ).toBeTruthy();
   });
 
@@ -157,9 +155,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
     expect(
-      screen.queryByLabelText('Directory icon containing attributions')
+      screen.getByLabelText('Directory icon containing attributions')
     ).toBeTruthy();
   });
 
@@ -179,9 +177,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
     expect(
-      screen.queryByLabelText('Directory icon with parent attribution')
+      screen.getByLabelText('Directory icon with parent attribution')
     ).toBeTruthy();
   });
 
@@ -201,9 +199,9 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
     expect(
-      screen.queryByLabelText('Directory icon without information')
+      screen.getByLabelText('Directory icon without information')
     ).toBeTruthy();
   });
 
@@ -223,7 +221,7 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.queryAllByText('Test label')).toBeTruthy();
-    expect(screen.queryByLabelText('Breakpoint icon')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByLabelText('Breakpoint icon')).toBeTruthy();
   });
 });

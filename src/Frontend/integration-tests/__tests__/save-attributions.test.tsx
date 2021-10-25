@@ -125,9 +125,7 @@ describe('The App in Audit View', () => {
     expectValueInTextBox(screen, 'Name', testPackageName);
 
     selectConfidenceInDropdown(screen, `Low (${DiscreteConfidence.Low})`);
-    expect(
-      screen.queryAllByText(`Low (${DiscreteConfidence.Low})`).length
-    ).toBeTruthy();
+    expect(screen.queryAllByText(`Low (${DiscreteConfidence.Low})`).length);
     expectButton(screen, ButtonText.Save, false);
     expectButtonInContextMenu(screen, ButtonText.Undo, false);
     expectElementsInAutoCompleteAndSelectFirst(screen, testLicenseNames);

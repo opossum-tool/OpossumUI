@@ -101,7 +101,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
     store.dispatch(setSelectedResourceId('test_id'));
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
 
-    expect(screen.queryAllByText('Confidence')).toBeTruthy();
+    expect(screen.queryAllByText('Confidence'));
     expect(
       screen.getByDisplayValue(
         (
@@ -109,27 +109,27 @@ describe('The ResourceDetailsAttributionColumn', () => {
         ).toString()
       )
     );
-    expect(screen.queryAllByText('Comment')).toBeTruthy();
+    expect(screen.queryAllByText('Comment'));
     expect(
       screen.getByDisplayValue(testTemporaryPackageInfo.comment as string)
     );
-    expect(screen.queryAllByText('Name')).toBeTruthy();
+    expect(screen.queryAllByText('Name'));
     expect(
       screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
     );
-    expect(screen.queryAllByText('Version')).toBeTruthy();
+    expect(screen.queryAllByText('Version'));
     expect(
       screen.getByDisplayValue(
         testTemporaryPackageInfo.packageVersion as string
       )
     );
-    expect(screen.queryAllByText('Copyright')).toBeTruthy();
+    expect(screen.queryAllByText('Copyright'));
     expect(
       screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
     );
     expect(
       screen.queryAllByText('License Text (to appear in attribution document)')
-    ).toBeTruthy();
+    );
     expect(
       screen.getByDisplayValue('Permission is hereby granted', { exact: false })
     );

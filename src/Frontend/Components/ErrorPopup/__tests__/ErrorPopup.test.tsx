@@ -12,6 +12,6 @@ describe('Error popup ', () => {
   test('renders', () => {
     renderComponentWithStore(<ErrorPopup />);
 
-    expect(screen.queryByText('Error')).toBeTruthy();
+    expect(screen.getByText('Error')).toBeTruthy();
   });
 });

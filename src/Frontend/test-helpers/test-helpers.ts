@@ -137,7 +137,7 @@ export function expectPackageInPackagePanel(
 ): void {
   const packagesPanel = getPackagePanel(screen, packagePanelName);
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(queryByText(packagesPanel, packageName)).toBeTruthy();
+  expect(getByText(packagesPanel, packageName)).toBeTruthy();
 }
 
 export function clickOnPackageInPackagePanel(
@@ -204,6 +204,7 @@ export function expectValueNotInManualPackagePanel(
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
     queryByText(
+      // eslint-disable-next-line testing-library/prefer-presence-queries
       screen.getByText('Attributions').parentElement as HTMLElement,
       packageName
     )
@@ -255,7 +256,7 @@ export function expectPackagePanelShown(
   screen: Screen,
   packagePanelName: string
 ): void {
-  expect(screen.queryByText(packagePanelName)).toBeTruthy();
+  expect(screen.getByText(packagePanelName)).toBeTruthy();
 }
 
 export function expectPackagePanelNotShown(
@@ -363,7 +364,7 @@ export function expectIconToExist(
   expectedToExist
     ? expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
-        queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+        getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
       ).not.toBeNull()
     : expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -379,7 +380,7 @@ export function expectResourceIconLabelToBe(
   const treeItem = screen.getByText(resourceName);
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+    getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
   ).not.toBeNull();
 }
 

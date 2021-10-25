@@ -63,7 +63,7 @@ describe('ResourceBrowser', () => {
     expect(getSelectedResourceId(store.getState())).toBe('/root/src/');
 
     fireEvent.click(screen.queryByText('src') as Element);
-    expect(screen.queryByText('something.js')).not.toBeNull();
+    expect(screen.getByText('something.js')).not.toBeNull();
 
     collapseFolderByClickingOnIcon(screen, '/root/src/');
     expect(screen.queryByText('something.js')).toBeNull();
@@ -150,8 +150,8 @@ describe('ResourceBrowser', () => {
       )
     );
 
-    expect(screen.queryByText('/')).toBeTruthy();
-    expect(screen.queryByText('root')).toBeTruthy();
+    expect(screen.getByText('/')).toBeTruthy();
+    expect(screen.getByText('root')).toBeTruthy();
     expectIconToExist(screen, 'Signal icon', 'root', false);
     expectResourceIconLabelToBe(
       screen,
@@ -161,12 +161,12 @@ describe('ResourceBrowser', () => {
     expect(screen.queryByText('src')).toBeNull();
 
     fireEvent.click(screen.queryByText('root') as Element);
-    expect(screen.queryByText('src')).toBeTruthy();
+    expect(screen.getByText('src')).toBeTruthy();
     expectIconToExist(screen, 'Signal icon', 'src', true);
     expectResourceIconLabelToBe(screen, 'src', 'Directory icon with signal');
 
     fireEvent.click(screen.queryByText('src') as Element);
-    expect(screen.queryByText('something.js')).toBeTruthy();
+    expect(screen.getByText('something.js')).toBeTruthy();
     expectIconToExist(screen, 'Signal icon', 'something.js', false);
     expectResourceIconLabelToBe(
       screen,

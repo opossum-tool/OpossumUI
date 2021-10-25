@@ -76,9 +76,9 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<ReplaceAttributionPopup />);
     setupTestState(store);
 
-    expect(screen.queryByText('Replacing an attribution')).toBeTruthy();
-    expect(screen.queryByText('React')).toBeTruthy();
-    expect(screen.queryByText('Vue')).toBeTruthy();
+    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
+    expect(screen.getByText('React')).toBeTruthy();
+    expect(screen.getByText('Vue')).toBeTruthy();
 
     fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
@@ -88,9 +88,9 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<ReplaceAttributionPopup />);
     setupTestState(store);
 
-    expect(screen.queryByText('Replacing an attribution')).toBeTruthy();
-    expect(screen.queryByText('React')).toBeTruthy();
-    expect(screen.queryByText('Vue')).toBeTruthy();
+    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
+    expect(screen.getByText('React')).toBeTruthy();
+    expect(screen.getByText('Vue')).toBeTruthy();
 
     fireEvent.click(screen.queryByText(ButtonText.Replace) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);

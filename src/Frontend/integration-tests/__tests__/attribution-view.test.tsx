@@ -440,7 +440,7 @@ describe('The App in attribution view', () => {
     clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Cancel);
-    expect(screen.queryByText('jQuery, 16.0.0')).toBeTruthy();
+    expect(screen.getByText('jQuery, 16.0.0')).toBeTruthy();
     expectReplaceAttributionPopupIsNotShown(screen);
 
     clickOnButtonInContextMenu(screen, ButtonText.ReplaceMarked);
