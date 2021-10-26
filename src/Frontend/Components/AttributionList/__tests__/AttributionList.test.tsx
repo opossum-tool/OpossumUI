@@ -48,8 +48,6 @@ describe('The AttributionList', () => {
   });
 
   test('renders', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <AttributionList
         attributions={packages}
@@ -59,15 +57,13 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   test('renders first party icon', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <AttributionList
         attributions={packages}
@@ -77,15 +73,13 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
   });
 
   test('sets selectedAttributionId on click', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <AttributionList
         attributions={packages}
@@ -95,7 +89,7 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeTruthy();
@@ -121,8 +115,6 @@ describe('The AttributionList', () => {
         copyright: 'Copyright John Doe 2',
       },
     };
-    const store = getTestStore(testPackages);
-
     const { container } = renderComponentWithStore(
       <AttributionList
         attributions={testPackages}
@@ -132,7 +124,7 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: store }
+      { store: getTestStore(testPackages) }
     );
 
     expect(container.childNodes[0].textContent).toContain('zz Test package');

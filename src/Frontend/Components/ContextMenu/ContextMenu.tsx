@@ -58,7 +58,13 @@ interface ContextMenuProps {
   activation: ContextMenuActivation;
 }
 
-export function WithContextMenu(props: ContextMenuProps): ReactElement | null {
+interface anchorAttributes {
+  anchorEl?: null | HTMLElement;
+  anchorReference?: PopoverReference;
+  anchorPosition?: PopoverPosition | undefined;
+}
+
+export function ContextMenu(props: ContextMenuProps): ReactElement | null {
   const iconClasses = useStyles();
 
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
@@ -74,7 +80,7 @@ export function WithContextMenu(props: ContextMenuProps): ReactElement | null {
     displayedMenuItems.length > 0 &&
     (Boolean(anchorElement) || Boolean(anchorPosition));
 
-  const anchorAttributes =
+  const anchorAttributes: anchorAttributes =
     props.activation === 'onLeftClick'
       ? {
           anchorEl: anchorElement,
@@ -117,7 +123,7 @@ export function WithContextMenu(props: ContextMenuProps): ReactElement | null {
       <MuiMenu
         open={isContextMenuOpen}
         onClose={handleClose}
-        anchorReference={anchorAttributes.anchorReference as PopoverReference}
+        anchorReference={anchorAttributes.anchorReference}
         anchorEl={anchorAttributes.anchorEl}
         anchorPosition={anchorAttributes.anchorPosition}
       >
