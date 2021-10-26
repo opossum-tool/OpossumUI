@@ -11,7 +11,6 @@ import { createMenu } from './menu';
 
 export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow: BrowserWindow = new BrowserWindow({
-    icon: path.join(__dirname, '/src/ElectronBackend/logo/icon.png'),
     width: 1920,
     height: 1080,
     webPreferences: {

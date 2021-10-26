@@ -16,7 +16,7 @@ Copyright: Facebook, Inc. and its affiliates
 License: Apache-2.0
 
 Files: docs/*
-       src/ElectronBackend/logo/*
+       public/icons/*
        .github/pull_request_template.md
 Copyright: Facebook, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
