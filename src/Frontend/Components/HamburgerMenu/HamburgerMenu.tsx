@@ -10,13 +10,11 @@ import { useButtonStyles } from '../Button/button-styles';
 import clsx from 'clsx';
 import { ContextMenuItem, ContextMenu } from '../ContextMenu/ContextMenu';
 
-interface ContextMenuButtonProps {
+interface HamburgerMenuProps {
   menuItems: Array<ContextMenuItem>;
 }
 
-export function ContextMenuButton(
-  props: ContextMenuButtonProps
-): ReactElement | null {
+export function HamburgerMenu(props: HamburgerMenuProps): ReactElement | null {
   const buttonClasses = useButtonStyles();
 
   const displayedMenuItems = props.menuItems.filter(
@@ -29,8 +27,8 @@ export function ContextMenuButton(
   return displayedMenuItems ? (
     <ContextMenu menuItems={props.menuItems} activation={'onLeftClick'}>
       <MuiButton
-        aria-label={'button-context-menu'}
-        key={'button-group-context-menu'}
+        aria-label={'button-hamburger-menu'}
+        key={'button-group-hamburger-menu'}
         className={clsx(
           !contextMenuIsDisabled
             ? buttonClasses.light
