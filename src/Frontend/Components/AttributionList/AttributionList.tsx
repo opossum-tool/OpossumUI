@@ -78,6 +78,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
           url: attribution.url,
           licenseName: attribution.licenseName,
         }}
+        hideResourceSpecificButtons={true}
       />
     );
   }
