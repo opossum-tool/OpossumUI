@@ -292,11 +292,12 @@ async function createDetailedBom(
     'copyright',
     'licenseName',
     'licenseText',
+    'resources',
   ];
 
   await writeCsvToFile(
     detailedBomFilePath,
-    args.bomAttributions,
+    args.bomAttributionsWithResources,
     detailedBomColumnOrder
   );
 }

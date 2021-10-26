@@ -12,7 +12,6 @@ import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import {
-  AttributionData,
   Attributions,
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
@@ -33,6 +32,7 @@ import {
 import { getSelectedView } from '../../state/selectors/view-selector';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
+  getAttributionsWithResources,
   removeSlashesFromFilesWithChildren,
 } from '../../util/get-attributions-with-resources';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
@@ -181,26 +181,39 @@ export function TopBar(): ReactElement {
   }
 
   function getDetailedBomExportListener(): void {
+    const bomAttributions = getBomAttributions(manualData.attributions);
+
+    const bomAttributionsWithResources = getAttributionsWithResources(
+      bomAttributions,
+      manualData.attributionsToResources
+    );
+
+    const bomAttributionsWithFormattedResources =
+      removeSlashesFromFilesWithChildren(
+        bomAttributionsWithResources,
+        getFileWithChildrenCheck(filesWithChildren)
+      );
+
     window.ipcRenderer.invoke(IpcChannel.ExportFile, {
       type: ExportType.DetailedBom,
-      bomAttributions: getBomAttributions(manualData),
+      bomAttributionsWithResources: bomAttributionsWithFormattedResources,
     });
   }
 
   function getCompactBomExportListener(): void {
     window.ipcRenderer.invoke(IpcChannel.ExportFile, {
       type: ExportType.CompactBom,
-      bomAttributions: getBomAttributions(manualData),
+      bomAttributions: getBomAttributions(manualData.attributions),
     });
   }
 
-  function getBomAttributions(manualData: AttributionData): Attributions {
+  function getBomAttributions(attributions: Attributions): Attributions {
     return pick(
-      manualData.attributions,
-      Object.keys(manualData.attributions).filter(
+      attributions,
+      Object.keys(attributions).filter(
         (attributionId) =>
-          !manualData.attributions[attributionId].followUp &&
-          !manualData.attributions[attributionId].firstParty
+          !attributions[attributionId].followUp &&
+          !attributions[attributionId].firstParty
       )
     );
   }

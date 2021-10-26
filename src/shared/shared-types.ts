@@ -140,7 +140,7 @@ export interface ExportCompactBomArgs {
 
 export interface ExportDetailedBomArgs {
   type: ExportType.DetailedBom;
-  bomAttributions: Attributions;
+  bomAttributionsWithResources: AttributionsWithResources;
 }
 
 export interface ExportSpdxDocumentYamlArgs {
