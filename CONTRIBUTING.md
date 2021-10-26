@@ -79,6 +79,11 @@ testing library. They can be run locally by executing:
 yarn test
 ```
 
+End to end test are available (currently only linux and mac) and can be run using:
+```
+yarn e2e-test
+```
+
 Prettier is used as a code formatter.
 
 ### Requirements
