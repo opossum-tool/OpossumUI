@@ -342,6 +342,25 @@ export function expectButtonInContextMenuButtonIsNotShown(
   }
 }
 
+export function expectCorrectButtonsInContextMenu(
+  screen: Screen,
+  cardLabel: string,
+  shownButtons: Array<ButtonText>,
+  hiddenButtons: Array<ButtonText>
+): void {
+  shownButtons.forEach((buttonText) => {
+    expectEnabledButtonInPackageCardContextMenu(screen, cardLabel, buttonText);
+  });
+
+  hiddenButtons.forEach((buttonText) => {
+    expectButtonInPackageCardContextMenuIsNotShown(
+      screen,
+      cardLabel,
+      buttonText
+    );
+  });
+}
+
 export function expectEnabledButtonInPackageCardContextMenu(
   screen: Screen,
   cardLabel: string,

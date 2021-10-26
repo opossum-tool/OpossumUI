@@ -24,6 +24,7 @@ interface PackagePanelCardProps {
   onClick(): void;
   onIconClick?(): void;
   attributionId: string;
+  hideResourceSpecificButtons?: boolean;
 }
 
 export function PackagePanelCard(props: PackagePanelCardProps): ReactElement {
@@ -48,6 +49,7 @@ export function PackagePanelCard(props: PackagePanelCardProps): ReactElement {
         onIconClick={props.onIconClick}
         cardConfig={props.cardConfig}
         packageCount={props.packageCount}
+        hideResourceSpecificButtons={props.hideResourceSpecificButtons}
         openResourcesIcon={
           <IconButton
             tooltipTitle="show resources"
