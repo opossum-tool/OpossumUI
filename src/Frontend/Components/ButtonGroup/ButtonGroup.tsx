@@ -9,7 +9,7 @@ import { Button } from '../Button/Button';
 import { ContextMenuButton } from '../ContextMenuButton/ContextMenuButton';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import { ContextMenuItem } from '../ContextMenu/WithContextMenu';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 const useStyles = makeStyles({
   root: {

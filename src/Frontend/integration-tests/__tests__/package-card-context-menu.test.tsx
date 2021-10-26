@@ -17,7 +17,7 @@ import { ButtonText } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnElementInResourceBrowser,
-  expectButtonInPackageCardContextMenu,
+  expectEnabledButtonInPackageCardContextMenu,
   expectButtonInPackageCardContextMenuIsNotShown,
   expectContextMenuIsNotShown,
   getParsedInputFileEnrichedWithTestData,
@@ -106,13 +106,17 @@ describe('The ContextMenu in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'folder1');
 
     const cardLabel = 'Jquery, 16.5.0';
-    expectButtonInPackageCardContextMenu(
+    expectEnabledButtonInPackageCardContextMenu(
       screen,
       cardLabel,
       ButtonText.ShowResources
     );
 
-    expectButtonInPackageCardContextMenu(screen, cardLabel, ButtonText.Hide);
+    expectEnabledButtonInPackageCardContextMenu(
+      screen,
+      cardLabel,
+      ButtonText.Hide
+    );
 
     expectButtonInPackageCardContextMenuIsNotShown(
       screen,
@@ -239,7 +243,7 @@ describe('The ContextMenu in Audit View', () => {
     preselected: boolean,
     multipleResources: boolean
   ): void {
-    expectButtonInPackageCardContextMenu(
+    expectEnabledButtonInPackageCardContextMenu(
       screen,
       cardLabel,
       ButtonText.ShowResources
@@ -251,17 +255,21 @@ describe('The ContextMenu in Audit View', () => {
       ButtonText.Hide
     );
 
-    expectButtonInPackageCardContextMenu(screen, cardLabel, ButtonText.Delete);
+    expectEnabledButtonInPackageCardContextMenu(
+      screen,
+      cardLabel,
+      ButtonText.Delete
+    );
 
     if (multipleResources) {
-      expectButtonInPackageCardContextMenu(
+      expectEnabledButtonInPackageCardContextMenu(
         screen,
         cardLabel,
         ButtonText.DeleteGlobally
       );
 
       if (preselected) {
-        expectButtonInPackageCardContextMenu(
+        expectEnabledButtonInPackageCardContextMenu(
           screen,
           cardLabel,
           ButtonText.ConfirmGlobally
@@ -282,7 +290,7 @@ describe('The ContextMenu in Audit View', () => {
     }
 
     if (preselected) {
-      expectButtonInPackageCardContextMenu(
+      expectEnabledButtonInPackageCardContextMenu(
         screen,
         cardLabel,
         ButtonText.Confirm

@@ -342,7 +342,7 @@ export function expectButtonInContextMenuButtonIsNotShown(
   }
 }
 
-export function expectButtonInPackageCardContextMenu(
+export function expectEnabledButtonInPackageCardContextMenu(
   screen: Screen,
   cardLabel: string,
   buttonLabel: ButtonText

@@ -16,10 +16,7 @@ import { getCardLabels } from './package-card-helpers';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
 import { OpossumColors } from '../../shared-styles';
-import {
-  ContextMenuItem,
-  WithContextMenu,
-} from '../ContextMenu/WithContextMenu';
+import { ContextMenuItem, ContextMenu } from '../ContextMenu/ContextMenu';
 import { ButtonText } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
 import { useSelector } from 'react-redux';
@@ -144,7 +141,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         ];
 
   return (
-    <WithContextMenu menuItems={contextMenuItems} activation={'onRightClick'}>
+    <ContextMenu menuItems={contextMenuItems} activation={'onRightClick'}>
       <ListCard
         text={packageLabels[0] || ''}
         secondLineText={packageLabels[1] || undefined}
@@ -154,6 +151,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         leftIcon={leftIcon}
         rightIcons={rightIcons}
       />
-    </WithContextMenu>
+    </ContextMenu>
   );
 }
