@@ -7,7 +7,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ButtonText } from '../../../enums/enums';
 import { doNothing } from '../../../util/do-nothing';
-import { ContextMenuItem, WithContextMenu } from '../WithContextMenu';
+import { ContextMenuItem, ContextMenu } from '../ContextMenu';
 
 const onClickMock = jest.fn();
 const testMenuItems: Array<ContextMenuItem> = [
@@ -29,13 +29,13 @@ const testMenuItems: Array<ContextMenuItem> = [
   },
 ];
 
-function testContextMenuIsNotShown(): void {
+function expectContextMenuIsNotShown(): void {
   expect(screen.queryByText(ButtonText.Undo)).toBeFalsy();
   expect(screen.queryByText(ButtonText.Save)).toBeFalsy();
   expect(screen.queryByText(ButtonText.SaveGlobally)).toBeFalsy();
 }
 
-function testContextMenuIsShown(): void {
+function expectContextMenuIsShown(): void {
   expect(screen.getByText(ButtonText.Undo));
   expect(screen.getByText(ButtonText.Save));
   expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
@@ -49,76 +49,76 @@ describe('The ContextMenu', () => {
   test('renders and handles left clicks correctly', () => {
     const testElementText = 'Test Element';
     render(
-      <WithContextMenu menuItems={testMenuItems} activation={'onLeftClick'}>
+      <ContextMenu menuItems={testMenuItems} activation={'onLeftClick'}>
         <p>{testElementText}</p>
-      </WithContextMenu>
+      </ContextMenu>
     );
 
-    testContextMenuIsNotShown();
+    expectContextMenuIsNotShown();
 
     fireEvent.contextMenu(screen.getByText(testElementText));
-    testContextMenuIsNotShown();
+    expectContextMenuIsNotShown();
 
     fireEvent.click(screen.getByText(testElementText));
-    testContextMenuIsShown();
+    expectContextMenuIsShown();
 
     fireEvent.click(screen.getByText(ButtonText.Save));
 
-    expect(onClickMock).toBeCalled();
+    expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
   test('renders and handles right clicks correctly', () => {
     const testElementText = 'Test Element';
     render(
-      <WithContextMenu menuItems={testMenuItems} activation={'onRightClick'}>
+      <ContextMenu menuItems={testMenuItems} activation={'onRightClick'}>
         <p>{testElementText}</p>
-      </WithContextMenu>
+      </ContextMenu>
     );
 
-    testContextMenuIsNotShown();
+    expectContextMenuIsNotShown();
 
     fireEvent.click(screen.getByText(testElementText));
-    testContextMenuIsNotShown();
+    expectContextMenuIsNotShown();
 
     fireEvent.contextMenu(screen.getByText(testElementText));
-    testContextMenuIsShown();
+    expectContextMenuIsShown();
 
     fireEvent.click(screen.getByText(ButtonText.Save));
 
-    expect(onClickMock).toBeCalled();
+    expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
   test('renders and handles left clicks correctly for both activated', () => {
     const testElementText = 'Test Element';
     render(
-      <WithContextMenu menuItems={testMenuItems} activation={'both'}>
+      <ContextMenu menuItems={testMenuItems} activation={'both'}>
         <p>{testElementText}</p>
-      </WithContextMenu>
+      </ContextMenu>
     );
 
-    testContextMenuIsNotShown();
+    expectContextMenuIsNotShown();
 
     fireEvent.click(screen.getByText(testElementText));
-    testContextMenuIsShown();
+    expectContextMenuIsShown();
 
     fireEvent.click(screen.getByText(ButtonText.Save));
-    expect(onClickMock).toBeCalled();
+    expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  test('renders and handles right clicks correctly for both activated', () => {
+  test('renders and handles right clicks correctly for both clicks activated', () => {
     const testElementText = 'Test Element';
     render(
-      <WithContextMenu menuItems={testMenuItems} activation={'both'}>
+      <ContextMenu menuItems={testMenuItems} activation={'both'}>
         <p>{testElementText}</p>
-      </WithContextMenu>
+      </ContextMenu>
     );
 
-    testContextMenuIsNotShown();
+    expectContextMenuIsNotShown();
 
     fireEvent.contextMenu(screen.getByText(testElementText));
-    testContextMenuIsShown();
+    expectContextMenuIsShown();
 
     fireEvent.click(screen.getByText(ButtonText.Save));
-    expect(onClickMock).toBeCalled();
+    expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 });

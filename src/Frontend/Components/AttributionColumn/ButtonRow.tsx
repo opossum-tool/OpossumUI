@@ -9,7 +9,7 @@ import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import MuiTypography from '@material-ui/core/Typography';
 import { ButtonText } from '../../enums/enums';
-import { ContextMenuItem } from '../ContextMenu/WithContextMenu';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 const useStyles = makeStyles({
   root: {

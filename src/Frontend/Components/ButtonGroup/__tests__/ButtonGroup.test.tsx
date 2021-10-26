@@ -8,7 +8,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ButtonText } from '../../../enums/enums';
-import { ContextMenuItem } from '../../ContextMenu/WithContextMenu';
+import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
 
 describe('Button group', () => {
   const mainButtonConfigs: Array<MainButtonConfig> = [

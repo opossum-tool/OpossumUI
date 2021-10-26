@@ -48,8 +48,6 @@ describe('The ManualAttributionList', () => {
   });
 
   test('renders', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -57,15 +55,13 @@ describe('The ManualAttributionList', () => {
         selectedAttributionId={''}
         onCardClick={mockCallback}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   test('renders first party icon', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -73,15 +69,13 @@ describe('The ManualAttributionList', () => {
         selectedAttributionId={''}
         onCardClick={doNothing}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
   });
 
   test('renders button', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -90,7 +84,7 @@ describe('The ManualAttributionList', () => {
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Add new attribution'));
@@ -98,8 +92,6 @@ describe('The ManualAttributionList', () => {
   });
 
   test('sets selectedAttributionId on click', () => {
-    const store = getTestStore(packages);
-
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -107,7 +99,7 @@ describe('The ManualAttributionList', () => {
         selectedAttributionId={''}
         onCardClick={mockCallback}
       />,
-      { store: store }
+      { store: getTestStore(packages) }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeTruthy();
@@ -133,8 +125,6 @@ describe('The ManualAttributionList', () => {
         copyright: '(C) Copyright John Doe 2',
       },
     };
-    const store = getTestStore(testPackages);
-
     const { container } = renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -142,7 +132,7 @@ describe('The ManualAttributionList', () => {
         selectedAttributionId={''}
         onCardClick={mockCallback}
       />,
-      { store: store }
+      { store: getTestStore(testPackages) }
     );
 
     expect(container.childNodes[0].textContent).toContain('zz Test package');
