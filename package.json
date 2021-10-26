@@ -25,7 +25,7 @@
     "react-redux": "^7.2.6",
     "react-window": "^1.8.5",
     "redux": "^4.1.0",
-    "redux-thunk": "^2.3.0",
+    "redux-thunk": "^2.4.0",
     "spdx-license-ids": "^3.0.10",
     "stream-json": "^1.7.2",
     "upath": "^2.0.1",
