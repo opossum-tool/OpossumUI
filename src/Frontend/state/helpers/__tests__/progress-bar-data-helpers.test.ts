@@ -236,7 +236,6 @@ describe('The getUpdatedProgressBarData function', () => {
       '/folder2/breakpoint2/file3',
       '/folder3/breakpoint3/file5',
       '/folder5/file9',
-      '/folder5/file10',
     ]);
   });
 

@@ -98,9 +98,9 @@ export function updateProgressBarDataForResources(
     const hasManualAttribution: boolean =
       hasParentManualAttribution ||
       Boolean(resourcesToManualAttributions[path]);
-    const hasExternalAttribution: boolean =
-      hasParentExternalAttribution ||
-      Boolean(resourcesToExternalAttributions[path]);
+    const hasExternalAttribution = Boolean(
+      resourcesToExternalAttributions[path]
+    );
     const resourceCanHaveChildren = canHaveChildren(resource);
 
     if (!resourceCanHaveChildren || isFileWithChildren(path)) {
@@ -112,6 +112,8 @@ export function updateProgressBarDataForResources(
       } else if (hasExternalAttribution) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
         progressBarData.filesWithSignalOnly.push(path);
+      } else if (hasParentExternalAttribution) {
+        progressBarData.filesWithOnlyExternalAttributionCount++;
       }
     }
 
