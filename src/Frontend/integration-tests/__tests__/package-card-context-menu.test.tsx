@@ -18,6 +18,8 @@ import { renderComponentWithStore } from '../../test-helpers/render-component-wi
 import {
   clickOnElementInResourceBrowser,
   clickOnTab,
+  expectEnabledButtonInPackageCardContextMenu,
+  expectButtonInPackageCardContextMenuIsNotShown,
   expectContextMenuIsNotShown,
   expectCorrectButtonsInContextMenu,
   getParsedInputFileEnrichedWithTestData,
