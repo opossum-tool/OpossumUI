@@ -25,7 +25,7 @@ export interface ProgressBarData {
   filesWithManualAttributionCount: number;
   filesWithOnlyPreSelectedAttributionCount: number;
   filesWithOnlyExternalAttributionCount: number;
-  filesWithSignalOnly: Array<string>;
+  filesWithNonInheritedSignalOnly: Array<string>;
 }
 
 export interface PanelPackage {

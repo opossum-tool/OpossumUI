@@ -45,9 +45,7 @@ export function ProgressBar(): ReactElement {
     useSelector(getProgressBarData);
 
   const onProgressBarClick = useOnProgressBarClick(
-    // HERE:
-    // PASS ONLY FILES THAT REALLY HAVE A SIGNAL AND NOT ONLY PARENT SIGNAL
-    progressBarData?.filesWithSignalOnly || []
+    progressBarData?.filesWithNonInheritedSignalOnly || []
   );
 
   return (
