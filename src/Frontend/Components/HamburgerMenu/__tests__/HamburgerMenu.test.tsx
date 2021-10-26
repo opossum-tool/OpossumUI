@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ContextMenuButton } from '../ContextMenuButton';
+import { HamburgerMenu } from '../HamburgerMenu';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ButtonText } from '../../../enums/enums';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
 
-describe('The ContextMenuButton', () => {
+describe('The HamburgerMenu', () => {
   test('is disabled if no enabled button present', () => {
     const menuItems: Array<ContextMenuItem> = [
       {
@@ -25,10 +25,10 @@ describe('The ContextMenuButton', () => {
         hidden: true,
       },
     ];
-    render(<ContextMenuButton menuItems={menuItems} />);
+    render(<HamburgerMenu menuItems={menuItems} />);
 
     const buttonDisabledAttribute = screen
-      .getByLabelText('button-context-menu')
+      .getByLabelText('button-hamburger-menu')
       .attributes.getNamedItem('disabled');
 
     expect(buttonDisabledAttribute).toBeTruthy();

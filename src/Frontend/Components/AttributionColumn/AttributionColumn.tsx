@@ -143,7 +143,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     },
   ];
 
-  const contextMenuButtonConfigs: Array<ContextMenuItem> = [
+  const hamburgerMenuButtonConfigs: Array<ContextMenuItem> = [
     {
       buttonText: ButtonText.Undo,
       disabled: !packageInfoWereModified,
@@ -272,7 +272,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         )}
         areButtonsHidden={props.areButtonsHidden}
         mainButtonConfigs={mainButtonConfigs}
-        contextMenuButtonConfigs={contextMenuButtonConfigs}
+        hamburgerMenuButtonConfigs={hamburgerMenuButtonConfigs}
         displayTexts={displayTexts}
       />
     </div>

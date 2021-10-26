@@ -19,7 +19,7 @@ import {
   clickOnPackageInPackagePanel,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
-  expectButtonInContextMenuButton,
+  expectButtonInHamburgerMenu,
   expectUnsavedChangesPopupIsShown,
   expectValueInManualPackagePanel,
   expectValueInTextBox,
@@ -106,13 +106,13 @@ describe('The App integration', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'jQuery');
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
+    expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
     expectButton(screen, ButtonText.SaveGlobally, true);
 
     insertValueIntoTextBox(screen, 'Name', 'Typescript');
     expectValueInTextBox(screen, 'Name', 'Typescript');
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
+    expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     expectButton(screen, ButtonText.SaveGlobally, false);
 
     clickOnButton(screen, ButtonText.SaveGlobally);
@@ -120,7 +120,7 @@ describe('The App integration', () => {
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Typescript');
     expectButton(screen, ButtonText.Save, true);
-    expectButtonInContextMenuButton(screen, ButtonText.Undo, true);
+    expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
     expectButton(screen, ButtonText.SaveGlobally, true);
 
     // save another attribution
@@ -129,7 +129,7 @@ describe('The App integration', () => {
     insertValueIntoTextBox(screen, 'Name', 'Angular');
     expectValueInTextBox(screen, 'Name', 'Angular');
     expectButton(screen, ButtonText.Save, false);
-    expectButtonInContextMenuButton(screen, ButtonText.Undo, false);
+    expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
 
     clickOnButton(screen, ButtonText.Save);
 

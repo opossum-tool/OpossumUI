@@ -297,30 +297,30 @@ export function expectButtonIsNotShown(
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
 }
 
-export function getButtonInContextMenuButton(
+export function getButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText
 ): HTMLElement {
-  fireEvent.click(screen.getByLabelText('button-context-menu'));
+  fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
   const button = getButton(screen, buttonLabel);
   fireEvent.click(screen.getByRole('presentation').firstChild as Element);
 
   return button;
 }
 
-export function clickOnButtonInContextMenuButton(
+export function clickOnButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  fireEvent.click(getButtonInContextMenuButton(screen, buttonLabel));
+  fireEvent.click(getButtonInHamburgerMenu(screen, buttonLabel));
 }
 
-export function expectButtonInContextMenuButton(
+export function expectButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText,
   disabled?: boolean
 ): void {
-  const button = getButtonInContextMenuButton(screen, buttonLabel);
+  const button = getButtonInHamburgerMenu(screen, buttonLabel);
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
   if (disabled) {
@@ -330,11 +330,11 @@ export function expectButtonInContextMenuButton(
   }
 }
 
-export function expectButtonInContextMenuButtonIsNotShown(
+export function expectButtonInHamburgerMenuIsNotShown(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  fireEvent.click(screen.getByLabelText('button-context-menu'));
+  fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
 
   if (screen.queryByRole('presentation')) {
@@ -609,8 +609,10 @@ export function expectValueInAddToAttributionList(
     (
       (
         (
-          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-            .parentElement as HTMLElement
+          (
+            (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+              .parentElement as HTMLElement
+          ).parentElement as HTMLElement
         ).parentElement as HTMLElement
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
@@ -631,8 +633,10 @@ export function expectValueNotInAddToAttributionList(
     (
       (
         (
-          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-            .parentElement as HTMLElement
+          (
+            (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+              .parentElement as HTMLElement
+          ).parentElement as HTMLElement
         ).parentElement as HTMLElement
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement

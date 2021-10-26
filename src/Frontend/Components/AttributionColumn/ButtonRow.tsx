@@ -37,7 +37,7 @@ interface ButtonRowProps {
   resolvedToggleHandler(): void;
   displayTexts: Array<string>;
   mainButtonConfigs: Array<MainButtonConfig>;
-  contextMenuButtonConfigs?: Array<ContextMenuItem>;
+  hamburgerMenuButtonConfigs?: Array<ContextMenuItem>;
 }
 
 export function ButtonRow(props: ButtonRowProps): ReactElement {
@@ -55,7 +55,7 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
           <ButtonGroup
             isHidden={props.areButtonsHidden}
             mainButtonConfigs={props.mainButtonConfigs}
-            contextMenuButtonConfigs={props.contextMenuButtonConfigs}
+            hamburgerMenuButtonConfigs={props.hamburgerMenuButtonConfigs}
           />
         ) : (
           <ToggleButton

@@ -58,10 +58,10 @@ describe('Button group', () => {
     render(
       <ButtonGroup
         mainButtonConfigs={mainButtonConfigs}
-        contextMenuButtonConfigs={contextMenuItems}
+        hamburgerMenuButtonConfigs={contextMenuItems}
       />
     );
-    fireEvent.click(screen.getByLabelText('button-context-menu'));
+    fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
 
     screen.getByText(ButtonText.Save);
     expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
