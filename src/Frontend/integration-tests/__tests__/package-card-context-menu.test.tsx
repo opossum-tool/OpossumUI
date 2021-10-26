@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen, Screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -13,14 +13,15 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { ButtonText } from '../../enums/enums';
+import { ButtonText, View } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnElementInResourceBrowser,
-  expectEnabledButtonInPackageCardContextMenu,
-  expectButtonInPackageCardContextMenuIsNotShown,
+  clickOnTab,
   expectContextMenuIsNotShown,
+  expectCorrectButtonsInContextMenu,
   getParsedInputFileEnrichedWithTestData,
+  goToView,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
 } from '../../test-helpers/test-helpers';
@@ -37,6 +38,55 @@ function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
       mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
     );
 }
+
+const testResources: Resources = {
+  folder1: { 'firstResource.js': 1 },
+  'secondResource.js': 1,
+  'thirdResource.js': 1,
+};
+
+const testResourcesToExternalAttributions: ResourcesToAttributions = {
+  '/folder1/': ['uuid_ext_1'],
+};
+
+const testExternalAttributions: Attributions = {
+  uuid_ext_1: {
+    packageName: 'Jquery',
+    packageVersion: '16.5.0',
+    licenseText: 'Permission is hereby granted',
+  },
+};
+
+const testManualAttributions: Attributions = {
+  uuid_1: {
+    packageName: 'React',
+    packageVersion: '16.5.0',
+    licenseText: 'Permission is hereby granted',
+  },
+  uuid_2: {
+    packageName: 'Vue',
+    packageVersion: '1.2.0',
+    licenseText: 'Permission is not granted',
+  },
+};
+
+const testManualAttributionsPreselected: Attributions = {
+  ...testManualAttributions,
+  uuid_1: {
+    ...testManualAttributions.uuid_1,
+    preSelected: true,
+  },
+  uuid_2: {
+    ...testManualAttributions.uuid_2,
+    preSelected: true,
+  },
+};
+
+const testResourcesToManualAttributions: ResourcesToAttributions = {
+  '/folder1/': ['uuid_1'],
+  '/secondResource.js': ['uuid_2'],
+  '/thirdResource.js': ['uuid_1'],
+};
 
 describe('The ContextMenu in Audit View', () => {
   beforeAll(() => {
@@ -55,44 +105,7 @@ describe('The ContextMenu in Audit View', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  const testResources: Resources = {
-    folder1: { 'firstResource.js': 1 },
-    'secondResource.js': 1,
-    'thirdResource.js': 1,
-  };
-
-  const testResourcesToExternalAttributions: ResourcesToAttributions = {
-    '/folder1/': ['uuid_ext_1'],
-  };
-
-  const testExternalAttributions: Attributions = {
-    uuid_ext_1: {
-      packageName: 'Jquery',
-      packageVersion: '16.5.0',
-      licenseText: 'Permission is hereby granted',
-    },
-  };
-
-  const testManualAttributions: Attributions = {
-    uuid_1: {
-      packageName: 'React',
-      packageVersion: '16.5.0',
-      licenseText: 'Permission is hereby granted',
-    },
-    uuid_2: {
-      packageName: 'Vue',
-      packageVersion: '1.2.0',
-      licenseText: 'Permission is not granted',
-    },
-  };
-
-  const testResourcesToManualAttributions: ResourcesToAttributions = {
-    '/folder1/': ['uuid_1'],
-    '/secondResource.js': ['uuid_2'],
-    '/thirdResource.js': ['uuid_1'],
-  };
-
-  test('is shown correctly for external Attributions', () => {
+  test('is shown correctly for external Attributions in the signals tab', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -102,60 +115,251 @@ describe('The ContextMenu in Audit View', () => {
     );
 
     renderComponentWithStore(<App />);
-
     clickOnElementInResourceBrowser(screen, 'folder1');
 
     const cardLabel = 'Jquery, 16.5.0';
-    expectEnabledButtonInPackageCardContextMenu(
+    expectCorrectButtonsInContextMenu(
       screen,
       cardLabel,
-      ButtonText.ShowResources
-    );
-
-    expectEnabledButtonInPackageCardContextMenu(
-      screen,
-      cardLabel,
-      ButtonText.Hide
-    );
-
-    expectButtonInPackageCardContextMenuIsNotShown(
-      screen,
-      cardLabel,
-      ButtonText.Delete
-    );
-
-    expectButtonInPackageCardContextMenuIsNotShown(
-      screen,
-      cardLabel,
-      ButtonText.DeleteGlobally
-    );
-
-    expectButtonInPackageCardContextMenuIsNotShown(
-      screen,
-      cardLabel,
-      ButtonText.Confirm
-    );
-
-    expectButtonInPackageCardContextMenuIsNotShown(
-      screen,
-      cardLabel,
-      ButtonText.ConfirmGlobally
+      [ButtonText.ShowResources, ButtonText.Hide],
+      [
+        ButtonText.Delete,
+        ButtonText.DeleteGlobally,
+        ButtonText.Confirm,
+        ButtonText.ConfirmGlobally,
+      ]
     );
   });
 
-  test('is shown correctly for preselected manual Attributions', () => {
-    const testManualAttributionsPreselected: Attributions = {
-      ...testManualAttributions,
-      uuid_1: {
-        ...testManualAttributions.uuid_1,
-        preSelected: true,
-      },
-      uuid_2: {
-        ...testManualAttributions.uuid_2,
-        preSelected: true,
-      },
+  describe('in the ManualPackagePanel', () => {
+    test('is shown correctly for preselected manual Attributions', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributionsPreselected,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'folder1');
+
+      const cardLabelMultipleResources = 'React, 16.5.0';
+      expectCorrectButtonsInContextMenu(
+        screen,
+        cardLabelMultipleResources,
+        [
+          ButtonText.ShowResources,
+          ButtonText.Delete,
+          ButtonText.DeleteGlobally,
+          ButtonText.Confirm,
+          ButtonText.ConfirmGlobally,
+        ],
+        [ButtonText.Hide]
+      );
+
+      clickOnElementInResourceBrowser(screen, 'secondResource.js');
+
+      const cardLabelSingleResource = 'Vue, 1.2.0';
+      expectCorrectButtonsInContextMenu(
+        screen,
+        cardLabelSingleResource,
+        [ButtonText.ShowResources, ButtonText.Delete, ButtonText.Confirm],
+        [ButtonText.Hide, ButtonText.DeleteGlobally, ButtonText.ConfirmGlobally]
+      );
+    });
+
+    test('is shown correctly for not preselected manual Attributions', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'folder1');
+
+      const cardLabelMultipleResources = 'React, 16.5.0';
+      expectCorrectButtonsInContextMenu(
+        screen,
+        cardLabelMultipleResources,
+        [
+          ButtonText.ShowResources,
+          ButtonText.Delete,
+          ButtonText.DeleteGlobally,
+        ],
+        [ButtonText.Hide, ButtonText.Confirm, ButtonText.ConfirmGlobally]
+      );
+
+      clickOnElementInResourceBrowser(screen, 'secondResource.js');
+
+      const cardLabelSingleResource = 'Vue, 1.2.0';
+      expectCorrectButtonsInContextMenu(
+        screen,
+        cardLabelSingleResource,
+        [ButtonText.ShowResources, ButtonText.Delete],
+        [
+          ButtonText.Hide,
+          ButtonText.Confirm,
+          ButtonText.ConfirmGlobally,
+          ButtonText.DeleteGlobally,
+        ]
+      );
+    });
+
+    test('is not shown for Add new attribution', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'folder1');
+
+      const cardLabel = 'Add new attribution';
+      expectContextMenuIsNotShown(screen, cardLabel);
+    });
+  });
+
+  describe('in the all attributions panel', () => {
+    test('is shown correctly for preselected manual Attributions', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributionsPreselected,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'secondResource.js');
+      clickOnTab(screen, 'All Attributions Tab');
+
+      const cardLabelMultipleResources = 'React, 16.5.0';
+      expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+        cardLabelMultipleResources
+      );
+
+      clickOnElementInResourceBrowser(screen, 'folder1');
+      clickOnTab(screen, 'All Attributions Tab');
+
+      const cardLabelSingleResource = 'Vue, 1.2.0';
+      expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+        cardLabelSingleResource
+      );
+    });
+
+    test('is shown correctly for not preselected manual Attributions', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'secondResource.js');
+      clickOnTab(screen, 'All Attributions Tab');
+
+      const cardLabelMultipleResources = 'React, 16.5.0';
+      expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+        cardLabelMultipleResources
+      );
+
+      clickOnElementInResourceBrowser(screen, 'folder1');
+      clickOnTab(screen, 'All Attributions Tab');
+
+      const cardLabelSingleResource = 'Vue, 1.2.0';
+      expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+        cardLabelSingleResource
+      );
+    });
+  });
+
+  describe('in the attributions in folder content panel', () => {
+    const testResources: Resources = {
+      folder1: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      'thirdResource.js': 1,
     };
 
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/folder1/firstResource.js': ['uuid_1'],
+      '/folder1/secondResource.js': ['uuid_2'],
+      '/thirdResource.js': ['uuid_1'],
+    };
+
+    test('is shown correctly for preselected manual Attributions', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributionsPreselected,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'folder1');
+
+      const cardLabelMultipleResources = 'React, 16.5.0';
+      expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+        cardLabelMultipleResources
+      );
+
+      const cardLabelSingleResource = 'Vue, 1.2.0';
+      expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+        cardLabelSingleResource
+      );
+    });
+
+    test('is shown correctly for not preselected manual Attributions', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+
+      renderComponentWithStore(<App />);
+      clickOnElementInResourceBrowser(screen, 'folder1');
+
+      const cardLabelMultipleResources = 'React, 16.5.0';
+      expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+        cardLabelMultipleResources
+      );
+
+      const cardLabelSingleResource = 'Vue, 1.2.0';
+      expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+        cardLabelSingleResource
+      );
+    });
+  });
+});
+
+describe('The ContextMenu in Attribution View', () => {
+  beforeAll(() => {
+    originalIpcRenderer = global.window.ipcRenderer;
+    global.window.ipcRenderer = {
+      on: jest.fn(),
+      removeListener: jest.fn(),
+      invoke: jest.fn(),
+    } as unknown as IpcRenderer;
+  });
+
+  beforeEach(() => jest.clearAllMocks());
+
+  afterAll(() => {
+    // Important to restore the original value.
+    global.window.ipcRenderer = originalIpcRenderer;
+  });
+
+  test('is shown correctly for preselected manual Attributions', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -165,25 +369,16 @@ describe('The ContextMenu in Audit View', () => {
     );
 
     renderComponentWithStore(<App />);
-
-    clickOnElementInResourceBrowser(screen, 'folder1');
+    goToView(screen, View.Attribution);
 
     const cardLabelMultipleResources = 'React, 16.5.0';
-    expectManualAttributionsButtons(
-      screen,
-      cardLabelMultipleResources,
-      true,
-      true
+    expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+      cardLabelMultipleResources
     );
 
-    clickOnElementInResourceBrowser(screen, 'secondResource.js');
     const cardLabelSingleResource = 'Vue, 1.2.0';
-
-    expectManualAttributionsButtons(
-      screen,
-      cardLabelSingleResource,
-      true,
-      false
+    expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+      cardLabelSingleResource
     );
   });
 
@@ -197,116 +392,47 @@ describe('The ContextMenu in Audit View', () => {
     );
 
     renderComponentWithStore(<App />);
-
-    clickOnElementInResourceBrowser(screen, 'folder1');
+    goToView(screen, View.Attribution);
 
     const cardLabelMultipleResources = 'React, 16.5.0';
-
-    expectManualAttributionsButtons(
-      screen,
-      cardLabelMultipleResources,
-      false,
-      true
+    expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+      cardLabelMultipleResources
     );
 
-    clickOnElementInResourceBrowser(screen, 'secondResource.js');
     const cardLabelSingleResource = 'Vue, 1.2.0';
-
-    expectManualAttributionsButtons(
-      screen,
-      cardLabelSingleResource,
-      false,
-      false
+    expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+      cardLabelSingleResource
     );
   });
-
-  test('is not shown for Add new attribution', () => {
-    mockElectronBackend(
-      getParsedInputFileEnrichedWithTestData({
-        resources: testResources,
-        manualAttributions: testManualAttributions,
-        resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
-    );
-
-    renderComponentWithStore(<App />);
-
-    clickOnElementInResourceBrowser(screen, 'folder1');
-
-    const cardLabel = 'Add new attribution';
-    expectContextMenuIsNotShown(screen, cardLabel);
-  });
-
-  function expectManualAttributionsButtons(
-    screen: Screen,
-    cardLabel: string,
-    preselected: boolean,
-    multipleResources: boolean
-  ): void {
-    expectEnabledButtonInPackageCardContextMenu(
-      screen,
-      cardLabel,
-      ButtonText.ShowResources
-    );
-
-    expectButtonInPackageCardContextMenuIsNotShown(
-      screen,
-      cardLabel,
-      ButtonText.Hide
-    );
-
-    expectEnabledButtonInPackageCardContextMenu(
-      screen,
-      cardLabel,
-      ButtonText.Delete
-    );
-
-    if (multipleResources) {
-      expectEnabledButtonInPackageCardContextMenu(
-        screen,
-        cardLabel,
-        ButtonText.DeleteGlobally
-      );
-
-      if (preselected) {
-        expectEnabledButtonInPackageCardContextMenu(
-          screen,
-          cardLabel,
-          ButtonText.ConfirmGlobally
-        );
-      }
-    } else {
-      expectButtonInPackageCardContextMenuIsNotShown(
-        screen,
-        cardLabel,
-        ButtonText.ConfirmGlobally
-      );
-
-      expectButtonInPackageCardContextMenuIsNotShown(
-        screen,
-        cardLabel,
-        ButtonText.DeleteGlobally
-      );
-    }
-
-    if (preselected) {
-      expectEnabledButtonInPackageCardContextMenu(
-        screen,
-        cardLabel,
-        ButtonText.Confirm
-      );
-    } else {
-      expectButtonInPackageCardContextMenuIsNotShown(
-        screen,
-        cardLabel,
-        ButtonText.Confirm
-      );
-
-      expectButtonInPackageCardContextMenuIsNotShown(
-        screen,
-        cardLabel,
-        ButtonText.ConfirmGlobally
-      );
-    }
-  }
 });
+
+function expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+  cardLabel: string
+): void {
+  expectCorrectButtonsInContextMenu(
+    screen,
+    cardLabel,
+    [ButtonText.ShowResources, ButtonText.DeleteGlobally],
+    [
+      ButtonText.Hide,
+      ButtonText.Delete,
+      ButtonText.Confirm,
+      ButtonText.ConfirmGlobally,
+    ]
+  );
+}
+
+function expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+  cardLabel: string
+): void {
+  expectCorrectButtonsInContextMenu(
+    screen,
+    cardLabel,
+    [
+      ButtonText.ShowResources,
+      ButtonText.DeleteGlobally,
+      ButtonText.ConfirmGlobally,
+    ],
+    [ButtonText.Hide, ButtonText.Delete, ButtonText.Confirm]
+  );
+}

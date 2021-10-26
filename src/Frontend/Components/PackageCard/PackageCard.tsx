@@ -16,7 +16,7 @@ import { getCardLabels } from './package-card-helpers';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
 import { OpossumColors } from '../../shared-styles';
-import { ContextMenuItem, ContextMenu } from '../ContextMenu/ContextMenu';
+import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ButtonText } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
 import { useSelector } from 'react-redux';
@@ -44,6 +44,7 @@ interface PackageCardProps {
   onIconClick?(): void;
   openResourcesIcon?: JSX.Element;
   hideContextMenu?: boolean;
+  hideResourceSpecificButtons?: boolean;
 }
 
 function getKey(prefix: string, cardContent: ListCardContent): string {
@@ -66,12 +67,17 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const isPreselected = Boolean(props.cardConfig.isPreSelected);
   const attributionsToResources = useSelector(getManualAttributionsToResources);
 
+  const hideResourceSpecificButtons = Boolean(
+    props.hideResourceSpecificButtons
+  );
+
   const showGlobalButtons =
     !Boolean(isExternalAttribution) &&
-    hasAttributionMultipleResources(
+    (hasAttributionMultipleResources(
       props.attributionId,
       attributionsToResources
-    );
+    ) ||
+      hideResourceSpecificButtons);
 
   const rightIcons: Array<JSX.Element> = [];
 
@@ -112,7 +118,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           {
             buttonText: ButtonText.Delete,
             onClick: doNothing,
-            hidden: isExternalAttribution,
+            hidden: isExternalAttribution || hideResourceSpecificButtons,
           },
           {
             buttonText: ButtonText.DeleteGlobally,
@@ -122,7 +128,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           {
             buttonText: ButtonText.Confirm,
             onClick: doNothing,
-            hidden: !isPreselected || isExternalAttribution,
+            hidden:
+              !isPreselected ||
+              isExternalAttribution ||
+              hideResourceSpecificButtons,
           },
           {
             buttonText: ButtonText.ConfirmGlobally,

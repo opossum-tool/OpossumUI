@@ -79,6 +79,7 @@ export function PackageList(props: PackageListProps): ReactElement {
         onIconClick={props.isAddToPackageEnabled ? onIconClick : undefined}
         key={`PackageCard-${packageInfo.packageName}-${index}`}
         packageCount={packageCount}
+        hideResourceSpecificButtons={true}
         cardContent={{
           id: `package-${props.selectedResourceId}-${attributionId}`,
           name: packageInfo.packageName,
