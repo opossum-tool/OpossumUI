@@ -5,15 +5,15 @@
 
 import React, { ReactElement, useState } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useDispatch } from 'react-redux';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText } from '../../enums/enums';
 import { ResourcesList } from '../ResourcesList/ResourcesList';
 import { FileSearchTextField } from '../FileSearchTextField/FileSearchTextField';
 import { useWindowHeight } from '../../util/use-window-height';
+import { useAppDispatch } from '../../state/hooks';
 
 export function FileSearchPopup(): ReactElement {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [filteredPaths, setFilteredPaths] = useState<Array<string>>([]);
   const fileSearchPopupOffset = 260;
   const maxPossibleHeightInPx = useWindowHeight() - fileSearchPopupOffset;

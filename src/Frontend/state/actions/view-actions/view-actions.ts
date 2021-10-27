@@ -8,7 +8,7 @@ import { PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import { getPackageInfoOfSelectedAttribution } from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
-import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-actions';
 import { getAttributionOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
 import {
@@ -30,8 +30,8 @@ export function resetViewState(): ResetViewStateAction {
   return { type: ACTION_RESET_VIEW_STATE };
 }
 
-export function navigateToView(view: View): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function navigateToView(view: View): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (getSelectedView(getState()) === view) {
       return;
     }

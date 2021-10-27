@@ -5,7 +5,6 @@
 
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
-import { useSelector } from 'react-redux';
 import { View } from '../../enums/enums';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
@@ -15,6 +14,7 @@ import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { AuditView } from '../AuditView/AuditView';
 import { TopBar } from '../TopBar/TopBar';
 import { createTheme } from '@material-ui/core';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   root: {
@@ -54,7 +54,7 @@ const theme = createTheme({
 
 export function App(): ReactElement {
   const classes = useStyles();
-  const selectedView = useSelector(getSelectedView);
+  const selectedView = useAppSelector(getSelectedView);
 
   function getSelectedViewContainer(): ReactElement {
     switch (selectedView) {

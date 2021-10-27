@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ButtonText } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
@@ -32,10 +32,12 @@ const useStyles = makeStyles({
 export function ReplaceAttributionPopup(): ReactElement {
   const classes = useStyles();
 
-  const dispatch = useDispatch();
-  const attributions = useSelector(getManualAttributions);
-  const markedAttributionId = useSelector(getAttributionIdMarkedForReplacement);
-  const selectedAttributionId = useSelector(getSelectedAttributionId);
+  const dispatch = useAppDispatch();
+  const attributions = useAppSelector(getManualAttributions);
+  const markedAttributionId = useAppSelector(
+    getAttributionIdMarkedForReplacement
+  );
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
 
   function handleCancelClick(): void {
     dispatch(closePopup());

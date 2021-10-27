@@ -7,7 +7,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import MuiTabs from '@material-ui/core/Tabs';
 import MuiTab from '@material-ui/core/Tab';
-import { useSelector } from 'react-redux';
 import {
   getExternalData,
   getManualData,
@@ -23,6 +22,7 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   tabsRoot: {
@@ -51,12 +51,13 @@ export function ResourceDetailsTabs(
 ): ReactElement | null {
   const classes = useStyles();
 
-  const manualData = useSelector(getManualData);
-  const externalData = useSelector(getExternalData);
+  const manualData = useAppSelector(getManualData);
+  const externalData = useAppSelector(getExternalData);
 
-  const selectedPackage: PanelPackage | null = useSelector(getDisplayedPackage);
-  const selectedResourceId = useSelector(getSelectedResourceId);
-  const attributionIdsOfSelectedResource: Array<string> = useSelector(
+  const selectedPackage: PanelPackage | null =
+    useAppSelector(getDisplayedPackage);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const attributionIdsOfSelectedResource: Array<string> = useAppSelector(
     getAttributionIdsOfSelectedResource,
     isEqual
   );

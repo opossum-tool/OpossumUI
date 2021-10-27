@@ -6,7 +6,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTypography from '@material-ui/core/Typography';
 import React, { ReactElement, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackageInfo } from '../../../shared/shared-types';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
@@ -53,16 +53,16 @@ const useStyles = makeStyles({
 export function AttributionDetailsViewer(): ReactElement | null {
   const classes = useStyles();
 
-  const selectedAttributionId = useSelector(getSelectedAttributionId);
-  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
-  const resourceIdsOfSelectedAttributionId: Array<string> = useSelector(
+  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const resourceIdsOfSelectedAttributionId: Array<string> = useAppSelector(
     getResourceIdsOfSelectedAttribution,
     isEqual
   );
 
   const resourceListMaxHeight = useWindowHeight() - 112;
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const saveFileRequestListener = useCallback(() => {
     dispatch(

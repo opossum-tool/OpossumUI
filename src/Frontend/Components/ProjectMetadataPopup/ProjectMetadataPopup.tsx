@@ -5,7 +5,7 @@
 
 import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 
 import MuiTable from '@material-ui/core/Table';
@@ -26,8 +26,8 @@ const useStyles = makeStyles({
 
 export function ProjectMetadataPopup(): ReactElement {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const metadata: ProjectMetadata = useSelector(getProjectMetadata);
+  const dispatch = useAppDispatch();
+  const metadata: ProjectMetadata = useAppSelector(getProjectMetadata);
 
   function close(): void {
     dispatch(closePopup());

@@ -4,16 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/audit-view-resource-selectors';
 
 export function ConfirmDeletionGloballyPopup(): ReactElement {
   const attributionIdOfSelectedPackageInManualPanel: string | null =
-    useSelector(getAttributionIdOfDisplayedPackageInManualPanel);
+    useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function deleteAttributionGlobally(): void {
     if (attributionIdOfSelectedPackageInManualPanel) {

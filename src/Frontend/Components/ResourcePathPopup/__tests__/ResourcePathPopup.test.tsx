@@ -18,16 +18,16 @@ import {
   setExternalData,
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { useDispatch } from 'react-redux';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { screen } from '@testing-library/react';
+import { useAppDispatch } from '../../../state/hooks';
 
 interface HelperComponentProps {
   isExternalAttribution: boolean;
 }
 
 function HelperComponent(props: HelperComponentProps): ReactElement {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const attributions: Attributions = {
     uuid_1: { packageName: 'Test package' },
   };

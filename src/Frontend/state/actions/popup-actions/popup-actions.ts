@@ -18,7 +18,7 @@ import {
   openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../resource-actions/navigation-actions';
-import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   closePopup,
   setTargetView,
@@ -42,8 +42,8 @@ import { getSelectedResourceId } from '../../selectors/audit-view-resource-selec
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetSelectedResourceId(resourcePath));
       dispatch(setTargetView(View.Audit));
@@ -56,8 +56,8 @@ export function navigateToSelectedPathOrOpenUnsavedPopup(
 
 export function changeSelectedAttributionIdOrOpenUnsavedPopup(
   attributionId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const manualAttributions = getManualAttributions(getState());
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetSelectedAttributionId(attributionId));
@@ -69,10 +69,8 @@ export function changeSelectedAttributionIdOrOpenUnsavedPopup(
   };
 }
 
-export function setViewOrOpenUnsavedPopup(
-  selectedView: View
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetView(selectedView));
       dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
@@ -85,8 +83,8 @@ export function setViewOrOpenUnsavedPopup(
 
 export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(setTargetSelectedResourceId(resourceId));
       dispatch(openPopup(PopupType.NotSavedPopup));
@@ -99,8 +97,8 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
   packagePanelTitle: PackagePanelTitle,
   attributionId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
@@ -117,8 +115,8 @@ export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
 export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
   packagePanelTitle: PackagePanelTitle,
   attributionId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
@@ -132,8 +130,8 @@ export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
   };
 }
 
-export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
     const attributionId = getAttributionIdToSaveTo(getState()) as string;
     const temporaryPackageInfo = getTemporaryPackageInfo(getState());
@@ -149,8 +147,8 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): Si
   };
 }
 
-export function saveTemporaryPackageInfoAndNavigateToTargetView(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function saveTemporaryPackageInfoAndNavigateToTargetView(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
     const attributionId = getAttributionIdToSaveTo(getState());
     const temporaryPackageInfo = getTemporaryPackageInfo(getState());
@@ -162,8 +160,8 @@ export function saveTemporaryPackageInfoAndNavigateToTargetView(): SimpleThunkAc
   };
 }
 
-export function navigateToTargetResourceOrAttribution(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function navigateToTargetResourceOrAttribution(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const targetView = getTargetView(getState());
 
     dispatch(setSelectedResourceOrAttributionIdToTargetValue());

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { setFileSearch } from '../../state/actions/resource-actions/file-search-actions';
 import { getFileSearch } from '../../state/selectors/file-search-selectors';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
@@ -12,6 +11,7 @@ import { getResources } from '../../state/selectors/all-views-resource-selectors
 import { getPathsFromResources } from '../../state/helpers/file-search-helpers';
 import { debounce } from 'lodash';
 import { PathPredicate } from '../../types/types';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 
 interface FileSearchTextFieldProps {
   setFilteredPaths(filteredPaths: Array<string>): void;
@@ -20,9 +20,10 @@ interface FileSearchTextFieldProps {
 export function FileSearchTextField(
   props: FileSearchTextFieldProps
 ): ReactElement {
-  const dispatch = useDispatch();
-  const search = useSelector(getFileSearch);
-  const resources = useSelector(getResources);
+  const dispatch = useAppDispatch();
+  const search = useAppSelector(getFileSearch);
+
+  const resources = useAppSelector(getResources);
   const debounceWaitTimeInMs = 200;
 
   const paths: Array<string> = useMemo(() => {

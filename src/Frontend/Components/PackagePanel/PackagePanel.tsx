@@ -6,7 +6,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTypography from '@material-ui/core/Typography/Typography';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   AttributionIdWithCount,
   Attributions,
@@ -52,17 +52,17 @@ export function PackagePanel(
   props: PackagePanelProps
 ): React.ReactElement | null {
   const classes = useStyles();
-  const selectedPackage = useSelector(getDisplayedPackage);
-  const resolvedExternalAttributionIds = useSelector(
+  const selectedPackage = useAppSelector(getDisplayedPackage);
+  const resolvedExternalAttributionIds = useAppSelector(
     getResolvedExternalAttributions
   );
-  const selectedResourceId = useSelector(getSelectedResourceId);
-  const externalAttributions = useSelector(getExternalAttributions);
-  const resourcesToExternalAttributions = useSelector(
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions
   );
-  const attributionSources = useSelector(getExternalAttributionSources);
-  const dispatch = useDispatch();
+  const attributionSources = useAppSelector(getExternalAttributionSources);
+  const dispatch = useAppDispatch();
 
   function getPreSelectedExternalAttributionIdsForSelectedResource(): Array<string> {
     const externalAttributionsForSelectedResource =

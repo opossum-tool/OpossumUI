@@ -7,7 +7,7 @@ import MuiPaper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTypography from '@material-ui/core/Typography';
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInManualPackagePanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -48,20 +48,19 @@ export function ManualPackagePanel(
   props: ManualPackagePanelProps
 ): ReactElement | null {
   const classes = useStyles();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const selectedAttributionId: string | null = useSelector(
+  const selectedAttributionId: string | null = useAppSelector(
     getAttributionIdOfDisplayedPackageInManualPanel
   );
 
-  const attributionIdsOfSelectedResource: Attributions = useSelector(
+  const attributionIdsOfSelectedResource: Attributions = useAppSelector(
     getAttributionsOfSelectedResource
   );
-  const selectedResourceOrClosestParentAttributions: Attributions = useSelector(
-    getAttributionsOfSelectedResourceOrClosestParent
-  );
+  const selectedResourceOrClosestParentAttributions: Attributions =
+    useAppSelector(getAttributionsOfSelectedResourceOrClosestParent);
 
-  const selectedResourceId: string = useSelector(getSelectedResourceId);
+  const selectedResourceId: string = useAppSelector(getSelectedResourceId);
 
   const shownAttributionsOfResource: Attributions = props.overrideParentMode
     ? attributionIdsOfSelectedResource

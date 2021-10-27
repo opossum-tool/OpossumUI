@@ -3,9 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { State } from '../../types/types';
+import { State } from '../types/types';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { Action } from 'redux';
 
-export type SimpleThunkAction = ThunkAction<unknown, State, unknown, Action>;
-export type SimpleThunkDispatch = ThunkDispatch<State, unknown, Action>;
+export type AppThunkAction = ThunkAction<void, State, unknown, Action<string>>;
+
+export type AppThunkDispatch = ThunkDispatch<State, unknown, Action>;

@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createStore, EnhancedStore, applyMiddleware } from '@reduxjs/toolkit';
 import { reducer } from './reducer';
-import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
+import { applyMiddleware, createStore, Store } from 'redux';
+import thunk from 'redux-thunk';
 
-export function createAppStore(): EnhancedStore {
+export function createAppStore(): Store {
   return createStore(reducer, composeWithDevTools(applyMiddleware(thunk)));
 }

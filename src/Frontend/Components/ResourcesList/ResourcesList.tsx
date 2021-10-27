@@ -5,7 +5,7 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { List } from '../List/List';
 import { ListCard } from '../ListCard/ListCard';
@@ -37,8 +37,8 @@ export interface ResourcesListItem {
 export function ResourcesList(props: ResourcesListProps): ReactElement {
   const classes = useStyles();
 
-  const isFileWithChildren = useSelector(getIsFileWithChildren);
-  const dispatch = useDispatch();
+  const isFileWithChildren = useAppSelector(getIsFileWithChildren);
+  const dispatch = useAppDispatch();
   const onClickCallback = props.onClickCallback ?? doNothing;
 
   const resourcesListItems: Array<ResourcesListItem> =

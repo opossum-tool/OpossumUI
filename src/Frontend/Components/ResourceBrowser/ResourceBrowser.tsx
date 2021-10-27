@@ -6,7 +6,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import remove from 'lodash/remove';
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
   getExternalAttributions,
@@ -76,33 +76,33 @@ const useStyles = makeStyles({
 export function ResourceBrowser(): ReactElement | null {
   const classes = useStyles();
 
-  const resources = useSelector(getResources);
-  const selectedResourceId = useSelector(getSelectedResourceId);
-  const expandedIds = useSelector(getExpandedIds);
+  const resources = useAppSelector(getResources);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const expandedIds = useAppSelector(getExpandedIds);
 
-  const manualAttributions = useSelector(getManualAttributions);
-  const resourcesToManualAttributions = useSelector(
+  const manualAttributions = useAppSelector(getManualAttributions);
+  const resourcesToManualAttributions = useAppSelector(
     getResourcesToManualAttributions
   );
-  const resourcesWithManualAttributedChildren = useSelector(
+  const resourcesWithManualAttributedChildren = useAppSelector(
     getResourcesWithManualAttributedChildren
   );
 
-  const externalAttributions = useSelector(getExternalAttributions);
-  const resourcesToExternalAttributions = useSelector(
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions
   );
-  const resourcesWithExternalAttributedChildren = useSelector(
+  const resourcesWithExternalAttributedChildren = useAppSelector(
     getResourcesWithExternalAttributedChildren
   );
-  const resolvedExternalAttributions = useSelector(
+  const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
   );
 
-  const attributionBreakpoints = useSelector(getAttributionBreakpoints);
-  const filesWithChildren = useSelector(getFilesWithChildren);
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const treeHeight: number = useWindowHeight() - topBarHeight - 4;
 

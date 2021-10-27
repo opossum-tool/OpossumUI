@@ -5,7 +5,6 @@
 
 import React, { ReactElement } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getAttributionBreakpoints,
@@ -17,6 +16,7 @@ import clsx from 'clsx';
 import { getParents } from '../../state/helpers/get-parents';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { OpenLinkArgs } from '../../../shared/shared-types';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   hidden: {
@@ -30,9 +30,9 @@ interface GoToLinkProps {
 
 export function GoToLinkButton(props: GoToLinkProps): ReactElement {
   const classes = useStyles();
-  const path = useSelector(getSelectedResourceId);
-  const baseUrlsForSources = useSelector(getBaseUrlsForSources);
-  const attributionBreakpoints = useSelector(getAttributionBreakpoints);
+  const path = useAppSelector(getSelectedResourceId);
+  const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const isAttributionBreakpoint = getAttributionBreakpointCheck(
     attributionBreakpoints
   );

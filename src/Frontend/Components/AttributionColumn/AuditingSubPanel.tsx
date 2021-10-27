@@ -16,8 +16,8 @@ import { Dropdown } from '../InputElements/Dropdown';
 import { NumberBox } from '../InputElements/NumberBox';
 import { TextBox } from '../InputElements/TextBox';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
-import { useSelector } from 'react-redux';
 import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
+import { useAppSelector } from '../../state/hooks';
 
 const useStyles = makeStyles({
   confidenceDropDown: {
@@ -51,7 +51,7 @@ interface AuditingSubPanelProps {
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
   const classes = { ...useAttributionColumnStyles(), ...useStyles() };
-  const attributionSources = useSelector(getExternalAttributionSources);
+  const attributionSources = useAppSelector(getExternalAttributionSources);
 
   return (
     <MuiPaper className={classes.panel} elevation={0} square={true}>

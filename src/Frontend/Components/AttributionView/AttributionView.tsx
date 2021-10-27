@@ -5,7 +5,7 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -44,13 +44,15 @@ const useStyles = makeStyles({
 
 export function AttributionView(): ReactElement {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const attributions: Attributions = useSelector(getManualAttributions);
-  const selectedAttributionId: string = useSelector(getSelectedAttributionId);
-  const attributionIdMarkedForReplacement: string = useSelector(
+  const dispatch = useAppDispatch();
+  const attributions: Attributions = useAppSelector(getManualAttributions);
+  const selectedAttributionId: string = useAppSelector(
+    getSelectedAttributionId
+  );
+  const attributionIdMarkedForReplacement: string = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const filterForFollowUp = useSelector(areOnlyFollowUpAttributionsShown);
+  const filterForFollowUp = useAppSelector(areOnlyFollowUpAttributionsShown);
 
   const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
     filterForFollowUp,

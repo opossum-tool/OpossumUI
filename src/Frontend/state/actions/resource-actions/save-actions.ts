@@ -15,7 +15,7 @@ import {
   SavePackageInfoOperation,
 } from '../../../enums/enums';
 import { packageInfoHasNoSignificantFields } from '../../../util/package-info-has-no-significant-fields';
-import { SimpleThunkAction, SimpleThunkDispatch } from '../types';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   getIsSavingDisabled,
   getManualAttributions,
@@ -69,8 +69,8 @@ export function savePackageInfoIfSavingIsNotDisabled(
   resourceId: string | null,
   attributionId: string | null,
   packageInfo: PackageInfo
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (getIsSavingDisabled(getState())) {
       dispatch(openPopup(PopupType.ErrorPopup));
       return;
@@ -83,8 +83,8 @@ export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
   packageInfo: PackageInfo
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const strippedPackageInfo: PackageInfo = getStrippedPackageInfo(
       setConfidenceToDefaultIfNotLowOrHigh(packageInfo)
     );
@@ -160,8 +160,8 @@ function getSavePackageInfoOperation(
   return SavePackageInfoOperation.Update;
 }
 
-export function saveManualAndResolvedAttributionsToFile(): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const saveFileArgs: SaveFileArgs = {
       manualAttributions: getManualAttributions(getState()),
       resourcesToAttributions: getResourcesToManualAttributions(getState()),
@@ -176,8 +176,8 @@ export function unlinkAttributionAndSavePackageInfo(
   resourceId: string,
   attributionId: string,
   packageInfo: PackageInfo
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
       getManualAttributionsToResources(getState());
 
@@ -191,8 +191,8 @@ export function unlinkAttributionAndSavePackageInfo(
 
 export function addManualAttributionToSelectedResource(
   packageInfo: PackageInfo
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
@@ -209,8 +209,8 @@ export function addManualAttributionToSelectedResource(
 
 export function addSignalToSelectedResource(
   packageInfo: PackageInfo
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
@@ -227,8 +227,8 @@ export function addSignalToSelectedResource(
 
 export function deleteAttributionGloballyAndSave(
   attributionId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
     dispatch(savePackageInfo(null, attributionId, {}));
   };
 }
@@ -236,8 +236,8 @@ export function deleteAttributionGloballyAndSave(
 export function deleteAttributionAndSave(
   resourceId: string,
   attributionId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch, getState: () => State): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
       getManualAttributionsToResources(getState());
 
@@ -252,8 +252,8 @@ export function deleteAttributionAndSave(
 function unlinkResourceFromAttributionAndSave(
   resourceId: string,
   attributionId: string
-): SimpleThunkAction {
-  return (dispatch: SimpleThunkDispatch): void => {
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
     dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
