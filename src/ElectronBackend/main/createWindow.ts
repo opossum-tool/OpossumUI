@@ -8,6 +8,7 @@ import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
 import { createMenu } from './menu';
+import { getIconPath } from './iconHelpers';
 
 export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow: BrowserWindow = new BrowserWindow({
@@ -19,6 +20,7 @@ export async function createWindow(): Promise<BrowserWindow> {
       enableRemoteModule: true,
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
+    icon: getIconPath(),
   });
 
   Menu.setApplicationMenu(createMenu(mainWindow));
