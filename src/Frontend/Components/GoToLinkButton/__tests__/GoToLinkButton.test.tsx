@@ -56,7 +56,7 @@ describe('The GoToLinkButton', () => {
       store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
-      expect(screen.getByLabelText('open link in browser'));
+      expect(screen.getByLabelText('open link'));
       clickGoToLinkButton(screen);
 
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);

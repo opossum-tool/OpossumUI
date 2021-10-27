@@ -78,6 +78,12 @@ interface ClickableIconProps extends IconProps {
   onClick: () => void;
 }
 
+interface GoToLinkIconProps extends IconProps {
+  label: string;
+  linkIsLocal: boolean;
+  onClick: () => void;
+}
+
 export function OpenFileIcon(props: ClickableIconProps): ReactElement {
   const classes = useStyles();
 
@@ -120,13 +126,13 @@ export function FolderIcon(props: ClickableIconProps): ReactElement {
   );
 }
 
-export function GoToLinkIcon(props: ClickableIconProps): ReactElement {
+export function GoToLinkIcon(props: GoToLinkIconProps): ReactElement {
   const classes = useStyles();
 
   return (
     <MuiTooltip
       classes={{ tooltip: classes.tooltip }}
-      title="open link in browser"
+      title={props.linkIsLocal ? 'open file' : 'open resource in browser'}
       placement={'right'}
     >
       <OpenInNewIcon
@@ -135,7 +141,7 @@ export function GoToLinkIcon(props: ClickableIconProps): ReactElement {
           event.stopPropagation();
           props.onClick();
         }}
-        aria-label={'open link in browser'}
+        aria-label={'open link'}
       />
     </MuiTooltip>
   );

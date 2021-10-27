@@ -17,4 +17,5 @@ export enum IpcChannel {
   SendErrorInformation = 'send-error-information',
   ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
+  SetBaseURLForRoot = 'set-base-url-for-root',
 }

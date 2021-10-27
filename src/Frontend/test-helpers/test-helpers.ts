@@ -637,7 +637,7 @@ export function expectValuesInProgressbarTooltip(
 }
 
 export function getGoToLinkButton(screen: Screen): HTMLElement {
-  return screen.getByLabelText('open link in browser');
+  return screen.getByLabelText('open link');
 }
 
 export function expectGoToLinkButtonIsVisible(screen: Screen): void {

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { dialog, BrowserWindow } from 'electron';
+import { BrowserWindow, dialog } from 'electron';
 
 export function openFileDialog(): Array<string> | undefined {
   const window = BrowserWindow.getFocusedWindow();
@@ -13,6 +13,17 @@ export function openFileDialog(): Array<string> | undefined {
         filters: [
           { name: 'Opossum Input File', extensions: ['json', 'json.gz'] },
         ],
+      })
+    : undefined;
+}
+
+export function selectBaseURLDialog(): Array<string> | undefined {
+  const window = BrowserWindow.getFocusedWindow();
+  return window
+    ? dialog.showOpenDialogSync(window, {
+        buttonLabel: 'Select',
+        properties: ['openDirectory'],
+        title: 'Path to Sources',
       })
     : undefined;
 }

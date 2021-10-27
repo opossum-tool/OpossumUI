@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BrowserWindow, shell, WebContents } from 'electron';
+import { IpcChannel } from '../../shared/ipc-channels';
 import {
   ExportArgsType,
   ExportCompactBomArgs,
@@ -26,7 +27,7 @@ import { writeJsonToFile } from '../output/writeJsonToFile';
 import { KeysOfAttributionInfo, OpossumOutputFile } from '../types/types';
 import { getGlobalBackendState } from './globalBackendState';
 import { loadApplication } from './createWindow';
-import { openFileDialog } from './openFileDialog';
+import { openFileDialog, selectBaseURLDialog } from './dialogs';
 
 import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
@@ -91,6 +92,25 @@ export function getOpenFileListener(
       await openFile(mainWindow, filePath);
     }
   );
+}
+
+export function getSelectBaseURLListener(webContents: WebContents): () => void {
+  return createListenerCallbackWithErrorHandling(webContents, () => {
+    const baseURLs = selectBaseURLDialog();
+    if (!baseURLs || baseURLs.length < 1) {
+      return;
+    }
+    const baseURL = baseURLs[0];
+    const formattedBaseURL = formatBaseURL(baseURL);
+
+    webContents.send(IpcChannel.SetBaseURLForRoot, {
+      baseURLForRoot: formattedBaseURL,
+    });
+  });
+}
+
+function formatBaseURL(baseURL: string): string {
+  return 'file://' + baseURL + '/{path}';
 }
 
 function tryToGetInputFileFromOutputFile(filePath: string): string {
