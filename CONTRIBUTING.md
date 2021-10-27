@@ -102,4 +102,4 @@ To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn 
 systems run `yarn ship`.
 **Important:** wine must be installed to build a Windows installer on a non-Windows system.
 
-The built release(s) can be found under _/release/linux_and_windows_ or _/release/macOS_
+The built release(s) can be found under _/release_ 

@@ -30,6 +30,11 @@ jest.mock('electron', () => ({
 }));
 
 jest.mock('electron-is-dev', () => false);
+jest.mock('../iconHelpers', () => ({
+  getIconPath: (): string => {
+    return 'icon/path.png';
+  },
+}));
 
 describe('createWindow', () => {
   beforeEach(() => jest.clearAllMocks());

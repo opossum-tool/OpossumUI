@@ -57,7 +57,6 @@
     "electron": "^13.6.0",
     "electron-builder": "^22.13.1",
     "electron-chromedriver": "^15.0.0",
-    "electron-packager": "^15.4.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
@@ -103,7 +102,7 @@
     "generate-notice:win32": "if not exist notices mkdir notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
     "ship-linux": "yarn build && electron-builder --linux --x64 --publish never",
     "ship-win": "yarn build && electron-builder --win --x64 --publish never",
-    "ship-mac": "yarn build && electron-packager . OpossumUI --ignore=^/release --ignore=^/src --ignore=^/example-files --ignore=^/run_precommit.sh --ignore=^/README.md --ignore=__tests__ --platform=darwin arch=x64 --overwrite --out=release/macOS --icon src/ElectronBackend/logo/icon.icns && zip -r -q 'release/macOS/OpossumUI-darwin-x64.zip' 'release/macOS/OpossumUI-darwin-x64/'",
+    "ship-mac": "yarn build && electron-builder --mac --x64 --publish never && zip -r -q 'release/mac/OpossumUI.zip' 'release/mac/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
     "clean": "rm -rf ./build/ ./release/",
     "postinstall": "husky install && yarn update-commit-hash",
@@ -114,23 +113,25 @@
     "appId": "resource-browser_electron",
     "directories": {
       "buildResources": "build",
-      "output": "release/linux_and_windows"
+      "output": "release"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icons/icon_512x512.png"
     },
     "win": {
       "target": "nsis",
-      "icon": "src/ElectronBackend/logo/icon.png"
+      "icon": "public/icons/icon_512x512.png"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "src/ElectronBackend/logo/icon.png"
+      "icon": "public/icons/icon_512x512.png"
     },
     "extraMetadata": {
       "main": "build/ElectronBackend/app.js"
     },
     "extraResources": [
-      "./notices/**",
-      "./src/ElectronBackend/logo/icon.png",
-      "./src/ElectronBackend/logo/icon.icns"
+      "./notices/**"
     ]
   },
   "eslintConfig": {

@@ -8,10 +8,10 @@ import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
 import { createMenu } from './menu';
+import { getIconPath } from './iconHelpers';
 
 export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow: BrowserWindow = new BrowserWindow({
-    icon: path.join(__dirname, '/src/ElectronBackend/logo/icon.png'),
     width: 1920,
     height: 1080,
     webPreferences: {
@@ -20,6 +20,7 @@ export async function createWindow(): Promise<BrowserWindow> {
       enableRemoteModule: true,
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
+    icon: getIconPath(),
   });
 
   Menu.setApplicationMenu(createMenu(mainWindow));
