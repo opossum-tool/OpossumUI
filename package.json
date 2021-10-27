@@ -99,7 +99,7 @@
     "update-commit-hash:win32": "echo {\"commitInfo\" : \"unknown-version\" } > \"src\\commitInfo.json\"",
     "generate-notice": "run-script-os",
     "generate-notice:darwin:linux": "mkdir -p notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
-    "generate-notice:win32": "if not exist notices mkdir notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
+    "generate-notice:win32": "(if not exist notices (mkdir notices)) && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
     "ship-linux": "yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
     "ship-win": "run-script-os",
     "ship-win:darwin:linux": "yarn build && electron-builder --win --x64 --publish never && mkdir -p release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
