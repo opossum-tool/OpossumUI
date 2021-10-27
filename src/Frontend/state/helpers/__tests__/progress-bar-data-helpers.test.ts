@@ -74,7 +74,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.fileCount).toEqual(4);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(2);
-    expect(progressBarData.filesWithSignalOnly).toEqual([
+    expect(progressBarData.filesWithNonInheritedSignalOnly).toEqual([
       '/thirdParty/package_1.tr.gz',
       '/thirdParty/package_2.tr.gz',
     ]);
@@ -140,7 +140,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.fileCount).toEqual(4);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(1);
-    expect(progressBarData.filesWithSignalOnly).toEqual([
+    expect(progressBarData.filesWithNonInheritedSignalOnly).toEqual([
       '/thirdParty/package_1.tr.gz',
     ]);
   });
@@ -231,12 +231,11 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(5);
-    expect(progressBarData.filesWithSignalOnly).toEqual([
+    expect(progressBarData.filesWithNonInheritedSignalOnly).toEqual([
       '/folder1/breakpoint1/file1',
       '/folder2/breakpoint2/file3',
       '/folder3/breakpoint3/file5',
       '/folder5/file9',
-      '/folder5/file10',
     ]);
   });
 
@@ -286,7 +285,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);
-    expect(progressBarData.filesWithSignalOnly).toEqual([]);
+    expect(progressBarData.filesWithNonInheritedSignalOnly).toEqual([]);
   });
 
   test('resourceHasOnlyPreSelectedAttributions with only pre-selected attributions', () => {
@@ -319,7 +318,7 @@ describe('The getUpdatedProgressBarData function', () => {
       filesWithManualAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
       filesWithOnlyExternalAttributionCount: 0,
-      filesWithSignalOnly: [],
+      filesWithNonInheritedSignalOnly: [],
     };
     const resources: Resources = {
       dir1: { subdir1: { file1: 1 } },
@@ -342,7 +341,7 @@ describe('The getUpdatedProgressBarData function', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 0,
-      filesWithSignalOnly: [],
+      filesWithNonInheritedSignalOnly: [],
     };
 
     updateProgressBarDataForResources(
