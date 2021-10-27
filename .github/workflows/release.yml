@@ -18,13 +18,13 @@ jobs:
         include:
           - os: ubuntu-latest
             SHIP: ship-linux
-            FILE: release/OpossumUI-*.AppImage
+            FILE: release/linux/OpossumUI-for-linux.AppImage
           - os: macos-latest
             SHIP: ship-mac
-            FILE: release/mac/OpossumUI.zip
+            FILE: release/mac/OpossumUI-for-mac.zip
           - os: windows-latest
             SHIP: ship-win
-            FILE: release/OpossumUI Setup*.exe
+            FILE: release/win/OpossumUI-for-win.exe
 
     steps:
       - name: Check out git repository

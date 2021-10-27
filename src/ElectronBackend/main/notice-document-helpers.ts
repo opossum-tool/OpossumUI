@@ -5,15 +5,12 @@
 
 import path from 'path';
 import isDev from 'electron-is-dev';
-import os from 'os';
 
 function getNoticesDirectory(): string {
   if (isDev) {
     return path.join(__dirname, '..', '..', '..', 'notices');
   }
-  if (os.platform() === 'darwin') {
-    return path.join(process.resourcesPath, 'app', 'notices');
-  }
+
   return path.join(process.resourcesPath, 'notices');
 }
 
