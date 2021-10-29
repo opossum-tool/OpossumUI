@@ -21,3 +21,7 @@ export function getApp(commandLineArg?: string): Application {
     },
   });
 }
+
+export function conditionalIt(condition: boolean): jest.It {
+  return condition ? it : it.skip;
+}

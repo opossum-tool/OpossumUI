@@ -26,6 +26,8 @@ jest.mock('electron', () => ({
   },
 }));
 
+jest.mock('electron-log');
+
 jest.mock('../../input/importFromFile', () => ({
   loadJsonFromFilePath: jest.fn(),
 }));

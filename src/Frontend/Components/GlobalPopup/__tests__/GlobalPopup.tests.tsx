@@ -29,7 +29,7 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ErrorPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ErrorPopup));
+    store.dispatch(openPopup(PopupType.UnableToSavePopup));
 
     expect(screen.getByText('Error')).toBeTruthy();
   });

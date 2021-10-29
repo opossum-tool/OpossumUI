@@ -10,7 +10,8 @@ export enum View {
 }
 
 export enum PopupType {
-  ErrorPopup = 'ErrorPopup',
+  UnableToSavePopup = 'UnableToSavePopup',
+  InvalidLinkPopup = 'InvalidLinkPopup',
   FileSearchPopup = 'FileSearchPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
   NotSavedPopup = 'NotSavedPopup',

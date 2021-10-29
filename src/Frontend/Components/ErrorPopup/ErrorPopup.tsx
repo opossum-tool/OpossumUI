@@ -10,7 +10,11 @@ import { useAppDispatch } from '../../state/hooks';
 
 export const TIME_POPUP_IS_DISPLAYED = 1500;
 
-export function ErrorPopup(): ReactElement {
+interface ErrorPopupProps {
+  content: ReactElement | string;
+}
+
+export function ErrorPopup(props: ErrorPopupProps): ReactElement {
   const dispatch = useAppDispatch();
 
   function close(): void {
@@ -21,7 +25,7 @@ export function ErrorPopup(): ReactElement {
 
   return (
     <NotificationPopup
-      content={'Unable to save.'}
+      content={props.content}
       header={'Error'}
       onBackdropClick={close}
       isOpen={true}

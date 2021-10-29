@@ -19,8 +19,10 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
     case PopupType.NotSavedPopup:
       return <NotSavedPopup />;
-    case PopupType.ErrorPopup:
-      return <ErrorPopup />;
+    case PopupType.UnableToSavePopup:
+      return <ErrorPopup content="Unable to save." />;
+    case PopupType.InvalidLinkPopup:
+      return <ErrorPopup content="Cannot open link." />;
     case PopupType.FileSearchPopup:
       return <FileSearchPopup />;
     case PopupType.ProjectMetadataPopup:

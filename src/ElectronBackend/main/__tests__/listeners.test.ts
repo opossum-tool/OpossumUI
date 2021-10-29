@@ -39,6 +39,8 @@ jest.mock('electron', () => ({
   app: {
     on: jest.fn(),
     getPath: jest.fn(),
+    getName: jest.fn(),
+    getVersion: jest.fn(),
     whenReady: async (): Promise<unknown> => Promise.resolve(true),
   },
   BrowserWindow: class BrowserWindowMock {
@@ -74,6 +76,8 @@ jest.mock('electron', () => ({
   },
   shell: { showItemInFolder: jest.fn(), openExternal: jest.fn() },
 }));
+
+jest.mock('electron-log');
 
 jest.mock('../../output/writeJsonToFile', () => ({
   writeJsonToFile: jest.fn(),

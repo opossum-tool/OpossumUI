@@ -35,10 +35,12 @@ function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
 describe('The go to link button', () => {
   beforeAll(() => {
     originalIpcRenderer = global.window.ipcRenderer;
+    const mockInvoke = jest.fn();
+    mockInvoke.mockReturnValue(Promise.resolve());
     global.window.ipcRenderer = {
       on: jest.fn(),
       removeListener: jest.fn(),
-      invoke: jest.fn(),
+      invoke: mockInvoke,
     } as unknown as IpcRenderer;
   });
 
