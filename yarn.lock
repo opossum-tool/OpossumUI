@@ -1970,10 +1970,10 @@
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-"@testing-library/webdriverio@^3.0.4":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@testing-library/webdriverio/-/webdriverio-3.0.4.tgz#b5108fea727a70cc02d39488cd97c7d0b01aa795"
-  integrity sha512-kMJTPntSDYUUjBl1CnqMp2i7kOH673JKJLLP+2i0V2rWdGoE+Fj8qrRYT5Zy3cMIl21zDDTwIVMyxV7OIm8tgg==
+"@testing-library/webdriverio@^3.0.5":
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/@testing-library/webdriverio/-/webdriverio-3.0.5.tgz#6c189d504767b6fc8596a8676346ffead45fc1df"
+  integrity sha512-8oVVjVNOeC/AYF689SOKcDWYwSiyHBrIkW8WdK8O8dW3tBVu/lBvZE0t60e2mccU27/K1zhduXRHVou7O1n7HQ==
   dependencies:
     "@babel/runtime" "^7.4.3"
     "@testing-library/dom" "^7.0.4"
