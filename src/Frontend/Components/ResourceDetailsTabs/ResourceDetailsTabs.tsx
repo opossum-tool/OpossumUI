@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import makeStyles from '@mui/styles/makeStyles';
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTab from '@mui/material/Tab';
 import {
@@ -15,7 +15,7 @@ import { PanelPackage } from '../../types/types';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { isEqual, remove } from 'lodash';
-import { getPanelData, PanelData } from './resource-details-tabs-helpers';
+import { PanelData } from './resource-details-tabs-helpers';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
@@ -24,6 +24,7 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
+import { wrap } from 'comlink';
 
 const useStyles = makeStyles({
   tabsRoot: {
@@ -80,14 +81,38 @@ export function ResourceDetailsTabs(
     setSelectedTab(Tabs.SignalsAndContent);
   }, [selectedResourceId, Tabs.SignalsAndContent]);
 
-  const panelData: Array<PanelData> = useMemo(
-    () =>
-      getPanelData(
-        selectedResourceId,
-        manualData,
-        externalData,
-        resolvedExternalAttributions
-      ),
+  const [panelData, setPanelData] = useState<Array<PanelData>>([]);
+
+  useEffect(
+    () => {
+      let active = true;
+      loadPanelData();
+      // @ts-ignore
+      return (): never => {
+        active = false;
+      };
+
+      async function loadPanelData(): Promise<void> {
+        const worker = new Worker('./worker', {
+          name: 'GetPanelDataWorker',
+          type: 'module',
+        });
+        const { getPanelData } =
+          wrap<import('./worker').GetPanelDataWorker>(worker);
+
+        const data = await getPanelData(
+          selectedResourceId,
+          manualData,
+          externalData,
+          resolvedExternalAttributions
+        );
+
+        if (!active) {
+          return;
+        }
+        setPanelData(data);
+      }
+    },
     /*
       manualData is excluded from dependencies on purpose to avoid recalculation when
       it changes. Usually this is not an issue as the displayed data remains correct.
