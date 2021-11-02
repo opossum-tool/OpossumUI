@@ -5,7 +5,7 @@
 
 import { app, BrowserWindow, Menu, shell } from 'electron';
 import { IpcChannel } from '../../shared/ipc-channels';
-import { getOpenFileListener } from './listeners';
+import { getOpenFileListener, getSelectBaseURLListener } from './listeners';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   getPathOfChromiumNoticeDocument,
@@ -94,6 +94,12 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 showProjectMetadataPopup: true,
               });
             }
+          },
+        },
+        {
+          label: 'Set Path to Sources',
+          click(): void {
+            getSelectBaseURLListener(webContents)();
           },
         },
         {

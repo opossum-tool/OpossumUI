@@ -37,7 +37,7 @@ describe('TopBar', () => {
 
   test('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(6);
+    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(7);
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel['FileLoaded'],
       expect.anything()
@@ -60,6 +60,10 @@ describe('TopBar', () => {
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel['ShowProjectMetadataPopup'],
+      expect.anything()
+    );
+    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
+      IpcChannel['SetBaseURLForRoot'],
       expect.anything()
     );
 

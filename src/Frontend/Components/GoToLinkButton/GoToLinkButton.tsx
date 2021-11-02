@@ -67,12 +67,17 @@ export function GoToLinkButton(props: GoToLinkProps): ReactElement {
     return { link };
   }
 
+  function isLocalLink(link: string): boolean {
+    return link.startsWith('file://');
+  }
+
   const openLinkArgs = getOpenLinkArgs();
 
   return (
     <GoToLinkIcon
       className={clsx(!openLinkArgs.link && classes.hidden, props.className)}
       label={'link to open'}
+      linkIsLocal={isLocalLink(openLinkArgs.link)}
       onClick={(): void => {
         window.ipcRenderer.invoke(IpcChannel.OpenLink, openLinkArgs);
       }}

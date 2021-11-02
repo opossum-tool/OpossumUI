@@ -17,13 +17,18 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   ParsedFileContent,
+  BaseURLForRootArgs,
 } from '../../../shared/shared-types';
 import { PopupType, View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  resetResourceState,
+  setBaseUrlsForSources,
+} from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
 import {
   getAttributionBreakpoints,
+  getBaseUrlsForSources,
   getFilesWithChildren,
   getFrequentLicensesTexts,
   getManualData,
@@ -92,6 +97,7 @@ export function TopBar(): ReactElement {
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
+  const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const dispatch = useAppDispatch();
 
   function fileLoadedListener(
@@ -251,6 +257,20 @@ export function TopBar(): ReactElement {
     }
   }
 
+  function setBaseURLForRootListener(
+    event: IpcRendererEvent,
+    baseURLForRootArgs: BaseURLForRootArgs
+  ): void {
+    if (baseURLForRootArgs?.baseURLForRoot) {
+      dispatch(
+        setBaseUrlsForSources({
+          ...baseUrlsForSources,
+          '/': baseURLForRootArgs.baseURLForRoot,
+        })
+      );
+    }
+  }
+
   useIpcRenderer(IpcChannel.FileLoaded, fileLoadedListener, [dispatch]);
   useIpcRenderer(IpcChannel.ResetLoadedFile, resetLoadedFileListener, [
     dispatch,
@@ -264,6 +284,10 @@ export function TopBar(): ReactElement {
     showProjectMetadataPopupListener,
     [dispatch]
   );
+  useIpcRenderer(IpcChannel.SetBaseURLForRoot, setBaseURLForRootListener, [
+    dispatch,
+    baseUrlsForSources,
+  ]);
   useIpcRenderer(IpcChannel.ExportFileRequest, getExportFileRequestListener, [
     manualData,
     attributionBreakpoints,

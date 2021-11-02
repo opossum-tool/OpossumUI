@@ -164,6 +164,10 @@ export interface OpenLinkArgs {
   link: string;
 }
 
+export interface BaseURLForRootArgs {
+  baseURLForRoot: string;
+}
+
 export interface ExternalAttributionSources {
   [source: string]: {
     name: string;

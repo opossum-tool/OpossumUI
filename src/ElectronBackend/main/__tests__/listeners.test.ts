@@ -13,7 +13,7 @@ import {
   ExportType,
 } from '../../../shared/shared-types';
 import { loadJsonFromFilePath } from '../../input/importFromFile';
-import { openFileDialog } from '../openFileDialog';
+import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { createWindow } from '../createWindow';
@@ -24,6 +24,7 @@ import {
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
+  getSelectBaseURLListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -90,8 +91,9 @@ jest.mock('../../input/importFromFile', () => ({
   loadJsonFromFilePath: jest.fn(),
 }));
 
-jest.mock('../openFileDialog', () => ({
+jest.mock('../dialogs', () => ({
   openFileDialog: jest.fn(),
+  selectBaseURLDialog: jest.fn(),
 }));
 
 const mockDate = 1603976726737;
@@ -218,6 +220,25 @@ describe('getOpenFileListener', () => {
 
     expect(openFileDialog).toBeCalled();
     expect(mainWindow.setTitle).toBeCalledWith('Test Title');
+  });
+});
+
+describe('getSelectBaseURLListener', () => {
+  test('opens base url dialog and sends selected path to frontend', () => {
+    const mockCallback = jest.fn();
+    const webContents = { send: mockCallback as unknown } as WebContents;
+    const baseURL = '/Users/path/to/sources';
+    const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
+
+    // @ts-ignore
+    selectBaseURLDialog.mockReturnValueOnce([baseURL]);
+
+    getSelectBaseURLListener(webContents)();
+
+    expect(selectBaseURLDialog).toBeCalled();
+    expect(webContents.send).toBeCalledWith(IpcChannel.SetBaseURLForRoot, {
+      baseURLForRoot: expectedFormattedBaseURL,
+    });
   });
 });
 

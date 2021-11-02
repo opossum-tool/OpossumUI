@@ -60,9 +60,15 @@ describe('The Icons', () => {
   });
 
   test('renders GoToLinkIcon', () => {
-    render(<GoToLinkIcon onClick={doNothing} label={'test_label'} />);
+    render(
+      <GoToLinkIcon
+        onClick={doNothing}
+        linkIsLocal={false}
+        label={'test_label'}
+      />
+    );
 
-    expect(screen.getByLabelText('open link in browser'));
+    expect(screen.getByLabelText('open link'));
   });
 
   test('renders CommentIcon', () => {

@@ -5,7 +5,11 @@
 
 import { IpcRendererEvent } from 'electron';
 import { useEffect } from 'react';
-import { ExportType, ParsedFileContent } from '../../shared/shared-types';
+import {
+  ExportType,
+  ParsedFileContent,
+  BaseURLForRootArgs,
+} from '../../shared/shared-types';
 
 type ResetStateListener = (
   event: IpcRendererEvent,
@@ -24,11 +28,17 @@ type ExportFileRequestListener = (
 
 type LoggingListener = (event: IpcRendererEvent, logging: string) => void;
 
+type SetBaseURLForRootListener = (
+  event: IpcRendererEvent,
+  baseURLForRootArgs: BaseURLForRootArgs
+) => void;
+
 type Listener =
   | ResetStateListener
   | SetStateListener
   | LoggingListener
-  | ExportFileRequestListener;
+  | ExportFileRequestListener
+  | SetBaseURLForRootListener;
 
 export function useIpcRenderer(
   channel: string,
