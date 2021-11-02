@@ -20,6 +20,8 @@ import {
   expectButtonInHamburgerMenu,
   expectButtonInHamburgerMenuIsNotShown,
   expectButtonIsNotShown,
+  expectConfirmDeletionPopupNotVisible,
+  expectConfirmDeletionPopupVisible,
   expectElementsInAutoCompleteAndSelectFirst,
   expectResourceBrowserIsNotShown,
   expectValueInConfidenceField,
@@ -370,7 +372,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
-    expectButton(screen, ButtonText.Confirm);
+    expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 4, 0, 0);
@@ -382,7 +384,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
-    expectButton(screen, ButtonText.Confirm);
+    expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 2, 0, 0);
@@ -401,7 +403,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
-    expectButton(screen, ButtonText.Confirm);
+    expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
   });
@@ -457,7 +459,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
-    expectButtonIsNotShown(screen, ButtonText.Confirm);
+    expectConfirmDeletionPopupNotVisible(screen);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 0, 4, 0);
 
@@ -468,7 +470,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
-    expectButtonIsNotShown(screen, ButtonText.Confirm);
+    expectConfirmDeletionPopupNotVisible(screen);
     expectValueNotInTextBox(screen, 'Name', 'React');
     expectValuesInProgressbarTooltip(screen, 5, 0, 2, 0);
 
@@ -486,7 +488,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
-    expectButtonIsNotShown(screen, ButtonText.Confirm);
+    expectConfirmDeletionPopupNotVisible(screen);
     expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 });

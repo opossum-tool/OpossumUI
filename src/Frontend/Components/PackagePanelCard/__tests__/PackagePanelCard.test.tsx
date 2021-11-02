@@ -18,6 +18,7 @@ import {
 import { ListCardConfig, ListCardContent } from '../../../types/types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { ButtonText } from '../../../enums/enums';
 
 const testCardContent: ListCardContent = { id: '1', name: 'Test' };
 const testCardConfig: ListCardConfig = { firstParty: true };
@@ -166,7 +167,7 @@ describe('The PackagePanelCard', () => {
     fireEvent.click(screen.getByLabelText('show resources'));
     expect(screen.getByText('Resources for selected attribution'));
 
-    fireEvent.click(screen.getByText('Close'));
+    fireEvent.click(screen.getByText(ButtonText.Close));
     expect(screen.queryByLabelText('Resources for selected signal')).toBeNull();
   });
 });

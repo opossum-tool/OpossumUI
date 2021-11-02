@@ -11,6 +11,8 @@ export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_SET_FOLLOW_UP_FILTER = 'ACTION_SET_FOLLOW_UP_FILTER';
+export const ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID =
+  'ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID';
 
 export type ViewAction =
   | SetView
@@ -18,7 +20,8 @@ export type ViewAction =
   | ClosePopupAction
   | ResetViewStateAction
   | OpenPopupAction
-  | SetFollowUpFilter;
+  | SetFollowUpFilter
+  | OpenPopupWithTargetAttributionIdAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -38,12 +41,27 @@ export interface ClosePopupAction {
   type: typeof ACTION_CLOSE_POPUP;
 }
 
+export type OpenPopupActionPopupType = Exclude<
+  PopupType,
+  PopupType.ConfirmDeletionPopup | PopupType.ConfirmDeletionGloballyPopup
+>;
+
 export interface OpenPopupAction {
   type: typeof ACTION_OPEN_POPUP;
-  payload: PopupType;
+  payload: OpenPopupActionPopupType;
 }
 
 export interface SetFollowUpFilter {
   type: typeof ACTION_SET_FOLLOW_UP_FILTER;
   payload: boolean;
+}
+
+export interface OpenPopupWithTargetAttributionIdActionPayload {
+  popupType: PopupType;
+  attributionId: string;
+}
+
+export interface OpenPopupWithTargetAttributionIdAction {
+  type: typeof ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID;
+  payload: OpenPopupWithTargetAttributionIdActionPayload;
 }

@@ -33,3 +33,7 @@ export function getOpenPopup(state: State): null | PopupType {
 export function areOnlyFollowUpAttributionsShown(state: State): boolean {
   return state.viewState.filterForFollowUp;
 }
+
+export function getTargetAttributionId(state: State): string {
+  return state.viewState.targetAttributionId;
+}

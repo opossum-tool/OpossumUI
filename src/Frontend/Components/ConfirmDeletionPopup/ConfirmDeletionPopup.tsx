@@ -5,40 +5,32 @@
 
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getSelectedView } from '../../state/selectors/view-selector';
-import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
-  getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
+  getSelectedView,
+  getTargetAttributionId,
+} from '../../state/selectors/view-selector';
+import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
 } from '../../state/actions/resource-actions/save-actions';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 import { View } from '../../enums/enums';
 
 export function ConfirmDeletionPopup(): ReactElement {
   const view = useAppSelector(getSelectedView);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const attributionIdOfSelectedPackageInManualPanel: string | null =
-    useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
+  const targetAttributionId = useAppSelector(getTargetAttributionId);
 
   const dispatch = useAppDispatch();
 
   function deleteAttributionForResource(): void {
     if (view === View.Audit) {
-      if (attributionIdOfSelectedPackageInManualPanel) {
-        dispatch(
-          deleteAttributionAndSave(
-            selectedResourceId,
-            attributionIdOfSelectedPackageInManualPanel
-          )
-        );
-      }
+      dispatch(
+        deleteAttributionAndSave(selectedResourceId, targetAttributionId)
+      );
     } else {
-      dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
+      dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
     }
   }
 

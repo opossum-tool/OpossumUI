@@ -16,6 +16,7 @@ import { getSelectedResourceId } from '../../state/selectors/audit-view-resource
 import { splitResourceIdsToCurrentAndOtherFolder } from './resource-path-popup-helpers';
 import { ResourcesListBatch } from '../../types/types';
 import { useAppSelector } from '../../state/hooks';
+import { ButtonText } from '../../enums/enums';
 
 const heightOffset = 300;
 
@@ -76,7 +77,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
     <NotificationPopup
       header={header}
       headerClassname={classes.header}
-      rightButtonText={'Close'}
+      rightButtonText={ButtonText.Close}
       onRightButtonClick={props.closePopup}
       onBackdropClick={props.closePopup}
       onEscapeKeyDown={props.closePopup}

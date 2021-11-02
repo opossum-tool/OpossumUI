@@ -41,6 +41,7 @@ export enum DiscreteConfidence {
 }
 
 export enum ButtonText {
+  Close = 'Close',
   Cancel = 'Cancel',
   Confirm = 'Confirm',
   ConfirmGlobally = 'Confirm globally',
