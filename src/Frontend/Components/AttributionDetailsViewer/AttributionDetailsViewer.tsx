@@ -25,7 +25,7 @@ import {
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useWindowHeight } from '../../util/use-window-height';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
 
 const useStyles = makeStyles({
@@ -87,7 +87,12 @@ export function AttributionDetailsViewer(): ReactElement | null {
     if (temporaryPackageInfo.preSelected) {
       dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
     } else {
-      dispatch(openPopup(PopupType.ConfirmDeletionPopup));
+      dispatch(
+        openPopupWithTargetAttributionId(
+          PopupType.ConfirmDeletionPopup,
+          selectedAttributionId
+        )
+      );
     }
   }
 

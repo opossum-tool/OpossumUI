@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  openPopupWithTargetAttributionId,
+} from '../../../state/actions/view-actions/view-actions';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { GlobalPopup } from '../GlobalPopup';
 import { PopupType } from '../../../enums/enums';
@@ -56,7 +59,9 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmDeletionPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ConfirmDeletionPopup));
+    store.dispatch(
+      openPopupWithTargetAttributionId(PopupType.ConfirmDeletionPopup, 'test')
+    );
 
     expect(
       screen.getByText(
@@ -67,7 +72,12 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmDeletionGloballyPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup));
+    store.dispatch(
+      openPopupWithTargetAttributionId(
+        PopupType.ConfirmDeletionGloballyPopup,
+        'test'
+      )
+    );
 
     expect(
       screen.getByText(

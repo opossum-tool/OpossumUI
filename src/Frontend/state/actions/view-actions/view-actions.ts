@@ -13,17 +13,20 @@ import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-ac
 import { getAttributionOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
 import {
   ACTION_CLOSE_POPUP,
+  ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
+  ACTION_SET_FOLLOW_UP_FILTER,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
-  ACTION_SET_FOLLOW_UP_FILTER,
   ClosePopupAction,
+  OpenPopupWithTargetAttributionIdAction,
   OpenPopupAction,
   ResetViewStateAction,
+  SetFollowUpFilter,
   SetTargetView,
   SetView,
-  SetFollowUpFilter,
+  OpenPopupActionPopupType,
 } from './types';
 
 export function resetViewState(): ResetViewStateAction {
@@ -61,7 +64,9 @@ export function setTargetView(targetView: View | null): SetTargetView {
   };
 }
 
-export function openPopup(popupType: PopupType): OpenPopupAction {
+export function openPopup(
+  popupType: OpenPopupActionPopupType
+): OpenPopupAction {
   return { type: ACTION_OPEN_POPUP, payload: popupType };
 }
 
@@ -73,4 +78,17 @@ export function setFollowUpFilter(
   filterForFollowUp: boolean
 ): SetFollowUpFilter {
   return { type: ACTION_SET_FOLLOW_UP_FILTER, payload: filterForFollowUp };
+}
+
+export function openPopupWithTargetAttributionId(
+  popupType: PopupType,
+  attributionId: string
+): OpenPopupWithTargetAttributionIdAction {
+  return {
+    type: ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
+    payload: {
+      popupType: popupType,
+      attributionId: attributionId,
+    },
+  };
 }

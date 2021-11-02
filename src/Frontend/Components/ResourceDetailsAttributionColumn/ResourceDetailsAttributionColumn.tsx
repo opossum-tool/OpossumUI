@@ -33,7 +33,7 @@ import {
   getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
 
 interface ResourceDetailsAttributionColumnProps {
   showParentAttributions: boolean;
@@ -79,31 +79,40 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function openConfirmDeletionPopup(): void {
+    if (!attributionIdOfSelectedPackageInManualPanel) return;
     if (displayPackageInfo.preSelected) {
-      if (attributionIdOfSelectedPackageInManualPanel) {
-        dispatch(
-          deleteAttributionAndSave(
-            selectedResourceId,
-            attributionIdOfSelectedPackageInManualPanel
-          )
-        );
-      }
+      dispatch(
+        deleteAttributionAndSave(
+          selectedResourceId,
+          attributionIdOfSelectedPackageInManualPanel
+        )
+      );
     } else {
-      dispatch(openPopup(PopupType.ConfirmDeletionPopup));
+      dispatch(
+        openPopupWithTargetAttributionId(
+          PopupType.ConfirmDeletionPopup,
+          attributionIdOfSelectedPackageInManualPanel
+        )
+      );
     }
   }
 
   function openConfirmDeletionGloballyPopup(): void {
+    if (!attributionIdOfSelectedPackageInManualPanel) return;
+
     if (displayPackageInfo.preSelected) {
-      if (attributionIdOfSelectedPackageInManualPanel) {
-        dispatch(
-          deleteAttributionGloballyAndSave(
-            attributionIdOfSelectedPackageInManualPanel
-          )
-        );
-      }
+      dispatch(
+        deleteAttributionGloballyAndSave(
+          attributionIdOfSelectedPackageInManualPanel
+        )
+      );
     } else {
-      dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup));
+      dispatch(
+        openPopupWithTargetAttributionId(
+          PopupType.ConfirmDeletionGloballyPopup,
+          attributionIdOfSelectedPackageInManualPanel
+        )
+      );
     }
   }
 

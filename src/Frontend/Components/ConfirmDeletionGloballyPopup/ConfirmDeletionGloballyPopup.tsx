@@ -7,22 +7,15 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
-import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/audit-view-resource-selectors';
+import { getTargetAttributionId } from '../../state/selectors/view-selector';
 
 export function ConfirmDeletionGloballyPopup(): ReactElement {
-  const attributionIdOfSelectedPackageInManualPanel: string | null =
-    useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
+  const targetAttributionId: string = useAppSelector(getTargetAttributionId);
 
   const dispatch = useAppDispatch();
 
   function deleteAttributionGlobally(): void {
-    if (attributionIdOfSelectedPackageInManualPanel) {
-      dispatch(
-        deleteAttributionGloballyAndSave(
-          attributionIdOfSelectedPackageInManualPanel
-        )
-      );
-    }
+    dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
   }
 
   return (

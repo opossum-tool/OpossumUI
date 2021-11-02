@@ -17,6 +17,7 @@ import MuiPaper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/core/styles';
 import { getProjectMetadata } from '../../state/selectors/all-views-resource-selectors';
 import { ProjectMetadata } from '../../../shared/shared-types';
+import { ButtonText } from '../../enums/enums';
 
 const useStyles = makeStyles({
   table: {
@@ -80,7 +81,7 @@ export function ProjectMetadataPopup(): ReactElement {
       header={'Project Metadata'}
       isOpen={true}
       fullWidth={true}
-      rightButtonText={'Close'}
+      rightButtonText={ButtonText.Close}
       onBackdropClick={close}
       onEscapeKeyDown={close}
       onRightButtonClick={close}

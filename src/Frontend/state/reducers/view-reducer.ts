@@ -12,6 +12,7 @@ import {
   ACTION_SET_VIEW,
   ACTION_SET_FOLLOW_UP_FILTER,
   ViewAction,
+  ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
 } from '../actions/view-actions/types';
 
 export interface ViewState {
@@ -19,6 +20,7 @@ export interface ViewState {
   targetView: View | null;
   openPopup: PopupType | null;
   filterForFollowUp: boolean;
+  targetAttributionId: string;
 }
 
 export const initialViewState: ViewState = {
@@ -26,6 +28,7 @@ export const initialViewState: ViewState = {
   targetView: null,
   openPopup: null,
   filterForFollowUp: false,
+  targetAttributionId: '',
 };
 
 export function viewState(
@@ -59,6 +62,12 @@ export function viewState(
       return {
         ...state,
         filterForFollowUp: action.payload,
+      };
+    case ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID:
+      return {
+        ...state,
+        targetAttributionId: action.payload.attributionId,
+        openPopup: action.payload.popupType,
       };
     default:
       return state;
