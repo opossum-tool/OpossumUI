@@ -22,5 +22,5 @@ SPDX-License-Identifier: CC0-1.0
 * **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
 
 
-[Full contributors list](https://github.com/opossum-tool/OpossumUI/contributors).
+[Contributors list on GitHub](https://github.com/opossum-tool/OpossumUI/contributors).
 

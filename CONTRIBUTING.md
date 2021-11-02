@@ -91,7 +91,7 @@ Prettier is used as a code formatter.
 The following software is required for working on the repository:
 
 - [git](https://git-scm.com/),
-- [node.js](https://nodejs.org/) 16+,
+- [node.js](https://nodejs.org/) 16 (version 17 is currently not supported),
 - [yarn](https://yarnpkg.com/en/),
 - [reuse.software](https://reuse.software/) (to check that copyright information is provided),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
