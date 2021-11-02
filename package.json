@@ -1,5 +1,5 @@
 {
-  "name": "OpossumUI",
+  "name": "opossum-ui",
   "description": "The OpossumUI enables the editing of attribution information that is assigned to a resource tree.",
   "license": "Apache-2.0",
   "version": "0.1.0",
@@ -32,14 +32,11 @@
     "write-file-atomic": "^3.0.3"
   },
   "devDependencies": {
-    "@material-ui/types": "^5.1.0",
     "@testing-library/dom": "^8.10.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
     "@testing-library/webdriverio": "^3.0.5",
     "@types/electron-devtools-installer": "^2.2.0",
-    "@types/jest": "^27.0.2",
     "@types/js-yaml": "^4.0.4",
     "@types/lodash": "^4.14.176",
     "@types/object-hash": "^2.2.1",
@@ -56,15 +53,9 @@
     "cross-env": "^7.0.3",
     "electron": "^13.6.1",
     "electron-builder": "^22.13.1",
-    "electron-chromedriver": "^15.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-jest-dom": "^3.9.0",
-    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-promise": "^5.1.1",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.1.2",
     "eslint-plugin-testing-library": "^5.0.0",
@@ -111,7 +102,8 @@
   },
   "main": "build/ElectronBackend/app.js",
   "build": {
-    "appId": "resource-browser_electron",
+    "productName": "OpossumUI",
+    "appId": "opossum_ui_electron",
     "directories": {
       "buildResources": "build",
       "output": "release"
