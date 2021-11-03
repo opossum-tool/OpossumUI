@@ -10,7 +10,7 @@ import installExtension, {
 import isDev from 'electron-is-dev';
 
 export function installExtensionsForDev(): void {
-  if (isDev) {
+  if (isDev && !process.env.RUNNING_IN_SPECTRON) {
     installExtension(REDUX_DEVTOOLS)
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log('An error occurred: ', err));
