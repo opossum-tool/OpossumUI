@@ -19,19 +19,30 @@ import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@material-ui/icons/Add';
 import clsx from 'clsx';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
-import { ButtonText, PopupType } from '../../enums/enums';
+import { ButtonText, PopupType, View } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
 import { useSelector } from 'react-redux';
-import { getManualAttributionsToResources } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getManualAttributions,
+  getManualAttributionsToResources,
+  getTemporaryPackageInfo,
+} from '../../state/selectors/all-views-resource-selectors';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
+  savePackageInfo,
+  unlinkAttributionAndSavePackageInfo,
 } from '../../state/actions/resource-actions/save-actions';
 import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import {
+  getAttributionIdOfDisplayedPackageInManualPanel,
+  getSelectedResourceId,
+} from '../../state/selectors/audit-view-resource-selectors';
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
+import { getSelectedView } from '../../state/selectors/view-selector';
+import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -82,29 +93,42 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       }
     />
   ) : undefined;
+  const rightIcons: Array<JSX.Element> = [];
 
+  const attributionId = props.attributionId;
   const dispatch = useAppDispatch();
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
     useState<boolean>(false);
 
-  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
-  const isPreselected = Boolean(props.cardConfig.isPreSelected);
+  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
+  const selectedView = useSelector(getSelectedView);
+  const selectedAttributionIdAttributionView = useSelector(
+    getSelectedAttributionId
+  );
+  const selectedAttributionIdAuditView =
+    useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
+
+  const selectedAttributionId =
+    selectedView === View.Attribution
+      ? selectedAttributionIdAttributionView
+      : selectedAttributionIdAuditView;
+
+  const manualAttributions = useSelector(getManualAttributions);
+  const selectedResourceId = useSelector(getSelectedResourceId);
   const attributionsToResources = useSelector(getManualAttributionsToResources);
+
   const hideResourceSpecificButtons = Boolean(
     props.hideResourceSpecificButtons
   );
-  const selectedResourceId = useSelector(getSelectedResourceId);
-  const attributionId = props.attributionId;
-
+  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
+  const isPreselected = Boolean(props.cardConfig.isPreSelected);
   const showGlobalButtons =
     !Boolean(isExternalAttribution) &&
     (hasAttributionMultipleResources(
       props.attributionId,
       attributionsToResources
-      ) ||
+    ) ||
       hideResourceSpecificButtons);
-
-  const rightIcons: Array<JSX.Element> = [];
 
   if (props.openResourcesIcon) {
     rightIcons.push(props.openResourcesIcon);
@@ -162,6 +186,36 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     }
   }
 
+  function confirmAttribution(): void {
+    if (attributionId === selectedAttributionId) {
+      dispatch(
+        unlinkAttributionAndSavePackageInfo(
+          selectedResourceId,
+          attributionId,
+          temporaryPackageInfo
+        )
+      );
+    } else {
+      dispatch(
+        unlinkAttributionAndSavePackageInfo(
+          selectedResourceId,
+          attributionId,
+          manualAttributions[attributionId]
+        )
+      );
+    }
+  }
+
+  function confirmAttributionGlobally(): void {
+    if (attributionId === selectedAttributionId) {
+      dispatch(savePackageInfo(null, attributionId, temporaryPackageInfo));
+    } else {
+      dispatch(
+        savePackageInfo(null, attributionId, manualAttributions[attributionId])
+      );
+    }
+  }
+
   const contextMenuItems: Array<ContextMenuItem> = props.hideContextMenu
     ? []
     : [
@@ -177,7 +231,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         },
         {
           buttonText: ButtonText.Confirm,
-          onClick: doNothing,
+          onClick: confirmAttribution,
           hidden:
             !isPreselected ||
             isExternalAttribution ||
@@ -185,7 +239,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         },
         {
           buttonText: ButtonText.ConfirmGlobally,
-          onClick: doNothing,
+          onClick: confirmAttributionGlobally,
           hidden: !isPreselected || !showGlobalButtons,
         },
         {

@@ -13,7 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { ButtonText, View } from '../../enums/enums';
+import { ButtonText, DiscreteConfidence, View } from '../../enums/enums';
 import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnButton,
@@ -27,11 +27,14 @@ import {
   expectConfirmDeletionPopupVisible,
   expectContextMenuIsNotShown,
   expectCorrectButtonsInContextMenu,
+  expectNoConfirmationButtonsShown,
   expectPackageInPackagePanel,
   expectPackagePanelShown,
   expectResourceBrowserIsNotShown,
   expectShowResourcesPopupVisible,
+  expectValueInConfidenceField,
   expectValueInTextBox,
+  expectValueNotInConfidenceField,
   expectValueNotInTextBox,
   expectValuesInProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
@@ -500,7 +503,7 @@ describe('The ContextMenu', () => {
       },
     };
 
-    const testResourcesToManualAttributions = {
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/firstResource.js': ['uuid_1', 'uuid_3'],
       '/secondResource.js': ['uuid_1'],
       '/thirdResource.js': ['uuid_1'],
@@ -669,7 +672,6 @@ describe('The ContextMenu', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, '/');
-
     expectPackagePanelShown(screen, 'Signals in Folder Content');
     expectPackageInPackagePanel(
       screen,
@@ -717,5 +719,133 @@ describe('The ContextMenu', () => {
     expectShowResourcesPopupVisible(screen);
     clickOnPathInPopupWithResources(screen, '/secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Vue');
+  });
+
+  describe('confirmation buttons', () => {
+    const testResources: Resources = {
+      'firstResource.js': 1,
+      'secondResource.js': 1,
+      'thirdResource.js': 1,
+      'fourthResource.js': 1,
+    };
+
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        licenseText: 'Permission is hereby granted',
+        comment: 'Attribution of multiple resources',
+        attributionConfidence: 10,
+        preSelected: true,
+      },
+      uuid_2: {
+        packageName: 'Vue',
+        packageVersion: '1.2.0',
+        licenseText: 'Permission is not granted',
+        comment: 'Attribution of one resources',
+        attributionConfidence: 90,
+        preSelected: true,
+      },
+    };
+
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/firstResource.js': ['uuid_1'],
+      '/secondResource.js': ['uuid_1'],
+      '/thirdResource.js': ['uuid_1'],
+      '/fourthResource.js': ['uuid_2'],
+    };
+
+    test('work correctly in audit view', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+      renderComponentWithStore(<App />);
+
+      clickOnElementInResourceBrowser(screen, 'firstResource.js');
+      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInConfidenceField(screen, '10');
+      expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
+
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'React, 16.5.0',
+        ButtonText.Confirm
+      );
+      expectValueNotInConfidenceField(screen, '10');
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+      expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
+      expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
+
+      clickOnElementInResourceBrowser(screen, 'secondResource.js');
+      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInConfidenceField(screen, '10');
+      expectValueNotInConfidenceField(
+        screen,
+        `High (${DiscreteConfidence.High})`
+      );
+
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'React, 16.5.0',
+        ButtonText.ConfirmGlobally
+      );
+      expectValueNotInConfidenceField(screen, '10');
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+      expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
+      expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
+
+      clickOnElementInResourceBrowser(screen, 'thirdResource.js');
+      expectValueNotInConfidenceField(screen, '10');
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+      expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
+
+      clickOnTab(screen, 'All Attributions Tab');
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'Vue, 1.2.0',
+        ButtonText.ConfirmGlobally
+      );
+
+      clickOnElementInResourceBrowser(screen, 'fourthResource.js');
+      expectValueInTextBox(screen, 'Name', 'Vue');
+      expectValueNotInConfidenceField(screen, '90');
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+      expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
+      expectNoConfirmationButtonsShown(screen, 'Vue, 1.2.0');
+    });
+
+    test('work correctly in Attribution View', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+      renderComponentWithStore(<App />);
+
+      goToView(screen, View.Attribution);
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'React, 16.5.0',
+        ButtonText.ConfirmGlobally
+      );
+      clickOnCardInAttributionList(screen, 'React, 16.5.0');
+      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueNotInConfidenceField(screen, '10');
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+      expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
+
+      goToView(screen, View.Audit);
+      clickOnElementInResourceBrowser(screen, 'secondResource.js');
+      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueNotInConfidenceField(screen, '10');
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+      expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
+    });
   });
 });

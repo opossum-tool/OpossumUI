@@ -374,13 +374,29 @@ export function expectEnabledButtonInPackageContextMenu(
   expect(buttonAttribute && buttonAttribute.value).toBe('false');
 }
 
-export function expectButtonInPackageContextMenuIsNotShown(
+export function expectNoConfirmationButtonsShown(
   screen: Screen,
-  cardLabel: string,
-  buttonLabel: ButtonText
+  cardLabel: string
 ): void {
-  openContextMenuOnCardPackageCard(screen, cardLabel);
-  expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+  expectNoConfirmationButtonsInPackageContextMenu(screen, cardLabel);
+  expectButtonIsNotShown(screen, ButtonText.Confirm);
+  expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
+}
+
+export function expectNoConfirmationButtonsInPackageContextMenu(
+  screen: Screen,
+  cardLabel: string
+): void {
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.Confirm
+  );
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.ConfirmGlobally
+  );
 }
 
 export function expectContextMenuIsNotShown(
@@ -406,6 +422,15 @@ export function expectContextMenuIsNotShown(
     cardLabel,
     ButtonText.Delete
   );
+}
+
+export function expectButtonInPackageContextMenuIsNotShown(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+  expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
 }
 
 export function clickOnButtonInPackageContextMenu(
@@ -656,7 +681,6 @@ export function expectValueInAddToAttributionList(
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
   ).parentElement as HTMLElement;
-
   // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(getByText(addToAttributionList, value));
 }
