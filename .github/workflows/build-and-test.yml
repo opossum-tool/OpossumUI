@@ -31,6 +31,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16
+      - name: Increase watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+        if: matrix.os == 'ubuntu-latest'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -48,5 +51,9 @@ jobs:
       - run: yarn lint-check
       - run: yarn compile-all
       - run: yarn test
-
+      - name: Run end2end tests
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: yarn e2e-test
+        if: matrix.os != 'windows-latest'
       - run: yarn ${{ matrix.SHIP }}

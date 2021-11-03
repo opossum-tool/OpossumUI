@@ -80,7 +80,7 @@
     "build": "yarn generate-notice && react-scripts build && tsc -p src/ElectronBackend",
     "compile-all": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test": "react-scripts test --watchAll=false --testPathIgnorePatterns=src/e2e-tests",
-    "e2e-test": "concurrently \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && react-scripts test --watchAll=false src/e2e-tests\"",
+    "e2e-test": "concurrently -s first -k true \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && react-scripts test --watchAll=false --detectOpenHandles --forceExit src/e2e-tests\"",
     "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
     "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
     "copyright-lint-check": "reuse lint",
