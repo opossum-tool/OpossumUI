@@ -115,6 +115,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             className={clsx(classes.licenseTextBox, classes.licenseText)}
             minRows={props.licenseTextRows}
             maxRows={props.licenseTextRows}
+            multiline={true}
             title={getLicenseTextLabelText(
               props.displayPackageInfo.licenseName,
               props.isEditable,

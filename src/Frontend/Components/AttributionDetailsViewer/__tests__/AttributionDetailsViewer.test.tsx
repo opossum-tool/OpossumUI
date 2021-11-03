@@ -104,7 +104,7 @@ describe('The AttributionDetailsViewer', () => {
     store.dispatch(navigateToView(View.Attribution));
     store.dispatch(setSelectedAttributionId('uuid_1'));
     store.dispatch(setTemporaryPackageInfo(expectedPackageInfo));
-    expect(screen.getByText('React'));
+    expect(screen.getByDisplayValue('React'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }) as Element);
     expect(getManualAttributions(store.getState()).uuid_1).toEqual(

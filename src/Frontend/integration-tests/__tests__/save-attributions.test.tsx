@@ -22,8 +22,10 @@ import {
   expectButtonIsNotShown,
   expectElementsInAutoCompleteAndSelectFirst,
   expectResourceBrowserIsNotShown,
+  expectValueInConfidenceField,
   expectValueInManualPackagePanel,
   expectValueInTextBox,
+  expectValueNotInConfidenceField,
   expectValueNotInTextBox,
   expectValuesInProgressbarTooltip,
   goToView,
@@ -267,59 +269,45 @@ describe('The App in Audit View', () => {
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
-    expectValueInTextBox(screen, 'Confidence', '10');
+    expectValueInConfidenceField(screen, '10');
     expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
     expectButton(screen, ButtonText.Confirm);
     expectButton(screen, ButtonText.ConfirmGlobally);
 
     clickOnButton(screen, ButtonText.Confirm);
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
     expectButtonInContextMenuIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
-    expectValueInTextBox(screen, 'Confidence', '10');
-    expectValueNotInTextBox(
+    expectValueInConfidenceField(screen, '10');
+    expectValueNotInConfidenceField(
       screen,
-      'Confidence',
       `High (${DiscreteConfidence.High})`
     );
     expectButton(screen, ButtonText.Confirm);
     expectButton(screen, ButtonText.ConfirmGlobally);
 
     clickOnButton(screen, ButtonText.ConfirmGlobally);
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
     expectButtonInContextMenuIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectButtonIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
     clickOnElementInResourceBrowser(screen, 'fourthResource.js');
-    expectValueInTextBox(screen, 'Confidence', '90');
-    expectValueNotInTextBox(
+    expectValueInConfidenceField(screen, '90');
+    expectValueNotInConfidenceField(
       screen,
-      'Confidence',
       `High (${DiscreteConfidence.High})`
     );
     expectValueInTextBox(screen, 'Name', 'Vue');
@@ -327,12 +315,8 @@ describe('The App in Audit View', () => {
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
     clickOnButton(screen, ButtonText.Confirm);
-    expectValueNotInTextBox(screen, 'Confidence', '90');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '90');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
     expectButtonIsNotShown(screen, ButtonText.Confirm);
   });
@@ -379,7 +363,7 @@ describe('The App in Audit View', () => {
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
-    expectValueInTextBox(screen, 'Confidence', '10');
+    expectValueInConfidenceField(screen, '10');
     expectValuesInProgressbarTooltip(screen, 5, 5, 0, 0);
 
     expectButtonInContextMenu(screen, ButtonText.Delete);
@@ -466,7 +450,7 @@ describe('The App in Audit View', () => {
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
-    expectValueInTextBox(screen, 'Confidence', '10');
+    expectValueInConfidenceField(screen, '10');
     expectValuesInProgressbarTooltip(screen, 5, 0, 5, 0);
 
     expectButtonInContextMenu(screen, ButtonText.Delete);

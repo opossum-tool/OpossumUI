@@ -221,7 +221,7 @@ describe('The ResourceDetailsViewer', () => {
     const externalAttributions = {
       uuid_2: {
         source: { name: 'HC', documentConfidence: 1 },
-        packageName: 'JQuery',
+        packageName: 'React',
         licenseText: testExternalLicense,
       },
     };
@@ -241,9 +241,9 @@ describe('The ResourceDetailsViewer', () => {
     );
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
-    expect(screen.getByText('jQuery'));
-    expect(screen.getByText('16.5.0'));
-    expect(screen.getByText('JQuery'));
+    expect(screen.getByDisplayValue('jQuery'));
+    expect(screen.getByDisplayValue('16.5.0'));
+    expect(screen.getByText('React'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -255,7 +255,7 @@ describe('The ResourceDetailsViewer', () => {
       testExternalLicense
     );
 
-    fireEvent.click(screen.getByText('JQuery') as Element);
+    fireEvent.click(screen.getByText('React') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -445,8 +445,8 @@ describe('The ResourceDetailsViewer', () => {
       testTemporaryPackageInfo
     );
 
-    expect(screen.getByText('jQuery'));
-    expect(screen.getByText('16.5.0'));
+    expect(screen.getByDisplayValue('jQuery'));
+    expect(screen.getByDisplayValue('16.5.0'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -462,8 +462,8 @@ describe('The ResourceDetailsViewer', () => {
       testTemporaryPackageInfo2
     );
 
-    expect(screen.getByText('Vue.js'));
-    expect(screen.getByText('2.6.11'));
+    expect(screen.getByDisplayValue('Vue.js'));
+    expect(screen.getByDisplayValue('2.6.11'));
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',

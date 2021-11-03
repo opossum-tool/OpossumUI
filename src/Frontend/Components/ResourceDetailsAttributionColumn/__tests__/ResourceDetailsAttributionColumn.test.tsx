@@ -145,9 +145,9 @@ describe('The ResourceDetailsAttributionColumn', () => {
       testTemporaryPackageInfo
     );
 
-    expect(screen.getByText('React'));
-    expect(screen.getByText('16.5.0'));
-    expect(screen.getByText(testManualLicense));
+    expect(screen.getByDisplayValue('React'));
+    expect(screen.getByDisplayValue('16.5.0'));
+    expect(screen.getByDisplayValue(testManualLicense));
   });
 
   test('does not show parent attribution if overrideParentMode is false', () => {
