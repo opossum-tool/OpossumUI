@@ -32,7 +32,7 @@
     "write-file-atomic": "^3.0.3"
   },
   "devDependencies": {
-    "@testing-library/dom": "^8.10.1",
+    "@testing-library/dom": "^8.11.0",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^12.1.2",
     "@testing-library/webdriverio": "^3.0.5",
