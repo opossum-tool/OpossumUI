@@ -19,7 +19,7 @@ const useStyles = makeStyles({
     paddingLeft: 6,
     height: 24,
     display: 'flex',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     background: OpossumColors.white,
   },
@@ -30,9 +30,6 @@ const useStyles = makeStyles({
     direction: 'rtl',
   },
   tooltip: tooltipStyle,
-  openLinkIcon: {
-    marginLeft: 'auto',
-  },
 });
 
 export function PathBar(): ReactElement | null {
@@ -49,7 +46,7 @@ export function PathBar(): ReactElement | null {
           </bdi>
         </MuiTypography>
       </MuiTooltip>
-      <GoToLinkButton className={classes.openLinkIcon} />
+      <GoToLinkButton />
     </div>
   ) : null;
 }
