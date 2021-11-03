@@ -6,7 +6,7 @@
 import { Application } from 'spectron';
 import path from 'path';
 
-export const INTEGRATION_TEST_TIMEOUT = 35000;
+export const INTEGRATION_TEST_TIMEOUT = 60000;
 
 export function getApp(commandLineArg?: string): Application {
   const app = 'build/ElectronBackend/app.js';
