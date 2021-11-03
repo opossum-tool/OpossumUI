@@ -55,7 +55,6 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           className={clsx(classes.textBox)}
           title={'Name'}
           text={props.displayPackageInfo.packageName}
-          multiline={false}
           handleChange={props.setUpdateTemporaryPackageInfoFor('packageName')}
           isEditable={props.nameAndVersionAreEditable}
         />
@@ -63,7 +62,6 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           className={clsx(classes.textBox, classes.rightTextBox)}
           title={'Version'}
           text={props.displayPackageInfo.packageVersion}
-          multiline={false}
           handleChange={props.setUpdateTemporaryPackageInfoFor(
             'packageVersion'
           )}
@@ -77,14 +75,12 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
         )}
         title={'PURL'}
         text={props.temporaryPurl}
-        multiline={false}
         handleChange={props.handlePurlChange}
         isEditable={props.isEditable}
       />
       <TextBox
         isEditable={props.isEditable}
         className={clsx(classes.textBox)}
-        multiline={false}
         title={'URL'}
         text={props.displayPackageInfo.url}
         handleChange={props.setUpdateTemporaryPackageInfoFor('url')}

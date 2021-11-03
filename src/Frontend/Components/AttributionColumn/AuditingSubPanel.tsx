@@ -121,7 +121,6 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
               props.displayPackageInfo.source.name,
               attributionSources
             )}
-            multiline={false}
             handleChange={doNothing}
           />
         ) : null}
