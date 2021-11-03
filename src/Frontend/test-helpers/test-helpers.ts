@@ -395,6 +395,24 @@ export function insertValueIntoTextBox(
   });
 }
 
+export function expectValueInConfidenceField(
+  screen: Screen,
+  value: string
+): void {
+  const numberBox = screen.getByLabelText('Confidence');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
+  getByText(numberBox, value);
+}
+
+export function expectValueNotInConfidenceField(
+  screen: Screen,
+  value: string
+): void {
+  const numberBox = screen.getByLabelText('Confidence');
+  // eslint-disable-next-line testing-library/prefer-screen-queries
+  expect(queryByText(numberBox, value)).not.toBeTruthy();
+}
+
 export function expectValueInTextBox(
   screen: Screen,
   textBoxLabel: string,
@@ -402,7 +420,7 @@ export function expectValueInTextBox(
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  getByText(textBox, value);
+  expect(textBox).toHaveValue(value);
 }
 
 export function expectValueNotInTextBox(

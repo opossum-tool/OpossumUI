@@ -32,6 +32,7 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
           text={props.displayPackageInfo.copyright}
           minRows={props.copyrightRows}
           maxRows={props.copyrightRows}
+          multiline={true}
           handleChange={props.setUpdateTemporaryPackageInfoFor('copyright')}
         />
       </div>

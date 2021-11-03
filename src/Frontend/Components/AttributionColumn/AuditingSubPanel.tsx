@@ -121,7 +121,6 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
               props.displayPackageInfo.source.name,
               attributionSources
             )}
-            maxRows={1}
             handleChange={doNothing}
           />
         ) : null}
@@ -133,6 +132,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
         text={props.displayPackageInfo.comment}
         minRows={props.commentRows}
         maxRows={props.commentRows}
+        multiline={true}
         handleChange={props.setUpdateTemporaryPackageInfoFor('comment')}
       />
     </MuiPaper>

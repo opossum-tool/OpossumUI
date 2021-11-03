@@ -14,6 +14,7 @@ interface TextProps extends InputElementProps {
   minRows?: number;
   maxRows?: number;
   endIcon?: ReactElement;
+  multiline?: boolean;
 }
 
 export function TextBox(props: TextProps): ReactElement {
@@ -35,7 +36,7 @@ export function TextBox(props: TextProps): ReactElement {
             </MuiInputAdornment>
           ),
         }}
-        multiline
+        multiline={props.multiline}
         minRows={props.minRows ? props.minRows : 1}
         maxRows={props.maxRows ? props.maxRows : 1}
         variant="outlined"

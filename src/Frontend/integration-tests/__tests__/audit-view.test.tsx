@@ -32,10 +32,12 @@ import {
   expectPackagePanelShown,
   expectResourceBrowserIsNotShown,
   expectValueInAddToAttributionList,
+  expectValueInConfidenceField,
   expectValueInManualPackagePanel,
   expectValueInManualPackagePanelForParentAttribution,
   expectValueInTextBox,
   expectValueNotInAddToAttributionList,
+  expectValueNotInConfidenceField,
   expectValueNotInManualPackagePanel,
   expectValueNotInTextBox,
   getCardInAttributionList,
@@ -279,28 +281,19 @@ describe('The App in Audit View', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'withExternalAttribution.js');
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
 
     clickOnPackageInPackagePanel(screen, 'React, 16.5.0', 'Signals');
     expect(screen.queryAllByDisplayValue('10').length).toEqual(1);
-    expectValueNotInTextBox(
+    expectValueNotInConfidenceField(
       screen,
-      'Confidence',
       `High (${DiscreteConfidence.High})`
     );
 
     clickAddIconOnCardInAttributionList(screen, 'React, 16.5.0');
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectValueNotInTextBox(screen, 'Comment', 'React comment');
     expectValueInTextBox(screen, 'Comment', '');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -308,20 +301,12 @@ describe('The App in Audit View', () => {
 
     clickOnElementInResourceBrowser(screen, 'withManualAttribution.js');
     expectValueInTextBox(screen, 'Name', 'Vue');
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
 
     clickOnElementInResourceBrowser(screen, 'withoutAttribution.js');
-    expectValueNotInTextBox(screen, 'Confidence', '10');
-    expectValueInTextBox(
-      screen,
-      'Confidence',
-      `High (${DiscreteConfidence.High})`
-    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
   });
 
   test('allows to switch between resources by clicking the progress bar', () => {
@@ -503,11 +488,7 @@ describe('The App in Audit View', () => {
         'Permission is not granted'
       );
       expectValueInTextBox(screen, 'Name', 'Vue');
-      expectValueInTextBox(
-        screen,
-        'Confidence',
-        `Low (${DiscreteConfidence.Low})`
-      );
+      expectValueInConfidenceField(screen, `Low (${DiscreteConfidence.Low})`);
       clickAddIconOnCardInAttributionList(screen, 'Angular, 10');
 
       expectValueInAddToAttributionList(screen, 'React, 16.5.0');
@@ -519,11 +500,7 @@ describe('The App in Audit View', () => {
         'Permission is maybe granted.'
       );
       expectValueInTextBox(screen, 'Name', 'Angular');
-      expectValueInTextBox(
-        screen,
-        'Confidence',
-        `High (${DiscreteConfidence.High})`
-      );
+      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     }
   );
 
