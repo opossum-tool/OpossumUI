@@ -5,7 +5,6 @@
 
 import React, { ReactElement } from 'react';
 import {
-  AddIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
@@ -15,7 +14,11 @@ import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from './package-card-helpers';
 import { makeStyles } from '@material-ui/core/styles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
-import { OpossumColors } from '../../shared-styles';
+import { clickableIcon, OpossumColors } from '../../shared-styles';
+import { IconButton } from '../IconButton/IconButton';
+import PlusIcon from '@material-ui/icons/Add';
+import clsx from 'clsx';
+import { doNothing } from '../../util/do-nothing';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -27,6 +30,7 @@ const useStyles = makeStyles({
   excludeFromNoticeIcon: {
     color: OpossumColors.grey,
   },
+  clickableIcon: clickableIcon,
 });
 
 interface PackageCardProps {
@@ -46,11 +50,20 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const classes = useStyles();
   const packageLabels = getCardLabels(props.cardContent);
   const leftIcon = props.onIconClick ? (
-    <AddIcon
-      className={props.cardConfig.isResolved ? classes.hiddenIcon : undefined}
-      onClick={props.onIconClick}
-      label={packageLabels[0] || ''}
+    <IconButton
+      tooltipTitle="add"
+      placement="left"
+      onClick={props.onIconClick ? props.onIconClick : doNothing}
       key={getKey('add-icon', props.cardContent)}
+      icon={
+        <PlusIcon
+          className={clsx(
+            props.cardConfig.isResolved ? classes.hiddenIcon : undefined,
+            classes.clickableIcon
+          )}
+          aria-label={`add ${packageLabels[0] || ''}`}
+        />
+      }
     />
   ) : undefined;
 

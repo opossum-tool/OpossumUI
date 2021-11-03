@@ -25,4 +25,21 @@ describe('The TextBox', () => {
     expect(screen.queryAllByText('Test Title')).toHaveLength(2);
     expect(screen.getByDisplayValue('Test Content'));
   });
+
+  test('renders icon', () => {
+    render(
+      <TextBox
+        title={'Test Title'}
+        text={'Test Content'}
+        handleChange={
+          doNothing as unknown as (
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => void
+        }
+        endIcon={<div>Test Icon</div>}
+      />
+    );
+
+    expect(screen.getByText('Test Icon'));
+  });
 });

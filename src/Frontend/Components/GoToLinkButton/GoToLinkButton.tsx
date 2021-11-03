@@ -10,18 +10,21 @@ import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { GoToLinkIcon } from '../Icons/Icons';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import clsx from 'clsx';
 import { getParents } from '../../state/helpers/get-parents';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { OpenLinkArgs } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
+import { IconButton } from '../IconButton/IconButton';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import { clickableIcon } from '../../shared-styles';
 
 const useStyles = makeStyles({
   hidden: {
     visibility: 'hidden',
   },
+  clickableIcon: clickableIcon,
 });
 
 interface GoToLinkProps {
@@ -74,13 +77,23 @@ export function GoToLinkButton(props: GoToLinkProps): ReactElement {
   const openLinkArgs = getOpenLinkArgs();
 
   return (
-    <GoToLinkIcon
-      className={clsx(!openLinkArgs.link && classes.hidden, props.className)}
-      label={'link to open'}
-      linkIsLocal={isLocalLink(openLinkArgs.link)}
+    <IconButton
+      tooltipTitle={
+        isLocalLink(openLinkArgs.link)
+          ? 'open file'
+          : 'open resource in browser'
+      }
+      placement="right"
       onClick={(): void => {
         window.ipcRenderer.invoke(IpcChannel.OpenLink, openLinkArgs);
       }}
+      className={!openLinkArgs.link ? classes.hidden : undefined}
+      icon={
+        <OpenInNewIcon
+          className={clsx(props.className, classes.clickableIcon)}
+          aria-label={'link to open'}
+        />
+      }
     />
   );
 }

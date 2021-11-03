@@ -7,11 +7,13 @@ import MuiTextField from '@material-ui/core/TextField';
 import React, { ReactElement } from 'react';
 import { InputElementProps, useInputElementStyles } from './shared';
 import clsx from 'clsx';
+import MuiInputAdornment from '@material-ui/core/InputAdornment';
 
 interface TextProps extends InputElementProps {
   textFieldClassname?: string;
   minRows?: number;
   maxRows?: number;
+  endIcon?: ReactElement;
 }
 
 export function TextBox(props: TextProps): ReactElement {
@@ -27,6 +29,11 @@ export function TextBox(props: TextProps): ReactElement {
           inputProps: {
             'aria-label': props.title,
           },
+          endAdornment: props.endIcon && (
+            <MuiInputAdornment position="end">
+              {props.endIcon}
+            </MuiInputAdornment>
+          ),
         }}
         multiline
         minRows={props.minRows ? props.minRows : 1}

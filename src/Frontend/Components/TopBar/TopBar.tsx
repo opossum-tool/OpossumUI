@@ -42,13 +42,14 @@ import {
 } from '../../util/get-attributions-with-resources';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
-import { OpenFileIcon } from '../Icons/Icons';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import { OpossumColors } from '../../shared-styles';
 
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { IconButton } from '../IconButton/IconButton';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 
 export const topBarHeight = 36;
 
@@ -295,12 +296,6 @@ export function TopBar(): ReactElement {
     filesWithChildren,
   ]);
 
-  function getOpenFile() {
-    return (): void => {
-      window.ipcRenderer.invoke(IpcChannel.OpenFile);
-    };
-  }
-
   function handleClick(
     event: React.MouseEvent<HTMLElement>,
     selectedView: View
@@ -310,10 +305,18 @@ export function TopBar(): ReactElement {
 
   return (
     <div className={classes.root}>
-      <OpenFileIcon
-        label={'open file'}
-        onClick={getOpenFile()}
-        className={classes.openFileIcon}
+      <IconButton
+        tooltipTitle="open file"
+        placement="right"
+        onClick={(): void => {
+          window.ipcRenderer.invoke(IpcChannel.OpenFile);
+        }}
+        icon={
+          <FolderOpenIcon
+            className={classes.openFileIcon}
+            aria-label={'open file'}
+          />
+        }
       />
       <ProgressBar />
       <MuiToggleButtonGroup
