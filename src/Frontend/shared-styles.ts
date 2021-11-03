@@ -39,3 +39,23 @@ export const resourceBrowserWidthInPixels = 420;
 export const tooltipStyle = {
   fontSize: 12,
 };
+
+export const baseIcon = {
+  width: 15,
+  height: 15,
+  padding: 2,
+  margin: '0 2px',
+};
+
+export const clickableIcon = {
+  ...baseIcon,
+  color: OpossumColors.darkBlue,
+  '&:hover': {
+    background: OpossumColors.middleBlue,
+  },
+};
+
+export const disabledIcon = {
+  ...baseIcon,
+  color: OpossumColors.disabledButtonGrey,
+};

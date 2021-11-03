@@ -5,43 +5,31 @@
 
 import { makeStyles } from '@material-ui/core/styles';
 import MuiTooltip from '@material-ui/core/Tooltip';
-import PlusIcon from '@material-ui/icons/Add';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import EditorIcon from '@material-ui/icons/Edit';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Filter1Icon from '@material-ui/icons/Filter1';
-import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 import InsertCommentIcon from '@material-ui/icons/InsertComment';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
 import WidgetsIcon from '@material-ui/icons/Widgets';
 import FolderOutlinedIcon from '@material-ui/icons/Folder';
 import DescriptionIcon from '@material-ui/icons/Description';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ReplayIcon from '@material-ui/icons/Replay';
 import LocalParkingIcon from '@material-ui/icons/LocalParking';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { OpossumColors, tooltipStyle } from '../../shared-styles';
+import {
+  OpossumColors,
+  tooltipStyle,
+  baseIcon,
+  clickableIcon,
+} from '../../shared-styles';
 
 const useStyles = makeStyles({
-  clickableIcon: {
-    width: 15,
-    height: 15,
-    padding: 2,
-    color: OpossumColors.darkBlue,
-    margin: '0 2px',
-    '&:hover': {
-      background: OpossumColors.middleBlue,
-    },
-  },
+  clickableIcon: clickableIcon,
   nonClickableIcon: {
-    width: 15,
-    height: 15,
-    padding: 2,
+    ...baseIcon,
     color: OpossumColors.darkBlue,
-    margin: '0 2px',
   },
   robotArmIcon: {
     height: 20,
@@ -71,122 +59,12 @@ interface IconProps {
 
 interface LabelDetailIconProps extends IconProps {
   labelDetail?: string;
+  disabled?: boolean;
 }
 
 interface ClickableIconProps extends IconProps {
   label: string;
   onClick: () => void;
-}
-
-interface GoToLinkIconProps extends IconProps {
-  label: string;
-  linkIsLocal: boolean;
-  onClick: () => void;
-}
-
-export function OpenFileIcon(props: ClickableIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <MuiTooltip
-      classes={{ tooltip: classes.tooltip }}
-      title="open file"
-      placement={'right'}
-    >
-      <FolderOpenIcon
-        className={props.className}
-        onClick={(event): void => {
-          event.stopPropagation();
-          props.onClick();
-        }}
-        aria-label={'open file'}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function FolderIcon(props: ClickableIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <MuiTooltip
-      classes={{ tooltip: classes.tooltip }}
-      title="show resources"
-      placement={'right'}
-    >
-      <OpenInBrowserIcon
-        className={clsx(props.className, classes.clickableIcon)}
-        onClick={(event): void => {
-          event.stopPropagation();
-          props.onClick();
-        }}
-        aria-label={'show resources'}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function GoToLinkIcon(props: GoToLinkIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <MuiTooltip
-      classes={{ tooltip: classes.tooltip }}
-      title={props.linkIsLocal ? 'open file' : 'open resource in browser'}
-      placement={'right'}
-    >
-      <OpenInNewIcon
-        className={clsx(props.className, classes.clickableIcon)}
-        onClick={(event): void => {
-          event.stopPropagation();
-          props.onClick();
-        }}
-        aria-label={'open link'}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function AddIcon(props: ClickableIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <MuiTooltip
-      classes={{ tooltip: classes.tooltip }}
-      title="add"
-      placement={'left'}
-    >
-      <PlusIcon
-        className={clsx(props.className, classes.clickableIcon)}
-        onClick={(event): void => {
-          event.stopPropagation();
-          props.onClick();
-        }}
-        aria-label={`add ${props.label}`}
-      />
-    </MuiTooltip>
-  );
-}
-
-export function EditIcon(props: ClickableIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <MuiTooltip
-      classes={{ tooltip: classes.tooltip }}
-      title="edit"
-      placement={'left'}
-    >
-      <EditorIcon
-        className={clsx(props.className, classes.clickableIcon)}
-        onClick={(event): void => {
-          event.stopPropagation();
-          props.onClick();
-        }}
-        aria-label={`edit ${props.label}`}
-      />
-    </MuiTooltip>
-  );
 }
 
 export function ClosedFolderIcon(props: ClickableIconProps): ReactElement {

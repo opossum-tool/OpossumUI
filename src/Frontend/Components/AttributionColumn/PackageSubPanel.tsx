@@ -6,9 +6,16 @@
 import MuiPaper from '@material-ui/core/Paper';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
+import { IpcChannel } from '../../../shared/ipc-channels';
 import { PackageInfo } from '../../../shared/shared-types';
 import { TextBox } from '../InputElements/TextBox';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import { IconButton } from '../IconButton/IconButton';
+import { makeStyles } from '@material-ui/styles';
+import { clickableIcon, disabledIcon } from '../../shared-styles';
+
+const useStyles = makeStyles({ clickableIcon, disabledIcon });
 
 interface PackageSubPanelProps {
   displayPackageInfo: PackageInfo;
@@ -24,6 +31,22 @@ interface PackageSubPanelProps {
 
 export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
   const classes = useAttributionColumnStyles();
+  const iconClasses = useStyles();
+
+  function openUrl(): void {
+    let urlString = props.displayPackageInfo.url;
+    if (urlString) {
+      if (
+        !urlString.startsWith('https://') &&
+        !urlString.startsWith('http://')
+      ) {
+        urlString = 'https://' + urlString;
+      }
+      window.ipcRenderer.invoke(IpcChannel.OpenLink, {
+        link: urlString,
+      });
+    }
+  }
 
   return (
     <MuiPaper className={classes.panel} elevation={0} square={true}>
@@ -65,6 +88,24 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
         title={'URL'}
         text={props.displayPackageInfo.url}
         handleChange={props.setUpdateTemporaryPackageInfoFor('url')}
+        endIcon={
+          <IconButton
+            tooltipTitle="open link in browser"
+            placement="right"
+            onClick={openUrl}
+            disabled={!props.displayPackageInfo.url}
+            icon={
+              <OpenInNewIcon
+                aria-label={'Url icon'}
+                className={
+                  props.displayPackageInfo.url
+                    ? iconClasses.clickableIcon
+                    : iconClasses.disabledIcon
+                }
+              />
+            }
+          />
+        }
       />
     </MuiPaper>
   );

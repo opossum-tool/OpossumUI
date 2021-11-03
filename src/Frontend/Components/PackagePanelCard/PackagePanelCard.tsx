@@ -4,11 +4,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useState } from 'react';
-import { FolderIcon } from '../Icons/Icons';
 import { getCardLabels } from '../PackageCard/package-card-helpers';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { ListCardConfig, ListCardContent } from '../../types/types';
+import { IconButton } from '../IconButton/IconButton';
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
+import { makeStyles } from '@material-ui/styles';
+import { clickableIcon } from '../../shared-styles';
+
+const useStyles = makeStyles({
+  clickableIcon: clickableIcon,
+});
 
 interface PackagePanelCardProps {
   cardContent: ListCardContent;
@@ -22,6 +29,8 @@ interface PackagePanelCardProps {
 export function PackagePanelCard(props: PackagePanelCardProps): ReactElement {
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
     useState<boolean>(false);
+
+  const classes = useStyles();
 
   return (
     <div>
@@ -39,12 +48,19 @@ export function PackagePanelCard(props: PackagePanelCardProps): ReactElement {
         cardConfig={props.cardConfig}
         packageCount={props.packageCount}
         openResourcesIcon={
-          <FolderIcon
+          <IconButton
+            tooltipTitle="show resources"
+            placement="right"
             onClick={(): void => {
               setShowAssociatedResourcesPopup(true);
             }}
             key={`open-resources-icon-${props.cardContent.name}-${props.cardContent.packageVersion}`}
-            label={'open resources'}
+            icon={
+              <OpenInBrowserIcon
+                className={classes.clickableIcon}
+                aria-label={'show resources'}
+              />
+            }
           />
         }
       />

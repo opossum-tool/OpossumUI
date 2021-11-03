@@ -12,7 +12,6 @@ import clsx from 'clsx';
 import MuiTypography from '@material-ui/core/Typography';
 import {
   CommentIcon,
-  EditIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
@@ -20,10 +19,12 @@ import {
 } from '../Icons/Icons';
 import { AttributionInfo, TableConfig, tableConfigs } from '../Table/Table';
 import { makeStyles } from '@material-ui/core/styles';
-import { OpossumColors } from '../../shared-styles';
+import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { useStylesReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import { Source } from '../../../shared/shared-types';
+import { IconButton } from '../IconButton/IconButton';
+import EditorIcon from '@material-ui/icons/Edit';
 
 export const reportTableRowHeight = 190;
 const padding = 10;
@@ -99,6 +100,7 @@ const useStyles = makeStyles({
   containerWithoutLineBreak: {
     whiteSpace: 'nowrap',
   },
+  clickableIcon: clickableIcon,
 });
 
 type CellData = number | string | Source;
@@ -205,10 +207,22 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     return (
       <div className={classes.iconTableData}>
         <>
-          <EditIcon
-            className={clsx(classes.editIcon, classes.icon)}
-            onClick={(): void => props.onIconClick(attributionId)}
-            label={attributionInfo['packageName'] || ''}
+          <IconButton
+            tooltipTitle="edit"
+            placement="left"
+            onClick={(): void => {
+              props.onIconClick(attributionId);
+            }}
+            icon={
+              <EditorIcon
+                className={clsx(
+                  classes.editIcon,
+                  classes.icon,
+                  classes.clickableIcon
+                )}
+                aria-label={`edit ${attributionInfo['packageName'] || ''}`}
+              />
+            }
           />
           <br />
         </>

@@ -5,11 +5,11 @@
 
 import { IpcRenderer } from 'electron';
 import {
-  clickGoToLinkButton,
+  clickGoToLinkIcon,
   clickOnElementInResourceBrowser,
   EMPTY_PARSED_FILE_CONTENT,
-  expectGoToLinkButtonIsNotVisible,
-  expectGoToLinkButtonIsVisible,
+  expectGoToLinkIconIsNotVisible,
+  expectGoToLinkIconIsVisible,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
 } from '../../test-helpers/test-helpers';
@@ -70,13 +70,13 @@ describe('The go to link button', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'parent_with_breakpoint');
-    expectGoToLinkButtonIsNotVisible(screen);
+    expectGoToLinkIconIsNotVisible(screen);
     clickOnElementInResourceBrowser(screen, 'something.js');
-    expectGoToLinkButtonIsNotVisible(screen);
+    expectGoToLinkIconIsNotVisible(screen);
 
     clickOnElementInResourceBrowser(screen, 'parent');
-    expectGoToLinkButtonIsVisible(screen);
-    clickGoToLinkButton(screen);
+    expectGoToLinkIconIsVisible(screen);
+    clickGoToLinkIcon(screen, 'link to open');
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
       IpcChannel['OpenLink'],
@@ -84,8 +84,8 @@ describe('The go to link button', () => {
     );
 
     clickOnElementInResourceBrowser(screen, 'something_else.js');
-    expectGoToLinkButtonIsVisible(screen);
-    clickGoToLinkButton(screen);
+    expectGoToLinkIconIsVisible(screen);
+    clickGoToLinkIcon(screen, 'link to open');
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(2);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
       IpcChannel['OpenLink'],

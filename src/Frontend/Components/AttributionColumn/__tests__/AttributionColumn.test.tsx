@@ -29,6 +29,8 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import {
   clickOnButton,
   clickOnCheckbox,
+  clickGoToLinkIcon,
+  expectGoToLinkButtonIsDisabled,
 } from '../../../test-helpers/test-helpers';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionColumn } from '../AttributionColumn';
@@ -49,6 +51,10 @@ describe('The AttributionColumn', () => {
   afterAll(() => {
     // Important to restore the original value.
     global.window.ipcRenderer = originalIpcRenderer;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   test('renders TextBoxes with right titles and content', () => {
@@ -201,6 +207,83 @@ describe('The AttributionColumn', () => {
     expect(getTemporaryPackageInfo(store.getState()).excludeFromNotice).toBe(
       true
     );
+  });
+
+  test('renders an url icon and opens a link in browser', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      url: 'https://www.testurl.com/',
+    };
+    renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+
+    expect(screen.getByLabelText('Url icon'));
+    clickGoToLinkIcon(screen, 'Url icon');
+    expect(global.window.ipcRenderer.invoke).toHaveBeenCalledWith(
+      IpcChannel.OpenLink,
+      { link: testTemporaryPackageInfo.url }
+    );
+  });
+
+  test('opens a link without protocol', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      url: 'www.testurl.com',
+    };
+    renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+
+    clickGoToLinkIcon(screen, 'Url icon');
+    expect(global.window.ipcRenderer.invoke).toHaveBeenCalledWith(
+      IpcChannel.OpenLink,
+      { link: 'https://' + testTemporaryPackageInfo.url }
+    );
+  });
+
+  test('disables url icon if empty url', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      url: '',
+    };
+    renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+
+    clickGoToLinkIcon(screen, 'Url icon');
+    expect(global.window.ipcRenderer.invoke).not.toHaveBeenCalled();
+    expectGoToLinkButtonIsDisabled(screen);
   });
 
   describe('there are different license text labels', () => {

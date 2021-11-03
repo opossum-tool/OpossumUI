@@ -7,46 +7,17 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { doNothing } from '../../../util/do-nothing';
 import {
-  AddIcon,
   ClosedFolderIcon,
   CommentIcon,
   DirectoryIcon,
-  EditIcon,
   ExcludeFromNoticeIcon,
   FileIcon,
   FirstPartyIcon,
-  FolderIcon,
   FollowUpIcon,
-  GoToLinkIcon,
-  OpenFileIcon,
   OpenFolderIcon,
 } from '../Icons';
 
 describe('The Icons', () => {
-  test('renders FolderIcon', () => {
-    render(<FolderIcon onClick={doNothing} label={'test_label'} />);
-
-    expect(screen.getByLabelText('show resources'));
-  });
-
-  test('renders OpenFile', () => {
-    render(<OpenFileIcon onClick={doNothing} label={'test_label'} />);
-
-    expect(screen.getByLabelText('open file'));
-  });
-
-  test('renders AddIcon', () => {
-    render(<AddIcon onClick={doNothing} label={'test_label'} />);
-
-    expect(screen.getByLabelText('add test_label'));
-  });
-
-  test('renders EditIcon', () => {
-    render(<EditIcon onClick={doNothing} label={'test_label'} />);
-
-    expect(screen.getByLabelText('edit test_label'));
-  });
-
   test('renders ClosedFolderIcon', () => {
     render(<ClosedFolderIcon onClick={doNothing} label={'test_label'} />);
 
@@ -57,18 +28,6 @@ describe('The Icons', () => {
     render(<OpenFolderIcon onClick={doNothing} label={'test_label'} />);
 
     expect(screen.getByLabelText('open folder test_label'));
-  });
-
-  test('renders GoToLinkIcon', () => {
-    render(
-      <GoToLinkIcon
-        onClick={doNothing}
-        linkIsLocal={false}
-        label={'test_label'}
-      />
-    );
-
-    expect(screen.getByLabelText('open link'));
   });
 
   test('renders CommentIcon', () => {

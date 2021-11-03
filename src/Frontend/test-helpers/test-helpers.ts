@@ -457,7 +457,7 @@ export function expectAddIconInAddToAttributionCardIsHidden(
 ): void {
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    getByTitle(getCardInAttributionList(screen, value), 'add')
+    getByTitle(getCardInAttributionList(screen, value), 'add').childNodes[0]
   ).toHaveStyle('visibility: hidden');
 }
 
@@ -467,7 +467,7 @@ export function expectAddIconInAddToAttributionCardIsNotHidden(
 ): void {
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    getByTitle(getCardInAttributionList(screen, value), 'add')
+    getByTitle(getCardInAttributionList(screen, value), 'add').childNodes[0]
   ).not.toHaveStyle('visibility: hidden');
 }
 
@@ -520,8 +520,10 @@ export function expectValueInAddToAttributionList(
   const addToAttributionList = (
     (
       (
-        (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-          .parentElement as HTMLElement
+        (
+          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+            .parentElement as HTMLElement
+        ).parentElement as HTMLElement
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
   ).parentElement as HTMLElement;
@@ -537,8 +539,14 @@ export function expectValueNotInAddToAttributionList(
     return;
   }
   const addToAttributionList = (
-    (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-      .parentElement as HTMLElement
+    (
+      (
+        (
+          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+            .parentElement as HTMLElement
+        ).parentElement as HTMLElement
+      ).parentElement as HTMLElement
+    ).parentElement as HTMLElement
   ).parentElement as HTMLElement;
   // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(queryByText(addToAttributionList, value)).toBeNull();
@@ -636,18 +644,30 @@ export function expectValuesInProgressbarTooltip(
   ).toBeDefined();
 }
 
-export function getGoToLinkButton(screen: Screen): HTMLElement {
-  return screen.getByLabelText('open link');
+function getGoToLinkIcon(screen: Screen, label: string): HTMLElement {
+  return screen.getByLabelText(label);
 }
 
-export function expectGoToLinkButtonIsVisible(screen: Screen): void {
-  expect(getGoToLinkButton(screen)).toBeVisible();
+export function expectGoToLinkIconIsVisible(screen: Screen): void {
+  expect(getGoToLinkIcon(screen, 'link to open').parentElement).toBeVisible();
 }
 
-export function expectGoToLinkButtonIsNotVisible(screen: Screen): void {
-  expect(getGoToLinkButton(screen)).not.toBeVisible();
+export function expectGoToLinkIconIsNotVisible(screen: Screen): void {
+  expect(
+    getGoToLinkIcon(screen, 'link to open').parentElement
+  ).not.toBeVisible();
 }
 
-export function clickGoToLinkButton(screen: Screen): void {
-  fireEvent.click(getGoToLinkButton(screen));
+export function clickGoToLinkIcon(screen: Screen, label: string): void {
+  fireEvent.click(getGoToLinkIcon(screen, label));
+}
+
+export function getGoToLinkButton(screen: Screen, label: string): HTMLElement {
+  return getGoToLinkIcon(screen, label).parentElement as HTMLElement;
+}
+
+export function expectGoToLinkButtonIsDisabled(screen: Screen): void {
+  const button = getGoToLinkButton(screen, 'Url icon');
+  const buttonDisabledAttribute = button.attributes.getNamedItem('disabled');
+  expect(buttonDisabledAttribute).toBeTruthy();
 }

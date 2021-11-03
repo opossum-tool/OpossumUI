@@ -12,7 +12,7 @@ import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/a
 import { IpcRenderer } from 'electron';
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
-import { clickGoToLinkButton } from '../../../test-helpers/test-helpers';
+import { clickGoToLinkIcon } from '../../../test-helpers/test-helpers';
 import each from 'jest-each';
 
 let originalIpcRenderer: IpcRenderer;
@@ -56,8 +56,8 @@ describe('The GoToLinkButton', () => {
       store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
-      expect(screen.getByLabelText('open link'));
-      clickGoToLinkButton(screen);
+      expect(screen.getByLabelText('link to open'));
+      clickGoToLinkIcon(screen, 'link to open');
 
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
       expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
