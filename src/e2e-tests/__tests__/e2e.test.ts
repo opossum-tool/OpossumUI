@@ -3,113 +3,81 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { setupBrowser } from '@testing-library/webdriverio';
+import { ElectronApplication, Page } from 'playwright';
 import {
   conditionalIt,
   getApp,
   INTEGRATION_TEST_TIMEOUT,
 } from '../test-helpers/test-helpers';
-import os from 'os';
+import * as os from 'os';
 
 jest.setTimeout(INTEGRATION_TEST_TIMEOUT);
 
 describe('The OpossumUI', () => {
-  const app = getApp();
+  let app: ElectronApplication;
+  let window: Page;
 
   beforeEach(async () => {
-    await app.start();
+    app = await getApp();
+    window = await app.firstWindow();
+    await window.waitForLoadState();
   });
 
-  afterEach(() => {
-    if (app && app.isRunning()) {
-      return app.stop();
+  afterEach(async () => {
+    if (app) {
+      await app.close();
     }
   });
 
   it('should launch app', async () => {
-    // eslint-disable-next-line @typescript-eslint/await-thenable
-    const isVisible = await app.browserWindow.isVisible();
-    expect(isVisible).toBe(true);
-  });
-
-  it('displays a window', async () => {
-    await app.client.waitUntilWindowLoaded();
-    const windowCount = await app.client.getWindowCount();
-    expect(windowCount).toBe(2);
+    expect(await window.title()).toBe('OpossumUI');
   });
 
   it('should find view buttons', async () => {
-    const { getByText } = setupBrowser(app.client);
-
-    await getByText('Audit');
-    await getByText('Attribution');
-    await getByText('Report');
+    await window.$$('text=Audit');
+    await window.$$('text=Attribution');
+    await window.$$('text=Report');
   });
 });
 
 describe('Open file via command line', () => {
-  const app = getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
+  let app: ElectronApplication;
+  let window: Page;
 
   beforeEach(async () => {
-    await app.start();
+    app = await getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
+    window = await app.firstWindow();
+    await window.waitForLoadState();
   });
 
-  afterEach(() => {
-    if (app && app.isRunning()) {
-      return app.stop();
+  afterEach(async () => {
+    if (app) {
+      await app.close();
     }
   });
 
   it('should open file when provided as command line arg', async () => {
-    const { getByText } = setupBrowser(app.client);
+    await window.$$('text=Frontend');
+    await window.click('text=ElectronBackend');
 
-    await getByText('Frontend');
-    const electronBackendEntry = await getByText('ElectronBackend');
-    await electronBackendEntry.click();
+    await window.click('text=main.ts');
 
-    const mainTsEntry = await getByText('main.ts');
-    await mainTsEntry.click();
-
-    expect(await getByText(/jQuery, 16.13.1/)).toBeTruthy();
-  });
-});
-
-describe('Open link from path bar', () => {
-  const app = getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
-
-  beforeEach(async () => {
-    await app.start();
-  });
-
-  afterEach(() => {
-    if (app && app.isRunning()) {
-      return app.stop();
-    }
+    expect(await window.$$('text=jQuery, 16.13.1')).toBeTruthy();
   });
 
   // getOpenLinkListener does not work properly on Linux
   conditionalIt(os.platform() !== 'linux')(
     'should open an error popup if the base url is invalid',
     async () => {
-      const { getByText, getByLabelText } = setupBrowser(app.client);
+      await window.click('text=ElectronBackend');
+      await window.click("[aria-label='link to open']");
 
-      const electronBackendEntry = await getByText('ElectronBackend');
-      await electronBackendEntry.click();
+      expect(await window.$$('text=Cannot open link.')).toBeTruthy();
 
-      const electronBackendGoToLinkButton = await getByLabelText(
-        'link to open'
-      );
-      await electronBackendGoToLinkButton.click();
+      await window.click('text=Types');
+      await window.click("[aria-label='link to open']");
 
-      expect(await getByText('Cannot open link.')).toBeTruthy();
-
-      const typesEntry = await getByText('Types');
-      await typesEntry.click();
-
-      const typesGoToLinkButton = await getByLabelText('link to open');
-      await typesGoToLinkButton.click();
-
-      expect(await getByText('Cannot open link.')).toBeTruthy();
+      expect(await window.$$('text=Cannot open link.')).toBeTruthy();
     }
   );
 });

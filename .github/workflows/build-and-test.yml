@@ -18,10 +18,13 @@ jobs:
         include:
           - os: ubuntu-latest
             SHIP: ship-linux
+            E2E: export DISPLAY=:99 && Xvfb $DISPLAY -screen 0 1920x1080x24 & yarn test:e2e
           - os: macos-latest
             SHIP: ship-mac
+            E2E: yarn test:e2e
           - os: windows-latest
             SHIP: ship-win
+            E2E: yarn test:e2e
 
     steps:
       - name: Check out Git repository
@@ -53,8 +56,5 @@ jobs:
       - run: yarn test:unit
       - run: yarn test:integration
       - name: Run end2end tests
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          run: yarn test:e2e
-        if: matrix.os != 'windows-latest'
+        run: ${{ matrix.E2E }}
       - run: yarn ${{ matrix.SHIP }}
