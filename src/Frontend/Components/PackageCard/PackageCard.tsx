@@ -75,6 +75,24 @@ function getKey(prefix: string, cardContent: ListCardContent): string {
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
   const classes = useStyles();
+
+  const dispatch = useAppDispatch();
+  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
+  const selectedView = useSelector(getSelectedView);
+  const selectedAttributionIdAttributionView = useSelector(
+    getSelectedAttributionId
+  );
+  const selectedAttributionIdAuditView =
+    useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
+  const manualAttributions = useSelector(getManualAttributions);
+  const selectedResourceId = useSelector(getSelectedResourceId);
+  const attributionsToResources = useSelector(getManualAttributionsToResources);
+
+  const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
+    useState<boolean>(false);
+
+  const isPreselected = Boolean(props.cardConfig.isPreSelected);
+
   const packageLabels = getCardLabels(props.cardContent);
   const leftIcon = props.onIconClick ? (
     <IconButton
@@ -94,41 +112,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     />
   ) : undefined;
   const rightIcons: Array<JSX.Element> = [];
-
-  const attributionId = props.attributionId;
-  const dispatch = useAppDispatch();
-  const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
-    useState<boolean>(false);
-
-  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
-  const selectedView = useSelector(getSelectedView);
-  const selectedAttributionIdAttributionView = useSelector(
-    getSelectedAttributionId
-  );
-  const selectedAttributionIdAuditView =
-    useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
-
-  const selectedAttributionId =
-    selectedView === View.Attribution
-      ? selectedAttributionIdAttributionView
-      : selectedAttributionIdAuditView;
-
-  const manualAttributions = useSelector(getManualAttributions);
-  const selectedResourceId = useSelector(getSelectedResourceId);
-  const attributionsToResources = useSelector(getManualAttributionsToResources);
-
-  const hideResourceSpecificButtons = Boolean(
-    props.hideResourceSpecificButtons
-  );
-  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
-  const isPreselected = Boolean(props.cardConfig.isPreSelected);
-  const showGlobalButtons =
-    !Boolean(isExternalAttribution) &&
-    (hasAttributionMultipleResources(
-      props.attributionId,
-      attributionsToResources
-    ) ||
-      hideResourceSpecificButtons);
 
   if (props.openResourcesIcon) {
     rightIcons.push(props.openResourcesIcon);
@@ -160,6 +143,12 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     );
   }
 
+  const attributionId = props.attributionId;
+  const selectedAttributionId =
+    selectedView === View.Attribution
+      ? selectedAttributionIdAttributionView
+      : selectedAttributionIdAuditView;
+
   function openConfirmDeletionPopup(): void {
     if (isPreselected) {
       dispatch(deleteAttributionAndSave(selectedResourceId, attributionId));
@@ -187,34 +176,40 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   }
 
   function confirmAttribution(): void {
-    if (attributionId === selectedAttributionId) {
-      dispatch(
-        unlinkAttributionAndSavePackageInfo(
-          selectedResourceId,
-          attributionId,
-          temporaryPackageInfo
-        )
-      );
-    } else {
-      dispatch(
-        unlinkAttributionAndSavePackageInfo(
-          selectedResourceId,
-          attributionId,
-          manualAttributions[attributionId]
-        )
-      );
-    }
+    const packageInfo =
+      attributionId === selectedAttributionId
+        ? temporaryPackageInfo
+        : manualAttributions[attributionId];
+
+    dispatch(
+      unlinkAttributionAndSavePackageInfo(
+        selectedResourceId,
+        attributionId,
+        packageInfo
+      )
+    );
   }
 
   function confirmAttributionGlobally(): void {
-    if (attributionId === selectedAttributionId) {
-      dispatch(savePackageInfo(null, attributionId, temporaryPackageInfo));
-    } else {
-      dispatch(
-        savePackageInfo(null, attributionId, manualAttributions[attributionId])
-      );
-    }
+    const packageInfo =
+      attributionId === selectedAttributionId
+        ? temporaryPackageInfo
+        : manualAttributions[attributionId];
+
+    dispatch(savePackageInfo(null, attributionId, packageInfo));
   }
+
+  const hideResourceSpecificButtons = Boolean(
+    props.hideResourceSpecificButtons
+  );
+  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
+  const showGlobalButtons =
+    !Boolean(isExternalAttribution) &&
+    (hasAttributionMultipleResources(
+      props.attributionId,
+      attributionsToResources
+    ) ||
+      hideResourceSpecificButtons);
 
   const contextMenuItems: Array<ContextMenuItem> = props.hideContextMenu
     ? []
@@ -247,9 +242,9 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           onClick: (): void => setShowAssociatedResourcesPopup(true),
         },
         {
-          buttonText: ButtonText.Hide,
+          buttonText: ButtonText.Hide, //TODO: implement functionality
           onClick: doNothing,
-          hidden: !isExternalAttribution,
+          hidden: !isExternalAttribution || true,
         },
       ];
 

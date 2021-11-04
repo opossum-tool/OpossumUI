@@ -87,8 +87,8 @@ export function openPopupWithTargetAttributionId(
   return {
     type: ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
     payload: {
-      popupType: popupType,
-      attributionId: attributionId,
+      popupType,
+      attributionId,
     },
   };
 }

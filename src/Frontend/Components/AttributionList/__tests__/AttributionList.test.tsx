@@ -21,7 +21,7 @@ function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   store.dispatch(
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
-        manualAttributions: manualAttributions,
+        manualAttributions,
       })
     )
   );

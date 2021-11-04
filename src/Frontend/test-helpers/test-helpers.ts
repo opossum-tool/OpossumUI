@@ -362,7 +362,7 @@ export function expectCorrectButtonsInContextMenu(
   });
 }
 
-export function expectEnabledButtonInPackageContextMenu(
+function expectEnabledButtonInPackageContextMenu(
   screen: Screen,
   cardLabel: string,
   buttonLabel: ButtonText
@@ -378,15 +378,6 @@ export function expectNoConfirmationButtonsShown(
   screen: Screen,
   cardLabel: string
 ): void {
-  expectNoConfirmationButtonsInPackageContextMenu(screen, cardLabel);
-  expectButtonIsNotShown(screen, ButtonText.Confirm);
-  expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
-}
-
-export function expectNoConfirmationButtonsInPackageContextMenu(
-  screen: Screen,
-  cardLabel: string
-): void {
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     cardLabel,
@@ -397,6 +388,9 @@ export function expectNoConfirmationButtonsInPackageContextMenu(
     cardLabel,
     ButtonText.ConfirmGlobally
   );
+
+  expectButtonIsNotShown(screen, ButtonText.Confirm);
+  expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 }
 
 export function expectContextMenuIsNotShown(
@@ -438,9 +432,11 @@ export function clickOnButtonInPackageContextMenu(
   cardLabel: string,
   buttonLabel: ButtonText
 ): void {
-  fireEvent.click(
-    getButtonInPackageCardContextMenu(screen, cardLabel, buttonLabel)
-  );
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+  const button = getButton(screen, buttonLabel);
+  fireEvent.click(screen.getByRole('presentation').firstChild as Element);
+
+  fireEvent.click(button);
 }
 
 export function clickOnButtonInPackageInPackagePanelContextMenu(
@@ -456,19 +452,7 @@ export function clickOnButtonInPackageInPackagePanelContextMenu(
   fireEvent.click(button);
 }
 
-export function getButtonInPackageCardContextMenu(
-  screen: Screen,
-  cardLabel: string,
-  buttonLabel: ButtonText
-): HTMLElement {
-  openContextMenuOnCardPackageCard(screen, cardLabel);
-  const button = getButton(screen, buttonLabel);
-  fireEvent.click(screen.getByRole('presentation').firstChild as Element);
-
-  return button;
-}
-
-export function openContextMenuOnCardPackageCard(
+function openContextMenuOnCardPackageCard(
   screen: Screen,
   cardLabel: string
 ): void {

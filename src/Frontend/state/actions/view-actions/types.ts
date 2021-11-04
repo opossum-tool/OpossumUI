@@ -56,7 +56,7 @@ export interface SetFollowUpFilter {
   payload: boolean;
 }
 
-export interface OpenPopupWithTargetAttributionIdActionPayload {
+interface OpenPopupWithTargetAttributionIdActionPayload {
   popupType: PopupType;
   attributionId: string;
 }

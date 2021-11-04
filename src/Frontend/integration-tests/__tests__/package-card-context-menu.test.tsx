@@ -105,7 +105,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/thirdResource.js': ['uuid_1'],
 };
 
-describe('The ContextMenu in Audit View', () => {
+describe('The ContextMenu in audit view', () => {
   beforeAll(() => {
     originalIpcRenderer = global.window.ipcRenderer;
     global.window.ipcRenderer = {
@@ -122,7 +122,7 @@ describe('The ContextMenu in Audit View', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  test('is shown correctly for external Attributions in the signals tab', () => {
+  test('is shown correctly for external attributions in the signals tab', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -138,7 +138,7 @@ describe('The ContextMenu in Audit View', () => {
     expectCorrectButtonsInContextMenu(
       screen,
       cardLabel,
-      [ButtonText.ShowResources, ButtonText.Hide],
+      [ButtonText.ShowResources],
       [
         ButtonText.Delete,
         ButtonText.DeleteGlobally,
@@ -149,7 +149,7 @@ describe('The ContextMenu in Audit View', () => {
   });
 
   describe('in the ManualPackagePanel', () => {
-    test('is shown correctly for preselected manual Attributions', () => {
+    test('is shown correctly for preselected manual attributions', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -186,7 +186,7 @@ describe('The ContextMenu in Audit View', () => {
       );
     });
 
-    test('is shown correctly for not preselected manual Attributions', () => {
+    test('is shown correctly for not preselected manual attributions', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -226,7 +226,7 @@ describe('The ContextMenu in Audit View', () => {
       );
     });
 
-    test('is not shown for Add new attribution', () => {
+    test('is not shown for add new attribution', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -271,7 +271,7 @@ describe('The ContextMenu in Audit View', () => {
       );
     });
 
-    test('is shown correctly for not preselected manual Attributions', () => {
+    test('is shown correctly for not preselected manual attributions', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -311,7 +311,7 @@ describe('The ContextMenu in Audit View', () => {
       '/thirdResource.js': ['uuid_1'],
     };
 
-    test('is shown correctly for preselected manual Attributions', () => {
+    test('is shown correctly for preselected manual attributions', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -334,7 +334,7 @@ describe('The ContextMenu in Audit View', () => {
       );
     });
 
-    test('is shown correctly for not preselected manual Attributions', () => {
+    test('is shown correctly for not preselected manual attributions', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -376,7 +376,7 @@ describe('The ContextMenu in Attribution View', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  test('is shown correctly for preselected manual Attributions', () => {
+  test('is shown correctly for preselected manual attributions', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -399,7 +399,7 @@ describe('The ContextMenu in Attribution View', () => {
     );
   });
 
-  test('is shown correctly for not preselected manual Attributions', () => {
+  test('is shown correctly for not preselected manual attributions', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -422,37 +422,6 @@ describe('The ContextMenu in Attribution View', () => {
     );
   });
 });
-
-function expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
-  cardLabel: string
-): void {
-  expectCorrectButtonsInContextMenu(
-    screen,
-    cardLabel,
-    [ButtonText.ShowResources, ButtonText.DeleteGlobally],
-    [
-      ButtonText.Hide,
-      ButtonText.Delete,
-      ButtonText.Confirm,
-      ButtonText.ConfirmGlobally,
-    ]
-  );
-}
-
-function expectCorrectGlobalOnlyButtonsPreselectedAttribution(
-  cardLabel: string
-): void {
-  expectCorrectButtonsInContextMenu(
-    screen,
-    cardLabel,
-    [
-      ButtonText.ShowResources,
-      ButtonText.DeleteGlobally,
-      ButtonText.ConfirmGlobally,
-    ],
-    [ButtonText.Hide, ButtonText.Delete, ButtonText.Confirm]
-  );
-}
 
 describe('The ContextMenu', () => {
   beforeAll(() => {
@@ -849,3 +818,34 @@ describe('The ContextMenu', () => {
     });
   });
 });
+
+function expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
+  cardLabel: string
+): void {
+  expectCorrectButtonsInContextMenu(
+    screen,
+    cardLabel,
+    [ButtonText.ShowResources, ButtonText.DeleteGlobally],
+    [
+      ButtonText.Hide,
+      ButtonText.Delete,
+      ButtonText.Confirm,
+      ButtonText.ConfirmGlobally,
+    ]
+  );
+}
+
+function expectCorrectGlobalOnlyButtonsPreselectedAttribution(
+  cardLabel: string
+): void {
+  expectCorrectButtonsInContextMenu(
+    screen,
+    cardLabel,
+    [
+      ButtonText.ShowResources,
+      ButtonText.DeleteGlobally,
+      ButtonText.ConfirmGlobally,
+    ],
+    [ButtonText.Hide, ButtonText.Delete, ButtonText.Confirm]
+  );
+}

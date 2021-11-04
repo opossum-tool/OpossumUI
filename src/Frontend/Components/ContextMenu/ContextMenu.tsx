@@ -18,6 +18,7 @@ import { ButtonText } from '../../enums/enums';
 import { makeStyles } from '@material-ui/core/styles';
 import { PopoverPosition, PopoverReference } from '@material-ui/core';
 import { OpossumColors } from '../../shared-styles';
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 
 const useStyles = makeStyles({
   icon: {
@@ -41,6 +42,7 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   ),
   [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
   [ButtonText.ReplaceMarked]: <MergeTypeIcon fontSize="small" />,
+  [ButtonText.ShowResources]: <OpenInBrowserIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {
@@ -87,7 +89,7 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
         }
       : {
           anchorReference: 'anchorPosition',
-          anchorPosition: anchorPosition,
+          anchorPosition,
         };
 
   const clickHandlers =
