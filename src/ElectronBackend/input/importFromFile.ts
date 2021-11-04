@@ -117,7 +117,7 @@ export async function loadJsonFromFilePath(
       attributions: externalAttributions,
       resourcesToAttributions: resourcesToExternalAttributions,
     },
-    frequentLicenses: frequentLicenses,
+    frequentLicenses,
     resolvedExternalAttributions: cleanNonExistentResolvedExternalSignals(
       webContents,
       opossumOutputData.resolvedExternalAttributions,
@@ -195,7 +195,7 @@ function createOutputFileIfItDoesNotExist(
 
     const attributionJSON: OpossumOutputFile = {
       metadata: {
-        projectId: projectId,
+        projectId,
         fileCreationDate: String(Date.now()),
       },
       manualAttributions: preselectedAttributions,

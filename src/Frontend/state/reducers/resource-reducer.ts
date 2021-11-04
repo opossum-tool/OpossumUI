@@ -577,7 +577,7 @@ export const resourceState = (
           ),
           externalData: {
             ...state.allViews.externalData,
-            resourcesWithAttributedChildren: resourcesWithAttributedChildren,
+            resourcesWithAttributedChildren,
           },
         },
         auditView: {

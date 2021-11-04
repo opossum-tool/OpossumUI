@@ -168,8 +168,8 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          externalAttributions: externalAttributions,
-          resourcesToExternalAttributions: resourcesToExternalAttributions,
+          externalAttributions,
+          resourcesToExternalAttributions,
         })
       )
     );
@@ -200,8 +200,8 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          externalAttributions: externalAttributions,
-          resourcesToExternalAttributions: resourcesToExternalAttributions,
+          externalAttributions,
+          resourcesToExternalAttributions,
         })
       )
     );

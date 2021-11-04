@@ -679,7 +679,7 @@ describe('The App in Audit View', () => {
         resourcesToManualAttributions: testResourcesToManualAttributions,
         externalAttributions: testExternalAttributions,
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        attributionBreakpoints: attributionBreakpoints,
+        attributionBreakpoints,
       })
     );
 

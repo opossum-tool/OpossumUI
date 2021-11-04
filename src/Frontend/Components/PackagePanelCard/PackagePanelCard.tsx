@@ -14,7 +14,7 @@ import { makeStyles } from '@material-ui/styles';
 import { clickableIcon } from '../../shared-styles';
 
 const useStyles = makeStyles({
-  clickableIcon: clickableIcon,
+  clickableIcon,
 });
 
 interface PackagePanelCardProps {

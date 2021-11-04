@@ -30,7 +30,7 @@ const useStyles = makeStyles({
   excludeFromNoticeIcon: {
     color: OpossumColors.grey,
   },
-  clickableIcon: clickableIcon,
+  clickableIcon,
 });
 
 interface PackageCardProps {

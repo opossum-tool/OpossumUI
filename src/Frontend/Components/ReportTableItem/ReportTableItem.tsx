@@ -33,7 +33,7 @@ const useStyles = makeStyles({
   tableData: {
     overflow: 'auto',
     whiteSpace: 'pre-line',
-    padding: padding,
+    padding,
     height: reportTableRowHeight - 2 * padding,
   },
   iconTableData: {
@@ -100,7 +100,7 @@ const useStyles = makeStyles({
   containerWithoutLineBreak: {
     whiteSpace: 'nowrap',
   },
-  clickableIcon: clickableIcon,
+  clickableIcon,
 });
 
 type CellData = number | string | Source;

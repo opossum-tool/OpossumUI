@@ -29,7 +29,7 @@ export function parsePurl(potentialPurl: string): ParsedPurl {
         packageNamespace:
           packageURL && packageURL.namespace ? packageURL.namespace : undefined,
         packageType: packageURL ? packageURL.type : undefined,
-        packagePURLAppendix: packagePURLAppendix,
+        packagePURLAppendix,
       },
     };
   } catch {

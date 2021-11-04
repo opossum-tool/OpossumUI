@@ -101,7 +101,7 @@ describe('The table helpers', () => {
       };
 
       const testAttributionInfo: AttributionInfo = {
-        followUp: followUp,
+        followUp,
         resources: ['1'],
       };
 

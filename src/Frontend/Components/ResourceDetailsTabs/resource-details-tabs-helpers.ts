@@ -63,7 +63,7 @@ function getExternalAttributionIdsWithCount(
   attributionIds: Array<string>
 ): Array<AttributionIdWithCount> {
   return attributionIds.map((attributionId) => ({
-    attributionId: attributionId,
+    attributionId,
   }));
 }
 

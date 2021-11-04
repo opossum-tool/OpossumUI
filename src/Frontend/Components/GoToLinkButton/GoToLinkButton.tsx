@@ -24,7 +24,7 @@ const useStyles = makeStyles({
   hidden: {
     visibility: 'hidden',
   },
-  clickableIcon: clickableIcon,
+  clickableIcon,
 });
 
 interface GoToLinkProps {
