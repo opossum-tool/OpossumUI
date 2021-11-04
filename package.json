@@ -81,6 +81,7 @@
     "compile-all": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "react-scripts test --watchAll=false --testPathIgnorePatterns=src/e2e-tests --testPathIgnorePatterns=src/Frontend/integration-tests",
     "test:integration": "react-scripts test --watchAll=false src/Frontend/integration-tests",
+    "test:unit+integration": "yarn test:unit & yarn test:integration",
     "test:e2e": "concurrently -s first -k true \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && react-scripts test --watchAll=false --detectOpenHandles --forceExit src/e2e-tests\"",
     "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
     "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
