@@ -10,7 +10,7 @@ import { screen } from '@testing-library/react';
 
 describe('Error popup ', () => {
   test('renders', () => {
-    renderComponentWithStore(<ErrorPopup />);
+    renderComponentWithStore(<ErrorPopup content="Invalid link." />);
 
     expect(screen.getByText('Error')).toBeTruthy();
   });

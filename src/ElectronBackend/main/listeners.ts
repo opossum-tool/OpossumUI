@@ -31,6 +31,7 @@ import { openFileDialog, selectBaseURLDialog } from './dialogs';
 
 import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
+import log from 'electron-log';
 
 export function getSaveFileListener(
   webContents: WebContents
@@ -162,9 +163,21 @@ export function getSendErrorInformationListener(
 export function getOpenLinkListener(): (
   _: unknown,
   args: OpenLinkArgs
-) => Promise<void> {
-  return async (_, args: OpenLinkArgs): Promise<void> => {
-    await shell.openExternal(args.link);
+) => Promise<Error | void> {
+  return async (_, args: OpenLinkArgs): Promise<Error | void> => {
+    try {
+      // Does not throw on Linux if link cannot be opened.
+      // see https://github.com/electron/electron/issues/28183
+      return await shell.openExternal(args.link);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        log.info(`Cannot open link ${args.link}\n` + error.message);
+        return error;
+      } else {
+        log.info(`Cannot open link ${args.link}`);
+        return new Error('Cannot open link');
+      }
+    }
   };
 }
 

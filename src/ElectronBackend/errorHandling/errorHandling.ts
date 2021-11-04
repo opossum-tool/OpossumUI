@@ -10,6 +10,7 @@ import {
   MessageBoxReturnValue,
   WebContents,
 } from 'electron';
+import log from 'electron-log';
 import { IpcChannel } from '../../shared/ipc-channels';
 import { loadJsonFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
@@ -25,6 +26,7 @@ export function createListenerCallbackWithErrorHandling(
       await func(...args);
     } catch (error: unknown) {
       if (error instanceof Error) {
+        log.info('Failed executing callback function.\n' + error.message);
         await getMessageBoxForErrors(
           error.message,
           error.stack ?? '',
@@ -32,6 +34,7 @@ export function createListenerCallbackWithErrorHandling(
           true
         );
       } else {
+        log.info('Failed executing callback function.');
         await getMessageBoxForErrors(
           'Unexpected internal error',
           '',

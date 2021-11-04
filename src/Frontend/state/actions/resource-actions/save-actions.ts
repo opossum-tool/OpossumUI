@@ -72,7 +72,7 @@ export function savePackageInfoIfSavingIsNotDisabled(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (getIsSavingDisabled(getState())) {
-      dispatch(openPopup(PopupType.ErrorPopup));
+      dispatch(openPopup(PopupType.UnableToSavePopup));
       return;
     }
     dispatch(savePackageInfo(resourceId, attributionId, packageInfo));

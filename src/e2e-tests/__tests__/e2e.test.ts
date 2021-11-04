@@ -4,7 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { setupBrowser } from '@testing-library/webdriverio';
-import { getApp, INTEGRATION_TEST_TIMEOUT } from '../test-helpers/test-helpers';
+import {
+  conditionalIt,
+  getApp,
+  INTEGRATION_TEST_TIMEOUT,
+} from '../test-helpers/test-helpers';
+import os from 'os';
 
 jest.setTimeout(INTEGRATION_TEST_TIMEOUT);
 
@@ -67,4 +72,44 @@ describe('Open file via command line', () => {
 
     expect(await getByText(/jQuery, 16.13.1/)).toBeTruthy();
   });
+});
+
+describe('Open link from path bar', () => {
+  const app = getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
+
+  beforeEach(async () => {
+    await app.start();
+  });
+
+  afterEach(() => {
+    if (app && app.isRunning()) {
+      return app.stop();
+    }
+  });
+
+  // getOpenLinkListener does not work properly on Linux
+  conditionalIt(os.platform() !== 'linux')(
+    'should open an error popup if the base url is invalid',
+    async () => {
+      const { getByText, getByLabelText } = setupBrowser(app.client);
+
+      const electronBackendEntry = await getByText('ElectronBackend');
+      await electronBackendEntry.click();
+
+      const electronBackendGoToLinkButton = await getByLabelText(
+        'link to open'
+      );
+      await electronBackendGoToLinkButton.click();
+
+      expect(await getByText('Cannot open link.')).toBeTruthy();
+
+      const typesEntry = await getByText('Types');
+      await typesEntry.click();
+
+      const typesGoToLinkButton = await getByLabelText('link to open');
+      await typesGoToLinkButton.click();
+
+      expect(await getByText('Cannot open link.')).toBeTruthy();
+    }
+  );
 });

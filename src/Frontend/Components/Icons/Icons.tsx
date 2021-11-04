@@ -31,10 +31,6 @@ const useStyles = makeStyles({
     ...baseIcon,
     color: OpossumColors.darkBlue,
   },
-  robotArmIcon: {
-    height: 20,
-    transform: 'scale(0.6)',
-  },
   resourceIcon: {
     width: 18,
     height: 18,

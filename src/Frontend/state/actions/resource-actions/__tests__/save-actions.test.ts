@@ -155,7 +155,9 @@ describe('The savePackageInfo action', () => {
       )
     );
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
-    expect(getOpenPopup(testStore.getState())).toBe(PopupType.ErrorPopup);
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.UnableToSavePopup
+    );
   });
 
   test('throws an error if resource is a breakpoint', () => {
