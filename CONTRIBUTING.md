@@ -76,12 +76,13 @@ Unit tests are provided for all features, aided by integration tests when helpfu
 testing library. They can be run locally by executing:
 
 ```
-yarn test
+yarn test:unit
+yarn test:integration
 ```
 
 End to end test are available (currently only linux and mac) and can be run using:
 ```
-yarn e2e-test
+yarn test:e2e
 ```
 
 Prettier is used as a code formatter.
