@@ -4,15 +4,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  act,
+  fireEvent,
   getByLabelText,
   getByText,
   getByTitle,
   queryByLabelText,
   queryByText,
+  Screen,
   within,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { act, fireEvent, Screen } from '@testing-library/react';
 import {
   Attributions,
   ParsedFileContent,
@@ -149,6 +151,10 @@ export function clickOnPackageInPackagePanel(
     // eslint-disable-next-line testing-library/prefer-screen-queries
     getByText(getPackagePanel(screen, packagePanelName), packageName)
   );
+}
+
+export function expectShowResourcesPopupVisible(screen: Screen): void {
+  expect(getPopupWithResources(screen)).toBeTruthy();
 }
 
 export function clickOnPathInPopupWithResources(
@@ -296,30 +302,30 @@ export function expectButtonIsNotShown(
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
 }
 
-export function getButtonInContextMenu(
+export function getButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText
 ): HTMLElement {
-  fireEvent.click(screen.getByLabelText('button-context-menu'));
+  fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
   const button = getButton(screen, buttonLabel);
   fireEvent.click(screen.getByRole('presentation').firstChild as Element);
 
   return button;
 }
 
-export function clickOnButtonInContextMenu(
+export function clickOnButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  fireEvent.click(getButtonInContextMenu(screen, buttonLabel));
+  fireEvent.click(getButtonInHamburgerMenu(screen, buttonLabel));
 }
 
-export function expectButtonInContextMenu(
+export function expectButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText,
   disabled?: boolean
 ): void {
-  const button = getButtonInContextMenu(screen, buttonLabel);
+  const button = getButtonInHamburgerMenu(screen, buttonLabel);
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
   if (disabled) {
@@ -329,16 +335,128 @@ export function expectButtonInContextMenu(
   }
 }
 
-export function expectButtonInContextMenuIsNotShown(
+export function expectButtonInHamburgerMenuIsNotShown(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  fireEvent.click(screen.getByLabelText('button-context-menu'));
+  fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
   expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
 
   if (screen.queryByRole('presentation')) {
     fireEvent.click(screen.getByRole('presentation').firstChild as Element);
   }
+}
+
+export function expectCorrectButtonsInContextMenu(
+  screen: Screen,
+  cardLabel: string,
+  shownButtons: Array<ButtonText>,
+  hiddenButtons: Array<ButtonText>
+): void {
+  shownButtons.forEach((buttonText) => {
+    expectEnabledButtonInPackageContextMenu(screen, cardLabel, buttonText);
+  });
+
+  hiddenButtons.forEach((buttonText) => {
+    expectButtonInPackageContextMenuIsNotShown(screen, cardLabel, buttonText);
+  });
+}
+
+function expectEnabledButtonInPackageContextMenu(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+  const button = getButton(screen, buttonLabel);
+  const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
+
+  expect(buttonAttribute && buttonAttribute.value).toBe('false');
+}
+
+export function expectNoConfirmationButtonsShown(
+  screen: Screen,
+  cardLabel: string
+): void {
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.Confirm
+  );
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.ConfirmGlobally
+  );
+
+  expectButtonIsNotShown(screen, ButtonText.Confirm);
+  expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
+}
+
+export function expectContextMenuIsNotShown(
+  screen: Screen,
+  cardLabel: string
+): void {
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.ShowResources
+  );
+
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.Hide
+  );
+
+  expectButtonInPackageContextMenuIsNotShown(
+    screen,
+    cardLabel,
+    ButtonText.Delete
+  );
+}
+
+export function expectButtonInPackageContextMenuIsNotShown(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+  expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+}
+
+export function clickOnButtonInPackageContextMenu(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+  const button = getButton(screen, buttonLabel);
+  fireEvent.click(screen.getByRole('presentation').firstChild as Element);
+
+  fireEvent.click(button);
+}
+
+export function clickOnButtonInPackageInPackagePanelContextMenu(
+  screen: Screen,
+  packageName: string,
+  packagePanelName: string,
+  buttonLabel: ButtonText
+): void {
+  const packagesPanel = getPackagePanel(screen, packagePanelName);
+  // eslint-disable-next-line testing-library/prefer-screen-queries
+  fireEvent.contextMenu(getByText(packagesPanel, packageName));
+  const button = getButton(screen, buttonLabel);
+  fireEvent.click(button);
+}
+
+function openContextMenuOnCardPackageCard(
+  screen: Screen,
+  cardLabel: string
+): void {
+  fireEvent.contextMenu(screen.getByText(cardLabel) as Element);
 }
 
 export function clickOnTab(screen: Screen, tabLabel: string): void {
@@ -539,8 +657,10 @@ export function expectValueInAddToAttributionList(
     (
       (
         (
-          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-            .parentElement as HTMLElement
+          (
+            (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+              .parentElement as HTMLElement
+          ).parentElement as HTMLElement
         ).parentElement as HTMLElement
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
@@ -560,8 +680,10 @@ export function expectValueNotInAddToAttributionList(
     (
       (
         (
-          (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-            .parentElement as HTMLElement
+          (
+            (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
+              .parentElement as HTMLElement
+          ).parentElement as HTMLElement
         ).parentElement as HTMLElement
       ).parentElement as HTMLElement
     ).parentElement as HTMLElement
@@ -688,4 +810,12 @@ export function expectGoToLinkButtonIsDisabled(screen: Screen): void {
   const button = getGoToLinkButton(screen, 'Url icon');
   const buttonDisabledAttribute = button.attributes.getNamedItem('disabled');
   expect(buttonDisabledAttribute).toBeTruthy();
+}
+
+export function expectConfirmDeletionPopupVisible(screen: Screen): void {
+  expect(screen.getByText('Confirm Deletion')).toBeTruthy();
+}
+
+export function expectConfirmDeletionPopupNotVisible(screen: Screen): void {
+  expect(screen.queryByText('Confirm Deletion')).toBeFalsy();
 }

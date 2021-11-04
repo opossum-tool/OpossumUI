@@ -3,11 +3,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { doNothing } from '../../../util/do-nothing';
 import { ManualAttributionList } from '../ManualAttributionList';
+import {
+  createTestAppStore,
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+
+function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
+  const store = createTestAppStore();
+  store.dispatch(
+    loadFromFile(
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+      })
+    )
+  );
+  return store;
+}
 
 describe('The ManualAttributionList', () => {
   const packages: Attributions = {
@@ -29,40 +48,43 @@ describe('The ManualAttributionList', () => {
   });
 
   test('renders', () => {
-    render(
+    renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         onCardClick={mockCallback}
-      />
+      />,
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   test('renders first party icon', () => {
-    render(
+    renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         onCardClick={doNothing}
-      />
+      />,
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
   });
 
   test('renders button', () => {
-    render(
+    renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
-      />
+      />,
+      { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Add new attribution'));
@@ -70,13 +92,14 @@ describe('The ManualAttributionList', () => {
   });
 
   test('sets selectedAttributionId on click', () => {
-    render(
+    renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={packages}
         selectedAttributionId={''}
         onCardClick={mockCallback}
-      />
+      />,
+      { store: getTestStore(packages) }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeTruthy();
@@ -102,13 +125,14 @@ describe('The ManualAttributionList', () => {
         copyright: '(C) Copyright John Doe 2',
       },
     };
-    const { container } = render(
+    const { container } = renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
         attributions={testPackages}
         selectedAttributionId={''}
         onCardClick={mockCallback}
-      />
+      />,
+      { store: getTestStore(testPackages) }
     );
 
     expect(container.childNodes[0].textContent).toContain('zz Test package');

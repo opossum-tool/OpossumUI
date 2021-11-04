@@ -8,6 +8,7 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import {
   getOpenPopup,
   getSelectedView,
+  getTargetAttributionId,
   getTargetView,
   isAttributionViewSelected,
   isAuditViewSelected,
@@ -17,6 +18,7 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  openPopupWithTargetAttributionId,
   resetViewState,
   setTargetView,
 } from '../view-actions';
@@ -126,5 +128,22 @@ describe('popup actions', () => {
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(closePopup());
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
+  });
+  test('sets targetAttributionId and popupType', () => {
+    const testStore = createTestAppStore();
+    expect(getTargetAttributionId(testStore.getState())).toEqual('');
+    const testAttributionId = 'test';
+    testStore.dispatch(
+      openPopupWithTargetAttributionId(
+        PopupType.ConfirmDeletionPopup,
+        testAttributionId
+      )
+    );
+    expect(getTargetAttributionId(testStore.getState())).toEqual(
+      testAttributionId
+    );
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.ConfirmDeletionPopup
+    );
   });
 });

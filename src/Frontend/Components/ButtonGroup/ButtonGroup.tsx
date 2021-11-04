@@ -6,9 +6,10 @@
 import React, { ReactElement } from 'react';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 import { Button } from '../Button/Button';
-import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 const useStyles = makeStyles({
   root: {
@@ -27,7 +28,7 @@ export interface MainButtonConfig {
 
 interface ButtonGroupProps {
   mainButtonConfigs: Array<MainButtonConfig>;
-  contextMenuButtonConfigs?: Array<ContextMenuItem>;
+  hamburgerMenuButtonConfigs?: Array<ContextMenuItem>;
   isHidden?: boolean;
   className?: string;
 }
@@ -47,8 +48,8 @@ export function ButtonGroup(props: ButtonGroupProps): ReactElement | null {
               key={`button-group-${buttonConfig.buttonText}-${idx}`}
             />
           ))}
-        {props.contextMenuButtonConfigs ? (
-          <ContextMenu menuItems={props.contextMenuButtonConfigs} />
+        {props.hamburgerMenuButtonConfigs ? (
+          <HamburgerMenu menuItems={props.hamburgerMenuButtonConfigs} />
         ) : null}
       </MuiButtonGroup>
     </div>

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
@@ -18,7 +18,31 @@ import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@material-ui/icons/Add';
 import clsx from 'clsx';
+import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { ButtonText, PopupType, View } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
+import { useSelector } from 'react-redux';
+import {
+  getManualAttributions,
+  getManualAttributionsToResources,
+  getTemporaryPackageInfo,
+} from '../../state/selectors/all-views-resource-selectors';
+import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
+import {
+  deleteAttributionAndSave,
+  deleteAttributionGloballyAndSave,
+  savePackageInfo,
+  unlinkAttributionAndSavePackageInfo,
+} from '../../state/actions/resource-actions/save-actions';
+import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
+import {
+  getAttributionIdOfDisplayedPackageInManualPanel,
+  getSelectedResourceId,
+} from '../../state/selectors/audit-view-resource-selectors';
+import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
+import { getSelectedView } from '../../state/selectors/view-selector';
+import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -35,11 +59,14 @@ const useStyles = makeStyles({
 
 interface PackageCardProps {
   cardContent: ListCardContent;
+  attributionId: string;
   packageCount?: number;
   cardConfig: ListCardConfig;
   onClick(): void;
   onIconClick?(): void;
   openResourcesIcon?: JSX.Element;
+  hideContextMenu?: boolean;
+  hideResourceSpecificButtons?: boolean;
 }
 
 function getKey(prefix: string, cardContent: ListCardContent): string {
@@ -48,6 +75,24 @@ function getKey(prefix: string, cardContent: ListCardContent): string {
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
   const classes = useStyles();
+
+  const dispatch = useAppDispatch();
+  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
+  const selectedView = useSelector(getSelectedView);
+  const selectedAttributionIdAttributionView = useSelector(
+    getSelectedAttributionId
+  );
+  const selectedAttributionIdAuditView =
+    useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
+  const manualAttributions = useSelector(getManualAttributions);
+  const selectedResourceId = useSelector(getSelectedResourceId);
+  const attributionsToResources = useSelector(getManualAttributionsToResources);
+
+  const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
+    useState<boolean>(false);
+
+  const isPreselected = Boolean(props.cardConfig.isPreSelected);
+
   const packageLabels = getCardLabels(props.cardContent);
   const leftIcon = props.onIconClick ? (
     <IconButton
@@ -66,8 +111,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       }
     />
   ) : undefined;
-
   const rightIcons: Array<JSX.Element> = [];
+
   if (props.openResourcesIcon) {
     rightIcons.push(props.openResourcesIcon);
   }
@@ -92,25 +137,141 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       />
     );
   }
-  if (props.cardConfig.isPreSelected) {
+  if (isPreselected) {
     rightIcons.push(
       <PreSelectedIcon key={getKey('pre-selected-icon', props.cardContent)} />
     );
   }
 
+  const attributionId = props.attributionId;
+  const selectedAttributionId =
+    selectedView === View.Attribution
+      ? selectedAttributionIdAttributionView
+      : selectedAttributionIdAuditView;
+
+  function openConfirmDeletionPopup(): void {
+    if (isPreselected) {
+      dispatch(deleteAttributionAndSave(selectedResourceId, attributionId));
+    } else {
+      dispatch(
+        openPopupWithTargetAttributionId(
+          PopupType.ConfirmDeletionPopup,
+          attributionId
+        )
+      );
+    }
+  }
+
+  function openConfirmDeletionGloballyPopup(): void {
+    if (isPreselected) {
+      dispatch(deleteAttributionGloballyAndSave(attributionId));
+    } else {
+      dispatch(
+        openPopupWithTargetAttributionId(
+          PopupType.ConfirmDeletionGloballyPopup,
+          attributionId
+        )
+      );
+    }
+  }
+
+  function confirmAttribution(): void {
+    const packageInfo =
+      attributionId === selectedAttributionId
+        ? temporaryPackageInfo
+        : manualAttributions[attributionId];
+
+    dispatch(
+      unlinkAttributionAndSavePackageInfo(
+        selectedResourceId,
+        attributionId,
+        packageInfo
+      )
+    );
+  }
+
+  function confirmAttributionGlobally(): void {
+    const packageInfo =
+      attributionId === selectedAttributionId
+        ? temporaryPackageInfo
+        : manualAttributions[attributionId];
+
+    dispatch(savePackageInfo(null, attributionId, packageInfo));
+  }
+
+  const hideResourceSpecificButtons = Boolean(
+    props.hideResourceSpecificButtons
+  );
+  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
+  const showGlobalButtons =
+    !Boolean(isExternalAttribution) &&
+    (hasAttributionMultipleResources(
+      props.attributionId,
+      attributionsToResources
+    ) ||
+      hideResourceSpecificButtons);
+
+  const contextMenuItems: Array<ContextMenuItem> = props.hideContextMenu
+    ? []
+    : [
+        {
+          buttonText: ButtonText.Delete,
+          onClick: openConfirmDeletionPopup,
+          hidden: isExternalAttribution || hideResourceSpecificButtons,
+        },
+        {
+          buttonText: ButtonText.DeleteGlobally,
+          onClick: openConfirmDeletionGloballyPopup,
+          hidden: isExternalAttribution || !showGlobalButtons,
+        },
+        {
+          buttonText: ButtonText.Confirm,
+          onClick: confirmAttribution,
+          hidden:
+            !isPreselected ||
+            isExternalAttribution ||
+            hideResourceSpecificButtons,
+        },
+        {
+          buttonText: ButtonText.ConfirmGlobally,
+          onClick: confirmAttributionGlobally,
+          hidden: !isPreselected || !showGlobalButtons,
+        },
+        {
+          buttonText: ButtonText.ShowResources,
+          onClick: (): void => setShowAssociatedResourcesPopup(true),
+        },
+        {
+          buttonText: ButtonText.Hide, //TODO: implement functionality
+          onClick: doNothing,
+          hidden: !isExternalAttribution || true,
+        },
+      ];
+
   return (
-    <ListCard
-      text={packageLabels[0] || ''}
-      secondLineText={packageLabels[1] || undefined}
-      cardConfig={props.cardConfig}
-      count={props.packageCount}
-      onClick={props.onClick}
-      onRightClick={(): void => {
-        // TODO: replace
-        console.log('this should open a context menu');
-      }}
-      leftIcon={leftIcon}
-      rightIcons={rightIcons}
-    />
+    <>
+      {!Boolean(props.hideContextMenu) && (
+        <ResourcePathPopup
+          isOpen={showAssociatedResourcesPopup}
+          closePopup={(): void => setShowAssociatedResourcesPopup(false)}
+          attributionId={props.attributionId}
+          isExternalAttribution={Boolean(
+            props.cardConfig.isExternalAttribution
+          )}
+          displayedAttributionName={getCardLabels(props.cardContent)[0] || ''}
+        />
+      )}
+      <ContextMenu menuItems={contextMenuItems} activation={'onRightClick'}>
+        <ListCard
+          text={packageLabels[0] || ''}
+          secondLineText={packageLabels[1] || undefined}
+          cardConfig={props.cardConfig}
+          count={props.packageCount}
+          onClick={props.onClick}
+          leftIcon={leftIcon}
+          rightIcons={rightIcons}
+        />
+      </ContextMenu>
+    </>
   );
 }

@@ -38,22 +38,17 @@ export function ManualAttributionList(
 
   function getAttributionCard(attributionId: string): ReactElement {
     const attribution = attributions[attributionId];
+    const isButton = attributionId === addNewAttributionButtonId;
 
     function isSelected(): boolean {
       return (
         attributionId === props.selectedAttributionId ||
-        Boolean(
-          props.selectedAttributionId === '' &&
-            attributionId === addNewAttributionButtonId
-        )
+        Boolean(props.selectedAttributionId === '' && isButton)
       );
     }
 
     function onClick(): void {
-      props.onCardClick(
-        attributionId,
-        attributionId === addNewAttributionButtonId
-      );
+      props.onCardClick(attributionId, isButton);
     }
 
     const cardConfig: ListCardConfig = {
@@ -66,7 +61,9 @@ export function ManualAttributionList(
 
     return (
       <PackageCard
+        attributionId={isButton ? '' : attributionId}
         onClick={onClick}
+        hideContextMenu={isButton}
         cardConfig={cardConfig}
         key={`AttributionCard-${attribution.packageName}-${attributionId}`}
         cardContent={{

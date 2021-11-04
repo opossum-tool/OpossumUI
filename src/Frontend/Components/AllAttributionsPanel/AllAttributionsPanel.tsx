@@ -77,6 +77,7 @@ export function AllAttributionsPanel(
           url: packageInfo.url,
           licenseName: packageInfo.licenseName,
         }}
+        hideResourceSpecificButtons={true}
         attributionId={attributionId}
       />
     );

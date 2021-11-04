@@ -8,6 +8,7 @@ import React from 'react';
 import { ButtonText, PopupType } from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import {
+  createTestAppStore,
   EnhancedTestStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
@@ -39,6 +40,7 @@ function setupTestState(store: EnhancedTestStore): void {
     'package_1.tr.gz': ['test_selected_id'],
     'package_2.tr.gz': ['test_marked_id'],
   };
+
   store.dispatch(openPopup(PopupType.ReplaceAttributionPopup));
   store.dispatch(setSelectedAttributionId('test_selected_id'));
   store.dispatch(setAttributionIdMarkedForReplacement('test_marked_id'));
@@ -73,8 +75,12 @@ describe('ReplaceAttributionPopup and do not change view', () => {
   });
 
   test('renders a ReplaceAttributionPopup and click cancel', () => {
-    const { store } = renderComponentWithStore(<ReplaceAttributionPopup />);
-    setupTestState(store);
+    const testStore = createTestAppStore();
+    setupTestState(testStore);
+
+    const { store } = renderComponentWithStore(<ReplaceAttributionPopup />, {
+      store: testStore,
+    });
 
     expect(screen.getByText('Replacing an attribution')).toBeTruthy();
     expect(screen.getByText('React')).toBeTruthy();
@@ -84,9 +90,34 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(getOpenPopup(store.getState())).toBe(null);
   });
 
+  test('does not show ContextMenu for attributions', () => {
+    const testStore = createTestAppStore();
+    setupTestState(testStore);
+
+    renderComponentWithStore(<ReplaceAttributionPopup />, {
+      store: testStore,
+    });
+
+    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
+    expect(screen.getByText('React')).toBeTruthy();
+    expect(screen.getByText('Vue')).toBeTruthy();
+
+    fireEvent.contextMenu(screen.queryByText('React') as Element);
+    expect(screen.queryByText(ButtonText.Delete)).toBeFalsy();
+    expect(screen.queryByText(ButtonText.Hide)).toBeFalsy();
+    expect(screen.queryByText(ButtonText.ShowResources)).toBeFalsy();
+    expect(screen.queryByText(ButtonText.Confirm)).toBeFalsy();
+    expect(screen.queryByText(ButtonText.ConfirmGlobally)).toBeFalsy();
+    expect(screen.queryByText(ButtonText.DeleteGlobally)).toBeFalsy();
+  });
+
   test('renders a ReplaceAttributionPopup and click replace', () => {
-    const { store } = renderComponentWithStore(<ReplaceAttributionPopup />);
-    setupTestState(store);
+    const testStore = createTestAppStore();
+    setupTestState(testStore);
+
+    const { store } = renderComponentWithStore(<ReplaceAttributionPopup />, {
+      store: testStore,
+    });
 
     expect(screen.getByText('Replacing an attribution')).toBeTruthy();
     expect(screen.getByText('React')).toBeTruthy();

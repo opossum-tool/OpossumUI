@@ -3,70 +3,122 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ContextMenu, ContextMenuItem } from '../ContextMenu';
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { doNothing } from '../../../util/do-nothing';
 import { ButtonText } from '../../../enums/enums';
+import { doNothing } from '../../../util/do-nothing';
+import { ContextMenuItem, ContextMenu } from '../ContextMenu';
+
+const onClickMock = jest.fn();
+const testMenuItems: Array<ContextMenuItem> = [
+  {
+    buttonText: ButtonText.Undo,
+    disabled: true,
+    onClick: doNothing,
+  },
+  {
+    buttonText: ButtonText.Save,
+    disabled: false,
+    onClick: onClickMock,
+  },
+  {
+    buttonText: ButtonText.SaveGlobally,
+    disabled: false,
+    onClick: doNothing,
+    hidden: true,
+  },
+];
+
+function expectContextMenuIsNotShown(): void {
+  expect(screen.queryByText(ButtonText.Undo)).toBeFalsy();
+  expect(screen.queryByText(ButtonText.Save)).toBeFalsy();
+  expect(screen.queryByText(ButtonText.SaveGlobally)).toBeFalsy();
+}
+
+function expectContextMenuIsShown(): void {
+  expect(screen.getByText(ButtonText.Undo));
+  expect(screen.getByText(ButtonText.Save));
+  expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
+}
 
 describe('The ContextMenu', () => {
-  test('renders and handles click', () => {
-    const onClickMock = jest.fn();
-    const menuItems: Array<ContextMenuItem> = [
-      {
-        buttonText: ButtonText.Undo,
-        disabled: true,
-        onClick: doNothing,
-      },
-      {
-        buttonText: ButtonText.Save,
-        disabled: false,
-        onClick: onClickMock,
-      },
-      {
-        buttonText: ButtonText.SaveGlobally,
-        disabled: false,
-        onClick: doNothing,
-        hidden: true,
-      },
-    ];
-    render(<ContextMenu menuItems={menuItems} />);
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    expect(screen.getByText(ButtonText.Undo));
-    expect(screen.getByText(ButtonText.Save));
-    expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
+  test('renders and handles left clicks correctly', () => {
+    const testElementText = 'Test Element';
+    render(
+      <ContextMenu menuItems={testMenuItems} activation={'onLeftClick'}>
+        <p>{testElementText}</p>
+      </ContextMenu>
+    );
 
-    const buttonDisabledAttribute = screen
-      .getByLabelText('button-context-menu')
-      .attributes.getNamedItem('disabled');
+    expectContextMenuIsNotShown();
 
-    expect(buttonDisabledAttribute).toBeFalsy();
+    fireEvent.contextMenu(screen.getByText(testElementText));
+    expectContextMenuIsNotShown();
+
+    fireEvent.click(screen.getByText(testElementText));
+    expectContextMenuIsShown();
 
     fireEvent.click(screen.getByText(ButtonText.Save));
 
-    expect(onClickMock).toBeCalled();
+    expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  test('is disabled if no enabled button present', () => {
-    const menuItems: Array<ContextMenuItem> = [
-      {
-        buttonText: ButtonText.Undo,
-        disabled: true,
-        onClick: doNothing,
-      },
-      {
-        buttonText: ButtonText.SaveGlobally,
-        disabled: false,
-        onClick: doNothing,
-        hidden: true,
-      },
-    ];
-    render(<ContextMenu menuItems={menuItems} />);
+  test('renders and handles right clicks correctly', () => {
+    const testElementText = 'Test Element';
+    render(
+      <ContextMenu menuItems={testMenuItems} activation={'onRightClick'}>
+        <p>{testElementText}</p>
+      </ContextMenu>
+    );
 
-    const buttonDisabledAttribute = screen
-      .getByLabelText('button-context-menu')
-      .attributes.getNamedItem('disabled');
+    expectContextMenuIsNotShown();
 
-    expect(buttonDisabledAttribute).toBeTruthy();
+    fireEvent.click(screen.getByText(testElementText));
+    expectContextMenuIsNotShown();
+
+    fireEvent.contextMenu(screen.getByText(testElementText));
+    expectContextMenuIsShown();
+
+    fireEvent.click(screen.getByText(ButtonText.Save));
+
+    expect(onClickMock).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders and handles left clicks correctly for both activated', () => {
+    const testElementText = 'Test Element';
+    render(
+      <ContextMenu menuItems={testMenuItems} activation={'both'}>
+        <p>{testElementText}</p>
+      </ContextMenu>
+    );
+
+    expectContextMenuIsNotShown();
+
+    fireEvent.click(screen.getByText(testElementText));
+    expectContextMenuIsShown();
+
+    fireEvent.click(screen.getByText(ButtonText.Save));
+    expect(onClickMock).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders and handles right clicks correctly for both clicks activated', () => {
+    const testElementText = 'Test Element';
+    render(
+      <ContextMenu menuItems={testMenuItems} activation={'both'}>
+        <p>{testElementText}</p>
+      </ContextMenu>
+    );
+
+    expectContextMenuIsNotShown();
+
+    fireEvent.contextMenu(screen.getByText(testElementText));
+    expectContextMenuIsShown();
+
+    fireEvent.click(screen.getByText(ButtonText.Save));
+    expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 });

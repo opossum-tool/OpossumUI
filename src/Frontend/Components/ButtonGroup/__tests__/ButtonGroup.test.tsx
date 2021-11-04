@@ -7,8 +7,8 @@ import { ButtonGroup, MainButtonConfig } from '../ButtonGroup';
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
-import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
 import { ButtonText } from '../../../enums/enums';
+import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
 
 describe('Button group', () => {
   const mainButtonConfigs: Array<MainButtonConfig> = [
@@ -58,10 +58,10 @@ describe('Button group', () => {
     render(
       <ButtonGroup
         mainButtonConfigs={mainButtonConfigs}
-        contextMenuButtonConfigs={contextMenuItems}
+        hamburgerMenuButtonConfigs={contextMenuItems}
       />
     );
-    fireEvent.click(screen.getByLabelText('button-context-menu'));
+    fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
 
     screen.getByText(ButtonText.Save);
     expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
