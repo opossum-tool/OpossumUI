@@ -82,9 +82,9 @@ export function createSpdxDocument(
       creators: [`Tool: ${creatorTool}`],
     },
     documentDescribes: [ROOT_PACKAGE_SPDX_ID], // c.f. https://github.com/spdx/spdx-spec/issues/395
-    dataLicense: dataLicense,
+    dataLicense,
     ...(documentName && { name: documentName }),
-    documentNamespace: documentNamespace,
+    documentNamespace,
     ...spdxAttributions,
   };
 }

@@ -46,6 +46,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 2,
     '@typescript-eslint/await-thenable': 2,
     '@typescript-eslint/require-await': 2,
+    'object-shorthand': 2,
     'react/prop-types': 'off',
     'testing-library/no-node-access': 'off', // TODO: remove this line and fix warnings
     'testing-library/no-await-sync-query': 'off', // TODO: remove this line and fix warnings

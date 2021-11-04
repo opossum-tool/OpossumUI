@@ -105,7 +105,7 @@ export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
       dispatch(
         setDisplayedPackageAndResetTemporaryPackageInfo({
           panel: packagePanelTitle,
-          attributionId: attributionId,
+          attributionId,
         })
       );
     }
@@ -123,7 +123,7 @@ export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
       dispatch(
         setDisplayedPackageAndResetTemporaryPackageInfo({
           panel: packagePanelTitle,
-          attributionId: attributionId,
+          attributionId,
         })
       );
     }

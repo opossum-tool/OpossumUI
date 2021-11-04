@@ -56,7 +56,7 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
         manualAttributions,
-        resourcesToManualAttributions: resourcesToManualAttributions,
+        resourcesToManualAttributions,
       })
     )
   );

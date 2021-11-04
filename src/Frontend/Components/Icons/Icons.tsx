@@ -26,7 +26,7 @@ import {
 } from '../../shared-styles';
 
 const useStyles = makeStyles({
-  clickableIcon: clickableIcon,
+  clickableIcon,
   nonClickableIcon: {
     ...baseIcon,
     color: OpossumColors.darkBlue,

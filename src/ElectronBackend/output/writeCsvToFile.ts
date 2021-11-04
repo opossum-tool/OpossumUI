@@ -153,7 +153,7 @@ function writeAttributionWithResources(
       ...attributionWithResource,
       licenseText: shortenedLicenseText,
       resources: shortenedResources,
-      attributionNumber: attributionNumber,
+      attributionNumber,
     });
   } else {
     attributionWithResource.resources.forEach((resource) => {
@@ -165,12 +165,12 @@ function writeAttributionWithResources(
           ...attributionWithResource,
           licenseText: shortenedLicenseText,
           resources: resource,
-          attributionNumber: attributionNumber,
+          attributionNumber,
         });
       } else {
         csvStream.write({
           resources: resource,
-          attributionNumber: attributionNumber,
+          attributionNumber,
         });
       }
     });
@@ -190,7 +190,7 @@ function writeAttribution(
   csvStream.write({
     ...attributionWithResource,
     licenseText: shortenedLicenseText,
-    attributionNumber: attributionNumber,
+    attributionNumber,
   });
 }
 
