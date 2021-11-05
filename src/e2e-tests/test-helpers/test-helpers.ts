@@ -16,7 +16,6 @@ export async function getApp(
     args: commandLineArg ? [app, commandLineArg] : [app],
     timeout: 60000,
     env: {
-      RUNNING_IN_E2E_TEST: 'true',
       DISPLAY: process.env.DISPLAY ?? ':99',
     },
   });
