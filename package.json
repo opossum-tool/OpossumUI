@@ -82,7 +82,7 @@
     "test:unit+integration": "yarn test:unit & yarn test:integration",
     "test:e2e": "run-script-os",
     "test:e2e:darwin:linux": "concurrently -s first -k true \"yarn build; BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && react-scripts test --watchAll=false --detectOpenHandles --forceExit src/e2e-tests\"",
-    "test:e2e:win32": "concurrently -s first -k true \"yarn build & cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 ^&^& react-scripts test --watchAll=false --detectOpenHandles --forceExit src/e2e-tests\"",
+    "test:e2e:win32": "concurrently -s first -k true \"yarn build & cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && react-scripts test --watchAll=false --detectOpenHandles --forceExit src/e2e-tests\"",
     "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
     "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
     "copyright-lint-check": "reuse lint",
