@@ -5,7 +5,8 @@
 
 import { _electron, ElectronApplication } from 'playwright';
 
-export const E2E_TEST_TIMEOUT = 30000;
+const ELECTRON_LAUNCH_TEST_TIMEOUT = 60000;
+export const E2E_TEST_TIMEOUT = 60000;
 
 export async function getApp(
   commandLineArg?: string
@@ -14,7 +15,7 @@ export async function getApp(
 
   return await _electron.launch({
     args: commandLineArg ? [app, commandLineArg] : [app],
-    timeout: 60000,
+    timeout: ELECTRON_LAUNCH_TEST_TIMEOUT,
     env: {
       DISPLAY: process.env.DISPLAY ?? ':99',
     },
