@@ -7,11 +7,11 @@ import { ElectronApplication, Page } from 'playwright';
 import {
   conditionalIt,
   getApp,
-  INTEGRATION_TEST_TIMEOUT,
+  E2E_TEST_TIMEOUT,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
 
-jest.setTimeout(INTEGRATION_TEST_TIMEOUT);
+jest.setTimeout(E2E_TEST_TIMEOUT);
 
 describe('The OpossumUI', () => {
   let app: ElectronApplication;
