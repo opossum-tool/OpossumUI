@@ -18,6 +18,7 @@ export async function getApp(
     timeout: ELECTRON_LAUNCH_TEST_TIMEOUT,
     env: {
       DISPLAY: process.env.DISPLAY ?? ':99',
+      RUNNING_IN_E2E_TEST: 'true',
     },
   });
 }
