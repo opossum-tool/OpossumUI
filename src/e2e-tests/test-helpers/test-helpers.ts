@@ -3,21 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Application } from 'spectron';
-import path from 'path';
+import { _electron, ElectronApplication } from 'playwright';
 
-export const INTEGRATION_TEST_TIMEOUT = 60000;
+export const E2E_TEST_TIMEOUT = 30000;
 
-export function getApp(commandLineArg?: string): Application {
+export async function getApp(
+  commandLineArg?: string
+): Promise<ElectronApplication> {
   const app = 'build/ElectronBackend/app.js';
 
-  return new Application({
+  return await _electron.launch({
     args: commandLineArg ? [app, commandLineArg] : [app],
-    path: path.join(__dirname, '../../..', 'node_modules', '.bin', 'electron'),
-    startTimeout: 30000,
-    waitTimeout: 30000,
+    timeout: 60000,
     env: {
-      RUNNING_IN_SPECTRON: true,
+      DISPLAY: process.env.DISPLAY ?? ':99',
     },
   });
 }
