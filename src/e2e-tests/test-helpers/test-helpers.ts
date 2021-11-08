@@ -17,6 +17,7 @@ export async function getApp(
     timeout: 60000,
     env: {
       DISPLAY: process.env.DISPLAY ?? ':99',
+      RUNNING_IN_E2E_TEST: 'true',
     },
   });
 }
