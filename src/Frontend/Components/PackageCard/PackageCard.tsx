@@ -35,14 +35,19 @@ import {
   unlinkAttributionAndSavePackageInfo,
 } from '../../state/actions/resource-actions/save-actions';
 import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
+  getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import {
+  getResolvedToggleHandler,
+  selectedPackageIsResolved,
+} from '../AttributionColumn/attribution-column-helpers';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -87,6 +92,9 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const manualAttributions = useSelector(getManualAttributions);
   const selectedResourceId = useSelector(getSelectedResourceId);
   const attributionsToResources = useSelector(getManualAttributionsToResources);
+  const resolvedExternalAttributions = useAppSelector(
+    getResolvedExternalAttributions
+  );
 
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
     useState<boolean>(false);
@@ -242,9 +250,18 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           onClick: (): void => setShowAssociatedResourcesPopup(true),
         },
         {
-          buttonText: ButtonText.Hide, //TODO: implement functionality
-          onClick: doNothing,
-          hidden: !isExternalAttribution || true,
+          buttonText: selectedPackageIsResolved(
+            attributionId,
+            resolvedExternalAttributions
+          )
+            ? ButtonText.Unhide
+            : ButtonText.Hide,
+          onClick: getResolvedToggleHandler(
+            attributionId,
+            resolvedExternalAttributions,
+            dispatch
+          ),
+          hidden: !isExternalAttribution,
         },
       ];
 

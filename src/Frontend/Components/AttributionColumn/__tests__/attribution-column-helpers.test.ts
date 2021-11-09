@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackagePanelTitle, View } from '../../../enums/enums';
+import { View } from '../../../enums/enums';
 import {
   getLicenseTextMaxRows,
   getMergeButtonsDisplayState,
@@ -21,31 +21,19 @@ describe('The AttributionColumn helpers', () => {
 
   test('selectedPackageIsResolved returns true', () => {
     expect(
-      selectedPackageIsResolved(
-        {
-          panel: PackagePanelTitle.AllAttributions,
-          attributionId: '123',
-        },
-        new Set<string>().add('123')
-      )
+      selectedPackageIsResolved('123', new Set<string>().add('123'))
     ).toEqual(true);
   });
 
-  test('selectedPackageIsResolved returns false if no selectedpackage', () => {
-    expect(
-      selectedPackageIsResolved(null, new Set<string>().add('123'))
-    ).toEqual(false);
+  test('selectedPackageIsResolved returns false if empty attributionId', () => {
+    expect(selectedPackageIsResolved('', new Set<string>().add('123'))).toEqual(
+      false
+    );
   });
 
   test('selectedPackageIsResolved returns false if id does not match', () => {
     expect(
-      selectedPackageIsResolved(
-        {
-          panel: PackagePanelTitle.AllAttributions,
-          attributionId: '123',
-        },
-        new Set<string>().add('321')
-      )
+      selectedPackageIsResolved('123', new Set<string>().add('321'))
     ).toEqual(false);
   });
 });

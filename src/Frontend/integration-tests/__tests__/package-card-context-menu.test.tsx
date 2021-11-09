@@ -21,8 +21,11 @@ import {
   clickOnButtonInPackageInPackagePanelContextMenu,
   clickOnCardInAttributionList,
   clickOnElementInResourceBrowser,
+  clickOnPackageInPackagePanel,
   clickOnPathInPopupWithResources,
   clickOnTab,
+  expectAddIconInAddToAttributionCardIsHidden,
+  expectAddIconInAddToAttributionCardIsNotHidden,
   expectConfirmDeletionPopupNotVisible,
   expectConfirmDeletionPopupVisible,
   expectContextMenuIsNotShown,
@@ -43,6 +46,7 @@ import {
   TEST_TIMEOUT,
 } from '../../test-helpers/test-helpers';
 import { App } from '../../Components/App/App';
+import { addResolvedExternalAttribution } from '../../state/actions/resource-actions/audit-view-simple-actions';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -131,19 +135,33 @@ describe('The ContextMenu in audit view', () => {
       })
     );
 
-    renderComponentWithStore(<App />);
+    const { store } = renderComponentWithStore(<App />);
     clickOnElementInResourceBrowser(screen, 'folder1');
 
     const cardLabel = 'JQuery, 16.5.0';
     expectCorrectButtonsInContextMenu(
       screen,
       cardLabel,
-      [ButtonText.ShowResources],
+      [ButtonText.ShowResources, ButtonText.Hide],
       [
         ButtonText.Delete,
         ButtonText.DeleteGlobally,
         ButtonText.Confirm,
         ButtonText.ConfirmGlobally,
+      ]
+    );
+
+    store.dispatch(addResolvedExternalAttribution('uuid_ext_1'));
+    expectCorrectButtonsInContextMenu(
+      screen,
+      cardLabel,
+      [ButtonText.ShowResources, ButtonText.Unhide],
+      [
+        ButtonText.Delete,
+        ButtonText.DeleteGlobally,
+        ButtonText.Confirm,
+        ButtonText.ConfirmGlobally,
+        ButtonText.Hide,
       ]
     );
   });
@@ -172,7 +190,7 @@ describe('The ContextMenu in audit view', () => {
           ButtonText.Confirm,
           ButtonText.ConfirmGlobally,
         ],
-        [ButtonText.Hide]
+        [ButtonText.Hide, ButtonText.Unhide]
       );
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -182,7 +200,12 @@ describe('The ContextMenu in audit view', () => {
         screen,
         cardLabelSingleResource,
         [ButtonText.ShowResources, ButtonText.Delete, ButtonText.Confirm],
-        [ButtonText.Hide, ButtonText.DeleteGlobally, ButtonText.ConfirmGlobally]
+        [
+          ButtonText.Hide,
+          ButtonText.Unhide,
+          ButtonText.DeleteGlobally,
+          ButtonText.ConfirmGlobally,
+        ]
       );
     });
 
@@ -207,7 +230,12 @@ describe('The ContextMenu in audit view', () => {
           ButtonText.Delete,
           ButtonText.DeleteGlobally,
         ],
-        [ButtonText.Hide, ButtonText.Confirm, ButtonText.ConfirmGlobally]
+        [
+          ButtonText.Hide,
+          ButtonText.Unhide,
+          ButtonText.Confirm,
+          ButtonText.ConfirmGlobally,
+        ]
       );
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -219,6 +247,7 @@ describe('The ContextMenu in audit view', () => {
         [ButtonText.ShowResources, ButtonText.Delete],
         [
           ButtonText.Hide,
+          ButtonText.Unhide,
           ButtonText.Confirm,
           ButtonText.ConfirmGlobally,
           ButtonText.DeleteGlobally,
@@ -817,6 +846,64 @@ describe('The ContextMenu', () => {
       expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
     });
   });
+
+  test('hide / unhide buttons work correctly', () => {
+    const testResources: Resources = {
+      'firstResource.js': 1,
+      'secondResource.js': 1,
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        licenseText: 'Permission is hereby granted',
+      },
+      uuid_2: {
+        packageName: 'Vue',
+        packageVersion: '1.2.0',
+        licenseText: 'Permission is not granted',
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/firstResource.js': ['uuid_1', 'uuid_2'],
+      '/secondResource.js': ['uuid_2'],
+    };
+
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      })
+    );
+    const { store } = renderComponentWithStore(<App />);
+    store.dispatch(addResolvedExternalAttribution('uuid_1'));
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+
+    clickOnButtonInPackageInPackagePanelContextMenu(
+      screen,
+      'Vue, 1.2.0',
+      'Signals',
+      ButtonText.Hide
+    );
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
+
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    clickOnPackageInPackagePanel(screen, 'Vue, 1.2.0', 'Signals');
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
+
+    clickOnButtonInPackageInPackagePanelContextMenu(
+      screen,
+      'Vue, 1.2.0',
+      'Signals',
+      ButtonText.Unhide
+    );
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+  });
 });
 
 function expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
@@ -828,6 +915,7 @@ function expectCorrectGlobalOnlyButtonsNotPreselectedAttribution(
     [ButtonText.ShowResources, ButtonText.DeleteGlobally],
     [
       ButtonText.Hide,
+      ButtonText.Unhide,
       ButtonText.Delete,
       ButtonText.Confirm,
       ButtonText.ConfirmGlobally,
@@ -846,6 +934,6 @@ function expectCorrectGlobalOnlyButtonsPreselectedAttribution(
       ButtonText.DeleteGlobally,
       ButtonText.ConfirmGlobally,
     ],
-    [ButtonText.Hide, ButtonText.Delete, ButtonText.Confirm]
+    [ButtonText.Hide, ButtonText.Unhide, ButtonText.Delete, ButtonText.Confirm]
   );
 }

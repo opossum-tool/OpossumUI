@@ -56,5 +56,6 @@ export enum ButtonText {
   ReplaceMarked = 'Replace marked',
   Undo = 'Undo',
   UnmarkForReplacement = 'Unmark for replacement',
+  Unhide = 'Unhide',
   ShowResources = 'Show resources',
 }
