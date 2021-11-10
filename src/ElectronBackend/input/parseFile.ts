@@ -71,7 +71,7 @@ export function parseOpossumInputFile(
 
   pipeline.on('error', () => {
     resolveCallback({
-      message: `Error: ${resourceFilePath} is not a valid input file.`,
+      message: `Error: ${resourceFilePath} is not a valid input file!!!`,
       type: 'jsonParsingError',
     } as JsonParsingError);
   });
