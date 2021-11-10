@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PackageInfo } from '../../../../shared/shared-types';
-import { PopupType, View } from '../../../enums/enums';
+import { FilterType, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import { getPackageInfoOfSelectedAttribution } from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
@@ -16,17 +16,17 @@ import {
   ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
-  ACTION_SET_FOLLOW_UP_FILTER,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
+  ACTION_UPDATE_ACTIVE_FILTERS,
   ClosePopupAction,
   OpenPopupWithTargetAttributionIdAction,
   OpenPopupAction,
   ResetViewStateAction,
-  SetFollowUpFilter,
   SetTargetView,
   SetView,
   OpenPopupActionPopupType,
+  UpdateActiveFilters,
 } from './types';
 
 export function resetViewState(): ResetViewStateAction {
@@ -74,10 +74,13 @@ export function closePopup(): ClosePopupAction {
   return { type: ACTION_CLOSE_POPUP };
 }
 
-export function setFollowUpFilter(
-  filterForFollowUp: boolean
-): SetFollowUpFilter {
-  return { type: ACTION_SET_FOLLOW_UP_FILTER, payload: filterForFollowUp };
+export function updateActiveFilters(
+  filterType: FilterType
+): UpdateActiveFilters {
+  return {
+    type: ACTION_UPDATE_ACTIVE_FILTERS,
+    payload: filterType,
+  };
 }
 
 export function openPopupWithTargetAttributionId(

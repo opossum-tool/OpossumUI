@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { FilterType, PackagePanelTitle } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import {
@@ -21,7 +21,7 @@ import { AttributionList } from '../AttributionList/AttributionList';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { OpossumColors } from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
-import { areOnlyFollowUpAttributionsShown } from '../../state/selectors/view-selector';
+import { getActiveFilters } from '../../state/selectors/view-selector';
 
 const countAndSearchOffset = 119;
 
@@ -52,7 +52,8 @@ export function AttributionView(): ReactElement {
   const attributionIdMarkedForReplacement: string = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const filterForFollowUp = useAppSelector(areOnlyFollowUpAttributionsShown);
+  const activeFilters = useAppSelector(getActiveFilters);
+  const filterForFollowUp = activeFilters.has(FilterType.OnlyFollowUp);
 
   const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
     filterForFollowUp,

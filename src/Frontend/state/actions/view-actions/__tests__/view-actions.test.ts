@@ -3,9 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PopupType, View } from '../../../../enums/enums';
+import { FilterType, PopupType, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
+  getActiveFilters,
   getOpenPopup,
   getSelectedView,
   getTargetAttributionId,
@@ -20,6 +21,7 @@ import {
   openPopup,
   openPopupWithTargetAttributionId,
   resetViewState,
+  updateActiveFilters,
   setTargetView,
 } from '../view-actions';
 
@@ -98,16 +100,53 @@ describe('view actions', () => {
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetView(View.Audit));
+    testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
 
     expect(isAttributionViewSelected(testStore.getState())).toBe(true);
     expect(getTargetView(testStore.getState())).toBe(View.Audit);
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+    ).toBe(true);
 
     testStore.dispatch(resetViewState());
-
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
     expect(getTargetView(testStore.getState())).toBe(null);
     expect(getOpenPopup(testStore.getState())).toBe(null);
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+    ).toBe(false);
+  });
+
+  test('sets filters correctly', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+    ).toBe(true);
+
+    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+    ).toBe(false);
+
+    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    testStore.dispatch(updateActiveFilters(FilterType.HideFirstParty));
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+    ).toBe(false);
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.HideFirstParty)
+    ).toBe(true);
+
+    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+    ).toBe(true);
+    expect(
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+    ).toBe(true);
   });
 });
 

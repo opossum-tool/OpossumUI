@@ -9,7 +9,8 @@ import {
   AttributionsWithResources,
   PackageInfo,
 } from '../../shared/shared-types';
-import { setFollowUpFilter } from '../state/actions/view-actions/view-actions';
+import { FilterType } from '../enums/enums';
+import { updateActiveFilters } from '../state/actions/view-actions/view-actions';
 import { AppThunkDispatch } from '../state/types';
 
 export function provideFollowUpFilter(
@@ -22,7 +23,7 @@ export function provideFollowUpFilter(
   ): AttributionsWithResources | Attributions;
 } {
   function handleFilterChange(): void {
-    dispatch(setFollowUpFilter(!filterForFollowUp));
+    dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
   }
   function getFilteredAttributions(
     attributions: AttributionsWithResources | Attributions
