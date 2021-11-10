@@ -4,21 +4,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useState } from 'react';
-import MuiMenu from '@material-ui/core/Menu';
-import MuiMenuItem from '@material-ui/core/MenuItem';
-import MuiListItemIcon from '@material-ui/core/ListItemIcon';
-import MuiListItemText from '@material-ui/core/ListItemText';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import UndoIcon from '@material-ui/icons/Undo';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import MergeTypeIcon from '@material-ui/icons/MergeType';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import MuiMenu from '@mui/material/Menu';
+import MuiMenuItem from '@mui/material/MenuItem';
+import MuiListItemIcon from '@mui/material/ListItemIcon';
+import MuiListItemText from '@mui/material/ListItemText';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import UndoIcon from '@mui/icons-material/Undo';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import MergeTypeIcon from '@mui/icons-material/MergeType';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { ButtonText } from '../../enums/enums';
-import { makeStyles } from '@material-ui/core/styles';
-import { PopoverPosition, PopoverReference } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
+import { PopoverPosition, PopoverReference } from '@mui/material';
 import { OpossumColors } from '../../shared-styles';
-import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
+import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 
 const useStyles = makeStyles({
   icon: {

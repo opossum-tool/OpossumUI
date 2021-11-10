@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
-import MuiTypography from '@material-ui/core/Typography';
+import MuiTypography from '@mui/material/Typography';
 import { ButtonText } from '../../enums/enums';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 

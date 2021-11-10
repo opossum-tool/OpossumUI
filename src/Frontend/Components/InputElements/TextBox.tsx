@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiTextField from '@material-ui/core/TextField';
+import MuiTextField from '@mui/material/TextField';
 import React, { ReactElement } from 'react';
 import { InputElementProps, useInputElementStyles } from './shared';
 import clsx from 'clsx';
-import MuiInputAdornment from '@material-ui/core/InputAdornment';
+import MuiInputAdornment from '@mui/material/InputAdornment';
 
 interface TextProps extends InputElementProps {
   textFieldClassname?: string;

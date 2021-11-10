@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTooltip from '@material-ui/core/Tooltip';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTooltip from '@mui/material/Tooltip';
 import React, { ReactElement } from 'react';
 import { getProgressBarData } from '../../state/selectors/all-views-resource-selectors';
 import { ProgressBarData } from '../../types/types';

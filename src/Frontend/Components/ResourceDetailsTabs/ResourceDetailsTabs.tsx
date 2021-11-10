@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
-import MuiTabs from '@material-ui/core/Tabs';
-import MuiTab from '@material-ui/core/Tab';
+import MuiTabs from '@mui/material/Tabs';
+import MuiTab from '@mui/material/Tab';
 import {
   getExternalData,
   getManualData,
@@ -96,10 +96,7 @@ export function ResourceDetailsTabs(
     <React.Fragment>
       <MuiTabs
         value={selectedTab}
-        onChange={(
-          event: React.ChangeEvent<Record<string, unknown>>,
-          newTab: Tabs
-        ): void => {
+        onChange={(event: React.SyntheticEvent, newTab: Tabs): void => {
           setSelectedTab(newTab);
         }}
         aria-label="Add To Tabs"

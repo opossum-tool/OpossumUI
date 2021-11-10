@@ -3,7 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import {
+  ThemeProvider,
+  Theme,
+  StyledEngineProvider,
+  adaptV4Theme,
+} from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { View } from '../../enums/enums';
 import { getSelectedView } from '../../state/selectors/view-selector';
@@ -13,8 +19,13 @@ import { AttributionView } from '../AttributionView/AttributionView';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { AuditView } from '../AuditView/AuditView';
 import { TopBar } from '../TopBar/TopBar';
-import { createTheme } from '@material-ui/core';
+import { createTheme } from '@mui/material';
 import { useAppSelector } from '../../state/hooks';
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const useStyles = makeStyles({
   root: {
@@ -29,31 +40,32 @@ const useStyles = makeStyles({
   },
 });
 
-const theme = createTheme({
-  overrides: {
-    MuiTypography: {
-      body1: {
-        fontSize: '0.85rem',
-        letterSpacing: '0.01071em',
+const theme = createTheme(
+  adaptV4Theme({
+    overrides: {
+      MuiTypography: {
+        body1: {
+          fontSize: '0.85rem',
+          letterSpacing: '0.01071em',
+        },
+      },
+      MuiInputBase: {
+        root: {
+          fontSize: '0.85rem',
+          letterSpacing: '0.01071em',
+        },
+      },
+      MuiFormLabel: {
+        root: {
+          fontSize: '0.85rem',
+          letterSpacing: '0.01071em',
+        },
       },
     },
-    MuiInputBase: {
-      root: {
-        fontSize: '0.85rem',
-        letterSpacing: '0.01071em',
-      },
-    },
-    MuiFormLabel: {
-      root: {
-        fontSize: '0.85rem',
-        letterSpacing: '0.01071em',
-      },
-    },
-  },
-});
+  })
+);
 
 export function App(): ReactElement {
-  const classes = useStyles();
   const selectedView = useAppSelector(getSelectedView);
 
   function getSelectedViewContainer(): ReactElement {
@@ -68,14 +80,18 @@ export function App(): ReactElement {
   }
 
   return (
-    <ErrorBoundary>
-      <ThemeProvider theme={theme}>
-        <GlobalPopup />
-        <div className={classes.root}>
-          <TopBar />
-          <div className={classes.panelDiv}>{getSelectedViewContainer()}</div>
-        </div>
-      </ThemeProvider>
+    <ErrorBoundary classes={useStyles()}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <GlobalPopup />
+          <div className={useStyles().root}>
+            <TopBar />
+            <div className={useStyles().panelDiv}>
+              {getSelectedViewContainer()}
+            </div>
+          </div>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </ErrorBoundary>
   );
 }

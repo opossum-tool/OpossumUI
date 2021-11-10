@@ -5,9 +5,9 @@
 
 import React, { ReactElement } from 'react';
 import clsx from 'clsx';
-import MuiTypography from '@material-ui/core/Typography';
+import MuiTypography from '@mui/material/Typography';
 import { tableConfigs } from '../Table/Table';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { OpossumColors } from '../../shared-styles';
 
 export const useStylesReportTableHeader = makeStyles({

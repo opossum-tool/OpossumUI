@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiDialog from '@material-ui/core/Dialog';
-import MuiDialogActions from '@material-ui/core/DialogActions';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import MuiDialogContentText from '@material-ui/core/DialogContentText';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import MuiDialog from '@mui/material/Dialog';
+import MuiDialogActions from '@mui/material/DialogActions';
+import MuiDialogContent from '@mui/material/DialogContent';
+import MuiDialogContentText from '@mui/material/DialogContentText';
+import MuiDialogTitle from '@mui/material/DialogTitle';
 import React, { ReactElement, useEffect } from 'react';
 import { Button } from '../Button/Button';
 import { doNothing } from '../../util/do-nothing';

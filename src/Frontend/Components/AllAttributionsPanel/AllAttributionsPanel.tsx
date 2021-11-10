@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiPaper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTypography from '@material-ui/core/Typography/Typography';
+import MuiPaper from '@mui/material/Paper';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTypography from '@mui/material/Typography/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTypography from '@material-ui/core/Typography';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackageInfo } from '../../../shared/shared-types';

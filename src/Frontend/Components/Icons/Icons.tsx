@@ -3,19 +3,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTooltip from '@material-ui/core/Tooltip';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Filter1Icon from '@material-ui/icons/Filter1';
-import InsertCommentIcon from '@material-ui/icons/InsertComment';
-import AnnouncementIcon from '@material-ui/icons/Announcement';
-import WidgetsIcon from '@material-ui/icons/Widgets';
-import FolderOutlinedIcon from '@material-ui/icons/Folder';
-import DescriptionIcon from '@material-ui/icons/Description';
-import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
-import ReplayIcon from '@material-ui/icons/Replay';
-import LocalParkingIcon from '@material-ui/icons/LocalParking';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTooltip from '@mui/material/Tooltip';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Filter1Icon from '@mui/icons-material/Filter1';
+import InsertCommentIcon from '@mui/icons-material/InsertComment';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
+import WidgetsIcon from '@mui/icons-material/Widgets';
+import FolderOutlinedIcon from '@mui/icons-material/Folder';
+import DescriptionIcon from '@mui/icons-material/Description';
+import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
+import ReplayIcon from '@mui/icons-material/Replay';
+import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import {

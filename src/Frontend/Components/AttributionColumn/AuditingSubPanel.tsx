@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiPaper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import MuiPaper from '@mui/material/Paper';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';

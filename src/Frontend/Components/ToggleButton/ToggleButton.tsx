@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
-import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiToggleButton from '@mui/material/ToggleButton';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';

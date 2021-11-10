@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
+import { WithStyles, styled } from '@mui/styles';
 import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -13,13 +13,13 @@ import { resetViewState } from '../../state/actions/view-actions/view-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { OpossumColors } from '../../shared-styles';
 
-const styles = createStyles({
+const styles = {
   root: {
     background: OpossumColors.lightBlue,
     width: '100vw',
     height: '100vh',
   },
-});
+};
 
 // catches errors that are not thrown during render
 // it's known to fire twice in dev mode: https://github.com/facebook/react/issues/19613
@@ -104,4 +104,4 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>): DispatchProps {
 export const ErrorBoundary = connect(
   null,
   mapDispatchToProps
-)(withStyles(styles)(ProtoErrorBoundary));
+)(styled(ProtoErrorBoundary)(styles));
