@@ -150,7 +150,7 @@ export function getLicenseTextLabelText(
     : 'License Text (to appear in attribution document)';
 }
 
-interface MergeButtonDisplayState {
+export interface MergeButtonDisplayState {
   hideMarkForReplacementButton: boolean;
   hideUnmarkForReplacementButton: boolean;
   hideOnReplaceMarkedByButton: boolean;
@@ -160,29 +160,39 @@ interface MergeButtonDisplayState {
 export function getMergeButtonsDisplayState(
   currentView: View,
   attributionIdMarkedForReplacement: string,
+  targetAttributionId: string,
   selectedAttributionId: string,
   packageInfoWereModified: boolean,
-  attributionIsPreSelected: boolean
+  targetAttributionIsPreSelected: boolean,
+  isExternalAttribution: boolean
 ): MergeButtonDisplayState {
-  const isAttributionView = currentView === View.Attribution;
+  const isTableView = currentView === View.Report;
   const anyAttributionMarkedForReplacement =
     attributionIdMarkedForReplacement !== '';
-  const selectedAttributionIsMarkedForReplacement =
-    selectedAttributionId === attributionIdMarkedForReplacement;
+  const targetAttributionIsMarkedForReplacement =
+    targetAttributionId === attributionIdMarkedForReplacement;
+  const selectedAttributionIsPartOfMerge =
+    selectedAttributionId === attributionIdMarkedForReplacement ||
+    selectedAttributionId === targetAttributionId;
 
   return {
     hideMarkForReplacementButton:
-      !isAttributionView || selectedAttributionIsMarkedForReplacement,
+      isExternalAttribution ||
+      isTableView ||
+      targetAttributionIsMarkedForReplacement,
     hideUnmarkForReplacementButton:
-      !isAttributionView ||
+      isExternalAttribution ||
+      isTableView ||
       !anyAttributionMarkedForReplacement ||
-      !selectedAttributionIsMarkedForReplacement,
+      !targetAttributionIsMarkedForReplacement,
     hideOnReplaceMarkedByButton:
-      !isAttributionView ||
+      isExternalAttribution ||
+      isTableView ||
       !anyAttributionMarkedForReplacement ||
-      selectedAttributionIsMarkedForReplacement,
+      targetAttributionIsMarkedForReplacement,
     deactivateReplaceMarkedByButton:
-      packageInfoWereModified || attributionIsPreSelected,
+      (selectedAttributionIsPartOfMerge && packageInfoWereModified) ||
+      targetAttributionIsPreSelected,
   };
 }
 

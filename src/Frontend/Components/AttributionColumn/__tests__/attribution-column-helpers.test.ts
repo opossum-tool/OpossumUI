@@ -39,9 +39,28 @@ describe('The AttributionColumn helpers', () => {
 });
 
 describe('getMergeButtonsDisplayState', () => {
-  it('does not show buttons when outside of attribution view', () => {
+  it('does not show buttons when in table view', () => {
     expect(
-      getMergeButtonsDisplayState(View.Audit, '', '', false, false)
+      getMergeButtonsDisplayState(View.Audit, '', '', '', false, false, false)
+    ).toStrictEqual({
+      hideMarkForReplacementButton: true,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: true,
+      deactivateReplaceMarkedByButton: false,
+    });
+  });
+
+  it('does not show buttons when external attribution', () => {
+    expect(
+      getMergeButtonsDisplayState(
+        View.Audit,
+        '',
+        'attr',
+        '',
+        false,
+        false,
+        true
+      )
     ).toStrictEqual({
       hideMarkForReplacementButton: true,
       hideUnmarkForReplacementButton: true,
@@ -56,6 +75,8 @@ describe('getMergeButtonsDisplayState', () => {
         View.Attribution,
         'other_attr',
         'attr',
+        'attr',
+        false,
         false,
         false
       )
@@ -73,6 +94,8 @@ describe('getMergeButtonsDisplayState', () => {
         View.Attribution,
         'attr',
         'attr',
+        'attr',
+        false,
         false,
         false
       )
@@ -86,7 +109,15 @@ describe('getMergeButtonsDisplayState', () => {
 
   it('does not show unMarkForReplacementButton when attribution is not selected', () => {
     expect(
-      getMergeButtonsDisplayState(View.Attribution, '', 'attr', false, false)
+      getMergeButtonsDisplayState(
+        View.Attribution,
+        '',
+        'attr',
+        'attr',
+        false,
+        false,
+        false
+      )
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
@@ -95,13 +126,15 @@ describe('getMergeButtonsDisplayState', () => {
     });
   });
 
-  it('deactivates ReplaceMarkedByButton when packageInfo were modified', () => {
+  it('deactivates ReplaceMarkedByButton when selectedAttribution part of replacement and packageInfo were modified', () => {
     expect(
       getMergeButtonsDisplayState(
         View.Attribution,
         'attr2',
         'attr',
+        'attr',
         true,
+        false,
         false
       )
     ).toStrictEqual({
@@ -112,14 +145,35 @@ describe('getMergeButtonsDisplayState', () => {
     });
   });
 
+  it('enables ReplaceMarkedByButton when selectedAttribution not part of replacement and packageInfo were modified', () => {
+    expect(
+      getMergeButtonsDisplayState(
+        View.Attribution,
+        'attr2',
+        'attr1',
+        'attr',
+        true,
+        false,
+        false
+      )
+    ).toStrictEqual({
+      hideMarkForReplacementButton: false,
+      hideUnmarkForReplacementButton: true,
+      hideOnReplaceMarkedByButton: false,
+      deactivateReplaceMarkedByButton: false,
+    });
+  });
+
   it('deactivates ReplaceMarkedByButton when attribution is preselected', () => {
     expect(
       getMergeButtonsDisplayState(
         View.Attribution,
         'attr2',
         'attr',
+        'attr',
         false,
-        true
+        true,
+        false
       )
     ).toStrictEqual({
       hideMarkForReplacementButton: false,

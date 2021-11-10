@@ -25,7 +25,3 @@ export function getResourceIdsOfSelectedAttribution(
   }
   return [];
 }
-
-export function getAttributionIdMarkedForReplacement(state: State): string {
-  return state.resourceState.attributionView.attributionIdMarkedForReplacement;
-}

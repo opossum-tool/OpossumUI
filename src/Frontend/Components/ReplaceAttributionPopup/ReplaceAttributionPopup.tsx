@@ -12,13 +12,13 @@ import { doNothing } from '../../util/do-nothing';
 import MuiTypography from '@material-ui/core/Typography';
 import {
   getAttributionIdMarkedForReplacement,
-  getSelectedAttributionId,
-} from '../../state/selectors/attribution-view-resource-selectors';
-import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
+  getManualAttributions,
+} from '../../state/selectors/all-views-resource-selectors';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { makeStyles } from '@material-ui/core/styles';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { getTargetAttributionId } from '../../state/selectors/view-selector';
 
 const useStyles = makeStyles({
   typography: {
@@ -37,7 +37,7 @@ export function ReplaceAttributionPopup(): ReactElement {
   const markedAttributionId = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const targetAttributionId = useAppSelector(getTargetAttributionId);
 
   function handleCancelClick(): void {
     dispatch(closePopup());
@@ -48,7 +48,7 @@ export function ReplaceAttributionPopup(): ReactElement {
       savePackageInfo(
         null,
         markedAttributionId,
-        attributions[selectedAttributionId]
+        attributions[targetAttributionId]
       )
     );
     dispatch(setAttributionIdMarkedForReplacement(''));
@@ -87,7 +87,7 @@ export function ReplaceAttributionPopup(): ReactElement {
       <MuiTypography className={classes.typography}>
         and links its resources to the current attribution
       </MuiTypography>
-      {getAttributionCard(selectedAttributionId)}
+      {getAttributionCard(targetAttributionId)}
     </div>
   );
 

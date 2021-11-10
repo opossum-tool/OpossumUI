@@ -9,6 +9,7 @@ import {
   ParsedFileContent,
   Resources,
   ResourcesToAttributions,
+  SaveFileArgs,
 } from '../../../../shared/shared-types';
 import {
   expectValuesInProgressbarTooltip,
@@ -20,14 +21,19 @@ import { App } from '../../../Components/App/App';
 import {
   clickOnButtonInPackageContextMenu,
   clickOnButtonInPackageInPackagePanelContextMenu,
+  expectButtonInPackageContextMenu,
+  expectButtonInPackageInPackagePanelContextMenu,
   expectContextMenuForExternalAttributionInPackagePanel,
+  expectContextMenuForHiddenExternalAttributionInPackagePanel,
   expectContextMenuForNotPreSelectedAttributionMultipleResources,
+  expectContextMenuForNotPreSelectedAttributionSingleResource,
   expectContextMenuForPreSelectedAttributionMultipleResources,
   expectContextMenuIsNotShown,
-  expectCorrectButtonsInContextMenu,
-  expectCorrectButtonsInPackageInPackagePanelContextMenu,
+  expectCorrectMarkAndUnmarkForReplacementInContextMenu,
+  expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
   expectNoConfirmationButtonsShown,
+  handleReplaceMarkedAttributionViaContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -89,7 +95,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/thirdResource.js': ['uuid_1'],
 };
 
-describe('The ContextMenu', () => {
+describe('In Audit View the ContextMenu', () => {
   beforeAll(() => {
     originalIpcRenderer = global.window.ipcRenderer;
     global.window.ipcRenderer = {
@@ -122,7 +128,7 @@ describe('The ContextMenu', () => {
     expectContextMenuIsNotShown(screen, cardLabel);
   });
 
-  test('confirmation buttons work correctly in audit view', () => {
+  test('confirmation buttons work correctly', () => {
     const testResources: Resources = {
       'firstResource.js': 1,
       'secondResource.js': 1,
@@ -221,17 +227,10 @@ describe('The ContextMenu', () => {
     expectValueNotInConfidenceField(screen, '90');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
-    expectCorrectButtonsInContextMenu(
+
+    expectContextMenuForNotPreSelectedAttributionSingleResource(
       screen,
-      'Vue, 1.2.0',
-      [ButtonText.ShowResources, ButtonText.Delete],
-      [
-        ButtonText.Hide,
-        ButtonText.Unhide,
-        ButtonText.DeleteGlobally,
-        ButtonText.Confirm,
-        ButtonText.ConfirmGlobally,
-      ]
+      'Vue, 1.2.0'
     );
   });
 
@@ -270,18 +269,10 @@ describe('The ContextMenu', () => {
       'Signals',
       ButtonText.Hide
     );
-    expectCorrectButtonsInPackageInPackagePanelContextMenu(
+    expectContextMenuForHiddenExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals',
-      [ButtonText.ShowResources, ButtonText.Unhide],
-      [
-        ButtonText.Hide,
-        ButtonText.Delete,
-        ButtonText.DeleteGlobally,
-        ButtonText.Confirm,
-        ButtonText.ConfirmGlobally,
-      ]
+      'Signals'
     );
     expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
     expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
@@ -302,5 +293,196 @@ describe('The ContextMenu', () => {
       'Signals'
     );
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+  });
+
+  describe('replace attribution buttons', () => {
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: {
+        uuid_2: {
+          comment: 'ManualPackage',
+          packageName: 'React',
+          packageVersion: '16.0.0',
+        },
+        uuid_3: {
+          packageName: 'Vue',
+          packageVersion: '16.0.0',
+          comment: 'ManualPackage',
+          preSelected: true,
+        },
+      },
+      resolvedExternalAttributions: new Set(),
+      resourcesToAttributions: {
+        '/root/src/file_1': ['uuid_2'],
+        '/root/src/file_2': ['uuid_2', 'uuid_3'],
+      },
+    };
+    const testResources: Resources = {
+      root: { src: { file_1: 1, file_2: 1 } },
+      file: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_2: {
+        packageName: 'React',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_3: {
+        packageName: 'Vue',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+        preSelected: true,
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/file_1': ['uuid_1'],
+      '/root/src/file_2': ['uuid_2', 'uuid_3'],
+    };
+
+    test('replace attributions in Package panel', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+      renderComponentWithStore(<App />);
+
+      clickOnElementInResourceBrowser(screen, 'root');
+      clickOnElementInResourceBrowser(screen, 'src');
+      clickOnElementInResourceBrowser(screen, 'file_1');
+      expectValueInTextBox(screen, 'Name', 'jQuery');
+      expectContextMenuForNotPreSelectedAttributionSingleResource(
+        screen,
+        'jQuery, 16.0.0'
+      );
+
+      expectCorrectMarkAndUnmarkForReplacementInContextMenu(
+        screen,
+        'jQuery, 16.0.0'
+      );
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'jQuery, 16.0.0',
+        ButtonText.MarkForReplacement
+      );
+
+      clickOnElementInResourceBrowser(screen, 'file_2');
+      expectButtonInPackageContextMenu(
+        screen,
+        'Vue, 16.0.0',
+        ButtonText.ReplaceMarked,
+        true
+      );
+
+      expectContextMenuForNotPreSelectedAttributionSingleResource(
+        screen,
+        'React, 16.0.0',
+        true
+      );
+      handleReplaceMarkedAttributionViaContextMenu(
+        screen,
+        'React, 16.0.0',
+        ButtonText.Cancel
+      );
+
+      clickOnElementInResourceBrowser(screen, 'file_1');
+      expectValueInTextBox(screen, 'Name', 'jQuery');
+
+      clickOnElementInResourceBrowser(screen, 'file_2');
+      handleReplaceMarkedAttributionViaContextMenu(
+        screen,
+        'React, 16.0.0',
+        ButtonText.Replace
+      );
+      expectValueInTextBox(screen, 'Name', 'React');
+      expectContextMenuForNotPreSelectedAttributionMultipleResources(
+        screen,
+        'React, 16.0.0'
+      );
+
+      clickOnElementInResourceBrowser(screen, 'file_1');
+      expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+      expectValueInTextBox(screen, 'Name', 'React');
+
+      // make sure resources are now linked to React attribution
+      // @ts-ignore
+      expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+        [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      ]);
+    });
+
+    test('replace attributions in attributions in folder content panel', () => {
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+      renderComponentWithStore(<App />);
+
+      clickOnElementInResourceBrowser(screen, 'root');
+      clickOnElementInResourceBrowser(screen, 'src');
+      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+        screen,
+        'jQuery, 16.0.0'
+      );
+
+      expectCorrectMarkAndUnmarkForReplacementInContextMenu(
+        screen,
+        'jQuery, 16.0.0'
+      );
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'jQuery, 16.0.0',
+        ButtonText.MarkForReplacement
+      );
+
+      expectButtonInPackageInPackagePanelContextMenu(
+        screen,
+        'Vue, 16.0.0',
+        'Attributions in Folder Content',
+        ButtonText.ReplaceMarked,
+        true
+      );
+
+      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+        screen,
+        'React, 16.0.0',
+        true
+      );
+
+      handleReplaceMarkedAttributionViaContextMenu(
+        screen,
+        'React, 16.0.0',
+        ButtonText.Cancel
+      );
+
+      expect(screen.queryByText('jQuery, 16.0.0'));
+
+      handleReplaceMarkedAttributionViaContextMenu(
+        screen,
+        'React, 16.0.0',
+        ButtonText.Replace
+      );
+
+      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+        screen,
+        'React, 16.0.0'
+      );
+      expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+
+      // make sure resources are now linked to React attribution
+      // @ts-ignore
+      expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+        [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      ]);
+    });
   });
 });

@@ -25,6 +25,7 @@ import {
 } from '../../../../test-helpers/general-test-helpers';
 import { ProgressBarData } from '../../../../types/types';
 import {
+  getAttributionIdMarkedForReplacement,
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
@@ -35,10 +36,7 @@ import {
   getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../../selectors/all-views-resource-selectors';
-import {
-  getAttributionIdMarkedForReplacement,
-  getSelectedAttributionId,
-} from '../../../selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/audit-view-resource-selectors';
 import {
   setResources,

@@ -43,7 +43,9 @@ export interface ClosePopupAction {
 
 export type OpenPopupActionPopupType = Exclude<
   PopupType,
-  PopupType.ConfirmDeletionPopup | PopupType.ConfirmDeletionGloballyPopup
+  | PopupType.ConfirmDeletionPopup
+  | PopupType.ConfirmDeletionGloballyPopup
+  | PopupType.ReplaceAttributionPopup
 >;
 
 export interface OpenPopupAction {

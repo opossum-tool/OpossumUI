@@ -4,38 +4,45 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { App } from '../../../Components/App/App';
+import { fireEvent, screen } from '@testing-library/react';
+import { IpcRenderer } from 'electron';
+import React from 'react';
+import {
+  Attributions,
+  ParsedFileContent,
+  Resources,
+  ResourcesToAttributions,
+  SaveFileArgs,
+} from '../../../../shared/shared-types';
+import {
+  clickOnButtonInPackageContextMenu,
+  expectButtonInPackageContextMenu,
+  expectContextMenuForNotPreSelectedAttributionMultipleResources,
+  expectCorrectMarkAndUnmarkForReplacementInContextMenu,
+  expectGlobalOnlyContextMenuForNotPreselectedAttribution,
+  expectGlobalOnlyContextMenuForPreselectedAttribution,
+  expectNoConfirmationButtonsShown,
+  handleReplaceMarkedAttributionViaContextMenu,
+} from '../../../test-helpers/context-menu-test-helpers';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
+import {
+  expectValueInConfidenceField,
+  expectValueInTextBox,
+  expectValueNotInConfidenceField,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
+import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 import {
   getParsedInputFileEnrichedWithTestData,
   goToView,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
 } from '../../../test-helpers/general-test-helpers';
-import {
-  Attributions,
-  ParsedFileContent,
-  Resources,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
-import { screen } from '@testing-library/react';
-import {
-  clickOnButtonInPackageContextMenu,
-  expectContextMenuForNotPreSelectedAttributionMultipleResources,
-  expectGlobalOnlyContextMenuForNotPreselectedAttribution,
-  expectGlobalOnlyContextMenuForPreselectedAttribution,
-  expectNoConfirmationButtonsShown,
-} from '../../../test-helpers/context-menu-test-helpers';
-import { IpcChannel } from '../../../../shared/ipc-channels';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
-import React from 'react';
-import {
-  expectValueInConfidenceField,
-  expectValueInTextBox,
-  expectValueNotInConfidenceField,
-} from '../../../test-helpers/attribution-column-test-helpers';
-import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
-import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -82,7 +89,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/fourthResource.js': ['uuid_2'],
 };
 
-describe('The ContextMenu', () => {
+describe('In Attribution View the ContextMenu', () => {
   beforeAll(() => {
     originalIpcRenderer = global.window.ipcRenderer;
     global.window.ipcRenderer = {
@@ -99,7 +106,7 @@ describe('The ContextMenu', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  test('confirmation buttons work correctly in Attribution View', () => {
+  test('confirmation buttons work correctly', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -138,5 +145,130 @@ describe('The ContextMenu', () => {
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+  });
+
+  describe('replace attribution buttons', () => {
+    test('replace attributions', () => {
+      const expectedSaveFileArgs: SaveFileArgs = {
+        manualAttributions: {
+          uuid_2: {
+            comment: 'ManualPackage',
+            packageName: 'React',
+            packageVersion: '16.0.0',
+          },
+          uuid_3: {
+            packageName: 'Vue',
+            packageVersion: '16.0.0',
+            comment: 'ManualPackage',
+            preSelected: true,
+          },
+        },
+        resolvedExternalAttributions: new Set(),
+        resourcesToAttributions: {
+          '/root/src/file_1': ['uuid_2'],
+          '/root/src/file_2': ['uuid_2', 'uuid_3'],
+        },
+      };
+      const testResources: Resources = {
+        root: { src: { file_1: 1, file_2: 1 } },
+        file: 1,
+      };
+      const testManualAttributions: Attributions = {
+        uuid_1: {
+          packageName: 'jQuery',
+          packageVersion: '16.0.0',
+          comment: 'ManualPackage',
+        },
+        uuid_2: {
+          packageName: 'React',
+          packageVersion: '16.0.0',
+          comment: 'ManualPackage',
+        },
+        uuid_3: {
+          packageName: 'Vue',
+          packageVersion: '16.0.0',
+          comment: 'ManualPackage',
+          preSelected: true,
+        },
+      };
+      const testResourcesToManualAttributions: ResourcesToAttributions = {
+        '/root/src/file_1': ['uuid_1'],
+        '/root/src/file_2': ['uuid_2', 'uuid_3'],
+      };
+
+      mockElectronBackend(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      );
+      renderComponentWithStore(<App />);
+
+      goToView(screen, View.Attribution);
+      expectResourceBrowserIsNotShown(screen);
+
+      fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
+      expectValueInTextBox(screen, 'Name', 'jQuery');
+      screen.getByText('/root/src/file_1');
+      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+        screen,
+        'jQuery, 16.0.0'
+      );
+
+      expectCorrectMarkAndUnmarkForReplacementInContextMenu(
+        screen,
+        'jQuery, 16.0.0'
+      );
+
+      clickOnButtonInPackageContextMenu(
+        screen,
+        'jQuery, 16.0.0',
+        ButtonText.MarkForReplacement
+      );
+
+      expectButtonInPackageContextMenu(
+        screen,
+        'Vue, 16.0.0',
+        ButtonText.ReplaceMarked,
+        true
+      );
+
+      fireEvent.click(screen.getByText('React, 16.0.0') as Element);
+      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+        screen,
+        'React, 16.0.0',
+        true
+      );
+
+      handleReplaceMarkedAttributionViaContextMenu(
+        screen,
+        'React, 16.0.0',
+        ButtonText.Cancel
+      );
+
+      expect(screen.getByText('jQuery, 16.0.0')).toBeTruthy();
+
+      handleReplaceMarkedAttributionViaContextMenu(
+        screen,
+        'React, 16.0.0',
+        ButtonText.Replace
+      );
+      expectValueInTextBox(screen, 'Name', 'React');
+      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+        screen,
+        'React, 16.0.0'
+      );
+
+      expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+      screen.getByText('/root/src/file_1');
+      screen.getByText('/root/src/file_2');
+
+      // make sure resources are now linked to React attribution
+      // @ts-ignore
+      expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+        [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      ]);
+    });
   });
 });

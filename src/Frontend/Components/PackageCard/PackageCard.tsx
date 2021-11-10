@@ -22,9 +22,11 @@ import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { useSelector } from 'react-redux';
 import {
+  getAttributionIdMarkedForReplacement,
   getManualAttributions,
   getManualAttributionsToResources,
   getTemporaryPackageInfo,
+  wereTemporaryPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import {
@@ -44,9 +46,12 @@ import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 import {
+  getMergeButtonsDisplayState,
   getResolvedToggleHandler,
+  MergeButtonDisplayState,
   selectedPackageIsResolved,
 } from '../AttributionColumn/attribution-column-helpers';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -92,6 +97,12 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const attributionsToResources = useSelector(getManualAttributionsToResources);
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
+  );
+  const packageInfoWereModified = useAppSelector(
+    wereTemporaryPackageInfoModified
+  );
+  const attributionIdMarkedForReplacement = useAppSelector(
+    getAttributionIdMarkedForReplacement
   );
 
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
@@ -213,6 +224,19 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       attributionsToResources
     ) ||
       hideResourceSpecificButtons);
+  const mergeButtonDisplayState: MergeButtonDisplayState =
+    getMergeButtonsDisplayState(
+      selectedView,
+      attributionIdMarkedForReplacement,
+      attributionId,
+      selectedAttributionId,
+      packageInfoWereModified,
+      isPreselected,
+      isExternalAttribution
+    );
+  const isMarkedForReplacement =
+    Boolean(attributionId) &&
+    attributionId === attributionIdMarkedForReplacement;
 
   const contextMenuItems: Array<ContextMenuItem> = props.hideContextMenu
     ? []
@@ -258,6 +282,33 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           ),
           hidden: !isExternalAttribution,
         },
+        {
+          buttonText: ButtonText.MarkForReplacement,
+          onClick: (): void => {
+            dispatch(setAttributionIdMarkedForReplacement(attributionId));
+          },
+          hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
+        },
+        {
+          buttonText: ButtonText.UnmarkForReplacement,
+          onClick: (): void => {
+            dispatch(setAttributionIdMarkedForReplacement(''));
+          },
+          hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
+        },
+        {
+          buttonText: ButtonText.ReplaceMarked,
+          disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
+          onClick: (): void => {
+            dispatch(
+              openPopupWithTargetAttributionId(
+                PopupType.ReplaceAttributionPopup,
+                attributionId
+              )
+            );
+          },
+          hidden: mergeButtonDisplayState.hideOnReplaceMarkedByButton,
+        },
       ];
 
   return (
@@ -277,7 +328,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         <ListCard
           text={packageLabels[0] || ''}
           secondLineText={packageLabels[1] || undefined}
-          cardConfig={props.cardConfig}
+          cardConfig={{
+            ...props.cardConfig,
+            isMarkedForReplacement,
+          }}
           count={props.packageCount}
           onClick={props.onClick}
           leftIcon={leftIcon}

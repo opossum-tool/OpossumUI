@@ -26,6 +26,7 @@ import {
   expectContextMenuForPreSelectedAttributionMultipleResources,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
+  expectUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -40,6 +41,8 @@ import {
   expectPackagePanelShown,
 } from '../../../test-helpers/package-panel-helpers';
 import {
+  expectButtonInHamburgerMenu,
+  expectButtonInHamburgerMenuIsNotShown,
   expectValueInTextBox,
   expectValueNotInTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
@@ -430,5 +433,72 @@ describe('The ContextMenu', () => {
     expectShowResourcesPopupVisible(screen);
     clickOnPathInPopupWithResources(screen, '/secondResource.js');
     expectValueInTextBox(screen, 'Name', 'Vue');
+  });
+
+  test('replace attributions buttons are synced with hamburger menu buttons', () => {
+    const testResources: Resources = {
+      root: { src: { file_1: 1, file_2: 1 } },
+      file: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_2: {
+        packageName: 'React',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_3: {
+        packageName: 'Vue',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+        preSelected: true,
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/file_1': ['uuid_1'],
+      '/root/src/file_2': ['uuid_2', 'uuid_3'],
+    };
+
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
+    );
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'root');
+    clickOnElementInResourceBrowser(screen, 'src');
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'jQuery, 16.0.0',
+      ButtonText.MarkForReplacement
+    );
+
+    clickOnElementInResourceBrowser(screen, 'file_1');
+    expectUnmarkForReplacementInContextMenu(screen, 'jQuery, 16.0.0');
+    expectButtonInHamburgerMenu(screen, ButtonText.UnmarkForReplacement);
+    expectButtonInHamburgerMenuIsNotShown(
+      screen,
+      ButtonText.MarkForReplacement
+    );
+
+    clickOnElementInResourceBrowser(screen, 'file_2');
+    clickOnTab(screen, 'All Attributions Tab');
+    expectUnmarkForReplacementInContextMenu(screen, 'jQuery, 16.0.0');
+
+    goToView(screen, View.Attribution);
+    expectUnmarkForReplacementInContextMenu(screen, 'jQuery, 16.0.0');
+    clickOnCardInAttributionList(screen, 'jQuery, 16.0.0');
+    expectButtonInHamburgerMenu(screen, ButtonText.UnmarkForReplacement);
+    expectButtonInHamburgerMenuIsNotShown(
+      screen,
+      ButtonText.MarkForReplacement
+    );
   });
 });

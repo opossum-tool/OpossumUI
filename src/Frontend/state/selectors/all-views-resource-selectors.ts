@@ -199,3 +199,7 @@ export function getExternalAttributionSources(
 ): ExternalAttributionSources {
   return state.resourceState.allViews.externalAttributionSources;
 }
+
+export function getAttributionIdMarkedForReplacement(state: State): string {
+  return state.resourceState.allViews.attributionIdMarkedForReplacement;
+}

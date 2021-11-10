@@ -9,11 +9,11 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { FilterType, PackagePanelTitle } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdMarkedForReplacement,
-  getSelectedAttributionId,
-} from '../../state/selectors/attribution-view-resource-selectors';
+  getManualAttributions,
+} from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
 import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
