@@ -11,7 +11,7 @@ import {
   AttributionsToResources,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
-import { View } from '../../enums/enums';
+import { FilterType, View } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import {
@@ -25,7 +25,7 @@ import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Table } from '../Table/Table';
 import { OpossumColors } from '../../shared-styles';
-import { areOnlyFollowUpAttributionsShown } from '../../state/selectors/view-selector';
+import { getActiveFilters } from '../../state/selectors/view-selector';
 
 const useStyles = makeStyles({
   root: {
@@ -47,7 +47,8 @@ export function ReportView(): ReactElement {
   );
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const isFileWithChildren = useAppSelector(getIsFileWithChildren);
-  const filterForFollowUp = useAppSelector(areOnlyFollowUpAttributionsShown);
+  const activeFilters = useAppSelector(getActiveFilters);
+  const filterForFollowUp = activeFilters.has(FilterType.OnlyFollowUp);
   const dispatch = useAppDispatch();
 
   const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(

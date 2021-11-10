@@ -3,16 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PopupType, View } from '../../../enums/enums';
+import { PopupType, View, FilterType } from '../../../enums/enums';
 
 export const ACTION_SET_TARGET_VIEW = 'ACTION_SET_TARGET_VIEW';
 export const ACTION_SET_VIEW = 'ACTION_SET_VIEW';
 export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
-export const ACTION_SET_FOLLOW_UP_FILTER = 'ACTION_SET_FOLLOW_UP_FILTER';
 export const ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID =
   'ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID';
+export const ACTION_UPDATE_ACTIVE_FILTERS = 'ACTION_UPDATE_ACTIVE_FILTERS';
 
 export type ViewAction =
   | SetView
@@ -20,8 +20,8 @@ export type ViewAction =
   | ClosePopupAction
   | ResetViewStateAction
   | OpenPopupAction
-  | SetFollowUpFilter
-  | OpenPopupWithTargetAttributionIdAction;
+  | OpenPopupWithTargetAttributionIdAction
+  | UpdateActiveFilters;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -51,9 +51,9 @@ export interface OpenPopupAction {
   payload: OpenPopupActionPopupType;
 }
 
-export interface SetFollowUpFilter {
-  type: typeof ACTION_SET_FOLLOW_UP_FILTER;
-  payload: boolean;
+export interface UpdateActiveFilters {
+  type: typeof ACTION_UPDATE_ACTIVE_FILTERS;
+  payload: FilterType;
 }
 
 interface OpenPopupWithTargetAttributionIdActionPayload {
