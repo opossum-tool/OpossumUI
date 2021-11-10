@@ -35,6 +35,7 @@ import log from 'electron-log';
 import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
 import { combineExternalAttributionSources } from './externalAttributionSources';
 import { ATTRIBUTION_SOURCES } from '../../shared/shared-constants';
+import { v4 as uuid4 } from 'uuid';
 
 function isJsonParsingError(
   object: ParsedOpossumInputFile | JsonParsingError
@@ -167,29 +168,49 @@ function createOutputFileIfItDoesNotExist(
 ): void {
   if (!fs.existsSync(manualAttributionFilePath)) {
     const externalAttributionsCopy = cloneDeep(externalAttributions);
-    const preselectedAttributions = Object.fromEntries(
+    const preselectedExternalAttributions = Object.fromEntries(
       Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
         delete packageInfo.source;
         delete packageInfo.comment;
         return Boolean(packageInfo.preSelected);
       })
     );
+    const preselectedAttributionIdsToExternalAttributionIds =
+      Object.fromEntries(
+        Object.keys(preselectedExternalAttributions).map((attributionId) => [
+          attributionId,
+          uuid4(),
+        ])
+      );
     const preselectedAttributionsToResources = Object.fromEntries(
       Object.entries(resourcesToExternalAttributions).map(
         ([resourceId, attributionIds]) => {
           const filteredAttributionIds = attributionIds.filter(
             (attributionId) =>
-              Object.keys(preselectedAttributions).includes(attributionId)
+              Object.keys(preselectedExternalAttributions).includes(
+                attributionId
+              )
           );
           return filteredAttributionIds.length
             ? [
                 resourceId,
-                attributionIds.filter((attributionId) =>
-                  Object.keys(preselectedAttributions).includes(attributionId)
+                filteredAttributionIds.map(
+                  (attributionId) =>
+                    preselectedAttributionIdsToExternalAttributionIds[
+                      attributionId
+                    ]
                 ),
               ]
             : [];
         }
+      )
+    );
+    const preselectedAttributions = Object.fromEntries(
+      Object.entries(preselectedExternalAttributions).map(
+        ([attributionId, packageInfo]) => [
+          preselectedAttributionIdsToExternalAttributionIds[attributionId],
+          packageInfo,
+        ]
       )
     );
 

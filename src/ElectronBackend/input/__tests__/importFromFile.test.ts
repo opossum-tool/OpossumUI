@@ -7,7 +7,6 @@ import { BrowserWindow, dialog } from 'electron';
 // @ts-ignore
 import path from 'path';
 import upath from 'upath';
-import { NIL as uuidNil } from 'uuid';
 import {
   FollowUp,
   PackageInfo,
@@ -28,6 +27,9 @@ import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling'
 import writeFileAtomic from 'write-file-atomic';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
 
+const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
+const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
+
 jest.mock('electron', () => ({
   dialog: {
     showOpenDialogSync: jest.fn(),
@@ -44,14 +46,16 @@ jest.mock('../../errorHandling/errorHandling', () => ({
   getMessageBoxForParsingError: jest.fn(),
 }));
 
+jest.mock('uuid', () => ({
+  v4: (): string => manualAttributionUuid,
+}));
+
 const mainWindow = {
   webContents: {
     send: jest.fn(),
   },
   setTitle: jest.fn(),
 } as unknown as BrowserWindow;
-
-const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-cdab48d027cd';
 
 const inputFileContent: ParsedOpossumInputFile = {
   metadata: {
@@ -255,7 +259,7 @@ describe('Test of loading function', () => {
   });
 
   test('Load file and parse json successfully, attribution file', async () => {
-    const testUuid: string = uuidNil;
+    const testUuid = 'test_uuid';
     const temporaryPath: string = createTempFolder();
     const jsonName = 'test.json';
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
@@ -384,13 +388,14 @@ describe('Test of loading function', () => {
     };
 
     setGlobalBackendState(globalBackendState);
+
     await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
     const expectedLoadedFile: ParsedFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
       resources: { a: 1 },
       manualAttributions: {
         attributions: {
-          [externalAttributionUuid]: {
+          [manualAttributionUuid]: {
             packageName: 'my app',
             packageVersion: '1.2.3',
             copyright: '(c) first party',
@@ -399,7 +404,7 @@ describe('Test of loading function', () => {
           },
         },
         resourcesToAttributions: {
-          '/a': [externalAttributionUuid],
+          '/a': [manualAttributionUuid],
         },
       },
       externalAttributions: {
@@ -429,7 +434,7 @@ describe('Test of loading function', () => {
         },
       },
       resolvedExternalAttributions: new Set(),
-      attributionBreakpoints: new Set(['/another/path/', '/some/path/']),
+      attributionBreakpoints: new Set(['/some/path/', '/another/path/']),
       filesWithChildren: new Set(['/some/package.json/']),
       baseUrlsForSources: {
         '/': 'https://github.com/opossum-tool/opossumUI/',
