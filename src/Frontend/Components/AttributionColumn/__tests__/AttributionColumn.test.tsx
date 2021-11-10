@@ -35,6 +35,7 @@ import {
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionColumn } from '../AttributionColumn';
 import { IpcChannel } from '../../../../shared/ipc-channels';
+import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -481,6 +482,7 @@ describe('The AttributionColumn', () => {
           onDeleteGloballyButtonClick={doNothing}
         />
       );
+      store.dispatch(setSelectedAttributionId('TestId'));
       store.dispatch(setResources({}));
       store.dispatch(
         setDisplayedPackage({

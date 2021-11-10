@@ -100,6 +100,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   );
   const view = useAppSelector(getSelectedView);
 
+  const selectedPackageId = selectedPackage
+    ? selectedPackage.attributionId
+    : '';
   const {
     isLicenseTextShown,
     setIsLicenseTextShown,
@@ -262,12 +265,12 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       <ButtonRow
         showButtonGroup={props.showManualAttributionData}
         resolvedToggleHandler={getResolvedToggleHandler(
-          selectedPackage,
+          selectedPackageId,
           resolvedExternalAttributions,
           dispatch
         )}
         selectedPackageIsResolved={selectedPackageIsResolved(
-          selectedPackage,
+          selectedPackageId,
           resolvedExternalAttributions
         )}
         areButtonsHidden={props.areButtonsHidden}
