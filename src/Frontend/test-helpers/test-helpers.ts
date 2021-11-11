@@ -171,17 +171,6 @@ export function getPopupWithResources(screen: Screen): HTMLElement {
     .parentElement as HTMLElement;
 }
 
-export function getOpenResourcesIconForPackagePanel(
-  screen: Screen,
-  packageName: string
-): HTMLElement {
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  return getByLabelText(
-    getPackagePanel(screen, packageName),
-    'show resources'
-  ) as HTMLElement;
-}
-
 export function getPackagePanel(
   screen: Screen,
   packagePanelName: string

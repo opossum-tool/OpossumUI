@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -17,21 +17,17 @@ import {
   clickOnButton,
   clickOnCardInAttributionList,
   clickOnElementInResourceBrowser,
-  clickOnPathInPopupWithResources,
   clickOnTab,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   expectButtonInHamburgerMenu,
   expectErrorPopupIsNotShown,
   expectErrorPopupIsShown,
-  expectPackageInPackagePanel,
-  expectPackagePanelShown,
   expectUnsavedChangesPopupIsNotShown,
   expectUnsavedChangesPopupIsShown,
   expectValueInAddToAttributionList,
   expectValueInTextBox,
   expectValueNotInTextBox,
-  getOpenResourcesIconForPackagePanel,
   insertValueIntoTextBox,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
@@ -40,8 +36,6 @@ import { App } from '../../Components/App/App';
 
 import { TIME_POPUP_IS_DISPLAYED } from '../../Components/ErrorPopup/ErrorPopup';
 import { ButtonText, DiscreteConfidence } from '../../enums/enums';
-import { setExternalAttributionSources } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { ATTRIBUTION_SOURCES } from '../../../shared/shared-constants';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -256,51 +250,6 @@ describe('Other popups of the app', () => {
     expectUnsavedChangesPopupIsNotShown(screen);
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
-  });
-
-  test('opens working popup with file list when clicking on show resources icon', () => {
-    const mockChannelReturn: ParsedFileContent = {
-      ...EMPTY_PARSED_FILE_CONTENT,
-      resources: {
-        root: { src: { file_2: 1 } },
-        file: 1,
-        directory_manual: { subdirectory_manual: { file_manual: 1 } },
-      },
-      manualAttributions: {
-        attributions: {
-          uuid_1: { packageName: 'React' },
-        },
-        resourcesToAttributions: {
-          '/directory_manual/subdirectory_manual/': ['uuid_1'],
-        },
-      },
-      externalAttributions: {
-        attributions: {
-          uuid_1: {
-            source: {
-              name: 'HC',
-              documentConfidence: 99.0,
-            },
-            packageName: 'JQuery',
-          },
-        },
-        resourcesToAttributions: {
-          '/root/src/': ['uuid_1'],
-        },
-      },
-    };
-    mockElectronBackend(mockChannelReturn);
-    const { store } = renderComponentWithStore(<App />);
-    store.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
-
-    clickOnElementInResourceBrowser(screen, '/');
-
-    expectPackagePanelShown(screen, 'Signals in Folder Content');
-    expectPackageInPackagePanel(screen, 'JQuery', 'Signals in Folder Content');
-
-    fireEvent.click(getOpenResourcesIconForPackagePanel(screen, 'JQuery'));
-    clickOnPathInPopupWithResources(screen, '/root/src/');
-    expectPackageInPackagePanel(screen, 'JQuery', 'High Compute');
   });
 
   jest.useFakeTimers();
