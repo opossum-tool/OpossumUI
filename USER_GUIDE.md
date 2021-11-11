@@ -17,15 +17,15 @@ Download the latest release for your OS from [Github](https://github.com/opossum
 
 #### Linux
 
-Run the executable _OpossumUI-0.1.0.AppImage_
+Run the executable _OpossumUI-for-linux.AppImage_
 
 #### macOS
 
-Run _OpossumUI_ in _OpossumUI-darwin-x64/_.
+Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
 
 #### Windows
 
-Run _OpossumUI Setup 0.1.0.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
+Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
 
 ## Working with OpossumUI
 
