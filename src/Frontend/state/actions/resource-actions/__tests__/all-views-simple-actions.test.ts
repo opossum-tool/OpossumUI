@@ -13,7 +13,7 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { ProgressBarData } from '../../../../types/types';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {

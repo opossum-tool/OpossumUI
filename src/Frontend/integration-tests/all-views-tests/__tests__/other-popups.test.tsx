@@ -3,39 +3,44 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
-import { IpcRenderer } from 'electron';
-import React from 'react';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { App } from '../../../Components/App/App';
+import {
+  clickOnButton,
+  EMPTY_PARSED_FILE_CONTENT,
+  expectButton,
+  mockElectronIpcRendererOn,
+  TEST_TIMEOUT,
+} from '../../../test-helpers/general-test-helpers';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   PackageInfo,
   ParsedFileContent,
   SaveFileArgs,
-} from '../../../shared/shared-types';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
+} from '../../../../shared/shared-types';
+import { screen } from '@testing-library/react';
+import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { IpcRenderer } from 'electron';
+import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
+import React from 'react';
 import {
-  clickOnButton,
-  clickOnCardInAttributionList,
-  clickOnElementInResourceBrowser,
-  clickOnTab,
-  EMPTY_PARSED_FILE_CONTENT,
-  expectButton,
   expectButtonInHamburgerMenu,
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
+import {
   expectErrorPopupIsNotShown,
   expectErrorPopupIsShown,
   expectUnsavedChangesPopupIsNotShown,
   expectUnsavedChangesPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
+import {
+  clickOnCardInAttributionList,
+  clickOnTab,
   expectValueInAddToAttributionList,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-  insertValueIntoTextBox,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
-} from '../../test-helpers/test-helpers';
-import { App } from '../../Components/App/App';
-
-import { TIME_POPUP_IS_DISPLAYED } from '../../Components/ErrorPopup/ErrorPopup';
-import { ButtonText, DiscreteConfidence } from '../../enums/enums';
+} from '../../../test-helpers/package-panel-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 

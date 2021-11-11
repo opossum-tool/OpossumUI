@@ -3,40 +3,47 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { App } from '../../../Components/App/App';
+import {
+  clickOnButton,
+  clickOnOpenFileIcon,
+  clickOnProgressBar,
+  EMPTY_PARSED_FILE_CONTENT,
+  goToView,
+  mockElectronIpcRendererOn,
+  TEST_TIMEOUT,
+} from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { ButtonText, View } from '../../../enums/enums';
 import { IpcRenderer } from 'electron';
+import { ParsedFileContent } from '../../../../shared/shared-types';
 import React from 'react';
-import { IpcChannel } from '../../../shared/ipc-channels';
-import { ParsedFileContent } from '../../../shared/shared-types';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickAddIconOnCardInAttributionList,
   clickAddNewAttributionButton,
-  clickOnButton,
-  clickOnButtonInHamburgerMenu,
-  clickOnElementInResourceBrowser,
-  clickOnOpenFileIcon,
-  clickOnProgressBar,
   clickOnTab,
-  EMPTY_PARSED_FILE_CONTENT,
   expectPackageInPackagePanel,
   expectPackageNotInPackagePanel,
   expectPackagePanelShown,
-  expectResourceBrowserIsNotShown,
-  expectUnsavedChangesPopupIsNotShown,
-  expectUnsavedChangesPopupIsShown,
+  getCardInAttributionList,
+} from '../../../test-helpers/package-panel-helpers';
+import {
+  clickOnButtonInHamburgerMenu,
   expectValueInTextBox,
   expectValueNotInTextBox,
-  getCardInAttributionList,
-  getElementInResourceBrowser,
-  goToView,
   insertValueIntoTextBox,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
-} from '../../test-helpers/test-helpers';
-import { App } from '../../Components/App/App';
-
-import { ButtonText, View } from '../../enums/enums';
+} from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+  getElementInResourceBrowser,
+} from '../../../test-helpers/resource-browser-test-helpers';
+import {
+  expectUnsavedChangesPopupIsNotShown,
+  expectUnsavedChangesPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 

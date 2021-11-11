@@ -3,7 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  getByLabelText,
+  queryByLabelText,
+  Screen,
+  screen,
+} from '@testing-library/react';
 import React from 'react';
 import { NIL as uuidNil } from 'uuid';
 import {
@@ -12,11 +18,6 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  collapseFolderByClickingOnIcon,
-  expectIconToExist,
-  expectResourceIconLabelToBe,
-} from '../../../test-helpers/test-helpers';
 import { ResourceBrowser } from '../ResourceBrowser';
 import {
   setExternalData,
@@ -28,6 +29,7 @@ import { getSelectedResourceId } from '../../../state/selectors/audit-view-resou
 import { getNodeIdsToExpand, isChildOfSelected } from '../renderTree';
 import { isEqual } from 'lodash';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('ResourceBrowser', () => {
   test('renders working tree', () => {
@@ -315,3 +317,33 @@ describe('renderTree', () => {
     );
   });
 });
+
+function expectIconToExist(
+  screen: Screen,
+  iconLabel: string,
+  resourceName: string,
+  expectedToExist: boolean
+): void {
+  const treeItem = screen.getByText(resourceName);
+  expectedToExist
+    ? expect(
+        // eslint-disable-next-line testing-library/prefer-screen-queries
+        getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+      ).not.toBeNull()
+    : expect(
+        // eslint-disable-next-line testing-library/prefer-screen-queries
+        queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+      ).toBeNull();
+}
+
+function expectResourceIconLabelToBe(
+  screen: Screen,
+  resourceName: string,
+  iconLabel: string
+): void {
+  const treeItem = screen.getByText(resourceName);
+  expect(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+  ).not.toBeNull();
+}

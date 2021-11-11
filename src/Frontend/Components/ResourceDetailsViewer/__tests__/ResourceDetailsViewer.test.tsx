@@ -16,12 +16,7 @@ import {
   EnhancedTestStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import {
-  clickOnTab,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
@@ -30,6 +25,11 @@ import {
   setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getDisplayedPackage } from '../../../state/selectors/audit-view-resource-selectors';
+import {
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';

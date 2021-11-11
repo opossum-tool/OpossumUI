@@ -12,8 +12,8 @@ import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/a
 import { IpcRenderer } from 'electron';
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
-import { clickGoToLinkIcon } from '../../../test-helpers/test-helpers';
 import each from 'jest-each';
+import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 

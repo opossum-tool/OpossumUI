@@ -16,7 +16,7 @@ import {
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   setAttributionIdMarkedForReplacement,
   setSelectedAttributionId,

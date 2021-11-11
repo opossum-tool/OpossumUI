@@ -3,39 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
-import { IpcRenderer } from 'electron';
-import React from 'react';
-import { IpcChannel } from '../../../shared/ipc-channels';
-import {
-  Attributions,
-  ParsedFileContent,
-  Resources,
-  ResourcesToAttributions,
-} from '../../../shared/shared-types';
-import { ButtonText, View } from '../../enums/enums';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
 import {
   clickOnButton,
-  clickOnCardInAttributionList,
-  clickOnElementInResourceBrowser,
-  clickOnPathInPopupWithResources,
-  clickOnTab,
-  expectConfirmDeletionPopupNotVisible,
-  expectConfirmDeletionPopupVisible,
-  expectPackageInPackagePanel,
-  expectPackagePanelShown,
-  expectResourceBrowserIsNotShown,
-  expectShowResourcesPopupVisible,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
   expectValuesInProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
   goToView,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
-} from '../../test-helpers/test-helpers';
-import { App } from '../../Components/App/App';
+} from '../../../test-helpers/general-test-helpers';
+import { App } from '../../../Components/App/App';
+import {
+  Attributions,
+  ParsedFileContent,
+  Resources,
+  ResourcesToAttributions,
+} from '../../../../shared/shared-types';
 import {
   clickOnButtonInPackageContextMenu,
   clickOnButtonInPackageInPackagePanelContextMenu,
@@ -44,7 +26,33 @@ import {
   expectContextMenuForPreSelectedAttributionMultipleResources,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
-} from '../../test-helpers/context-menu-test-helpers';
+} from '../../../test-helpers/context-menu-test-helpers';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { ButtonText, View } from '../../../enums/enums';
+import { IpcRenderer } from 'electron';
+import { screen } from '@testing-library/react';
+import React from 'react';
+import {
+  clickOnCardInAttributionList,
+  clickOnTab,
+  expectPackageInPackagePanel,
+  expectPackagePanelShown,
+} from '../../../test-helpers/package-panel-helpers';
+import {
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
+import {
+  clickOnPathInPopupWithResources,
+  expectConfirmDeletionPopupNotVisible,
+  expectConfirmDeletionPopupVisible,
+  expectShowResourcesPopupVisible,
+} from '../../../test-helpers/popup-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -57,47 +65,6 @@ function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
       mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
     );
 }
-
-const testResources: Resources = {
-  folder1: { 'firstResource.js': 1 },
-  'secondResource.js': 1,
-  'thirdResource.js': 1,
-};
-
-const testExternalAttributions: Attributions = {
-  uuid_ext_1: {
-    packageName: 'JQuery',
-    packageVersion: '16.5.0',
-    licenseText: 'Permission is hereby granted',
-  },
-};
-
-const testResourcesToExternalAttributions: ResourcesToAttributions = {
-  '/folder1/': ['uuid_ext_1'],
-};
-
-const testManualAttributions: Attributions = {
-  uuid_1: {
-    packageName: 'React',
-    packageVersion: '16.5.0',
-    licenseText: 'Permission is hereby granted',
-    comment: 'Attribution of multiple resources',
-    attributionConfidence: 10,
-  },
-  uuid_2: {
-    packageName: 'Vue',
-    packageVersion: '1.2.0',
-    licenseText: 'Permission is not granted',
-    comment: 'Attribution of one resources',
-    attributionConfidence: 90,
-  },
-};
-
-const testResourcesToManualAttributions: ResourcesToAttributions = {
-  '/folder1/': ['uuid_1'],
-  '/secondResource.js': ['uuid_2'],
-  '/thirdResource.js': ['uuid_1'],
-};
 
 describe('The ContextMenu', () => {
   beforeAll(() => {
@@ -125,7 +92,20 @@ describe('The ContextMenu', () => {
       'fifthResource.js': 1,
     };
     const testExpandedManualAttributions: Attributions = {
-      ...testManualAttributions,
+      uuid_1: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        licenseText: 'Permission is hereby granted',
+        comment: 'Attribution of multiple resources',
+        attributionConfidence: 10,
+      },
+      uuid_2: {
+        packageName: 'Vue',
+        packageVersion: '1.2.0',
+        licenseText: 'Permission is not granted',
+        comment: 'Attribution of one resources',
+        attributionConfidence: 90,
+      },
       uuid_3: {
         packageName: 'Angular',
         packageVersion: '12.2.8',
@@ -333,6 +313,47 @@ describe('The ContextMenu', () => {
   });
 
   test('show resource button opens working popup with file list when clicking on show resources icon', () => {
+    const testResources: Resources = {
+      folder1: { 'firstResource.js': 1 },
+      'secondResource.js': 1,
+      'thirdResource.js': 1,
+    };
+
+    const testExternalAttributions: Attributions = {
+      uuid_ext_1: {
+        packageName: 'JQuery',
+        packageVersion: '16.5.0',
+        licenseText: 'Permission is hereby granted',
+      },
+    };
+
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder1/': ['uuid_ext_1'],
+    };
+
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        licenseText: 'Permission is hereby granted',
+        comment: 'Attribution of multiple resources',
+        attributionConfidence: 10,
+      },
+      uuid_2: {
+        packageName: 'Vue',
+        packageVersion: '1.2.0',
+        licenseText: 'Permission is not granted',
+        comment: 'Attribution of one resources',
+        attributionConfidence: 90,
+      },
+    };
+
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/folder1/': ['uuid_1'],
+      '/secondResource.js': ['uuid_2'],
+      '/thirdResource.js': ['uuid_1'],
+    };
+
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,

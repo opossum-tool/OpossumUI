@@ -16,7 +16,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import {
   clickOnCheckbox,
   getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/test-helpers';
+} from '../../../test-helpers/general-test-helpers';
 import { ReportView } from '../ReportView';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setFrequentLicences } from '../../../state/actions/resource-actions/all-views-simple-actions';

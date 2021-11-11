@@ -18,7 +18,7 @@ import {
   setSelectedResourceId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionIdsOfSelectedResource,

@@ -11,20 +11,20 @@ import {
 } from '../../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../../types/types';
 import {
   getManualData,
   getTemporaryPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
+  openResourceInResourceBrowser,
   resetTemporaryPackageInfo,
   setDisplayedPackageAndResetTemporaryPackageInfo,
-  openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../navigation-actions';
 import { savePackageInfo } from '../save-actions';
-import { setTargetView, navigateToView } from '../../view-actions/view-actions';
+import { navigateToView, setTargetView } from '../../view-actions/view-actions';
 import { getSelectedView } from '../../../selectors/view-selector';
 import { IpcRenderer } from 'electron';
 import {

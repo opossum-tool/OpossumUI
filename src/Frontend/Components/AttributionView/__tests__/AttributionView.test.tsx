@@ -17,7 +17,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import {
   clickOnCheckbox,
   getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/test-helpers';
+} from '../../../test-helpers/general-test-helpers';
 import { AttributionView } from '../AttributionView';
 import { IpcRenderer } from 'electron';
 

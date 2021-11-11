@@ -21,7 +21,7 @@ import {
   EnhancedTestStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { EMPTY_PARSED_FILE_CONTENT } from '../../../test-helpers/test-helpers';
+import { EMPTY_PARSED_FILE_CONTENT } from '../../../test-helpers/general-test-helpers';
 import { NotSavedPopup } from '../NotSavedPopup';
 import {
   setSelectedResourceId,

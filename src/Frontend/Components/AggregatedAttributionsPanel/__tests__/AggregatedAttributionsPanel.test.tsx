@@ -14,13 +14,11 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import {
-  expectPackageInPackagePanel,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
 import { PanelData } from '../../ResourceDetailsTabs/resource-details-tabs-helpers';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { expectPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
 
 describe('The AggregatedAttributionsPanel', () => {
   test('renders', () => {

@@ -12,7 +12,7 @@ import {
 import { FileSearchPopup } from '../FileSearchPopup';
 import { Resources } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { act } from 'react-dom/test-utils';
 import each from 'jest-each';
 

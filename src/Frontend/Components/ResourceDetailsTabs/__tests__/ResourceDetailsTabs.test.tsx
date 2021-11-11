@@ -11,13 +11,11 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import {
-  clickOnTab,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { act, screen } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 
 describe('The ResourceDetailsTabs', () => {
   test('switches between tabs', () => {

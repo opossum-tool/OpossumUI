@@ -3,22 +3,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IpcRenderer } from 'electron';
+import { App } from '../../../Components/App/App';
 import {
-  clickGoToLinkIcon,
-  clickOnElementInResourceBrowser,
   EMPTY_PARSED_FILE_CONTENT,
-  expectGoToLinkIconIsNotVisible,
-  expectGoToLinkIconIsVisible,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
-} from '../../test-helpers/test-helpers';
-import { ParsedFileContent } from '../../../shared/shared-types';
-import { IpcChannel } from '../../../shared/ipc-channels';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
-import { App } from '../../Components/App/App';
-import React from 'react';
+} from '../../../test-helpers/general-test-helpers';
+import { IpcRenderer } from 'electron';
+import { ParsedFileContent } from '../../../../shared/shared-types';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { screen } from '@testing-library/react';
+import React from 'react';
+import {
+  clickGoToLinkIcon,
+  expectGoToLinkIconIsNotVisible,
+  expectGoToLinkIconIsVisible,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 

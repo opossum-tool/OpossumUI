@@ -14,7 +14,7 @@ import { PackagePanelCard } from '../PackagePanelCard';
 import { Attributions } from '../../../../shared/shared-types';
 import { ListCardConfig, ListCardContent } from '../../../types/types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 
 const testCardContent: ListCardContent = { id: '1', name: 'Test' };
 const testCardConfig: ListCardConfig = { firstParty: true };

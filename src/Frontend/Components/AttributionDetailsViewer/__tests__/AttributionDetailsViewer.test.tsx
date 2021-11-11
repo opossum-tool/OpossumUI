@@ -12,7 +12,7 @@ import { getManualAttributions } from '../../../state/selectors/all-views-resour
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
 import { IpcRenderer } from 'electron';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
