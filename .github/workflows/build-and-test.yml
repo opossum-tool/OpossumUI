@@ -54,7 +54,7 @@ jobs:
       - run: yarn lint-check
       - run: yarn compile-all
       - run: yarn test:unit
-      - run: yarn test:integration
+      - run: yarn test:integration-ci
       - name: Run end2end tests
         run: ${{ matrix.E2E }}
       - run: yarn ${{ matrix.SHIP }}
