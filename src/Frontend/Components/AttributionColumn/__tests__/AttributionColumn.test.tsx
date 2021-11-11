@@ -29,13 +29,15 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import {
   clickOnButton,
   clickOnCheckbox,
-  clickGoToLinkIcon,
-  expectGoToLinkButtonIsDisabled,
-} from '../../../test-helpers/test-helpers';
+} from '../../../test-helpers/general-test-helpers';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionColumn } from '../AttributionColumn';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import {
+  clickGoToLinkIcon,
+  expectGoToLinkButtonIsDisabled,
+} from '../../../test-helpers/attribution-column-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 

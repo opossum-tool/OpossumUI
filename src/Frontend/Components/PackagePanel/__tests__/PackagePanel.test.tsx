@@ -19,7 +19,7 @@ import { getByText } from '@testing-library/dom';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 
 describe('The PackagePanel', () => {
   test('renders TextBoxes with right content', () => {

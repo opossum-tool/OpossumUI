@@ -3,34 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
-import React from 'react';
-import { IpcChannel } from '../../../shared/ipc-channels';
 import {
   Attributions,
   ParsedFileContent,
   Resources,
   ResourcesToAttributions,
-} from '../../../shared/shared-types';
-import { ButtonText, DiscreteConfidence } from '../../enums/enums';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
+} from '../../../../shared/shared-types';
 import {
-  clickOnElementInResourceBrowser,
-  clickOnPackageInPackagePanel,
-  clickOnTab,
-  expectAddIconInAddToAttributionCardIsHidden,
-  expectAddIconInAddToAttributionCardIsNotHidden,
-  expectValueInConfidenceField,
-  expectValueInTextBox,
-  expectValueNotInConfidenceField,
   expectValuesInProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
-} from '../../test-helpers/test-helpers';
-import { App } from '../../Components/App/App';
-import { addResolvedExternalAttribution } from '../../state/actions/resource-actions/audit-view-simple-actions';
+} from '../../../test-helpers/general-test-helpers';
+import { App } from '../../../Components/App/App';
 import {
   clickOnButtonInPackageContextMenu,
   clickOnButtonInPackageInPackagePanelContextMenu,
@@ -42,7 +28,25 @@ import {
   expectCorrectButtonsInPackageInPackagePanelContextMenu,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
   expectNoConfirmationButtonsShown,
-} from '../../test-helpers/context-menu-test-helpers';
+} from '../../../test-helpers/context-menu-test-helpers';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { screen } from '@testing-library/react';
+import React from 'react';
+import {
+  clickOnPackageInPackagePanel,
+  clickOnTab,
+  expectAddIconInAddToAttributionCardIsHidden,
+  expectAddIconInAddToAttributionCardIsNotHidden,
+} from '../../../test-helpers/package-panel-helpers';
+import {
+  expectValueInConfidenceField,
+  expectValueInTextBox,
+  expectValueNotInConfidenceField,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -118,7 +122,7 @@ describe('The ContextMenu', () => {
     expectContextMenuIsNotShown(screen, cardLabel);
   });
 
-  describe('confirmation buttons', () => {
+  test('confirmation buttons work correctly in audit view', () => {
     const testResources: Resources = {
       'firstResource.js': 1,
       'secondResource.js': 1,
@@ -143,98 +147,92 @@ describe('The ContextMenu', () => {
       '/thirdResource.js': ['uuid_1'],
       '/fourthResource.js': ['uuid_2'],
     };
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributionsPreSelected,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
+    );
+    renderComponentWithStore(<App />);
 
-    test('work correctly in audit view', () => {
-      mockElectronBackend(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributionsPreSelected,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      );
-      renderComponentWithStore(<App />);
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInConfidenceField(screen, '10');
+    expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
+    expectContextMenuForPreSelectedAttributionMultipleResources(
+      screen,
+      'React, 16.5.0'
+    );
 
-      clickOnElementInResourceBrowser(screen, 'firstResource.js');
-      expectValueInTextBox(screen, 'Name', 'React');
-      expectValueInConfidenceField(screen, '10');
-      expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
-      expectContextMenuForPreSelectedAttributionMultipleResources(
-        screen,
-        'React, 16.5.0'
-      );
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'React, 16.5.0',
+      ButtonText.Confirm
+    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
+    expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
 
-      clickOnButtonInPackageContextMenu(
-        screen,
-        'React, 16.5.0',
-        ButtonText.Confirm
-      );
-      expectValueNotInConfidenceField(screen, '10');
-      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-      expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
-      expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInConfidenceField(screen, '10');
+    expectValueNotInConfidenceField(
+      screen,
+      `High (${DiscreteConfidence.High})`
+    );
+    expectContextMenuForPreSelectedAttributionMultipleResources(
+      screen,
+      'React, 16.5.0'
+    );
 
-      clickOnElementInResourceBrowser(screen, 'secondResource.js');
-      expectValueInTextBox(screen, 'Name', 'React');
-      expectValueInConfidenceField(screen, '10');
-      expectValueNotInConfidenceField(
-        screen,
-        `High (${DiscreteConfidence.High})`
-      );
-      expectContextMenuForPreSelectedAttributionMultipleResources(
-        screen,
-        'React, 16.5.0'
-      );
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'React, 16.5.0',
+      ButtonText.ConfirmGlobally
+    );
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
+    expectContextMenuForNotPreSelectedAttributionMultipleResources(
+      screen,
+      'React, 16.5.0'
+    );
 
-      clickOnButtonInPackageContextMenu(
-        screen,
-        'React, 16.5.0',
-        ButtonText.ConfirmGlobally
-      );
-      expectValueNotInConfidenceField(screen, '10');
-      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-      expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
-      expectContextMenuForNotPreSelectedAttributionMultipleResources(
-        screen,
-        'React, 16.5.0'
-      );
+    clickOnElementInResourceBrowser(screen, 'thirdResource.js');
+    expectValueNotInConfidenceField(screen, '10');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    expectContextMenuForNotPreSelectedAttributionMultipleResources(
+      screen,
+      'React, 16.5.0'
+    );
 
-      clickOnElementInResourceBrowser(screen, 'thirdResource.js');
-      expectValueNotInConfidenceField(screen, '10');
-      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-      expectContextMenuForNotPreSelectedAttributionMultipleResources(
-        screen,
-        'React, 16.5.0'
-      );
+    clickOnTab(screen, 'All Attributions Tab');
+    expectGlobalOnlyContextMenuForPreselectedAttribution(screen, 'Vue, 1.2.0');
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'Vue, 1.2.0',
+      ButtonText.ConfirmGlobally
+    );
 
-      clickOnTab(screen, 'All Attributions Tab');
-      expectGlobalOnlyContextMenuForPreselectedAttribution(
-        screen,
-        'Vue, 1.2.0'
-      );
-      clickOnButtonInPackageContextMenu(
-        screen,
-        'Vue, 1.2.0',
-        ButtonText.ConfirmGlobally
-      );
-
-      clickOnElementInResourceBrowser(screen, 'fourthResource.js');
-      expectValueInTextBox(screen, 'Name', 'Vue');
-      expectValueNotInConfidenceField(screen, '90');
-      expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-      expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
-      expectCorrectButtonsInContextMenu(
-        screen,
-        'Vue, 1.2.0',
-        [ButtonText.ShowResources, ButtonText.Delete],
-        [
-          ButtonText.Hide,
-          ButtonText.Unhide,
-          ButtonText.DeleteGlobally,
-          ButtonText.Confirm,
-          ButtonText.ConfirmGlobally,
-        ]
-      );
-    });
+    clickOnElementInResourceBrowser(screen, 'fourthResource.js');
+    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueNotInConfidenceField(screen, '90');
+    expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
+    expectCorrectButtonsInContextMenu(
+      screen,
+      'Vue, 1.2.0',
+      [ButtonText.ShowResources, ButtonText.Delete],
+      [
+        ButtonText.Hide,
+        ButtonText.Unhide,
+        ButtonText.DeleteGlobally,
+        ButtonText.Confirm,
+        ButtonText.ConfirmGlobally,
+      ]
+    );
   });
 
   test('hide / unhide buttons work correctly', () => {

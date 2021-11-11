@@ -6,7 +6,7 @@
 import { Checkbox } from '../Checkbox';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { clickOnCheckbox } from '../../../test-helpers/test-helpers';
+import { clickOnCheckbox } from '../../../test-helpers/general-test-helpers';
 
 describe('The Checkbox', () => {
   test('renders', () => {

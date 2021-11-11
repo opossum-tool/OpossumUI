@@ -17,9 +17,9 @@ import {
   getTargetView,
 } from '../../../selectors/view-selector';
 import {
-  setTargetView,
   navigateToView,
   openPopup,
+  setTargetView,
 } from '../../view-actions/view-actions';
 import {
   changeSelectedAttributionIdOrOpenUnsavedPopup,
@@ -33,7 +33,7 @@ import {
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
 } from '../popup-actions';
 import { PanelPackage, State } from '../../../../types/types';
-import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import {
   AttributionData,
   Attributions,

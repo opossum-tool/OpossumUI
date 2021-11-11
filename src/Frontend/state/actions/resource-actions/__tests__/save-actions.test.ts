@@ -22,7 +22,7 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import {
   EMPTY_PARSED_FILE_CONTENT,
   getParsedInputFileEnrichedWithTestData,
-} from '../../../../test-helpers/test-helpers';
+} from '../../../../test-helpers/general-test-helpers';
 import { ProgressBarData } from '../../../../types/types';
 import {
   getManualAttributions,
@@ -57,13 +57,13 @@ import { loadFromFile } from '../load-actions';
 import {
   addManualAttributionToSelectedResource,
   addSignalToSelectedResource,
+  deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
   saveManualAndResolvedAttributionsToFile,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
   setIsSavingDisabled,
   unlinkAttributionAndSavePackageInfo,
-  deleteAttributionAndSave,
 } from '../save-actions';
 import { IpcChannel } from '../../../../../shared/ipc-channels';
 import { getOpenPopup } from '../../../selectors/view-selector';

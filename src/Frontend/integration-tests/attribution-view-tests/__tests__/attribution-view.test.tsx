@@ -3,36 +3,44 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { App } from '../../../Components/App/App';
+import {
+  clickOnButton,
+  clickOnOpenFileIcon,
+  EMPTY_PARSED_FILE_CONTENT,
+  expectButton,
+  goToView,
+  mockElectronIpcRendererOn,
+  TEST_TIMEOUT,
+} from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcRenderer } from 'electron';
-import React from 'react';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   PackageInfo,
   ParsedFileContent,
   SaveFileArgs,
-} from '../../../shared/shared-types';
-import { ButtonText, DiscreteConfidence, View } from '../../enums/enums';
-import { renderComponentWithStore } from '../../test-helpers/render-component-with-store';
+} from '../../../../shared/shared-types';
+import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
+import { IpcRenderer } from 'electron';
+import React from 'react';
+import { clickOnPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
 import {
-  clickOnButton,
   clickOnButtonInHamburgerMenu,
-  clickOnOpenFileIcon,
-  EMPTY_PARSED_FILE_CONTENT,
-  expectButton,
   expectButtonInHamburgerMenu,
-  expectReplaceAttributionPopupIsNotShown,
-  expectReplaceAttributionPopupIsShown,
-  expectResourceBrowserIsNotShown,
-  expectUnsavedChangesPopupIsShown,
   expectValueInTextBox,
   expectValueNotInTextBox,
-  goToView,
   insertValueIntoTextBox,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
-} from '../../test-helpers/test-helpers';
-import { App } from '../../Components/App/App';
+} from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
+import {
+  expectReplaceAttributionPopupIsNotShown,
+  expectReplaceAttributionPopupIsShown,
+  expectUnsavedChangesPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -61,6 +69,50 @@ describe('The App in attribution view', () => {
   afterAll(() => {
     // Important to restore the original value.
     global.window.ipcRenderer = originalIpcRenderer;
+  });
+
+  test('app shows empty AttributionsDetailsViewer for selected Signals', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        folder1: { folder2: { file1: 1 } },
+        file2: 1,
+      },
+
+      externalAttributions: {
+        attributions: {
+          uuid_1: {
+            source: {
+              name: 'HC',
+              documentConfidence: 50.0,
+            },
+            packageName: 'JQuery',
+          },
+          uuid_2: {
+            source: {
+              name: 'SC',
+              documentConfidence: 9.0,
+            },
+            packageName: 'Angular',
+          },
+        },
+        resourcesToAttributions: {
+          '/folder1/folder2/file1': ['uuid_1'],
+          '/file2': ['uuid_2'],
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'file2');
+    clickOnPackageInPackagePanel(screen, 'Angular', 'Signals');
+    expectValueInTextBox(screen, 'Name', 'Angular');
+
+    goToView(screen, View.Attribution);
+
+    expect(screen.queryByText('Linked Resources')).toBeFalsy();
   });
 
   test('allows to modify text in text boxes', () => {

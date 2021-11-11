@@ -7,7 +7,7 @@ import {
   expectButtonIsNotShown,
   getButton,
   getPackagePanel,
-} from './test-helpers';
+} from './general-test-helpers';
 import { fireEvent, getByText, Screen } from '@testing-library/react';
 import { ButtonText } from '../enums/enums';
 
@@ -171,7 +171,7 @@ function expectEnabledButtonInPackageContextMenu(
   expect(buttonAttribute && buttonAttribute.value).toBe('false');
 }
 
-export function expectButtonInPackageContextMenuIsNotShown(
+function expectButtonInPackageContextMenuIsNotShown(
   screen: Screen,
   cardLabel: string,
   buttonLabel: ButtonText
@@ -225,7 +225,7 @@ export function expectCorrectButtonsInPackageInPackagePanelContextMenu(
   });
 }
 
-export function expectEnabledButtonInPackageInPackagePanelContextMenu(
+function expectEnabledButtonInPackageInPackagePanelContextMenu(
   screen: Screen,
   packageName: string,
   packagePanelName: string,
@@ -238,7 +238,7 @@ export function expectEnabledButtonInPackageInPackagePanelContextMenu(
   expect(buttonAttribute && buttonAttribute.value).toBe('false');
 }
 
-export function expectButtonInPackageInPackagePanelContextMenuIsNotShown(
+function expectButtonInPackageInPackagePanelContextMenuIsNotShown(
   screen: Screen,
   packageName: string,
   packagePanelName: string,
@@ -259,7 +259,7 @@ export function clickOnButtonInPackageInPackagePanelContextMenu(
   fireEvent.click(button);
 }
 
-export function openContextMenuOnPackageInPackagePanel(
+function openContextMenuOnPackageInPackagePanel(
   screen: Screen,
   packageName: string,
   packagePanelName: string

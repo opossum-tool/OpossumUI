@@ -11,7 +11,7 @@ import {
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { wereTemporaryPackageInfoModified } from '../all-views-resource-selectors';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { PackagePanelTitle } from '../../../enums/enums';
 import {
   setDisplayedPackage,

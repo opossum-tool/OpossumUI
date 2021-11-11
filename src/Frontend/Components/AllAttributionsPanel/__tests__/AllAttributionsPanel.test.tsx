@@ -11,7 +11,7 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { AllAttributionsPanel } from '../AllAttributionsPanel';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 

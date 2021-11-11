@@ -10,7 +10,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { attributionForTemporaryPackageInfoExists } from '../save-action-helpers';
 import { NIL as uuidNil } from 'uuid';

@@ -7,7 +7,7 @@ import React, { ChangeEvent } from 'react';
 import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { AutoComplete } from '../AutoComplete';
-import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/test-helpers';
+import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).document.createRange = (): unknown => ({
