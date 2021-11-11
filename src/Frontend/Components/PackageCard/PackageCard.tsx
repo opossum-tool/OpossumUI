@@ -69,7 +69,6 @@ interface PackageCardProps {
   cardConfig: ListCardConfig;
   onClick(): void;
   onIconClick?(): void;
-  openResourcesIcon?: JSX.Element;
   hideContextMenu?: boolean;
   hideResourceSpecificButtons?: boolean;
 }
@@ -121,9 +120,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   ) : undefined;
   const rightIcons: Array<JSX.Element> = [];
 
-  if (props.openResourcesIcon) {
-    rightIcons.push(props.openResourcesIcon);
-  }
   if (props.cardConfig.firstParty) {
     rightIcons.push(
       <FirstPartyIcon key={getKey('first-party-icon', props.cardContent)} />
