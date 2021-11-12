@@ -10,7 +10,7 @@ import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { addManualAttributionToSelectedResource } from '../../state/actions/resource-actions/save-actions';
+import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { FilteredList } from '../FilteredList/FilteredList';
 import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { OpossumColors } from '../../shared-styles';
@@ -50,7 +50,7 @@ export function AllAttributionsPanel(
     }
 
     function onAddClick(): void {
-      dispatch(addManualAttributionToSelectedResource(packageInfo));
+      dispatch(addToSelectedResource(packageInfo));
     }
 
     const cardConfig: ListCardConfig = {

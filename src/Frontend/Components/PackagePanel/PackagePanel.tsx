@@ -13,10 +13,7 @@ import {
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import {
-  addManualAttributionToSelectedResource,
-  addSignalToSelectedResource,
-} from '../../state/actions/resource-actions/save-actions';
+import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
@@ -92,16 +89,10 @@ export function PackagePanel(
     switch (props.title) {
       case PackagePanelTitle.ExternalPackages:
       case PackagePanelTitle.ContainedExternalPackages:
-        dispatch(
-          addSignalToSelectedResource(props.attributions[attributionId])
-        );
+        dispatch(addToSelectedResource(props.attributions[attributionId]));
         break;
       case PackagePanelTitle.ContainedManualPackages:
-        dispatch(
-          addManualAttributionToSelectedResource(
-            props.attributions[attributionId]
-          )
-        );
+        dispatch(addToSelectedResource(props.attributions[attributionId]));
         break;
     }
   }

@@ -55,8 +55,7 @@ import {
 } from '../audit-view-simple-actions';
 import { loadFromFile } from '../load-actions';
 import {
-  addManualAttributionToSelectedResource,
-  addSignalToSelectedResource,
+  addToSelectedResource,
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
   saveManualAndResolvedAttributionsToFile,
@@ -948,7 +947,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
   });
 });
 
-describe('The addManualAttributionToSelectedResource action', () => {
+describe('The addToSelectedResource action', () => {
   let originalIpcRenderer: IpcRenderer;
 
   beforeAll(() => {
@@ -984,9 +983,7 @@ describe('The addManualAttributionToSelectedResource action', () => {
       ]
     ).toEqual(['/root/src/something.js']);
 
-    testStore.dispatch(
-      addManualAttributionToSelectedResource(testTemporaryPackageInfo)
-    );
+    testStore.dispatch(addToSelectedResource(testTemporaryPackageInfo));
     const manualData: AttributionData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/']).toEqual([
       testManualAttributionUuid_1,
@@ -1019,29 +1016,8 @@ describe('The addManualAttributionToSelectedResource action', () => {
     ).toEqual(['/root/src/something.js']);
 
     testStore.dispatch(setTemporaryPackageInfo({ packageName: 'modified' }));
-    testStore.dispatch(
-      addManualAttributionToSelectedResource(testTemporaryPackageInfo)
-    );
+    testStore.dispatch(addToSelectedResource(testTemporaryPackageInfo));
     expect(getOpenPopup(testStore.getState())).toEqual('NotSavedPopup');
-  });
-});
-
-describe('The addSignalToSelectedResource action', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
   });
 
   test('adds a signal to the selected resource', () => {
@@ -1067,7 +1043,7 @@ describe('The addSignalToSelectedResource action', () => {
       copyright: 'test copyright',
       comment: 'Comment of signal',
     };
-    testStore.dispatch(addSignalToSelectedResource(testPackageInfo));
+    testStore.dispatch(addToSelectedResource(testPackageInfo));
 
     const manualData: AttributionData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/'].length).toEqual(1);
@@ -1084,6 +1060,7 @@ describe('The addSignalToSelectedResource action', () => {
       licenseText: ' test License text',
       url: 'test url',
       copyright: 'test copyright',
+      comment: 'Comment of signal',
     };
     expect(manualData.attributions[uuidNewAttribution]).toEqual(
       expectedModifiedPackageInfo
@@ -1092,33 +1069,6 @@ describe('The addSignalToSelectedResource action', () => {
       expectedModifiedPackageInfo
     );
     expect(getOpenPopup(testStore.getState())).toBe(null);
-  });
-
-  test('opens popup', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
-    );
-    testStore.dispatch(setSelectedResourceId('/root/'));
-    testStore.dispatch(setTemporaryPackageInfo({ packageName: 'modified' }));
-    const testPackageInfo: PackageInfo = {
-      attributionConfidence: 30,
-      packageVersion: '1.0',
-      packageName: 'test Package',
-      licenseName: 'test License name',
-      licenseText: ' test License text',
-      url: 'test url',
-      copyright: 'test copyright',
-      comment: 'Comment of signal',
-    };
-    testStore.dispatch(addSignalToSelectedResource(testPackageInfo));
-    expect(getOpenPopup(testStore.getState())).toEqual('NotSavedPopup');
   });
 
   test('saves resolved external signals', () => {

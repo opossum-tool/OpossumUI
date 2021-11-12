@@ -23,7 +23,6 @@ import {
   getResourcesToManualAttributions,
   wereTemporaryPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import omit from 'lodash/omit';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -189,7 +188,7 @@ export function unlinkAttributionAndSavePackageInfo(
   };
 }
 
-export function addManualAttributionToSelectedResource(
+export function addToSelectedResource(
   packageInfo: PackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
@@ -201,24 +200,6 @@ export function addManualAttributionToSelectedResource(
           getSelectedResourceId(getState()),
           null,
           setConfidenceToDefault(packageInfo)
-        )
-      );
-    }
-  };
-}
-
-export function addSignalToSelectedResource(
-  packageInfo: PackageInfo
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryPackageInfoModified(getState())) {
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(
-        savePackageInfo(
-          getSelectedResourceId(getState()),
-          null,
-          omit(setConfidenceToDefault(packageInfo), 'comment')
         )
       );
     }

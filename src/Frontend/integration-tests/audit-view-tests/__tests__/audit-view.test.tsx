@@ -244,8 +244,7 @@ describe('The App in Audit View', () => {
     clickAddIconOnCardInAttributionList(screen, 'React, 16.5.0');
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValueNotInTextBox(screen, 'Comment', 'React comment');
-    expectValueInTextBox(screen, 'Comment', '');
+    expectValueInTextBox(screen, 'Comment', 'React comment');
     expectValueInTextBox(screen, 'Name', 'React');
     clickOnButton(screen, ButtonText.Save);
 
