@@ -10,7 +10,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
 const useStyles = makeStyles({
-  paddingBottomScrollbar: { paddingBottom: 18 },
+  paddingBottomScrollbar: {
+    paddingBottom: 18,
+  },
+  scrollChild: {
+    direction: 'ltr',
+  },
 });
 
 interface ListProps {
@@ -21,6 +26,7 @@ interface ListProps {
   alwaysShowHorizontalScrollBar?: boolean;
   addPaddingBottom?: boolean;
   allowHorizontalScrolling?: boolean;
+  leftScrollBar?: boolean;
 }
 
 function maxHeightWasGiven(
@@ -51,6 +57,7 @@ export function List(props: ListProps): ReactElement {
           props.addPaddingBottom ? classes.paddingBottomScrollbar : null
         )}
         style={{
+          direction: `${props.leftScrollBar ? 'rtl' : 'ltr'}`,
           overflow: `${
             props.alwaysShowHorizontalScrollBar ? 'scroll' : 'auto'
           } ${currentHeight < maxHeight ? 'hidden' : 'auto'}`,
@@ -64,6 +71,7 @@ export function List(props: ListProps): ReactElement {
           style: CSSProperties;
         }): ReactElement => (
           <div
+            className={clsx(props.leftScrollBar && classes.scrollChild)}
             style={
               props.allowHorizontalScrolling
                 ? {
