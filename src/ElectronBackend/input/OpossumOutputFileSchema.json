@@ -84,6 +84,7 @@
           },
           "followUp": {
             "type": "string",
+            "enum": ["FOLLOW_UP"],
             "description": "Indicates that an attribution is problematic and needs to be followed up."
           },
           "originId": {
