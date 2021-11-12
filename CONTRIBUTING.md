@@ -76,8 +76,12 @@ Unit tests are provided for all features, aided by integration tests when helpfu
 testing library. They can be run locally by executing:
 
 ```
+yarn test:local
+```
+to run a subset of all tests. To run all tests:
+```
 yarn test:unit
-yarn test:integration
+yarn test:integration-ci
 ```
 
 End to end test are available (currently only linux and mac) and can be run using:
