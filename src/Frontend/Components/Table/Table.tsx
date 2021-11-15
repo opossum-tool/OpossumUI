@@ -152,6 +152,7 @@ export function Table(props: TableProps): ReactElement | null {
               cardVerticalDistance={reportTableRowHeight}
               max={{ height: maxHeight }}
               getListItem={getReportTableItem}
+              leftScrollBar={true}
             />
           </div>
         </div>
