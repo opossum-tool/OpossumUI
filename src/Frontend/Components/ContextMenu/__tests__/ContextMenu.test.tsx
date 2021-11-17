@@ -121,4 +121,29 @@ describe('The ContextMenu', () => {
     fireEvent.click(screen.getByText(ButtonText.Save));
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
+
+  test('renders and calls onOpen and onClose correctly', () => {
+    const testElementText = 'Test Element';
+    const onCloseMock = jest.fn();
+    const onOpenMock = jest.fn();
+    render(
+      <ContextMenu
+        menuItems={testMenuItems}
+        activation={'both'}
+        onClose={onCloseMock}
+        onOpen={onOpenMock}
+      >
+        <p>{testElementText}</p>
+      </ContextMenu>
+    );
+
+    expectContextMenuIsNotShown();
+
+    fireEvent.contextMenu(screen.getByText(testElementText));
+    expectContextMenuIsShown();
+    expect(onOpenMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByText(ButtonText.Save));
+    expect(onCloseMock).toHaveBeenCalledTimes(1);
+  });
 });
