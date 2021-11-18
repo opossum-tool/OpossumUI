@@ -85,7 +85,7 @@ export function savePackageInfo(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const strippedPackageInfo: PackageInfo = getStrippedPackageInfo(
-      setConfidenceToDefaultIfNotLowOrHigh(packageInfo)
+      getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(packageInfo)
     );
     const state = getState();
 
@@ -199,7 +199,7 @@ export function addToSelectedResource(
         savePackageInfo(
           getSelectedResourceId(getState()),
           null,
-          setConfidenceToDefault(packageInfo)
+          getPackageInfoWithDefaultConfidence(packageInfo)
         )
       );
     }
@@ -300,7 +300,9 @@ function unlinkResourceFromAttribution(
   };
 }
 
-function setConfidenceToDefault(packageInfo: PackageInfo): PackageInfo {
+function getPackageInfoWithDefaultConfidence(
+  packageInfo: PackageInfo
+): PackageInfo {
   return isEmpty(packageInfo)
     ? packageInfo
     : {
@@ -309,7 +311,7 @@ function setConfidenceToDefault(packageInfo: PackageInfo): PackageInfo {
       };
 }
 
-function setConfidenceToDefaultIfNotLowOrHigh(
+function getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(
   packageInfo: PackageInfo
 ): PackageInfo {
   return packageInfo.attributionConfidence &&
@@ -318,5 +320,5 @@ function setConfidenceToDefaultIfNotLowOrHigh(
       DiscreteConfidence.High.valueOf(),
     ].includes(packageInfo.attributionConfidence)
     ? packageInfo
-    : setConfidenceToDefault(packageInfo);
+    : getPackageInfoWithDefaultConfidence(packageInfo);
 }
