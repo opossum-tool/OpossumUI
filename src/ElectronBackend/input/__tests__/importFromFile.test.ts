@@ -398,6 +398,7 @@ describe('Test of loading function', () => {
           [manualAttributionUuid]: {
             packageName: 'my app',
             packageVersion: '1.2.3',
+            comment: 'some comment',
             copyright: '(c) first party',
             preSelected: true,
             attributionConfidence: 17,

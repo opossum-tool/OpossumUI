@@ -20,7 +20,6 @@ import PlusIcon from '@material-ui/icons/Add';
 import clsx from 'clsx';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ButtonText, PopupType, View } from '../../enums/enums';
-import { doNothing } from '../../util/do-nothing';
 import { useSelector } from 'react-redux';
 import {
   getManualAttributions,
@@ -105,7 +104,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     <IconButton
       tooltipTitle="add"
       placement="left"
-      onClick={props.onIconClick ? props.onIconClick : doNothing}
+      onClick={props.onIconClick}
       key={getKey('add-icon', props.cardContent)}
       icon={
         <PlusIcon

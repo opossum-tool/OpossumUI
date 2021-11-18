@@ -23,7 +23,6 @@ import {
   getResourcesToManualAttributions,
   wereTemporaryPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import omit from 'lodash/omit';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
@@ -86,7 +85,7 @@ export function savePackageInfo(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const strippedPackageInfo: PackageInfo = getStrippedPackageInfo(
-      setConfidenceToDefaultIfNotLowOrHigh(packageInfo)
+      getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(packageInfo)
     );
     const state = getState();
 
@@ -189,7 +188,7 @@ export function unlinkAttributionAndSavePackageInfo(
   };
 }
 
-export function addManualAttributionToSelectedResource(
+export function addToSelectedResource(
   packageInfo: PackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
@@ -200,25 +199,7 @@ export function addManualAttributionToSelectedResource(
         savePackageInfo(
           getSelectedResourceId(getState()),
           null,
-          setConfidenceToDefault(packageInfo)
-        )
-      );
-    }
-  };
-}
-
-export function addSignalToSelectedResource(
-  packageInfo: PackageInfo
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryPackageInfoModified(getState())) {
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(
-        savePackageInfo(
-          getSelectedResourceId(getState()),
-          null,
-          omit(setConfidenceToDefault(packageInfo), 'comment')
+          getPackageInfoWithDefaultConfidence(packageInfo)
         )
       );
     }
@@ -319,7 +300,9 @@ function unlinkResourceFromAttribution(
   };
 }
 
-function setConfidenceToDefault(packageInfo: PackageInfo): PackageInfo {
+function getPackageInfoWithDefaultConfidence(
+  packageInfo: PackageInfo
+): PackageInfo {
   return isEmpty(packageInfo)
     ? packageInfo
     : {
@@ -328,7 +311,7 @@ function setConfidenceToDefault(packageInfo: PackageInfo): PackageInfo {
       };
 }
 
-function setConfidenceToDefaultIfNotLowOrHigh(
+function getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(
   packageInfo: PackageInfo
 ): PackageInfo {
   return packageInfo.attributionConfidence &&
@@ -337,5 +320,5 @@ function setConfidenceToDefaultIfNotLowOrHigh(
       DiscreteConfidence.High.valueOf(),
     ].includes(packageInfo.attributionConfidence)
     ? packageInfo
-    : setConfidenceToDefault(packageInfo);
+    : getPackageInfoWithDefaultConfidence(packageInfo);
 }

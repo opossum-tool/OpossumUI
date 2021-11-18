@@ -24,8 +24,8 @@ import {
 import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
 import {
   GlobalBackendState,
-  OpossumOutputFile,
   JsonParsingError,
+  OpossumOutputFile,
   ParsedOpossumInputFile,
 } from '../types/types';
 import { WebContents } from 'electron';
@@ -171,7 +171,6 @@ function createOutputFileIfItDoesNotExist(
     const preselectedExternalAttributions = Object.fromEntries(
       Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
         delete packageInfo.source;
-        delete packageInfo.comment;
         return Boolean(packageInfo.preSelected);
       })
     );
