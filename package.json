@@ -74,7 +74,7 @@
   "scripts": {
     "start": "run-script-os",
     "start:darwin:linux": "concurrently \"yarn build:dev; BROWSER=none ESLINT_NO_DEV_ERRORS=true react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
-    "start:win32": "start /b wait-on http://localhost:3000 ^&^& electron . & yarn build:dev & cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true react-scripts start",
+    "start:win32": "concurrently \"yarn build:dev & cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
     "build:dev": "run-script-os",
     "build:dev:darwin:linux": "yarn generate-notice && DISABLE_ESLINT_PLUGIN=true react-scripts build && tsc -p src/ElectronBackend",
     "build:dev:win32": "yarn generate-notice && cross-env DISABLE_ESLINT_PLUGIN=true react-scripts build && tsc -p src/ElectronBackend",
