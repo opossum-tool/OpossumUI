@@ -44,7 +44,7 @@
     "@types/react-redux": "^7.1.20",
     "@types/react-window": "^1.8.5",
     "@types/stream-json": "^1.7.1",
-    "@types/uuid": "^8.3.1",
+    "@types/uuid": "^8.3.3",
     "@types/write-file-atomic": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
