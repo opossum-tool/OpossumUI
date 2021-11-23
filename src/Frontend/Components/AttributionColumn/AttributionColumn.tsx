@@ -123,15 +123,14 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       ? selectedPackageId
       : '';
 
-  const mergeButtonDisplayState = getMergeButtonsDisplayState(
-    view,
+  const mergeButtonDisplayState = getMergeButtonsDisplayState({
     attributionIdMarkedForReplacement,
-    currentViewSelectedAttributionId,
-    currentViewSelectedAttributionId,
+    targetAttributionId: currentViewSelectedAttributionId,
+    selectedAttributionId: currentViewSelectedAttributionId,
     packageInfoWereModified,
-    Boolean(temporaryPackageInfo.preSelected),
-    false
-  );
+    targetAttributionIsPreSelected: Boolean(temporaryPackageInfo.preSelected),
+    targetAttributionIsExternalAttribution: false,
+  });
 
   const mainButtonConfigs: Array<MainButtonConfig> = [
     {
@@ -199,7 +198,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           )
         );
       },
-      hidden: mergeButtonDisplayState.hideOnReplaceMarkedByButton,
+      hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
     },
   ];
 

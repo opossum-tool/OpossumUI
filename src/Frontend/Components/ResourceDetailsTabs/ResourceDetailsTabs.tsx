@@ -77,9 +77,9 @@ export function ResourceDetailsTabs(
       manualData is excluded from dependencies on purpose to avoid recalculation when
       it changes. Usually this is not an issue as the displayed data remains correct.
       In consequence, the panelData is eventually consistent.
-      Only manualData.attributionsToResources in dependencies to update panelData, when replaceAttributionPopup
-      was called in AuditView for manual attributions in attributions in folder content panel, but not update them
-      after every save click.
+      We still need manualData.attributionsToResources in the dependencies to update panelData, when
+      replaceAttributionPopup was called. This is relevant for manual attributions in the attributions in folder
+      content panel.
     */
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

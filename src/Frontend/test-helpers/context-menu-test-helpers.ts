@@ -90,7 +90,6 @@ export function expectContextMenuForNotPreSelectedAttributionMultipleResources(
     ButtonText.Confirm,
     ButtonText.ConfirmGlobally,
     ButtonText.UnmarkForReplacement,
-    ButtonText.ReplaceMarked,
   ];
 
   if (showReplaceMarked) {
@@ -210,7 +209,7 @@ export function expectContextMenuForHiddenExternalAttributionInPackagePanel(
   );
 }
 
-export function expectCorrectMarkAndUnmarkForReplacementInContextMenu(
+export function testCorrectMarkAndUnmarkForReplacementInContextMenu(
   screen: Screen,
   packageName: string
 ): void {

@@ -21,15 +21,12 @@ import { App } from '../../../Components/App/App';
 import {
   clickOnButtonInPackageContextMenu,
   clickOnButtonInPackageInPackagePanelContextMenu,
-  expectButtonInPackageContextMenu,
-  expectButtonInPackageInPackagePanelContextMenu,
   expectContextMenuForExternalAttributionInPackagePanel,
   expectContextMenuForHiddenExternalAttributionInPackagePanel,
   expectContextMenuForNotPreSelectedAttributionMultipleResources,
   expectContextMenuForNotPreSelectedAttributionSingleResource,
   expectContextMenuForPreSelectedAttributionMultipleResources,
   expectContextMenuIsNotShown,
-  expectCorrectMarkAndUnmarkForReplacementInContextMenu,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
   expectNoConfirmationButtonsShown,
@@ -295,7 +292,7 @@ describe('In Audit View the ContextMenu', () => {
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
   });
 
-  describe('replace attribution buttons', () => {
+  describe('replaces attributions', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
         uuid_2: {
@@ -343,7 +340,7 @@ describe('In Audit View the ContextMenu', () => {
       '/root/src/file_2': ['uuid_2', 'uuid_3'],
     };
 
-    test('replace attributions in Package panel', () => {
+    test('in the package panel', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -357,34 +354,14 @@ describe('In Audit View the ContextMenu', () => {
       clickOnElementInResourceBrowser(screen, 'src');
       clickOnElementInResourceBrowser(screen, 'file_1');
       expectValueInTextBox(screen, 'Name', 'jQuery');
-      expectContextMenuForNotPreSelectedAttributionSingleResource(
-        screen,
-        'jQuery, 16.0.0'
-      );
 
-      expectCorrectMarkAndUnmarkForReplacementInContextMenu(
-        screen,
-        'jQuery, 16.0.0'
-      );
       clickOnButtonInPackageContextMenu(
         screen,
         'jQuery, 16.0.0',
         ButtonText.MarkForReplacement
       );
-
       clickOnElementInResourceBrowser(screen, 'file_2');
-      expectButtonInPackageContextMenu(
-        screen,
-        'Vue, 16.0.0',
-        ButtonText.ReplaceMarked,
-        true
-      );
 
-      expectContextMenuForNotPreSelectedAttributionSingleResource(
-        screen,
-        'React, 16.0.0',
-        true
-      );
       handleReplaceMarkedAttributionViaContextMenu(
         screen,
         'React, 16.0.0',
@@ -417,7 +394,7 @@ describe('In Audit View the ContextMenu', () => {
       ]);
     });
 
-    test('replace attributions in attributions in folder content panel', () => {
+    test('in the attributions in folder content panel', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -429,33 +406,10 @@ describe('In Audit View the ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'root');
       clickOnElementInResourceBrowser(screen, 'src');
-      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
-        screen,
-        'jQuery, 16.0.0'
-      );
-
-      expectCorrectMarkAndUnmarkForReplacementInContextMenu(
-        screen,
-        'jQuery, 16.0.0'
-      );
       clickOnButtonInPackageContextMenu(
         screen,
         'jQuery, 16.0.0',
         ButtonText.MarkForReplacement
-      );
-
-      expectButtonInPackageInPackagePanelContextMenu(
-        screen,
-        'Vue, 16.0.0',
-        'Attributions in Folder Content',
-        ButtonText.ReplaceMarked,
-        true
-      );
-
-      expectGlobalOnlyContextMenuForNotPreselectedAttribution(
-        screen,
-        'React, 16.0.0',
-        true
       );
 
       handleReplaceMarkedAttributionViaContextMenu(

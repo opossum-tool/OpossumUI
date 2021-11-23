@@ -39,146 +39,128 @@ describe('The AttributionColumn helpers', () => {
 });
 
 describe('getMergeButtonsDisplayState', () => {
-  it('does not show buttons when in table view', () => {
-    expect(
-      getMergeButtonsDisplayState(View.Audit, '', '', '', false, false, false)
-    ).toStrictEqual({
-      hideMarkForReplacementButton: true,
-      hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: true,
-      deactivateReplaceMarkedByButton: false,
-    });
-  });
-
   it('does not show buttons when external attribution', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Audit,
-        '',
-        'attr',
-        '',
-        false,
-        false,
-        true
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: '',
+        targetAttributionId: 'attr',
+        selectedAttributionId: '',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: false,
+        targetAttributionIsExternalAttribution: true,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: true,
       hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: true,
+      hideReplaceMarkedByButton: true,
       deactivateReplaceMarkedByButton: false,
     });
   });
 
   it('does show markForReplacementButton when another attribution is selected for replacement', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Attribution,
-        'other_attr',
-        'attr',
-        'attr',
-        false,
-        false,
-        false
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'other_attr',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: false,
+        targetAttributionIsExternalAttribution: false,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: false,
+      hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: false,
     });
   });
 
   it('shows unMarkForReplacementButton when attribution is already selected for replacement', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Attribution,
-        'attr',
-        'attr',
-        'attr',
-        false,
-        false,
-        false
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'attr',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: false,
+        targetAttributionIsExternalAttribution: false,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: true,
       hideUnmarkForReplacementButton: false,
-      hideOnReplaceMarkedByButton: true,
+      hideReplaceMarkedByButton: true,
       deactivateReplaceMarkedByButton: false,
     });
   });
 
   it('does not show unMarkForReplacementButton when attribution is not selected', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Attribution,
-        '',
-        'attr',
-        'attr',
-        false,
-        false,
-        false
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: '',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: false,
+        targetAttributionIsExternalAttribution: false,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: true,
+      hideReplaceMarkedByButton: true,
       deactivateReplaceMarkedByButton: false,
     });
   });
 
   it('deactivates ReplaceMarkedByButton when selectedAttribution part of replacement and packageInfo were modified', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Attribution,
-        'attr2',
-        'attr',
-        'attr',
-        true,
-        false,
-        false
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'attr2',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: true,
+        targetAttributionIsPreSelected: false,
+        targetAttributionIsExternalAttribution: false,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: false,
+      hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,
     });
   });
 
   it('enables ReplaceMarkedByButton when selectedAttribution not part of replacement and packageInfo were modified', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Attribution,
-        'attr2',
-        'attr1',
-        'attr',
-        true,
-        false,
-        false
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'attr2',
+        targetAttributionId: 'attr1',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: true,
+        targetAttributionIsPreSelected: false,
+        targetAttributionIsExternalAttribution: false,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: false,
+      hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: false,
     });
   });
 
   it('deactivates ReplaceMarkedByButton when attribution is preselected', () => {
     expect(
-      getMergeButtonsDisplayState(
-        View.Attribution,
-        'attr2',
-        'attr',
-        'attr',
-        false,
-        true,
-        false
-      )
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'attr2',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: true,
+        targetAttributionIsExternalAttribution: false,
+      })
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
-      hideOnReplaceMarkedByButton: false,
+      hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,
     });
   });

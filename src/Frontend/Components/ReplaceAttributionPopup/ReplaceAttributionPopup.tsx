@@ -85,7 +85,7 @@ export function ReplaceAttributionPopup(): ReactElement {
       </MuiTypography>
       {getAttributionCard(markedAttributionId)}
       <MuiTypography className={classes.typography}>
-        and links its resources to the current attribution
+        and links its resources to the attribution
       </MuiTypography>
       {getAttributionCard(targetAttributionId)}
     </div>

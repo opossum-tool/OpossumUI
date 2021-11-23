@@ -153,46 +153,44 @@ export function getLicenseTextLabelText(
 export interface MergeButtonDisplayState {
   hideMarkForReplacementButton: boolean;
   hideUnmarkForReplacementButton: boolean;
-  hideOnReplaceMarkedByButton: boolean;
+  hideReplaceMarkedByButton: boolean;
   deactivateReplaceMarkedByButton: boolean;
 }
 
-export function getMergeButtonsDisplayState(
-  currentView: View,
-  attributionIdMarkedForReplacement: string,
-  targetAttributionId: string,
-  selectedAttributionId: string,
-  packageInfoWereModified: boolean,
-  targetAttributionIsPreSelected: boolean,
-  isExternalAttribution: boolean
-): MergeButtonDisplayState {
-  const isTableView = currentView === View.Report;
+export function getMergeButtonsDisplayState(currentState: {
+  attributionIdMarkedForReplacement: string;
+  targetAttributionId: string;
+  selectedAttributionId: string;
+  packageInfoWereModified: boolean;
+  targetAttributionIsPreSelected: boolean;
+  targetAttributionIsExternalAttribution: boolean;
+}): MergeButtonDisplayState {
   const anyAttributionMarkedForReplacement =
-    attributionIdMarkedForReplacement !== '';
+    currentState.attributionIdMarkedForReplacement !== '';
   const targetAttributionIsMarkedForReplacement =
-    targetAttributionId === attributionIdMarkedForReplacement;
+    currentState.targetAttributionId ===
+    currentState.attributionIdMarkedForReplacement;
   const selectedAttributionIsPartOfMerge =
-    selectedAttributionId === attributionIdMarkedForReplacement ||
-    selectedAttributionId === targetAttributionId;
+    currentState.selectedAttributionId ===
+      currentState.attributionIdMarkedForReplacement ||
+    currentState.selectedAttributionId === currentState.targetAttributionId;
 
   return {
     hideMarkForReplacementButton:
-      isExternalAttribution ||
-      isTableView ||
+      currentState.targetAttributionIsExternalAttribution ||
       targetAttributionIsMarkedForReplacement,
     hideUnmarkForReplacementButton:
-      isExternalAttribution ||
-      isTableView ||
+      currentState.targetAttributionIsExternalAttribution ||
       !anyAttributionMarkedForReplacement ||
       !targetAttributionIsMarkedForReplacement,
-    hideOnReplaceMarkedByButton:
-      isExternalAttribution ||
-      isTableView ||
+    hideReplaceMarkedByButton:
+      currentState.targetAttributionIsExternalAttribution ||
       !anyAttributionMarkedForReplacement ||
       targetAttributionIsMarkedForReplacement,
     deactivateReplaceMarkedByButton:
-      (selectedAttributionIsPartOfMerge && packageInfoWereModified) ||
-      targetAttributionIsPreSelected,
+      (selectedAttributionIsPartOfMerge &&
+        currentState.packageInfoWereModified) ||
+      currentState.targetAttributionIsPreSelected,
   };
 }
 

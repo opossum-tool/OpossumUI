@@ -225,15 +225,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     ) ||
       hideResourceSpecificButtons);
   const mergeButtonDisplayState: MergeButtonDisplayState =
-    getMergeButtonsDisplayState(
-      selectedView,
+    getMergeButtonsDisplayState({
       attributionIdMarkedForReplacement,
-      attributionId,
+      targetAttributionId: attributionId,
       selectedAttributionId,
       packageInfoWereModified,
-      isPreselected,
-      isExternalAttribution
-    );
+      targetAttributionIsPreSelected: isPreselected,
+      targetAttributionIsExternalAttribution: isExternalAttribution,
+    });
   const isMarkedForReplacement =
     Boolean(attributionId) &&
     attributionId === attributionIdMarkedForReplacement;
@@ -307,7 +306,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
               )
             );
           },
-          hidden: mergeButtonDisplayState.hideOnReplaceMarkedByButton,
+          hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
         },
       ];
 
