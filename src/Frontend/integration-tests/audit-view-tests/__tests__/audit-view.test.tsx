@@ -24,8 +24,12 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  ButtonText,
+  DiscreteConfidence,
+  PackagePanelTitle,
+} from '../../../enums/enums';
 import {
   clickAddIconOnCardInAttributionList,
   clickOnPackageInPackagePanel,
@@ -33,6 +37,7 @@ import {
   expectAddIconInAddToAttributionCardIsHidden,
   expectAddIconInAddToAttributionCardIsNotHidden,
   expectPackageInPackagePanel,
+  expectPackageNotInPackagePanel,
   expectPackagePanelNotShown,
   expectPackagePanelShown,
   expectValueInManualPackagePanel,
@@ -339,7 +344,11 @@ describe('The App in Audit View', () => {
   test('resolve button is shown and works', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
-      resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
+      resources: {
+        folder1: { 'firstResource.js': 1 },
+        'secondResource.js': 1,
+        'thirdResource.js': 1,
+      },
 
       externalAttributions: {
         attributions: {
@@ -353,10 +362,16 @@ describe('The App in Audit View', () => {
             packageVersion: '1.2.0',
             licenseText: 'Permission is not granted',
           },
+          uuid_3: {
+            packageName: 'JQuery',
+            packageVersion: '16.5.0',
+            licenseText: 'Permission is hereby granted',
+          },
         },
         resourcesToAttributions: {
-          '/firstResource.js': ['uuid_1', 'uuid_2'],
+          '/folder1/firstResource.js': ['uuid_1', 'uuid_3'],
           '/secondResource.js': ['uuid_2'],
+          '/thirdResource.js': ['uuid_1', 'uuid_2'],
         },
       },
 
@@ -365,17 +380,49 @@ describe('The App in Audit View', () => {
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
 
-    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    clickOnElementInResourceBrowser(screen, 'folder1');
+    expectPackageInPackagePanel(
+      screen,
+      'JQuery, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+    expectPackageNotInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+
+    clickOnPackageInPackagePanel(
+      screen,
+      'JQuery, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+    clickOnButton(screen, 'resolve attribution');
+    expectPackageNotInPackagePanel(
+      screen,
+      'JQuery, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+
+    clickOnElementInResourceBrowser(screen, 'thirdResource.js');
     expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
 
-    clickOnPackageInPackagePanel(screen, 'Vue, 1.2.0', 'Signals');
+    clickOnPackageInPackagePanel(
+      screen,
+      'Vue, 1.2.0',
+      PackagePanelTitle.ExternalPackages
+    );
     clickOnButton(screen, 'resolve attribution');
     expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
     expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    clickOnPackageInPackagePanel(screen, 'Vue, 1.2.0', 'Signals');
+    clickOnPackageInPackagePanel(
+      screen,
+      'Vue, 1.2.0',
+      PackagePanelTitle.ExternalPackages
+    );
     expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
 
     clickOnButton(screen, 'resolve attribution');

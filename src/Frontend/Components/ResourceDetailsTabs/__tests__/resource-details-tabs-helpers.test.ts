@@ -18,22 +18,22 @@ import { PackagePanelTitle } from '../../../enums/enums';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 
 describe('computeAggregatedAttributionsFromChildren', () => {
-  test('selects aggregated children and sorts correctly', () => {
-    const testAttributions: Attributions = {
-      uuid_1: { packageName: 'test Package', licenseText: 'test license text' },
-      uuid_2: { packageName: 'second test Package' },
-      uuid_3: { comment: 'test comment', copyright: 'test copyright' },
-      uuid_4: { packageName: 'test Package' },
-    };
-    const testResourcesToAttributions: ResourcesToAttributions = {
-      'samplepath/subfolder': ['uuid_1', 'uuid_2'],
-      'samplepath2/subfolder/subsubfolder': ['uuid_3', 'uuid_2'],
-      'samplepath3/subfolder': ['uuid_4'],
-    };
-    const testAttributedChildren: Set<string> = new Set<string>()
-      .add('samplepath/subfolder')
-      .add('samplepath2/subfolder/subsubfolder');
+  const testAttributions: Attributions = {
+    uuid_1: { packageName: 'test Package', licenseText: 'test license text' },
+    uuid_2: { packageName: 'second test Package' },
+    uuid_3: { comment: 'test comment', copyright: 'test copyright' },
+    uuid_4: { packageName: 'test Package' },
+  };
+  const testResourcesToAttributions: ResourcesToAttributions = {
+    'samplepath/subfolder': ['uuid_1', 'uuid_2'],
+    'samplepath2/subfolder/subsubfolder': ['uuid_3', 'uuid_2'],
+    'samplepath3/subfolder': ['uuid_4'],
+  };
+  const testAttributedChildren: Set<string> = new Set<string>()
+    .add('samplepath/subfolder')
+    .add('samplepath2/subfolder/subsubfolder');
 
+  test('selects aggregated children and sorts correctly', () => {
     const expectedResult: Array<AttributionIdWithCount> = [
       {
         childrenWithAttributionCount: 2,
@@ -54,6 +54,31 @@ describe('computeAggregatedAttributionsFromChildren', () => {
         testAttributions,
         testResourcesToAttributions,
         testAttributedChildren
+      );
+    expect(result).toEqual(expectedResult);
+  });
+
+  test('filters resolved attributions correctly', () => {
+    const expectedResult: Array<AttributionIdWithCount> = [
+      {
+        childrenWithAttributionCount: 2,
+        attributionId: 'uuid_2',
+      },
+      {
+        childrenWithAttributionCount: 1,
+        attributionId: 'uuid_3',
+      },
+    ];
+
+    const testResolvedExternalAttributions = new Set<string>();
+    testResolvedExternalAttributions.add('uuid_1');
+
+    const result: Array<AttributionIdWithCount> =
+      computeAggregatedAttributionsFromChildren(
+        testAttributions,
+        testResourcesToAttributions,
+        testAttributedChildren,
+        testResolvedExternalAttributions
       );
     expect(result).toEqual(expectedResult);
   });
@@ -144,7 +169,8 @@ describe('getPanelData', () => {
     const panelData: Array<PanelData> = getPanelData(
       '/file.txt',
       EMPTY_ATTRIBUTION_DATA,
-      EMPTY_ATTRIBUTION_DATA
+      EMPTY_ATTRIBUTION_DATA,
+      new Set<string>()
     );
     expect(panelData.length).toBe(1);
     expect(panelData[0].title).toBe(PackagePanelTitle.ExternalPackages);
@@ -154,7 +180,8 @@ describe('getPanelData', () => {
     const panelData: Array<PanelData> = getPanelData(
       '/folder/',
       EMPTY_ATTRIBUTION_DATA,
-      EMPTY_ATTRIBUTION_DATA
+      EMPTY_ATTRIBUTION_DATA,
+      new Set<string>()
     );
     expect(panelData.length).toBe(3);
     expect(panelData[0].title).toBe(PackagePanelTitle.ExternalPackages);
