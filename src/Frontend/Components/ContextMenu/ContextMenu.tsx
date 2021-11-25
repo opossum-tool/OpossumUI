@@ -143,7 +143,7 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
             <MuiListItemIcon className={iconClasses.icon}>
               {BUTTON_TITLE_TO_ICON_MAP[menuItem.buttonText]}
             </MuiListItemIcon>
-            <MuiListItemText primary={menuItem.buttonText} />
+            <MuiListItemText sx={{ pl: 2 }} primary={menuItem.buttonText} />
           </MuiMenuItem>
         ))}
       </MuiMenu>

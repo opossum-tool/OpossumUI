@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import makeStyles from '@mui/styles/makeStyles';
-import MuiTypography from '@mui/material/Typography/Typography';
+import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';

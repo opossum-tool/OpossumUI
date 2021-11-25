@@ -5,7 +5,7 @@
 
 import MuiPaper from '@mui/material/Paper';
 import makeStyles from '@mui/styles/makeStyles';
-import MuiTypography from '@mui/material/Typography/Typography';
+import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';

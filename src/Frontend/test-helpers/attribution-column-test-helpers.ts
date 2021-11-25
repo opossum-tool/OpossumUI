@@ -42,7 +42,7 @@ export function expectButtonInHamburgerMenu(
   if (disabled) {
     expect(buttonAttribute && buttonAttribute.value).toBe('true');
   } else {
-    expect(buttonAttribute && buttonAttribute.value).toBe('false');
+    expect(buttonAttribute).toBe(null);
   }
 }
 

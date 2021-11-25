@@ -79,6 +79,7 @@ const useStyles = makeStyles({
     '&.Mui-selected': {
       background: OpossumColors.middleBlue,
       color: OpossumColors.black,
+      border: `2px ${OpossumColors.darkBlue} solid`,
     },
   },
   versionInfo: {
@@ -314,7 +315,7 @@ export function TopBar(): ReactElement {
         icon={
           <FolderOpenIcon
             className={classes.openFileIcon}
-            aria-label={'open file'}
+            aria-label={'open file icon'}
           />
         }
       />

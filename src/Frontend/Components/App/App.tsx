@@ -7,7 +7,6 @@ import {
   ThemeProvider,
   Theme,
   StyledEngineProvider,
-  adaptV4Theme,
 } from '@mui/material/styles';
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
@@ -40,30 +39,34 @@ const useStyles = makeStyles({
   },
 });
 
-const theme = createTheme(
-  adaptV4Theme({
-    overrides: {
-      MuiTypography: {
+const theme = createTheme({
+  components: {
+    MuiTypography: {
+      styleOverrides: {
         body1: {
           fontSize: '0.85rem',
           letterSpacing: '0.01071em',
         },
       },
-      MuiInputBase: {
-        root: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-      MuiFormLabel: {
+    },
+    MuiInputBase: {
+      styleOverrides: {
         root: {
           fontSize: '0.85rem',
           letterSpacing: '0.01071em',
         },
       },
     },
-  })
-);
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.85rem',
+          letterSpacing: '0.01071em',
+        },
+      },
+    },
+  },
+});
 
 export function App(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
@@ -80,7 +83,7 @@ export function App(): ReactElement {
   }
 
   return (
-    <ErrorBoundary classes={useStyles()}>
+    <ErrorBoundary>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <GlobalPopup />

@@ -24,6 +24,7 @@ export const useButtonStyles = makeStyles({
   },
   light: {
     backgroundColor: OpossumColors.white,
+    color: OpossumColors.black,
     '&:hover': {
       backgroundColor: OpossumColors.whiteOnHover,
       color: OpossumColors.white,

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IpcRenderer } from 'electron';
-import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import { initialViewState } from '../../../state/reducers/view-reducer';
@@ -40,22 +39,9 @@ describe('ErrorBoundary', () => {
     return <div>{'Test'}</div>;
   }
 
-  const useStyles = makeStyles({
-    root: {
-      width: '100vw',
-      height: '100vh',
-    },
-    panelDiv: {
-      display: 'flex',
-      height: 'calc(100vh - 36px)',
-      width: '100%',
-      overflow: 'hidden',
-    },
-  });
-
   test('renders its children', () => {
     renderComponentWithStore(
-      <ErrorBoundary classes={useStyles()}>
+      <ErrorBoundary>
         <TestComponent throws={false} />
       </ErrorBoundary>
     );
@@ -71,7 +57,7 @@ describe('ErrorBoundary', () => {
     jest.spyOn(console, 'error').mockImplementation();
 
     const { store } = renderComponentWithStore(
-      <ErrorBoundary classes={useStyles()}>
+      <ErrorBoundary>
         <TestComponent throws={true} />
       </ErrorBoundary>
     );
