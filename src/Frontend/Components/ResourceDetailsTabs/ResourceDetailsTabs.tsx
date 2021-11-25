@@ -29,11 +29,16 @@ const useStyles = makeStyles({
     minHeight: 'fit-content',
   },
   tab: {
-    backgroundColor: OpossumColors.white,
-    padding: '4px 8px',
+    backgroundColor: OpossumColors.almostWhiteBlue,
+    color: OpossumColors.black,
+    padding: '8px',
     minHeight: 'fit-content',
     '&:hover': {
       backgroundColor: OpossumColors.whiteOnHover,
+    },
+    '&.Mui-selected': {
+      backgroundColor: OpossumColors.white,
+      color: OpossumColors.black,
     },
   },
   indicator: {

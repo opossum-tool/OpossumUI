@@ -38,7 +38,7 @@ export function SearchTextField(props: SearchTextFieldProps): ReactElement {
       type="search"
       variant="outlined"
       autoFocus={props.autoFocus ?? false}
-      margin="dense"
+      size="small"
       className={classes.searchField}
       value={props.search}
       fullWidth={true}
