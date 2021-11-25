@@ -84,7 +84,7 @@ yarn test:unit
 yarn test:integration-ci
 ```
 
-End to end test are available (currently only linux and mac) and can be run using:
+End to end test are available and can be run using:
 ```
 yarn test:e2e
 ```
