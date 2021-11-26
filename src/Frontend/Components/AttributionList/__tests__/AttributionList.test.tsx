@@ -5,7 +5,11 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import { Attributions } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  Resources,
+  ResourcesToAttributions,
+} from '../../../../shared/shared-types';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionList } from '../AttributionList';
 import {
@@ -15,6 +19,13 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  clickOnButtonInPackageContextMenu,
+  expectButtonInPackageContextMenu,
+  expectGlobalOnlyContextMenuForNotPreselectedAttribution,
+  testCorrectMarkAndUnmarkForReplacementInContextMenu,
+} from '../../../test-helpers/context-menu-test-helpers';
+import { ButtonText } from '../../../enums/enums';
 
 function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   const store = createTestAppStore();
@@ -133,6 +144,86 @@ describe('The AttributionList', () => {
     );
     expect(container.childNodes[0].textContent).toContain(
       'Copyright John Doe 2'
+    );
+  });
+
+  test('shows correct replace attribution buttons in the context menu', () => {
+    const testResources: Resources = {
+      root: { src: { file_1: 1, file_2: 1 } },
+      file: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_2: {
+        packageName: 'React',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_3: {
+        packageName: 'Vue',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+        preSelected: true,
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/file_1': ['uuid_1', 'uuid_2', 'uuid_3'],
+      '/root/src/file_2': ['uuid_2'],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    renderComponentWithStore(
+      <AttributionList
+        attributions={testManualAttributions}
+        selectedAttributionId={''}
+        attributionIdMarkedForReplacement={''}
+        onCardClick={mockCallback}
+        maxHeight={1000}
+        title={'title'}
+      />,
+      { store: testStore }
+    );
+
+    expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+      screen,
+      'jQuery, 16.0.0'
+    );
+
+    testCorrectMarkAndUnmarkForReplacementInContextMenu(
+      screen,
+      'jQuery, 16.0.0'
+    );
+
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'jQuery, 16.0.0',
+      ButtonText.MarkForReplacement
+    );
+
+    expectButtonInPackageContextMenu(
+      screen,
+      'Vue, 16.0.0',
+      ButtonText.ReplaceMarked,
+      true
+    );
+
+    expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+      screen,
+      'React, 16.0.0',
+      true
     );
   });
 });

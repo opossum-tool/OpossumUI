@@ -8,17 +8,24 @@ import {
   clickOnProgressBar,
   EMPTY_PARSED_FILE_CONTENT,
   getOpenFileIcon,
+  getParsedInputFileEnrichedWithTestData,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
-import { ParsedFileContent } from '../../../../shared/shared-types';
 import { screen } from '@testing-library/react';
-import { IpcChannel } from '../../../../shared/ipc-channels';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
 import { IpcRenderer } from 'electron';
 import React from 'react';
+import { IpcChannel } from '../../../../shared/ipc-channels';
+import {
+  Attributions,
+  ParsedFileContent,
+  Resources,
+  ResourcesToAttributions,
+  SaveFileArgs,
+} from '../../../../shared/shared-types';
+import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   clickAddIconOnCardInAttributionList,
   clickOnPackageInPackagePanel,
@@ -33,6 +40,7 @@ import {
   expectValueNotInManualPackagePanel,
 } from '../../../test-helpers/package-panel-helpers';
 import {
+  clickOnButtonInHamburgerMenu,
   expectButtonInHamburgerMenuIsNotShown,
   expectValueInConfidenceField,
   expectValueInTextBox,
@@ -45,6 +53,10 @@ import {
   expectResourceBrowserIsNotShown,
   getElementInResourceBrowser,
 } from '../../../test-helpers/resource-browser-test-helpers';
+import {
+  expectReplaceAttributionPopupIsNotShown,
+  expectReplaceAttributionPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -368,5 +380,100 @@ describe('The App in Audit View', () => {
 
     clickOnButton(screen, 'resolve attribution');
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+  });
+
+  test('replaces attributions', () => {
+    const expectedSaveFileArgs: SaveFileArgs = {
+      manualAttributions: {
+        uuid_2: {
+          comment: 'ManualPackage',
+          packageName: 'React',
+          packageVersion: '16.0.0',
+        },
+      },
+      resolvedExternalAttributions: new Set(),
+      resourcesToAttributions: {
+        '/root/src/file_1': ['uuid_2'],
+        '/root/src/file_2': ['uuid_2'],
+      },
+    };
+    const testResources: Resources = {
+      root: { src: { file_1: 1, file_2: 1 } },
+      file: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_2: {
+        packageName: 'React',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/file_1': ['uuid_1'],
+      '/root/src/file_2': ['uuid_2'],
+    };
+
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
+    );
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'root');
+    clickOnElementInResourceBrowser(screen, 'src');
+    clickOnElementInResourceBrowser(screen, 'file_1');
+    expectValueInTextBox(screen, 'Name', 'jQuery');
+
+    expectButtonInHamburgerMenuIsNotShown(
+      screen,
+      ButtonText.UnmarkForReplacement
+    );
+    clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
+    expectButtonInHamburgerMenuIsNotShown(
+      screen,
+      ButtonText.MarkForReplacement
+    );
+    clickOnButtonInHamburgerMenu(screen, ButtonText.UnmarkForReplacement);
+    expectButtonInHamburgerMenuIsNotShown(
+      screen,
+      ButtonText.UnmarkForReplacement
+    );
+    clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
+
+    clickOnElementInResourceBrowser(screen, 'file_2');
+    expectValueInTextBox(screen, 'Name', 'React');
+
+    clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
+    expectReplaceAttributionPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Cancel);
+    expectReplaceAttributionPopupIsNotShown(screen);
+
+    clickOnElementInResourceBrowser(screen, 'file_1');
+    expectValueInTextBox(screen, 'Name', 'jQuery');
+
+    clickOnElementInResourceBrowser(screen, 'file_2');
+    clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
+    expectReplaceAttributionPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Replace);
+    expectValueInTextBox(screen, 'Name', 'React');
+    expectReplaceAttributionPopupIsNotShown(screen);
+
+    clickOnElementInResourceBrowser(screen, 'file_1');
+    expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    expectValueInTextBox(screen, 'Name', 'React');
+
+    // make sure resources are now linked to React attribution
+    // @ts-ignore
+    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
+      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+    ]);
   });
 });

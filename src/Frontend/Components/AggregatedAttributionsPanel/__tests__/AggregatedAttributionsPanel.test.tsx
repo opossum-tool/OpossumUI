@@ -8,8 +8,10 @@ import React from 'react';
 import {
   AttributionIdWithCount,
   Attributions,
+  Resources,
+  ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { PackagePanelTitle } from '../../../enums/enums';
+import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
 import {
   createTestAppStore,
   renderComponentWithStore,
@@ -19,6 +21,12 @@ import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
 import { PanelData } from '../../ResourceDetailsTabs/resource-details-tabs-helpers';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { expectPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
+import {
+  clickOnButtonInPackageContextMenu,
+  expectButtonInPackageContextMenu,
+  expectGlobalOnlyContextMenuForNotPreselectedAttribution,
+  testCorrectMarkAndUnmarkForReplacementInContextMenu,
+} from '../../../test-helpers/context-menu-test-helpers';
 
 describe('The AggregatedAttributionsPanel', () => {
   test('renders', () => {
@@ -91,6 +99,94 @@ describe('The AggregatedAttributionsPanel', () => {
       screen,
       'React, 17.0.0',
       'Signals in Folder Content'
+    );
+  });
+
+  test('shows correct replace attribution buttons in the context menu', () => {
+    const testResources: Resources = {
+      root: { src: { file_1: 1, file_2: 1 } },
+      file: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_2: {
+        packageName: 'React',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+      },
+      uuid_3: {
+        packageName: 'Vue',
+        packageVersion: '16.0.0',
+        comment: 'ManualPackage',
+        preSelected: true,
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/file_1': ['uuid_1'],
+      '/root/src/file_2': ['uuid_2', 'uuid_3'],
+    };
+    const testManualAttributionIds: Array<AttributionIdWithCount> = [
+      { attributionId: 'uuid_1' },
+      { attributionId: 'uuid_2' },
+      { attributionId: 'uuid_3' },
+    ];
+    const testPanelPackages: Array<PanelData> = [
+      {
+        title: PackagePanelTitle.ContainedManualPackages,
+        attributionIdsWithCount: testManualAttributionIds,
+        attributions: testManualAttributions,
+      },
+    ];
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    renderComponentWithStore(
+      <AggregatedAttributionsPanel
+        panelData={testPanelPackages}
+        isAddToPackageEnabled={true}
+      />,
+      { store: testStore }
+    );
+
+    expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+      screen,
+      'jQuery, 16.0.0'
+    );
+
+    testCorrectMarkAndUnmarkForReplacementInContextMenu(
+      screen,
+      'jQuery, 16.0.0'
+    );
+
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'jQuery, 16.0.0',
+      ButtonText.MarkForReplacement
+    );
+
+    expectButtonInPackageContextMenu(
+      screen,
+      'Vue, 16.0.0',
+      ButtonText.ReplaceMarked,
+      true
+    );
+
+    expectGlobalOnlyContextMenuForNotPreselectedAttribution(
+      screen,
+      'React, 16.0.0',
+      true
     );
   });
 });

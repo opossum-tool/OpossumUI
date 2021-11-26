@@ -85,6 +85,7 @@ export const initialResourceState: ResourceState = {
     metadata: EMPTY_PROJECT_METADATA,
     baseUrlsForSources: {},
     externalAttributionSources: {},
+    attributionIdMarkedForReplacement: '',
   },
   auditView: {
     selectedResourceId: '',
@@ -96,7 +97,6 @@ export const initialResourceState: ResourceState = {
   attributionView: {
     selectedAttributionId: '',
     targetSelectedAttributionId: '',
-    attributionIdMarkedForReplacement: '',
   },
   fileSearchPopup: {
     fileSearch: '',
@@ -117,6 +117,7 @@ export type ResourceState = {
     metadata: ProjectMetadata;
     baseUrlsForSources: BaseUrlsForSources;
     externalAttributionSources: ExternalAttributionSources;
+    attributionIdMarkedForReplacement: string;
   };
   auditView: {
     selectedResourceId: string;
@@ -128,7 +129,6 @@ export type ResourceState = {
   attributionView: {
     selectedAttributionId: string;
     targetSelectedAttributionId: string;
-    attributionIdMarkedForReplacement: string;
   };
   fileSearchPopup: {
     fileSearch: string;
@@ -284,8 +284,8 @@ export const resourceState = (
     case ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT:
       return {
         ...state,
-        attributionView: {
-          ...state.attributionView,
+        allViews: {
+          ...state.allViews,
           attributionIdMarkedForReplacement: action.payload,
         },
       };
@@ -387,10 +387,10 @@ export const resourceState = (
           : state.attributionView.selectedAttributionId;
 
       const newAttributionIdMarkedForReplacement: string =
-        state.attributionView.attributionIdMarkedForReplacement ===
+        state.allViews.attributionIdMarkedForReplacement ===
         attributionToDeleteId
           ? ''
-          : state.attributionView.attributionIdMarkedForReplacement;
+          : state.allViews.attributionIdMarkedForReplacement;
 
       return {
         ...state,
@@ -406,6 +406,8 @@ export const resourceState = (
             getAttributionBreakpointCheckForResourceState(state),
             getFileWithChildrenCheckForResourceState(state)
           ),
+          attributionIdMarkedForReplacement:
+            newAttributionIdMarkedForReplacement,
         },
         auditView: {
           ...state.auditView,
@@ -414,8 +416,6 @@ export const resourceState = (
         attributionView: {
           ...state.attributionView,
           selectedAttributionId: newSelectedAttributionId,
-          attributionIdMarkedForReplacement:
-            newAttributionIdMarkedForReplacement,
         },
       };
     case ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING:

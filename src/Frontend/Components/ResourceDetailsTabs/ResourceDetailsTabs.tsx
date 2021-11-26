@@ -73,12 +73,17 @@ export function ResourceDetailsTabs(
 
   const panelData: Array<PanelData> = useMemo(
     () => getPanelData(selectedResourceId, manualData, externalData),
-    // manualData is excluded from dependencies on purpose to avoid recalculation when
-    // it changes. Usually this is not an issue as the displayed data remains correct.
-    // In consequence, the panelData is eventually consistent.
+    /*
+      manualData is excluded from dependencies on purpose to avoid recalculation when
+      it changes. Usually this is not an issue as the displayed data remains correct.
+      In consequence, the panelData is eventually consistent.
+      We still need manualData.attributionsToResources in the dependencies to update panelData, when
+      replaceAttributionPopup was called. This is relevant for manual attributions in the attributions in folder
+      content panel.
+    */
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedResourceId, externalData]
+    [selectedResourceId, externalData, manualData.attributionsToResources]
   );
 
   const assignableAttributionIds: Array<string> = remove(

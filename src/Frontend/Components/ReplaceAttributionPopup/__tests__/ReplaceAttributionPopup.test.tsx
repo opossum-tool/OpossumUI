@@ -14,7 +14,7 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import { openPopupWithTargetAttributionId } from '../../../state/actions/view-actions/view-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
@@ -41,9 +41,14 @@ function setupTestState(store: EnhancedTestStore): void {
     'package_2.tr.gz': ['test_marked_id'],
   };
 
-  store.dispatch(openPopup(PopupType.ReplaceAttributionPopup));
   store.dispatch(setSelectedAttributionId('test_selected_id'));
   store.dispatch(setAttributionIdMarkedForReplacement('test_marked_id'));
+  store.dispatch(
+    openPopupWithTargetAttributionId(
+      PopupType.ReplaceAttributionPopup,
+      'test_selected_id'
+    )
+  );
   store.dispatch(
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({

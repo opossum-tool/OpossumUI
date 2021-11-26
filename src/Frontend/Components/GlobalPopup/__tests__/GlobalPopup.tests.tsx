@@ -8,10 +8,16 @@ import {
   openPopup,
   openPopupWithTargetAttributionId,
 } from '../../../state/actions/view-actions/view-actions';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { GlobalPopup } from '../GlobalPopup';
 import { PopupType } from '../../../enums/enums';
 import { screen } from '@testing-library/react';
+import { Attributions } from '../../../../shared/shared-types';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 
 describe('The GlobalPopUp', () => {
   test('does not open by default', () => {
@@ -49,8 +55,27 @@ describe('The GlobalPopUp', () => {
   });
 
   test('opens the ReplaceAttributionPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ReplaceAttributionPopup));
+    const testAttributions: Attributions = {
+      uuid1: { packageName: 'name 1' },
+    };
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testAttributions,
+        })
+      )
+    );
+
+    renderComponentWithStore(<GlobalPopup />, {
+      store: testStore,
+    });
+    testStore.dispatch(
+      openPopupWithTargetAttributionId(
+        PopupType.ReplaceAttributionPopup,
+        'uuid1'
+      )
+    );
 
     expect(
       screen.getByText('This removes the following attribution')

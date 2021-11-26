@@ -10,6 +10,7 @@ import React, { ChangeEvent, ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
+  getAttributionIdMarkedForReplacement,
   getIsSavingDisabled,
   getPackageInfoOfSelected,
   getTemporaryPackageInfo,
@@ -41,12 +42,9 @@ import { LicenseSubPanel } from './LicenseSubPanel';
 import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
-import {
-  getAttributionIdMarkedForReplacement,
-  getSelectedAttributionId,
-} from '../../state/selectors/attribution-view-resource-selectors';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText, PopupType } from '../../enums/enums';
+import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
+import { ButtonText, PopupType, View } from '../../enums/enums';
 import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -118,14 +116,21 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     selectedPackage
   );
   const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
+  const currentViewSelectedAttributionId =
+    view === View.Attribution
+      ? selectedAttributionId
+      : view === View.Audit
+      ? selectedPackageId
+      : '';
 
-  const mergeButtonDisplayState = getMergeButtonsDisplayState(
-    view,
+  const mergeButtonDisplayState = getMergeButtonsDisplayState({
     attributionIdMarkedForReplacement,
-    selectedAttributionId,
+    targetAttributionId: currentViewSelectedAttributionId,
+    selectedAttributionId: currentViewSelectedAttributionId,
     packageInfoWereModified,
-    Boolean(temporaryPackageInfo.preSelected)
-  );
+    targetAttributionIsPreSelected: Boolean(temporaryPackageInfo.preSelected),
+    targetAttributionIsExternalAttribution: false,
+  });
 
   const mainButtonConfigs: Array<MainButtonConfig> = [
     {
@@ -169,7 +174,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     {
       buttonText: ButtonText.MarkForReplacement,
       onClick: (): void => {
-        dispatch(setAttributionIdMarkedForReplacement(selectedAttributionId));
+        dispatch(
+          setAttributionIdMarkedForReplacement(currentViewSelectedAttributionId)
+        );
       },
       hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
     },
@@ -184,9 +191,14 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.ReplaceMarked,
       disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
       onClick: (): void => {
-        dispatch(openPopup(PopupType.ReplaceAttributionPopup));
+        dispatch(
+          openPopupWithTargetAttributionId(
+            PopupType.ReplaceAttributionPopup,
+            currentViewSelectedAttributionId
+          )
+        );
       },
-      hidden: mergeButtonDisplayState.hideOnReplaceMarkedByButton,
+      hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
     },
   ];
 

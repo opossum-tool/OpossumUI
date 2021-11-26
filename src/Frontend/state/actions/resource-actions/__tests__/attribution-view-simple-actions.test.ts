@@ -10,10 +10,10 @@ import {
   setTargetSelectedAttributionId,
 } from '../attribution-view-simple-actions';
 import {
-  getAttributionIdMarkedForReplacement,
   getSelectedAttributionId,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
+import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
 
 describe('The load and navigation simple actions', () => {
   test('sets and gets selectedAttributionId', () => {
