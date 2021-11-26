@@ -224,7 +224,7 @@ export function testCorrectMarkAndUnmarkForReplacementInContextMenu(
     packageName,
     ButtonText.UnmarkForReplacement
   );
-  expectButtonInPackageContextMenu(
+  expectButtonNotInPackageContextMenu(
     screen,
     packageName,
     ButtonText.MarkForReplacement
@@ -235,7 +235,7 @@ export function expectUnmarkForReplacementInContextMenu(
   screen: Screen,
   packageName: string
 ): void {
-  expectButtonInPackageContextMenu(
+  expectButtonNotInPackageContextMenu(
     screen,
     packageName,
     ButtonText.UnmarkForReplacement
@@ -313,7 +313,7 @@ export function expectCorrectButtonsInContextMenu(
   hiddenButtons: Array<ButtonText>
 ): void {
   shownButtons.forEach((buttonText) => {
-    expectButtonInPackageContextMenu(screen, cardLabel, buttonText);
+    expectButtonNotInPackageContextMenu(screen, cardLabel, buttonText);
   });
 
   hiddenButtons.forEach((buttonText) => {
@@ -324,14 +324,25 @@ export function expectCorrectButtonsInContextMenu(
 export function expectButtonInPackageContextMenu(
   screen: Screen,
   cardLabel: string,
-  buttonLabel: ButtonText,
-  disabled = false
+  buttonLabel: ButtonText
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
   const button = getButton(screen, buttonLabel);
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
-  expect(buttonAttribute && buttonAttribute.value).toBe(String(disabled));
+  expect(buttonAttribute).not.toBeNull();
+}
+
+export function expectButtonNotInPackageContextMenu(
+  screen: Screen,
+  cardLabel: string,
+  buttonLabel: ButtonText
+): void {
+  openContextMenuOnCardPackageCard(screen, cardLabel);
+  const button = getButton(screen, buttonLabel);
+  const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
+
+  expect(buttonAttribute).toBeNull();
 }
 
 function expectButtonInPackageContextMenuIsNotShown(
@@ -392,14 +403,13 @@ export function expectButtonInPackageInPackagePanelContextMenu(
   screen: Screen,
   packageName: string,
   packagePanelName: string,
-  buttonLabel: ButtonText,
-  disabled = false
+  buttonLabel: ButtonText
 ): void {
   openContextMenuOnPackageInPackagePanel(screen, packageName, packagePanelName);
   const button = getButton(screen, buttonLabel);
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
-  expect(buttonAttribute && buttonAttribute.value).toBe(String(disabled));
+  expect(buttonAttribute).toBe(null);
 }
 
 function expectButtonInPackageInPackagePanelContextMenuIsNotShown(

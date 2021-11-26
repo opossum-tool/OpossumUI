@@ -223,8 +223,7 @@ describe('The ManualAttributionList', () => {
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 16.0.0',
-      ButtonText.ReplaceMarked,
-      true
+      ButtonText.ReplaceMarked
     );
 
     expectContextMenuForNotPreSelectedAttributionMultipleResources(

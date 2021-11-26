@@ -179,8 +179,7 @@ describe('The AggregatedAttributionsPanel', () => {
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 16.0.0',
-      ButtonText.ReplaceMarked,
-      true
+      ButtonText.ReplaceMarked
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
