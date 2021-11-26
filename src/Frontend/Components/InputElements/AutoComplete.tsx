@@ -5,11 +5,11 @@
 
 import React, { ChangeEvent, ReactElement } from 'react';
 import { InputElementProps, useInputElementStyles } from './shared';
-import MuiAutocomplete from '@material-ui/lab/Autocomplete';
-import MuiTextField from '@material-ui/core/TextField';
+import MuiAutocomplete from '@mui/material/Autocomplete';
+import MuiTextField from '@mui/material/TextField';
 import clsx from 'clsx';
-import MuiInputAdornment from '@material-ui/core/InputAdornment';
-import { makeStyles } from '@material-ui/core/styles';
+import MuiInputAdornment from '@mui/material/InputAdornment';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface AutoCompleteProps extends InputElementProps {
   options: Array<string>;

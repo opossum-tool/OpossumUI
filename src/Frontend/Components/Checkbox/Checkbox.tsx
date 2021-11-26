@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiCheckbox from '@material-ui/core/Checkbox';
+import MuiCheckbox from '@mui/material/Checkbox';
 import React, { ReactElement } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
-import MuiTypography from '@material-ui/core/Typography';
+import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 
 const useStyles = makeStyles({

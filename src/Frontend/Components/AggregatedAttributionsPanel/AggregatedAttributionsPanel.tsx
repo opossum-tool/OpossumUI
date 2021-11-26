@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiAccordion from '@material-ui/core/Accordion';
-import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
-import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTypography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import MuiAccordion from '@mui/material/Accordion';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import MuiAccordionSummary from '@mui/material/AccordionSummary';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTypography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import clsx from 'clsx';
 import React, { ReactElement, useCallback, useEffect } from 'react';
 import { AttributionIdWithCount } from '../../../shared/shared-types';

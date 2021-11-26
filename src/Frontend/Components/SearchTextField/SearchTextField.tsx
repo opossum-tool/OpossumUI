@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { InputAdornment } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTextField from '@material-ui/core/TextField';
-import { Search } from '@material-ui/icons';
+import { InputAdornment } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTextField from '@mui/material/TextField';
+import { Search } from '@mui/icons-material';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 
@@ -38,7 +38,7 @@ export function SearchTextField(props: SearchTextFieldProps): ReactElement {
       type="search"
       variant="outlined"
       autoFocus={props.autoFocus ?? false}
-      margin="dense"
+      size="small"
       className={classes.searchField}
       value={props.search}
       fullWidth={true}

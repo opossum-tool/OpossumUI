@@ -50,7 +50,7 @@ export function getLicenseTextMaxRows(
   const heightOfNonLicenseTextComponents =
     heightOfTextBoxes + (view === View.Audit ? 34 : 0);
   const licenseTextMaxHeight = windowHeight - heightOfNonLicenseTextComponents;
-  return Math.floor(licenseTextMaxHeight / 16);
+  return Math.floor(licenseTextMaxHeight / 19);
 }
 
 export function getDiscreteConfidenceChangeHandler(

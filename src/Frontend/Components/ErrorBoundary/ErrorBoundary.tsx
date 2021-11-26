@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createStyles, WithStyles, withStyles } from '@material-ui/core/styles';
+import { WithStyles, createStyles, withStyles } from '@mui/styles';
 import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -101,7 +101,6 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>): DispatchProps {
   };
 }
 
-export const ErrorBoundary = connect(
-  null,
-  mapDispatchToProps
-)(withStyles(styles)(ProtoErrorBoundary));
+export const ErrorBoundary = withStyles(styles)(
+  connect(null, mapDispatchToProps)(ProtoErrorBoundary)
+);

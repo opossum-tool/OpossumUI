@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiTextField from '@material-ui/core/TextField';
+import MuiTextField from '@mui/material/TextField';
 import React, { ReactElement } from 'react';
 import { InputElementProps, useInputElementStyles } from './shared';
 

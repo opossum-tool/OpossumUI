@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import MuiButtonGroup from '@material-ui/core/ButtonGroup';
+import MuiButtonGroup from '@mui/material/ButtonGroup';
 import { Button } from '../Button/Button';
 import { HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 

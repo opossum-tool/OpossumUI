@@ -20,7 +20,7 @@ describe('Button', () => {
       />
     );
 
-    expect(screen.getByTitle('Test'));
+    expect(screen.getByLabelText('Test'));
     expect(screen.getByText('Test Icon'));
   });
 });

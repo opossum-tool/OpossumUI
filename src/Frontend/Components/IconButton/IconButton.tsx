@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import MuiButtonBase from '@material-ui/core/ButtonBase';
-import MuiTooltip from '@material-ui/core/Tooltip';
+import MuiButtonBase from '@mui/material/ButtonBase';
+import MuiTooltip from '@mui/material/Tooltip';
 import { tooltipStyle } from '../../shared-styles';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles } from '@mui/styles';
 import clsx from 'clsx';
 
 const useStyles = makeStyles({

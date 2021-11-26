@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiPaper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import MuiPaper from '@mui/material/Paper';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';
@@ -14,10 +14,10 @@ import { TextBox } from '../InputElements/TextBox';
 import { OpossumColors } from '../../shared-styles';
 import { AutoComplete } from '../InputElements/AutoComplete';
 import { getLicenseTextLabelText } from './attribution-column-helpers';
-import MuiAccordion from '@material-ui/core/Accordion';
-import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
+import MuiAccordion from '@mui/material/Accordion';
+import MuiAccordionSummary from '@mui/material/AccordionSummary';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
 import { useAppSelector } from '../../state/hooks';
 

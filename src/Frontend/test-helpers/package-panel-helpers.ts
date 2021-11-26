@@ -5,8 +5,8 @@
 
 import {
   fireEvent,
+  getByLabelText,
   getByText,
-  getByTitle,
   queryByText,
   Screen,
 } from '@testing-library/react';
@@ -121,8 +121,10 @@ export function clickAddIconOnCardInAttributionList(
   screen: Screen,
   value: string
 ): void {
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  fireEvent.click(getByTitle(getCardInAttributionList(screen, value), 'add'));
+  fireEvent.click(
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    getByLabelText(getCardInAttributionList(screen, value), 'add')
+  );
 }
 
 export function clickOnCardInAttributionList(
@@ -138,7 +140,7 @@ export function expectAddIconInAddToAttributionCardIsHidden(
 ): void {
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    getByTitle(getCardInAttributionList(screen, value), 'add').childNodes[0]
+    getByLabelText(getCardInAttributionList(screen, value), 'add').childNodes[0]
   ).toHaveStyle('visibility: hidden');
 }
 
@@ -148,7 +150,7 @@ export function expectAddIconInAddToAttributionCardIsNotHidden(
 ): void {
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    getByTitle(getCardInAttributionList(screen, value), 'add').childNodes[0]
+    getByLabelText(getCardInAttributionList(screen, value), 'add').childNodes[0]
   ).not.toHaveStyle('visibility: hidden');
 }
 

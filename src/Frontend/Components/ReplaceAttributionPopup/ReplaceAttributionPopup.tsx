@@ -9,13 +9,13 @@ import { ButtonText } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { doNothing } from '../../util/do-nothing';
-import MuiTypography from '@material-ui/core/Typography';
+import MuiTypography from '@mui/material/Typography';
 import {
   getAttributionIdMarkedForReplacement,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { PackageCard } from '../PackageCard/PackageCard';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getTargetAttributionId } from '../../state/selectors/view-selector';

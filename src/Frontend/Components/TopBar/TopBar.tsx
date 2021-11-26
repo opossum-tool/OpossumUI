@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
-import MuiToggleButton from '@material-ui/lab/ToggleButton';
-import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiToggleButton from '@mui/material/ToggleButton';
+import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { IpcRendererEvent } from 'electron';
 import pick from 'lodash/pick';
 import React, { ReactElement } from 'react';
@@ -49,7 +49,7 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { IconButton } from '../IconButton/IconButton';
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
 export const topBarHeight = 36;
 
@@ -79,6 +79,7 @@ const useStyles = makeStyles({
     '&.Mui-selected': {
       background: OpossumColors.middleBlue,
       color: OpossumColors.black,
+      border: `2px ${OpossumColors.darkBlue} solid`,
     },
   },
   versionInfo: {
@@ -314,7 +315,7 @@ export function TopBar(): ReactElement {
         icon={
           <FolderOpenIcon
             className={classes.openFileIcon}
-            aria-label={'open file'}
+            aria-label={'open file icon'}
           />
         }
       />

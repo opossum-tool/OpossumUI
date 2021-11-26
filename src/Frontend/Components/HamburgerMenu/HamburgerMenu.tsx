@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import MuiMoreVertIcon from '@material-ui/icons/MoreVert';
-import MuiButton from '@material-ui/core/Button';
+import MuiMoreVertIcon from '@mui/icons-material/MoreVert';
+import MuiButton from '@mui/material/Button';
 import { useButtonStyles } from '../Button/button-styles';
 import clsx from 'clsx';
 import { ContextMenuItem, ContextMenu } from '../ContextMenu/ContextMenu';

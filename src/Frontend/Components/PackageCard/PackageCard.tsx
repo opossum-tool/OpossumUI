@@ -12,11 +12,11 @@ import {
 } from '../Icons/Icons';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from './package-card-helpers';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
-import PlusIcon from '@material-ui/icons/Add';
+import PlusIcon from '@mui/icons-material/Add';
 import clsx from 'clsx';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ButtonText, PopupType, View } from '../../enums/enums';

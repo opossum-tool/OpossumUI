@@ -3,16 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiPaper from '@material-ui/core/Paper';
+import MuiPaper from '@mui/material/Paper';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import { PackageInfo } from '../../../shared/shared-types';
 import { TextBox } from '../InputElements/TextBox';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { IconButton } from '../IconButton/IconButton';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles } from '@mui/styles';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 
 const useStyles = makeStyles({ clickableIcon, disabledIcon });

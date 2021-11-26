@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import MuiTypography from '@material-ui/core/Typography';
-import MuiTooltip from '@material-ui/core/Tooltip';
+import makeStyles from '@mui/styles/makeStyles';
+import MuiTypography from '@mui/material/Typography';
+import MuiTooltip from '@mui/material/Tooltip';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';

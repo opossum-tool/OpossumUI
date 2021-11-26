@@ -6,7 +6,7 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import { FixedSizeList as VirtualizedList } from 'react-window';
 import { Height, NumberOfDisplayedItems } from '../../types/types';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 
 const useStyles = makeStyles({

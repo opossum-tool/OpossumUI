@@ -5,8 +5,8 @@
 
 import React, { ReactElement } from 'react';
 import { InputElementProps, useInputElementStyles } from './shared';
-import MuiTextField from '@material-ui/core/TextField';
-import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiTextField from '@mui/material/TextField';
+import MuiMenuItem from '@mui/material/MenuItem';
 
 interface DropdownProps extends InputElementProps {
   value: number;

@@ -12,11 +12,11 @@ import {
 
 describe('The AttributionColumn helpers', () => {
   test('getLicenseTextMaxRows in audit view', () => {
-    expect(getLicenseTextMaxRows(1080, View.Audit)).toEqual(35);
+    expect(getLicenseTextMaxRows(1080, View.Audit)).toEqual(29);
   });
 
   test('getLicenseTextMaxRows in attribution view', () => {
-    expect(getLicenseTextMaxRows(1080, View.Attribution)).toEqual(37);
+    expect(getLicenseTextMaxRows(1080, View.Attribution)).toEqual(31);
   });
 
   test('selectedPackageIsResolved returns true', () => {

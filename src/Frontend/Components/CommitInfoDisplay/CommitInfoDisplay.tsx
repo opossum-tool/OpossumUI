@@ -3,9 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
-import MuiTypography from '@material-ui/core/Typography';
+import MuiTypography from '@mui/material/Typography';
 import commitInfo from '../../../commitInfo.json';
 import { OpossumColors } from '../../shared-styles';
 

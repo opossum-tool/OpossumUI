@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiButton from '@material-ui/core/Button';
+import MuiButton from '@mui/material/Button';
 import React, { ReactElement } from 'react';
 import clsx from 'clsx';
 import { useButtonStyles } from './button-styles';

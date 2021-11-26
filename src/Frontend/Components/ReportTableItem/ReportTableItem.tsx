@@ -9,7 +9,7 @@ import {
   isMarkedTableCell,
 } from './report-table-item-helpers';
 import clsx from 'clsx';
-import MuiTypography from '@material-ui/core/Typography';
+import MuiTypography from '@mui/material/Typography';
 import {
   CommentIcon,
   ExcludeFromNoticeIcon,
@@ -18,13 +18,13 @@ import {
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { AttributionInfo, TableConfig, tableConfigs } from '../Table/Table';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { useStylesReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
 import { Source } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
-import EditorIcon from '@material-ui/icons/Edit';
+import EditorIcon from '@mui/icons-material/Edit';
 
 export const reportTableRowHeight = 190;
 const padding = 10;
