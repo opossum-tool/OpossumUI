@@ -14,7 +14,7 @@ import {
 import { PanelPackage } from '../../types/types';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
-import { remove, isEqual } from 'lodash';
+import { isEqual, remove } from 'lodash';
 import { getPanelData, PanelData } from './resource-details-tabs-helpers';
 import {
   getAttributionIdsOfSelectedResource,
@@ -98,7 +98,12 @@ export function ResourceDetailsTabs(
     */
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedResourceId, externalData, resolvedExternalAttributions]
+    [
+      selectedResourceId,
+      externalData,
+      resolvedExternalAttributions,
+      manualData.attributionsToResources,
+    ]
   );
 
   const assignableAttributionIds: Array<string> = remove(
