@@ -108,12 +108,15 @@ export function computeAggregatedAttributionsFromChildren(
   attributions: Attributions,
   resourcesToAttributions: ResourcesToAttributions,
   attributedChildren: Set<string>,
-  resolvedExternalAttributions = new Set<string>()
+  resolvedExternalAttributions?: Set<string>
 ): Array<AttributionIdWithCount> {
   const attributionCount: { [attributionId: string]: number } = {};
   attributedChildren.forEach((child: string) => {
     resourcesToAttributions[child].forEach((attributionId: string) => {
-      if (!resolvedExternalAttributions.has(attributionId)) {
+      if (
+        !resolvedExternalAttributions ||
+        !resolvedExternalAttributions.has(attributionId)
+      ) {
         attributionCount[attributionId] =
           (attributionCount[attributionId] || 0) + 1;
       }
