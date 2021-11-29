@@ -23,7 +23,8 @@ export interface PanelData {
 export function getPanelData(
   selectedResourceId: string,
   manualData: AttributionData,
-  externalData: AttributionData
+  externalData: AttributionData,
+  resolvedExternalAttributions: Set<string>
 ): Array<PanelData> {
   let panelData: Array<PanelData> = [
     {
@@ -41,7 +42,8 @@ export function getPanelData(
         title: PackagePanelTitle.ContainedExternalPackages,
         attributionIdsWithCount: getContainedExternalPackages(
           selectedResourceId,
-          externalData
+          externalData,
+          resolvedExternalAttributions
         ),
         attributions: externalData.attributions,
       },
@@ -69,7 +71,8 @@ function getExternalAttributionIdsWithCount(
 
 function getContainedExternalPackages(
   selectedResourceId: string,
-  externalData: AttributionData
+  externalData: AttributionData,
+  resolvedExternalAttributions: Set<string>
 ): Array<AttributionIdWithCount> {
   const externalAttributedChildren = getAttributedChildren(
     externalData.resourcesWithAttributedChildren,
@@ -79,7 +82,8 @@ function getContainedExternalPackages(
   return computeAggregatedAttributionsFromChildren(
     externalData.attributions,
     externalData.resourcesToAttributions,
-    externalAttributedChildren
+    externalAttributedChildren,
+    resolvedExternalAttributions
   );
 }
 
@@ -103,13 +107,19 @@ function getContainedManualPackages(
 export function computeAggregatedAttributionsFromChildren(
   attributions: Attributions,
   resourcesToAttributions: ResourcesToAttributions,
-  attributedChildren: Set<string>
+  attributedChildren: Set<string>,
+  resolvedExternalAttributions?: Set<string>
 ): Array<AttributionIdWithCount> {
   const attributionCount: { [attributionId: string]: number } = {};
   attributedChildren.forEach((child: string) => {
     resourcesToAttributions[child].forEach((attributionId: string) => {
-      attributionCount[attributionId] =
-        (attributionCount[attributionId] || 0) + 1;
+      if (
+        !resolvedExternalAttributions ||
+        !resolvedExternalAttributions.has(attributionId)
+      ) {
+        attributionCount[attributionId] =
+          (attributionCount[attributionId] || 0) + 1;
+      }
     });
   });
 

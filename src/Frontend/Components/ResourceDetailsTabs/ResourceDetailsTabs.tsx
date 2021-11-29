@@ -14,11 +14,12 @@ import {
 import { PanelPackage } from '../../types/types';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
-import { remove, isEqual } from 'lodash';
+import { isEqual, remove } from 'lodash';
 import { getPanelData, PanelData } from './resource-details-tabs-helpers';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
+  getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
@@ -66,6 +67,9 @@ export function ResourceDetailsTabs(
     getAttributionIdsOfSelectedResource,
     isEqual
   );
+  const resolvedExternalAttributions: Set<string> = useAppSelector(
+    getResolvedExternalAttributions
+  );
 
   enum Tabs {
     SignalsAndContent = 0,
@@ -77,7 +81,13 @@ export function ResourceDetailsTabs(
   }, [selectedResourceId, Tabs.SignalsAndContent]);
 
   const panelData: Array<PanelData> = useMemo(
-    () => getPanelData(selectedResourceId, manualData, externalData),
+    () =>
+      getPanelData(
+        selectedResourceId,
+        manualData,
+        externalData,
+        resolvedExternalAttributions
+      ),
     /*
       manualData is excluded from dependencies on purpose to avoid recalculation when
       it changes. Usually this is not an issue as the displayed data remains correct.
@@ -88,7 +98,12 @@ export function ResourceDetailsTabs(
     */
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedResourceId, externalData, manualData.attributionsToResources]
+    [
+      selectedResourceId,
+      externalData,
+      resolvedExternalAttributions,
+      manualData.attributionsToResources,
+    ]
   );
 
   const assignableAttributionIds: Array<string> = remove(
