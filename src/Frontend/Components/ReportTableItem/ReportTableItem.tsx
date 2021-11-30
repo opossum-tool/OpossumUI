@@ -36,6 +36,9 @@ const useStyles = makeStyles({
     padding,
     height: reportTableRowHeight - 2 * padding,
   },
+  noWrap: {
+    whiteSpace: 'pre',
+  },
   iconTableData: {
     overflow: 'hidden',
     whiteSpace: 'pre-line',
@@ -103,6 +106,13 @@ const useStyles = makeStyles({
   clickableIcon,
 });
 
+const CELLS_WITHOUT_TEXT_WRAP = [
+  'resources',
+  'url',
+  'copyright',
+  'licenseText',
+];
+
 type CellData = number | string | Source;
 
 interface ReportTableItemProps {
@@ -165,7 +175,14 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         key={`table-row-${config.attributionProperty}-${index}`}
       >
         {config.attributionProperty !== 'icons' && (
-          <MuiTypography className={classes.tableData} component={'div'}>
+          <MuiTypography
+            className={clsx(
+              classes.tableData,
+              CELLS_WITHOUT_TEXT_WRAP.includes(config.attributionProperty) &&
+                classes.noWrap
+            )}
+            component={'div'}
+          >
             {getCellData(cellData, config.attributionProperty)}
           </MuiTypography>
         )}
