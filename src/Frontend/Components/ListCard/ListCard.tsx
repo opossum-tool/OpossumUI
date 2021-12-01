@@ -11,6 +11,10 @@ import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 
 const defaultCardHeight = 40;
+const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
+const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
+const defaultBackgroundColor = OpossumColors.lightestBlue;
+const packageBorder = `1px ${OpossumColors.white} solid`;
 
 const useStyles = makeStyles({
   root: {
@@ -24,18 +28,25 @@ const useStyles = makeStyles({
       cursor: 'pointer',
     },
   },
+  hoveredPackage: {
+    border: packageBorder,
+    background: hoveredBackgroundColor,
+  },
   package: {
-    border: `1px ${OpossumColors.white} solid`,
-    background: OpossumColors.lightestBlue,
+    border: packageBorder,
+    background: defaultBackgroundColor,
     '&:hover': {
-      background: OpossumColors.lightestBlueOnHover,
+      background: hoveredBackgroundColor,
     },
   },
   externalAttribution: {
-    background: OpossumColors.lightestBlue,
+    background: defaultBackgroundColor,
     '&:hover': {
-      background: OpossumColors.lightestBlueOnHover,
+      background: hoveredBackgroundColor,
     },
+  },
+  hoveredExternalAttribution: {
+    background: hoveredBackgroundColor,
   },
   resource: {
     background: OpossumColors.white,
@@ -47,8 +58,11 @@ const useStyles = makeStyles({
   selected: {
     background: OpossumColors.middleBlue,
     '&:hover': {
-      background: OpossumColors.middleBlueOnHover,
+      background: hoveredSelectedBackgroundColor,
     },
+  },
+  hoveredSelected: {
+    background: hoveredSelectedBackgroundColor,
   },
   markedForReplacement: {
     borderRightWidth: 'medium',
@@ -155,10 +169,22 @@ export function ListCard(props: ListCardProps): ReactElement | null {
     <div
       className={clsx(
         classes.root,
-        props.cardConfig.isResource ? classes.resource : classes.package,
-        props.cardConfig.isExternalAttribution && classes.externalAttribution,
+        props.cardConfig.isResource
+          ? classes.resource
+          : props.cardConfig.isContextMenuOpen
+          ? classes.hoveredPackage
+          : classes.package,
+        props.cardConfig.isExternalAttribution
+          ? props.cardConfig.isContextMenuOpen
+            ? classes.hoveredExternalAttribution
+            : classes.externalAttribution
+          : null,
         props.cardConfig.isHeader ? classes.header : classes.hover,
-        props.cardConfig.isSelected && classes.selected,
+        props.cardConfig.isSelected
+          ? props.cardConfig.isContextMenuOpen
+            ? classes.hoveredSelected
+            : classes.selected
+          : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
         props.cardConfig.isResolved && classes.resolved
       )}

@@ -46,9 +46,13 @@ _File_ menu with the same name).
 
 ### Search
 
-To search for a path, open the `Edit` menu and select `Search for Files and Folders`.
+To search for a path, press `CTRL + F` or open the `Edit` menu and select `Search for Files and Folders`.
 
 ![integration](./docs/user_guide_screenshots/search.png)
+
+### View Project Metadata
+
+To view project metadata, open the `File` menu and select `Show Project Metadata`.
 
 ### Exporting Formats
 
@@ -219,6 +223,9 @@ The `Attribution Details Column`, if editable, shows the following buttons:
   - _Delete_, deletes the attribution of the selected resource only.
   - _Delete Globally_, (shown only if the attribution of the selected resource is also linked to other resources)
     deletes the attribution for all the linked resources.
+- _Mark for replacement_, allows to mark an attribution for replacement. After marking an attribution.
+  One can navigate to another attribution and press the _Replace marked_ button. This opens a popup. In the popup,
+  clicking the _Replace_ button removes the marked attribution and replaces it by the currently selected one.
 
 The _SAVE_ / _SAVE GLOBALLY_ and _Undo_ buttons are disabled if no change has been made.
 
@@ -227,6 +234,11 @@ the respective attribution.
 
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
 signal in the App for the current input/output files, and it will not have any consequence in the DB.
+
+Instead of the buttons, the context menu can be used to execute all available actions out of _Delete_,
+_Delete Globally_, _Confirm_, _Confirm Globally_, _Mark for replacement_, _Hide_ and _Show Resources_. To open the
+context menu, right-click a signal or an attribution, e.g. in the `Attributions Sub-Panel`, `Signals Sub-Panel` or 
+`Attribution List`.
 
 ### Attribution View
 
@@ -254,9 +266,6 @@ The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. 
   the `Selected Resource Panel`. They are always editable.
 - The _SAVE_ and _Delete_ buttons allow saving/deleting the selected attribution. Note that the changes affect multiple
   resources if the selected attribution is linked to multiple resources.
-- The _Mark for replacement_ button allows to mark an attribution for replacement. After marking an attribution.
-  One can navigate to another attribution and press the _Replace marked_ button. This opens a popup. In the popup,
-  clicking the _Replace_ button removes the marked attribution and replaces it by the currently selected one.
 - A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
   selected resource in the `Audit View`.
 

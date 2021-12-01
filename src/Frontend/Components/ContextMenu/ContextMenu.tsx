@@ -19,6 +19,8 @@ import makeStyles from '@mui/styles/makeStyles';
 import { PopoverPosition, PopoverReference } from '@mui/material';
 import { OpossumColors } from '../../shared-styles';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const useStyles = makeStyles({
   icon: {
@@ -43,6 +45,8 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
   [ButtonText.ReplaceMarked]: <MergeTypeIcon fontSize="small" />,
   [ButtonText.ShowResources]: <OpenInBrowserIcon fontSize="small" />,
+  [ButtonText.Hide]: <VisibilityOffIcon fontSize="small" />,
+  [ButtonText.Unhide]: <VisibilityIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {
@@ -58,6 +62,8 @@ interface ContextMenuProps {
   menuItems: Array<ContextMenuItem>;
   children: React.ReactNode;
   activation: ContextMenuActivation;
+  onClose?(): void;
+  onOpen?(): void;
 }
 
 interface anchorAttributes {
@@ -102,11 +108,17 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
       : { onClick: handleClick, onContextMenu: handleClick };
 
   function handleClose(): void {
+    if (props.onClose) {
+      props.onClose();
+    }
     setAnchorPosition(undefined);
     setAnchorElement(null);
   }
 
   function handleClick(event: React.MouseEvent<HTMLElement>): void {
+    if (props.onOpen && displayedMenuItems.length > 0) {
+      props.onOpen();
+    }
     setAnchorPosition({
       left: event.clientX - 2,
       top: event.clientY - 4,
@@ -118,9 +130,15 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
     <>
       <div
         onClick={clickHandlers.onClick}
-        onContextMenu={clickHandlers.onContextMenu}
+        onContextMenu={(event): void => {
+          if (isContextMenuOpen) {
+            handleClose();
+          } else if (clickHandlers.onContextMenu) {
+            clickHandlers.onContextMenu(event);
+          }
+        }}
       >
-        {props.children}
+        {props.children}{' '}
       </div>
       <MuiMenu
         open={isContextMenuOpen}

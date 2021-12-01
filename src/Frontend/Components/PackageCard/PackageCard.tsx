@@ -105,6 +105,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     getAttributionIdMarkedForReplacement
   );
 
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
     useState<boolean>(false);
 
@@ -310,6 +311,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         },
       ];
 
+  function toggleIsContextMenuOpen(): void {
+    setIsContextMenuOpen(!isContextMenuOpen);
+  }
+
   return (
     <>
       {!Boolean(props.hideContextMenu) && (
@@ -323,13 +328,19 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           displayedAttributionName={getCardLabels(props.cardContent)[0] || ''}
         />
       )}
-      <ContextMenu menuItems={contextMenuItems} activation={'onRightClick'}>
+      <ContextMenu
+        menuItems={contextMenuItems}
+        activation={'onRightClick'}
+        onClose={toggleIsContextMenuOpen}
+        onOpen={toggleIsContextMenuOpen}
+      >
         <ListCard
           text={packageLabels[0] || ''}
           secondLineText={packageLabels[1] || undefined}
           cardConfig={{
             ...props.cardConfig,
             isMarkedForReplacement,
+            isContextMenuOpen,
           }}
           count={props.packageCount}
           onClick={props.onClick}

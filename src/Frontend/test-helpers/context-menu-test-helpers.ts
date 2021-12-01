@@ -285,6 +285,7 @@ export function expectContextMenuIsNotShown(
     cardLabel,
     ButtonText.Delete
   );
+  closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
 
 export function expectNoConfirmationButtonsShown(
@@ -343,6 +344,7 @@ export function expectButtonNotInPackageContextMenu(
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
   expect(buttonAttribute).toBeNull();
+  closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
 
 function expectButtonInPackageContextMenuIsNotShown(
@@ -352,6 +354,7 @@ function expectButtonInPackageContextMenuIsNotShown(
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
   expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+  closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
 
 export function clickOnButtonInPackageContextMenu(
@@ -367,6 +370,13 @@ export function clickOnButtonInPackageContextMenu(
 }
 
 function openContextMenuOnCardPackageCard(
+  screen: Screen,
+  cardLabel: string
+): void {
+  fireEvent.contextMenu(screen.getByText(cardLabel) as Element);
+}
+
+function closeContextMenuOnCardPackageCard(
   screen: Screen,
   cardLabel: string
 ): void {
@@ -410,6 +420,11 @@ export function expectButtonInPackageInPackagePanelContextMenu(
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
 
   expect(buttonAttribute).toBe(null);
+  closeContextMenuOnPackageInPackagePanel(
+    screen,
+    packageName,
+    packagePanelName
+  );
 }
 
 function expectButtonInPackageInPackagePanelContextMenuIsNotShown(
@@ -420,6 +435,11 @@ function expectButtonInPackageInPackagePanelContextMenuIsNotShown(
 ): void {
   openContextMenuOnPackageInPackagePanel(screen, packageName, packagePanelName);
   expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+  closeContextMenuOnPackageInPackagePanel(
+    screen,
+    packageName,
+    packagePanelName
+  );
 }
 
 export function clickOnButtonInPackageInPackagePanelContextMenu(
@@ -434,6 +454,16 @@ export function clickOnButtonInPackageInPackagePanelContextMenu(
 }
 
 function openContextMenuOnPackageInPackagePanel(
+  screen: Screen,
+  packageName: string,
+  packagePanelName: string
+): void {
+  const packagesPanel = getPackagePanel(screen, packagePanelName);
+  // eslint-disable-next-line testing-library/prefer-screen-queries
+  fireEvent.contextMenu(getByText(packagesPanel, packageName));
+}
+
+function closeContextMenuOnPackageInPackagePanel(
   screen: Screen,
   packageName: string,
   packagePanelName: string
