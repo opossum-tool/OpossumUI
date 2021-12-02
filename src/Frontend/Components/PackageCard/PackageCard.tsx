@@ -196,13 +196,17 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         ? temporaryPackageInfo
         : manualAttributions[attributionId];
 
-    dispatch(
-      unlinkAttributionAndSavePackageInfo(
-        selectedResourceId,
-        attributionId,
-        packageInfo
-      )
-    );
+    if (attributionsToResources[attributionId].length === 1) {
+      confirmAttributionGlobally();
+    } else {
+      dispatch(
+        unlinkAttributionAndSavePackageInfo(
+          selectedResourceId,
+          attributionId,
+          packageInfo
+        )
+      );
+    }
   }
 
   function confirmAttributionGlobally(): void {
