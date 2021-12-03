@@ -5,7 +5,7 @@
     "lib": [
       "WebWorker",
       "dom",
-      "es2019"
+      "esnext"
     ],
     "jsx": "react-jsx",
     "sourceMap": true,
