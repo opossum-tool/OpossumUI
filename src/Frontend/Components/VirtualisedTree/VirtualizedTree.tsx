@@ -5,7 +5,7 @@
 
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
-import { renderTree } from './renderTree';
+import { renderTree } from './render-tree';
 import { List } from '../List/List';
 import { useWindowHeight } from '../../util/use-window-height';
 import {
@@ -13,12 +13,7 @@ import {
   resourceBrowserWidthInPixels,
 } from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
-import {
-  Attributions,
-  Resources,
-  ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
-} from '../../../shared/shared-types';
+import { Resources } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
 
 const useStyles = makeStyles({
@@ -60,51 +55,41 @@ const useStyles = makeStyles({
 
 interface VirtualizedTreeProps {
   resources: Resources | null;
-  manualAttributions: Attributions;
-  resourcesToManualAttributions: ResourcesToAttributions;
-  externalAttributions: Attributions;
-  resourcesToExternalAttributions: ResourcesToAttributions;
-  resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren;
-  resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren;
-  resolvedExternalAttributions: Set<string>;
+  getTreeItemLabel: (
+    resourceName: string,
+    resource: Resources | 1,
+    nodeId: string
+  ) => ReactElement;
   expandedIds: Array<string>;
   selectedResourceId: string;
-  isAttributionBreakpoint: PathPredicate;
   isFileWithChildren: PathPredicate;
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
+  ariaLabel?: string;
 }
 
 export function VirtualizedTree(
   props: VirtualizedTreeProps
 ): ReactElement | null {
   const classes = useStyles();
-
   const treeHeight: number = useWindowHeight() - topBarHeight - 4;
 
   const treeItems: Array<ReactElement> = props.resources
     ? renderTree(
         { '': props.resources },
         '',
-        props.manualAttributions,
-        props.resourcesToManualAttributions,
-        props.externalAttributions,
-        props.resourcesToExternalAttributions,
-        props.resourcesWithExternalAttributedChildren,
-        props.resourcesWithManualAttributedChildren,
-        props.resolvedExternalAttributions,
         classes,
         props.expandedIds,
         props.selectedResourceId,
-        props.isAttributionBreakpoint,
         props.isFileWithChildren,
         props.onSelect,
-        props.onToggle
+        props.onToggle,
+        props.getTreeItemLabel
       )
     : [];
 
   return props.resources ? (
-    <div aria-label={'resource browser'} className={classes.root}>
+    <div aria-label={props.ariaLabel} className={classes.root}>
       <div className={classes.content}>
         <List
           length={treeItems.length}

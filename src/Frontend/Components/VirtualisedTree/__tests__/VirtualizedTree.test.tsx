@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { VirtualizedTree } from '../VirtualizedTree';
 import { render, screen } from '@testing-library/react';
 import { Resources } from '../../../../shared/shared-types';
@@ -27,23 +27,18 @@ describe('The VirtualizedTree', () => {
     render(
       <VirtualizedTree
         expandedIds={['/']}
-        externalAttributions={{}}
-        isAttributionBreakpoint={(path: string): boolean => !path}
         isFileWithChildren={(path: string): boolean => Boolean(path)}
-        manualAttributions={{}}
         onSelect={doNothing}
         onToggle={doNothing}
-        resolvedExternalAttributions={new Set()}
         resources={testResources}
-        resourcesToExternalAttributions={{}}
-        resourcesToManualAttributions={{}}
-        resourcesWithExternalAttributedChildren={{}}
-        resourcesWithManualAttributedChildren={{}}
         selectedResourceId={'/thirdParty/'}
+        getTreeItemLabel={(resourceName, resource, nodeId): ReactElement => (
+          <div>{nodeId}</div>
+        )}
       />
     );
     expect(screen.getByText('/'));
-    expect(screen.getByText('thirdParty'));
-    expect(screen.getByText('root'));
+    expect(screen.getByText('/thirdParty/'));
+    expect(screen.getByText('/root/'));
   });
 });

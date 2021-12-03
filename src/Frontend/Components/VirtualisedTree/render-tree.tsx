@@ -5,31 +5,17 @@
 
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import {
-  Attributions,
-  Resources,
-  ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
-} from '../../../shared/shared-types';
+import { Resources } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
-import { getClosestParentAttributions } from '../../util/get-closest-parent-attributions';
 import {
   canHaveChildren,
   isIdOfResourceWithChildren,
 } from '../../util/can-have-children';
 import { ClosedFolderIcon, OpenFolderIcon } from '../Icons/Icons';
-import { StyledTreeItemLabel } from '../StyledTreeItemLabel/StyledTreeItemLabel';
 
 export function renderTree(
   resources: Resources,
   path: string,
-  manualAttributions: Attributions,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  externalAttributions: Attributions,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren,
-  resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren,
-  resolvedExternalAttributions: Set<string>,
   classes: Record<
     | 'treeItemLabel'
     | 'treeItemLabelChildrenOfSelected'
@@ -40,10 +26,14 @@ export function renderTree(
   >,
   expandedNodes: Array<string>,
   selected: string,
-  isAttributionBreakpoint: PathPredicate,
   isFileWithChildren: PathPredicate,
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void,
-  onToggle: (nodeIdsToExpand: Array<string>) => void
+  onToggle: (nodeIdsToExpand: Array<string>) => void,
+  getTreeItemLabel: (
+    resourceName: string,
+    resource: Resources | 1,
+    nodeId: string
+  ) => ReactElement
 ): Array<ReactElement> {
   const sortedResourceNames: Array<string> = Object.keys(resources).sort(
     getSortFunction(resources, isFileWithChildren, path)
@@ -95,19 +85,7 @@ export function renderTree(
           )}
           onClick={isAFolder ? onFolderClick : onFileClick}
         >
-          {getLabel(
-            resourceName,
-            resource,
-            nodeId,
-            resourcesToManualAttributions,
-            resourcesToExternalAttributions,
-            manualAttributions,
-            resourcesWithExternalAttributedChildren,
-            resourcesWithManualAttributedChildren,
-            resolvedExternalAttributions,
-            isAttributionBreakpoint,
-            isFileWithChildren
-          )}
+          {getTreeItemLabel(resourceName, resource, nodeId)}
         </div>
       </div>
     );
@@ -117,20 +95,13 @@ export function renderTree(
         renderTree(
           resource as Resources,
           nodeId,
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions,
-          resourcesWithExternalAttributedChildren,
-          resourcesWithManualAttributedChildren,
-          resolvedExternalAttributions,
           classes,
           expandedNodes,
           selected,
-          isAttributionBreakpoint,
           isFileWithChildren,
           onSelect,
-          onToggle
+          onToggle,
+          getTreeItemLabel
         )
       );
     }
@@ -204,99 +175,12 @@ function getFolderIcon(
   );
 }
 
-function isRootResource(resourceName: string): boolean {
-  return resourceName === '';
-}
-
 function getNodeId(
   resourceName: string,
   path: string,
   isFolder: boolean
 ): string {
   return path + (isFolder ? resourceName + '/' : resourceName);
-}
-
-function getDisplayName(resourceName: string): string {
-  return isRootResource(resourceName) ? '/' : resourceName;
-}
-
-function hasManualAttribution(
-  nodeId: string,
-  resourcesToManualAttributions: ResourcesToAttributions
-): boolean {
-  return nodeId in resourcesToManualAttributions;
-}
-
-function hasExternalAttribution(
-  nodeId: string,
-  resourcesToExternalAttributions: ResourcesToAttributions
-): boolean {
-  return nodeId in resourcesToExternalAttributions;
-}
-
-function hasUnresolvedExternalAttribution(
-  nodeId: string,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  resolvedExternalAttributions: Set<string>
-): boolean {
-  return (
-    nodeId in resourcesToExternalAttributions &&
-    resourcesToExternalAttributions[nodeId].filter(
-      (attribution) => !resolvedExternalAttributions.has(attribution)
-    ).length > 0
-  );
-}
-
-function containsExternalAttribution(
-  nodeId: string,
-  resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren
-): boolean {
-  return (
-    resourcesWithExternalAttributedChildren &&
-    nodeId in resourcesWithExternalAttributedChildren
-  );
-}
-
-function containsManualAttribution(
-  nodeId: string,
-  resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren
-): boolean {
-  return (
-    resourcesWithManualAttributedChildren &&
-    nodeId in resourcesWithManualAttributedChildren
-  );
-}
-
-function hasParentWithManualAttribution(
-  nodeId: string,
-  manualAttributions: Attributions,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
-): boolean {
-  return (
-    getClosestParentAttributions(
-      nodeId,
-      manualAttributions,
-      resourcesToManualAttributions,
-      isAttributionBreakpoint
-    ) !== null
-  );
-}
-
-function hasParentWithManualAttributionAndNoOwnAttribution(
-  nodeId: string,
-  manualAttributions: Attributions,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
-): boolean {
-  return (
-    hasParentWithManualAttribution(
-      nodeId,
-      manualAttributions,
-      resourcesToManualAttributions,
-      isAttributionBreakpoint
-    ) && !hasManualAttribution(nodeId, resourcesToManualAttributions)
-  );
 }
 
 function isExpanded(nodeId: string, expandedNodes: Array<string>): boolean {
@@ -350,56 +234,4 @@ function getSortFunction(
     }
     return left.toLowerCase().localeCompare(right.toLowerCase());
   };
-}
-
-function getLabel(
-  resourceName: string,
-  resource: Resources | 1,
-  nodeId: string,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  manualAttributions: Attributions,
-  resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren,
-  resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren,
-  resolvedExternalAttributions: Set<string>,
-  isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
-): ReactElement {
-  const canHaveChildren = resource !== 1;
-
-  return (
-    <StyledTreeItemLabel
-      labelText={getDisplayName(resourceName)}
-      canHaveChildren={canHaveChildren}
-      hasManualAttribution={hasManualAttribution(
-        nodeId,
-        resourcesToManualAttributions
-      )}
-      hasExternalAttribution={hasExternalAttribution(
-        nodeId,
-        resourcesToExternalAttributions
-      )}
-      hasUnresolvedExternalAttribution={hasUnresolvedExternalAttribution(
-        nodeId,
-        resourcesToExternalAttributions,
-        resolvedExternalAttributions
-      )}
-      hasParentWithManualAttribution={hasParentWithManualAttributionAndNoOwnAttribution(
-        nodeId,
-        manualAttributions,
-        resourcesToManualAttributions,
-        isAttributionBreakpoint
-      )}
-      containsExternalAttribution={containsExternalAttribution(
-        nodeId,
-        resourcesWithExternalAttributedChildren
-      )}
-      containsManualAttribution={containsManualAttribution(
-        nodeId,
-        resourcesWithManualAttributedChildren
-      )}
-      isAttributionBreakpoint={isAttributionBreakpoint(nodeId)}
-      showFolderIcon={canHaveChildren && !isFileWithChildren(nodeId)}
-    />
-  );
 }
