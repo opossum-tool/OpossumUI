@@ -14,6 +14,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { IconButton } from '../IconButton/IconButton';
 import { makeStyles } from '@mui/styles';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 
 const useStyles = makeStyles({ clickableIcon, disabledIcon });
 
@@ -85,22 +86,28 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
         text={props.displayPackageInfo.url}
         handleChange={props.setUpdateTemporaryPackageInfoFor('url')}
         endIcon={
-          <IconButton
-            tooltipTitle="open link in browser"
-            placement="right"
-            onClick={openUrl}
-            disabled={!props.displayPackageInfo.url}
-            icon={
-              <OpenInNewIcon
-                aria-label={'Url icon'}
-                className={
-                  props.displayPackageInfo.url
-                    ? iconClasses.clickableIcon
-                    : iconClasses.disabledIcon
-                }
-              />
-            }
-          />
+          <>
+            <FetchLicenseInformationButton
+              url={props.displayPackageInfo.url}
+              isDisabled={!props.isEditable}
+            />
+            <IconButton
+              tooltipTitle="open link in browser"
+              placement="right"
+              onClick={openUrl}
+              disabled={!props.displayPackageInfo.url}
+              icon={
+                <OpenInNewIcon
+                  aria-label={'Url icon'}
+                  className={
+                    props.displayPackageInfo.url
+                      ? iconClasses.clickableIcon
+                      : iconClasses.disabledIcon
+                  }
+                />
+              }
+            />
+          </>
         }
       />
     </MuiPaper>
