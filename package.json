@@ -67,7 +67,7 @@
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
     "playwright": "^1.17.1",
-    "prettier": "^2.5.0",
+    "prettier": "^2.5.1",
     "react-scripts": "4.0.3",
     "redux-devtools-extension": "^2.13.9",
     "run-script-os": "^1.1.6",
