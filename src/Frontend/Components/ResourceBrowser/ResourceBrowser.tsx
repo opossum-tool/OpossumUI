@@ -8,7 +8,6 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
-  getExternalAttributions,
   getFilesWithChildren,
   getManualAttributions,
   getResources,
@@ -27,6 +26,8 @@ import {
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
+import { Resources } from '../../../shared/shared-types';
+import { getTreeItemLabel } from './get-tree-item-label';
 
 export function ResourceBrowser(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -41,7 +42,6 @@ export function ResourceBrowser(): ReactElement | null {
     getResourcesWithManualAttributedChildren
   );
 
-  const externalAttributions = useAppSelector(getExternalAttributions);
   const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions
   );
@@ -76,28 +76,37 @@ export function ResourceBrowser(): ReactElement | null {
     dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
   }
 
+  function getTreeItemLabelGetter() {
+    return (
+      resourceName: string,
+      resource: Resources | 1,
+      nodeId: string
+    ): ReactElement =>
+      getTreeItemLabel(
+        resourceName,
+        resource,
+        nodeId,
+        resourcesToManualAttributions,
+        resourcesToExternalAttributions,
+        manualAttributions,
+        resourcesWithExternalAttributedChildren,
+        resourcesWithManualAttributedChildren,
+        resolvedExternalAttributions,
+        getAttributionBreakpointCheck(attributionBreakpoints),
+        getFileWithChildrenCheck(filesWithChildren)
+      );
+  }
+
   return (
     <VirtualizedTree
       expandedIds={expandedIds}
-      externalAttributions={externalAttributions}
-      isAttributionBreakpoint={getAttributionBreakpointCheck(
-        attributionBreakpoints
-      )}
       isFileWithChildren={getFileWithChildrenCheck(filesWithChildren)}
-      manualAttributions={manualAttributions}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      resolvedExternalAttributions={resolvedExternalAttributions}
       resources={resources}
-      resourcesToExternalAttributions={resourcesToExternalAttributions}
-      resourcesToManualAttributions={resourcesToManualAttributions}
-      resourcesWithExternalAttributedChildren={
-        resourcesWithExternalAttributedChildren
-      }
-      resourcesWithManualAttributedChildren={
-        resourcesWithManualAttributedChildren
-      }
       selectedResourceId={selectedResourceId}
+      ariaLabel={'resource browser'}
+      getTreeItemLabel={getTreeItemLabelGetter()}
     />
   );
 }

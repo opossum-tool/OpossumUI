@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { getNodeIdsToExpand, isChildOfSelected } from '../renderTree';
+import { getNodeIdsToExpand, isChildOfSelected } from '../render-tree';
 import { Resources } from '../../../../shared/shared-types';
 
 describe('renderTree', () => {
