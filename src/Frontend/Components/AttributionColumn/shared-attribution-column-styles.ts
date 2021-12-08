@@ -25,7 +25,7 @@ export const useAttributionColumnStyles = makeStyles({
     marginLeft: 8,
   },
   textBoxInvalidInput: {
-    '& textarea': {
+    '& textarea, input': {
       color: OpossumColors.orange,
     },
   },
