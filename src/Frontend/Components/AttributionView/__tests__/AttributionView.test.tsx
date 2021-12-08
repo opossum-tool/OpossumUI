@@ -10,13 +10,14 @@ import {
   FollowUp,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { View } from '../../../enums/enums';
+import { FilterType, View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
-  clickOnCheckbox,
+  clickOnFilter,
   getParsedInputFileEnrichedWithTestData,
+  openDropDown,
 } from '../../../test-helpers/general-test-helpers';
 import { AttributionView } from '../AttributionView';
 import { IpcRenderer } from 'electron';
@@ -49,6 +50,7 @@ describe('The Attribution View', () => {
     packageVersion: '1.0',
     copyright: 'Copyright John Doe',
     licenseText: 'Some license text',
+    firstParty: true,
   };
   testResourcesToManualAttributions['test resource'] = [testManualUuid];
   testManualAttributions[testOtherManualUuid] = {
@@ -103,8 +105,60 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
-    clickOnCheckbox(screen, 'Show only follow-up (1)');
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFollowUp);
 
+    expect(screen.getByText('Test other package, 2.0'));
+    expect(screen.queryByText('Test package, 1.0')).toBe(null);
+  });
+
+  test('filters Only First Party', () => {
+    const { store } = renderComponentWithStore(<AttributionView />);
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { ['test resource']: 1 },
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    store.dispatch(navigateToView(View.Attribution));
+    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByText('Test other package, 2.0'));
+
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFirstParty);
+
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.queryByText('Test other package, 2.0')).toBe(null);
+  });
+
+  test('filters Only First Party and follow ups and then hide first party and follow ups', () => {
+    const { store } = renderComponentWithStore(<AttributionView />);
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { ['test resource']: 1 },
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    store.dispatch(navigateToView(View.Attribution));
+    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByText('Test other package, 2.0'));
+
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    clickOnFilter(screen, FilterType.OnlyFollowUp);
+
+    expect(screen.queryByText('Test package, 1.0')).toBe(null);
+    expect(screen.queryByText('Test other package, 2.0')).toBe(null);
+
+    clickOnFilter(screen, FilterType.HideFirstParty);
     expect(screen.getByText('Test other package, 2.0'));
     expect(screen.queryByText('Test package, 1.0')).toBe(null);
   });

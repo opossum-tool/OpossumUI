@@ -14,12 +14,14 @@ import {
 } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
-  clickOnCheckbox,
+  clickOnFilter,
   getParsedInputFileEnrichedWithTestData,
+  openDropDown,
 } from '../../../test-helpers/general-test-helpers';
 import { ReportView } from '../ReportView';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setFrequentLicences } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { FilterType } from '../../../enums/enums';
 
 describe('The ReportView', () => {
   const testResources: Resources = { ['test resource']: 1 };
@@ -34,6 +36,7 @@ describe('The ReportView', () => {
     packageVersion: '1.0',
     copyright: 'Copyright John Doe',
     licenseName: 'MIT',
+    firstParty: true,
   };
   testResourcesToManualAttributions['test resource'] = [testManualUuid];
   testManualAttributions[testOtherManualUuid] = {
@@ -86,31 +89,62 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 
-    clickOnCheckbox(screen, 'Show only follow-up (1)');
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFollowUp);
 
     expect(screen.getByText('Test other package'));
     expect(screen.queryByText('Test package')).toBe(null);
   });
 
-  test('filters Follow-ups such that nothing left still shows checkbox', () => {
+  test('filters only first party', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
-          manualAttributions: {
-            [testManualUuid]: testManualAttributions[testManualUuid],
-          },
+          manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
         })
       )
     );
     expect(screen.getByText('Test package'));
+    expect(screen.getByText('Test other package'));
 
-    clickOnCheckbox(screen, 'Show only follow-up (0)');
-    expect(screen.queryByText('Test package')).toBe(null);
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFirstParty);
 
-    clickOnCheckbox(screen, 'Show only follow-up (0)');
     expect(screen.getByText('Test package'));
+    expect(screen.queryByText('Test other package')).toBe(null);
+
+    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    expect(screen.getByText('Test package'));
+    expect(screen.getByText('Test other package'));
+  });
+
+  test('filters Only First Party and follow ups and then hide first party and follow ups', () => {
+    const { store } = renderComponentWithStore(<ReportView />);
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    expect(screen.getByText('Test package'));
+    expect(screen.getByText('Test other package'));
+
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    clickOnFilter(screen, FilterType.OnlyFollowUp);
+
+    expect(screen.queryByText('Test package')).toBe(null);
+    expect(screen.queryByText('Test other package')).toBe(null);
+
+    clickOnFilter(screen, FilterType.HideFirstParty);
+
+    expect(screen.getByText('Test other package'));
+    expect(screen.queryByText('Test package')).toBe(null);
   });
 });
