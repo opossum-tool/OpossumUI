@@ -7,15 +7,17 @@ import { App } from '../../../Components/App/App';
 import {
   clickOnButton,
   clickOnCheckbox,
+  clickOnFilter,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
   mockElectronIpcRendererOn,
+  openDropDown,
   TEST_TIMEOUT,
 } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, View } from '../../../enums/enums';
+import { ButtonText, FilterType, View } from '../../../enums/enums';
 import { IpcRenderer } from 'electron';
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import React from 'react';
@@ -50,7 +52,7 @@ describe('The App integration', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  test('app persists follow-up filter when changing views', () => {
+  test('app persists filters when changing views', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -81,6 +83,7 @@ describe('The App integration', () => {
               documentConfidence: 90.0,
             },
             packageName: 'Vue',
+            firstParty: true,
           },
         },
         resourcesToAttributions: {
@@ -98,14 +101,13 @@ describe('The App integration', () => {
     screen.getByText('JQuery');
     screen.getByText('Angular');
     screen.getByText('Vue');
-    screen.getByText('Show only follow-up (1)');
 
     clickOnCardInAttributionList(screen, 'Vue');
     clickOnCheckbox(screen, 'Follow-up');
     clickOnButton(screen, ButtonText.Save);
-    screen.getByText('Show only follow-up (2)');
 
-    clickOnCheckbox(screen, 'Show only follow-up (2)');
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFollowUp);
     screen.getByText('JQuery');
     expect(screen.queryByText('Angular')).toBeFalsy();
     screen.getAllByText('Vue');
@@ -115,14 +117,20 @@ describe('The App integration', () => {
     expect(screen.queryByText('Angular')).toBeFalsy();
     screen.getByText('Vue');
 
-    clickOnCheckbox(screen, 'Show only follow-up (2)');
+    openDropDown(screen);
+    clickOnFilter(screen, FilterType.OnlyFollowUp);
     screen.getByText('JQuery');
     screen.getByText('Angular');
     screen.getByText('Vue');
 
+    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    expect(screen.queryByText('JQuery')).toBeFalsy();
+    expect(screen.queryByText('Angular')).toBeFalsy();
+    screen.getByText('Vue');
+
     goToView(screen, View.Attribution);
-    screen.getByText('JQuery');
-    screen.getByText('Angular');
-    screen.getAllByText('Vue');
+    expect(screen.queryByText('JQuery')).toBeFalsy();
+    expect(screen.queryByText('Angular')).toBeFalsy();
+    screen.getByText('Vue');
   });
 });

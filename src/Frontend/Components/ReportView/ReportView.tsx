@@ -11,7 +11,7 @@ import {
   AttributionsToResources,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
-import { FilterType, View } from '../../enums/enums';
+import { View } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import {
@@ -21,21 +21,16 @@ import {
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getAttributionsWithResources } from '../../util/get-attributions-with-resources';
-import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
-import { Checkbox } from '../Checkbox/Checkbox';
+import { useFilters } from '../../util/use-filters';
 import { Table } from '../Table/Table';
 import { OpossumColors } from '../../shared-styles';
-import { getActiveFilters } from '../../state/selectors/view-selector';
+import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 
 const useStyles = makeStyles({
   root: {
     width: '100vw',
     height: '100%',
     backgroundColor: OpossumColors.lightestBlue,
-  },
-  checkBox: {
-    display: 'flex',
-    alignItems: 'center',
   },
 });
 
@@ -47,14 +42,7 @@ export function ReportView(): ReactElement {
   );
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const isFileWithChildren = useAppSelector(getIsFileWithChildren);
-  const activeFilters = useAppSelector(getActiveFilters);
-  const filterForFollowUp = activeFilters.has(FilterType.OnlyFollowUp);
   const dispatch = useAppDispatch();
-
-  const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
-    filterForFollowUp,
-    dispatch
-  );
 
   const attributionsWithResources = getAttributionsWithResources(
     attributions,
@@ -97,29 +85,16 @@ export function ReportView(): ReactElement {
 
   const attributionsWithResourcesIncludingLicenseTexts =
     getAttributionsWithResourcesIncludingLicenseTexts();
-  const checkBoxLabel = `Show only follow-up (${
-    Object.values(attributions).filter((attribution) => attribution.followUp)
-      .length
-  })`;
 
   return (
     <div className={classes.root}>
       <Table
-        attributionsWithResources={
-          getFilteredAttributions(
-            attributionsWithResourcesIncludingLicenseTexts
-          ) as AttributionsWithResources
-        }
+        attributionsWithResources={useFilters(
+          attributionsWithResourcesIncludingLicenseTexts
+        )}
         isFileWithChildren={isFileWithChildren}
         onIconClick={getOnIconClick()}
-        topElement={
-          <Checkbox
-            label={checkBoxLabel}
-            checked={filterForFollowUp}
-            onChange={handleFilterChange}
-            className={classes.checkBox}
-          />
-        }
+        topElement={<FilterMultiSelect />}
       />
     </div>
   );

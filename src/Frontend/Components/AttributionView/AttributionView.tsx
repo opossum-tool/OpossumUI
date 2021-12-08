@@ -7,21 +7,20 @@ import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
-import { FilterType, PackagePanelTitle } from '../../enums/enums';
+import { PackagePanelTitle } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   getAttributionIdMarkedForReplacement,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
-import { provideFollowUpFilter } from '../../util/provide-follow-up-filter';
+import { useFilters } from '../../util/use-filters';
 import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
-import { Checkbox } from '../Checkbox/Checkbox';
 import { OpossumColors } from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
-import { getActiveFilters } from '../../state/selectors/view-selector';
+import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 
 const countAndSearchOffset = 119;
 
@@ -35,11 +34,6 @@ const useStyles = makeStyles({
     width: '30%',
     margin: 5,
   },
-  checkBox: {
-    display: 'flex',
-    alignItems: 'center',
-    marginLeft: 'auto',
-  },
 });
 
 export function AttributionView(): ReactElement {
@@ -52,25 +46,14 @@ export function AttributionView(): ReactElement {
   const attributionIdMarkedForReplacement: string = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const activeFilters = useAppSelector(getActiveFilters);
-  const filterForFollowUp = activeFilters.has(FilterType.OnlyFollowUp);
-
-  const { handleFilterChange, getFilteredAttributions } = provideFollowUpFilter(
-    filterForFollowUp,
-    dispatch
-  );
 
   function onCardClick(attributionId: string): void {
     dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
   }
 
-  const filteredAttributions = getFilteredAttributions(attributions);
+  const filteredAttributions = useFilters(attributions);
   const title = `${PackagePanelTitle.AllAttributions} (${
     Object.keys(attributions).length
-  })`;
-  const checkBoxLabel = `Show only follow-up (${
-    Object.values(attributions).filter((attribution) => attribution.followUp)
-      .length
   })`;
 
   return (
@@ -83,14 +66,7 @@ export function AttributionView(): ReactElement {
         className={classes.attributionList}
         maxHeight={useWindowHeight() - topBarHeight - countAndSearchOffset}
         title={title}
-        topRightElement={
-          <Checkbox
-            label={checkBoxLabel}
-            checked={filterForFollowUp}
-            onChange={handleFilterChange}
-            className={classes.checkBox}
-          />
-        }
+        topRightElement={<FilterMultiSelect />}
       />
       <AttributionDetailsViewer />
     </div>

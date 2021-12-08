@@ -182,6 +182,24 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
   );
 }
 
+export function clickOnDeleteIcon(screen: Screen): void {
+  fireEvent.click(screen.getByTestId('CancelIcon') as Element);
+}
+
+export function openDropDown(screen: Screen): void {
+  fireEvent.mouseDown(
+    screen.getByTestId('test-id-filter-multi-select').childNodes[0] as Element
+  );
+}
+
+export function expectFilterIsShown(screen: Screen, label: string): void {
+  expect(screen.getByLabelText(label)).toBeTruthy();
+}
+
+export function clickOnFilter(screen: Screen, label: string): void {
+  fireEvent.click(screen.getByLabelText(label) as Element);
+}
+
 export function expectElementsInAutoCompleteAndSelectFirst(
   screen: Screen,
   elements: Array<string>
