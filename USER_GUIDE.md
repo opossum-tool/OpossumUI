@@ -237,7 +237,7 @@ signal in the App for the current input/output files, and it will not have any c
 
 Instead of the buttons, the context menu can be used to execute all available actions out of _Delete_,
 _Delete Globally_, _Confirm_, _Confirm Globally_, _Mark for replacement_, _Hide_ and _Show Resources_. To open the
-context menu, right-click a signal or an attribution, e.g. in the `Attributions Sub-Panel`, `Signals Sub-Panel` or 
+context menu, right-click a signal or an attribution, e.g. in the `Attributions Sub-Panel`, `Signals Sub-Panel` or
 `Attribution List`.
 
 ### Attribution View
@@ -255,8 +255,9 @@ the `Audit View` and has two main components:
 All existing attributions are listed and can be selected. **Pre-selected**
 attributions are signaled by an `P` icon. They can be confirmed, which converts them into attributions
 in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
-attributions are both written in the output file. On top there is a checkbox that allows
-for filtering for attributions marked for follow-up. 
+attributions are both written in the output file. On top there is a dropdown list with filters that allows
+for filtering for attributions marked for follow-up, first party and not first party. The last two are mutually
+exclusive.
 
 #### Selected Attribution Panel
 
@@ -273,7 +274,8 @@ The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. 
 
 ![integration](./docs/user_guide_screenshots/report_view.png)
 
-In the `Report View` all attributions are shown in a table to provide an overview. On top there is a checkbox that
-allows for filtering for attributions marked for follow-up.
+In the `Report View` all attributions are shown in a table to provide an overview. On top there is a dropdown list with
+filters that allows for filtering for attributions marked for follow-up, first party and not first party. The last two
+are mutually exclusive.
 
 Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `attribution view`.
