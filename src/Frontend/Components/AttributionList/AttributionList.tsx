@@ -13,12 +13,14 @@ import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
 
 const useStyles = makeStyles({
-  title: {
-    marginLeft: 5,
+  topElements: {
     display: 'flex',
     alignItems: 'center',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+  },
+  title: {
+    marginLeft: 5,
   },
 });
 
@@ -87,8 +89,8 @@ export function AttributionList(props: AttributionListProps): ReactElement {
 
   return (
     <div className={props.className}>
-      <div className={classes.title}>
-        <MuiTypography>{props.title}</MuiTypography>
+      <div className={classes.topElements}>
+        <MuiTypography className={classes.title}>{props.title}</MuiTypography>
         {props.topRightElement}
       </div>
       <FilteredList
