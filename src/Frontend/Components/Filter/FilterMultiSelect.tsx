@@ -17,6 +17,7 @@ import { updateActiveFilters } from '../../state/actions/view-actions/view-actio
 import { getActiveFilters } from '../../state/selectors/view-selector';
 import { makeStyles } from '@mui/styles';
 import { OpossumColors } from '../../shared-styles';
+import clsx from 'clsx';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -28,28 +29,42 @@ const FILTERS = [
 
 const useStyles = makeStyles({
   dropDownForm: {
-    width: '170px',
-    margin: '12px 4px',
+    margin: '12px 0px 8px 0px',
     backgroundColor: OpossumColors.white,
     '& fieldset': {
       borderRadius: 0,
     },
     '& label': {
       backgroundColor: OpossumColors.white,
-      padding: '1px 3px',
+      padding: 1,
     },
   },
   dropDownSelect: {
-    height: '65px',
+    minHeight: 36,
+    '& svg': {
+      paddingRight: 6,
+    },
   },
   dropDownBox: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: 0.5,
   },
+  chip: {
+    maxHeight: 19,
+    fontSize: 12,
+  },
+  dropdownStyle: {
+    maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+    left: '7px !important',
+  },
 });
 
-export function FilterMultiSelect(): ReactElement {
+interface FilterMultiSelectProps {
+  className?: string;
+}
+
+export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
@@ -75,8 +90,12 @@ export function FilterMultiSelect(): ReactElement {
   }
 
   return (
-    <MuiFormControl className={classes.dropDownForm} size="small">
-      <MuiInputLabel shrink={true}>Filter</MuiInputLabel>
+    <MuiFormControl
+      className={clsx(classes.dropDownForm, props.className)}
+      size="small"
+      fullWidth
+    >
+      <MuiInputLabel>Filter</MuiInputLabel>
       <MuiSelect
         className={classes.dropDownSelect}
         data-testid="test-id-filter-multi-select"
@@ -90,6 +109,7 @@ export function FilterMultiSelect(): ReactElement {
                 key={filter}
                 label={filter}
                 size="small"
+                className={classes.chip}
                 onMouseDown={(event): void => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -101,14 +121,7 @@ export function FilterMultiSelect(): ReactElement {
             ))}
           </MuiBox>
         )}
-        MenuProps={{
-          PaperProps: {
-            style: {
-              maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-              width: 170,
-            },
-          },
-        }}
+        MenuProps={{ classes: { paper: classes.dropdownStyle } }}
       >
         {getMenuItems()}
       </MuiSelect>
