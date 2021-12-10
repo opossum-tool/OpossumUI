@@ -18,7 +18,7 @@ OpossumUI is a tool to
 ## Features
 
 - use of multiple scanners (open source and/or proprietary).
-- currently integrates with OSS Review Toolkit and ScanCode.
+- currently integrates with OSS Review Toolkit, FOSSLight and ScanCode.
 - unified interface for browsing scanner evidence.
 - simple navigation through the codebase’s file tree.
 - create attributions for individual files or groups.
