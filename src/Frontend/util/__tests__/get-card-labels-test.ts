@@ -8,8 +8,8 @@ import {
   addPreambleToCopyright,
   addSecondLineOfPackageLabelFromAttribute,
   getCardLabels,
-} from '../package-card-helpers';
-import { ListCardContent } from '../../../types/types';
+} from '../get-card-labels';
+import { ListCardContent } from '../../types/types';
 
 describe('Test getPackageLabel', () => {
   const testProps: ListCardContent = {

@@ -11,7 +11,7 @@ import {
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { ListCard } from '../ListCard/ListCard';
-import { getCardLabels } from './package-card-helpers';
+import { getCardLabels } from '../../util/get-card-labels';
 import makeStyles from '@mui/styles/makeStyles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
 import { clickableIcon, OpossumColors } from '../../shared-styles';

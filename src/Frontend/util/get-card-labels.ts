@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ListCardContent } from '../../types/types';
+import { ListCardContent } from '../types/types';
 
 const prioritizedPackageInfoAttributes: Array<
   'name' | 'copyright' | 'licenseName' | 'licenseText' | 'comment' | 'url'

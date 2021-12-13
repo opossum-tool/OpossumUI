@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useState } from 'react';
-import { getCardLabels } from '../PackageCard/package-card-helpers';
+import { getCardLabels } from '../../util/get-card-labels';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { ListCardConfig, ListCardContent } from '../../types/types';
