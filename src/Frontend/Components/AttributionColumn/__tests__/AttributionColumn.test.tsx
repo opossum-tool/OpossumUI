@@ -13,7 +13,7 @@ import {
   SaveFileArgs,
   Source,
 } from '../../../../shared/shared-types';
-import { PackagePanelTitle } from '../../../enums/enums';
+import { CheckboxLabel, PackagePanelTitle } from '../../../enums/enums';
 import {
   setFrequentLicences,
   setResources,
@@ -181,7 +181,7 @@ describe('The AttributionColumn', () => {
     store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
     expect(getTemporaryPackageInfo(store.getState()).followUp).toBeUndefined();
 
-    clickOnCheckbox(screen, 'Follow-up');
+    clickOnCheckbox(screen, CheckboxLabel.FollowUp);
     expect(getTemporaryPackageInfo(store.getState()).followUp).toBe(FollowUp);
   });
 
@@ -206,7 +206,7 @@ describe('The AttributionColumn', () => {
       getTemporaryPackageInfo(store.getState()).excludeFromNotice
     ).toBeUndefined();
 
-    clickOnCheckbox(screen, 'Exclude From Notice');
+    clickOnCheckbox(screen, CheckboxLabel.ExcludeFromNotice);
     expect(getTemporaryPackageInfo(store.getState()).excludeFromNotice).toBe(
       true
     );
@@ -407,7 +407,7 @@ describe('The AttributionColumn', () => {
         getTemporaryPackageInfo(store.getState()).copyright
       ).toBeUndefined();
 
-      clickOnCheckbox(screen, '1st Party');
+      clickOnCheckbox(screen, CheckboxLabel.FirstParty);
       expect(getTemporaryPackageInfo(store.getState()).firstParty).toBe(true);
     });
 
@@ -437,7 +437,7 @@ describe('The AttributionColumn', () => {
         testCopyright
       );
 
-      clickOnCheckbox(screen, '1st Party');
+      clickOnCheckbox(screen, CheckboxLabel.FirstParty);
       expect(getTemporaryPackageInfo(store.getState()).copyright).toBe(
         testCopyright
       );

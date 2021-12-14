@@ -6,10 +6,14 @@
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   setAttributionIdMarkedForReplacement,
+  setMultiSelectMode,
+  setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
 } from '../attribution-view-simple-actions';
 import {
+  getMultiSelectMode,
+  getMultiSelectSelectedAttributionIds,
   getSelectedAttributionId,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
@@ -40,5 +44,23 @@ describe('The load and navigation simple actions', () => {
     expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe(
       'test'
     );
+  });
+  test('sets and gets multiSelectMode', () => {
+    const testStore = createTestAppStore();
+    expect(getMultiSelectMode(testStore.getState())).toBeFalsy();
+
+    testStore.dispatch(setMultiSelectMode(true));
+    expect(getMultiSelectMode(testStore.getState())).toBeTruthy();
+  });
+  test('sets and gets multiSelectSelectedAttributionIds', () => {
+    const testStore = createTestAppStore();
+    expect(
+      getMultiSelectSelectedAttributionIds(testStore.getState())
+    ).toStrictEqual([]);
+
+    testStore.dispatch(setMultiSelectSelectedAttributionIds(['id_1']));
+    expect(
+      getMultiSelectSelectedAttributionIds(testStore.getState())
+    ).toStrictEqual(['id_1']);
   });
 });
