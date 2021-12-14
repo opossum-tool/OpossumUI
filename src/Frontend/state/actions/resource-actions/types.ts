@@ -66,6 +66,9 @@ export const ACTION_SET_BASE_URLS_FOR_SOURCES =
   'ACTION_SET_BASE_URLS_FOR_SOURCES';
 export const ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES =
   'ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES';
+export const ACTION_SET_MULTI_SELECT_MODE = 'ACTION_SET_MULTISELECT_MODE';
+export const ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS =
+  'ACTION_SET_ATTRIBUTION_IDS_MARKED_FOR_MULTISELECT';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -97,7 +100,9 @@ export type ResourceAction =
   | SetFileSearch
   | SetBaseUrlsForSources
   | SetAttributionIdMarkedForReplacement
-  | SetExternalAttributionSources;
+  | SetExternalAttributionSources
+  | SetMultiSelectMode
+  | SetMultiSelectSelectedAttributionIds;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -263,4 +268,14 @@ export interface SetExternalAttributionSources {
 export interface SetAttributionIdMarkedForReplacement {
   type: typeof ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT;
   payload: string;
+}
+
+export interface SetMultiSelectMode {
+  type: typeof ACTION_SET_MULTI_SELECT_MODE;
+  payload: boolean;
+}
+
+export interface SetMultiSelectSelectedAttributionIds {
+  type: typeof ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS;
+  payload: Array<string>;
 }

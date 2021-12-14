@@ -8,7 +8,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';
-import { DiscreteConfidence } from '../../enums/enums';
+import { CheckboxLabel, DiscreteConfidence } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
 import { prettifySource } from '../../util/prettify-source';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -58,21 +58,21 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
       <div className={classes.displayRow}>
         <Checkbox
           className={classes.checkBox}
-          label={'1st Party'}
+          label={CheckboxLabel.FirstParty}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.firstParty)}
           onChange={props.firstPartyChangeHandler}
         />
         <Checkbox
           className={classes.checkBox}
-          label={'Follow-up'}
+          label={CheckboxLabel.FollowUp}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.followUp)}
           onChange={props.followUpChangeHandler}
         />
         <Checkbox
           className={classes.checkBox}
-          label={'Exclude From Notice'}
+          label={CheckboxLabel.ExcludeFromNotice}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.excludeFromNotice)}
           onChange={props.excludeFromNoticeChangeHandler}

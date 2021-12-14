@@ -65,3 +65,10 @@ export enum FilterType {
   HideFirstParty = 'Hide First Party',
   OnlyFollowUp = 'Only Follow Up',
 }
+
+export enum CheckboxLabel {
+  MultiSelectMode = 'Multi-select',
+  FirstParty = '1st Party',
+  FollowUp = 'Follow-up',
+  ExcludeFromNotice = 'Exclude From Notice',
+}

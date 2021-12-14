@@ -25,3 +25,13 @@ export function getResourceIdsOfSelectedAttribution(
   }
   return [];
 }
+
+export function getMultiSelectMode(state: State): boolean {
+  return state.resourceState.attributionView.multiSelectMode;
+}
+
+export function getMultiSelectSelectedAttributionIds(
+  state: State
+): Array<string> {
+  return state.resourceState.attributionView.multiSelectSelectedAttributionIds;
+}
