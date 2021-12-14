@@ -67,6 +67,9 @@ const useStyles = makeStyles({
     height: 15,
     margin: 1,
   },
+  iconButton: {
+    marginBottom: 5,
+  },
   editIcon: {
     backgroundColor: OpossumColors.white,
     border: `2px ${OpossumColors.darkBlue} solid`,
@@ -227,6 +230,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           <IconButton
             tooltipTitle="edit"
             placement="left"
+            className={clsx(classes.iconButton)}
             onClick={(): void => {
               props.onIconClick(attributionId);
             }}
