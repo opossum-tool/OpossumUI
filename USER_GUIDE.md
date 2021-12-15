@@ -255,9 +255,9 @@ the `Audit View` and has two main components:
 All existing attributions are listed and can be selected. **Pre-selected**
 attributions are signaled by an `P` icon. They can be confirmed, which converts them into attributions
 in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
-attributions are both written in the output file. On top there is a dropdown list with filters that allows
-for filtering for attributions marked for follow-up, first party and not first party. The last two are mutually
-exclusive.
+attributions are both written in the output file. On top there is an icon for openning the filter section. By clicking
+on it, a dropdown will be shown with filters that allows for filtering for attributions marked for follow-up, first
+party and not first party. The last two are mutually exclusive.
 
 #### Selected Attribution Panel
 
