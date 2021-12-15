@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import makeStyles from '@mui/styles/makeStyles';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -18,9 +18,16 @@ import { useFilters } from '../../util/use-filters';
 import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
-import { OpossumColors } from '../../shared-styles';
+import {
+  OpossumColors,
+  clickableIcon,
+  disabledIcon,
+} from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
 import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { IconButton } from '../IconButton/IconButton';
+import { getActiveFilters } from '../../state/selectors/view-selector';
 
 const countAndSearchOffset = 119;
 
@@ -33,6 +40,11 @@ const useStyles = makeStyles({
   attributionList: {
     width: '30%',
     margin: 5,
+  },
+  disabledIcon,
+  clickableIcon,
+  hiddenFilter: {
+    display: 'none',
   },
 });
 
@@ -56,6 +68,14 @@ export function AttributionView(): ReactElement {
     Object.keys(attributions).length
   })`;
 
+  const activeFilters = Array.from(useAppSelector(getActiveFilters));
+
+  const [showMultiSelect, setShowMultiselect] = useState<boolean>(false);
+
+  if (activeFilters.length != 0 && !showMultiSelect) {
+    setShowMultiselect(!showMultiSelect);
+  }
+
   return (
     <div className={classes.root}>
       <AttributionList
@@ -66,7 +86,29 @@ export function AttributionView(): ReactElement {
         className={classes.attributionList}
         maxHeight={useWindowHeight() - topBarHeight - countAndSearchOffset}
         title={title}
-        topRightElement={<FilterMultiSelect />}
+        topRightElement={
+          <IconButton
+            tooltipTitle="Filters"
+            placement="right"
+            onClick={(): void => setShowMultiselect(!showMultiSelect)}
+            disabled={activeFilters.length != 0}
+            icon={
+              <FilterAltIcon
+                aria-label={'Filter icon'}
+                className={
+                  activeFilters.length != 0
+                    ? classes.disabledIcon
+                    : classes.clickableIcon
+                }
+              />
+            }
+          />
+        }
+        filterElement={
+          <FilterMultiSelect
+            className={showMultiSelect ? undefined : classes.hiddenFilter}
+          />
+        }
       />
       <AttributionDetailsViewer />
     </div>

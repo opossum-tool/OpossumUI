@@ -33,6 +33,7 @@ interface AttributionListProps {
   maxHeight: number;
   title: string;
   topRightElement?: JSX.Element;
+  filterElement?: JSX.Element;
 }
 
 export function AttributionList(props: AttributionListProps): ReactElement {
@@ -93,6 +94,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
         <MuiTypography className={classes.title}>{props.title}</MuiTypography>
         {props.topRightElement}
       </div>
+      {props.filterElement}
       <FilteredList
         attributions={props.attributions}
         attributionIds={attributionIds}

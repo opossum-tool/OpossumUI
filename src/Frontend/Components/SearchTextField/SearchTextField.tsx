@@ -12,6 +12,7 @@ import { OpossumColors } from '../../shared-styles';
 
 const useStyles = makeStyles({
   searchField: {
+    marginTop: 4,
     marginBottom: 8,
     '& div': {
       borderRadius: 0,
