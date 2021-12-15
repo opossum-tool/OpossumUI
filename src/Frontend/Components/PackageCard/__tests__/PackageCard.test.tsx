@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { PackageCard } from '../PackageCard';
 import {
@@ -21,6 +21,11 @@ import {
 import { ButtonText } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcRenderer } from 'electron';
+import {
+  setMultiSelectMode,
+  setMultiSelectSelectedAttributionIds,
+} from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
 
 const testResources: Resources = {
   thirdParty: {
@@ -155,5 +160,51 @@ describe('The PackageCard', () => {
       attributionConfidence: 80,
       preSelected: undefined,
     });
+  });
+
+  test('has working multi-select box in multi-select mode', () => {
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      'package_1.tr.gz': [testAttributionId],
+      'package_2.tr.gz': [testAttributionId],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    const { store } = renderComponentWithStore(
+      <PackageCard
+        attributionId={testAttributionId}
+        cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
+        cardContent={{
+          id: 'some_id',
+          name: 'packageName',
+        }}
+        onClick={doNothing}
+      />,
+      { store: testStore }
+    );
+
+    expect(screen.getByText('packageName'));
+    expect(screen.queryByText('checkbox')).toBeFalsy();
+
+    store.dispatch(setMultiSelectMode(true));
+    store.dispatch(setMultiSelectSelectedAttributionIds(['another_id']));
+    fireEvent.click(screen.getByRole('checkbox') as Element);
+    expect(
+      getMultiSelectSelectedAttributionIds(store.getState())
+    ).toStrictEqual(['another_id', 'attributionId']);
+
+    fireEvent.click(screen.getByRole('checkbox') as Element);
+
+    expect(
+      getMultiSelectSelectedAttributionIds(store.getState())
+    ).toStrictEqual(['another_id']);
   });
 });

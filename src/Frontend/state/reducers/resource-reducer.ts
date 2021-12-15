@@ -300,7 +300,7 @@ export const resourceState = (
         ...state,
         attributionView: {
           ...state.attributionView,
-          multiSelectSelectedAttributionIds: action.payload,
+          multiSelectSelectedAttributionIds: [...action.payload],
         },
       };
     case ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT:

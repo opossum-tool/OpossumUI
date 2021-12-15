@@ -66,6 +66,7 @@ export interface ListCardConfig {
   followUp?: boolean;
   isHeader?: boolean;
   isContextMenuOpen?: boolean;
+  isMultiSelected?: boolean;
 }
 
 export interface PathPredicate {
