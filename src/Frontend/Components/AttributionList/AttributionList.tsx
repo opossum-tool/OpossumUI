@@ -15,7 +15,10 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { useAttributionColumnStyles } from '../AttributionColumn/shared-attribution-column-styles';
 import { getMultiSelectMode } from '../../state/selectors/attribution-view-resource-selectors';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { setMultiSelectMode } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import {
+  setMultiSelectMode,
+  setMultiSelectSelectedAttributionIds,
+} from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { CheckboxLabel } from '../../enums/enums';
 
 const useStyles = makeStyles({
@@ -99,6 +102,9 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   function handleMultiSelectModeChange(
     event: React.ChangeEvent<HTMLInputElement>
   ): void {
+    if (!event.target.checked) {
+      dispatch(setMultiSelectSelectedAttributionIds([]));
+    }
     dispatch(setMultiSelectMode(event.target.checked));
   }
 

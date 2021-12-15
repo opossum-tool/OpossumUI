@@ -36,7 +36,10 @@ import {
   getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
+import {
+  getMultiSelectSelectedAttributionIds,
+  getSelectedAttributionId,
+} from '../../../selectors/attribution-view-resource-selectors';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/audit-view-resource-selectors';
 import {
   setResources,
@@ -44,6 +47,7 @@ import {
 } from '../all-views-simple-actions';
 import {
   setAttributionIdMarkedForReplacement,
+  setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../attribution-view-simple-actions';
 import {
@@ -823,6 +827,41 @@ describe('The deleteAttributionAndSave action', () => {
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
   });
 
+  test('deletes attributions from multiSelectSelectedAttributionIds', () => {
+    const testResources: Resources = {
+      file1: 1,
+    };
+    const testAttributions: Attributions = {
+      toUnlink: { packageName: 'Vue' },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/file1': ['toUnlink'],
+    };
+    const expectedManualData: AttributionData = {
+      attributions: {},
+      resourcesToAttributions: {},
+      attributionsToResources: {},
+      resourcesWithAttributedChildren: {},
+    };
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    testStore.dispatch(setMultiSelectSelectedAttributionIds(['toUnlink']));
+
+    testStore.dispatch(deleteAttributionAndSave('/file1', 'toUnlink'));
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(
+      getMultiSelectSelectedAttributionIds(testStore.getState())
+    ).toStrictEqual([]);
+  });
+
   test('unlinks resource from attribution multiple linked attribution', () => {
     const testResources: Resources = {
       file1: 1,
@@ -934,8 +973,12 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
     testStore.dispatch(setAttributionIdMarkedForReplacement('reactUuid'));
+    testStore.dispatch(setMultiSelectSelectedAttributionIds(['reactUuid']));
 
     testStore.dispatch(deleteAttributionGloballyAndSave('reactUuid'));
+    expect(
+      getMultiSelectSelectedAttributionIds(testStore.getState())
+    ).toStrictEqual([]);
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryPackageInfo(testStore.getState())).toEqual({});
     expect(getSelectedAttributionId(testStore.getState())).toEqual('');

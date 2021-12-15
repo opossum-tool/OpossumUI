@@ -54,6 +54,8 @@ import {
 import { isEmpty } from 'lodash';
 import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
 import { openPopup } from '../view-actions/view-actions';
+import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
+import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
 
 export function setIsSavingDisabled(
   isSavingDisabled: boolean
@@ -209,7 +211,17 @@ export function addToSelectedResource(
 export function deleteAttributionGloballyAndSave(
   attributionId: string
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch): void => {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const multiSelectSelectedAttributionIds =
+      getMultiSelectSelectedAttributionIds(getState());
+    if (multiSelectSelectedAttributionIds.includes(attributionId)) {
+      dispatch(
+        setMultiSelectSelectedAttributionIds(
+          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
+        )
+      );
+    }
+
     dispatch(savePackageInfo(null, attributionId, {}));
   };
 }
@@ -221,6 +233,16 @@ export function deleteAttributionAndSave(
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
       getManualAttributionsToResources(getState());
+    const multiSelectSelectedAttributionIds =
+      getMultiSelectSelectedAttributionIds(getState());
+
+    if (multiSelectSelectedAttributionIds.includes(attributionId)) {
+      dispatch(
+        setMultiSelectSelectedAttributionIds(
+          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
+        )
+      );
+    }
 
     if (attributionsToResources[attributionId].length > 1) {
       dispatch(unlinkResourceFromAttributionAndSave(resourceId, attributionId));

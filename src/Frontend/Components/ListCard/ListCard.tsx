@@ -138,6 +138,9 @@ const useStyles = makeStyles({
       background: OpossumColors.white,
     },
   },
+  multiSelected: {
+    background: OpossumColors.lightestBlue,
+  },
 });
 
 interface ListCardProps {
@@ -148,6 +151,7 @@ interface ListCardProps {
   onClick(): void;
   leftIcon?: JSX.Element;
   rightIcons?: Array<JSX.Element>;
+  leftElement?: JSX.Element;
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
@@ -186,10 +190,14 @@ export function ListCard(props: ListCardProps): ReactElement | null {
             : classes.selected
           : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
-        props.cardConfig.isResolved && classes.resolved
+        props.cardConfig.isResolved && classes.resolved,
+        props.cardConfig.isMultiSelected && !props.cardConfig.isSelected
+          ? classes.multiSelected
+          : ''
       )}
       onClick={props.onClick}
     >
+      {props.leftElement ? props.leftElement : null}
       <div className={classes.iconColumn}>
         {props.leftIcon ? props.leftIcon : null}
         {getDisplayedCount() ? (

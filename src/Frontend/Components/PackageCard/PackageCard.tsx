@@ -44,14 +44,22 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import {
+  getMultiSelectMode,
+  getMultiSelectSelectedAttributionIds,
+  getSelectedAttributionId,
+} from '../../state/selectors/attribution-view-resource-selectors';
 import {
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   MergeButtonDisplayState,
   selectedPackageIsResolved,
 } from '../AttributionColumn/attribution-column-helpers';
-import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import {
+  setAttributionIdMarkedForReplacement,
+  setMultiSelectSelectedAttributionIds,
+} from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { Checkbox } from '../Checkbox/Checkbox';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -64,6 +72,14 @@ const useStyles = makeStyles({
     color: OpossumColors.grey,
   },
   clickableIcon,
+  multiSelectCheckbox: {
+    height: 40,
+    marginTop: 1,
+  },
+  multiSelectPackageCard: {
+    flexGrow: 1,
+    minWidth: 0,
+  },
 });
 
 interface PackageCardProps {
@@ -103,6 +119,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   );
   const attributionIdMarkedForReplacement = useAppSelector(
     getAttributionIdMarkedForReplacement
+  );
+  const multiSelectMode = useAppSelector(getMultiSelectMode);
+  const multiSelectSelectedAttributionIds = useAppSelector(
+    getMultiSelectSelectedAttributionIds
   );
 
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -163,6 +183,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     selectedView === View.Attribution
       ? selectedAttributionIdAttributionView
       : selectedAttributionIdAuditView;
+
+  const isMultiSelected =
+    multiSelectMode &&
+    multiSelectSelectedAttributionIds.includes(attributionId);
 
   function openConfirmDeletionPopup(): void {
     if (isPreselected) {
@@ -319,8 +343,35 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     setIsContextMenuOpen(!isContextMenuOpen);
   }
 
+  function handleMultiSelectAttributionSelected(
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void {
+    if (event.target.checked) {
+      multiSelectSelectedAttributionIds.push(attributionId);
+      dispatch(
+        setMultiSelectSelectedAttributionIds(multiSelectSelectedAttributionIds)
+      );
+    } else {
+      dispatch(
+        setMultiSelectSelectedAttributionIds(
+          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
+        )
+      );
+    }
+  }
+
+  const leftElement = multiSelectMode ? (
+    <Checkbox
+      checked={multiSelectSelectedAttributionIds.includes(attributionId)}
+      onChange={handleMultiSelectAttributionSelected}
+      className={clsx(classes.multiSelectCheckbox)}
+    />
+  ) : undefined;
+
   return (
-    <>
+    <div
+      className={clsx(multiSelectMode ? classes.multiSelectPackageCard : '')}
+    >
       {!Boolean(props.hideContextMenu) && (
         <ResourcePathPopup
           isOpen={showAssociatedResourcesPopup}
@@ -345,13 +396,15 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             ...props.cardConfig,
             isMarkedForReplacement,
             isContextMenuOpen,
+            isMultiSelected,
           }}
           count={props.packageCount}
           onClick={props.onClick}
           leftIcon={leftIcon}
           rightIcons={rightIcons}
+          leftElement={leftElement}
         />
       </ContextMenu>
-    </>
+    </div>
   );
 }
