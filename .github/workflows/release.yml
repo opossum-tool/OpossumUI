@@ -33,7 +33,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v1
         with:
-          node-version: 16
+          node-version: 17
       - run: yarn install --network-timeout 560000
       - run: yarn ${{ matrix.SHIP }}
       - name: Upload release asset
