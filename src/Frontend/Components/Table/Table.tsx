@@ -32,7 +32,7 @@ const useStyles = makeStyles({
     width: 'calc(100% - 20px)',
   },
   tableAndHeader: {
-    overflowX: 'auto',
+    overflow: 'overlay',
   },
   table: {
     backgroundColor: OpossumColors.white,
