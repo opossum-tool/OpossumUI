@@ -30,7 +30,7 @@ const useStyles = makeStyles({
     padding: '0 12px',
   },
   disabledAccordion: {},
-  expansionPanelDetails: { height: '100%', padding: '0 12px 16px' },
+  expansionPanelDetails: { height: '100%', padding: '0 0 16px 12px ' },
 });
 
 interface AggregatedAttributionsPanelProps {

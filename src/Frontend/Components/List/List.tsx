@@ -27,6 +27,7 @@ interface ListProps {
   addPaddingBottom?: boolean;
   allowHorizontalScrolling?: boolean;
   leftScrollBar?: boolean;
+  className?: string;
 }
 
 function maxHeightWasGiven(
@@ -47,7 +48,7 @@ export function List(props: ListProps): ReactElement {
     : Math.min(currentHeight, maxHeight);
 
   return (
-    <div style={{ maxHeight: currentHeight }}>
+    <div className={props.className} style={{ maxHeight: currentHeight }}>
       <VirtualizedList
         height={listHeight}
         width={'vertical'}
