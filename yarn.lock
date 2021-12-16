@@ -8881,6 +8881,11 @@ react-scripts@5.0.0:
   optionalDependencies:
     fsevents "^2.3.2"
 
+react-scrollbar-size@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-scrollbar-size/-/react-scrollbar-size-4.0.0.tgz#47c130b9c46331c1bdade030b890d80388da9c6b"
+  integrity sha512-6ocQusPakZGPQQc5mxMRd9Cqy1ALKHyR6eGFbNWM94NPRBnhqAo0DSWXBodhgm9vg8y21o3ZudYJD8gyoW/NRw==
+
 react-transition-group@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.4.2.tgz#8b59a56f09ced7b55cbd53c36768b922890d5470"

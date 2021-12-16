@@ -13,6 +13,13 @@ import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { List } from '../List/List';
 import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { ListCardConfig } from '../../types/types';
+import { makeStyles } from '@mui/styles';
+import clsx from 'clsx';
+import useScrollbarSize from 'react-scrollbar-size';
+
+const NUMBER_OF_DISPLAYED_ITEMS = 15;
+const CARD_VERTICAL_DISTANCE = 41;
+const MAX_HEIGHT = NUMBER_OF_DISPLAYED_ITEMS * CARD_VERTICAL_DISTANCE;
 
 interface PackageListProps {
   attributionIdsWithCount?: Array<AttributionIdWithCount>;
@@ -30,6 +37,15 @@ interface PackageListProps {
 
 export function PackageList(props: PackageListProps): ReactElement {
   const attributionIdsWithCount = props.attributionIdsWithCount || [];
+  const { width } = useScrollbarSize();
+
+  const useStyles = makeStyles({
+    paddingRight: {
+      paddingRight: width,
+    },
+  });
+
+  const classes = useStyles();
 
   function getSortedAttributionIds(): Array<string> {
     if (!attributionIdsWithCount.length) {
@@ -96,12 +112,15 @@ export function PackageList(props: PackageListProps): ReactElement {
     );
   }
 
+  const currentHeight = attributionIdsWithCount.length * CARD_VERTICAL_DISTANCE;
+
   return (
     <List
       getListItem={getPackagePanelCard}
-      max={{ numberOfDisplayedItems: 15 }}
+      max={{ numberOfDisplayedItems: NUMBER_OF_DISPLAYED_ITEMS }}
       length={attributionIdsWithCount.length}
-      cardVerticalDistance={41}
+      cardVerticalDistance={CARD_VERTICAL_DISTANCE}
+      className={clsx(currentHeight < MAX_HEIGHT && classes.paddingRight)}
     />
   );
 }
