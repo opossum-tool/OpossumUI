@@ -40,3 +40,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ matrix.FILE }}
+      - name: Upload user guide
+        uses: softprops/action-gh-release@v1
+        with:
+          files: USER_GUIDE.md
