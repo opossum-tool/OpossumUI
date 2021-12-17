@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import makeStyles from '@mui/styles/makeStyles';
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTab from '@mui/material/Tab';
 import {
@@ -15,7 +15,7 @@ import { PanelPackage } from '../../types/types';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { isEqual, remove } from 'lodash';
-import { getPanelData, PanelData } from './resource-details-tabs-helpers';
+import { PanelData } from './resource-details-tabs-helpers';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
@@ -80,14 +80,36 @@ export function ResourceDetailsTabs(
     setSelectedTab(Tabs.SignalsAndContent);
   }, [selectedResourceId, Tabs.SignalsAndContent]);
 
-  const panelData: Array<PanelData> = useMemo(
-    () =>
-      getPanelData(
-        selectedResourceId,
-        manualData,
-        externalData,
-        resolvedExternalAttributions
-      ),
+  const [panelData, setPanelData] = useState<Array<PanelData>>([]);
+
+  useEffect(
+    () => {
+      let active = true;
+      loadPanelData();
+      // @ts-ignore
+      return (): never => {
+        active = false;
+      };
+
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async function loadPanelData(): Promise<void> {
+        const worker = new Worker(new URL('./worker', import.meta.url));
+        worker.postMessage({
+          selectedResourceId,
+          manualData,
+          externalData,
+          resolvedExternalAttributions,
+        });
+
+        if (!active) {
+          return;
+        }
+
+        worker.onmessage = ({ data: { output } }): void => {
+          setPanelData(output);
+        };
+      }
+    },
     /*
       manualData is excluded from dependencies on purpose to avoid recalculation when
       it changes. Usually this is not an issue as the displayed data remains correct.
