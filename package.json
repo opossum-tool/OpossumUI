@@ -181,7 +181,8 @@
     },
     "extraResources": [
       "./notices/**"
-    ]
+    ],
+    "files": ["build/**"]
   },
   "eslintConfig": {
     "extends": "react-app"
