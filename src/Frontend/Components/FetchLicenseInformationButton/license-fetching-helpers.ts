@@ -5,8 +5,10 @@
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { convertPypiPayload, getPypiAPIUrl } from './pypi-fetching-helpers';
+import { convertNpmPayload, getNpmAPIUrl } from './npm-fetching-helpers';
 
 const PYPI_REGEX = new RegExp('^https://pypi.org/(pypi|project)/[\\w-+,_]+/?$');
+const NPM_REGEX = new RegExp('^https://npmjs.com/(package/)?[\\w-+,_@/]+/?$');
 
 export interface LicenseFetchingInformation {
   url: string;
@@ -14,7 +16,8 @@ export interface LicenseFetchingInformation {
 }
 
 export function getLicenseFetchingInformation(
-  url?: string
+  url?: string,
+  version?: string
 ): LicenseFetchingInformation | null {
   if (!url) {
     return null;
@@ -24,6 +27,11 @@ export function getLicenseFetchingInformation(
     return {
       url: getPypiAPIUrl(url),
       convertPayload: convertPypiPayload,
+    };
+  } else if (NPM_REGEX.test(url)) {
+    return {
+      url: getNpmAPIUrl(url, version),
+      convertPayload: convertNpmPayload,
     };
   }
   return null;

@@ -188,9 +188,13 @@ function EnabledFetchLicenseInformationButton(
 
 export function FetchLicenseInformationButton(props: {
   url?: string;
+  version?: string;
   isDisabled: boolean;
 }): ReactElement {
-  const licenseFetchingInformation = getLicenseFetchingInformation(props.url);
+  const licenseFetchingInformation = getLicenseFetchingInformation(
+    props.url,
+    props.version
+  );
   return !props.isDisabled && licenseFetchingInformation ? (
     <EnabledFetchLicenseInformationButton
       url={licenseFetchingInformation.url}
