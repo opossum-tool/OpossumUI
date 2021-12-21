@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  Attributions,
   AttributionsToResources,
   PackageInfo,
   SaveFileArgs,
@@ -133,6 +134,11 @@ export function savePackageInfo(
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     dispatch(resetTemporaryPackageInfo());
+    dispatch(
+      filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
+        attributionId
+      )
+    );
 
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
@@ -211,17 +217,7 @@ export function addToSelectedResource(
 export function deleteAttributionGloballyAndSave(
   attributionId: string
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const multiSelectSelectedAttributionIds =
-      getMultiSelectSelectedAttributionIds(getState());
-    if (multiSelectSelectedAttributionIds.includes(attributionId)) {
-      dispatch(
-        setMultiSelectSelectedAttributionIds(
-          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
-        )
-      );
-    }
-
+  return (dispatch: AppThunkDispatch): void => {
     dispatch(savePackageInfo(null, attributionId, {}));
   };
 }
@@ -233,21 +229,32 @@ export function deleteAttributionAndSave(
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
       getManualAttributionsToResources(getState());
-    const multiSelectSelectedAttributionIds =
-      getMultiSelectSelectedAttributionIds(getState());
-
-    if (multiSelectSelectedAttributionIds.includes(attributionId)) {
-      dispatch(
-        setMultiSelectSelectedAttributionIds(
-          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
-        )
-      );
-    }
 
     if (attributionsToResources[attributionId].length > 1) {
       dispatch(unlinkResourceFromAttributionAndSave(resourceId, attributionId));
     } else {
       dispatch(deleteAttributionGloballyAndSave(attributionId));
+    }
+  };
+}
+
+function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
+  attributionId: string | null
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const multiSelectSelectedAttributionIds =
+      getMultiSelectSelectedAttributionIds(getState());
+    const attributions: Attributions = getManualAttributions(getState());
+    if (
+      attributionId &&
+      !attributions[attributionId] &&
+      multiSelectSelectedAttributionIds.includes(attributionId)
+    ) {
+      dispatch(
+        setMultiSelectSelectedAttributionIds(
+          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
+        )
+      );
     }
   };
 }

@@ -19,6 +19,8 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   setAttributionIdMarkedForReplacement,
+  setMultiSelectMode,
+  setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Attributions, Resources } from '../../../../shared/shared-types';
@@ -114,6 +116,24 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.queryByText(ButtonText.Confirm)).toBeFalsy();
     expect(screen.queryByText(ButtonText.ConfirmGlobally)).toBeFalsy();
     expect(screen.queryByText(ButtonText.DeleteGlobally)).toBeFalsy();
+  });
+
+  test('does not show multi-select checkbox for attributions', () => {
+    const testStore = createTestAppStore();
+    setupTestState(testStore);
+    testStore.dispatch(setMultiSelectMode(true));
+    testStore.dispatch(
+      setMultiSelectSelectedAttributionIds(['test_marked_id'])
+    );
+
+    renderComponentWithStore(<ReplaceAttributionPopup />, {
+      store: testStore,
+    });
+
+    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
+    expect(screen.getByText('React')).toBeTruthy();
+    expect(screen.getByText('Vue')).toBeTruthy();
+    expect(screen.queryByText('checkbox')).toBeFalsy();
   });
 
   test('renders a ReplaceAttributionPopup and click replace', () => {

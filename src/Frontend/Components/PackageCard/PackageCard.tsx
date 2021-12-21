@@ -89,7 +89,7 @@ interface PackageCardProps {
   cardConfig: ListCardConfig;
   onClick(): void;
   onIconClick?(): void;
-  hideContextMenu?: boolean;
+  hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
 }
 
@@ -185,7 +185,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       : selectedAttributionIdAuditView;
 
   const isMultiSelected =
-    multiSelectMode &&
     multiSelectSelectedAttributionIds.includes(attributionId);
 
   function openConfirmDeletionPopup(): void {
@@ -266,78 +265,79 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     Boolean(attributionId) &&
     attributionId === attributionIdMarkedForReplacement;
 
-  const contextMenuItems: Array<ContextMenuItem> = props.hideContextMenu
-    ? []
-    : [
-        {
-          buttonText: ButtonText.Delete,
-          onClick: openConfirmDeletionPopup,
-          hidden: isExternalAttribution || hideResourceSpecificButtons,
-        },
-        {
-          buttonText: ButtonText.DeleteGlobally,
-          onClick: openConfirmDeletionGloballyPopup,
-          hidden: isExternalAttribution || !showGlobalButtons,
-        },
-        {
-          buttonText: ButtonText.Confirm,
-          onClick: confirmAttribution,
-          hidden:
-            !isPreselected ||
-            isExternalAttribution ||
-            hideResourceSpecificButtons,
-        },
-        {
-          buttonText: ButtonText.ConfirmGlobally,
-          onClick: confirmAttributionGlobally,
-          hidden: !isPreselected || !showGlobalButtons,
-        },
-        {
-          buttonText: ButtonText.ShowResources,
-          onClick: (): void => setShowAssociatedResourcesPopup(true),
-        },
-        {
-          buttonText: selectedPackageIsResolved(
-            attributionId,
-            resolvedExternalAttributions
-          )
-            ? ButtonText.Unhide
-            : ButtonText.Hide,
-          onClick: getResolvedToggleHandler(
-            attributionId,
-            resolvedExternalAttributions,
-            dispatch
-          ),
-          hidden: !isExternalAttribution,
-        },
-        {
-          buttonText: ButtonText.MarkForReplacement,
-          onClick: (): void => {
-            dispatch(setAttributionIdMarkedForReplacement(attributionId));
+  const contextMenuItems: Array<ContextMenuItem> =
+    props.hideContextMenuAndMultiSelect
+      ? []
+      : [
+          {
+            buttonText: ButtonText.Delete,
+            onClick: openConfirmDeletionPopup,
+            hidden: isExternalAttribution || hideResourceSpecificButtons,
           },
-          hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
-        },
-        {
-          buttonText: ButtonText.UnmarkForReplacement,
-          onClick: (): void => {
-            dispatch(setAttributionIdMarkedForReplacement(''));
+          {
+            buttonText: ButtonText.DeleteGlobally,
+            onClick: openConfirmDeletionGloballyPopup,
+            hidden: isExternalAttribution || !showGlobalButtons,
           },
-          hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
-        },
-        {
-          buttonText: ButtonText.ReplaceMarked,
-          disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
-          onClick: (): void => {
-            dispatch(
-              openPopupWithTargetAttributionId(
-                PopupType.ReplaceAttributionPopup,
-                attributionId
-              )
-            );
+          {
+            buttonText: ButtonText.Confirm,
+            onClick: confirmAttribution,
+            hidden:
+              !isPreselected ||
+              isExternalAttribution ||
+              hideResourceSpecificButtons,
           },
-          hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
-        },
-      ];
+          {
+            buttonText: ButtonText.ConfirmGlobally,
+            onClick: confirmAttributionGlobally,
+            hidden: !isPreselected || !showGlobalButtons,
+          },
+          {
+            buttonText: ButtonText.ShowResources,
+            onClick: (): void => setShowAssociatedResourcesPopup(true),
+          },
+          {
+            buttonText: selectedPackageIsResolved(
+              attributionId,
+              resolvedExternalAttributions
+            )
+              ? ButtonText.Unhide
+              : ButtonText.Hide,
+            onClick: getResolvedToggleHandler(
+              attributionId,
+              resolvedExternalAttributions,
+              dispatch
+            ),
+            hidden: !isExternalAttribution,
+          },
+          {
+            buttonText: ButtonText.MarkForReplacement,
+            onClick: (): void => {
+              dispatch(setAttributionIdMarkedForReplacement(attributionId));
+            },
+            hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
+          },
+          {
+            buttonText: ButtonText.UnmarkForReplacement,
+            onClick: (): void => {
+              dispatch(setAttributionIdMarkedForReplacement(''));
+            },
+            hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
+          },
+          {
+            buttonText: ButtonText.ReplaceMarked,
+            disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
+            onClick: (): void => {
+              dispatch(
+                openPopupWithTargetAttributionId(
+                  PopupType.ReplaceAttributionPopup,
+                  attributionId
+                )
+              );
+            },
+            hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
+          },
+        ];
 
   function toggleIsContextMenuOpen(): void {
     setIsContextMenuOpen(!isContextMenuOpen);
@@ -346,33 +346,27 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   function handleMultiSelectAttributionSelected(
     event: React.ChangeEvent<HTMLInputElement>
   ): void {
-    if (event.target.checked) {
-      multiSelectSelectedAttributionIds.push(attributionId);
-      dispatch(
-        setMultiSelectSelectedAttributionIds(multiSelectSelectedAttributionIds)
-      );
-    } else {
-      dispatch(
-        setMultiSelectSelectedAttributionIds(
-          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
-        )
-      );
-    }
+    const newMultiSelectSelectedAttributionIds = event.target.checked
+      ? multiSelectSelectedAttributionIds.concat([attributionId])
+      : multiSelectSelectedAttributionIds.filter((id) => id !== attributionId);
+
+    dispatch(
+      setMultiSelectSelectedAttributionIds(newMultiSelectSelectedAttributionIds)
+    );
   }
 
-  const leftElement = multiSelectMode ? (
-    <Checkbox
-      checked={multiSelectSelectedAttributionIds.includes(attributionId)}
-      onChange={handleMultiSelectAttributionSelected}
-      className={clsx(classes.multiSelectCheckbox)}
-    />
-  ) : undefined;
+  const leftElement =
+    multiSelectMode && !props.hideContextMenuAndMultiSelect ? (
+      <Checkbox
+        checked={multiSelectSelectedAttributionIds.includes(attributionId)}
+        onChange={handleMultiSelectAttributionSelected}
+        className={classes.multiSelectCheckbox}
+      />
+    ) : undefined;
 
   return (
-    <div
-      className={clsx(multiSelectMode ? classes.multiSelectPackageCard : '')}
-    >
-      {!Boolean(props.hideContextMenu) && (
+    <div className={clsx(multiSelectMode && classes.multiSelectPackageCard)}>
+      {!Boolean(props.hideContextMenuAndMultiSelect) && (
         <ResourcePathPopup
           isOpen={showAssociatedResourcesPopup}
           closePopup={(): void => setShowAssociatedResourcesPopup(false)}
