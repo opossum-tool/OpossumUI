@@ -35,7 +35,10 @@ import {
   savePackageInfo,
   unlinkAttributionAndSavePackageInfo,
 } from '../../state/actions/resource-actions/save-actions';
-import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  openPopupWithTargetAttributionId,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
@@ -278,6 +281,13 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             buttonText: ButtonText.DeleteGlobally,
             onClick: openConfirmDeletionGloballyPopup,
             hidden: isExternalAttribution || !showGlobalButtons,
+          },
+          {
+            buttonText: ButtonText.DeleteSelectedGlobally,
+            onClick: (): void => {
+              dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
+            },
+            hidden: multiSelectSelectedAttributionIds.length === 0,
           },
           {
             buttonText: ButtonText.Confirm,

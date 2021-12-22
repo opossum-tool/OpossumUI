@@ -18,6 +18,10 @@ import { screen } from '@testing-library/react';
 import { Attributions } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  setMultiSelectMode,
+  setMultiSelectSelectedAttributionIds,
+} from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 
 describe('The GlobalPopUp', () => {
   test('does not open by default', () => {
@@ -107,6 +111,19 @@ describe('The GlobalPopUp', () => {
     expect(
       screen.getByText(
         'Do you really want to delete this attribution for all files?'
+      )
+    ).toBeTruthy();
+  });
+
+  test('opens the ConfirmMultiSelectDeletionPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    store.dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
+    store.dispatch(setMultiSelectMode(true));
+    store.dispatch(setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']));
+
+    expect(
+      screen.getByText(
+        'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.'
       )
     ).toBeTruthy();
   });
