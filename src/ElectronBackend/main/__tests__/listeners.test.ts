@@ -55,6 +55,11 @@ jest.mock('electron', () => ({
           openDevTools: jest.fn(),
           send: jest.fn(),
           close: jest.fn(),
+          session: {
+            webRequest: {
+              onHeadersReceived: jest.fn(),
+            },
+          },
         },
         close: jest.fn(() => {
           return Promise.resolve(null);

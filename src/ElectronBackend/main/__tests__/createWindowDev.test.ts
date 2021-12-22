@@ -19,6 +19,11 @@ jest.mock('electron', () => ({
         loadURL: jest.fn(),
         webContents: {
           openDevTools: jest.fn(),
+          session: {
+            webRequest: {
+              onHeadersReceived: jest.fn(),
+            },
+          },
         },
       };
     }
