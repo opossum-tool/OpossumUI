@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { App } from '../../../Components/App/App';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
@@ -16,6 +16,7 @@ import {
 } from '../../../../shared/shared-types';
 import {
   clickOnButtonInPackageContextMenu,
+  expectButtonInPackageContextMenu,
   expectContextMenuForNotPreSelectedAttributionMultipleResources,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
@@ -24,7 +25,12 @@ import {
 } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
+import {
+  ButtonText,
+  CheckboxLabel,
+  DiscreteConfidence,
+  View,
+} from '../../../enums/enums';
 import {
   expectValueInConfidenceField,
   expectValueInTextBox,
@@ -34,13 +40,24 @@ import {
   clickOnElementInResourceBrowser,
   expectResourceBrowserIsNotShown,
 } from '../../../test-helpers/resource-browser-test-helpers';
-import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 import {
+  clickOnCardInAttributionList,
+  getCardInAttributionList,
+} from '../../../test-helpers/package-panel-helpers';
+import {
+  clickOnButton,
+  clickOnCheckbox,
+  clickOnMultiSelectCheckboxInPackageCard,
+  getCheckbox,
   getParsedInputFileEnrichedWithTestData,
   goToView,
   mockElectronIpcRendererOn,
   TEST_TIMEOUT,
 } from '../../../test-helpers/general-test-helpers';
+import {
+  expectConfirmMultiSelectDeletionPopupNotVisible,
+  expectConfirmMultiSelectDeletionPopupVisible,
+} from '../../../test-helpers/popup-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
 
@@ -245,5 +262,60 @@ describe('In Attribution View the ContextMenu', () => {
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
       [IpcChannel['SaveFile'], expectedSaveFileArgs],
     ]);
+  });
+
+  test('deletes multi-selected attributions correctly', () => {
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+      })
+    );
+    renderComponentWithStore(<App />);
+
+    goToView(screen, View.Attribution);
+    expectGlobalOnlyContextMenuForPreselectedAttribution(
+      screen,
+      'React, 16.5.0'
+    );
+    expect(getCheckbox(screen, CheckboxLabel.MultiSelectMode).checked).toEqual(
+      false
+    );
+    clickOnCheckbox(screen, CheckboxLabel.MultiSelectMode);
+    expect(getCheckbox(screen, CheckboxLabel.MultiSelectMode).checked).toEqual(
+      true
+    );
+
+    clickOnMultiSelectCheckboxInPackageCard(screen, 'React, 16.5.0');
+    clickOnMultiSelectCheckboxInPackageCard(screen, 'Vue, 1.2.0');
+
+    expect(
+      within(getCardInAttributionList(screen, 'React, 16.5.0')).getByRole(
+        'checkbox'
+      ) as HTMLInputElement
+    ).toBeChecked();
+
+    expectButtonInPackageContextMenu(
+      screen,
+      'React, 16.5.0',
+      ButtonText.DeleteSelectedGlobally
+    );
+    expectButtonInPackageContextMenu(
+      screen,
+      'Vue, 1.2.0',
+      ButtonText.DeleteSelectedGlobally
+    );
+
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'Vue, 1.2.0',
+      ButtonText.DeleteSelectedGlobally
+    );
+    expectConfirmMultiSelectDeletionPopupVisible(screen, 2);
+    clickOnButton(screen, ButtonText.Confirm);
+    expectConfirmMultiSelectDeletionPopupNotVisible(screen);
+    expect(screen.queryByText('React, 16.5.0')).toBeFalsy();
+    expect(screen.queryByText('Vue, 1.2.0')).toBeFalsy();
   });
 });

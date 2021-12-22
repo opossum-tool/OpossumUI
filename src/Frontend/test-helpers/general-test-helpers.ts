@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { act, fireEvent, Screen } from '@testing-library/react';
+import { act, fireEvent, Screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import {
   Attributions,
@@ -19,6 +19,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { ButtonText } from '../enums/enums';
 import { canHaveChildren } from '../util/can-have-children';
+import { getCardInAttributionList } from './package-panel-helpers';
 
 export const TEST_TIMEOUT = 15000;
 
@@ -180,6 +181,20 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
   fireEvent.click(
     screen.getByRole('checkbox', { name: `checkbox ${label}` }) as Element
   );
+}
+
+export function getCheckbox(screen: Screen, label: string): HTMLInputElement {
+  return screen.getByRole('checkbox', {
+    name: `checkbox ${label}`,
+  }) as HTMLInputElement;
+}
+
+export function clickOnMultiSelectCheckboxInPackageCard(
+  screen: Screen,
+  cardLabel: string
+): void {
+  const packageCard = getCardInAttributionList(screen, cardLabel);
+  fireEvent.click(within(packageCard).getByRole('checkbox') as Element);
 }
 
 export function clickOnDeleteIcon(screen: Screen): void {
