@@ -6,6 +6,7 @@
 import { getLicenseFetchingInformation } from '../license-fetching-helpers';
 import { convertPypiPayload } from '../pypi-fetching-helpers';
 import { convertNpmPayload } from '../npm-fetching-helpers';
+import { convertGithubPayload } from '../github-fetching-helpers';
 
 describe('getLicenseFetchingInformation', () => {
   it('returns null for undefined as input', () => {
@@ -51,5 +52,14 @@ describe('getLicenseFetchingInformation', () => {
         'https://npmjs.com/package/@angular/animations/1.0'
       )
     ).toBeNull();
+  });
+
+  it('recognizes github urls', () => {
+    expect(
+      getLicenseFetchingInformation('https://github.com/opossum-tool/OpossumUI')
+    ).toMatchObject({
+      url: 'https://api.github.com/repos/opossum-tool/OpossumUI/license',
+      convertPayload: convertGithubPayload,
+    });
   });
 });

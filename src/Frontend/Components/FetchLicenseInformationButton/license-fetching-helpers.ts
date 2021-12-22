@@ -6,9 +6,14 @@
 import { PackageInfo } from '../../../shared/shared-types';
 import { convertPypiPayload, getPypiAPIUrl } from './pypi-fetching-helpers';
 import { convertNpmPayload, getNpmAPIUrl } from './npm-fetching-helpers';
+import {
+  convertGithubPayload,
+  getGithubAPIUrl,
+} from './github-fetching-helpers';
 
 const PYPI_REGEX = new RegExp('^https://pypi.org/(pypi|project)/[\\w-+,_]+/?$');
 const NPM_REGEX = new RegExp('^https://npmjs.com/(package/)?[\\w-+,_@/]+/?$');
+const GITHUB_REGEX = new RegExp('^https://github.com/');
 
 export interface LicenseFetchingInformation {
   url: string;
@@ -32,6 +37,11 @@ export function getLicenseFetchingInformation(
     return {
       url: getNpmAPIUrl(url, version),
       convertPayload: convertNpmPayload,
+    };
+  } else if (GITHUB_REGEX.test(url)) {
+    return {
+      url: getGithubAPIUrl(url),
+      convertPayload: convertGithubPayload,
     };
   }
   return null;
