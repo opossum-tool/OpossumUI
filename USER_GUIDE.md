@@ -255,9 +255,13 @@ the `Audit View` and has two main components:
 All existing attributions are listed and can be selected. **Pre-selected**
 attributions are signaled by an `P` icon. They can be confirmed, which converts them into attributions
 in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
-attributions are both written in the output file. On top there is an icon for openning the filter section. By clicking
+attributions are both written in the output file. On top there is an icon for opening the filter section. By clicking
 on it, a dropdown will be shown with filters that allows for filtering for attributions marked for follow-up, first
-party and not first party. The last two are mutually exclusive.
+party and not first party. The last two are mutually exclusive. Additionally, the attribution view has a multi-select
+mode, which can be activated by checking the _Multi-select_ checkbox at the top. In multi-select mode, a checkbox is
+visible next to every attribution. If at least one attribution has a checked checkbox, the context menu displays the
+_Delete selected globally_ option. This option deletes every selected attribution in all files, after confirming the
+deletions in a pop-up.
 
 #### Selected Attribution Panel
 

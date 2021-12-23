@@ -138,9 +138,6 @@ const useStyles = makeStyles({
       background: OpossumColors.white,
     },
   },
-  multiSelected: {
-    background: OpossumColors.lightestBlue,
-  },
 });
 
 interface ListCardProps {
@@ -190,60 +187,64 @@ export function ListCard(props: ListCardProps): ReactElement | null {
             : classes.selected
           : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
-        props.cardConfig.isResolved && classes.resolved,
-        props.cardConfig.isMultiSelected && !props.cardConfig.isSelected
-          ? classes.multiSelected
-          : ''
+        props.cardConfig.isResolved && classes.resolved
       )}
-      onClick={props.onClick}
     >
       {props.leftElement ? props.leftElement : null}
-      <div className={classes.iconColumn}>
-        {props.leftIcon ? props.leftIcon : null}
-        {getDisplayedCount() ? (
-          <MuiTypography variant={'body2'} className={classes.count}>
-            {getDisplayedCount()}
-          </MuiTypography>
-        ) : null}
-      </div>
       <div
         className={clsx(
-          classes.textLines,
+          classes.root,
           props.cardConfig.isResource ? null : classes.longTextInFlexbox
         )}
+        onClick={props.onClick}
       >
-        <MuiTypography
-          variant={'body2'}
+        <div className={classes.iconColumn}>
+          {props.leftIcon ? props.leftIcon : null}
+          {getDisplayedCount() ? (
+            <MuiTypography variant={'body2'} className={classes.count}>
+              {getDisplayedCount()}
+            </MuiTypography>
+          ) : null}
+        </div>
+        <div
           className={clsx(
-            props.cardConfig.isHeader ? classes.header : classes.textLine,
-            props.cardConfig.isResource
-              ? classes.textShortenedFromLeftSide
-              : classes.textShortened
+            classes.textLines,
+            props.cardConfig.isResource ? null : classes.longTextInFlexbox
           )}
         >
-          {props.cardConfig.isResource ? <bdi>{props.text}</bdi> : props.text}
-        </MuiTypography>
-        {props.secondLineText ? (
           <MuiTypography
             variant={'body2'}
             className={clsx(
-              classes.textLine,
+              props.cardConfig.isHeader ? classes.header : classes.textLine,
               props.cardConfig.isResource
                 ? classes.textShortenedFromLeftSide
                 : classes.textShortened
             )}
           >
-            {props.cardConfig.isResource ? (
-              <bdi>{props.secondLineText}</bdi>
-            ) : (
-              props.secondLineText
-            )}
+            {props.cardConfig.isResource ? <bdi>{props.text}</bdi> : props.text}
           </MuiTypography>
+          {props.secondLineText ? (
+            <MuiTypography
+              variant={'body2'}
+              className={clsx(
+                classes.textLine,
+                props.cardConfig.isResource
+                  ? classes.textShortenedFromLeftSide
+                  : classes.textShortened
+              )}
+            >
+              {props.cardConfig.isResource ? (
+                <bdi>{props.secondLineText}</bdi>
+              ) : (
+                props.secondLineText
+              )}
+            </MuiTypography>
+          ) : null}
+        </div>
+        {props.rightIcons ? (
+          <div className={classes.iconColumn}>{props.rightIcons}</div>
         ) : null}
       </div>
-      {props.rightIcons ? (
-        <div className={classes.iconColumn}>{props.rightIcons}</div>
-      ) : null}
     </div>
   );
 }

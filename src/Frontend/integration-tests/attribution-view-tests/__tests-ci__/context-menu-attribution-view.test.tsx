@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { App } from '../../../Components/App/App';
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
@@ -40,14 +40,12 @@ import {
   clickOnElementInResourceBrowser,
   expectResourceBrowserIsNotShown,
 } from '../../../test-helpers/resource-browser-test-helpers';
-import {
-  clickOnCardInAttributionList,
-  getCardInAttributionList,
-} from '../../../test-helpers/package-panel-helpers';
+import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 import {
   clickOnButton,
   clickOnCheckbox,
   clickOnMultiSelectCheckboxInPackageCard,
+  expectSelectCheckboxInPackageCardIsChecked,
   getCheckbox,
   getParsedInputFileEnrichedWithTestData,
   goToView,
@@ -290,12 +288,7 @@ describe('In Attribution View the ContextMenu', () => {
     clickOnMultiSelectCheckboxInPackageCard(screen, 'React, 16.5.0');
     clickOnMultiSelectCheckboxInPackageCard(screen, 'Vue, 1.2.0');
 
-    expect(
-      within(getCardInAttributionList(screen, 'React, 16.5.0')).getByRole(
-        'checkbox'
-      ) as HTMLInputElement
-    ).toBeChecked();
-
+    expectSelectCheckboxInPackageCardIsChecked(screen, 'React, 16.5.0');
     expectButtonInPackageContextMenu(
       screen,
       'React, 16.5.0',

@@ -19,7 +19,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import { ButtonText } from '../enums/enums';
 import { canHaveChildren } from '../util/can-have-children';
-import { getCardInAttributionList } from './package-panel-helpers';
 
 export const TEST_TIMEOUT = 15000;
 
@@ -189,16 +188,32 @@ export function getCheckbox(screen: Screen, label: string): HTMLInputElement {
   }) as HTMLInputElement;
 }
 
+function getMultiSelectCheckboxInPackageCard(
+  screen: Screen,
+  cardLabel: string
+): Element {
+  const packageCard = (
+    (screen.getByText(cardLabel).parentElement as HTMLElement)
+      .parentElement as HTMLElement
+  ).parentElement as HTMLElement;
+  const checkbox = within(packageCard).getByRole('checkbox') as Element;
+  expect(checkbox).not.toBeFalsy();
+
+  return checkbox;
+}
+
 export function clickOnMultiSelectCheckboxInPackageCard(
   screen: Screen,
   cardLabel: string
 ): void {
-  const packageCard = getCardInAttributionList(screen, cardLabel);
-  fireEvent.click(within(packageCard).getByRole('checkbox') as Element);
+  fireEvent.click(getMultiSelectCheckboxInPackageCard(screen, cardLabel));
 }
 
-export function clickOnDeleteIcon(screen: Screen): void {
-  fireEvent.click(screen.getByTestId('CancelIcon') as Element);
+export function expectSelectCheckboxInPackageCardIsChecked(
+  screen: Screen,
+  cardLabel: string
+): void {
+  expect(getMultiSelectCheckboxInPackageCard(screen, cardLabel)).toBeChecked();
 }
 
 export function openDropDown(screen: Screen): void {
