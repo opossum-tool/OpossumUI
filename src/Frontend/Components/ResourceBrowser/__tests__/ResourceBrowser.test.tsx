@@ -29,7 +29,6 @@ import { getSelectedResourceId } from '../../../state/selectors/audit-view-resou
 import { isEqual } from 'lodash';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('ResourceBrowser', () => {
   test('renders working tree', () => {

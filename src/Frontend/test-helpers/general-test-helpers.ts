@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { act, fireEvent, Screen, within } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import {
   Attributions,
   ParsedFileContent,

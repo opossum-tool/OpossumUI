@@ -8,7 +8,6 @@ import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ListCard } from '../ListCard';
 import { Checkbox } from '../../Checkbox/Checkbox';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('The ListCard', () => {
   test('renders text with no count', () => {

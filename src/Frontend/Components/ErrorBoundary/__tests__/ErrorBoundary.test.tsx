@@ -11,7 +11,6 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { ErrorBoundary } from '../ErrorBoundary';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 
 let originalIpcRenderer: IpcRenderer;
 

@@ -16,7 +16,6 @@ import {
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { ResourcesListBatch } from '../../../types/types';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('The ResourcesList', () => {
   const resourceIdsOfSelectedAttributionId = [

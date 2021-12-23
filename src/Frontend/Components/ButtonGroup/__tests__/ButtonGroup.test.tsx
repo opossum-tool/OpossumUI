@@ -9,7 +9,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ButtonText } from '../../../enums/enums';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('Button group', () => {
   const mainButtonConfigs: Array<MainButtonConfig> = [

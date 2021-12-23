@@ -12,7 +12,6 @@ import React from 'react';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
 import { ProjectMetadata } from '../../../../shared/shared-types';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('The ProjectMetadataPopup', () => {
   test('displays metadata', () => {

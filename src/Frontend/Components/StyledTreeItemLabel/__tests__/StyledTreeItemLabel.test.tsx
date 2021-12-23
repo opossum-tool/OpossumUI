@@ -7,7 +7,6 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { StyledTreeItemLabel } from '../StyledTreeItemLabel';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('StyledTreeItemLabel', () => {
   test('renders a file without information', () => {

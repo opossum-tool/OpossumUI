@@ -7,7 +7,6 @@ import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ErrorPopup } from '../ErrorPopup';
 import { screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('Error popup ', () => {
   test('renders', () => {

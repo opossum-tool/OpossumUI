@@ -8,7 +8,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ButtonText } from '../../../enums/enums';
 import { doNothing } from '../../../util/do-nothing';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu';
-import '@testing-library/jest-dom/extend-expect';
 
 const onClickMock = jest.fn();
 const testMenuItems: Array<ContextMenuItem> = [
