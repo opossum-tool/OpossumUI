@@ -384,7 +384,7 @@ describe('In Audit View the ContextMenu', () => {
       );
 
       clickOnElementInResourceBrowser(screen, 'file_1');
-      expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+      expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
       expectValueInTextBox(screen, 'Name', 'React');
 
       // make sure resources are now linked to React attribution
@@ -430,7 +430,7 @@ describe('In Audit View the ContextMenu', () => {
         screen,
         'React, 16.0.0'
       );
-      expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+      expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
 
       // make sure resources are now linked to React attribution
       // @ts-ignore

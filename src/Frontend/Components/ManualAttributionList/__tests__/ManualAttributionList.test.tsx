@@ -114,7 +114,7 @@ describe('The ManualAttributionList', () => {
       { store: getTestStore(packages) }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
-    expect(attributionCard).toBeTruthy();
+    expect(attributionCard).toBeInTheDocument();
     fireEvent.click(attributionCard);
     expect(mockCallback.mock.calls.length).toBe(1);
     expect(mockCallback.mock.calls[0][0]).toBe('1');
@@ -147,12 +147,12 @@ describe('The ManualAttributionList', () => {
       { store: getTestStore(testPackages) }
     );
 
-    expect(container.childNodes[0].textContent).toContain('zz Test package');
-    expect(container.childNodes[0].textContent).toContain(
-      'Test package, 1.0Copyright John Doe'
+    expect(container.childNodes[0]).toHaveTextContent(/zz Test package/);
+    expect(container.childNodes[0]).toHaveTextContent(
+      /Test package, 1\.0Copyright John Doe/
     );
-    expect(container.childNodes[0].textContent).toContain(
-      '(C) Copyright John Doe 2'
+    expect(container.childNodes[0]).toHaveTextContent(
+      /\(C\) Copyright John Doe 2/
     );
   });
 

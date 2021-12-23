@@ -108,9 +108,9 @@ describe('The AllAttributionsPanel', () => {
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
-    expect(screen.queryByText('Typescript, 1.0')).toBeFalsy();
-    expect(screen.getByText('React, 2.0')).toBeTruthy();
-    expect(screen.getByText('Vue, 3.0')).toBeTruthy();
+    expect(screen.queryByText('Typescript, 1.0')).not.toBeInTheDocument();
+    expect(screen.getByText('React, 2.0')).toBeInTheDocument();
+    expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
   });
 
   test('has search functionality', () => {

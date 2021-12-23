@@ -19,7 +19,7 @@ export function expectPackageInPackagePanel(
 ): void {
   const packagesPanel = getPackagePanel(screen, packagePanelName);
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(getByText(packagesPanel, packageName)).toBeTruthy();
+  expect(getByText(packagesPanel, packageName)).toBeInTheDocument();
 }
 
 export function clickOnPackageInPackagePanel(
@@ -55,7 +55,7 @@ export function expectValueNotInManualPackagePanel(
       screen.getByText('Attributions').parentElement as HTMLElement,
       packageName
     )
-  ).toBeNull();
+  ).not.toBeInTheDocument();
 }
 
 export function expectValueInManualPackagePanelForParentAttribution(
@@ -96,21 +96,21 @@ export function expectPackageNotInPackagePanel(
       .parentElement as HTMLElement
   ).parentElement as HTMLElement;
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(queryByText(packagesPanel, packageName)).not.toBeTruthy();
+  expect(queryByText(packagesPanel, packageName)).not.toBeInTheDocument();
 }
 
 export function expectPackagePanelShown(
   screen: Screen,
   packagePanelName: string
 ): void {
-  expect(screen.getByText(packagePanelName)).toBeTruthy();
+  expect(screen.getByText(packagePanelName)).toBeInTheDocument();
 }
 
 export function expectPackagePanelNotShown(
   screen: Screen,
   packagePanelName: string
 ): void {
-  expect(screen.queryByText(packagePanelName)).not.toBeTruthy();
+  expect(screen.queryByText(packagePanelName)).not.toBeInTheDocument();
 }
 
 export function clickOnTab(screen: Screen, tabLabel: string): void {
@@ -160,9 +160,9 @@ export function getCardInAttributionList(
 ): HTMLElement {
   const card = (screen.getByText(value).parentElement as HTMLElement)
     .parentElement as HTMLElement;
-  expect(card).not.toBeFalsy();
+  expect(card).toBeInTheDocument();
 
-  return card as HTMLElement;
+  return card;
 }
 
 export function expectValueInAddToAttributionList(
@@ -207,7 +207,7 @@ export function expectValueNotInAddToAttributionList(
     ).parentElement as HTMLElement
   ).parentElement as HTMLElement;
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(queryByText(addToAttributionList, value)).toBeNull();
+  expect(queryByText(addToAttributionList, value)).not.toBeInTheDocument();
 }
 
 export function clickAddNewAttributionButton(screen: Screen): void {

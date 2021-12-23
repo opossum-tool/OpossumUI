@@ -39,7 +39,7 @@ describe('FileSearch popup ', () => {
     renderComponentWithStore(<FileSearchPopup />);
     expect(
       screen.getByText('Search for Files and Directories', { exact: false })
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   each([
@@ -110,7 +110,7 @@ describe('FileSearch popup ', () => {
       jest.advanceTimersByTime(debounceWaitTimeInMs - smallWaitTimeInMs);
     });
 
-    expect(screen.queryAllByText('/', { exact: false })).toHaveLength(0);
+    expect(screen.queryByText('/', { exact: false })).not.toBeInTheDocument();
   });
 
   test('has search with state', () => {

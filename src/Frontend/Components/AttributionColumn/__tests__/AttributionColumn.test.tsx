@@ -109,9 +109,11 @@ describe('The AttributionColumn', () => {
         testTemporaryPackageInfo.packageVersion as string
       )
     );
-    expect(screen.queryAllByText('(Defined in parent folder)')).toHaveLength(0);
-    expect(screen.queryAllByText('Override parent')).toHaveLength(0);
-    expect(screen.queryByText('Source')).toBeFalsy();
+    expect(
+      screen.queryByText('(Defined in parent folder)')
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Override parent')).not.toBeInTheDocument();
+    expect(screen.queryByText('Source')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Copyright'));
     expect(
       screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)

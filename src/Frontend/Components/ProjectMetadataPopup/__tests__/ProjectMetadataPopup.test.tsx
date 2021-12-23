@@ -12,6 +12,7 @@ import React from 'react';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
 import { ProjectMetadata } from '../../../../shared/shared-types';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('The ProjectMetadataPopup', () => {
   test('displays metadata', () => {
@@ -24,7 +25,7 @@ describe('The ProjectMetadataPopup', () => {
     store.dispatch(setProjectMetadata(testMetadata));
 
     renderComponentWithStore(<ProjectMetadataPopup />, { store });
-    expect(screen.getByText('test-id')).toBeTruthy();
+    expect(screen.getByText('test-id')).toBeInTheDocument();
   });
 
   test('formats projectId, projectTitle and fileCreationDate', () => {
@@ -38,9 +39,9 @@ describe('The ProjectMetadataPopup', () => {
     store.dispatch(setProjectMetadata(testMetadata));
 
     renderComponentWithStore(<ProjectMetadataPopup />, { store });
-    expect(screen.getByText('Project Title')).toBeTruthy();
-    expect(screen.getByText('Project ID')).toBeTruthy();
-    expect(screen.getByText('File Creation Date')).toBeTruthy();
+    expect(screen.getByText('Project Title')).toBeInTheDocument();
+    expect(screen.getByText('Project ID')).toBeInTheDocument();
+    expect(screen.getByText('File Creation Date')).toBeInTheDocument();
   });
 
   test('displays custom user metadata', () => {
@@ -56,8 +57,10 @@ describe('The ProjectMetadataPopup', () => {
     store.dispatch(setProjectMetadata(testMetadata));
 
     renderComponentWithStore(<ProjectMetadataPopup />, { store });
-    expect(screen.getByText('foo', { exact: false })).toBeTruthy();
-    expect(screen.getByText('bar', { exact: false })).toBeTruthy();
-    expect(screen.getByText('testObject', { exact: false })).toBeTruthy();
+    expect(screen.getByText('foo', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('bar', { exact: false })).toBeInTheDocument();
+    expect(
+      screen.getByText('testObject', { exact: false })
+    ).toBeInTheDocument();
   });
 });

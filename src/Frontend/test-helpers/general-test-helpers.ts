@@ -150,7 +150,9 @@ export function expectButtonIsNotShown(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
+  expect(
+    screen.queryByRole('button', { name: buttonLabel })
+  ).not.toBeInTheDocument();
 }
 
 export function goToView(screen: Screen, view: string): void {
@@ -185,7 +187,7 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
 export function getCheckbox(screen: Screen, label: string): HTMLInputElement {
   return screen.getByRole('checkbox', {
     name: `checkbox ${label}`,
-  }) as HTMLInputElement;
+  });
 }
 
 function getMultiSelectCheckboxInPackageCard(
@@ -197,7 +199,7 @@ function getMultiSelectCheckboxInPackageCard(
       .parentElement as HTMLElement
   ).parentElement as HTMLElement;
   const checkbox = within(packageCard).getByRole('checkbox') as Element;
-  expect(checkbox).not.toBeFalsy();
+  expect(checkbox).toBeInTheDocument();
 
   return checkbox;
 }
@@ -223,7 +225,7 @@ export function openDropDown(screen: Screen): void {
 }
 
 export function expectFilterIsShown(screen: Screen, label: string): void {
-  expect(screen.getByLabelText(label)).toBeTruthy();
+  expect(screen.getByLabelText(label)).toBeInTheDocument();
 }
 
 export function clickOnFilter(screen: Screen, label: string): void {
@@ -250,7 +252,7 @@ export function expectValuesInProgressbarTooltip(
   filesWithOnlyPreSelectedAttributions: number,
   filesWithOnlySignals: number
 ): void {
-  (global as typeof globalThis).document.createRange = (): Range =>
+  global.document.createRange = (): Range =>
     ({
       setStart: (): void => {},
       setEnd: (): void => {},
@@ -267,7 +269,7 @@ export function expectValuesInProgressbarTooltip(
   });
   expect(
     screen.getByText(new RegExp(`Number of files: ${numberOfFiles}`))
-  ).toBeDefined();
+  ).toBeInTheDocument();
   expect(
     screen.getByText(
       new RegExp(`Files with attributions: ${filesWithAttribution}`)

@@ -58,8 +58,8 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     store.dispatch(setMultiSelectMode(true));
     store.dispatch(setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']));
 
-    expect(screen.getByText(expectedContent)).toBeTruthy();
-    expect(screen.getByText(expectedHeader)).toBeTruthy();
+    expect(screen.getByText(expectedContent)).toBeInTheDocument();
+    expect(screen.getByText(expectedHeader)).toBeInTheDocument();
   });
 
   test('deletes attributions', () => {
@@ -106,8 +106,8 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
 
     store.dispatch(setMultiSelectMode(true));
     store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
-    expect(screen.getByText(expectedContent)).toBeTruthy();
-    expect(screen.getByText(expectedHeader)).toBeTruthy();
+    expect(screen.getByText(expectedContent)).toBeInTheDocument();
+    expect(screen.getByText(expectedHeader)).toBeInTheDocument();
     clickOnButton(screen, ButtonText.Confirm);
     expect(getManualAttributions(store.getState())).toEqual({});
   });

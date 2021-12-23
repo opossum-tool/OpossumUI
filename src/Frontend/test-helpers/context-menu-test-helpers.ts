@@ -345,7 +345,9 @@ function expectButtonInPackageContextMenuIsNotShown(
   buttonLabel: ButtonText
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
-  expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+  expect(
+    screen.queryByRole('button', { name: buttonLabel })
+  ).not.toBeInTheDocument();
   closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
 
@@ -426,7 +428,9 @@ function expectButtonInPackageInPackagePanelContextMenuIsNotShown(
   buttonLabel: ButtonText
 ): void {
   openContextMenuOnPackageInPackagePanel(screen, packageName, packagePanelName);
-  expect(screen.queryByRole('button', { name: buttonLabel })).toBeFalsy();
+  expect(
+    screen.queryByRole('button', { name: buttonLabel })
+  ).not.toBeInTheDocument();
   closeContextMenuOnPackageInPackagePanel(
     screen,
     packageName,

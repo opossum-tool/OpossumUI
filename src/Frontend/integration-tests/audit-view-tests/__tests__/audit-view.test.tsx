@@ -514,7 +514,7 @@ describe('The App in Audit View', () => {
     expectReplaceAttributionPopupIsNotShown(screen);
 
     clickOnElementInResourceBrowser(screen, 'file_1');
-    expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
     expectValueInTextBox(screen, 'Name', 'React');
 
     // make sure resources are now linked to React attribution

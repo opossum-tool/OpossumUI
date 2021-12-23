@@ -109,7 +109,7 @@ describe('The Attribution View', () => {
     clickOnFilter(screen, FilterType.OnlyFollowUp);
 
     expect(screen.getByText('Test other package, 2.0'));
-    expect(screen.queryByText('Test package, 1.0')).toBe(null);
+    expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 
   test('filters Only First Party', () => {
@@ -132,7 +132,9 @@ describe('The Attribution View', () => {
     clickOnFilter(screen, FilterType.OnlyFirstParty);
 
     expect(screen.getByText('Test package, 1.0'));
-    expect(screen.queryByText('Test other package, 2.0')).toBe(null);
+    expect(
+      screen.queryByText('Test other package, 2.0')
+    ).not.toBeInTheDocument();
   });
 
   test('filters Only First Party and follow ups and then hide first party and follow ups', () => {
@@ -155,11 +157,13 @@ describe('The Attribution View', () => {
     clickOnFilter(screen, FilterType.OnlyFirstParty);
     clickOnFilter(screen, FilterType.OnlyFollowUp);
 
-    expect(screen.queryByText('Test package, 1.0')).toBe(null);
-    expect(screen.queryByText('Test other package, 2.0')).toBe(null);
+    expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Test other package, 2.0')
+    ).not.toBeInTheDocument();
 
     clickOnFilter(screen, FilterType.HideFirstParty);
     expect(screen.getByText('Test other package, 2.0'));
-    expect(screen.queryByText('Test package, 1.0')).toBe(null);
+    expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 });

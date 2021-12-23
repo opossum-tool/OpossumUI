@@ -160,8 +160,8 @@ describe('The ResourceDetailsAttributionColumn', () => {
       testTemporaryPackageInfo2
     );
 
-    expect(screen.queryByText('React')).toBeFalsy();
-    expect(screen.queryByText('16.5.0')).toBeFalsy();
-    expect(screen.queryByText(testManualLicense)).toBeFalsy();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
+    expect(screen.queryByText('16.5.0')).not.toBeInTheDocument();
+    expect(screen.queryByText(testManualLicense)).not.toBeInTheDocument();
   });
 });

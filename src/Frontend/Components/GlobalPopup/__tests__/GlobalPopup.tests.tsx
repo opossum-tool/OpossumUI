@@ -27,35 +27,37 @@ describe('The GlobalPopUp', () => {
   test('does not open by default', () => {
     renderComponentWithStore(<GlobalPopup />);
 
-    expect(screen.queryByText('Warning')).toBeFalsy();
+    expect(screen.queryByText('Warning')).not.toBeInTheDocument();
   });
 
   test('opens the NotSavedPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.NotSavedPopup));
 
-    expect(screen.getByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
   });
 
   test('opens the ErrorPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.UnableToSavePopup));
 
-    expect(screen.getByText('Error')).toBeTruthy();
+    expect(screen.getByText('Error')).toBeInTheDocument();
   });
 
   test('opens the FileSearchPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.FileSearchPopup));
 
-    expect(screen.getByText('Search for Files and Directories')).toBeTruthy();
+    expect(
+      screen.getByText('Search for Files and Directories')
+    ).toBeInTheDocument();
   });
 
   test('opens the ProjectMetadataPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
 
-    expect(screen.getByText('Project Metadata')).toBeTruthy();
+    expect(screen.getByText('Project Metadata')).toBeInTheDocument();
   });
 
   test('opens the ReplaceAttributionPopup', () => {
@@ -83,7 +85,7 @@ describe('The GlobalPopUp', () => {
 
     expect(
       screen.getByText('This removes the following attribution')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('opens the ConfirmDeletionPopup', () => {
@@ -96,7 +98,7 @@ describe('The GlobalPopUp', () => {
       screen.getByText(
         'Do you really want to delete this attribution for the current file?'
       )
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('opens the ConfirmDeletionGloballyPopup', () => {
@@ -112,7 +114,7 @@ describe('The GlobalPopUp', () => {
       screen.getByText(
         'Do you really want to delete this attribution for all files?'
       )
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('opens the ConfirmMultiSelectDeletionPopup', () => {
@@ -125,6 +127,6 @@ describe('The GlobalPopUp', () => {
       screen.getByText(
         'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.'
       )
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 });

@@ -8,6 +8,7 @@ import { ConfirmationPopup } from '../ConfirmationPopup';
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { ButtonText } from '../../../enums/enums';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('The ConfirmationPopup', () => {
   test('renders and calls onClick function', () => {
@@ -21,8 +22,8 @@ describe('The ConfirmationPopup', () => {
         header={header}
       />
     );
-    expect(screen.getByText(content)).toBeTruthy();
-    expect(screen.getByText(header)).toBeTruthy();
+    expect(screen.getByText(content)).toBeInTheDocument();
+    expect(screen.getByText(header)).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Confirm) as Element);
     expect(onClick).toHaveBeenCalled();
   });

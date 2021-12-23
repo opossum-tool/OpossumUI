@@ -192,7 +192,7 @@ describe('The PackageCard', () => {
     );
 
     expect(screen.getByText('packageName'));
-    expect(screen.queryByText('checkbox')).toBeFalsy();
+    expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
 
     store.dispatch(setMultiSelectMode(true));
     store.dispatch(setMultiSelectSelectedAttributionIds(['another_id']));

@@ -16,6 +16,7 @@ import {
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { ResourcesListBatch } from '../../../types/types';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('The ResourcesList', () => {
   const resourceIdsOfSelectedAttributionId = [
@@ -38,8 +39,8 @@ describe('The ResourcesList', () => {
     renderComponentWithStore(
       <ResourcesList resourcesListBatches={resourcesListBatches} />
     );
-    expect(screen.getByText('/folder1/folder2/resource_1')).toBeTruthy();
-    expect(screen.getByText('resource_2')).toBeTruthy();
+    expect(screen.getByText('/folder1/folder2/resource_1')).toBeInTheDocument();
+    expect(screen.getByText('resource_2')).toBeInTheDocument();
   });
 
   test('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {

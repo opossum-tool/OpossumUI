@@ -77,9 +77,13 @@ describe('The PackagePanelCard', () => {
     );
 
     expect(screen.getByLabelText('First party icon'));
-    expect(screen.queryByLabelText('Exclude from notice icon')).toBeFalsy();
-    expect(screen.queryByLabelText('Follow-up icon')).toBeFalsy();
-    expect(screen.queryByLabelText('Pre-selected icon')).toBeFalsy();
+    expect(
+      screen.queryByLabelText('Exclude from notice icon')
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Follow-up icon')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Pre-selected icon')
+    ).not.toBeInTheDocument();
   });
 
   test('renders many icons at once', () => {
