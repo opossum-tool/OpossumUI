@@ -33,6 +33,7 @@ export function expectGlobalOnlyContextMenuForNotPreselectedAttribution(
     ButtonText.Confirm,
     ButtonText.ConfirmGlobally,
     ButtonText.UnmarkForReplacement,
+    ButtonText.DeleteSelectedGlobally,
   ];
 
   if (showReplaceMarked) {
@@ -69,6 +70,7 @@ export function expectGlobalOnlyContextMenuForPreselectedAttribution(
       ButtonText.Confirm,
       ButtonText.UnmarkForReplacement,
       ButtonText.ReplaceMarked,
+      ButtonText.DeleteSelectedGlobally,
     ]
   );
 }
@@ -90,6 +92,7 @@ export function expectContextMenuForNotPreSelectedAttributionMultipleResources(
     ButtonText.Confirm,
     ButtonText.ConfirmGlobally,
     ButtonText.UnmarkForReplacement,
+    ButtonText.DeleteSelectedGlobally,
   ];
 
   if (showReplaceMarked) {
@@ -126,6 +129,7 @@ export function expectContextMenuForPreSelectedAttributionMultipleResources(
       ButtonText.Unhide,
       ButtonText.UnmarkForReplacement,
       ButtonText.ReplaceMarked,
+      ButtonText.DeleteSelectedGlobally,
     ]
   );
 }
@@ -147,6 +151,7 @@ export function expectContextMenuForNotPreSelectedAttributionSingleResource(
     ButtonText.ConfirmGlobally,
     ButtonText.DeleteGlobally,
     ButtonText.UnmarkForReplacement,
+    ButtonText.DeleteSelectedGlobally,
   ];
 
   if (showReplaceMarked) {
@@ -182,6 +187,7 @@ export function expectContextMenuForExternalAttributionInPackagePanel(
       ButtonText.UnmarkForReplacement,
       ButtonText.ReplaceMarked,
       ButtonText.MarkForReplacement,
+      ButtonText.DeleteSelectedGlobally,
     ]
   );
 }
@@ -205,6 +211,7 @@ export function expectContextMenuForHiddenExternalAttributionInPackagePanel(
       ButtonText.MarkForReplacement,
       ButtonText.ReplaceMarked,
       ButtonText.UnmarkForReplacement,
+      ButtonText.DeleteSelectedGlobally,
     ]
   );
 }
@@ -224,7 +231,7 @@ export function testCorrectMarkAndUnmarkForReplacementInContextMenu(
     packageName,
     ButtonText.UnmarkForReplacement
   );
-  expectButtonNotInPackageContextMenu(
+  expectButtonInPackageContextMenu(
     screen,
     packageName,
     ButtonText.MarkForReplacement
@@ -235,7 +242,7 @@ export function expectUnmarkForReplacementInContextMenu(
   screen: Screen,
   packageName: string
 ): void {
-  expectButtonNotInPackageContextMenu(
+  expectButtonInPackageContextMenu(
     screen,
     packageName,
     ButtonText.UnmarkForReplacement
@@ -314,7 +321,7 @@ export function expectCorrectButtonsInContextMenu(
   hiddenButtons: Array<ButtonText>
 ): void {
   shownButtons.forEach((buttonText) => {
-    expectButtonNotInPackageContextMenu(screen, cardLabel, buttonText);
+    expectButtonInPackageContextMenu(screen, cardLabel, buttonText);
   });
 
   hiddenButtons.forEach((buttonText) => {
@@ -328,22 +335,7 @@ export function expectButtonInPackageContextMenu(
   buttonLabel: ButtonText
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
-  const button = getButton(screen, buttonLabel);
-  const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
-
-  expect(buttonAttribute).not.toBeNull();
-}
-
-export function expectButtonNotInPackageContextMenu(
-  screen: Screen,
-  cardLabel: string,
-  buttonLabel: ButtonText
-): void {
-  openContextMenuOnCardPackageCard(screen, cardLabel);
-  const button = getButton(screen, buttonLabel);
-  const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
-
-  expect(buttonAttribute).toBeNull();
+  getButton(screen, buttonLabel);
   closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
 

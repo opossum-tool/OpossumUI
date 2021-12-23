@@ -18,6 +18,7 @@ export enum PopupType {
   ReplaceAttributionPopup = 'ReplaceAttributionPopup',
   ConfirmDeletionPopup = 'ConfirmDeletionPopup',
   ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
+  ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -48,6 +49,7 @@ export enum ButtonText {
   ConfirmGlobally = 'Confirm globally',
   Delete = 'Delete',
   DeleteGlobally = 'Delete globally',
+  DeleteSelectedGlobally = 'Delete selected globally',
   Hide = 'Hide',
   MarkForReplacement = 'Mark for replacement',
   Save = 'Save',
@@ -64,4 +66,11 @@ export enum FilterType {
   OnlyFirstParty = 'Only First Party',
   HideFirstParty = 'Hide First Party',
   OnlyFollowUp = 'Only Follow Up',
+}
+
+export enum CheckboxLabel {
+  MultiSelectMode = 'Multi-select',
+  FirstParty = '1st Party',
+  FollowUp = 'Follow-up',
+  ExcludeFromNotice = 'Exclude From Notice',
 }

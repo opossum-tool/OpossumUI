@@ -14,6 +14,7 @@ import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttri
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
 import { useAppSelector } from '../../state/hooks';
+import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -33,6 +34,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ConfirmDeletionGloballyPopup />;
     case PopupType.ConfirmDeletionPopup:
       return <ConfirmDeletionPopup />;
+    case PopupType.ConfirmMultiSelectDeletionPopup:
+      return <ConfirmMultiSelectDeletionPopup />;
     default:
       return null;
   }

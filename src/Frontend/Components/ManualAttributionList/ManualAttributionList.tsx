@@ -63,7 +63,7 @@ export function ManualAttributionList(
       <PackageCard
         attributionId={isButton ? '' : attributionId}
         onClick={onClick}
-        hideContextMenu={isButton}
+        hideContextMenuAndMultiSelect={isButton}
         cardConfig={cardConfig}
         key={`AttributionCard-${attribution.packageName}-${attributionId}`}
         cardContent={{

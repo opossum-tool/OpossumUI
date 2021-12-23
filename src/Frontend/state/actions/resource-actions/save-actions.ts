@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  Attributions,
   AttributionsToResources,
   PackageInfo,
   SaveFileArgs,
@@ -54,6 +55,8 @@ import {
 import { isEmpty } from 'lodash';
 import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
 import { openPopup } from '../view-actions/view-actions';
+import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
+import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
 
 export function setIsSavingDisabled(
   isSavingDisabled: boolean
@@ -131,6 +134,11 @@ export function savePackageInfo(
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     dispatch(resetTemporaryPackageInfo());
+    dispatch(
+      filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
+        attributionId
+      )
+    );
 
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
@@ -226,6 +234,27 @@ export function deleteAttributionAndSave(
       dispatch(unlinkResourceFromAttributionAndSave(resourceId, attributionId));
     } else {
       dispatch(deleteAttributionGloballyAndSave(attributionId));
+    }
+  };
+}
+
+function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
+  attributionId: string | null
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const multiSelectSelectedAttributionIds =
+      getMultiSelectSelectedAttributionIds(getState());
+    const attributions: Attributions = getManualAttributions(getState());
+    if (
+      attributionId &&
+      !attributions[attributionId] &&
+      multiSelectSelectedAttributionIds.includes(attributionId)
+    ) {
+      dispatch(
+        setMultiSelectSelectedAttributionIds(
+          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
+        )
+      );
     }
   };
 }

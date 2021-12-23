@@ -63,7 +63,7 @@ export function ReplaceAttributionPopup(): ReactElement {
         attributionId={attributionId}
         onClick={doNothing}
         cardConfig={{}}
-        hideContextMenu={true}
+        hideContextMenuAndMultiSelect={true}
         cardContent={{
           id: `attribution-list-${attributionId}`,
           name: attribution?.packageName,

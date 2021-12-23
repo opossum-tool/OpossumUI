@@ -17,7 +17,12 @@ import {
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, FilterType, View } from '../../../enums/enums';
+import {
+  ButtonText,
+  CheckboxLabel,
+  FilterType,
+  View,
+} from '../../../enums/enums';
 import { IpcRenderer } from 'electron';
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import React from 'react';
@@ -103,7 +108,7 @@ describe('The App integration', () => {
     screen.getByText('Vue');
 
     clickOnCardInAttributionList(screen, 'Vue');
-    clickOnCheckbox(screen, 'Follow-up');
+    clickOnCheckbox(screen, CheckboxLabel.FollowUp);
     clickOnButton(screen, ButtonText.Save);
 
     openDropDown(screen);

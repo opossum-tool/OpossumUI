@@ -11,6 +11,15 @@ import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { FilteredList } from '../FilteredList/FilteredList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
+import { Checkbox } from '../Checkbox/Checkbox';
+import { getMultiSelectMode } from '../../state/selectors/attribution-view-resource-selectors';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  setMultiSelectMode,
+  setMultiSelectSelectedAttributionIds,
+} from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { CheckboxLabel } from '../../enums/enums';
+import { useCheckboxStyles } from '../../shared-styles';
 
 const useStyles = makeStyles({
   topElements: {
@@ -37,11 +46,13 @@ interface AttributionListProps {
 }
 
 export function AttributionList(props: AttributionListProps): ReactElement {
-  const classes = useStyles();
+  const classes = { ...useCheckboxStyles(), ...useStyles() };
   const attributions = { ...props.attributions };
   const attributionIds: Array<string> = Object.keys({
     ...props.attributions,
   }).sort(getAlphabeticalComparer(attributions));
+  const multiSelectMode = useAppSelector(getMultiSelectMode);
+  const dispatch = useAppDispatch();
 
   function getAttributionCard(attributionId: string): ReactElement {
     const attribution = attributions[attributionId];
@@ -88,10 +99,25 @@ export function AttributionList(props: AttributionListProps): ReactElement {
     );
   }
 
+  function handleMultiSelectModeChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void {
+    if (!event.target.checked) {
+      dispatch(setMultiSelectSelectedAttributionIds([]));
+    }
+    dispatch(setMultiSelectMode(event.target.checked));
+  }
+
   return (
     <div className={props.className}>
       <div className={classes.topElements}>
         <MuiTypography className={classes.title}>{props.title}</MuiTypography>
+        <Checkbox
+          label={CheckboxLabel.MultiSelectMode}
+          checked={multiSelectMode}
+          onChange={handleMultiSelectModeChange}
+          className={classes.checkBox}
+        />
         {props.topRightElement}
       </div>
       {props.filterElement}

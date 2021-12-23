@@ -7,6 +7,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ListCard } from '../ListCard';
+import { Checkbox } from '../../Checkbox/Checkbox';
 
 describe('The ListCard', () => {
   test('renders text with no count', () => {
@@ -69,5 +70,22 @@ describe('The ListCard', () => {
     expect(screen.getByText('card text'));
     expect(screen.getByText('card text of second line'));
     expect(screen.getByText('1M'));
+  });
+
+  test('renders leftElement if provided as input', () => {
+    const leftElement = <Checkbox checked={false} onChange={jest.fn()} />;
+    render(
+      <ListCard
+        text={'card text'}
+        secondLineText={'card text of second line'}
+        onClick={doNothing}
+        cardConfig={{}}
+        leftElement={leftElement}
+      />
+    );
+
+    expect(screen.getByText('card text'));
+    expect(screen.getByText('card text of second line'));
+    expect(screen.getByRole('checkbox')).toBeTruthy();
   });
 });

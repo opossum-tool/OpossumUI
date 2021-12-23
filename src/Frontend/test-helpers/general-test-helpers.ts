@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { act, fireEvent, Screen } from '@testing-library/react';
+import { act, fireEvent, Screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import {
   Attributions,
@@ -182,8 +182,38 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
   );
 }
 
-export function clickOnDeleteIcon(screen: Screen): void {
-  fireEvent.click(screen.getByTestId('CancelIcon') as Element);
+export function getCheckbox(screen: Screen, label: string): HTMLInputElement {
+  return screen.getByRole('checkbox', {
+    name: `checkbox ${label}`,
+  }) as HTMLInputElement;
+}
+
+function getMultiSelectCheckboxInPackageCard(
+  screen: Screen,
+  cardLabel: string
+): Element {
+  const packageCard = (
+    (screen.getByText(cardLabel).parentElement as HTMLElement)
+      .parentElement as HTMLElement
+  ).parentElement as HTMLElement;
+  const checkbox = within(packageCard).getByRole('checkbox') as Element;
+  expect(checkbox).not.toBeFalsy();
+
+  return checkbox;
+}
+
+export function clickOnMultiSelectCheckboxInPackageCard(
+  screen: Screen,
+  cardLabel: string
+): void {
+  fireEvent.click(getMultiSelectCheckboxInPackageCard(screen, cardLabel));
+}
+
+export function expectSelectCheckboxInPackageCardIsChecked(
+  screen: Screen,
+  cardLabel: string
+): void {
+  expect(getMultiSelectCheckboxInPackageCard(screen, cardLabel)).toBeChecked();
 }
 
 export function openDropDown(screen: Screen): void {

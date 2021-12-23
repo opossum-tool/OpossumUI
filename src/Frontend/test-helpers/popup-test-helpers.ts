@@ -57,3 +57,20 @@ export function expectConfirmDeletionPopupVisible(screen: Screen): void {
 export function expectConfirmDeletionPopupNotVisible(screen: Screen): void {
   expect(screen.queryByText('Confirm Deletion')).toBeFalsy();
 }
+
+export function expectConfirmMultiSelectDeletionPopupVisible(
+  screen: Screen,
+  numberOfSelectedAttributions: number
+): void {
+  expect(
+    screen.getByText(
+      `Do you really want to delete the selected attributions for all files? This action will delete ${numberOfSelectedAttributions} attributions.`
+    )
+  ).toBeTruthy();
+}
+
+export function expectConfirmMultiSelectDeletionPopupNotVisible(
+  screen: Screen
+): void {
+  expect(screen.queryByText('Confirm Deletion')).toBeFalsy();
+}
