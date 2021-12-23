@@ -14,7 +14,6 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ProgressBar } from '../ProgressBar';
 import { setProgressBarData } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('ProgressBar', () => {
   jest.useFakeTimers();

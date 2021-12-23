@@ -7,7 +7,6 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('The ConfirmDeletionPopup', () => {
   test('renders', () => {

@@ -6,7 +6,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { NotificationPopup } from '../NotificationPopup';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('NotificationPopup', () => {
   test('renders open popup with text', () => {

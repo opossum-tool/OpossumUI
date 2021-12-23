@@ -8,7 +8,6 @@ import React, { ReactElement } from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { FilteredList } from '../FilteredList';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('The FilteredList', () => {
   test('has search functionality', () => {

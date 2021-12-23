@@ -8,7 +8,6 @@ import { ConfirmationPopup } from '../ConfirmationPopup';
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { ButtonText } from '../../../enums/enums';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('The ConfirmationPopup', () => {
   test('renders and calls onClick function', () => {

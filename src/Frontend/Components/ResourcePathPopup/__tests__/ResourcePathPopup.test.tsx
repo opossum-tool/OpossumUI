@@ -21,7 +21,6 @@ import {
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { screen } from '@testing-library/react';
 import { useAppDispatch } from '../../../state/hooks';
-import '@testing-library/jest-dom/extend-expect';
 
 interface HelperComponentProps {
   isExternalAttribution: boolean;

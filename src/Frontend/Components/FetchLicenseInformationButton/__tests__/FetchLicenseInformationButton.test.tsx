@@ -19,7 +19,6 @@ import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import '@testing-library/jest-dom/extend-expect';
 
 describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
