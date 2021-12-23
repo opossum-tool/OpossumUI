@@ -47,6 +47,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 2,
     '@typescript-eslint/await-thenable': 2,
     '@typescript-eslint/require-await': 2,
+    '@typescript-eslint/no-unnecessary-type-assertion': 2,
     'object-shorthand': 2,
     'react/prop-types': 'off',
     'testing-library/no-node-access': 'off', // TODO: remove this line and fix warnings

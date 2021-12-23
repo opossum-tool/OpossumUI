@@ -187,7 +187,7 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
 export function getCheckbox(screen: Screen, label: string): HTMLInputElement {
   return screen.getByRole('checkbox', {
     name: `checkbox ${label}`,
-  }) as HTMLInputElement;
+  });
 }
 
 function getMultiSelectCheckboxInPackageCard(
@@ -252,7 +252,7 @@ export function expectValuesInProgressbarTooltip(
   filesWithOnlyPreSelectedAttributions: number,
   filesWithOnlySignals: number
 ): void {
-  (global as typeof globalThis).document.createRange = (): Range =>
+  global.document.createRange = (): Range =>
     ({
       setStart: (): void => {},
       setEnd: (): void => {},

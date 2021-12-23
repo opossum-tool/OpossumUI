@@ -121,7 +121,7 @@ export function updateProgressBarDataForResources(
       const isBreakpoint = isAttributionBreakpoint(path);
       updateProgressBarDataForResources(
         progressBarData,
-        resource as Resources,
+        resource,
         manualAttributions,
         resourcesToManualAttributions,
         resourcesToExternalAttributions,

@@ -162,7 +162,7 @@ export function getCardInAttributionList(
     .parentElement as HTMLElement;
   expect(card).toBeInTheDocument();
 
-  return card as HTMLElement;
+  return card;
 }
 
 export function expectValueInAddToAttributionList(

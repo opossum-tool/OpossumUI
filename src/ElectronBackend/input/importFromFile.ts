@@ -223,7 +223,7 @@ function createOutputFileIfItDoesNotExist(
       resolvedExternalAttributions: [],
     };
 
-    writeJsonToFile(manualAttributionFilePath as string, attributionJSON);
+    writeJsonToFile(manualAttributionFilePath, attributionJSON);
   }
 }
 
