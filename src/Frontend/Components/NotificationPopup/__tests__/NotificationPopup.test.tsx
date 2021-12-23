@@ -6,6 +6,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { NotificationPopup } from '../NotificationPopup';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('NotificationPopup', () => {
   test('renders open popup with text', () => {
@@ -30,8 +31,8 @@ describe('NotificationPopup', () => {
       />
     );
 
-    expect(screen.getByText('header text')).toBeTruthy();
-    expect(screen.getByText('content text')).toBeTruthy();
+    expect(screen.getByText('header text')).toBeInTheDocument();
+    expect(screen.getByText('content text')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('leftButtonText'));
     expect(onLeftButtonClick).toHaveBeenCalled();
@@ -52,8 +53,8 @@ describe('NotificationPopup', () => {
       />
     );
 
-    expect(screen.getByText('header text')).toBeTruthy();
-    expect(screen.getByText('test component')).toBeTruthy();
+    expect(screen.getByText('header text')).toBeInTheDocument();
+    expect(screen.getByText('test component')).toBeInTheDocument();
   });
 
   test('executes function on escape key', () => {

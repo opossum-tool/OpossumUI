@@ -114,12 +114,12 @@ describe('The App integration', () => {
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFollowUp);
     screen.getByText('JQuery');
-    expect(screen.queryByText('Angular')).toBeFalsy();
+    expect(screen.queryByText('Angular')).not.toBeInTheDocument();
     screen.getAllByText('Vue');
 
     goToView(screen, View.Report);
     screen.getByText('JQuery');
-    expect(screen.queryByText('Angular')).toBeFalsy();
+    expect(screen.queryByText('Angular')).not.toBeInTheDocument();
     screen.getByText('Vue');
 
     openDropDown(screen);
@@ -129,13 +129,13 @@ describe('The App integration', () => {
     screen.getByText('Vue');
 
     clickOnFilter(screen, FilterType.OnlyFirstParty);
-    expect(screen.queryByText('JQuery')).toBeFalsy();
-    expect(screen.queryByText('Angular')).toBeFalsy();
+    expect(screen.queryByText('JQuery')).not.toBeInTheDocument();
+    expect(screen.queryByText('Angular')).not.toBeInTheDocument();
     screen.getByText('Vue');
 
     goToView(screen, View.Attribution);
-    expect(screen.queryByText('JQuery')).toBeFalsy();
-    expect(screen.queryByText('Angular')).toBeFalsy();
+    expect(screen.queryByText('JQuery')).not.toBeInTheDocument();
+    expect(screen.queryByText('Angular')).not.toBeInTheDocument();
     screen.getByText('Vue');
   });
 });

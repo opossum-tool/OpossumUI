@@ -29,6 +29,7 @@ import { getSelectedResourceId } from '../../../state/selectors/audit-view-resou
 import { isEqual } from 'lodash';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('ResourceBrowser', () => {
   test('renders working tree', () => {
@@ -51,12 +52,12 @@ describe('ResourceBrowser', () => {
     expect(screen.getByText('/'));
     expect(screen.getByText('root'));
     expect(screen.getByText('thirdParty'));
-    expect(screen.queryByText('src')).toBeNull();
+    expect(screen.queryByText('src')).not.toBeInTheDocument();
     fireEvent.click(screen.queryByText('root') as Element);
 
     expect(screen.getByText('root'));
     expect(screen.getByText('readme.md'));
-    expect(screen.queryByText('something.js')).toBeNull();
+    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
     expect(getSelectedResourceId(store.getState())).toBe('/root/');
 
     fireEvent.click(screen.queryByText('src') as Element);
@@ -64,10 +65,10 @@ describe('ResourceBrowser', () => {
     expect(getSelectedResourceId(store.getState())).toBe('/root/src/');
 
     fireEvent.click(screen.queryByText('src') as Element);
-    expect(screen.getByText('something.js')).not.toBeNull();
+    expect(screen.getByText('something.js')).toBeInTheDocument();
 
     collapseFolderByClickingOnIcon(screen, '/root/src/');
-    expect(screen.queryByText('something.js')).toBeNull();
+    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('src') as Element);
     expect(screen.getByText('something.js'));
@@ -77,11 +78,11 @@ describe('ResourceBrowser', () => {
     expect(screen.getByText('src'));
 
     collapseFolderByClickingOnIcon(screen, '/root/');
-    expect(screen.queryByText('something.js')).not.toBeTruthy();
-    expect(screen.queryByText('src')).not.toBeTruthy();
+    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
+    expect(screen.queryByText('src')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('root') as Element);
-    expect(screen.queryByText('something.js')).not.toBeTruthy();
+    expect(screen.queryByText('something.js')).not.toBeInTheDocument();
     expect(screen.getByText('src'));
   });
 
@@ -102,10 +103,10 @@ describe('ResourceBrowser', () => {
 
     expect(screen.getByText('/'));
     expect(screen.getByText('parentDirectory'));
-    expect(screen.queryByText('childDirectory')).not.toBeTruthy();
-    expect(screen.queryByText('GrandchildDirectory')).not.toBeTruthy();
-    expect(screen.queryByText('package_1.tr.gz')).not.toBeTruthy();
-    expect(screen.queryByText('package_2.tr.gz')).not.toBeTruthy();
+    expect(screen.queryByText('childDirectory')).not.toBeInTheDocument();
+    expect(screen.queryByText('GrandchildDirectory')).not.toBeInTheDocument();
+    expect(screen.queryByText('package_1.tr.gz')).not.toBeInTheDocument();
+    expect(screen.queryByText('package_2.tr.gz')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('parentDirectory') as Element);
     expect(screen.getByText('/'));
@@ -151,23 +152,23 @@ describe('ResourceBrowser', () => {
       )
     );
 
-    expect(screen.getByText('/')).toBeTruthy();
-    expect(screen.getByText('root')).toBeTruthy();
+    expect(screen.getByText('/')).toBeInTheDocument();
+    expect(screen.getByText('root')).toBeInTheDocument();
     expectIconToExist(screen, 'Signal icon', 'root', false);
     expectResourceIconLabelToBe(
       screen,
       'root',
       'Directory icon containing signals'
     );
-    expect(screen.queryByText('src')).toBeNull();
+    expect(screen.queryByText('src')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('root') as Element);
-    expect(screen.getByText('src')).toBeTruthy();
+    expect(screen.getByText('src')).toBeInTheDocument();
     expectIconToExist(screen, 'Signal icon', 'src', true);
     expectResourceIconLabelToBe(screen, 'src', 'Directory icon with signal');
 
     fireEvent.click(screen.queryByText('src') as Element);
-    expect(screen.getByText('something.js')).toBeTruthy();
+    expect(screen.getByText('something.js')).toBeInTheDocument();
     expectIconToExist(screen, 'Signal icon', 'something.js', false);
     expectResourceIconLabelToBe(
       screen,
@@ -202,7 +203,7 @@ describe('ResourceBrowser', () => {
     store.dispatch(setResources(testResources));
 
     expect(screen.getByText('/'));
-    expect(screen.queryByText('doesntExist')).toBeNull();
+    expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
       'a_package.exe',
@@ -231,7 +232,7 @@ describe('ResourceBrowser', () => {
     const { store } = renderComponentWithStore(<ResourceBrowser />);
     store.dispatch(setResources(testResources));
     expect(screen.getByText('/'));
-    expect(screen.queryByText('doesntExist')).toBeNull();
+    expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
       'c_package_folder',
@@ -264,7 +265,7 @@ describe('ResourceBrowser', () => {
     store.dispatch(setFilesWithChildren(new Set(['/package.json/'])));
 
     expect(screen.getByText('/'));
-    expect(screen.queryByText('doesntExist')).toBeNull();
+    expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
       'a_package_folder',
@@ -296,11 +297,11 @@ function expectIconToExist(
     ? expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
         getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
-      ).not.toBeNull()
+      ).toBeInTheDocument()
     : expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
         queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
-      ).toBeNull();
+      ).not.toBeInTheDocument();
 }
 
 function expectResourceIconLabelToBe(
@@ -312,5 +313,5 @@ function expectResourceIconLabelToBe(
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
     getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
-  ).not.toBeNull();
+  ).toBeInTheDocument();
 }

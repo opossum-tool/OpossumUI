@@ -50,11 +50,10 @@ describe('The ManualPackagePanel', () => {
         onOverrideParentClick={mockOnOverride}
       />
     );
-    const overrideButtonQuery = screen.queryAllByText('Override parent');
-    expect(overrideButtonQuery).toHaveLength(1);
+    const overrideButton = screen.queryByText('Override parent');
+    expect(overrideButton).toBeInTheDocument();
 
-    const overrideButton = overrideButtonQuery[0];
-    fireEvent.click(overrideButton);
+    fireEvent.click(overrideButton as Element);
     expect(mockOnOverride).toBeCalled();
   });
 });

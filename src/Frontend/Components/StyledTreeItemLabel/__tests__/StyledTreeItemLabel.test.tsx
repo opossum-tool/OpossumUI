@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { StyledTreeItemLabel } from '../StyledTreeItemLabel';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('StyledTreeItemLabel', () => {
   test('renders a file without information', () => {
@@ -25,9 +26,11 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
-    expect(screen.queryByLabelText('Attribution icon')).toBeNull();
-    expect(screen.getByLabelText('File icon without information')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Attribution icon')).not.toBeInTheDocument();
+    expect(
+      screen.getByLabelText('File icon without information')
+    ).toBeInTheDocument();
   });
 
   test('renders a folder with attribution', () => {
@@ -46,10 +49,10 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon with attribution')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('renders a folder with signal and icon', () => {
@@ -68,9 +71,11 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
-    expect(screen.getByLabelText('Signal icon')).not.toBeNull();
-    expect(screen.getByLabelText('Directory icon with signal')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.getByLabelText('Signal icon')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Directory icon with signal')
+    ).toBeInTheDocument();
   });
 
   test('renders a folder with resolved signal and icon', () => {
@@ -89,11 +94,11 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
-    expect(screen.getByLabelText('Signal icon')).not.toBeNull();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.getByLabelText('Signal icon')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon without information')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('renders a file with resolved signal and icon', () => {
@@ -112,9 +117,11 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
-    expect(screen.getByLabelText('Signal icon')).not.toBeNull();
-    expect(screen.getByLabelText('File icon with attribution')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.getByLabelText('Signal icon')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('File icon with attribution')
+    ).toBeInTheDocument();
   });
 
   test('renders a folder with contained signals', () => {
@@ -133,10 +140,10 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon containing signals')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('renders a folder with contained attributions', () => {
@@ -155,10 +162,10 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon containing attributions')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('renders a file with parent attribution', () => {
@@ -177,10 +184,10 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon with parent attribution')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('renders a folder without information', () => {
@@ -199,10 +206,10 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon without information')
-    ).toBeTruthy();
+    ).toBeInTheDocument();
   });
 
   test('renders a breakpoint', () => {
@@ -221,7 +228,7 @@ describe('StyledTreeItemLabel', () => {
       />
     );
 
-    expect(screen.getByText('Test label')).toBeTruthy();
-    expect(screen.getByLabelText('Breakpoint icon')).toBeTruthy();
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(screen.getByLabelText('Breakpoint icon')).toBeInTheDocument();
   });
 });

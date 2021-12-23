@@ -93,7 +93,7 @@ describe('The ReportView', () => {
     clickOnFilter(screen, FilterType.OnlyFollowUp);
 
     expect(screen.getByText('Test other package'));
-    expect(screen.queryByText('Test package')).toBe(null);
+    expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 
   test('filters only first party', () => {
@@ -114,7 +114,7 @@ describe('The ReportView', () => {
     clickOnFilter(screen, FilterType.OnlyFirstParty);
 
     expect(screen.getByText('Test package'));
-    expect(screen.queryByText('Test other package')).toBe(null);
+    expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
 
     clickOnFilter(screen, FilterType.OnlyFirstParty);
     expect(screen.getByText('Test package'));
@@ -139,12 +139,12 @@ describe('The ReportView', () => {
     clickOnFilter(screen, FilterType.OnlyFirstParty);
     clickOnFilter(screen, FilterType.OnlyFollowUp);
 
-    expect(screen.queryByText('Test package')).toBe(null);
-    expect(screen.queryByText('Test other package')).toBe(null);
+    expect(screen.queryByText('Test package')).not.toBeInTheDocument();
+    expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
 
     clickOnFilter(screen, FilterType.HideFirstParty);
 
     expect(screen.getByText('Test other package'));
-    expect(screen.queryByText('Test package')).toBe(null);
+    expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 });

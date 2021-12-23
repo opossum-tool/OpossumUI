@@ -112,7 +112,7 @@ describe('The App in attribution view', () => {
 
     goToView(screen, View.Attribution);
 
-    expect(screen.queryByText('Linked Resources')).toBeFalsy();
+    expect(screen.queryByText('Linked Resources')).not.toBeInTheDocument();
   });
 
   test('allows to modify text in text boxes', () => {
@@ -152,7 +152,7 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'Angular');
     expectValueInTextBox(screen, 'Version', '16.0.0');
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
-    expect(screen.queryByText('jQuery')).toBeFalsy();
+    expect(screen.queryByText('jQuery')).not.toBeInTheDocument();
 
     insertValueIntoTextBox(screen, 'Name', 'jQuery');
     expectValueInTextBox(screen, 'Name', 'jQuery');
@@ -164,7 +164,7 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'Vue');
     expectValueInTextBox(screen, 'Version', '2.6.0');
     expectValueInTextBox(screen, 'Comment', 'ManualPackage 2');
-    expect(screen.queryByText('jQuery')).toBeFalsy();
+    expect(screen.queryByText('jQuery')).not.toBeInTheDocument();
 
     insertValueIntoTextBox(screen, 'Name', 'jQuery');
     expectValueInTextBox(screen, 'Name', 'jQuery');
@@ -424,7 +424,7 @@ describe('The App in attribution view', () => {
     insertValueIntoTextBox(screen, 'Comment', '');
     clickOnButton(screen, ButtonText.Save);
 
-    expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
       [IpcChannel['OpenFile']],
@@ -492,7 +492,7 @@ describe('The App in attribution view', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Cancel);
-    expect(screen.getByText('jQuery, 16.0.0')).toBeTruthy();
+    expect(screen.getByText('jQuery, 16.0.0')).toBeInTheDocument();
     expectReplaceAttributionPopupIsNotShown(screen);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
@@ -500,7 +500,7 @@ describe('The App in attribution view', () => {
     clickOnButton(screen, ButtonText.Replace);
     expectValueInTextBox(screen, 'Name', 'React');
     expectReplaceAttributionPopupIsNotShown(screen);
-    expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
     screen.getByText('/root/src/file_1');
     screen.getByText('/root/src/file_2');
 

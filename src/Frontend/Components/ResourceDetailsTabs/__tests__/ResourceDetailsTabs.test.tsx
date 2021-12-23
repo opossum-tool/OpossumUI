@@ -49,7 +49,7 @@ describe('The ResourceDetailsTabs', () => {
     expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(screen.queryByText('Signals')).toBeFalsy();
+    expect(screen.queryByText('Signals')).not.toBeInTheDocument();
 
     clickOnTab(screen, 'Signals & Content Tab');
     expect(screen.getByText('Signals'));

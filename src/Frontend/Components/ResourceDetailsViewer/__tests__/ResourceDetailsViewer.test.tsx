@@ -266,7 +266,9 @@ describe('The ResourceDetailsViewer', () => {
       'License Text (to appear in attribution document)',
       testExternalLicense
     );
-    expect(screen.queryByRole('button', { name: 'Save' })).toBeFalsy();
+    expect(
+      screen.queryByRole('button', { name: 'Save' })
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expectValueInTextBox(
@@ -279,7 +281,7 @@ describe('The ResourceDetailsViewer', () => {
       'License Text (to appear in attribution document)',
       testExternalLicense
     );
-    expect(screen.getByRole('button', { name: 'Save' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
   test('adds an external package to a manual package', () => {
@@ -497,15 +499,15 @@ describe('The ResourceDetailsViewer', () => {
 
     store.dispatch(setSelectedResourceId('/root/'));
     expect(screen.getByText('Signals'));
-    expect(screen.queryByText(manualPackagePanelLabel)).toBeFalsy();
+    expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
 
     clickOnTab(screen, 'All Attributions Tab');
-    expect(screen.queryByText('Signals')).toBeFalsy();
+    expect(screen.queryByText('Signals')).not.toBeInTheDocument();
     expect(screen.getByText(manualPackagePanelLabel));
 
     clickOnTab(screen, 'Signals & Content Tab');
     expect(screen.getByText('Signals'));
-    expect(screen.queryByText(manualPackagePanelLabel)).toBeFalsy();
+    expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
   });
 
   test('shows disabled add to package tab if no assignable package is present', () => {
@@ -597,12 +599,12 @@ describe('The ResourceDetailsViewer', () => {
       })
     );
 
-    expect(screen.queryByText('Attributions')).toBeFalsy();
-    expect(screen.queryByText('Add new attribution')).toBeFalsy();
-    expect(screen.queryByText('1st party')).toBeFalsy();
+    expect(screen.queryByText('Attributions')).not.toBeInTheDocument();
+    expect(screen.queryByText('Add new attribution')).not.toBeInTheDocument();
+    expect(screen.queryByText('1st party')).not.toBeInTheDocument();
     expect(
       screen.queryByText('License Text (to appear in attribution document)')
-    ).toBeFalsy();
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Other package') as Element);
     expectValueInTextBox(

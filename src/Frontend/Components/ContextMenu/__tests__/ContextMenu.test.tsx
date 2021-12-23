@@ -7,7 +7,8 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ButtonText } from '../../../enums/enums';
 import { doNothing } from '../../../util/do-nothing';
-import { ContextMenuItem, ContextMenu } from '../ContextMenu';
+import { ContextMenu, ContextMenuItem } from '../ContextMenu';
+import '@testing-library/jest-dom/extend-expect';
 
 const onClickMock = jest.fn();
 const testMenuItems: Array<ContextMenuItem> = [
@@ -30,15 +31,15 @@ const testMenuItems: Array<ContextMenuItem> = [
 ];
 
 function expectContextMenuIsNotShown(): void {
-  expect(screen.queryByText(ButtonText.Undo)).toBeFalsy();
-  expect(screen.queryByText(ButtonText.Save)).toBeFalsy();
-  expect(screen.queryByText(ButtonText.SaveGlobally)).toBeFalsy();
+  expect(screen.queryByText(ButtonText.Undo)).not.toBeInTheDocument();
+  expect(screen.queryByText(ButtonText.Save)).not.toBeInTheDocument();
+  expect(screen.queryByText(ButtonText.SaveGlobally)).not.toBeInTheDocument();
 }
 
 function expectContextMenuIsShown(): void {
   expect(screen.getByText(ButtonText.Undo));
   expect(screen.getByText(ButtonText.Save));
-  expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
+  expect(screen.queryByText(ButtonText.SaveGlobally)).not.toBeInTheDocument();
 }
 
 describe('The ContextMenu', () => {

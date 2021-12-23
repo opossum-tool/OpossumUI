@@ -139,7 +139,7 @@ describe('The report view', () => {
 
     goToView(screen, View.Report);
     screen.getByText('gpl-2.0');
-    expect(screen.queryByText('frequent license')).toBeFalsy();
+    expect(screen.queryByText('frequent license')).not.toBeInTheDocument();
 
     goToView(screen, View.Audit);
     insertValueIntoTextBox(screen, 'License Name', 'GPL-2.0');

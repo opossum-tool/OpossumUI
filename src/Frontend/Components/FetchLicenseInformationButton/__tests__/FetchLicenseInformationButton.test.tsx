@@ -19,11 +19,12 @@ import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
     render(<FetchLicenseInformationButton isDisabled={true} url={''} />);
-    expect(screen.getByLabelText('Fetch data')).toBeTruthy();
+    expect(screen.getByLabelText('Fetch data')).toBeInTheDocument();
   });
 
   it('renders enabled button', () => {
@@ -33,7 +34,7 @@ describe('FetchLicenseInformationButton', () => {
         isDisabled={false}
       />
     );
-    expect(screen.getByRole('button')).toBeTruthy();
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 });
 

@@ -89,9 +89,9 @@ describe('ReplaceAttributionPopup and do not change view', () => {
       store: testStore,
     });
 
-    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
-    expect(screen.getByText('React')).toBeTruthy();
-    expect(screen.getByText('Vue')).toBeTruthy();
+    expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Vue')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
@@ -105,17 +105,23 @@ describe('ReplaceAttributionPopup and do not change view', () => {
       store: testStore,
     });
 
-    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
-    expect(screen.getByText('React')).toBeTruthy();
-    expect(screen.getByText('Vue')).toBeTruthy();
+    expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Vue')).toBeInTheDocument();
 
     fireEvent.contextMenu(screen.queryByText('React') as Element);
-    expect(screen.queryByText(ButtonText.Delete)).toBeFalsy();
-    expect(screen.queryByText(ButtonText.Hide)).toBeFalsy();
-    expect(screen.queryByText(ButtonText.ShowResources)).toBeFalsy();
-    expect(screen.queryByText(ButtonText.Confirm)).toBeFalsy();
-    expect(screen.queryByText(ButtonText.ConfirmGlobally)).toBeFalsy();
-    expect(screen.queryByText(ButtonText.DeleteGlobally)).toBeFalsy();
+    expect(screen.queryByText(ButtonText.Delete)).not.toBeInTheDocument();
+    expect(screen.queryByText(ButtonText.Hide)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(ButtonText.ShowResources)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(ButtonText.Confirm)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(ButtonText.ConfirmGlobally)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(ButtonText.DeleteGlobally)
+    ).not.toBeInTheDocument();
   });
 
   test('does not show multi-select checkbox for attributions', () => {
@@ -130,10 +136,10 @@ describe('ReplaceAttributionPopup and do not change view', () => {
       store: testStore,
     });
 
-    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
-    expect(screen.getByText('React')).toBeTruthy();
-    expect(screen.getByText('Vue')).toBeTruthy();
-    expect(screen.queryByText('checkbox')).toBeFalsy();
+    expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Vue')).toBeInTheDocument();
+    expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
   });
 
   test('renders a ReplaceAttributionPopup and click replace', () => {
@@ -144,9 +150,9 @@ describe('ReplaceAttributionPopup and do not change view', () => {
       store: testStore,
     });
 
-    expect(screen.getByText('Replacing an attribution')).toBeTruthy();
-    expect(screen.getByText('React')).toBeTruthy();
-    expect(screen.getByText('Vue')).toBeTruthy();
+    expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('Vue')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText(ButtonText.Replace) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);

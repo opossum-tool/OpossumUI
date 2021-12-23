@@ -8,6 +8,7 @@ import React, { ReactElement } from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { FilteredList } from '../FilteredList';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('The FilteredList', () => {
   test('has search functionality', () => {
@@ -47,35 +48,35 @@ describe('The FilteredList', () => {
       target: { value: 'name 1' },
     });
     screen.getByText('uuid1');
-    expect(screen.queryByText('uuid2')).toBeNull();
-    expect(screen.queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid2')).not.toBeInTheDocument();
+    expect(screen.queryByText('uuid3')).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name' },
     });
     screen.getByText('uuid1');
     screen.getByText('uuid2');
-    expect(screen.queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid3')).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: '(C)' },
     });
-    expect(screen.queryByText('uuid1')).toBeNull();
+    expect(screen.queryByText('uuid1')).not.toBeInTheDocument();
     screen.getByText('uuid2');
-    expect(screen.queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid3')).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'NAME 2' },
     });
     screen.getByText('uuid1');
     screen.getByText('uuid2');
-    expect(screen.queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid3')).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'comment' },
     });
-    expect(screen.queryByText('uuid1')).toBeNull();
-    expect(screen.queryByText('uuid2')).toBeNull();
-    expect(screen.queryByText('uuid3')).toBeNull();
+    expect(screen.queryByText('uuid1')).not.toBeInTheDocument();
+    expect(screen.queryByText('uuid2')).not.toBeInTheDocument();
+    expect(screen.queryByText('uuid3')).not.toBeInTheDocument();
   });
 });

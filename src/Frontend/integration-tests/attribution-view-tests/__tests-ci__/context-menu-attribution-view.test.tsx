@@ -238,7 +238,7 @@ describe('In Attribution View the ContextMenu', () => {
       ButtonText.Cancel
     );
 
-    expect(screen.getByText('jQuery, 16.0.0')).toBeTruthy();
+    expect(screen.getByText('jQuery, 16.0.0')).toBeInTheDocument();
 
     handleReplaceMarkedAttributionViaContextMenu(
       screen,
@@ -251,7 +251,7 @@ describe('In Attribution View the ContextMenu', () => {
       'React, 16.0.0'
     );
 
-    expect(screen.queryByText('jQuery, 16.0.0')).toBeFalsy();
+    expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
     screen.getByText('/root/src/file_1');
     screen.getByText('/root/src/file_2');
 
@@ -308,7 +308,7 @@ describe('In Attribution View the ContextMenu', () => {
     expectConfirmMultiSelectDeletionPopupVisible(screen, 2);
     clickOnButton(screen, ButtonText.Confirm);
     expectConfirmMultiSelectDeletionPopupNotVisible(screen);
-    expect(screen.queryByText('React, 16.5.0')).toBeFalsy();
-    expect(screen.queryByText('Vue, 1.2.0')).toBeFalsy();
+    expect(screen.queryByText('React, 16.5.0')).not.toBeInTheDocument();
+    expect(screen.queryByText('Vue, 1.2.0')).not.toBeInTheDocument();
   });
 });

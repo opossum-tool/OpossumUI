@@ -51,7 +51,9 @@ export function expectButtonInHamburgerMenuIsNotShown(
   buttonLabel: ButtonText
 ): void {
   fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
-  expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
+  expect(
+    screen.queryByRole('button', { name: buttonLabel })
+  ).not.toBeInTheDocument();
 
   if (screen.queryByRole('presentation')) {
     fireEvent.click(screen.getByRole('presentation').firstChild as Element);
@@ -84,7 +86,7 @@ export function expectValueNotInConfidenceField(
 ): void {
   const numberBox = screen.getByLabelText('Confidence');
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(queryByText(numberBox, value)).not.toBeTruthy();
+  expect(queryByText(numberBox, value)).not.toBeInTheDocument();
 }
 
 export function expectValueInTextBox(
@@ -104,14 +106,14 @@ export function expectValueNotInTextBox(
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(queryByText(textBox, value)).not.toBeTruthy();
+  expect(queryByText(textBox, value)).not.toBeInTheDocument();
 }
 
 export function selectConfidenceInDropdown(
   screen: Screen,
   value: string
 ): void {
-  expect(screen.queryByText(value)).toBeFalsy();
+  expect(screen.queryByText(value)).not.toBeInTheDocument();
   fireEvent.mouseDown(screen.getByLabelText('Confidence'));
   const listbox = within(screen.getByRole('listbox'));
   fireEvent.click(listbox.getByText(value));

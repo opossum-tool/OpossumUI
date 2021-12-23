@@ -29,7 +29,7 @@ export function expectUnsavedChangesPopupIsShown(screen: Screen): void {
 }
 
 export function expectUnsavedChangesPopupIsNotShown(screen: Screen): void {
-  expect(screen.queryByText('Warning')).toBeNull();
+  expect(screen.queryByText('Warning')).not.toBeInTheDocument();
 }
 
 export function expectReplaceAttributionPopupIsShown(screen: Screen): void {
@@ -39,7 +39,7 @@ export function expectReplaceAttributionPopupIsShown(screen: Screen): void {
 export function expectReplaceAttributionPopupIsNotShown(screen: Screen): void {
   expect(
     screen.queryByText('This removes the following attribution')
-  ).toBeFalsy();
+  ).not.toBeInTheDocument();
 }
 
 export function expectErrorPopupIsShown(screen: Screen): void {
@@ -47,15 +47,15 @@ export function expectErrorPopupIsShown(screen: Screen): void {
 }
 
 export function expectErrorPopupIsNotShown(screen: Screen): void {
-  expect(screen.queryByText('Unable to save.')).toBeFalsy();
+  expect(screen.queryByText('Unable to save.')).not.toBeInTheDocument();
 }
 
 export function expectConfirmDeletionPopupVisible(screen: Screen): void {
-  expect(screen.getByText('Confirm Deletion')).toBeTruthy();
+  expect(screen.getByText('Confirm Deletion')).toBeInTheDocument();
 }
 
 export function expectConfirmDeletionPopupNotVisible(screen: Screen): void {
-  expect(screen.queryByText('Confirm Deletion')).toBeFalsy();
+  expect(screen.queryByText('Confirm Deletion')).not.toBeInTheDocument();
 }
 
 export function expectConfirmMultiSelectDeletionPopupVisible(
@@ -66,11 +66,11 @@ export function expectConfirmMultiSelectDeletionPopupVisible(
     screen.getByText(
       `Do you really want to delete the selected attributions for all files? This action will delete ${numberOfSelectedAttributions} attributions.`
     )
-  ).toBeTruthy();
+  ).toBeInTheDocument();
 }
 
 export function expectConfirmMultiSelectDeletionPopupNotVisible(
   screen: Screen
 ): void {
-  expect(screen.queryByText('Confirm Deletion')).toBeFalsy();
+  expect(screen.queryByText('Confirm Deletion')).not.toBeInTheDocument();
 }

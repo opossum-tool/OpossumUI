@@ -26,12 +26,13 @@ module.exports = {
     'prettier',
     'plugin:react-hooks/recommended',
     'plugin:testing-library/react',
+    'plugin:jest-dom/recommended',
   ],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
-  plugins: ['react', 'prettier', 'testing-library'],
+  plugins: ['react', 'prettier', 'testing-library', 'jest-dom'],
   settings: {
     react: {
       version: 'detect',
@@ -49,7 +50,6 @@ module.exports = {
     'object-shorthand': 2,
     'react/prop-types': 'off',
     'testing-library/no-node-access': 'off', // TODO: remove this line and fix warnings
-    'testing-library/no-await-sync-query': 'off', // TODO: remove this line and fix warnings
     quotes: [2, 'single', { avoidEscape: true }],
   },
 };

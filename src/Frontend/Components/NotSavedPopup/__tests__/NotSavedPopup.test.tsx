@@ -61,7 +61,7 @@ describe('NotSavedPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
 
-    expect(screen.getByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
@@ -72,7 +72,7 @@ describe('NotSavedPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
 
-    expect(screen.getByText('There are unsaved changes.')).toBeTruthy();
+    expect(screen.getByText('There are unsaved changes.')).toBeInTheDocument();
     fireEvent.click(screen.queryByText('Cancel') as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('');
@@ -84,7 +84,7 @@ describe('NotSavedPopup and do not change view', () => {
     setupTestState(store);
     store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
 
-    expect(screen.getByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
     });
@@ -117,7 +117,7 @@ describe('NotSavedPopup and change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
 
-    expect(screen.getByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
@@ -128,7 +128,7 @@ describe('NotSavedPopup and change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
 
-    expect(screen.getByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText('Cancel') as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('');
@@ -140,7 +140,7 @@ describe('NotSavedPopup and change view', () => {
     setupTestState(store, View.Attribution);
     store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
 
-    expect(screen.getByText('Warning')).toBeTruthy();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
     });

@@ -21,6 +21,7 @@ import {
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { screen } from '@testing-library/react';
 import { useAppDispatch } from '../../../state/hooks';
+import '@testing-library/jest-dom/extend-expect';
 
 interface HelperComponentProps {
   isExternalAttribution: boolean;
@@ -58,15 +59,19 @@ describe('ResourcePathPopup', () => {
   test('renders resources for manual Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
-    expect(screen.getByText('Resources for selected attribution')).toBeTruthy();
-    expect(screen.getByText('/thirdParty')).toBeTruthy();
+    expect(
+      screen.getByText('Resources for selected attribution')
+    ).toBeInTheDocument();
+    expect(screen.getByText('/thirdParty')).toBeInTheDocument();
   });
 
   test('renders resources for external Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={true} />);
 
-    expect(screen.getByText('Resources for selected signal')).toBeTruthy();
-    expect(screen.getByText('/firstParty')).toBeTruthy();
+    expect(
+      screen.getByText('Resources for selected signal')
+    ).toBeInTheDocument();
+    expect(screen.getByText('/firstParty')).toBeInTheDocument();
   });
 
   test('renders subheader, if resources in other folders exist', () => {
@@ -76,9 +81,9 @@ describe('ResourcePathPopup', () => {
       store: testStore,
     });
 
-    expect(screen.getByText(resourcesInOtherFoldersHeader)).toBeTruthy();
-    expect(screen.getByText('/firstParty')).toBeTruthy();
-    expect(screen.getByText('/folder/anotherFirstParty')).toBeTruthy();
+    expect(screen.getByText(resourcesInOtherFoldersHeader)).toBeInTheDocument();
+    expect(screen.getByText('/firstParty')).toBeInTheDocument();
+    expect(screen.getByText('/folder/anotherFirstParty')).toBeInTheDocument();
   });
 
   test('renders no subheader, if no resources in other folders exist', () => {
@@ -88,7 +93,9 @@ describe('ResourcePathPopup', () => {
       <HelperComponent isExternalAttribution={false} />,
       { store: testStore }
     );
-    expect(screen.queryByText(resourcesInOtherFoldersHeader)).toBeFalsy();
-    expect(screen.getByText('/thirdParty')).toBeTruthy();
+    expect(
+      screen.queryByText(resourcesInOtherFoldersHeader)
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('/thirdParty')).toBeInTheDocument();
   });
 });

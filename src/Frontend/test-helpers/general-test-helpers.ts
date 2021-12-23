@@ -150,7 +150,9 @@ export function expectButtonIsNotShown(
   screen: Screen,
   buttonLabel: ButtonText
 ): void {
-  expect(screen.queryByRole('button', { name: buttonLabel })).not.toBeTruthy();
+  expect(
+    screen.queryByRole('button', { name: buttonLabel })
+  ).not.toBeInTheDocument();
 }
 
 export function goToView(screen: Screen, view: string): void {
@@ -197,7 +199,7 @@ function getMultiSelectCheckboxInPackageCard(
       .parentElement as HTMLElement
   ).parentElement as HTMLElement;
   const checkbox = within(packageCard).getByRole('checkbox') as Element;
-  expect(checkbox).not.toBeFalsy();
+  expect(checkbox).toBeInTheDocument();
 
   return checkbox;
 }
@@ -223,7 +225,7 @@ export function openDropDown(screen: Screen): void {
 }
 
 export function expectFilterIsShown(screen: Screen, label: string): void {
-  expect(screen.getByLabelText(label)).toBeTruthy();
+  expect(screen.getByLabelText(label)).toBeInTheDocument();
 }
 
 export function clickOnFilter(screen: Screen, label: string): void {
@@ -267,7 +269,7 @@ export function expectValuesInProgressbarTooltip(
   });
   expect(
     screen.getByText(new RegExp(`Number of files: ${numberOfFiles}`))
-  ).toBeDefined();
+  ).toBeInTheDocument();
   expect(
     screen.getByText(
       new RegExp(`Files with attributions: ${filesWithAttribution}`)

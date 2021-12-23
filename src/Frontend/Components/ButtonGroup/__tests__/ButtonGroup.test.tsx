@@ -9,6 +9,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ButtonText } from '../../../enums/enums';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('Button group', () => {
   const mainButtonConfigs: Array<MainButtonConfig> = [
@@ -37,7 +38,7 @@ describe('Button group', () => {
 
     screen.getByText('Test');
     screen.getByText('Test 2');
-    expect(screen.queryByText('Test 3')).toBe(null);
+    expect(screen.queryByText('Test 3')).not.toBeInTheDocument();
   });
 
   test('renders context menu', () => {
@@ -64,6 +65,6 @@ describe('Button group', () => {
     fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
 
     screen.getByText(ButtonText.Save);
-    expect(screen.queryByText(ButtonText.SaveGlobally)).toBe(null);
+    expect(screen.queryByText(ButtonText.SaveGlobally)).not.toBeInTheDocument();
   });
 });

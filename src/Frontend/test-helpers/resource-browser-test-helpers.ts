@@ -32,5 +32,5 @@ export function clickOnElementInResourceBrowser(
 }
 
 export function expectResourceBrowserIsNotShown(screen: Screen): void {
-  expect(screen.queryByText('/')).toBeNull();
+  expect(screen.queryByText('/')).not.toBeInTheDocument();
 }

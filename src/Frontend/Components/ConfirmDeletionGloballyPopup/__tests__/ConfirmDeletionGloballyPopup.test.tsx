@@ -7,6 +7,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('The ConfirmDeletionGloballyPopup', () => {
   test('renders', () => {
@@ -16,7 +17,7 @@ describe('The ConfirmDeletionGloballyPopup', () => {
 
     renderComponentWithStore(<ConfirmDeletionGloballyPopup />);
 
-    expect(screen.getByText(expectedContent)).toBeTruthy();
-    expect(screen.getByText(expectedHeader)).toBeTruthy();
+    expect(screen.getByText(expectedContent)).toBeInTheDocument();
+    expect(screen.getByText(expectedHeader)).toBeInTheDocument();
   });
 });

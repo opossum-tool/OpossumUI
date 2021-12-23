@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -14,7 +14,7 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ProgressBar } from '../ProgressBar';
 import { setProgressBarData } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { act } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 
 describe('ProgressBar', () => {
   jest.useFakeTimers();
@@ -82,7 +82,7 @@ describe('ProgressBar', () => {
     act(() => {
       jest.runAllTimers();
     });
-    expect(screen.getByText(/Number of files: 6/)).toBeDefined();
+    expect(screen.getByText(/Number of files: 6/)).toBeInTheDocument();
     expect(
       screen.getByText(/Files with attributions: 3/) &&
         screen.getByText(/Files with only pre-selected attributions: 1/) &&
@@ -92,6 +92,6 @@ describe('ProgressBar', () => {
 
   test('ProgressBar renders without progress data', () => {
     renderComponentWithStore(<ProgressBar />);
-    expect(screen.queryByLabelText('ProgressBar')).toBeFalsy();
+    expect(screen.queryByLabelText('ProgressBar')).not.toBeInTheDocument();
   });
 });

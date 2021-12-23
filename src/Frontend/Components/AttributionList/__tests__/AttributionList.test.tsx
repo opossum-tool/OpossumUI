@@ -107,7 +107,7 @@ describe('The AttributionList', () => {
       { store: getTestStore(packages) }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
-    expect(attributionCard).toBeTruthy();
+    expect(attributionCard).toBeInTheDocument();
     fireEvent.click(attributionCard);
     expect(mockCallback.mock.calls.length).toBe(1);
     expect(mockCallback.mock.calls[0][0]).toBe('1');
@@ -142,13 +142,11 @@ describe('The AttributionList', () => {
       { store: getTestStore(testPackages) }
     );
 
-    expect(container.childNodes[0].textContent).toContain('zz Test package');
-    expect(container.childNodes[0].textContent).toContain(
-      'Test package, 1.0Copyright John Doe'
+    expect(container.childNodes[0]).toHaveTextContent(/zz Test package/);
+    expect(container.childNodes[0]).toHaveTextContent(
+      /Test package, 1\.0Copyright John Doe/
     );
-    expect(container.childNodes[0].textContent).toContain(
-      'Copyright John Doe 2'
-    );
+    expect(container.childNodes[0]).toHaveTextContent(/Copyright John Doe 2/);
   });
 
   test('shows correct replace attribution buttons in the context menu', () => {
