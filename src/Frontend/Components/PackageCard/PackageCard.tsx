@@ -4,12 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useState } from 'react';
-import {
-  ExcludeFromNoticeIcon,
-  FirstPartyIcon,
-  FollowUpIcon,
-  PreSelectedIcon,
-} from '../Icons/Icons';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from '../../util/get-card-labels';
 import makeStyles from '@mui/styles/makeStyles';
@@ -63,6 +57,7 @@ import {
   setMultiSelectSelectedAttributionIds,
 } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { getKey, getRightIcons } from './package-card-helpers';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -94,10 +89,6 @@ interface PackageCardProps {
   onIconClick?(): void;
   hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
-}
-
-function getKey(prefix: string, cardContent: ListCardContent): string {
-  return `${prefix}-${cardContent.id}`;
 }
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
@@ -133,143 +124,105 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     useState<boolean>(false);
 
   const isPreselected = Boolean(props.cardConfig.isPreSelected);
-
   const packageLabels = getCardLabels(props.cardContent);
-  const leftIcon = props.onIconClick ? (
-    <IconButton
-      tooltipTitle="add"
-      placement="left"
-      onClick={props.onIconClick}
-      key={getKey('add-icon', props.cardContent)}
-      icon={
-        <PlusIcon
-          className={clsx(
-            props.cardConfig.isResolved ? classes.hiddenIcon : undefined,
-            classes.clickableIcon
-          )}
-          aria-label={`add ${packageLabels[0] || ''}`}
-        />
-      }
-    />
-  ) : undefined;
-  const rightIcons: Array<JSX.Element> = [];
-
-  if (props.cardConfig.firstParty) {
-    rightIcons.push(
-      <FirstPartyIcon key={getKey('first-party-icon', props.cardContent)} />
-    );
-  }
-  if (props.cardConfig.excludeFromNotice) {
-    rightIcons.push(
-      <ExcludeFromNoticeIcon
-        key={getKey('exclude-icon', props.cardContent)}
-        className={classes.excludeFromNoticeIcon}
-      />
-    );
-  }
-  if (props.cardConfig.followUp) {
-    rightIcons.push(
-      <FollowUpIcon
-        key={getKey('follow-up-icon', props.cardContent)}
-        className={classes.followUpIcon}
-      />
-    );
-  }
-  if (isPreselected) {
-    rightIcons.push(
-      <PreSelectedIcon key={getKey('pre-selected-icon', props.cardContent)} />
-    );
-  }
-
   const attributionId = props.attributionId;
   const selectedAttributionId =
     selectedView === View.Attribution
       ? selectedAttributionIdAttributionView
       : selectedAttributionIdAuditView;
 
-  const isMultiSelected =
-    multiSelectSelectedAttributionIds.includes(attributionId);
+  function getCardConfig(): ListCardConfig {
+    return {
+      ...props.cardConfig,
+      isContextMenuOpen,
+      isMarkedForReplacement:
+        Boolean(attributionId) &&
+        attributionId === attributionIdMarkedForReplacement,
 
-  function openConfirmDeletionPopup(): void {
-    if (isPreselected) {
-      dispatch(deleteAttributionAndSave(selectedResourceId, attributionId));
-    } else {
-      dispatch(
-        openPopupWithTargetAttributionId(
-          PopupType.ConfirmDeletionPopup,
-          attributionId
-        )
-      );
+      isMultiSelected:
+        multiSelectSelectedAttributionIds.includes(attributionId),
+    };
+  }
+
+  function getContextMenuItems(): Array<ContextMenuItem> {
+    function openConfirmDeletionPopup(): void {
+      if (isPreselected) {
+        dispatch(deleteAttributionAndSave(selectedResourceId, attributionId));
+      } else {
+        dispatch(
+          openPopupWithTargetAttributionId(
+            PopupType.ConfirmDeletionPopup,
+            attributionId
+          )
+        );
+      }
     }
-  }
 
-  function openConfirmDeletionGloballyPopup(): void {
-    if (isPreselected) {
-      dispatch(deleteAttributionGloballyAndSave(attributionId));
-    } else {
-      dispatch(
-        openPopupWithTargetAttributionId(
-          PopupType.ConfirmDeletionGloballyPopup,
-          attributionId
-        )
-      );
+    function openConfirmDeletionGloballyPopup(): void {
+      if (isPreselected) {
+        dispatch(deleteAttributionGloballyAndSave(attributionId));
+      } else {
+        dispatch(
+          openPopupWithTargetAttributionId(
+            PopupType.ConfirmDeletionGloballyPopup,
+            attributionId
+          )
+        );
+      }
     }
-  }
 
-  function confirmAttribution(): void {
-    const packageInfo =
-      attributionId === selectedAttributionId
-        ? temporaryPackageInfo
-        : manualAttributions[attributionId];
+    function confirmAttribution(): void {
+      const packageInfo =
+        attributionId === selectedAttributionId
+          ? temporaryPackageInfo
+          : manualAttributions[attributionId];
 
-    if (attributionsToResources[attributionId].length === 1) {
-      confirmAttributionGlobally();
-    } else {
-      dispatch(
-        unlinkAttributionAndSavePackageInfo(
-          selectedResourceId,
-          attributionId,
-          packageInfo
-        )
-      );
+      if (attributionsToResources[attributionId].length === 1) {
+        confirmAttributionGlobally();
+      } else {
+        dispatch(
+          unlinkAttributionAndSavePackageInfo(
+            selectedResourceId,
+            attributionId,
+            packageInfo
+          )
+        );
+      }
     }
-  }
 
-  function confirmAttributionGlobally(): void {
-    const packageInfo =
-      attributionId === selectedAttributionId
-        ? temporaryPackageInfo
-        : manualAttributions[attributionId];
+    function confirmAttributionGlobally(): void {
+      const packageInfo =
+        attributionId === selectedAttributionId
+          ? temporaryPackageInfo
+          : manualAttributions[attributionId];
 
-    dispatch(savePackageInfo(null, attributionId, packageInfo));
-  }
+      dispatch(savePackageInfo(null, attributionId, packageInfo));
+    }
 
-  const hideResourceSpecificButtons = Boolean(
-    props.hideResourceSpecificButtons
-  );
-  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
-  const showGlobalButtons =
-    !Boolean(isExternalAttribution) &&
-    (hasAttributionMultipleResources(
-      props.attributionId,
-      attributionsToResources
-    ) ||
-      hideResourceSpecificButtons);
-  const mergeButtonDisplayState: MergeButtonDisplayState =
-    getMergeButtonsDisplayState({
-      attributionIdMarkedForReplacement,
-      targetAttributionId: attributionId,
-      selectedAttributionId,
-      packageInfoWereModified,
-      targetAttributionIsPreSelected: isPreselected,
-      targetAttributionIsExternalAttribution: isExternalAttribution,
-    });
-  const isMarkedForReplacement =
-    Boolean(attributionId) &&
-    attributionId === attributionIdMarkedForReplacement;
+    const hideResourceSpecificButtons = Boolean(
+      props.hideResourceSpecificButtons
+    );
+    const isExternalAttribution = Boolean(
+      props.cardConfig.isExternalAttribution
+    );
+    const showGlobalButtons =
+      !Boolean(isExternalAttribution) &&
+      (hasAttributionMultipleResources(
+        props.attributionId,
+        attributionsToResources
+      ) ||
+        hideResourceSpecificButtons);
+    const mergeButtonDisplayState: MergeButtonDisplayState =
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement,
+        targetAttributionId: attributionId,
+        selectedAttributionId,
+        packageInfoWereModified,
+        targetAttributionIsPreSelected: isPreselected,
+        targetAttributionIsExternalAttribution: isExternalAttribution,
+      });
 
-  const contextMenuItems: Array<ContextMenuItem> =
-    props.hideContextMenuAndMultiSelect
+    return props.hideContextMenuAndMultiSelect
       ? []
       : [
           {
@@ -348,6 +301,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
           },
         ];
+  }
 
   function toggleIsContextMenuOpen(): void {
     setIsContextMenuOpen(!isContextMenuOpen);
@@ -374,6 +328,24 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       />
     ) : undefined;
 
+  const leftIcon = props.onIconClick ? (
+    <IconButton
+      tooltipTitle="add"
+      placement="left"
+      onClick={props.onIconClick}
+      key={getKey('add-icon', props.cardContent)}
+      icon={
+        <PlusIcon
+          className={clsx(
+            props.cardConfig.isResolved ? classes.hiddenIcon : undefined,
+            classes.clickableIcon
+          )}
+          aria-label={`add ${packageLabels[0] || ''}`}
+        />
+      }
+    />
+  ) : undefined;
+
   return (
     <div className={clsx(multiSelectMode && classes.multiSelectPackageCard)}>
       {!Boolean(props.hideContextMenuAndMultiSelect) && (
@@ -388,7 +360,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         />
       )}
       <ContextMenu
-        menuItems={contextMenuItems}
+        menuItems={getContextMenuItems()}
         activation={'onRightClick'}
         onClose={toggleIsContextMenuOpen}
         onOpen={toggleIsContextMenuOpen}
@@ -396,16 +368,15 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         <ListCard
           text={packageLabels[0] || ''}
           secondLineText={packageLabels[1] || undefined}
-          cardConfig={{
-            ...props.cardConfig,
-            isMarkedForReplacement,
-            isContextMenuOpen,
-            isMultiSelected,
-          }}
+          cardConfig={getCardConfig()}
           count={props.packageCount}
           onClick={props.onClick}
           leftIcon={leftIcon}
-          rightIcons={rightIcons}
+          rightIcons={getRightIcons(
+            props.cardContent,
+            props.cardConfig,
+            classes
+          )}
           leftElement={leftElement}
         />
       </ContextMenu>
