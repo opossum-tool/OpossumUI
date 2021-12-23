@@ -9,8 +9,11 @@ import MuiMenuItem from '@mui/material/MenuItem';
 import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
 import DeleteIcon from '@mui/icons-material/Delete';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import UndoIcon from '@mui/icons-material/Undo';
+import DoneIcon from '@mui/icons-material/Done';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -36,8 +39,11 @@ const useStyles = makeStyles({
 const BUTTON_TITLE_TO_ICON_MAP: {
   [buttonText in ButtonText]?: JSX.Element;
 } = {
-  [ButtonText.Delete]: <DeleteIcon fontSize="small" />,
-  [ButtonText.DeleteGlobally]: <DeleteForeverIcon fontSize="small" />,
+  [ButtonText.Confirm]: <DoneIcon fontSize="small" />,
+  [ButtonText.ConfirmGlobally]: <DoneAllIcon fontSize="small" />,
+  [ButtonText.Delete]: <DeleteOutlineIcon fontSize="small" />,
+  [ButtonText.DeleteGlobally]: <DeleteIcon fontSize="small" />,
+  [ButtonText.DeleteSelectedGlobally]: <DeleteSweepIcon fontSize="small" />,
   [ButtonText.Undo]: <UndoIcon fontSize="small" />,
   [ButtonText.MarkForReplacement]: (
     <CheckBoxOutlineBlankIcon fontSize="small" />
