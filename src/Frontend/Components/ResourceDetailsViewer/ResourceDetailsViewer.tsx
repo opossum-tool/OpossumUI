@@ -77,7 +77,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
 
   useEffect(() => {
     setOverrideParentMode(false);
-  }, [selectedResourceId]);
+  }, [selectedResourceId, attributionIdsOfSelectedResource]);
 
   const parentOfSelectedResourceHasAttributions = Boolean(
     attributionIdsOfSelectedResourceClosestParent.length
