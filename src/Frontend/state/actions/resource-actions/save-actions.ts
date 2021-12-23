@@ -31,6 +31,8 @@ import {
   resetTemporaryPackageInfo,
 } from './navigation-actions';
 import {
+  getAttributionIdsOfSelectedResource,
+  getAttributionIdsOfSelectedResourceClosestParent,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
@@ -57,6 +59,7 @@ import { getAttributionBreakpointCheckForState } from '../../../util/is-attribut
 import { openPopup } from '../view-actions/view-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
 import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
+import { isEqual, sortBy } from 'lodash';
 
 export function setIsSavingDisabled(
   isSavingDisabled: boolean
@@ -266,10 +269,33 @@ function unlinkResourceFromAttributionAndSave(
   return (dispatch: AppThunkDispatch): void => {
     dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
 
+    dispatch(unlinkAttribtionsIfParentAttributionsAreIdentical(resourceId));
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     dispatch(resetTemporaryPackageInfo());
 
     dispatch(saveManualAndResolvedAttributionsToFile());
+  };
+}
+
+function unlinkAttribtionsIfParentAttributionsAreIdentical(
+  resourceId: string
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const attributionsIdsForResource = getAttributionIdsOfSelectedResource(
+      getState()
+    );
+    const attributionIdsForClosestParent =
+      getAttributionIdsOfSelectedResourceClosestParent(getState());
+    if (
+      isEqual(
+        sortBy(attributionsIdsForResource),
+        sortBy(attributionIdsForClosestParent)
+      )
+    ) {
+      attributionIdsForClosestParent.forEach((attributionId) => {
+        dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
+      });
+    }
   };
 }
 
