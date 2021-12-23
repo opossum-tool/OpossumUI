@@ -10,6 +10,19 @@ import upath from 'upath';
 import { createMenu } from './menu';
 import { getIconPath } from './iconHelpers';
 
+function allowCORS(mainWindow: Electron.BrowserWindow): void {
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          'Access-Control-Allow-Origin': ['http://localhost:3000'],
+          ...details.responseHeaders,
+        },
+      });
+    }
+  );
+}
+
 export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow: BrowserWindow = new BrowserWindow({
     width: 1920,
@@ -24,6 +37,9 @@ export async function createWindow(): Promise<BrowserWindow> {
 
   Menu.setApplicationMenu(createMenu(mainWindow));
   await loadApplication(mainWindow, '', '../../index.html', true);
+
+  // Electron is running on localhost, CORS needs to allow requests from there
+  allowCORS(mainWindow);
 
   return mainWindow;
 }

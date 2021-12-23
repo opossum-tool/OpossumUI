@@ -5,6 +5,7 @@
 
 import { getLicenseFetchingInformation } from '../license-fetching-helpers';
 import { convertPypiPayload } from '../pypi-fetching-helpers';
+import { convertNpmPayload } from '../npm-fetching-helpers';
 
 describe('getLicenseFetchingInformation', () => {
   it('returns null for undefined as input', () => {
@@ -22,5 +23,33 @@ describe('getLicenseFetchingInformation', () => {
       url: 'https://pypi.org/pypi/numpy/json',
       convertPayload: convertPypiPayload,
     });
+  });
+
+  it('recognizes npm urls', () => {
+    expect(
+      getLicenseFetchingInformation('https://npmjs.com/package/react')
+    ).toMatchObject({
+      url: 'https://registry.npmjs.org/react',
+      convertPayload: convertNpmPayload,
+    });
+  });
+
+  it('recognizes npm urls with complicated package names', () => {
+    expect(
+      getLicenseFetchingInformation(
+        'https://npmjs.com/package/@angular/animations/'
+      )
+    ).toMatchObject({
+      url: 'https://registry.npmjs.org/@angular/animations',
+      convertPayload: convertNpmPayload,
+    });
+  });
+
+  it('rejects npm urls with version in url', () => {
+    expect(
+      getLicenseFetchingInformation(
+        'https://npmjs.com/package/@angular/animations/1.0'
+      )
+    ).toBeNull();
   });
 });

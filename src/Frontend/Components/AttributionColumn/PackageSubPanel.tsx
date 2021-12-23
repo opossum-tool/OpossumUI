@@ -89,6 +89,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           <>
             <FetchLicenseInformationButton
               url={props.displayPackageInfo.url}
+              version={props.displayPackageInfo.packageVersion}
               isDisabled={!props.isEditable}
             />
             <IconButton
