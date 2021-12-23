@@ -12,7 +12,6 @@ import { FilteredList } from '../FilteredList/FilteredList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { useAttributionColumnStyles } from '../AttributionColumn/shared-attribution-column-styles';
 import { getMultiSelectMode } from '../../state/selectors/attribution-view-resource-selectors';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -20,6 +19,7 @@ import {
   setMultiSelectSelectedAttributionIds,
 } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { CheckboxLabel } from '../../enums/enums';
+import { useCheckboxStyles } from '../../shared-styles';
 
 const useStyles = makeStyles({
   topElements: {
@@ -46,7 +46,7 @@ interface AttributionListProps {
 }
 
 export function AttributionList(props: AttributionListProps): ReactElement {
-  const classes = { ...useAttributionColumnStyles(), ...useStyles() };
+  const classes = { ...useCheckboxStyles(), ...useStyles() };
   const attributions = { ...props.attributions };
   const attributionIds: Array<string> = Object.keys({
     ...props.attributions,

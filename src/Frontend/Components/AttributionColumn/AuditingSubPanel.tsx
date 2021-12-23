@@ -18,6 +18,7 @@ import { TextBox } from '../InputElements/TextBox';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
 import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { useAppSelector } from '../../state/hooks';
+import { useCheckboxStyles } from '../../shared-styles';
 
 const useStyles = makeStyles({
   confidenceDropDown: {
@@ -50,7 +51,11 @@ interface AuditingSubPanelProps {
 }
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
-  const classes = { ...useAttributionColumnStyles(), ...useStyles() };
+  const classes = {
+    ...useAttributionColumnStyles(),
+    ...useCheckboxStyles(),
+    ...useStyles(),
+  };
   const attributionSources = useAppSelector(getExternalAttributionSources);
 
   return (

@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import makeStyles from '@mui/styles/makeStyles';
+
 export const OpossumColors = {
   almostWhiteBlue: 'hsl(220, 41%, 97%)',
   lightestBlue: 'hsl(220, 41%, 92%)',
@@ -59,3 +61,13 @@ export const disabledIcon = {
   ...baseIcon,
   color: OpossumColors.disabledButtonGrey,
 };
+
+export const useCheckboxStyles = makeStyles({
+  checkBox: {
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    marginRight: 12,
+    marginLeft: -2,
+  },
+});

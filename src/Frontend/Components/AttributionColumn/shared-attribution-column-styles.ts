@@ -29,11 +29,4 @@ export const useAttributionColumnStyles = makeStyles({
       color: OpossumColors.orange,
     },
   },
-  checkBox: {
-    height: 40,
-    display: 'flex',
-    alignItems: 'center',
-    marginRight: 12,
-    marginLeft: -2,
-  },
 });
