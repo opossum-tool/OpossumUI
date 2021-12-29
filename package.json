@@ -51,7 +51,7 @@
     "@types/stream-json": "^1.7.2",
     "@types/uuid": "^8.3.3",
     "@types/write-file-atomic": "^3.0.3",
-    "@typescript-eslint/eslint-plugin": "^5.8.0",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "concurrently": "^6.5.1",
     "cross-env": "^7.0.3",
