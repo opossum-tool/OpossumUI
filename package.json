@@ -53,7 +53,7 @@
     "@types/write-file-atomic": "^3.0.3",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
-    "concurrently": "^6.5.1",
+    "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
     "electron": "^13.6.3",
     "electron-builder": "^22.14.5",
