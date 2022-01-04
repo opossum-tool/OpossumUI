@@ -10,8 +10,13 @@ import upath from 'upath';
 import { createMenu } from './menu';
 import { getIconPath } from './iconHelpers';
 
+const filter = {
+  urls: ['https://registry.npmjs.org/*'],
+};
+
 function allowCORS(mainWindow: Electron.BrowserWindow): void {
   mainWindow.webContents.session.webRequest.onHeadersReceived(
+    filter,
     (details, callback) => {
       callback({
         responseHeaders: {
