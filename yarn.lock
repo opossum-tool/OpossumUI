@@ -6352,16 +6352,16 @@ jest-docblock@^27.4.0:
   dependencies:
     detect-newline "^3.0.0"
 
-jest-each@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/jest-each/-/jest-each-27.4.2.tgz#19364c82a692d0d26557642098d1f4619c9ee7d3"
-  integrity sha512-53V2MNyW28CTruB3lXaHNk6PkiIFuzdOC9gR3C6j8YE/ACfrPnz+slB0s17AgU1TtxNzLuHyvNlLJ+8QYw9nBg==
+jest-each@^27.4.2, jest-each@^27.4.6:
+  version "27.4.6"
+  resolved "https://registry.yarnpkg.com/jest-each/-/jest-each-27.4.6.tgz#e7e8561be61d8cc6dbf04296688747ab186c40ff"
+  integrity sha512-n6QDq8y2Hsmn22tRkgAk+z6MCX7MeVlAzxmZDshfS2jLcaBlyhpF3tZSJLR+kXmh23GEvS0ojMR8i6ZeRvpQcA==
   dependencies:
     "@jest/types" "^27.4.2"
     chalk "^4.0.0"
     jest-get-type "^27.4.0"
     jest-util "^27.4.2"
-    pretty-format "^27.4.2"
+    pretty-format "^27.4.6"
 
 jest-environment-jsdom@^27.4.4:
   version "27.4.4"
@@ -8511,12 +8511,11 @@ pretty-error@^4.0.0:
     lodash "^4.17.20"
     renderkid "^3.0.0"
 
-pretty-format@^27.0.0, pretty-format@^27.0.2, pretty-format@^27.4.2:
-  version "27.4.2"
-  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-27.4.2.tgz#e4ce92ad66c3888423d332b40477c87d1dac1fb8"
-  integrity sha512-p0wNtJ9oLuvgOQDEIZ9zQjZffK7KtyR6Si0jnXULIDwrlNF8Cuir3AZP0hHv0jmKuNN/edOnbMjnzd4uTcmWiw==
+pretty-format@^27.0.0, pretty-format@^27.0.2, pretty-format@^27.4.2, pretty-format@^27.4.6:
+  version "27.4.6"
+  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-27.4.6.tgz#1b784d2f53c68db31797b2348fa39b49e31846b7"
+  integrity sha512-NblstegA1y/RJW2VyML+3LlpFjzx62cUrtBIKIWDXEDkjNeleA7Od7nrzcs/VLQvAeV4CgSYhrN39DRN88Qi/g==
   dependencies:
-    "@jest/types" "^27.4.2"
     ansi-regex "^5.0.1"
     ansi-styles "^5.0.0"
     react-is "^17.0.1"
