@@ -87,6 +87,7 @@ interface PackageCardProps {
   cardConfig: ListCardConfig;
   onClick(): void;
   onIconClick?(): void;
+  openResourcesIcon?: JSX.Element;
   hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
 }
@@ -375,7 +376,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           rightIcons={getRightIcons(
             props.cardContent,
             props.cardConfig,
-            classes
+            classes,
+            props.openResourcesIcon
           )}
           leftElement={leftElement}
         />
