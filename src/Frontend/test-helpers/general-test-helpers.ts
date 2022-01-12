@@ -3,7 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { act, fireEvent, Screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  getByRole,
+  Screen,
+  within,
+} from '@testing-library/react';
 import {
   Attributions,
   ParsedFileContent,
@@ -292,4 +298,14 @@ export function getPackagePanel(
     (screen.getByText(packagePanelName).parentElement as HTMLElement)
       .parentElement as HTMLElement
   ).parentElement as HTMLElement;
+}
+
+export function getOpenResourcesButtonForPackagePanel(
+  screen: Screen,
+  packageName: string
+): HTMLElement {
+  // eslint-disable-next-line testing-library/prefer-screen-queries
+  return getByRole(getPackagePanel(screen, packageName), 'button', {
+    name: 'show resources',
+  });
 }

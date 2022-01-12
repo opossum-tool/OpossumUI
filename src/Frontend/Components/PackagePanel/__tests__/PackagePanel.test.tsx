@@ -61,6 +61,7 @@ describe('The PackagePanel', () => {
 
     expect(screen.getByText('React, 16.5.0'));
     expect(screen.getByText('JQuery'));
+    expect(screen.getAllByLabelText('show resources'));
   });
 
   test('groups by source and prettifies known sources', () => {
