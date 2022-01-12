@@ -58,6 +58,7 @@ import {
 } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { getKey, getRightIcons } from './package-card-helpers';
+import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -87,7 +88,7 @@ interface PackageCardProps {
   cardConfig: ListCardConfig;
   onClick(): void;
   onIconClick?(): void;
-  openResourcesIcon?: JSX.Element;
+  showOpenResourcesIcon?: boolean;
   hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
 }
@@ -347,6 +348,23 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     />
   ) : undefined;
 
+  const openResourcesIcon = props.showOpenResourcesIcon ? (
+    <IconButton
+      tooltipTitle="show resources"
+      placement="right"
+      onClick={(): void => {
+        setShowAssociatedResourcesPopup(true);
+      }}
+      key={`open-resources-icon-${props.cardContent.name}-${props.cardContent.packageVersion}`}
+      icon={
+        <OpenInBrowserIcon
+          className={classes.clickableIcon}
+          aria-label={'show resources'}
+        />
+      }
+    />
+  ) : undefined;
+
   return (
     <div className={clsx(multiSelectMode && classes.multiSelectPackageCard)}>
       {!Boolean(props.hideContextMenuAndMultiSelect) && (
@@ -377,7 +395,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             props.cardContent,
             props.cardConfig,
             classes,
-            props.openResourcesIcon
+            openResourcesIcon
           )}
           leftElement={leftElement}
         />

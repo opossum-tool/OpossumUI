@@ -76,6 +76,7 @@ export function ManualAttributionList(
           url: attribution.url,
           licenseName: attribution.licenseName,
         }}
+        showOpenResourcesIcon={!isButton}
       />
     );
   }

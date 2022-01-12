@@ -73,7 +73,7 @@ describe('The ManualAttributionList', () => {
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
-  test('renders first party icon', () => {
+  test('renders first party icon and show resources icon', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -85,6 +85,7 @@ describe('The ManualAttributionList', () => {
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
+    expect(screen.getAllByLabelText('show resources'));
   });
 
   test('renders button', () => {
