@@ -131,6 +131,9 @@ export function sanitizeRawAttributions(
     if (rawAttributions[attributionId]?.followUp !== FollowUp) {
       delete rawAttributions[attributionId].followUp;
     }
+    if (rawAttributions[attributionId]?.comment === '') {
+      delete rawAttributions[attributionId].comment;
+    }
   }
 
   return rawAttributions as Attributions;
