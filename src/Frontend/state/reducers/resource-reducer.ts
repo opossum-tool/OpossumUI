@@ -40,7 +40,6 @@ import {
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_IS_SAVING_DISABLED,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
-  ACTION_SET_MULTI_SELECT_MODE,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
   ACTION_SET_PROGRESS_BAR_DATA,
   ACTION_SET_PROJECT_METADATA,
@@ -99,7 +98,6 @@ export const initialResourceState: ResourceState = {
   attributionView: {
     selectedAttributionId: '',
     targetSelectedAttributionId: '',
-    multiSelectMode: false,
     multiSelectSelectedAttributionIds: [],
   },
   fileSearchPopup: {
@@ -133,7 +131,6 @@ export type ResourceState = {
   attributionView: {
     selectedAttributionId: string;
     targetSelectedAttributionId: string;
-    multiSelectMode: boolean;
     multiSelectSelectedAttributionIds: Array<string>;
   };
   fileSearchPopup: {
@@ -285,14 +282,6 @@ export const resourceState = (
         attributionView: {
           ...state.attributionView,
           targetSelectedAttributionId: action.payload,
-        },
-      };
-    case ACTION_SET_MULTI_SELECT_MODE:
-      return {
-        ...state,
-        attributionView: {
-          ...state.attributionView,
-          multiSelectMode: action.payload,
         },
       };
     case ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS:

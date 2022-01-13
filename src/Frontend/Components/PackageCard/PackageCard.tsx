@@ -42,7 +42,6 @@ import {
 import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import {
-  getMultiSelectMode,
   getMultiSelectSelectedAttributionIds,
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
@@ -89,6 +88,7 @@ interface PackageCardProps {
   onIconClick?(): void;
   hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
+  showCheckBox?: boolean;
 }
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
@@ -114,7 +114,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const attributionIdMarkedForReplacement = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const multiSelectMode = useAppSelector(getMultiSelectMode);
   const multiSelectSelectedAttributionIds = useAppSelector(
     getMultiSelectSelectedAttributionIds
   );
@@ -320,7 +319,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   }
 
   const leftElement =
-    multiSelectMode && !props.hideContextMenuAndMultiSelect ? (
+    props.showCheckBox && !props.hideContextMenuAndMultiSelect ? (
       <Checkbox
         checked={multiSelectSelectedAttributionIds.includes(attributionId)}
         onChange={handleMultiSelectAttributionSelected}
@@ -347,7 +346,9 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   ) : undefined;
 
   return (
-    <div className={clsx(multiSelectMode && classes.multiSelectPackageCard)}>
+    <div
+      className={clsx(!props.showCheckBox && classes.multiSelectPackageCard)}
+    >
       {!Boolean(props.hideContextMenuAndMultiSelect) && (
         <ResourcePathPopup
           isOpen={showAssociatedResourcesPopup}

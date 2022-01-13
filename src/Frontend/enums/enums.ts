@@ -69,7 +69,6 @@ export enum FilterType {
 }
 
 export enum CheckboxLabel {
-  MultiSelectMode = 'Multi-select',
   FirstParty = '1st Party',
   FollowUp = 'Follow-up',
   ExcludeFromNotice = 'Exclude From Notice',

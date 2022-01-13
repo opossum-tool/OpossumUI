@@ -18,18 +18,14 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import {
-  clickOnCheckbox,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/general-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   clickOnButtonInPackageContextMenu,
   expectButtonInPackageContextMenu,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { ButtonText, CheckboxLabel } from '../../../enums/enums';
-import { getMultiSelectMode } from '../../../state/selectors/attribution-view-resource-selectors';
+import { ButtonText } from '../../../enums/enums';
 
 function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   const store = createTestAppStore();
@@ -226,22 +222,5 @@ describe('The AttributionList', () => {
       'React, 16.0.0',
       true
     );
-  });
-
-  test('sets multiSelectMode on click', () => {
-    const { store } = renderComponentWithStore(
-      <AttributionList
-        attributions={packages}
-        selectedAttributionId={''}
-        attributionIdMarkedForReplacement={''}
-        onCardClick={mockCallback}
-        maxHeight={1000}
-        title={'title'}
-      />,
-      { store: getTestStore(packages) }
-    );
-    expect(getMultiSelectMode(store.getState())).toBeFalsy();
-    clickOnCheckbox(screen, CheckboxLabel.MultiSelectMode);
-    expect(getMultiSelectMode(store.getState())).toBeTruthy();
   });
 });

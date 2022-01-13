@@ -25,12 +25,7 @@ import {
 } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  ButtonText,
-  CheckboxLabel,
-  DiscreteConfidence,
-  View,
-} from '../../../enums/enums';
+import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
 import {
   expectValueInConfidenceField,
   expectValueInTextBox,
@@ -43,10 +38,8 @@ import {
 import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 import {
   clickOnButton,
-  clickOnCheckbox,
   clickOnMultiSelectCheckboxInPackageCard,
   expectSelectCheckboxInPackageCardIsChecked,
-  getCheckbox,
   getParsedInputFileEnrichedWithTestData,
   goToView,
   mockElectronIpcRendererOn,
@@ -276,13 +269,6 @@ describe('In Attribution View the ContextMenu', () => {
     expectGlobalOnlyContextMenuForPreselectedAttribution(
       screen,
       'React, 16.5.0'
-    );
-    expect(getCheckbox(screen, CheckboxLabel.MultiSelectMode).checked).toEqual(
-      false
-    );
-    clickOnCheckbox(screen, CheckboxLabel.MultiSelectMode);
-    expect(getCheckbox(screen, CheckboxLabel.MultiSelectMode).checked).toEqual(
-      true
     );
 
     clickOnMultiSelectCheckboxInPackageCard(screen, 'React, 16.5.0');

@@ -10,10 +10,7 @@ import {
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup';
-import {
-  setMultiSelectMode,
-  setMultiSelectSelectedAttributionIds,
-} from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   Attributions,
   Resources,
@@ -55,7 +52,6 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     const { store } = renderComponentWithStore(
       <ConfirmMultiSelectDeletionPopup />
     );
-    store.dispatch(setMultiSelectMode(true));
     store.dispatch(setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']));
 
     expect(screen.getByText(expectedContent)).toBeInTheDocument();
@@ -94,7 +90,6 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
         })
       )
     );
-    testStore.dispatch(setMultiSelectMode(true));
     testStore.dispatch(
       setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2'])
     );
@@ -104,7 +99,6 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
       { store: testStore }
     );
 
-    store.dispatch(setMultiSelectMode(true));
     store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
     expect(screen.getByText(expectedContent)).toBeInTheDocument();
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();

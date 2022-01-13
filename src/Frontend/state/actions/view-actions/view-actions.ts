@@ -28,10 +28,7 @@ import {
   OpenPopupActionPopupType,
   UpdateActiveFilters,
 } from './types';
-import {
-  setMultiSelectMode,
-  setMultiSelectSelectedAttributionIds,
-} from '../resource-actions/attribution-view-simple-actions';
+import { setMultiSelectSelectedAttributionIds } from '../resource-actions/attribution-view-simple-actions';
 
 export function resetViewState(): ResetViewStateAction {
   return { type: ACTION_RESET_VIEW_STATE };
@@ -45,7 +42,6 @@ export function navigateToView(view: View): AppThunkAction {
 
     dispatch(setTargetView(null));
     dispatch(setView(view));
-    dispatch(setMultiSelectMode(false));
     dispatch(setMultiSelectSelectedAttributionIds([]));
 
     const updatedTemporaryPackageInfo: PackageInfo =

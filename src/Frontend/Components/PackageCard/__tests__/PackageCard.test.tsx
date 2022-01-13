@@ -21,10 +21,7 @@ import {
 import { ButtonText } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcRenderer } from 'electron';
-import {
-  setMultiSelectMode,
-  setMultiSelectSelectedAttributionIds,
-} from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
 
 const testResources: Resources = {
@@ -187,6 +184,7 @@ describe('The PackageCard', () => {
           name: 'packageName',
         }}
         onClick={doNothing}
+        showCheckBox={true}
       />,
       { store: testStore }
     );
@@ -194,7 +192,6 @@ describe('The PackageCard', () => {
     expect(screen.getByText('packageName'));
     expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
 
-    store.dispatch(setMultiSelectMode(true));
     store.dispatch(setMultiSelectSelectedAttributionIds(['another_id']));
     fireEvent.click(screen.getByRole('checkbox') as Element);
     expect(

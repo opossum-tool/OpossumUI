@@ -6,13 +6,11 @@
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   setAttributionIdMarkedForReplacement,
-  setMultiSelectMode,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
 } from '../attribution-view-simple-actions';
 import {
-  getMultiSelectMode,
   getMultiSelectSelectedAttributionIds,
   getSelectedAttributionId,
   getTargetSelectedAttributionId,
@@ -45,13 +43,7 @@ describe('The load and navigation simple actions', () => {
       'test'
     );
   });
-  test('sets and gets multiSelectMode', () => {
-    const testStore = createTestAppStore();
-    expect(getMultiSelectMode(testStore.getState())).toBeFalsy();
 
-    testStore.dispatch(setMultiSelectMode(true));
-    expect(getMultiSelectMode(testStore.getState())).toBeTruthy();
-  });
   test('sets and gets multiSelectSelectedAttributionIds', () => {
     const testStore = createTestAppStore();
     expect(
