@@ -20,9 +20,14 @@ export function getKey(prefix: string, cardContent: ListCardContent): string {
 export function getRightIcons(
   cardContent: ListCardContent,
   cardConfig: ListCardConfig,
-  classes: ClassNameMap<'followUpIcon' | 'excludeFromNoticeIcon'>
+  classes: ClassNameMap<'followUpIcon' | 'excludeFromNoticeIcon'>,
+  openResourcesIcon?: JSX.Element
 ): Array<ReactElement> {
   const rightIcons: Array<JSX.Element> = [];
+
+  if (openResourcesIcon) {
+    rightIcons.push(openResourcesIcon);
+  }
 
   if (cardConfig.firstParty) {
     rightIcons.push(
