@@ -114,6 +114,38 @@ describe('sanitizeRawAttributions', () => {
       expectedAttributions
     );
   });
+
+  test('leaves non-empty comment unchanged', () => {
+    const rawAttributions: RawAttributions = {
+      id: {
+        comment: 'Test comment',
+      },
+    };
+    const expectedAttributions: Attributions = {
+      id: {
+        comment: 'Test comment',
+      },
+    };
+
+    expect(sanitizeRawAttributions(rawAttributions)).toEqual(
+      expectedAttributions
+    );
+  });
+
+  test('removes empty comment', () => {
+    const rawAttributions: RawAttributions = {
+      id: {
+        comment: '',
+      },
+    };
+    const expectedAttributions: Attributions = {
+      id: {},
+    };
+
+    expect(sanitizeRawAttributions(rawAttributions)).toEqual(
+      expectedAttributions
+    );
+  });
 });
 
 describe('sanitizeRawBaseUrlsForSources', () => {

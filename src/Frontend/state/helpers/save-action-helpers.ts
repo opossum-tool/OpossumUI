@@ -392,9 +392,10 @@ function removeManualAttributionFromChildIfInferable(
   }
 
   if (
-    isEqual(
-      manualData.resourcesToAttributions[closestParentWithAttribution]?.sort(),
-      manualData.resourcesToAttributions[childId]?.sort()
+    resourcesHaveTheSameAttributions(
+      closestParentWithAttribution,
+      childId,
+      manualData
     )
   ) {
     const childAttributions: Array<string> =
@@ -419,6 +420,41 @@ function removeManualAttributionFromChildIfInferable(
       )
     );
   }
+}
+
+function allAttributionsAreEqual(
+  attributions: PackageInfo[],
+  otherAttributions: PackageInfo[]
+): boolean {
+  const hasSameLength = attributions.length === otherAttributions.length;
+  const allAttributionsAreInOtherAttributions = attributions.every(
+    (attribution) =>
+      otherAttributions.some((otherAttribution) =>
+        attributionsAreEqual(attribution, otherAttribution)
+      )
+  );
+  return hasSameLength && allAttributionsAreInOtherAttributions;
+}
+
+function resourcesHaveTheSameAttributions(
+  firstResource: string,
+  secondResource: string,
+  manualData: AttributionData
+): boolean {
+  const attributionIdsOfFirstResource =
+    manualData.resourcesToAttributions[firstResource]?.sort() || [];
+  const attributionIdsOfSecondResource =
+    manualData.resourcesToAttributions[secondResource]?.sort() || [];
+  const attributionsOfFirstResource = attributionIdsOfFirstResource.map(
+    (id) => manualData.attributions[id]
+  );
+  const attributionsOfSecondResource = attributionIdsOfSecondResource.map(
+    (id) => manualData.attributions[id]
+  );
+  return allAttributionsAreEqual(
+    attributionsOfFirstResource,
+    attributionsOfSecondResource
+  );
 }
 
 function removeManualAttributionFromChildrenOfParentsIfInferable(
