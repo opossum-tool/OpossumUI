@@ -24,14 +24,6 @@ import {
   updateActiveFilters,
   setTargetView,
 } from '../view-actions';
-import {
-  setMultiSelectMode,
-  setMultiSelectSelectedAttributionIds,
-} from '../../resource-actions/attribution-view-simple-actions';
-import {
-  getMultiSelectMode,
-  getMultiSelectSelectedAttributionIds,
-} from '../../../selectors/attribution-view-resource-selectors';
 
 describe('view actions', () => {
   test('sets view to AuditView as initial value', () => {
@@ -155,23 +147,6 @@ describe('view actions', () => {
     expect(
       getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
     ).toBe(true);
-  });
-
-  test('resets multi-select on view change', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(setMultiSelectMode(true));
-    testStore.dispatch(setMultiSelectSelectedAttributionIds(['some_id']));
-
-    testStore.dispatch(navigateToView(View.Report));
-
-    expect(getMultiSelectMode(testStore.getState())).toBeFalsy();
-    expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
-    ).toStrictEqual([]);
-
-    expect(isAuditViewSelected(testStore.getState())).toBe(false);
-    expect(isAttributionViewSelected(testStore.getState())).toBe(false);
-    expect(isReportViewSelected(testStore.getState())).toBe(true);
   });
 });
 

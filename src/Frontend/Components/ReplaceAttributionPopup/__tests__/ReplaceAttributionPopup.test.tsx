@@ -19,7 +19,6 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   setAttributionIdMarkedForReplacement,
-  setMultiSelectMode,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -127,7 +126,6 @@ describe('ReplaceAttributionPopup and do not change view', () => {
   test('does not show multi-select checkbox for attributions', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);
-    testStore.dispatch(setMultiSelectMode(true));
     testStore.dispatch(
       setMultiSelectSelectedAttributionIds(['test_marked_id'])
     );

@@ -44,7 +44,6 @@ import {
 } from '../all-views-simple-actions';
 import {
   setAttributionIdMarkedForReplacement,
-  setMultiSelectMode,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../attribution-view-simple-actions';
@@ -486,7 +485,6 @@ describe('The savePackageInfo action', () => {
         })
       )
     );
-    testStore.dispatch(setMultiSelectMode(true));
     testStore.dispatch(
       setMultiSelectSelectedAttributionIds([testManualAttributionUuid_1])
     );
@@ -627,7 +625,6 @@ describe('The savePackageInfo action', () => {
       expectedProgressBarData
     );
 
-    testStore.dispatch(setMultiSelectMode(true));
     testStore.dispatch(
       setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1'])
     );
