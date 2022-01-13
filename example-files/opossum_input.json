@@ -170,6 +170,14 @@
       "packageVersion": "3.9.6",
       "copyright": "(c) by W3C\nCopyright Grant. I\nCopyright (c) 2018 WHATWG\n(c) Microsoft Corporation.\n(c) Korporatsiia Maikrosoft\nCopyright (c) Microsoft Corporation.\nCopyright (c) 1991-2017 Unicode, Inc.\n(c) Microsoft Corporation. Alle Rechte\n(c) Microsoft Corporation. Bao Liu Suo\nCopyright (c) 2018 The Khronos Group Inc.\n(c) Microsoft Corporation. Zhu Zuo Quan Suo\nCopyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS",
       "licenseName": "MIT"
+    },
+    "1ec44343-f764-12e1-8d99-b8599fde8t68": {
+      "comment": "Is manifest file",
+      "originId": "",
+      "source": {
+        "documentConfidence": 100,
+        "name": "HINT"
+      }
     }
   },
   "resourcesToAttributions": {
@@ -187,6 +195,9 @@
     ],
     "/Frontend/Components/ResourcePanel/ResourcePanel.tsx": [
       "578b448b-2ba8-4285-810f-ce7b11ac260c"
+    ],
+    "/package.json": [
+      "1ec44343-f764-12e1-8d99-b8599fde8t68"
     ]
   },
   "frequentLicenses": [
@@ -232,6 +243,10 @@
   "externalAttributionSources": {
     "SC": {
       "name": "ScanCode",
+      "priority": 2
+    },
+    "HINT": {
+      "name": "Hint",
       "priority": 1
     }
   }
