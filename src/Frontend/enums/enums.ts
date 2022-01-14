@@ -47,6 +47,7 @@ export enum ButtonText {
   Cancel = 'Cancel',
   Confirm = 'Confirm',
   ConfirmGlobally = 'Confirm globally',
+  ConfirmSelectedGlobally = 'Confirm selected globally',
   Delete = 'Delete',
   DeleteGlobally = 'Delete globally',
   DeleteSelectedGlobally = 'Delete selected globally',

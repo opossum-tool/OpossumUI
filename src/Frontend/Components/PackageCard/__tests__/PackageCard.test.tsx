@@ -32,9 +32,10 @@ const testResources: Resources = {
   },
 };
 const testAttributionId = 'attributionId';
+const anotherAttributionId = 'another_id';
 const testAttributions: Attributions = {
   [testAttributionId]: { packageName: 'pkg', preSelected: true },
-  anotherAttributionId: { packageName: 'pkg', preSelected: true },
+  [anotherAttributionId]: { packageName: 'pkg2', preSelected: true },
 };
 
 let originalIpcRenderer: IpcRenderer;
@@ -192,16 +193,87 @@ describe('The PackageCard', () => {
     expect(screen.getByText('packageName'));
     expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
 
-    store.dispatch(setMultiSelectSelectedAttributionIds(['another_id']));
+    store.dispatch(
+      setMultiSelectSelectedAttributionIds([anotherAttributionId])
+    );
     fireEvent.click(screen.getByRole('checkbox') as Element);
     expect(
       getMultiSelectSelectedAttributionIds(store.getState())
-    ).toStrictEqual(['another_id', 'attributionId']);
+    ).toStrictEqual([anotherAttributionId, testAttributionId]);
 
     fireEvent.click(screen.getByRole('checkbox') as Element);
 
     expect(
       getMultiSelectSelectedAttributionIds(store.getState())
-    ).toStrictEqual(['another_id']);
+    ).toStrictEqual([anotherAttributionId]);
+  });
+
+  test('has working confirm selected globally button', () => {
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      'package_1.tr.gz': [testAttributionId],
+      'package_2.tr.gz': [testAttributionId],
+      'jQuery.js': [anotherAttributionId],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    renderComponentWithStore(
+      <div>
+        <PackageCard
+          attributionId={testAttributionId}
+          cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
+          cardContent={{
+            id: 'some_id',
+            name: 'packageName',
+          }}
+          onClick={doNothing}
+          showCheckBox={true}
+        />
+        ,
+        <PackageCard
+          attributionId={anotherAttributionId}
+          cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
+          cardContent={{
+            id: 'some_id_2',
+            name: 'packageName2',
+          }}
+          onClick={doNothing}
+          showCheckBox={true}
+        />
+      </div>,
+      { store: testStore }
+    );
+
+    expect(screen.getByText('packageName'));
+
+    (screen.getAllByRole('checkbox') as Element[]).forEach((checkbox) =>
+      fireEvent.click(checkbox)
+    );
+    const attributions =
+      testStore.getState().resourceState.allViews.manualData.attributions;
+    expect(attributions[testAttributionId]).toEqual(
+      testAttributions[testAttributionId]
+    );
+    expect(attributions[anotherAttributionId]).toEqual(
+      testAttributions[anotherAttributionId]
+    );
+
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'packageName',
+      ButtonText.ConfirmSelectedGlobally
+    );
+    const updatedAttributions =
+      testStore.getState().resourceState.allViews.manualData.attributions;
+    expect(updatedAttributions[testAttributionId].preSelected).toBeFalsy();
+    expect(updatedAttributions[anotherAttributionId].preSelected).toBeFalsy();
   });
 });
