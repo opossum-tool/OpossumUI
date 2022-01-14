@@ -258,10 +258,9 @@ in all views and in the progress bar. However, that is not a requirement. **Pre-
 attributions are both written in the output file. On top there is an icon for opening the filter section. By clicking
 on it, a dropdown will be shown with filters that allows for filtering for attributions marked for follow-up, first
 party and not first party. The last two are mutually exclusive. Additionally, the attribution view has a multi-select
-mode, which can be activated by checking the _Multi-select_ checkbox at the top. In multi-select mode, a checkbox is
-visible next to every attribution. If at least one attribution has a checked checkbox, the context menu displays the
-_Delete selected globally_ option. This option deletes every selected attribution in all files, after confirming the
-deletions in a pop-up.
+mode. If at least one attribution has a checked checkbox, the context menu displays the
+_Delete selected globally_ and the _Confirm selected globally_ options. The first option deletes all selected
+attributions, after confirming the deletions in a pop-up. The second one confirms all selected attributions.
 
 #### Selected Attribution Panel
 
