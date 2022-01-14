@@ -58,6 +58,7 @@ import {
 import { Checkbox } from '../Checkbox/Checkbox';
 import { getKey, getRightIcons } from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
+import { PackageInfo } from '../../../shared/shared-types';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -172,14 +173,16 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       }
     }
 
-    function confirmAttribution(): void {
-      const packageInfo =
-        attributionId === selectedAttributionId
-          ? temporaryPackageInfo
-          : manualAttributions[attributionId];
+    function getPackageInfo(currentAttributionId: string): PackageInfo {
+      return currentAttributionId === selectedAttributionId
+        ? temporaryPackageInfo
+        : manualAttributions[currentAttributionId];
+    }
 
+    function confirmAttribution(): void {
+      const packageInfo = getPackageInfo(attributionId);
       if (attributionsToResources[attributionId].length === 1) {
-        confirmAttributionGlobally();
+        confirmAttributionGlobally(attributionId);
       } else {
         dispatch(
           unlinkAttributionAndSavePackageInfo(
@@ -191,14 +194,25 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       }
     }
 
-    function confirmAttributionGlobally(): void {
-      const packageInfo =
-        attributionId === selectedAttributionId
-          ? temporaryPackageInfo
-          : manualAttributions[attributionId];
-
-      dispatch(savePackageInfo(null, attributionId, packageInfo));
+    function confirmAttributionGlobally(currentAttributionId: string): void {
+      const packageInfo = getPackageInfo(currentAttributionId);
+      dispatch(savePackageInfo(null, currentAttributionId, packageInfo));
     }
+
+    function confirmSelectedAttributionsGlobally(): void {
+      multiSelectSelectedAttributionIds.forEach((currentAttributionId) => {
+        if (getPackageInfo(currentAttributionId).preSelected) {
+          confirmAttributionGlobally(currentAttributionId);
+        }
+      });
+      dispatch(setMultiSelectSelectedAttributionIds([]));
+    }
+
+    const someSelectedAttributionsArePreSelected =
+      multiSelectSelectedAttributionIds.some(
+        (currentAttributionId) =>
+          manualAttributions[currentAttributionId].preSelected
+      );
 
     const hideResourceSpecificButtons = Boolean(
       props.hideResourceSpecificButtons
@@ -253,8 +267,15 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           },
           {
             buttonText: ButtonText.ConfirmGlobally,
-            onClick: confirmAttributionGlobally,
+            onClick: (): void => confirmAttributionGlobally(attributionId),
             hidden: !isPreselected || !showGlobalButtons,
+          },
+          {
+            buttonText: ButtonText.ConfirmSelectedGlobally,
+            onClick: confirmSelectedAttributionsGlobally,
+            hidden:
+              multiSelectSelectedAttributionIds.length === 0 ||
+              !someSelectedAttributionsArePreSelected,
           },
           {
             buttonText: ButtonText.ShowResources,

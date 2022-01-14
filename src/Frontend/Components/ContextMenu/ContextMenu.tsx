@@ -14,6 +14,7 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import UndoIcon from '@mui/icons-material/Undo';
 import DoneIcon from '@mui/icons-material/Done';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -40,7 +41,8 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   [buttonText in ButtonText]?: JSX.Element;
 } = {
   [ButtonText.Confirm]: <DoneIcon fontSize="small" />,
-  [ButtonText.ConfirmGlobally]: <DoneAllIcon fontSize="small" />,
+  [ButtonText.ConfirmGlobally]: <DoneOutlineIcon fontSize="small" />,
+  [ButtonText.ConfirmSelectedGlobally]: <DoneAllIcon fontSize="small" />,
   [ButtonText.Delete]: <DeleteOutlineIcon fontSize="small" />,
   [ButtonText.DeleteGlobally]: <DeleteIcon fontSize="small" />,
   [ButtonText.DeleteSelectedGlobally]: <DeleteSweepIcon fontSize="small" />,
