@@ -209,7 +209,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 0,
       filesWithOnlyExternalAttributionCount: 2,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: [
+      resourcesWithNonInheritedSignalOnly: [
         '/root/src/something.js',
         '/root/readme.md',
       ],
@@ -219,7 +219,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: ['/root/readme.md'],
+      resourcesWithNonInheritedSignalOnly: ['/root/readme.md'],
     };
 
     const testStore = createTestAppStore();
@@ -276,7 +276,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedSignalOnly: [],
     };
 
     testStore.dispatch(
@@ -367,14 +367,14 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 2,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedSignalOnly: [],
     };
     const expectedFinalProgressBarData: ProgressBarData = {
       fileCount: 2,
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: ['/root/src/something.js'],
+      resourcesWithNonInheritedSignalOnly: ['/root/src/something.js'],
     };
     const emptyTestTemporaryPackageInfo: PackageInfo = {};
 
@@ -605,7 +605,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 2,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedSignalOnly: [],
     };
 
     const testStore = createTestAppStore();
@@ -681,14 +681,14 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: ['/folder/somethingElse.js'],
+      resourcesWithNonInheritedSignalOnly: ['/folder/somethingElse.js'],
     };
     const expectedFinalProgressBarData: ProgressBarData = {
       fileCount: 2,
       filesWithManualAttributionCount: 2,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedSignalOnly: [],
     };
 
     const testStore = createTestAppStore();
