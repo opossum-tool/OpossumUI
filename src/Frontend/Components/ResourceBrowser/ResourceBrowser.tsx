@@ -32,7 +32,6 @@ import { useWindowHeight } from '../../util/use-window-height';
 import { topBarHeight } from '../TopBar/TopBar';
 
 const TREE_ROW_HEIGHT = 20;
-
 const ROOT_FOLDER_LABEL = '';
 
 export function ResourceBrowser(): ReactElement | null {

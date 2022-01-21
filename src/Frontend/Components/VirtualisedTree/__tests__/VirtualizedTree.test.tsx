@@ -43,6 +43,7 @@ describe('The VirtualizedTree', () => {
         }
         cardHeight={20}
         maxHeight={5000}
+        cardHeight={20}
       />
     );
 
