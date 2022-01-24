@@ -24,6 +24,7 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
+import { getNewAccordionWorker } from './get-new-accordion-worker';
 
 const useStyles = makeStyles({
   tabsRoot: {
@@ -80,14 +81,55 @@ export function ResourceDetailsTabs(
     setSelectedTab(Tabs.SignalsAndContent);
   }, [selectedResourceId, Tabs.SignalsAndContent]);
 
-  const panelData: Array<PanelData> = useMemo(
-    () =>
-      getPanelData(
-        selectedResourceId,
-        manualData,
-        externalData,
-        resolvedExternalAttributions
-      ),
+  const [panelData, setPanelData] = useState<Array<PanelData>>([]);
+
+  useMemo(
+    () => {
+      let active = true;
+      setPanelData([]);
+
+      loadPanelData();
+      // @ts-ignore
+      return (): never => {
+        active = false;
+      };
+
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async function loadPanelData(): Promise<void> {
+        try {
+          const worker = getNewAccordionWorker();
+          worker.postMessage({
+            selectedResourceId,
+            manualData,
+            externalData,
+            resolvedExternalAttributions,
+          });
+
+          if (!active) {
+            return;
+          }
+
+          worker.onmessage = ({ data: { output } }): void => {
+            setPanelData(output);
+          };
+        } catch (error) {
+          console.log('Error in ResourceDetailsTab worker: ', error);
+
+          const output = getPanelData(
+            selectedResourceId,
+            manualData,
+            externalData,
+            resolvedExternalAttributions
+          );
+
+          if (!active) {
+            return;
+          }
+
+          setPanelData(output);
+        }
+      }
+    },
     /*
       manualData is excluded from dependencies on purpose to avoid recalculation when
       it changes. Usually this is not an issue as the displayed data remains correct.

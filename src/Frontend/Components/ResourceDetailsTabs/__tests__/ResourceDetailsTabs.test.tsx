@@ -17,6 +17,8 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 
+jest.mock('../get-new-accordion-worker');
+
 describe('The ResourceDetailsTabs', () => {
   test('switches between tabs', () => {
     const testResources: Resources = {

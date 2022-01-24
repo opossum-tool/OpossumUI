@@ -31,6 +31,8 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 
+jest.mock('../../ResourceDetailsTabs/get-new-accordion-worker');
+
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
 const testManualLicense = 'Manual attribution license.';

@@ -38,6 +38,8 @@ import {
 
 let originalIpcRenderer: IpcRenderer;
 
+jest.mock('../../../Components/ResourceDetailsTabs/get-new-accordion-worker');
+
 jest.setTimeout(TEST_TIMEOUT);
 
 function mockElectronBackend(

@@ -50,6 +50,8 @@ import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
 let originalIpcRenderer: IpcRenderer;
 
+jest.mock('../../../Components/ResourceDetailsTabs/get-new-accordion-worker');
+
 jest.setTimeout(TEST_TIMEOUT);
 
 function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {

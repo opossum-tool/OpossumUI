@@ -10,6 +10,8 @@ import { IpcRenderer } from 'electron';
 
 let originalIpcRenderer: IpcRenderer;
 
+jest.mock('../../ResourceDetailsTabs/get-new-accordion-worker');
+
 describe('The AppContainer', () => {
   beforeAll(() => {
     originalIpcRenderer = global.window.ipcRenderer;
