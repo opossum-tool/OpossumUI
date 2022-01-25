@@ -28,6 +28,10 @@ import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
 import { Resources } from '../../../shared/shared-types';
 import { getTreeItemLabel } from './get-tree-item-label';
+import { useWindowHeight } from '../../util/use-window-height';
+import { topBarHeight } from '../TopBar/TopBar';
+
+const TREE_ROW_HEIGHT = 20;
 
 const ROOT_FOLDER_LABEL = '';
 
@@ -99,6 +103,8 @@ export function ResourceBrowser(): ReactElement | null {
       );
   }
 
+  const maxTreeHeight: number = useWindowHeight() - topBarHeight - 4;
+
   return resources ? (
     <VirtualizedTree
       expandedIds={expandedIds}
@@ -109,6 +115,8 @@ export function ResourceBrowser(): ReactElement | null {
       selectedResourceId={selectedResourceId}
       ariaLabel={'resource browser'}
       getTreeItemLabel={getTreeItemLabelGetter()}
+      cardHeight={TREE_ROW_HEIGHT}
+      maxHeight={maxTreeHeight}
     />
   ) : null;
 }

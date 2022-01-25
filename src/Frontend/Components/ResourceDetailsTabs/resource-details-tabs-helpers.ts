@@ -12,7 +12,7 @@ import {
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { getAttributedChildren } from '../../util/get-attributed-children';
-import { isIdOfResourceWithChildren } from '../../util/can-have-children';
+import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 
 export interface PanelData {
   title: PackagePanelTitle;

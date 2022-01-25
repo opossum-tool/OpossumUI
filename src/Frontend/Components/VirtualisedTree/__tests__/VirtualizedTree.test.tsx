@@ -41,6 +41,8 @@ describe('The VirtualizedTree', () => {
             <div>{resourceName || '/'}</div>
           )
         }
+        cardHeight={20}
+        maxHeight={5000}
       />
     );
 

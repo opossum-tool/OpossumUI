@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Resources } from '../../../shared/shared-types';
-import { canHaveChildren } from '../../util/can-have-children';
+import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
 export function getPathsFromResources(resources: Resources): Array<string> {
   const paths = getPathsFromResourcesHelper(resources);
@@ -20,10 +20,10 @@ function getPathsFromResourcesHelper(
   Object.keys(resources).forEach((resourceName) => {
     const resource: Resources | 1 = resources[resourceName];
     const path = `${parentPath}${resourceName}${
-      canHaveChildren(resource) ? '/' : ''
+      canResourceHaveChildren(resource) ? '/' : ''
     }`;
     paths.push(path);
-    if (canHaveChildren(resource)) {
+    if (canResourceHaveChildren(resource)) {
       const newPaths: Array<string> = getPathsFromResourcesHelper(
         resource,
         path

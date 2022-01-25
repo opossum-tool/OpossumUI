@@ -14,9 +14,9 @@ import {
 } from '../../shared/shared-types';
 import { PathPredicate } from '../types/types';
 import {
-  canHaveChildren,
+  canResourceHaveChildren,
   isIdOfResourceWithChildren,
-} from './can-have-children';
+} from './can-resource-have-children';
 import { removeTrailingSlashIfFileWithChildren } from './remove-trailing-slash-if-file-with-children';
 
 export function getAttributionsWithResources(
@@ -134,7 +134,7 @@ function getAllChildPathsOfFolder(
 
   for (const directChild of Object.keys(childTree)) {
     const childSubtree = childTree[directChild];
-    if (canHaveChildren(childSubtree)) {
+    if (canResourceHaveChildren(childSubtree)) {
       const directChildPath = folderPath + directChild + '/';
       if (isAttributionBreakpoint(directChildPath)) {
         continue;

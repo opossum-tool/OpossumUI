@@ -18,7 +18,7 @@ import {
   RawBaseUrlsForSources,
   RawFrequentLicense,
 } from '../types/types';
-import { canHaveChildren } from '../../Frontend/util/can-have-children';
+import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
@@ -30,7 +30,7 @@ function getListOfResourcePaths(
   resources: Resources
 ): Array<string> {
   const fullResourcePath =
-    basePath + resourceName + (canHaveChildren(resources) ? '/' : '');
+    basePath + resourceName + (canResourceHaveChildren(resources) ? '/' : '');
 
   return [fullResourcePath].concat(
     Object.keys(resources)
