@@ -54,7 +54,7 @@ const useStyles = makeStyles({
 });
 
 interface VirtualizedTreeProps {
-  resources: Resources | null;
+  resources: Resources;
   getTreeItemLabel: (
     resourceName: string,
     resource: Resources | 1,
@@ -74,19 +74,18 @@ export function VirtualizedTree(
   const classes = useStyles();
   const treeHeight: number = useWindowHeight() - topBarHeight - 4;
 
-  const treeItems: Array<ReactElement> = props.resources
-    ? renderTree(
-        { '': props.resources },
-        '',
-        classes,
-        props.expandedIds,
-        props.selectedResourceId,
-        props.isFileWithChildren,
-        props.onSelect,
-        props.onToggle,
-        props.getTreeItemLabel
-      )
-    : [];
+  // eslint-disable-next-line testing-library/render-result-naming-convention
+  const treeItems: Array<ReactElement> = renderTree(
+    props.resources,
+    '',
+    classes,
+    props.expandedIds,
+    props.selectedResourceId,
+    props.isFileWithChildren,
+    props.onSelect,
+    props.onToggle,
+    props.getTreeItemLabel
+  );
 
   return props.resources ? (
     <div aria-label={props.ariaLabel} className={classes.root}>

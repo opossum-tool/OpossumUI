@@ -11,34 +11,52 @@ import { doNothing } from '../../../util/do-nothing';
 
 describe('The VirtualizedTree', () => {
   const testResources: Resources = {
-    thirdParty: {
-      'package_1.tr.gz': 1,
-      'package_2.tr.gz': 1,
-    },
-    root: {
-      src: {
-        'something.js': 1,
+    '': {
+      thirdParty: {
+        'package_1.tr.gz': 1,
+        'package_2.tr.gz': 1,
       },
-      'readme.md': 1,
+      root: {
+        src: {
+          'something.js': 1,
+        },
+        'package.json': 1,
+      },
     },
+    docs: { 'readme.md': 1 },
   };
 
   test('renders VirtualizedTree', () => {
     render(
       <VirtualizedTree
-        expandedIds={['/']}
+        expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
         isFileWithChildren={(path: string): boolean => Boolean(path)}
         onSelect={doNothing}
         onToggle={doNothing}
         resources={testResources}
         selectedResourceId={'/thirdParty/'}
-        getTreeItemLabel={(resourceName, resource, nodeId): ReactElement => (
-          <div>{nodeId}</div>
-        )}
+        getTreeItemLabel={
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          (resourceName, resource, nodeId): ReactElement => (
+            <div>{resourceName || '/'}</div>
+          )
+        }
       />
     );
-    expect(screen.getByText('/'));
-    expect(screen.getByText('/thirdParty/'));
-    expect(screen.getByText('/root/'));
+
+    for (const label of [
+      '/',
+      'thirdParty',
+      'package_1.tr.gz',
+      'package_2.tr.gz',
+      'root',
+      'src',
+      'something.js',
+      'package.json',
+      'docs',
+      'readme.md',
+    ]) {
+      expect(screen.getByText(label));
+    }
   });
 });

@@ -29,6 +29,8 @@ import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
 import { Resources } from '../../../shared/shared-types';
 import { getTreeItemLabel } from './get-tree-item-label';
 
+const ROOT_FOLDER_LABEL = '';
+
 export function ResourceBrowser(): ReactElement | null {
   const resources = useAppSelector(getResources);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
@@ -97,16 +99,16 @@ export function ResourceBrowser(): ReactElement | null {
       );
   }
 
-  return (
+  return resources ? (
     <VirtualizedTree
       expandedIds={expandedIds}
       isFileWithChildren={getFileWithChildrenCheck(filesWithChildren)}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      resources={resources}
+      resources={{ [ROOT_FOLDER_LABEL]: resources }}
       selectedResourceId={selectedResourceId}
       ariaLabel={'resource browser'}
       getTreeItemLabel={getTreeItemLabelGetter()}
     />
-  );
+  ) : null;
 }
