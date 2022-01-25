@@ -5,7 +5,6 @@
 
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
-import { renderTree } from './render-tree';
 import { List } from '../List/List';
 import {
   OpossumColors,
@@ -18,6 +17,11 @@ import {
   PathPredicate,
 } from '../../types/types';
 import { min } from 'lodash';
+import {
+  VirtualizedTreeItem,
+  VirtualizedTreeItemData,
+} from './VirtualizedTreeItem';
+import { getTreeItemProps } from './get-tree-item-props';
 
 const useStyles = makeStyles({
   root: {
@@ -28,31 +32,6 @@ const useStyles = makeStyles({
   },
   content: {
     height: '100%',
-  },
-  treeItemLabel: {
-    height: 19,
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover}`,
-      cursor: 'pointer',
-    },
-  },
-  treeItemLabelChildrenOfSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue}`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-  },
-  treeItemLabelSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue} !important`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover} !important`,
-    },
-  },
-  treeItemSpacer: {
-    flexShrink: 0,
-  },
-  listItem: {
-    display: 'flex',
   },
 });
 
@@ -81,10 +60,9 @@ export function VirtualizedTree(
   const classes = useStyles();
 
   // eslint-disable-next-line testing-library/render-result-naming-convention
-  const treeItems: Array<ReactElement> = renderTree(
+  const treeItemProps: Array<VirtualizedTreeItemData> = getTreeItemProps(
     props.resources,
     '',
-    classes,
     props.expandedIds,
     props.selectedResourceId,
     props.isFileWithChildren,
@@ -97,7 +75,7 @@ export function VirtualizedTree(
     ? { height: props.maxHeight }
     : {
         numberOfDisplayedItems: min([
-          treeItems.length,
+          treeItemProps.length,
           DEFAULT_MAX_TREE_DISPLAYED_ITEMS,
         ]) as number,
       };
@@ -106,10 +84,12 @@ export function VirtualizedTree(
     <div aria-label={props.ariaLabel} className={classes.root}>
       <div className={classes.content}>
         <List
-          length={treeItems.length}
+          length={treeItemProps.length}
           max={maxListLength}
           cardVerticalDistance={props.cardHeight}
-          getListItem={(index: number): ReactElement => treeItems[index]}
+          getListItem={(index: number): ReactElement => (
+            <VirtualizedTreeItem {...treeItemProps[index]} />
+          )}
           alwaysShowHorizontalScrollBar={true}
         />
       </div>

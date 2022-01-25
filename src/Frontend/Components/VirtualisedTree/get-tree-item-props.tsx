@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { Resources } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
@@ -11,22 +10,11 @@ import {
   canResourceHaveChildren,
   isIdOfResourceWithChildren,
 } from '../../util/can-resource-have-children';
-import { ClosedFolderIcon, OpenFolderIcon } from '../Icons/Icons';
+import { VirtualizedTreeItemData } from './VirtualizedTreeItem';
 
-const INDENT_PER_DEPTH_LEVEL = 12;
-const SIMPLE_NODE_EXTRA_INDENT = 28;
-
-export function renderTree(
+export function getTreeItemProps(
   resources: Resources,
-  path: string,
-  classes: Record<
-    | 'treeItemLabel'
-    | 'treeItemLabelChildrenOfSelected'
-    | 'treeItemLabelSelected'
-    | 'listItem'
-    | 'treeItemSpacer',
-    string
-  >,
+  parentPath: string,
   expandedNodes: Array<string>,
   selected: string,
   isFileWithChildren: PathPredicate,
@@ -37,21 +25,18 @@ export function renderTree(
     resource: Resources | 1,
     nodeId: string
   ) => ReactElement
-): Array<ReactElement> {
+): Array<VirtualizedTreeItemData> {
   const sortedResourceNames: Array<string> = Object.keys(resources).sort(
-    getSortFunction(resources, isFileWithChildren, path)
+    getSortFunction(resources, isFileWithChildren, parentPath)
   );
 
-  let treeItems: Array<ReactElement> = [];
+  let treeItems: Array<VirtualizedTreeItemData> = [];
 
   for (const resourceName of sortedResourceNames) {
     const resource = resources[resourceName];
     const isExpandable = canResourceHaveChildren(resource);
-    const nodeId = getNodeId(resourceName, path, isExpandable);
+    const nodeId = getNodeId(resourceName, parentPath, isExpandable);
     const isExpandedNode = isExpanded(nodeId, expandedNodes);
-    const marginRight =
-      ((nodeId.match(/\//g) || []).length - 1) * INDENT_PER_DEPTH_LEVEL +
-      (!isExpandable ? SIMPLE_NODE_EXTRA_INDENT : 0);
 
     const nodeIdsToExpand: Array<string> = getNodeIdsToExpand(nodeId, resource);
 
@@ -66,37 +51,24 @@ export function renderTree(
       onSelect(event, nodeId);
     }
 
-    treeItems.push(
-      <div className={classes.listItem}>
-        <div
-          className={classes.treeItemSpacer}
-          style={{ width: marginRight }}
-        />
-        {isExpandable
-          ? getFolderIcon(isExpandedNode, nodeId, nodeIdsToExpand, onToggle)
-          : null}
-        <div
-          className={clsx(
-            classes.treeItemLabel,
-            isSelected(nodeId, selected)
-              ? classes.treeItemLabelSelected
-              : isChildOfSelected(nodeId, selected)
-              ? classes.treeItemLabelChildrenOfSelected
-              : null
-          )}
-          onClick={isExpandable ? onExpandableNodeClick : onSimpleNodeClick}
-        >
-          {getTreeItemLabel(resourceName, resource, nodeId)}
-        </div>
-      </div>
-    );
+    treeItems.push({
+      getTreeItemLabel,
+      isExpandable,
+      isExpandedNode,
+      nodeId,
+      nodeIdsToExpand,
+      onClick: isExpandable ? onExpandableNodeClick : onSimpleNodeClick,
+      onToggle,
+      resource,
+      resourceName,
+      selected,
+    });
 
     if (isExpandedNode) {
       treeItems = treeItems.concat(
-        renderTree(
+        getTreeItemProps(
           resource as Resources,
           nodeId,
-          classes,
           expandedNodes,
           selected,
           isFileWithChildren,
@@ -153,27 +125,6 @@ function getNodeIdOfFirstContainedNode(
     containedNodes[0],
     latestNodeIdToExpand,
     canResourceHaveChildren(resource[containedNodes[0]])
-  );
-}
-
-function getFolderIcon(
-  isExpandedNode: boolean,
-  nodeId: string,
-  nodeIdsToExpand: Array<string>,
-  onToggle: (nodeIdsToExpand: Array<string>) => void
-): ReactElement {
-  return isExpandedNode ? (
-    <OpenFolderIcon
-      onClick={(): void => {
-        onToggle(nodeIdsToExpand);
-      }}
-      label={nodeId}
-    />
-  ) : (
-    <ClosedFolderIcon
-      onClick={(): void => onToggle(nodeIdsToExpand)}
-      label={nodeId}
-    />
   );
 }
 
