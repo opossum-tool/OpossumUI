@@ -7,14 +7,17 @@ import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { renderTree } from './render-tree';
 import { List } from '../List/List';
-import { useWindowHeight } from '../../util/use-window-height';
 import {
   OpossumColors,
   resourceBrowserWidthInPixels,
 } from '../../shared-styles';
-import { topBarHeight } from '../TopBar/TopBar';
 import { Resources } from '../../../shared/shared-types';
-import { PathPredicate } from '../../types/types';
+import {
+  Height,
+  NumberOfDisplayedItems,
+  PathPredicate,
+} from '../../types/types';
+import { min } from 'lodash';
 
 const useStyles = makeStyles({
   root: {
@@ -53,6 +56,8 @@ const useStyles = makeStyles({
   },
 });
 
+const DEFAULT_MAX_TREE_DISPLAYED_ITEMS = 5;
+
 interface VirtualizedTreeProps {
   resources: Resources;
   getTreeItemLabel: (
@@ -66,13 +71,14 @@ interface VirtualizedTreeProps {
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   ariaLabel?: string;
+  cardHeight: number;
+  maxHeight?: number;
 }
 
 export function VirtualizedTree(
   props: VirtualizedTreeProps
 ): ReactElement | null {
   const classes = useStyles();
-  const treeHeight: number = useWindowHeight() - topBarHeight - 4;
 
   // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeItems: Array<ReactElement> = renderTree(
@@ -87,13 +93,22 @@ export function VirtualizedTree(
     props.getTreeItemLabel
   );
 
+  const maxListLength: NumberOfDisplayedItems | Height = props.maxHeight
+    ? { height: props.maxHeight }
+    : {
+        numberOfDisplayedItems: min([
+          treeItems.length,
+          DEFAULT_MAX_TREE_DISPLAYED_ITEMS,
+        ]) as number,
+      };
+
   return props.resources ? (
     <div aria-label={props.ariaLabel} className={classes.root}>
       <div className={classes.content}>
         <List
           length={treeItems.length}
-          max={{ height: treeHeight }}
-          cardVerticalDistance={20}
+          max={maxListLength}
+          cardVerticalDistance={props.cardHeight}
           getListItem={(index: number): ReactElement => treeItems[index]}
           alwaysShowHorizontalScrollBar={true}
         />

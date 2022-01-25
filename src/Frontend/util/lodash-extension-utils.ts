@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { remove } from 'lodash';
-import { isIdOfResourceWithChildren } from './can-have-children';
+import { isIdOfResourceWithChildren } from './can-resource-have-children';
 
 export function replaceInArray<T>(
   array: Array<T>,

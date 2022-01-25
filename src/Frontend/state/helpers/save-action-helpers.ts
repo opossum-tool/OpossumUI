@@ -21,7 +21,7 @@ import { PathPredicate, State } from '../../types/types';
 import { getManualAttributions } from '../selectors/all-views-resource-selectors';
 import { v4 as uuid4 } from 'uuid';
 import { remove } from 'lodash';
-import { isIdOfResourceWithChildren } from '../../util/can-have-children';
+import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 
 export function createManualAttribution(
   manualData: AttributionData,

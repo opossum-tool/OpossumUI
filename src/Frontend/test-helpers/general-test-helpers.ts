@@ -23,7 +23,7 @@ import {
 import isEmpty from 'lodash/isEmpty';
 
 import { ButtonText } from '../enums/enums';
-import { canHaveChildren } from '../util/can-have-children';
+import { canResourceHaveChildren } from '../util/can-resource-have-children';
 
 export const TEST_TIMEOUT = 15000;
 
@@ -108,7 +108,7 @@ function getResourceIdOfRoot(resources: Resources): string {
   return (
     '/' +
     Object.keys(resources)[0] +
-    (canHaveChildren(resources[Object.keys(resources)[0]]) ? '' : '/')
+    (canResourceHaveChildren(resources[Object.keys(resources)[0]]) ? '' : '/')
   );
 }
 

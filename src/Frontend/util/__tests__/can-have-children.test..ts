@@ -5,21 +5,21 @@
 
 import { Resources } from '../../../shared/shared-types';
 import {
-  canHaveChildren,
+  canResourceHaveChildren,
   isIdOfResourceWithChildren,
-} from '../can-have-children';
+} from '../can-resource-have-children';
 
 describe('canHaveChildren', () => {
   test('returns true for a folder', () => {
     const testResources: Resources = {};
 
-    expect(canHaveChildren(testResources)).toBe(true);
+    expect(canResourceHaveChildren(testResources)).toBe(true);
   });
 
   test('returns false for a file', () => {
     const testFileFromResources = 1;
 
-    expect(canHaveChildren(testFileFromResources)).toBe(false);
+    expect(canResourceHaveChildren(testFileFromResources)).toBe(false);
   });
 });
 

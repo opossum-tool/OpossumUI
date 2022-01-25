@@ -9,7 +9,7 @@ import {
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { PathPredicate, ProgressBarData } from '../../types/types';
-import { canHaveChildren } from '../../util/can-have-children';
+import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 
 export function getUpdatedProgressBarData(
   resources: Resources,
@@ -78,7 +78,7 @@ export function updateProgressBarDataForResources(
   for (const resourceName of Object.keys(resources)) {
     const resource: Resources | 1 = resources[resourceName];
     const path = `${parentPath}${resourceName}${
-      canHaveChildren(resource) ? '/' : ''
+      canResourceHaveChildren(resource) ? '/' : ''
     }`;
 
     const hasOnlyPreselectedAttributionFromParent = Boolean(
@@ -101,7 +101,7 @@ export function updateProgressBarDataForResources(
     const hasNonInheritedExternalAttributions = Boolean(
       resourcesToExternalAttributions[path]
     );
-    const resourceCanHaveChildren = canHaveChildren(resource);
+    const resourceCanHaveChildren = canResourceHaveChildren(resource);
 
     if (!resourceCanHaveChildren || isFileWithChildren(path)) {
       progressBarData.fileCount++;
