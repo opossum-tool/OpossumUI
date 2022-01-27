@@ -26,7 +26,7 @@ mindmapDiagram {
 </style>
 * <b>OpossumUI</b>
 --_ <b> Opossum Input JSON (.gz) </b>
---- opossum-tool/oss-review-toolkit
+--- oss-review-toolkit/ort
 ----_ OSS Review Toolkit JSON / YAML
 --- opossum-tool/opossum.lib.hs
 ----_ ScanCode JSON

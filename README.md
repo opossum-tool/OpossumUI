@@ -66,9 +66,9 @@ opening an input file for the first time, an accompanying output file with the n
 
 ## Generating input files
 
-Result files (yaml / json) from the _OSS Review Toolkit_ can be converted into OpossumUI input files via a custom
-reporter. It uses metadata from the analyzer as well as scan results from the scanner. The implementation is in the
-fork [opossum-tool/oss-review-toolkit](https://github.com/opossum-tool/oss-review-toolkit) and the new reporter output
+Result files (yaml / json) from the _OSS Review Toolkit_ can be converted into OpossumUI input files via a
+reporter. It uses metadata from the analyzer as well as scan results from the scanner. The implementation is in
+[oss-review-toolkit/ort](https://github.com/oss-review-toolkit/ort) and the new reporter output
 is called `Opossum`.
 
 For details of the file format, see [Contributing](CONTRIBUTING.md#file_formats)
