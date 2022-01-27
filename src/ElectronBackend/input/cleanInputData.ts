@@ -19,6 +19,7 @@ import {
   RawFrequentLicense,
 } from '../types/types';
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
+import { getParents } from '../../Frontend/state/helpers/get-parents';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
@@ -166,4 +167,51 @@ export function sanitizeRawBaseUrlsForSources(
         })
       )
     : {};
+}
+
+function hasNonHintAttribution(
+  attributionIds: string[],
+  externalAttributions: Attributions
+): boolean {
+  return (
+    attributionIds &&
+    attributionIds.some(
+      (attributionId) =>
+        externalAttributions[attributionId]?.source?.name !== 'HINT'
+    )
+  );
+}
+
+export function removeHintIfSignalsExist(
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions
+): void {
+  const hintAttributionIds = Object.keys(externalAttributions).filter(
+    (attributionId) =>
+      externalAttributions[attributionId].source?.name === 'HINT'
+  );
+  hintAttributionIds.forEach((attributionId) => {
+    Object.keys(resourcesToExternalAttributions).forEach((resourceId) => {
+      const selfAndParents = getParents(resourceId);
+      selfAndParents.push(resourceId);
+      if (
+        resourcesToExternalAttributions[resourceId].includes(attributionId) &&
+        selfAndParents.some((resourcePath) =>
+          hasNonHintAttribution(
+            resourcesToExternalAttributions[resourcePath],
+            externalAttributions
+          )
+        )
+      ) {
+        delete externalAttributions[attributionId];
+      }
+      resourcesToExternalAttributions[resourceId] =
+        resourcesToExternalAttributions[resourceId].filter((id) =>
+          Object.keys(externalAttributions).includes(id)
+        );
+      if (resourcesToExternalAttributions[resourceId].length === 0) {
+        delete resourcesToExternalAttributions[resourceId];
+      }
+    });
+  });
 }
