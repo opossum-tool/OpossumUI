@@ -27,13 +27,13 @@ export function getTargetView(state: State): View | null {
 }
 
 export function getOpenPopup(state: State): null | PopupType {
-  return state.viewState.openPopup;
+  return state.viewState.popupInfo?.popup || null;
 }
 
 export function getActiveFilters(state: State): Set<FilterType> {
   return state.viewState.activeFilters;
 }
 
-export function getTargetAttributionId(state: State): string {
-  return state.viewState.targetAttributionId;
+export function getPopupAttributionId(state: State): string | null {
+  return state.viewState.popupInfo?.attributionId || null;
 }

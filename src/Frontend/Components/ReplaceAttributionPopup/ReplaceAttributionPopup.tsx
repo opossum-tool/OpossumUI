@@ -18,7 +18,7 @@ import { PackageCard } from '../PackageCard/PackageCard';
 import makeStyles from '@mui/styles/makeStyles';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
-import { getTargetAttributionId } from '../../state/selectors/view-selector';
+import { getPopupAttributionId } from '../../state/selectors/view-selector';
 
 const useStyles = makeStyles({
   typography: {
@@ -37,20 +37,21 @@ export function ReplaceAttributionPopup(): ReactElement {
   const markedAttributionId = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
-  const targetAttributionId = useAppSelector(getTargetAttributionId);
+  const targetAttributionId = useAppSelector(getPopupAttributionId);
 
   function handleCancelClick(): void {
     dispatch(closePopup());
   }
 
   function handleOkClick(): void {
-    dispatch(
-      savePackageInfo(
-        null,
-        markedAttributionId,
-        attributions[targetAttributionId]
-      )
-    );
+    targetAttributionId &&
+      dispatch(
+        savePackageInfo(
+          null,
+          markedAttributionId,
+          attributions[targetAttributionId]
+        )
+      );
     dispatch(setAttributionIdMarkedForReplacement(''));
     dispatch(closePopup());
   }
@@ -87,7 +88,7 @@ export function ReplaceAttributionPopup(): ReactElement {
       <MuiTypography className={classes.typography}>
         and links its resources to the attribution
       </MuiTypography>
-      {getAttributionCard(targetAttributionId)}
+      {targetAttributionId && getAttributionCard(targetAttributionId)}
     </div>
   );
 

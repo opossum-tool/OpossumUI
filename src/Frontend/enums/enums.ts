@@ -19,6 +19,7 @@ export enum PopupType {
   ConfirmDeletionPopup = 'ConfirmDeletionPopup',
   ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
   ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',
+  EditAttributionPopup = 'EditAttributionPopup',
 }
 
 export enum SavePackageInfoOperation {

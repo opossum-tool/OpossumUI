@@ -7,15 +7,16 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
-import { getTargetAttributionId } from '../../state/selectors/view-selector';
+import { getPopupAttributionId } from '../../state/selectors/view-selector';
 
 export function ConfirmDeletionGloballyPopup(): ReactElement {
-  const targetAttributionId: string = useAppSelector(getTargetAttributionId);
+  const targetAttributionId = useAppSelector(getPopupAttributionId);
 
   const dispatch = useAppDispatch();
 
   function deleteAttributionGlobally(): void {
-    dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
+    targetAttributionId &&
+      dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
   }
 
   return (

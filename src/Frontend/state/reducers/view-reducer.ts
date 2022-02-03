@@ -3,7 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PopupType, View, FilterType } from '../../enums/enums';
+import { View, FilterType } from '../../enums/enums';
+import { PopupInfo } from '../../types/types';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -12,23 +13,20 @@ import {
   ACTION_SET_VIEW,
   ACTION_UPDATE_ACTIVE_FILTERS,
   ViewAction,
-  ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
 } from '../actions/view-actions/types';
 import { getUpdatedFilters } from '../helpers/set-filters';
 
 export interface ViewState {
   view: View;
   targetView: View | null;
-  openPopup: PopupType | null;
-  targetAttributionId: string;
+  popupInfo: PopupInfo | null;
   activeFilters: Set<FilterType>;
 }
 
 export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
-  openPopup: null,
-  targetAttributionId: '',
+  popupInfo: null,
   activeFilters: new Set<FilterType>(),
 };
 
@@ -52,23 +50,17 @@ export function viewState(
     case ACTION_CLOSE_POPUP:
       return {
         ...state,
-        openPopup: null,
+        popupInfo: null,
       };
     case ACTION_OPEN_POPUP:
       return {
         ...state,
-        openPopup: action.payload,
+        popupInfo: action.payload,
       };
     case ACTION_UPDATE_ACTIVE_FILTERS:
       return {
         ...state,
         activeFilters: getUpdatedFilters(state.activeFilters, action.payload),
-      };
-    case ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID:
-      return {
-        ...state,
-        targetAttributionId: action.payload.attributionId,
-        openPopup: action.payload.popupType,
       };
     default:
       return state;

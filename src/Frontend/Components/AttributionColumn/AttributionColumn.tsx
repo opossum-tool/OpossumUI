@@ -43,7 +43,7 @@ import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
-import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
@@ -68,12 +68,13 @@ interface AttributionColumnProps {
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onSaveButtonClick(): void;
-  onSaveGloballyButtonClick(): void;
-  onDeleteButtonClick(): void;
-  onDeleteGloballyButtonClick(): void;
+  onSaveButtonClick?(): void;
+  onSaveGloballyButtonClick?(): void;
+  onDeleteButtonClick?(): void;
+  onDeleteGloballyButtonClick?(): void;
   saveFileRequestListener(): void;
   setTemporaryPackageInfo(packageInfo: PackageInfo): void;
+  smallerLicenseTextOrCommentField?: boolean;
 }
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
@@ -107,7 +108,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     licenseTextRows,
     copyrightRows,
     commentRows,
-  } = useRows(view, props.resetViewIfThisIdChanges);
+  } = useRows(
+    view,
+    props.resetViewIfThisIdChanges,
+    props.smallerLicenseTextOrCommentField
+  );
   const { temporaryPurl, isDisplayedPurlValid, handlePurlChange } = usePurl(
     dispatch,
     packageInfoWereModified,
@@ -132,24 +137,29 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     targetAttributionIsExternalAttribution: false,
   });
 
-  const mainButtonConfigs: Array<MainButtonConfig> = [
-    {
+  const mainButtonConfigs: Array<MainButtonConfig> = [];
+
+  if (props.onSaveButtonClick) {
+    mainButtonConfigs.push({
       buttonText: temporaryPackageInfo.preSelected
         ? ButtonText.Confirm
         : ButtonText.Save,
       disabled: isSavingDisabled,
       onClick: props.onSaveButtonClick,
       hidden: false,
-    },
-    {
+    });
+  }
+
+  if (props.onSaveGloballyButtonClick) {
+    mainButtonConfigs.push({
       buttonText: temporaryPackageInfo.preSelected
         ? ButtonText.ConfirmGlobally
         : ButtonText.SaveGlobally,
       disabled: isSavingDisabled,
       onClick: props.onSaveGloballyButtonClick,
       hidden: !Boolean(props.showSaveGloballyButton),
-    },
-  ];
+    });
+  }
 
   const hamburgerMenuButtonConfigs: Array<ContextMenuItem> = [
     {
@@ -158,18 +168,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       onClick: (): void => {
         dispatch(setTemporaryPackageInfo(initialPackageInfo));
       },
-    },
-    {
-      buttonText: ButtonText.Delete,
-      onClick: props.onDeleteButtonClick,
-      hidden: Boolean(props.hideDeleteButtons),
-    },
-    {
-      buttonText: ButtonText.DeleteGlobally,
-      onClick: props.onDeleteGloballyButtonClick,
-      hidden:
-        Boolean(props.hideDeleteButtons) ||
-        !Boolean(props.showSaveGloballyButton),
     },
     {
       buttonText: ButtonText.MarkForReplacement,
@@ -192,7 +190,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
       onClick: (): void => {
         dispatch(
-          openPopupWithTargetAttributionId(
+          openPopup(
             PopupType.ReplaceAttributionPopup,
             currentViewSelectedAttributionId
           )
@@ -201,6 +199,24 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
     },
   ];
+
+  if (props.onDeleteButtonClick) {
+    hamburgerMenuButtonConfigs.push({
+      buttonText: ButtonText.Delete,
+      onClick: props.onDeleteButtonClick,
+      hidden: Boolean(props.hideDeleteButtons),
+    });
+  }
+
+  if (props.onDeleteGloballyButtonClick) {
+    hamburgerMenuButtonConfigs.push({
+      buttonText: ButtonText.DeleteGlobally,
+      onClick: props.onDeleteGloballyButtonClick,
+      hidden:
+        Boolean(props.hideDeleteButtons) ||
+        !Boolean(props.showSaveGloballyButton),
+    });
+  }
 
   const displayTexts = getDisplayTexts(
     temporaryPackageInfo,

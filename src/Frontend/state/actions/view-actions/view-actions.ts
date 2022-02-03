@@ -13,19 +13,16 @@ import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-ac
 import { getAttributionOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
 import {
   ACTION_CLOSE_POPUP,
-  ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ACTION_UPDATE_ACTIVE_FILTERS,
   ClosePopupAction,
-  OpenPopupWithTargetAttributionIdAction,
   OpenPopupAction,
   ResetViewStateAction,
   SetTargetView,
   SetView,
-  OpenPopupActionPopupType,
   UpdateActiveFilters,
 } from './types';
 import { setMultiSelectSelectedAttributionIds } from '../resource-actions/attribution-view-simple-actions';
@@ -67,9 +64,16 @@ export function setTargetView(targetView: View | null): SetTargetView {
 }
 
 export function openPopup(
-  popupType: OpenPopupActionPopupType
+  popup: PopupType,
+  attributionId?: string
 ): OpenPopupAction {
-  return { type: ACTION_OPEN_POPUP, payload: popupType };
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: {
+      popup,
+      attributionId,
+    },
+  };
 }
 
 export function closePopup(): ClosePopupAction {
@@ -82,18 +86,5 @@ export function updateActiveFilters(
   return {
     type: ACTION_UPDATE_ACTIVE_FILTERS,
     payload: filterType,
-  };
-}
-
-export function openPopupWithTargetAttributionId(
-  popupType: PopupType,
-  attributionId: string
-): OpenPopupWithTargetAttributionIdAction {
-  return {
-    type: ACTION_OPEN_POPUP_WITH_TARGET_ATTRIBUTION_ID,
-    payload: {
-      popupType,
-      attributionId,
-    },
   };
 }

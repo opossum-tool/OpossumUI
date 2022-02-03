@@ -9,7 +9,7 @@ import {
   getActiveFilters,
   getOpenPopup,
   getSelectedView,
-  getTargetAttributionId,
+  getPopupAttributionId,
   getTargetView,
   isAttributionViewSelected,
   isAuditViewSelected,
@@ -19,7 +19,6 @@ import {
   closePopup,
   navigateToView,
   openPopup,
-  openPopupWithTargetAttributionId,
   resetViewState,
   updateActiveFilters,
   setTargetView,
@@ -170,15 +169,12 @@ describe('popup actions', () => {
   });
   test('sets targetAttributionId and popupType', () => {
     const testStore = createTestAppStore();
-    expect(getTargetAttributionId(testStore.getState())).toEqual('');
+    expect(getPopupAttributionId(testStore.getState())).toEqual(null);
     const testAttributionId = 'test';
     testStore.dispatch(
-      openPopupWithTargetAttributionId(
-        PopupType.ConfirmDeletionPopup,
-        testAttributionId
-      )
+      openPopup(PopupType.ConfirmDeletionPopup, testAttributionId)
     );
-    expect(getTargetAttributionId(testStore.getState())).toEqual(
+    expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId
     );
     expect(getOpenPopup(testStore.getState())).toBe(
