@@ -13,10 +13,8 @@ import { createTestAppStore } from '../../../test-helpers/render-component-with-
 import {
   getAttributionBreakpoints,
   getFilesWithChildren,
-  getIsFileWithChildren,
   getPackageInfoOfSelectedAttribution,
   getProjectMetadata,
-  isAttributionBreakpoint,
 } from '../all-views-resource-selectors';
 import {
   setAttributionBreakpoints,
@@ -71,7 +69,7 @@ describe('Attribution breakpoints', () => {
     '/node_modules/',
   ]);
 
-  test('can be created, listed, and checked.', () => {
+  test('can be created and listed.', () => {
     const testStore = createTestAppStore();
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(new Set());
 
@@ -80,12 +78,6 @@ describe('Attribution breakpoints', () => {
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(
       testAttributionBreakpoints
     );
-    expect(
-      isAttributionBreakpoint('/path/breakpoint/')(testStore.getState())
-    ).toEqual(true);
-    expect(
-      isAttributionBreakpoint('/path/no-breakpoint/')(testStore.getState())
-    ).toEqual(false);
   });
 });
 
@@ -105,16 +97,6 @@ describe('Files with children', () => {
     expect(getFilesWithChildren(testStore.getState())).toEqual(
       testFilesWithChildren
     );
-  });
-
-  test('can get fileWithChildrenCheck', () => {
-    const testStore = createTestAppStore();
-
-    testStore.dispatch(setFilesWithChildren(testFilesWithChildren));
-
-    const isFileWithChildren = getIsFileWithChildren(testStore.getState());
-    expect(isFileWithChildren(testFileWithChildren)).toBe(true);
-    expect(isFileWithChildren('/some_other_path')).toBe(false);
   });
 });
 

@@ -11,10 +11,11 @@ import { List } from '../List/List';
 import { ListCard } from '../ListCard/ListCard';
 import { doNothing } from '../../util/do-nothing';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
-import { getIsFileWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { convertResourcesListBatchesToResourcesListItems } from './resource-list-helpers';
 import { ResourcesListBatch } from '../../types/types';
+import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
 const useStyles = makeStyles({
   root: {
@@ -36,8 +37,8 @@ export interface ResourcesListItem {
 
 export function ResourcesList(props: ResourcesListProps): ReactElement {
   const classes = useStyles();
-
-  const isFileWithChildren = useAppSelector(getIsFileWithChildren);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
+  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
   const dispatch = useAppDispatch();
   const onClickCallback = props.onClickCallback ?? doNothing;
 
