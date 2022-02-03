@@ -8,6 +8,7 @@ import { IpcRenderer } from 'electron';
 import React from 'react';
 import { ButtonText, PopupType, View } from '../../../enums/enums';
 import {
+  navigateToView,
   openPopup,
   setTargetView,
 } from '../../../state/actions/view-actions/view-actions';
@@ -31,8 +32,12 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 
-function setupTestState(store: EnhancedTestStore, targetView?: View): void {
-  store.dispatch(openPopup(PopupType.NotSavedPopup));
+function setupTestState(
+  store: EnhancedTestStore,
+  targetView?: View,
+  popupAttributionId?: string
+): void {
+  store.dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
   store.dispatch(setTargetSelectedResourceId('test_id'));
   store.dispatch(setSelectedResourceId(''));
   store.dispatch(loadFromFile(EMPTY_PARSED_FILE_CONTENT));
@@ -94,6 +99,19 @@ describe('NotSavedPopup and do not change view', () => {
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryPackageInfo(store.getState())).toEqual({});
     expect(isAuditViewSelected(store.getState())).toBe(true);
+  });
+
+  test('renders a NotSavedPopup and click cancel in Report view reopens EditAttribuionPopup', () => {
+    const { store } = renderComponentWithStore(<NotSavedPopup />);
+    store.dispatch(navigateToView(View.Report));
+    store.dispatch(
+      openPopup(PopupType.EditAttributionPopup, 'test_selected_id')
+    );
+    setupTestState(store, undefined, 'test_selected_id');
+
+    expect(screen.getByText('There are unsaved changes.')).toBeInTheDocument();
+    fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
+    expect(getOpenPopup(store.getState())).toBe(PopupType.EditAttributionPopup);
   });
 });
 

@@ -3,11 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent } from 'react';
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { AppThunkDispatch } from '../../state/types';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { PanelPackage } from '../../types/types';
 
 export function getDisplayPackageInfo(
@@ -37,26 +34,4 @@ export function getDisplayPackageInfo(
   }
 
   return displayPackageInfo;
-}
-
-export function setUpdateTemporaryPackageInfoForCreator(
-  dispatch: AppThunkDispatch,
-  temporaryPackageInfo: PackageInfo
-) {
-  return (propertyToUpdate: string) => {
-    return (
-      event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ): void => {
-      const newValue =
-        event.target.type === 'number'
-          ? parseInt(event.target.value)
-          : event.target.value;
-      dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
-          [propertyToUpdate]: newValue,
-        })
-      );
-    };
-  };
 }

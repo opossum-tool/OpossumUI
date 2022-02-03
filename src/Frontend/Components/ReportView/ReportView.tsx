@@ -11,9 +11,9 @@ import {
   AttributionsToResources,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
-import { View } from '../../enums/enums';
+import { PopupType } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { navigateToView } from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import {
   getFilesWithChildren,
   getFrequentLicensesTexts,
@@ -83,7 +83,7 @@ export function ReportView(): ReactElement {
 
   function getOnIconClick(): (attributionId: string) => void {
     return (attributionId): void => {
-      dispatch(navigateToView(View.Attribution));
+      dispatch(openPopup(PopupType.EditAttributionPopup, attributionId));
       dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
     };
   }

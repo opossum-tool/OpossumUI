@@ -29,10 +29,7 @@ import {
   savePackageInfo,
   unlinkAttributionAndSavePackageInfo,
 } from '../../state/actions/resource-actions/save-actions';
-import {
-  openPopup,
-  openPopupWithTargetAttributionId,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
@@ -151,12 +148,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       if (isPreselected) {
         dispatch(deleteAttributionAndSave(selectedResourceId, attributionId));
       } else {
-        dispatch(
-          openPopupWithTargetAttributionId(
-            PopupType.ConfirmDeletionPopup,
-            attributionId
-          )
-        );
+        dispatch(openPopup(PopupType.ConfirmDeletionPopup, attributionId));
       }
     }
 
@@ -165,10 +157,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         dispatch(deleteAttributionGloballyAndSave(attributionId));
       } else {
         dispatch(
-          openPopupWithTargetAttributionId(
-            PopupType.ConfirmDeletionGloballyPopup,
-            attributionId
-          )
+          openPopup(PopupType.ConfirmDeletionGloballyPopup, attributionId)
         );
       }
     }
@@ -314,10 +303,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
             onClick: (): void => {
               dispatch(
-                openPopupWithTargetAttributionId(
-                  PopupType.ReplaceAttributionPopup,
-                  attributionId
-                )
+                openPopup(PopupType.ReplaceAttributionPopup, attributionId)
               );
             },
             hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,

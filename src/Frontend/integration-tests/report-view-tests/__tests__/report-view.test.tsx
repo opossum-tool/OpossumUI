@@ -58,7 +58,7 @@ describe('The report view', () => {
     global.window.ipcRenderer = originalIpcRenderer;
   });
 
-  test('navigates to attribution view', () => {
+  test('opens a EditAttributionPopup by clicking on edit and saves changes', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -96,13 +96,17 @@ describe('The report view', () => {
     screen.getByText(`${DiscreteConfidence.High}`);
 
     clickOnEditIconForElement(screen, 'jQuery');
-
+    expect(screen.getByText('Edit Attribution'));
     expectValueInTextBox(screen, 'Name', 'jQuery');
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
       'MIT'
     );
+    insertValueIntoTextBox(screen, 'Comment', 'Test comment');
+    clickOnButton(screen, ButtonText.Save);
+    expect(screen.queryByText('Edit Attribution')).not.toBeInTheDocument();
+    expect(screen.getByText('Test comment'));
   });
 
   test('recognizes frequent licenses and shows full license text in report view', () => {

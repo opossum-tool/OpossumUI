@@ -4,10 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import {
-  openPopup,
-  openPopupWithTargetAttributionId,
-} from '../../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import {
   createTestAppStore,
   renderComponentWithStore,
@@ -73,12 +70,7 @@ describe('The GlobalPopUp', () => {
     renderComponentWithStore(<GlobalPopup />, {
       store: testStore,
     });
-    testStore.dispatch(
-      openPopupWithTargetAttributionId(
-        PopupType.ReplaceAttributionPopup,
-        'uuid1'
-      )
-    );
+    testStore.dispatch(openPopup(PopupType.ReplaceAttributionPopup, 'uuid1'));
 
     expect(
       screen.getByText('This removes the following attribution')
@@ -87,9 +79,7 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmDeletionPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(
-      openPopupWithTargetAttributionId(PopupType.ConfirmDeletionPopup, 'test')
-    );
+    store.dispatch(openPopup(PopupType.ConfirmDeletionPopup, 'test'));
 
     expect(
       screen.getByText(
@@ -100,12 +90,7 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmDeletionGloballyPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(
-      openPopupWithTargetAttributionId(
-        PopupType.ConfirmDeletionGloballyPopup,
-        'test'
-      )
-    );
+    store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup, 'test'));
 
     expect(
       screen.getByText(

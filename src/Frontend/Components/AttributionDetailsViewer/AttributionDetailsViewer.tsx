@@ -11,7 +11,6 @@ import { PackageInfo } from '../../../shared/shared-types';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import { ResourcesList } from '../ResourcesList/ResourcesList';
-import { setUpdateTemporaryPackageInfoForCreator } from '../ResourceDetailsAttributionColumn/resource-details-attribution-column-helpers';
 import { isEqual } from 'lodash';
 import {
   deleteAttributionGloballyAndSave,
@@ -25,8 +24,9 @@ import {
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useWindowHeight } from '../../util/use-window-height';
-import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
+import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 
 const useStyles = makeStyles({
   root: {
@@ -88,10 +88,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
       dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
     } else {
       dispatch(
-        openPopupWithTargetAttributionId(
-          PopupType.ConfirmDeletionPopup,
-          selectedAttributionId
-        )
+        openPopup(PopupType.ConfirmDeletionPopup, selectedAttributionId)
       );
     }
   }
@@ -116,9 +113,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         displayPackageInfo={temporaryPackageInfo}
         setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
         onSaveButtonClick={dispatchSavePackageInfo}
-        onSaveGloballyButtonClick={(): void => {}}
         onDeleteButtonClick={deleteAttribution}
-        onDeleteGloballyButtonClick={(): void => {}}
         setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
           dispatch(setTemporaryPackageInfo(packageInfo));
         }}

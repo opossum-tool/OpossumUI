@@ -5,10 +5,11 @@
 
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { ButtonText, View } from '../../enums/enums';
+import { ButtonText, PopupType, View } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   closePopup,
+  openPopup,
   setTargetView,
 } from '../../state/actions/view-actions/view-actions';
 import {
@@ -53,11 +54,18 @@ export function NotSavedPopup(): ReactElement {
     dispatch(navigateToTargetResourceOrAttribution());
   }
 
+  function reopenEditAttributionPopupIfItWasPreviouslyOpen(): void {
+    if (view === View.Report && currentAttributionId) {
+      dispatch(openPopup(PopupType.EditAttributionPopup, currentAttributionId));
+    }
+  }
+
   function handleCancelClick(): void {
     dispatch(setTargetView(null));
     dispatch(setTargetSelectedResourceId(''));
     dispatch(setTargetSelectedAttributionId(''));
     dispatch(closePopup());
+    reopenEditAttributionPopupIfItWasPreviouslyOpen();
   }
 
   const content = `There are unsaved changes. ${

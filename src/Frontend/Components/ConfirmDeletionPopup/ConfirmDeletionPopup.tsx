@@ -7,7 +7,7 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getSelectedView,
-  getTargetAttributionId,
+  getPopupAttributionId,
 } from '../../state/selectors/view-selector';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
@@ -20,17 +20,19 @@ import { View } from '../../enums/enums';
 export function ConfirmDeletionPopup(): ReactElement {
   const view = useAppSelector(getSelectedView);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const targetAttributionId = useAppSelector(getTargetAttributionId);
+  const targetAttributionId = useAppSelector(getPopupAttributionId);
 
   const dispatch = useAppDispatch();
 
   function deleteAttributionForResource(): void {
     if (view === View.Audit) {
-      dispatch(
-        deleteAttributionAndSave(selectedResourceId, targetAttributionId)
-      );
+      targetAttributionId &&
+        dispatch(
+          deleteAttributionAndSave(selectedResourceId, targetAttributionId)
+        );
     } else {
-      dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
+      targetAttributionId &&
+        dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
     }
   }
 

@@ -26,6 +26,7 @@ import {
   getAttributionOfDisplayedPackageInManualPanel,
 } from './audit-view-resource-selectors';
 import { getSelectedAttributionId } from './attribution-view-resource-selectors';
+import { getPopupAttributionId } from '../../state/selectors/view-selector';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.allViews.resources;
@@ -114,10 +115,14 @@ export function getProjectMetadata(state: State): ProjectMetadata {
 }
 
 export function getAttributionIdToSaveTo(state: State): string | null {
-  if (getSelectedView(state) === View.Attribution)
-    return getSelectedAttributionId(state);
-
-  return getAttributionIdOfDisplayedPackageInManualPanel(state);
+  switch (getSelectedView(state)) {
+    case View.Attribution:
+      return getSelectedAttributionId(state);
+    case View.Report:
+      return getPopupAttributionId(state);
+    case View.Audit:
+      return getAttributionIdOfDisplayedPackageInManualPanel(state);
+  }
 }
 
 export function getPackageInfoOfSelectedAttribution(state: State): PackageInfo {

@@ -16,10 +16,7 @@ import {
 import { PanelPackage } from '../../types/types';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
-import {
-  getDisplayPackageInfo,
-  setUpdateTemporaryPackageInfoForCreator,
-} from './resource-details-attribution-column-helpers';
+import { getDisplayPackageInfo } from './resource-details-attribution-column-helpers';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -33,8 +30,9 @@ import {
   getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 
 interface ResourceDetailsAttributionColumnProps {
   showParentAttributions: boolean;
@@ -90,7 +88,7 @@ export function ResourceDetailsAttributionColumn(
       );
     } else {
       dispatch(
-        openPopupWithTargetAttributionId(
+        openPopup(
           PopupType.ConfirmDeletionPopup,
           attributionIdOfSelectedPackageInManualPanel
         )
@@ -109,7 +107,7 @@ export function ResourceDetailsAttributionColumn(
       );
     } else {
       dispatch(
-        openPopupWithTargetAttributionId(
+        openPopup(
           PopupType.ConfirmDeletionGloballyPopup,
           attributionIdOfSelectedPackageInManualPanel
         )

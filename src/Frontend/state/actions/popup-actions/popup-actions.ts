@@ -173,3 +173,15 @@ export function navigateToTargetResourceOrAttribution(): AppThunkAction {
     dispatch(closePopup());
   };
 }
+
+export function closeEditAttributionPopupOrOpenUnsavedPopup(
+  popupAttributionId: string
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    if (wereTemporaryPackageInfoModified(getState())) {
+      dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
+    } else {
+      dispatch(closePopup());
+    }
+  };
+}

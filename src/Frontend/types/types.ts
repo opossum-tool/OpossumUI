@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IpcRenderer } from 'electron';
-import { PackagePanelTitle } from '../enums/enums';
+import { PackagePanelTitle, PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { ViewState } from '../state/reducers/view-reducer';
 import { PackageInfo } from '../../shared/shared-types';
@@ -76,4 +76,9 @@ export interface PathPredicate {
 export interface ResourcesListBatch {
   resourceIds: Array<string>;
   header?: string;
+}
+
+export interface PopupInfo {
+  popup: PopupType;
+  attributionId?: string;
 }

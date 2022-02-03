@@ -260,7 +260,8 @@ export function usePurl(
 
 export function useRows(
   view: View,
-  resetViewIfThisIdChanges = ''
+  resetViewIfThisIdChanges = '',
+  smallerLicenseTextOrCommentField?: boolean
 ): {
   isLicenseTextShown: boolean;
   setIsLicenseTextShown: Dispatch<SetStateAction<boolean>>;
@@ -269,14 +270,18 @@ export function useRows(
   commentRows: number;
 } {
   const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
-  const licenseTextRows = getLicenseTextMaxRows(useWindowHeight(), view);
+  const reduceRowsCount = smallerLicenseTextOrCommentField ? 5 : 0;
+  const licenseTextRows =
+    getLicenseTextMaxRows(useWindowHeight(), view) - reduceRowsCount;
 
   useEffect(() => {
     setIsLicenseTextShown(false);
   }, [resetViewIfThisIdChanges]);
 
   const copyrightRows = isLicenseTextShown ? 1 : 6;
-  const commentRows = isLicenseTextShown ? 1 : Math.max(licenseTextRows - 2, 1);
+  const commentRows = isLicenseTextShown
+    ? 1
+    : Math.max(licenseTextRows - 2, 1) - reduceRowsCount;
 
   return {
     isLicenseTextShown,
