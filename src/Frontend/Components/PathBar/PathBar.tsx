@@ -10,9 +10,10 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
-import { getIsFileWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
 import { useAppSelector } from '../../state/hooks';
+import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
 const useStyles = makeStyles({
   root: {
@@ -35,7 +36,8 @@ const useStyles = makeStyles({
 export function PathBar(): ReactElement | null {
   const classes = useStyles();
   const path = useAppSelector(getSelectedResourceId);
-  const isFileWithChildren = useAppSelector(getIsFileWithChildren);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
+  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
 
   return path ? (
     <div className={classes.root}>

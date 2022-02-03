@@ -15,8 +15,8 @@ import { View } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import {
+  getFilesWithChildren,
   getFrequentLicensesTexts,
-  getIsFileWithChildren,
   getManualAttributions,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -25,6 +25,7 @@ import { useFilters } from '../../util/use-filters';
 import { Table } from '../Table/Table';
 import { OpossumColors } from '../../shared-styles';
 import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
 const useStyles = makeStyles({
   root: {
@@ -44,7 +45,8 @@ export function ReportView(): ReactElement {
     getManualAttributionsToResources
   );
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
-  const isFileWithChildren = useAppSelector(getIsFileWithChildren);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
+  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
   const dispatch = useAppDispatch();
 
   const attributionsWithResources = getAttributionsWithResources(

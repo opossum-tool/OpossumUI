@@ -8,10 +8,10 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
+  getAttributionBreakpoints,
   getExternalData,
   getManualData,
   getTemporaryPackageInfo,
-  isAttributionBreakpoint,
 } from '../../state/selectors/all-views-resource-selectors';
 import { PanelPackage } from '../../types/types';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
@@ -34,6 +34,7 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { openPopupWithTargetAttributionId } from '../../state/actions/view-actions/view-actions';
+import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 
 interface ResourceDetailsAttributionColumnProps {
   showParentAttributions: boolean;
@@ -50,10 +51,10 @@ export function ResourceDetailsAttributionColumn(
   const attributionIdOfSelectedPackageInManualPanel: string | null =
     useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
-  const selectedResourceIsAttributionBreakpoint = useAppSelector(
-    isAttributionBreakpoint(selectedResourceId)
-  );
-
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
+  const selectedResourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
+    attributionBreakpoints
+  )(selectedResourceId);
   const dispatch = useAppDispatch();
 
   function dispatchUnlinkAttributionAndSavePackageInfo(): void {

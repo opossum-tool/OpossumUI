@@ -18,7 +18,7 @@ import {
   ExternalAttributionSources,
 } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
-import { PathPredicate, ProgressBarData, State } from '../../types/types';
+import { ProgressBarData, State } from '../../types/types';
 import { getSelectedView } from './view-selector';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import {
@@ -26,8 +26,6 @@ import {
   getAttributionOfDisplayedPackageInManualPanel,
 } from './audit-view-resource-selectors';
 import { getSelectedAttributionId } from './attribution-view-resource-selectors';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.allViews.resources;
@@ -113,22 +111,6 @@ export function getFilesWithChildren(state: State): Set<string> {
 
 export function getProjectMetadata(state: State): ProjectMetadata {
   return state.resourceState.allViews.metadata;
-}
-
-export function isAttributionBreakpoint(
-  path: string
-): (state: State) => boolean {
-  return (state: State): boolean =>
-    getAttributionBreakpointCheck(
-      state.resourceState.allViews.attributionBreakpoints
-    )(path);
-}
-
-export function getIsFileWithChildren(state: State): PathPredicate {
-  return (path: string): boolean =>
-    getFileWithChildrenCheck(state.resourceState.allViews.filesWithChildren)(
-      path
-    );
 }
 
 export function getAttributionIdToSaveTo(state: State): string | null {

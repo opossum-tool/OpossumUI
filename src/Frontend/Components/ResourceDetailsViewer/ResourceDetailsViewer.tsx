@@ -24,8 +24,9 @@ import {
   OpossumColors,
   resourceBrowserWidthInPixels,
 } from '../../shared-styles';
-import { isAttributionBreakpoint } from '../../state/selectors/all-views-resource-selectors';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
+import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
 
 const useStyles = makeStyles({
   root: {
@@ -69,10 +70,10 @@ export function ResourceDetailsViewer(): ReactElement | null {
     getAttributionIdsOfSelectedResource,
     isEqual
   );
-  const resourceIsAttributionBreakpoint: boolean = useAppSelector(
-    isAttributionBreakpoint(selectedResourceId)
-  );
-
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
+  const resourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
+    attributionBreakpoints
+  )(selectedResourceId);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
