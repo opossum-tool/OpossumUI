@@ -299,12 +299,14 @@ describe('In Audit View the ContextMenu', () => {
           comment: 'ManualPackage',
           packageName: 'React',
           packageVersion: '16.0.0',
+          attributionConfidence: DiscreteConfidence.Low,
         },
         uuid_3: {
           packageName: 'Vue',
           packageVersion: '16.0.0',
           comment: 'ManualPackage',
           preSelected: true,
+          attributionConfidence: DiscreteConfidence.Low,
         },
       },
       resolvedExternalAttributions: new Set(),
@@ -322,17 +324,20 @@ describe('In Audit View the ContextMenu', () => {
         packageName: 'jQuery',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
+        attributionConfidence: DiscreteConfidence.Low,
       },
       uuid_2: {
         packageName: 'React',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
+        attributionConfidence: DiscreteConfidence.Low,
       },
       uuid_3: {
         packageName: 'Vue',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
         preSelected: true,
+        attributionConfidence: DiscreteConfidence.Low,
       },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {

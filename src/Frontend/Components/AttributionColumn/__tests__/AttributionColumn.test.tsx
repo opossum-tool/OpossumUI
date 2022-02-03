@@ -13,7 +13,11 @@ import {
   SaveFileArgs,
   Source,
 } from '../../../../shared/shared-types';
-import { CheckboxLabel, PackagePanelTitle } from '../../../enums/enums';
+import {
+  CheckboxLabel,
+  DiscreteConfidence,
+  PackagePanelTitle,
+} from '../../../enums/enums';
 import {
   setFrequentLicences,
   setResources,
@@ -62,7 +66,7 @@ describe('The AttributionColumn', () => {
 
   test('renders TextBoxes with right titles and content', () => {
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
       packagePURLAppendix: '?appendix',
@@ -165,7 +169,9 @@ describe('The AttributionColumn', () => {
   });
 
   test('renders a checkbox for Follow-up', () => {
-    const testTemporaryPackageInfo: PackageInfo = { attributionConfidence: 80 };
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+    };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
@@ -188,7 +194,9 @@ describe('The AttributionColumn', () => {
   });
 
   test('renders a checkbox for Exclude from notice', () => {
-    const testTemporaryPackageInfo: PackageInfo = { attributionConfidence: 80 };
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+    };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}

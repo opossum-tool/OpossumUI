@@ -4,7 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IpcRenderer } from 'electron';
-import { PackagePanelTitle, PopupType, View } from '../../../../enums/enums';
+import {
+  DiscreteConfidence,
+  PackagePanelTitle,
+  PopupType,
+  View,
+} from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   getManualAttributions,
@@ -214,7 +219,7 @@ describe('The actions checking for unsaved changes', () => {
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',

@@ -18,7 +18,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { ButtonText } from '../../../enums/enums';
+import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { IpcRenderer } from 'electron';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -103,7 +103,7 @@ describe('The PackageCard', () => {
       ]
     ).toEqual({
       ...testAttributions[testAttributionId],
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       preSelected: undefined,
     });
   });
@@ -155,7 +155,7 @@ describe('The PackageCard', () => {
       ]
     ).toEqual({
       ...testAttributions[testAttributionId],
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       preSelected: undefined,
     });
   });

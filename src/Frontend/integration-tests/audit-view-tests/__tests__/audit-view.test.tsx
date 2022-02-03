@@ -221,7 +221,7 @@ describe('The App in Audit View', () => {
       manualAttributions: {
         attributions: {
           uuid_1: {
-            attributionConfidence: 80,
+            attributionConfidence: DiscreteConfidence.High,
             packageName: 'Vue',
           },
         },
@@ -436,6 +436,7 @@ describe('The App in Audit View', () => {
           comment: 'ManualPackage',
           packageName: 'React',
           packageVersion: '16.0.0',
+          attributionConfidence: DiscreteConfidence.High,
         },
       },
       resolvedExternalAttributions: new Set(),
@@ -453,11 +454,13 @@ describe('The App in Audit View', () => {
         packageName: 'jQuery',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
+        attributionConfidence: DiscreteConfidence.Low,
       },
       uuid_2: {
         packageName: 'React',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
+        attributionConfidence: DiscreteConfidence.High,
       },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {

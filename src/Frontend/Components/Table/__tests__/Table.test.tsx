@@ -9,6 +9,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { doNothing } from '../../../util/do-nothing';
 import { Table } from '../Table';
 import { screen } from '@testing-library/react';
+import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The Table', () => {
   test('renders', () => {
@@ -19,7 +20,7 @@ describe('The Table', () => {
         copyright: 'test copyright',
         licenseName: 'licenseName',
         licenseText: 'licenseText',
-        attributionConfidence: 20,
+        attributionConfidence: DiscreteConfidence.Low,
         comment: 'test comment',
         url: 'packageWebsite',
         firstParty: true,

@@ -9,7 +9,11 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
-import { PackagePanelTitle, View } from '../../../../enums/enums';
+import {
+  DiscreteConfidence,
+  PackagePanelTitle,
+  View,
+} from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../../types/types';
@@ -255,7 +259,7 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
   test('resets the selectedPackage attributionId if the attribution has been removed from the resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
     };
     const testResources: Resources = {
       parent: { child: 1 },

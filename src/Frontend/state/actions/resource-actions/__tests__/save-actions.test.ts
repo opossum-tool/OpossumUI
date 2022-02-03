@@ -82,7 +82,7 @@ const testResources: Resources = {
 const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
 const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
 const testTemporaryPackageInfo: PackageInfo = {
-  attributionConfidence: 80,
+  attributionConfidence: DiscreteConfidence.High,
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
@@ -202,7 +202,7 @@ describe('The savePackageInfo action', () => {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
     };
     const expectedInitialProgressBarData: ProgressBarData = {
       fileCount: 4,
@@ -269,7 +269,7 @@ describe('The savePackageInfo action', () => {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
     };
     const expectedProgressBarData: ProgressBarData = {
       fileCount: 4,
@@ -569,7 +569,7 @@ describe('The savePackageInfo action', () => {
   test('replaces an attribution with an existing one', () => {
     const testPackageInfo = {
       packageName: 'React',
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
     };
     const testResources: Resources = {
       'something.js': 1,
@@ -645,7 +645,7 @@ describe('The savePackageInfo action', () => {
     const testUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testPackageInfo = {
       packageName: 'React',
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
     };
     const testResources: Resources = {
       'something.js': 1,
@@ -738,11 +738,11 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
   test('saves attribution updates for a single resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
     };
     const testVue: PackageInfo = {
       packageName: 'Vue',
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
     };
     const testResources: Resources = {
       'something.js': 1,
@@ -940,11 +940,11 @@ describe('The deleteAttributionGloballyAndSave action', () => {
   test('deletes attribution', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
     };
     const testVue: PackageInfo = {
       packageName: 'Vue',
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
     };
     const testResources: Resources = {
       'something.js': 1,

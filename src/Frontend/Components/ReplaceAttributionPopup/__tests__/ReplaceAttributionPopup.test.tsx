@@ -5,7 +5,11 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import { ButtonText, PopupType } from '../../../enums/enums';
+import {
+  ButtonText,
+  DiscreteConfidence,
+  PopupType,
+} from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import {
   createTestAppStore,
@@ -34,7 +38,10 @@ function setupTestState(store: EnhancedTestStore): void {
     },
   };
   const testAttributions: Attributions = {
-    test_selected_id: { packageName: 'React' },
+    test_selected_id: {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.High,
+    },
     test_marked_id: { packageName: 'Vue' },
   };
   const testResourcesToManualAttributions = {
@@ -158,7 +165,12 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
       IpcChannel['SaveFile'],
       {
-        manualAttributions: { test_selected_id: { packageName: 'React' } },
+        manualAttributions: {
+          test_selected_id: {
+            packageName: 'React',
+            attributionConfidence: DiscreteConfidence.High,
+          },
+        },
         resolvedExternalAttributions: new Set(),
         resourcesToAttributions: {
           'package_1.tr.gz': ['test_selected_id'],
