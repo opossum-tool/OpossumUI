@@ -14,6 +14,7 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ProgressBar } from '../ProgressBar';
 import { setProgressBarData } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('ProgressBar', () => {
   jest.useFakeTimers();
@@ -39,7 +40,7 @@ describe('ProgressBar', () => {
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
     const testExternalAttributionUuid = 'b5da73d4-f400-11ea-adc1-0242ac120003';
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',

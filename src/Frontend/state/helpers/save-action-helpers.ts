@@ -430,7 +430,7 @@ function allAttributionsAreEqual(
   const allAttributionsAreInOtherAttributions = attributions.every(
     (attribution) =>
       otherAttributions.some((otherAttribution) =>
-        attributionsAreEqual(attribution, otherAttribution)
+        isEqual(attribution, otherAttribution)
       )
   );
   return hasSameLength && allAttributionsAreInOtherAttributions;
@@ -493,17 +493,7 @@ export function attributionForTemporaryPackageInfoExists(
 ): boolean {
   const manualAttributions = getManualAttributions(state);
   return Object.values(manualAttributions).some((packageInfo) =>
-    attributionsAreEqual(packageInfo, packageInfoToMatch)
-  );
-}
-
-export function attributionsAreEqual(
-  attribution: PackageInfo,
-  otherAttribution: PackageInfo
-): boolean {
-  return isEqual(
-    { ...attribution, attributionConfidence: 0 },
-    { ...otherAttribution, attributionConfidence: 0 }
+    isEqual(packageInfo, packageInfoToMatch)
   );
 }
 

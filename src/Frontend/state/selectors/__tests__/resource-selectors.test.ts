@@ -12,7 +12,7 @@ import {
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { wereTemporaryPackageInfoModified } from '../all-views-resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { PackagePanelTitle } from '../../../enums/enums';
+import { DiscreteConfidence, PackagePanelTitle } from '../../../enums/enums';
 import {
   setDisplayedPackage,
   setSelectedResourceId,
@@ -40,7 +40,7 @@ describe('getWerePackageInfoModified', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
   const testTemporaryPackageInfo: PackageInfo = {
-    attributionConfidence: 80,
+    attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
@@ -78,7 +78,7 @@ describe('getWerePackageInfoModified', () => {
   test('returns true  when confidence is changed', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 20,
+      attributionConfidence: DiscreteConfidence.Low,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
@@ -100,11 +100,13 @@ describe('getWerePackageInfoModified', () => {
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
-    testStore.dispatch(setTemporaryPackageInfo({ attributionConfidence: 20 }));
+    testStore.dispatch(
+      setTemporaryPackageInfo({ attributionConfidence: DiscreteConfidence.Low })
+    );
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
     testStore.dispatch(
       setTemporaryPackageInfo({
-        attributionConfidence: 20,
+        attributionConfidence: DiscreteConfidence.Low,
         packageName: 'test Package',
       })
     );
@@ -114,7 +116,7 @@ describe('getWerePackageInfoModified', () => {
   test('returns false when TemporaryPackageInfo have not been modified', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',

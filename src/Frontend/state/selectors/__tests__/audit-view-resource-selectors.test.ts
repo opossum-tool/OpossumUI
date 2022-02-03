@@ -25,13 +25,13 @@ import {
   getAttributionsOfSelectedResourceOrClosestParent,
   getResolvedExternalAttributions,
 } from '../audit-view-resource-selectors';
-import { PackagePanelTitle } from '../../../enums/enums';
+import { DiscreteConfidence, PackagePanelTitle } from '../../../enums/enums';
 
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
   const testTemporaryPackageInfo: PackageInfo = {
-    attributionConfidence: 80,
+    attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
@@ -52,7 +52,7 @@ describe('The audit view resource selectors', () => {
   test('sets Attributions and getsAttribution for a ResourceId', () => {
     const testStore = createTestAppStore();
     const expectedPackageInfo: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',

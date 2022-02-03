@@ -9,6 +9,7 @@ import { doNothing } from '../../../util/do-nothing';
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { ReportTableItem } from '../ReportTableItem';
+import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The ReportTableItem', () => {
   test('renders', () => {
@@ -19,7 +20,7 @@ describe('The ReportTableItem', () => {
         copyright: 'test copyright',
         licenseName: 'licenseName',
         licenseText: 'licenseText',
-        attributionConfidence: 20,
+        attributionConfidence: DiscreteConfidence.Low,
         comment: 'test comment',
         url: 'packageWebsite',
         firstParty: true,
@@ -58,7 +59,7 @@ describe('The ReportTableItem', () => {
     expect(screen.getByText('/'));
   });
 
-  test('renders Icons correctly', () => {
+  test('renders icons correctly', () => {
     const testAttributionsWithResources: AttributionsWithResources = {
       uuid1: {
         packageName: 'React',
@@ -66,7 +67,7 @@ describe('The ReportTableItem', () => {
         copyright: 'test copyright',
         licenseName: 'licenseName',
         licenseText: 'licenseText',
-        attributionConfidence: 20,
+        attributionConfidence: DiscreteConfidence.Low,
         comment: 'test comment',
         url: 'packageWebsite',
         firstParty: true,

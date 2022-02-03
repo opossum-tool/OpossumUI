@@ -160,12 +160,14 @@ describe('In Attribution View the ContextMenu', () => {
           comment: 'ManualPackage',
           packageName: 'React',
           packageVersion: '16.0.0',
+          attributionConfidence: DiscreteConfidence.High,
         },
         uuid_3: {
           packageName: 'Vue',
           packageVersion: '16.0.0',
           comment: 'ManualPackage',
           preSelected: true,
+          attributionConfidence: DiscreteConfidence.Low,
         },
       },
       resolvedExternalAttributions: new Set(),
@@ -188,12 +190,14 @@ describe('In Attribution View the ContextMenu', () => {
         packageName: 'React',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
+        attributionConfidence: DiscreteConfidence.High,
       },
       uuid_3: {
         packageName: 'Vue',
         packageVersion: '16.0.0',
         comment: 'ManualPackage',
         preSelected: true,
+        attributionConfidence: DiscreteConfidence.Low,
       },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {

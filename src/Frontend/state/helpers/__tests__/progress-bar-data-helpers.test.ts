@@ -15,6 +15,7 @@ import {
   updateProgressBarDataForResources,
 } from '../progress-bar-data-helpers';
 import { ProgressBarData } from '../../../types/types';
+import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The getUpdatedProgressBarData function', () => {
   test('gets updated progress data', () => {
@@ -33,7 +34,7 @@ describe('The getUpdatedProgressBarData function', () => {
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
@@ -97,7 +98,7 @@ describe('The getUpdatedProgressBarData function', () => {
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
     const testTemporaryPackageInfo: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',

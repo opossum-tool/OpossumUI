@@ -86,13 +86,13 @@ describe('Add to attribution', () => {
           packageName: 'Vue',
           packageVersion: '1.2.0',
           licenseText: 'Permission is not granted',
-          attributionConfidence: 20,
+          attributionConfidence: DiscreteConfidence.Low,
         },
         uuid_3: {
           packageName: 'Angular',
           packageVersion: '10',
           licenseText: 'Permission is maybe granted.',
-          attributionConfidence: 80,
+          attributionConfidence: DiscreteConfidence.High,
           comment: 'Comment for Angular',
         },
       };

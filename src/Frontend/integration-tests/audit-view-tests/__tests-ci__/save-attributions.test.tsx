@@ -143,7 +143,7 @@ describe('The App in Audit View', () => {
       manualAttributions: {
         uuid_1: {
           licenseName: 'MIT',
-          attributionConfidence: 20,
+          attributionConfidence: DiscreteConfidence.Low,
           licenseText: 'Custom license text',
           packageName: 'React',
           packageVersion: '16.5.0',

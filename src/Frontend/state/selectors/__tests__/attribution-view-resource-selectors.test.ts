@@ -16,6 +16,7 @@ import {
 } from '../../actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
 import { getResourceIdsOfSelectedAttribution } from '../attribution-view-resource-selectors';
+import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The resource actions', () => {
   const testResources: Resources = {
@@ -34,7 +35,7 @@ describe('The resource actions', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
   const testTemporaryPackageInfo: PackageInfo = {
-    attributionConfidence: 80,
+    attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',

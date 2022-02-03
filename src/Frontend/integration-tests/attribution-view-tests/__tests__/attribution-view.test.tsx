@@ -252,7 +252,7 @@ describe('The App in attribution view', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
         uuid_1: {
-          attributionConfidence: 80,
+          attributionConfidence: DiscreteConfidence.High,
           comment: 'ManualPackage',
           packageName: 'curl',
           packageNamespace: 'opensuse',
@@ -439,6 +439,7 @@ describe('The App in attribution view', () => {
           comment: 'ManualPackage',
           packageName: 'React',
           packageVersion: '16.0.0',
+          attributionConfidence: DiscreteConfidence.High,
         },
       },
       resolvedExternalAttributions: new Set(),
@@ -459,11 +460,13 @@ describe('The App in attribution view', () => {
             packageName: 'jQuery',
             packageVersion: '16.0.0',
             comment: 'ManualPackage',
+            attributionConfidence: DiscreteConfidence.High,
           },
           uuid_2: {
             packageName: 'React',
             packageVersion: '16.0.0',
             comment: 'ManualPackage',
+            attributionConfidence: DiscreteConfidence.High,
           },
         },
         resourcesToAttributions: {

@@ -6,10 +6,10 @@
 import {
   AttributionData,
   Attributions,
+  BaseUrlsForSources,
   FrequentLicences,
   PackageInfo,
   ParsedFileContent,
-  BaseUrlsForSources,
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
@@ -33,6 +33,7 @@ import { getResolvedExternalAttributions } from '../../../selectors/audit-view-r
 import { loadFromFile } from '../load-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
 import { ATTRIBUTION_SOURCES } from '../../../../../shared/shared-constants';
+import { DiscreteConfidence } from '../../../../enums/enums';
 
 const testResources: Resources = {
   thirdParty: {
@@ -50,7 +51,7 @@ const testResources: Resources = {
 const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
 const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
 const testTemporaryPackageInfo: PackageInfo = {
-  attributionConfidence: 80,
+  attributionConfidence: DiscreteConfidence.High,
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',

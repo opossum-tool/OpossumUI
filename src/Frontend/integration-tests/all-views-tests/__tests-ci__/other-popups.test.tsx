@@ -344,7 +344,7 @@ describe('Other popups of the app', () => {
     const testValidPurl =
       'pkg:testtype/testnamespace/testname@testversion?testqualifiers#testsubpath';
     const expectedNewAttribution: PackageInfo = {
-      attributionConfidence: 80,
+      attributionConfidence: DiscreteConfidence.High,
       packageType: 'testtype',
       packageNamespace: 'testnamespace',
       packageName: 'testname',
