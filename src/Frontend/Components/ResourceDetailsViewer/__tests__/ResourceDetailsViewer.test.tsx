@@ -8,7 +8,6 @@ import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
   Attributions,
-  ExternalAttributionSources,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -212,127 +211,6 @@ describe('The ResourceDetailsViewer', () => {
 
     expect(screen.getByText('Signals in Folder Content'));
     expect(screen.getByText('JQuery, 1.0'));
-  });
-
-  test('shows Hint as External Packages', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    const externalAttributions: Attributions = {
-      uuid_1: {
-        packageName: 'Another Package',
-        source: {
-          name: 'HINT',
-          documentConfidence: 1,
-        },
-      },
-    };
-    const resourcesToExternalAttributions: ResourcesToAttributions = {
-      '/test_id': ['uuid_1'],
-    };
-    const externalAttributionSources: ExternalAttributionSources = {
-      HINT: {
-        name: 'Hint',
-        priority: 1,
-      },
-    };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions,
-          resourcesToExternalAttributions,
-          externalAttributionSources,
-        })
-      )
-    );
-
-    store.dispatch(setSelectedResourceId('/test_id'));
-    store.dispatch(setTemporaryPackageInfo({}));
-
-    expect(screen.getByText('Signals'));
-    expect(screen.getByText('Hint'));
-  });
-
-  test('hides Hint as External Packages if has another signal', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    const externalAttributions: Attributions = {
-      uuid_1: {
-        packageName: 'Another Package',
-        source: {
-          name: 'HINT',
-          documentConfidence: 1,
-        },
-      },
-      uuid_2: {
-        packageName: 'JQuery',
-        packageVersion: '1.0',
-      },
-    };
-    const resourcesToExternalAttributions: ResourcesToAttributions = {
-      '/test_id': ['uuid_1', 'uuid_2'],
-    };
-    const externalAttributionSources: ExternalAttributionSources = {
-      HINT: {
-        name: 'Hint',
-        priority: 1,
-      },
-    };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions,
-          resourcesToExternalAttributions,
-          externalAttributionSources,
-        })
-      )
-    );
-
-    store.dispatch(setSelectedResourceId('/test_id'));
-    store.dispatch(setTemporaryPackageInfo({}));
-
-    expect(screen.getByText('Signals'));
-    expect(screen.getByText('JQuery, 1.0'));
-    expect(screen.queryByText('Hint')).toBeFalsy;
-  });
-
-  test('hides Hint as External Packages if parent has another signal', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    const externalAttributions: Attributions = {
-      uuid_1: {
-        packageName: 'Another Package',
-        source: {
-          name: 'HINT',
-          documentConfidence: 1,
-        },
-      },
-      uuid_2: {
-        packageName: 'JQuery',
-        packageVersion: '1.0',
-      },
-    };
-    const resourcesToExternalAttributions: ResourcesToAttributions = {
-      '/test_id': ['uuid_2'],
-      '/test_id/subdirectory': ['uuid_1'],
-    };
-    const externalAttributionSources: ExternalAttributionSources = {
-      HINT: {
-        name: 'Hint',
-        priority: 1,
-      },
-    };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions,
-          resourcesToExternalAttributions,
-          externalAttributionSources,
-        })
-      )
-    );
-
-    store.dispatch(setSelectedResourceId('/test_id/subdirectory'));
-    store.dispatch(setTemporaryPackageInfo({}));
-
-    expect(screen.getByText('Signals'));
-    expect(screen.queryByText('Hint')).toBeFalsy;
   });
 
   test('selects an external package and a manual package, showing the right info', () => {

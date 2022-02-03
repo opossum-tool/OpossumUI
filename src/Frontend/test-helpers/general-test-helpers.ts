@@ -12,7 +12,6 @@ import {
 } from '@testing-library/react';
 import {
   Attributions,
-  ExternalAttributionSources,
   ParsedFileContent,
   Resources,
   ResourcesToAttributions,
@@ -67,7 +66,6 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   resourcesToExternalAttributions?: ResourcesToAttributions;
   attributionBreakpoints?: Set<string>;
   filesWithChildren?: Set<string>;
-  externalAttributionSources?: ExternalAttributionSources;
 }): ParsedFileContent {
   const defaultTestResources: Resources = {
     thirdParty: {
@@ -103,7 +101,6 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
     },
     attributionBreakpoints: testData.attributionBreakpoints || new Set(),
     filesWithChildren: testData.filesWithChildren || new Set(),
-    externalAttributionSources: testData.externalAttributionSources || {},
   };
 }
 

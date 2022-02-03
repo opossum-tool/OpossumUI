@@ -17,7 +17,6 @@ import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalSignals,
   parseFrequentLicenses,
-  removeHintIfSignalsExist,
   sanitizeRawAttributions,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
@@ -102,12 +101,6 @@ export async function loadJsonFromFilePath(
   );
 
   log.info('Converting and cleaning data');
-  // Hints are now a special kind of external attribution,
-  // and will be supported in a less hacky way in the near future.
-  removeHintIfSignalsExist(
-    resourcesToExternalAttributions,
-    externalAttributions
-  );
   const parsedFileContent: ParsedFileContent = {
     metadata: parsingResult.metadata,
     resources: parsingResult.resources,
