@@ -5,8 +5,6 @@
 
 import makeStyles from '@mui/styles/makeStyles';
 import MuiTooltip from '@mui/material/Tooltip';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
@@ -19,10 +17,10 @@ import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import {
-  OpossumColors,
-  tooltipStyle,
   baseIcon,
   clickableIcon,
+  OpossumColors,
+  tooltipStyle,
 } from '../../shared-styles';
 
 const useStyles = makeStyles({
@@ -56,49 +54,6 @@ interface IconProps {
 interface LabelDetailIconProps extends IconProps {
   labelDetail?: string;
   disabled?: boolean;
-}
-
-interface ClickableIconProps extends IconProps {
-  label: string;
-  onClick: () => void;
-}
-
-export function ClosedFolderIcon(props: ClickableIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <ChevronRightIcon
-      className={clsx(
-        classes.clickableIcon,
-        classes.openCloseFolderIcons,
-        props.className
-      )}
-      onClick={(event): void => {
-        event.stopPropagation();
-        props.onClick();
-      }}
-      aria-label={`closed folder ${props.label}`}
-    />
-  );
-}
-
-export function OpenFolderIcon(props: ClickableIconProps): ReactElement {
-  const classes = useStyles();
-
-  return (
-    <ExpandMoreIcon
-      className={clsx(
-        classes.clickableIcon,
-        classes.openCloseFolderIcons,
-        props.className
-      )}
-      onClick={(event): void => {
-        event.stopPropagation();
-        props.onClick();
-      }}
-      aria-label={`open folder ${props.label}`}
-    />
-  );
 }
 
 export function FirstPartyIcon(props: IconProps): ReactElement {
