@@ -17,7 +17,6 @@ import {
   cleanNonExistentResolvedExternalSignals,
   getAllResourcePaths,
   parseFrequentLicenses,
-  removeHintIfSignalsExist,
   sanitizeRawAttributions,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
@@ -342,48 +341,6 @@ describe('sanitizeResourcesToAttributions', () => {
       '/file1': ['uuid1'],
       '/folder1/': ['uuid2', 'uuid3'],
       '/folder1/file2': ['uuid1'],
-    });
-  });
-});
-
-describe('removeHintIfSignalsExist', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
-  test('removes hint as a external signal if the resource has other signals', () => {
-    const resourcesToAttributions: ResourcesToAttributions = {
-      '/file1': ['attr2', 'attr4'],
-    };
-    const attributions: Attributions = {
-      attr2: { source: { name: 'HINT', documentConfidence: 1 } },
-      attr4: {},
-    };
-    removeHintIfSignalsExist(resourcesToAttributions, attributions);
-    expect(resourcesToAttributions).toEqual({
-      '/file1': ['attr4'],
-    });
-    expect(attributions).toEqual({
-      attr4: {},
-    });
-  });
-
-  test('removes hint (globally) as a external signal if parent of the resource has other signals', () => {
-    const resourcesToAttributions: ResourcesToAttributions = {
-      '/file1/': ['attr4'],
-      '/file1/file2': ['attr2'],
-      '/file3': ['attr2'],
-    };
-    const attributions: Attributions = {
-      attr2: { source: { name: 'HINT', documentConfidence: 1 } },
-      attr4: {},
-    };
-    removeHintIfSignalsExist(resourcesToAttributions, attributions);
-    expect(resourcesToAttributions).toEqual({
-      '/file1/': ['attr4'],
-    });
-    expect(attributions).toEqual({
-      attr4: {},
     });
   });
 });
