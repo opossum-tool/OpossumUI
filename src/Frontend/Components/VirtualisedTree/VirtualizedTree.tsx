@@ -5,7 +5,7 @@
 
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
-import { List } from '../List/List';
+import { List } from './List';
 import {
   OpossumColors,
   resourceBrowserWidthInPixels,
