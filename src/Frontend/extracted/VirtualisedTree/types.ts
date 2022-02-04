@@ -18,3 +18,10 @@ export interface PathPredicateForTree {
 export interface ItemsForTree {
   [itemName: string]: ItemsForTree | 1;
 }
+
+export interface TreeItemStyle {
+  root: string;
+  childrenOfSelected: string;
+  selected: string;
+  treeExpandIcon: string;
+}

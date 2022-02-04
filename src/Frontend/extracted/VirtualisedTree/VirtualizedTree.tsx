@@ -11,6 +11,7 @@ import {
   ItemsForTree,
   NumberOfDisplayedItemsForTree,
   PathPredicateForTree,
+  TreeItemStyle,
 } from './types';
 import { min } from 'lodash';
 import {
@@ -47,6 +48,7 @@ interface VirtualizedTreeProps {
   nonExpandedNodeIcon?: ReactElement;
   className?: string;
   alwaysShowHorizontalScrollBar?: boolean;
+  treeItemStyle?: TreeItemStyle;
 }
 
 export function VirtualizedTree(
@@ -89,6 +91,7 @@ export function VirtualizedTree(
                 ...treeItemProps[index],
                 expandedNodeIcon: props.expandedNodeIcon,
                 nonExpandedNodeIcon: props.nonExpandedNodeIcon,
+                treeItemStyle: props.treeItemStyle,
               }}
             />
           )}
