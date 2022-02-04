@@ -18,7 +18,7 @@ export const useAttributionColumnStyles = makeStyles({
     display: 'flex',
   },
   textBox: {
-    marginBottom: 6,
+    marginBottom: 0,
     flex: 1,
   },
   rightTextBox: {

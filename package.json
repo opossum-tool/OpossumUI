@@ -55,7 +55,7 @@
     "@typescript-eslint/parser": "^5.10.2",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^13.6.8",
+    "electron": "^17.0.0",
     "electron-builder": "^22.14.5",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
@@ -145,10 +145,10 @@
   },
   "browserslist": {
     "production": [
-      "Chrome 91"
+      "Chrome 98"
     ],
     "development": [
-      "Chrome 91"
+      "Chrome 98"
     ]
   },
   "lint-staged": {
