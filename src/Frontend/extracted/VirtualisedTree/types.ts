@@ -7,19 +7,19 @@ export interface HeightForTree {
   height: number;
 }
 
-export interface NumberOfDisplayedItemsForTree {
-  numberOfDisplayedItems: number;
+export interface NumberOfDisplayedNodesForTree {
+  numberOfDisplayedNodes: number;
 }
 
-export interface PathPredicateForTree {
+export interface NodeIdPredicateForTree {
   (path: string): boolean;
 }
 
-export interface ItemsForTree {
-  [itemName: string]: ItemsForTree | 1;
+export interface NodesForTree {
+  [nodeName: string]: NodesForTree | 1;
 }
 
-export interface TreeItemStyle {
+export interface TreeNodeStyle {
   root: string;
   childrenOfSelected: string;
   selected: string;

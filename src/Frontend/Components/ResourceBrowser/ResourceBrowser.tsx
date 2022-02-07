@@ -151,18 +151,18 @@ export function ResourceBrowser(): ReactElement | null {
   return resources ? (
     <VirtualizedTree
       expandedIds={expandedIds}
-      isFileWithChildren={getFileWithChildrenCheck(filesWithChildren)}
+      isFakeNonExpandableNode={getFileWithChildrenCheck(filesWithChildren)}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      items={{ [ROOT_FOLDER_LABEL]: resources }}
-      selectedItemId={selectedResourceId}
+      nodes={{ [ROOT_FOLDER_LABEL]: resources }}
+      selectedNodeId={selectedResourceId}
       ariaLabel={'resource browser'}
-      getTreeItemLabel={getTreeItemLabelGetter()}
+      getTreeNodeLabel={getTreeItemLabelGetter()}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
       className={classes.tree}
       alwaysShowHorizontalScrollBar={true}
-      treeItemStyle={{
+      treeNodeStyle={{
         root: classes.treeItemLabel,
         childrenOfSelected: classes.treeItemLabelChildrenOfSelected,
         selected: classes.treeItemLabelSelected,

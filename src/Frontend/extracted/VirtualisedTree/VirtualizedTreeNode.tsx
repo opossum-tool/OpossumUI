@@ -5,7 +5,7 @@
 
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { ItemsForTree, TreeItemStyle } from './types';
+import { NodesForTree, TreeNodeStyle } from './types';
 import makeStyles from '@mui/styles/makeStyles';
 import { NodeIcon } from './Icons';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -15,10 +15,10 @@ const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_NODE_EXTRA_INDENT = 28;
 
 const useStyles = makeStyles({
-  treeItemSpacer: {
+  treeNodeSpacer: {
     flexShrink: 0,
   },
-  listItem: {
+  listNode: {
     display: 'flex',
   },
   clickableIcon: {
@@ -29,28 +29,28 @@ const useStyles = makeStyles({
   },
 });
 
-export interface VirtualizedTreeItemData {
+export interface VirtualizedTreeNodeData {
   nodeId: string;
-  itemName: string;
-  item: ItemsForTree | 1;
+  nodeName: string;
+  node: NodesForTree | 1;
   isExpandable: boolean;
   selected: string;
   onClick: (event: React.ChangeEvent<unknown>) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   isExpandedNode: boolean;
   nodeIdsToExpand: Array<string>;
-  getTreeItemLabel: (
-    itemName: string,
-    item: ItemsForTree | 1,
+  getTreeNodeLabel: (
+    nodeName: string,
+    node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
-  treeItemStyle?: TreeItemStyle;
+  treeNodeStyle?: TreeNodeStyle;
 }
 
-export function VirtualizedTreeItem(
-  props: VirtualizedTreeItemData
+export function VirtualizedTreeNode(
+  props: VirtualizedTreeNodeData
 ): ReactElement | null {
   const classes = useStyles();
 
@@ -59,31 +59,31 @@ export function VirtualizedTreeItem(
     (!props.isExpandable ? SIMPLE_NODE_EXTRA_INDENT : 0);
 
   return (
-    <div className={classes.listItem}>
-      <div className={classes.treeItemSpacer} style={{ width: marginRight }} />
+    <div className={classes.listNode}>
+      <div className={classes.treeNodeSpacer} style={{ width: marginRight }} />
       {props.isExpandable
         ? getExpandableNodeIcon(
             props.isExpandedNode,
             props.nodeId,
             props.nodeIdsToExpand,
             props.onToggle,
-            props.treeItemStyle?.treeExpandIcon || classes.clickableIcon,
+            props.treeNodeStyle?.treeExpandIcon || classes.clickableIcon,
             props.expandedNodeIcon,
             props.nonExpandedNodeIcon
           )
         : null}
       <div
         className={clsx(
-          props.treeItemStyle?.root,
+          props.treeNodeStyle?.root,
           isSelected(props.nodeId, props.selected)
-            ? props.treeItemStyle?.selected
+            ? props.treeNodeStyle?.selected
             : isChildOfSelected(props.nodeId, props.selected)
-            ? props.treeItemStyle?.childrenOfSelected
+            ? props.treeNodeStyle?.childrenOfSelected
             : null
         )}
         onClick={props.onClick}
       >
-        {props.getTreeItemLabel(props.itemName, props.item, props.nodeId)}
+        {props.getTreeNodeLabel(props.nodeName, props.node, props.nodeId)}
       </div>
     </div>
   );
