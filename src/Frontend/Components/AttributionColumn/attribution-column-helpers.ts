@@ -270,7 +270,7 @@ export function useRows(
   commentRows: number;
 } {
   const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
-  const reduceRowsCount = smallerLicenseTextOrCommentField ? 5 : 0;
+  const reduceRowsCount = smallerLicenseTextOrCommentField ? 5 : 1;
   const licenseTextRows =
     getLicenseTextMaxRows(useWindowHeight(), view) - reduceRowsCount;
 
