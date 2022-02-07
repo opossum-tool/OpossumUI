@@ -5,7 +5,7 @@
 
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { Resources } from '../../../shared/shared-types';
+import { ItemsForTree } from './types';
 import makeStyles from '@mui/styles/makeStyles';
 import { OpossumColors } from '../../shared-styles';
 import { NodeIcon } from './Icons';
@@ -56,8 +56,8 @@ const useStyles = makeStyles({
 
 export interface VirtualizedTreeItemData {
   nodeId: string;
-  resourceName: string;
-  resource: Resources | 1;
+  itemName: string;
+  item: ItemsForTree | 1;
   isExpandable: boolean;
   selected: string;
   onClick: (event: React.ChangeEvent<unknown>) => void;
@@ -65,8 +65,8 @@ export interface VirtualizedTreeItemData {
   isExpandedNode: boolean;
   nodeIdsToExpand: Array<string>;
   getTreeItemLabel: (
-    resourceName: string,
-    resource: Resources | 1,
+    itemName: string,
+    item: ItemsForTree | 1,
     nodeId: string
   ) => ReactElement;
   expandedNodeIcon?: ReactElement;
@@ -107,11 +107,7 @@ export function VirtualizedTreeItem(
         )}
         onClick={props.onClick}
       >
-        {props.getTreeItemLabel(
-          props.resourceName,
-          props.resource,
-          props.nodeId
-        )}
+        {props.getTreeItemLabel(props.itemName, props.item, props.nodeId)}
       </div>
     </div>
   );

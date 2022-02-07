@@ -7,29 +7,20 @@ import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { List } from './List';
 import {
-  OpossumColors,
-  resourceBrowserWidthInPixels,
-} from '../../shared-styles';
-import { Resources } from '../../../shared/shared-types';
-import {
-  Height,
-  NumberOfDisplayedItems,
-  PathPredicate,
-} from '../../types/types';
+  HeightForTree,
+  ItemsForTree,
+  NumberOfDisplayedItemsForTree,
+  PathPredicateForTree,
+} from './types';
 import { min } from 'lodash';
 import {
   VirtualizedTreeItem,
   VirtualizedTreeItemData,
 } from './VirtualizedTreeItem';
-import { getTreeItemProps } from './get-tree-item-props';
+import { getTreeItemProps } from './utils/get-tree-item-props';
+import clsx from 'clsx';
 
 const useStyles = makeStyles({
-  root: {
-    width: resourceBrowserWidthInPixels,
-    padding: '4px 0',
-    background: OpossumColors.white,
-    height: '100%',
-  },
   content: {
     height: '100%',
   },
@@ -38,15 +29,15 @@ const useStyles = makeStyles({
 const DEFAULT_MAX_TREE_DISPLAYED_ITEMS = 5;
 
 interface VirtualizedTreeProps {
-  resources: Resources;
+  items: ItemsForTree;
   getTreeItemLabel: (
-    resourceName: string,
-    resource: Resources | 1,
+    itemName: string,
+    item: ItemsForTree | 1,
     nodeId: string
   ) => ReactElement;
   expandedIds: Array<string>;
-  selectedResourceId: string;
-  isFileWithChildren: PathPredicate;
+  selectedItemId: string;
+  isFileWithChildren: PathPredicateForTree;
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   ariaLabel?: string;
@@ -54,6 +45,8 @@ interface VirtualizedTreeProps {
   maxHeight?: number;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
+  className?: string;
+  alwaysShowHorizontalScrollBar?: boolean;
 }
 
 export function VirtualizedTree(
@@ -63,27 +56,28 @@ export function VirtualizedTree(
 
   // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeItemProps: Array<VirtualizedTreeItemData> = getTreeItemProps(
-    props.resources,
+    props.items,
     '',
     props.expandedIds,
-    props.selectedResourceId,
+    props.selectedItemId,
     props.isFileWithChildren,
     props.onSelect,
     props.onToggle,
     props.getTreeItemLabel
   );
 
-  const maxListLength: NumberOfDisplayedItems | Height = props.maxHeight
-    ? { height: props.maxHeight }
-    : {
-        numberOfDisplayedItems: min([
-          treeItemProps.length,
-          DEFAULT_MAX_TREE_DISPLAYED_ITEMS,
-        ]) as number,
-      };
+  const maxListLength: NumberOfDisplayedItemsForTree | HeightForTree =
+    props.maxHeight
+      ? { height: props.maxHeight }
+      : {
+          numberOfDisplayedItems: min([
+            treeItemProps.length,
+            DEFAULT_MAX_TREE_DISPLAYED_ITEMS,
+          ]) as number,
+        };
 
-  return props.resources ? (
-    <div aria-label={props.ariaLabel} className={classes.root}>
+  return props.items ? (
+    <div aria-label={props.ariaLabel} className={clsx(props.className)}>
       <div className={classes.content}>
         <List
           length={treeItemProps.length}
@@ -98,7 +92,7 @@ export function VirtualizedTree(
               }}
             />
           )}
-          alwaysShowHorizontalScrollBar={true}
+          alwaysShowHorizontalScrollBar={props.alwaysShowHorizontalScrollBar}
         />
       </div>
     </div>

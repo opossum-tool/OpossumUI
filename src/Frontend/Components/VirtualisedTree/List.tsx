@@ -6,6 +6,9 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import { FixedSizeList as VirtualizedList } from 'react-window';
 import makeStyles from '@mui/styles/makeStyles';
+import { HeightForTree, NumberOfDisplayedItemsForTree } from './types';
+
+const DEFAULT_CARD_HEIGHT = 24;
 
 const useStyles = makeStyles({
   scrollChild: {
@@ -13,17 +16,9 @@ const useStyles = makeStyles({
   },
 });
 
-interface Height {
-  height: number;
-}
-
-interface NumberOfDisplayedItems {
-  numberOfDisplayedItems: number;
-}
-
 interface ListProps {
   length: number;
-  max: NumberOfDisplayedItems | Height;
+  max: NumberOfDisplayedItemsForTree | HeightForTree;
   getListItem(index: number): ReactElement | null;
   cardVerticalDistance?: number;
   alwaysShowHorizontalScrollBar?: boolean;
@@ -31,14 +26,14 @@ interface ListProps {
 }
 
 function maxHeightWasGiven(
-  max: NumberOfDisplayedItems | Height
-): max is Height {
-  return Boolean((max as Height).height);
+  max: NumberOfDisplayedItemsForTree | HeightForTree
+): max is HeightForTree {
+  return Boolean((max as HeightForTree).height);
 }
 
 export function List(props: ListProps): ReactElement {
   const classes = useStyles();
-  const cardHeight = props.cardVerticalDistance || 24;
+  const cardHeight = props.cardVerticalDistance || DEFAULT_CARD_HEIGHT;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
     : props.max.numberOfDisplayedItems * cardHeight;
