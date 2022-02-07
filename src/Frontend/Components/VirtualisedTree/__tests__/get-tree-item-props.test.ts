@@ -3,8 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { getNodeIdsToExpand, isChildOfSelected } from '../get-tree-item-props';
-import { Resources } from '../../../../shared/shared-types';
+import {
+  getNodeIdsToExpand,
+  isChildOfSelected,
+} from '../utils/get-tree-item-props';
+import { ItemsForTree } from '../types';
 
 describe('renderTree', () => {
   test('isChildOfSelected works as expected', () => {
@@ -21,7 +24,7 @@ describe('renderTree', () => {
 
   test('getNodeIdsToExpand returns correct nodeIds', () => {
     const nodeId = '/parent/';
-    const resource: Resources | 1 = {
+    const item: ItemsForTree | 1 = {
       directory: {
         subdirectory: { 'something.js': 1 },
       },
@@ -32,8 +35,6 @@ describe('renderTree', () => {
       '/parent/directory/subdirectory/',
     ];
 
-    expect(getNodeIdsToExpand(nodeId, resource)).toEqual(
-      expectedNodeIdsToExpand
-    );
+    expect(getNodeIdsToExpand(nodeId, item)).toEqual(expectedNodeIdsToExpand);
   });
 });

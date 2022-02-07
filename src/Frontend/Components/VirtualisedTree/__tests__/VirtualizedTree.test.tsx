@@ -6,11 +6,10 @@
 import React, { ReactElement } from 'react';
 import { VirtualizedTree } from '../VirtualizedTree';
 import { render, screen } from '@testing-library/react';
-import { Resources } from '../../../../shared/shared-types';
-import { doNothing } from '../../../util/do-nothing';
+import { ItemsForTree } from '../types';
 
 describe('The VirtualizedTree', () => {
-  const testResources: Resources = {
+  const testItems: ItemsForTree = {
     '': {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -31,15 +30,13 @@ describe('The VirtualizedTree', () => {
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
         isFileWithChildren={(path: string): boolean => Boolean(path)}
-        onSelect={doNothing}
-        onToggle={doNothing}
-        resources={testResources}
-        selectedResourceId={'/thirdParty/'}
+        onSelect={(): void => {}}
+        onToggle={(): void => {}}
+        items={testItems}
+        selectedItemId={'/thirdParty/'}
         getTreeItemLabel={
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          (resourceName, resource, nodeId): ReactElement => (
-            <div>{resourceName || '/'}</div>
-          )
+          (itemName, item, nodeId): ReactElement => <div>{itemName || '/'}</div>
         }
         cardHeight={20}
         maxHeight={5000}

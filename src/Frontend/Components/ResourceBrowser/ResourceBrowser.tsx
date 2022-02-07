@@ -30,11 +30,26 @@ import { Resources } from '../../../shared/shared-types';
 import { getTreeItemLabel } from './get-tree-item-label';
 import { useWindowHeight } from '../../util/use-window-height';
 import { topBarHeight } from '../TopBar/TopBar';
+import {
+  OpossumColors,
+  resourceBrowserWidthInPixels,
+} from '../../shared-styles';
+import makeStyles from '@mui/styles/makeStyles';
+
+const useStyles = makeStyles({
+  tree: {
+    width: resourceBrowserWidthInPixels,
+    padding: '4px 0',
+    background: OpossumColors.white,
+    height: '100%',
+  },
+});
 
 const TREE_ROW_HEIGHT = 20;
 const ROOT_FOLDER_LABEL = '';
 
 export function ResourceBrowser(): ReactElement | null {
+  const classes = useStyles();
   const resources = useAppSelector(getResources);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
@@ -110,12 +125,14 @@ export function ResourceBrowser(): ReactElement | null {
       isFileWithChildren={getFileWithChildrenCheck(filesWithChildren)}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      resources={{ [ROOT_FOLDER_LABEL]: resources }}
-      selectedResourceId={selectedResourceId}
+      items={{ [ROOT_FOLDER_LABEL]: resources }}
+      selectedItemId={selectedResourceId}
       ariaLabel={'resource browser'}
       getTreeItemLabel={getTreeItemLabelGetter()}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
+      className={classes.tree}
+      alwaysShowHorizontalScrollBar={true}
     />
   ) : null;
 }

@@ -4,41 +4,36 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { Resources } from '../../../shared/shared-types';
-import { PathPredicate } from '../../types/types';
-import {
-  canResourceHaveChildren,
-  isIdOfResourceWithChildren,
-} from '../../util/can-resource-have-children';
-import { VirtualizedTreeItemData } from './VirtualizedTreeItem';
+import { ItemsForTree, PathPredicateForTree } from '../types';
+import { VirtualizedTreeItemData } from '../VirtualizedTreeItem';
 
 export function getTreeItemProps(
-  resources: Resources,
+  items: ItemsForTree,
   parentPath: string,
   expandedNodes: Array<string>,
   selected: string,
-  isFileWithChildren: PathPredicate,
+  isFileWithChildren: PathPredicateForTree,
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void,
   onToggle: (nodeIdsToExpand: Array<string>) => void,
   getTreeItemLabel: (
-    resourceName: string,
-    resource: Resources | 1,
+    itemName: string,
+    item: ItemsForTree | 1,
     nodeId: string
   ) => ReactElement
 ): Array<VirtualizedTreeItemData> {
-  const sortedResourceNames: Array<string> = Object.keys(resources).sort(
-    getSortFunction(resources, isFileWithChildren, parentPath)
+  const sortedItemNames: Array<string> = Object.keys(items).sort(
+    getSortFunction(items, isFileWithChildren, parentPath)
   );
 
   let treeItems: Array<VirtualizedTreeItemData> = [];
 
-  for (const resourceName of sortedResourceNames) {
-    const resource = resources[resourceName];
-    const isExpandable = canResourceHaveChildren(resource);
-    const nodeId = getNodeId(resourceName, parentPath, isExpandable);
+  for (const itemName of sortedItemNames) {
+    const item = items[itemName];
+    const isExpandable = canItemHaveChildren(item);
+    const nodeId = getNodeId(itemName, parentPath, isExpandable);
     const isExpandedNode = isExpanded(nodeId, expandedNodes);
 
-    const nodeIdsToExpand: Array<string> = getNodeIdsToExpand(nodeId, resource);
+    const nodeIdsToExpand: Array<string> = getNodeIdsToExpand(nodeId, item);
 
     function onExpandableNodeClick(event: React.ChangeEvent<unknown>): void {
       if (!isExpandedNode) {
@@ -59,15 +54,15 @@ export function getTreeItemProps(
       nodeIdsToExpand,
       onClick: isExpandable ? onExpandableNodeClick : onSimpleNodeClick,
       onToggle,
-      resource,
-      resourceName,
+      item,
+      itemName,
       selected,
     });
 
     if (isExpandedNode) {
       treeItems = treeItems.concat(
         getTreeItemProps(
-          resource as Resources,
+          item as ItemsForTree,
           nodeId,
           expandedNodes,
           selected,
@@ -85,59 +80,54 @@ export function getTreeItemProps(
 
 export function getNodeIdsToExpand(
   nodeId: string,
-  resource: Resources | 1
+  item: ItemsForTree | 1
 ): Array<string> {
   const nodeIdsToExpand: Array<string> = [nodeId];
-  addNodeIdsToExpand(nodeIdsToExpand, resource);
+  addNodeIdsToExpand(nodeIdsToExpand, item);
   return nodeIdsToExpand;
 }
 
 function addNodeIdsToExpand(
   nodeIdsToExpand: Array<string>,
-  resource: Resources | 1
+  item: ItemsForTree | 1
 ): void {
-  const containedNodes = Object.keys(resource);
-  if (resource !== 1 && containsExactlyOneFolder(resource, containedNodes)) {
+  const containedNodes = Object.keys(item);
+  if (item !== 1 && containsExactlyOneFolder(item, containedNodes)) {
     nodeIdsToExpand.push(
-      getNodeIdOfFirstContainedNode(containedNodes, nodeIdsToExpand, resource)
+      getNodeIdOfFirstContainedNode(containedNodes, nodeIdsToExpand, item)
     );
-    addNodeIdsToExpand(nodeIdsToExpand, resource[containedNodes[0]]);
+    addNodeIdsToExpand(nodeIdsToExpand, item[containedNodes[0]]);
   }
 }
 
 function containsExactlyOneFolder(
-  resource: Resources,
+  item: ItemsForTree,
   containedNodes: Array<string>
 ): boolean {
   return (
-    containedNodes.length === 1 &&
-    canResourceHaveChildren(resource[containedNodes[0]])
+    containedNodes.length === 1 && canItemHaveChildren(item[containedNodes[0]])
   );
 }
 
 function getNodeIdOfFirstContainedNode(
   containedNodes: Array<string>,
   nodeIdsToExpand: Array<string>,
-  resource: Resources
+  item: ItemsForTree
 ): string {
   const latestNodeIdToExpand = nodeIdsToExpand[nodeIdsToExpand.length - 1];
   return getNodeId(
     containedNodes[0],
     latestNodeIdToExpand,
-    canResourceHaveChildren(resource[containedNodes[0]])
+    canItemHaveChildren(item[containedNodes[0]])
   );
 }
 
-function getNodeId(
-  resourceName: string,
-  path: string,
-  isFolder: boolean
-): string {
-  return path + (isFolder ? resourceName + '/' : resourceName);
+function getNodeId(itemName: string, path: string, isFolder: boolean): string {
+  return path + (isFolder ? itemName + '/' : itemName);
 }
 
 function isExpanded(nodeId: string, expandedNodes: Array<string>): boolean {
-  if (!isIdOfResourceWithChildren(nodeId)) {
+  if (!isIdOfNodeWithChildren(nodeId)) {
     return false;
   }
 
@@ -163,30 +153,36 @@ export function isChildOfSelected(nodeId: string, selected: string): boolean {
 }
 
 function getSortFunction(
-  resources: Resources,
-  isFileWithChildren: PathPredicate,
+  items: ItemsForTree,
+  isFileWithChildren: PathPredicateForTree,
   path: string
 ) {
   return (left: string, right: string): number => {
-    const leftResource = resources[left];
-    const rightResource = resources[right];
-    const leftIsFolderOrFileWithChildren =
-      canResourceHaveChildren(leftResource);
-    const rightIsFolderOrFileWithChildren =
-      canResourceHaveChildren(rightResource);
+    const leftItem = items[left];
+    const rightItem = items[right];
+    const leftIsFolderOrFileWithChildren = canItemHaveChildren(leftItem);
+    const rightIsFolderOrFileWithChildren = canItemHaveChildren(rightItem);
     const leftNodeId = getNodeId(left, path, leftIsFolderOrFileWithChildren);
     const rightNodeId = getNodeId(right, path, rightIsFolderOrFileWithChildren);
 
-    const leftResourceIsFolder =
+    const leftItemIsFolder =
       leftIsFolderOrFileWithChildren && !isFileWithChildren(leftNodeId);
-    const rightResourceIsFolder =
+    const rightItemIsFolder =
       rightIsFolderOrFileWithChildren && !isFileWithChildren(rightNodeId);
 
-    if (leftResourceIsFolder && !rightResourceIsFolder) {
+    if (leftItemIsFolder && !rightItemIsFolder) {
       return -1;
-    } else if (!leftResourceIsFolder && rightResourceIsFolder) {
+    } else if (!leftItemIsFolder && rightItemIsFolder) {
       return 1;
     }
     return left.toLowerCase().localeCompare(right.toLowerCase());
   };
+}
+
+function canItemHaveChildren(item: ItemsForTree | 1): item is ItemsForTree {
+  return item !== 1;
+}
+
+function isIdOfNodeWithChildren(nodeId: string): boolean {
+  return nodeId.slice(-1) === '/';
 }
