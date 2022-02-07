@@ -6,9 +6,12 @@
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { Resources } from '../../../shared/shared-types';
-import { ClosedFolderIcon, OpenFolderIcon } from '../Icons/Icons';
 import makeStyles from '@mui/styles/makeStyles';
 import { OpossumColors } from '../../shared-styles';
+import { NodeIcon } from './Icons';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { ClassNameMap } from '@mui/styles';
 
 const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_NODE_EXTRA_INDENT = 28;
@@ -39,6 +42,16 @@ const useStyles = makeStyles({
   listItem: {
     display: 'flex',
   },
+  clickableIcon: {
+    width: 16,
+    height: 20,
+    padding: 0,
+    margin: 0,
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
+  },
 });
 
 export interface VirtualizedTreeItemData {
@@ -56,6 +69,8 @@ export interface VirtualizedTreeItemData {
     resource: Resources | 1,
     nodeId: string
   ) => ReactElement;
+  expandedNodeIcon?: ReactElement;
+  nonExpandedNodeIcon?: ReactElement;
 }
 
 export function VirtualizedTreeItem(
@@ -71,11 +86,14 @@ export function VirtualizedTreeItem(
     <div className={classes.listItem}>
       <div className={classes.treeItemSpacer} style={{ width: marginRight }} />
       {props.isExpandable
-        ? getFolderIcon(
+        ? getExpandableNodeIcon(
             props.isExpandedNode,
             props.nodeId,
             props.nodeIdsToExpand,
-            props.onToggle
+            props.onToggle,
+            classes,
+            props.expandedNodeIcon,
+            props.nonExpandedNodeIcon
           )
         : null}
       <div
@@ -99,23 +117,28 @@ export function VirtualizedTreeItem(
   );
 }
 
-function getFolderIcon(
+function getExpandableNodeIcon(
   isExpandedNode: boolean,
   nodeId: string,
   nodeIdsToExpand: Array<string>,
-  onToggle: (nodeIdsToExpand: Array<string>) => void
+  onToggle: (nodeIdsToExpand: Array<string>) => void,
+  classes: ClassNameMap<'clickableIcon'>,
+  expandedNodeIcon: ReactElement = (
+    <ChevronRightIcon className={clsx(classes.clickableIcon)} />
+  ),
+  nonExpandedNodeIcon: ReactElement = (
+    <ExpandMoreIcon className={clsx(classes.clickableIcon)} />
+  )
 ): ReactElement {
-  return isExpandedNode ? (
-    <OpenFolderIcon
+  const ariaLabel = isExpandedNode ? `expand ${nodeId}` : `collapse ${nodeId}`;
+  const icon = isExpandedNode ? expandedNodeIcon : nonExpandedNodeIcon;
+  return (
+    <NodeIcon
       onClick={(): void => {
         onToggle(nodeIdsToExpand);
       }}
-      label={nodeId}
-    />
-  ) : (
-    <ClosedFolderIcon
-      onClick={(): void => onToggle(nodeIdsToExpand)}
-      label={nodeId}
+      ariaLabel={ariaLabel}
+      icon={icon}
     />
   );
 }

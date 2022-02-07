@@ -52,6 +52,8 @@ interface VirtualizedTreeProps {
   ariaLabel?: string;
   cardHeight: number;
   maxHeight?: number;
+  expandedNodeIcon?: ReactElement;
+  nonExpandedNodeIcon?: ReactElement;
 }
 
 export function VirtualizedTree(
@@ -88,7 +90,13 @@ export function VirtualizedTree(
           max={maxListLength}
           cardVerticalDistance={props.cardHeight}
           getListItem={(index: number): ReactElement => (
-            <VirtualizedTreeItem {...treeItemProps[index]} />
+            <VirtualizedTreeItem
+              {...{
+                ...treeItemProps[index],
+                expandedNodeIcon: props.expandedNodeIcon,
+                nonExpandedNodeIcon: props.nonExpandedNodeIcon,
+              }}
+            />
           )}
           alwaysShowHorizontalScrollBar={true}
         />
