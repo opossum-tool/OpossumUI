@@ -72,7 +72,7 @@ export function EditAttributionPopup(): ReactElement {
       }
       header={'Edit Attribution'}
       isOpen={true}
-      fullWidth={true}
+      fullWidth={false}
       leftButtonText={ButtonText.Cancel}
       rightButtonText={ButtonText.Save}
       onBackdropClick={checkForModifiedPackageInfoBeforeClosing}
