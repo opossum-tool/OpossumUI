@@ -25,7 +25,7 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
+import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import { Resources } from '../../../shared/shared-types';
 import { getTreeItemLabel } from './get-tree-item-label';
 import { useWindowHeight } from '../../util/use-window-height';
@@ -42,6 +42,35 @@ const useStyles = makeStyles({
     padding: '4px 0',
     background: OpossumColors.white,
     height: '100%',
+  },
+  treeItemLabel: {
+    height: 19,
+    whiteSpace: 'nowrap',
+    '&:hover': {
+      backgroundColor: `${OpossumColors.lightBlueOnHover}`,
+      cursor: 'pointer',
+    },
+  },
+  treeItemLabelChildrenOfSelected: {
+    backgroundColor: `${OpossumColors.lightestBlue}`,
+    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
+  },
+  treeItemLabelSelected: {
+    backgroundColor: `${OpossumColors.lightestBlue} !important`,
+    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
+    '&:hover': {
+      backgroundColor: `${OpossumColors.lightBlueOnHover} !important`,
+    },
+  },
+  treeExpandIcon: {
+    width: 16,
+    height: 20,
+    padding: 0,
+    margin: 0,
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
   },
 });
 
@@ -122,17 +151,23 @@ export function ResourceBrowser(): ReactElement | null {
   return resources ? (
     <VirtualizedTree
       expandedIds={expandedIds}
-      isFileWithChildren={getFileWithChildrenCheck(filesWithChildren)}
+      isFakeNonExpandableNode={getFileWithChildrenCheck(filesWithChildren)}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      items={{ [ROOT_FOLDER_LABEL]: resources }}
-      selectedItemId={selectedResourceId}
+      nodes={{ [ROOT_FOLDER_LABEL]: resources }}
+      selectedNodeId={selectedResourceId}
       ariaLabel={'resource browser'}
-      getTreeItemLabel={getTreeItemLabelGetter()}
+      getTreeNodeLabel={getTreeItemLabelGetter()}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
       className={classes.tree}
       alwaysShowHorizontalScrollBar={true}
+      treeNodeStyle={{
+        root: classes.treeItemLabel,
+        childrenOfSelected: classes.treeItemLabelChildrenOfSelected,
+        selected: classes.treeItemLabelSelected,
+        treeExpandIcon: classes.treeExpandIcon,
+      }}
     />
   ) : null;
 }

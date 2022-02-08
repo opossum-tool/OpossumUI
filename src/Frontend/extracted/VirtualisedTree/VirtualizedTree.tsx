@@ -6,19 +6,21 @@
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { List } from './List';
+
+import clsx from 'clsx';
 import {
   HeightForTree,
-  ItemsForTree,
-  NumberOfDisplayedItemsForTree,
-  PathPredicateForTree,
+  NodeIdPredicateForTree,
+  NodesForTree,
+  NumberOfDisplayedNodesForTree,
+  TreeNodeStyle,
 } from './types';
 import { min } from 'lodash';
 import {
-  VirtualizedTreeItem,
-  VirtualizedTreeItemData,
-} from './VirtualizedTreeItem';
-import { getTreeItemProps } from './utils/get-tree-item-props';
-import clsx from 'clsx';
+  VirtualizedTreeNode,
+  VirtualizedTreeNodeData,
+} from './VirtualizedTreeNode';
+import { getTreeNodeProps } from './utils/get-tree-node-props';
 
 const useStyles = makeStyles({
   content: {
@@ -26,18 +28,18 @@ const useStyles = makeStyles({
   },
 });
 
-const DEFAULT_MAX_TREE_DISPLAYED_ITEMS = 5;
+const DEFAULT_MAX_TREE_DISPLAYED_NODES = 5;
 
 interface VirtualizedTreeProps {
-  items: ItemsForTree;
-  getTreeItemLabel: (
-    itemName: string,
-    item: ItemsForTree | 1,
+  nodes: NodesForTree;
+  getTreeNodeLabel: (
+    nodeName: string,
+    node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement;
   expandedIds: Array<string>;
-  selectedItemId: string;
-  isFileWithChildren: PathPredicateForTree;
+  selectedNodeId: string;
+  isFakeNonExpandableNode: NodeIdPredicateForTree;
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   ariaLabel?: string;
@@ -46,6 +48,7 @@ interface VirtualizedTreeProps {
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
   className?: string;
+  treeNodeStyle?: TreeNodeStyle;
   alwaysShowHorizontalScrollBar?: boolean;
 }
 
@@ -55,40 +58,42 @@ export function VirtualizedTree(
   const classes = useStyles();
 
   // eslint-disable-next-line testing-library/render-result-naming-convention
-  const treeItemProps: Array<VirtualizedTreeItemData> = getTreeItemProps(
-    props.items,
+  const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
+    props.nodes,
     '',
     props.expandedIds,
-    props.selectedItemId,
-    props.isFileWithChildren,
+    props.selectedNodeId,
+    props.isFakeNonExpandableNode,
     props.onSelect,
     props.onToggle,
-    props.getTreeItemLabel
+    props.getTreeNodeLabel,
+    props.cardHeight
   );
 
-  const maxListLength: NumberOfDisplayedItemsForTree | HeightForTree =
+  const maxListLength: NumberOfDisplayedNodesForTree | HeightForTree =
     props.maxHeight
       ? { height: props.maxHeight }
       : {
-          numberOfDisplayedItems: min([
-            treeItemProps.length,
-            DEFAULT_MAX_TREE_DISPLAYED_ITEMS,
+          numberOfDisplayedNodes: min([
+            treeNodeProps.length,
+            DEFAULT_MAX_TREE_DISPLAYED_NODES,
           ]) as number,
         };
 
-  return props.items ? (
+  return props.nodes ? (
     <div aria-label={props.ariaLabel} className={clsx(props.className)}>
       <div className={classes.content}>
         <List
-          length={treeItemProps.length}
+          length={treeNodeProps.length}
           max={maxListLength}
           cardVerticalDistance={props.cardHeight}
           getListItem={(index: number): ReactElement => (
-            <VirtualizedTreeItem
+            <VirtualizedTreeNode
               {...{
-                ...treeItemProps[index],
+                ...treeNodeProps[index],
                 expandedNodeIcon: props.expandedNodeIcon,
                 nonExpandedNodeIcon: props.nonExpandedNodeIcon,
+                treeNodeStyle: props.treeNodeStyle,
               }}
             />
           )}

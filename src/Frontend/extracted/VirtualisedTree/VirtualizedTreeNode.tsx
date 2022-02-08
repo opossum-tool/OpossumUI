@@ -5,41 +5,20 @@
 
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { ItemsForTree } from './types';
+import { NodesForTree, TreeNodeStyle } from './types';
 import makeStyles from '@mui/styles/makeStyles';
-import { OpossumColors } from '../../shared-styles';
 import { NodeIcon } from './Icons';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ClassNameMap } from '@mui/styles';
 
 const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_NODE_EXTRA_INDENT = 28;
 
 const useStyles = makeStyles({
-  treeItemLabel: {
-    height: 19,
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover}`,
-      cursor: 'pointer',
-    },
-  },
-  treeItemLabelChildrenOfSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue}`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-  },
-  treeItemLabelSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue} !important`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover} !important`,
-    },
-  },
-  treeItemSpacer: {
+  treeNodeSpacer: {
     flexShrink: 0,
   },
-  listItem: {
+  listNode: {
     display: 'flex',
   },
   clickableIcon: {
@@ -47,34 +26,32 @@ const useStyles = makeStyles({
     height: 20,
     padding: 0,
     margin: 0,
-    color: OpossumColors.darkBlue,
-    '&:hover': {
-      background: OpossumColors.middleBlue,
-    },
   },
 });
 
-export interface VirtualizedTreeItemData {
+export interface VirtualizedTreeNodeData {
   nodeId: string;
-  itemName: string;
-  item: ItemsForTree | 1;
+  nodeName: string;
+  node: NodesForTree | 1;
   isExpandable: boolean;
   selected: string;
   onClick: (event: React.ChangeEvent<unknown>) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   isExpandedNode: boolean;
   nodeIdsToExpand: Array<string>;
-  getTreeItemLabel: (
-    itemName: string,
-    item: ItemsForTree | 1,
+  getTreeNodeLabel: (
+    nodeName: string,
+    node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
+  treeNodeStyle?: TreeNodeStyle;
+  nodeHeight: number;
 }
 
-export function VirtualizedTreeItem(
-  props: VirtualizedTreeItemData
+export function VirtualizedTreeNode(
+  props: VirtualizedTreeNodeData
 ): ReactElement | null {
   const classes = useStyles();
 
@@ -83,31 +60,31 @@ export function VirtualizedTreeItem(
     (!props.isExpandable ? SIMPLE_NODE_EXTRA_INDENT : 0);
 
   return (
-    <div className={classes.listItem}>
-      <div className={classes.treeItemSpacer} style={{ width: marginRight }} />
+    <div className={classes.listNode} style={{ height: props.nodeHeight }}>
+      <div className={classes.treeNodeSpacer} style={{ width: marginRight }} />
       {props.isExpandable
         ? getExpandableNodeIcon(
             props.isExpandedNode,
             props.nodeId,
             props.nodeIdsToExpand,
             props.onToggle,
-            classes,
+            props.treeNodeStyle?.treeExpandIcon || classes.clickableIcon,
             props.expandedNodeIcon,
             props.nonExpandedNodeIcon
           )
         : null}
       <div
         className={clsx(
-          classes.treeItemLabel,
+          props.treeNodeStyle?.root,
           isSelected(props.nodeId, props.selected)
-            ? classes.treeItemLabelSelected
+            ? props.treeNodeStyle?.selected
             : isChildOfSelected(props.nodeId, props.selected)
-            ? classes.treeItemLabelChildrenOfSelected
+            ? props.treeNodeStyle?.childrenOfSelected
             : null
         )}
         onClick={props.onClick}
       >
-        {props.getTreeItemLabel(props.itemName, props.item, props.nodeId)}
+        {props.getTreeNodeLabel(props.nodeName, props.node, props.nodeId)}
       </div>
     </div>
   );
@@ -118,12 +95,12 @@ function getExpandableNodeIcon(
   nodeId: string,
   nodeIdsToExpand: Array<string>,
   onToggle: (nodeIdsToExpand: Array<string>) => void,
-  classes: ClassNameMap<'clickableIcon'>,
+  iconClassName: string,
   expandedNodeIcon: ReactElement = (
-    <ChevronRightIcon className={clsx(classes.clickableIcon)} />
+    <ChevronRightIcon className={iconClassName} />
   ),
   nonExpandedNodeIcon: ReactElement = (
-    <ExpandMoreIcon className={clsx(classes.clickableIcon)} />
+    <ExpandMoreIcon className={iconClassName} />
   )
 ): ReactElement {
   const ariaLabel = isExpandedNode ? `expand ${nodeId}` : `collapse ${nodeId}`;

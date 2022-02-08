@@ -6,7 +6,7 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import { FixedSizeList as VirtualizedList } from 'react-window';
 import makeStyles from '@mui/styles/makeStyles';
-import { HeightForTree, NumberOfDisplayedItemsForTree } from './types';
+import { HeightForTree, NumberOfDisplayedNodesForTree } from './types';
 
 const DEFAULT_CARD_HEIGHT = 24;
 
@@ -18,7 +18,7 @@ const useStyles = makeStyles({
 
 interface ListProps {
   length: number;
-  max: NumberOfDisplayedItemsForTree | HeightForTree;
+  max: NumberOfDisplayedNodesForTree | HeightForTree;
   getListItem(index: number): ReactElement | null;
   cardVerticalDistance?: number;
   alwaysShowHorizontalScrollBar?: boolean;
@@ -26,7 +26,7 @@ interface ListProps {
 }
 
 function maxHeightWasGiven(
-  max: NumberOfDisplayedItemsForTree | HeightForTree
+  max: NumberOfDisplayedNodesForTree | HeightForTree
 ): max is HeightForTree {
   return Boolean((max as HeightForTree).height);
 }
@@ -36,7 +36,7 @@ export function List(props: ListProps): ReactElement {
   const cardHeight = props.cardVerticalDistance || DEFAULT_CARD_HEIGHT;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
-    : props.max.numberOfDisplayedItems * cardHeight;
+    : props.max.numberOfDisplayedNodes * cardHeight;
   const currentHeight = props.length * cardHeight;
   const listHeight = props.alwaysShowHorizontalScrollBar
     ? maxHeight
