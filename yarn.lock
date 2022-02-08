@@ -1478,10 +1478,10 @@
     source-map "^0.6.1"
     write-file-atomic "^3.0.0"
 
-"@jest/types@^27.4.2", "@jest/types@^27.5.0":
-  version "27.5.0"
-  resolved "https://registry.yarnpkg.com/@jest/types/-/types-27.5.0.tgz#6ad04a5c5355fd9f46e5cf761850e0edb3c209dd"
-  integrity sha512-oDHEp7gwSgA82RZ6pzUL3ugM2njP/lVB1MsxRZNOBk+CoNvh9SpH1lQixPFc/kDlV50v59csiW4HLixWmhmgPQ==
+"@jest/types@^27.4.2", "@jest/types@^27.5.1":
+  version "27.5.1"
+  resolved "https://registry.yarnpkg.com/@jest/types/-/types-27.5.1.tgz#3c79ec4a8ba61c170bf937bcf9e98a9df175ec80"
+  integrity sha512-Cx46iJ9QpwQTjIdq5VJu2QTMMs3QlEjI0x1QbBP5W1+nMzyc2XmimiRR/CbX9TO0cPTeUlxWMOu8mslYsJ8DEw==
   dependencies:
     "@types/istanbul-lib-coverage" "^2.0.0"
     "@types/istanbul-reports" "^3.0.0"
@@ -6414,16 +6414,16 @@ jest-docblock@^27.4.0:
   dependencies:
     detect-newline "^3.0.0"
 
-jest-each@^27.4.2, jest-each@^27.5.0:
-  version "27.5.0"
-  resolved "https://registry.yarnpkg.com/jest-each/-/jest-each-27.5.0.tgz#7bd00a767df0fbec0caba3df0d2c0b3268a2ce84"
-  integrity sha512-2vpajSdDMZmAxjSP1f4BG9KKduwHtuaI0w66oqLUkfaGUU7Ix/W+d8BW0h3/QEJiew7hR0GSblqdFwTEEbhBdw==
+jest-each@^27.4.2, jest-each@^27.5.1:
+  version "27.5.1"
+  resolved "https://registry.yarnpkg.com/jest-each/-/jest-each-27.5.1.tgz#5bc87016f45ed9507fed6e4702a5b468a5b2c44e"
+  integrity sha512-1Ff6p+FbhT/bXQnEouYy00bkNSY7OUpfIcmdl8vZ31A1UUaurOLPA8a8BbJOF2RDUElwJhmeaV7LnagI+5UwNQ==
   dependencies:
-    "@jest/types" "^27.5.0"
+    "@jest/types" "^27.5.1"
     chalk "^4.0.0"
-    jest-get-type "^27.5.0"
-    jest-util "^27.5.0"
-    pretty-format "^27.5.0"
+    jest-get-type "^27.5.1"
+    jest-util "^27.5.1"
+    pretty-format "^27.5.1"
 
 jest-environment-jsdom@^27.4.4:
   version "27.4.4"
@@ -6450,10 +6450,10 @@ jest-environment-node@^27.4.4:
     jest-mock "^27.4.2"
     jest-util "^27.4.2"
 
-jest-get-type@^27.4.0, jest-get-type@^27.5.0:
-  version "27.5.0"
-  resolved "https://registry.yarnpkg.com/jest-get-type/-/jest-get-type-27.5.0.tgz#861c24aa1b176be83c902292cb9618d580cac8a7"
-  integrity sha512-Vp6O8a52M/dahXRG/E0EJuWQROps2mDQ0sJYPgO8HskhdLwj9ajgngy2OAqZgV6e/RcU67WUHq6TgfvJb8flbA==
+jest-get-type@^27.4.0, jest-get-type@^27.5.1:
+  version "27.5.1"
+  resolved "https://registry.yarnpkg.com/jest-get-type/-/jest-get-type-27.5.1.tgz#3cd613c507b0f7ace013df407a1c1cd578bcb4f1"
+  integrity sha512-2KY95ksYSaK7DMBWQn6dQz3kqAf3BB64y2udeG+hv4KfSOb9qwcYQstTJc1KCbsix+wLZWZYN8t7nwX3GOBLRw==
 
 jest-haste-map@^27.4.5:
   version "27.4.5"
@@ -6673,12 +6673,12 @@ jest-snapshot@^27.4.5:
     pretty-format "^27.4.2"
     semver "^7.3.2"
 
-jest-util@^27.4.2, jest-util@^27.5.0:
-  version "27.5.0"
-  resolved "https://registry.yarnpkg.com/jest-util/-/jest-util-27.5.0.tgz#0b9540d91b0de65d288f235fa9899e6eeeab8d35"
-  integrity sha512-FUUqOx0gAzJy3ytatT1Ss372M1kmhczn8x7aE0++11oPGW1FyD/5NjYBI8w1KOXFm6IVjtaZm2szfJJL+CHs0g==
+jest-util@^27.4.2, jest-util@^27.5.1:
+  version "27.5.1"
+  resolved "https://registry.yarnpkg.com/jest-util/-/jest-util-27.5.1.tgz#3ba9771e8e31a0b85da48fe0b0891fb86c01c2f9"
+  integrity sha512-Kv2o/8jNvX1MQ0KGtw480E/w4fBCDOnH6+6DmeKi6LZUIlKA5kwY0YNdlzaWTiVgxqAqik11QyxDOKk543aKXw==
   dependencies:
-    "@jest/types" "^27.5.0"
+    "@jest/types" "^27.5.1"
     "@types/node" "*"
     chalk "^4.0.0"
     ci-info "^3.2.0"
@@ -8580,10 +8580,10 @@ pretty-error@^4.0.0:
     lodash "^4.17.20"
     renderkid "^3.0.0"
 
-pretty-format@^27.0.0, pretty-format@^27.0.2, pretty-format@^27.4.2, pretty-format@^27.5.0:
-  version "27.5.0"
-  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-27.5.0.tgz#71e1af7a4b587d259fa4668dcd3e94af077767cb"
-  integrity sha512-xEi6BRPZ+J1AIS4BAtFC/+rh5jXlXObGZjx5+OSpM95vR/PGla78bFVHMy5GdZjP9wk3AHAMHROXq/r69zXltw==
+pretty-format@^27.0.0, pretty-format@^27.0.2, pretty-format@^27.4.2, pretty-format@^27.5.1:
+  version "27.5.1"
+  resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-27.5.1.tgz#2181879fdea51a7a5851fb39d920faa63f01d88e"
+  integrity sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==
   dependencies:
     ansi-regex "^5.0.1"
     ansi-styles "^5.0.0"
