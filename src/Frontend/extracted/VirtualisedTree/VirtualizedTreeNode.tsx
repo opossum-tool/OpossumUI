@@ -47,6 +47,7 @@ export interface VirtualizedTreeNodeData {
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
   treeNodeStyle?: TreeNodeStyle;
+  nodeHeight: number;
 }
 
 export function VirtualizedTreeNode(
@@ -59,7 +60,7 @@ export function VirtualizedTreeNode(
     (!props.isExpandable ? SIMPLE_NODE_EXTRA_INDENT : 0);
 
   return (
-    <div className={classes.listNode}>
+    <div className={classes.listNode} style={{ height: props.nodeHeight }}>
       <div className={classes.treeNodeSpacer} style={{ width: marginRight }} />
       {props.isExpandable
         ? getExpandableNodeIcon(

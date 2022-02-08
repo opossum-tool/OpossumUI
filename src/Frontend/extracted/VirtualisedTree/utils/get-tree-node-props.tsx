@@ -19,7 +19,8 @@ export function getTreeNodeProps(
     nodeName: string,
     node: NodesForTree | 1,
     nodeId: string
-  ) => ReactElement
+  ) => ReactElement,
+  cardHeight: number
 ): Array<VirtualizedTreeNodeData> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
     getSortFunction(nodes, isFileWithChildren, parentPath)
@@ -29,6 +30,7 @@ export function getTreeNodeProps(
 
   for (const nodeName of sortedNodeNames) {
     const node = nodes[nodeName];
+    const nodeHeight = cardHeight - 1;
     const isExpandable = canNodeHaveChildren(node);
     const nodeId = getNodeId(nodeName, parentPath, isExpandable);
     const isExpandedNode = isExpanded(nodeId, expandedNodes);
@@ -57,6 +59,7 @@ export function getTreeNodeProps(
       node,
       nodeName,
       selected,
+      nodeHeight,
     });
 
     if (isExpandedNode) {
@@ -69,7 +72,8 @@ export function getTreeNodeProps(
           isFileWithChildren,
           onSelect,
           onToggle,
-          getTreeNodeLabel
+          getTreeNodeLabel,
+          nodeHeight
         )
       );
     }

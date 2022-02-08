@@ -66,7 +66,8 @@ export function VirtualizedTree(
     props.isFakeNonExpandableNode,
     props.onSelect,
     props.onToggle,
-    props.getTreeNodeLabel
+    props.getTreeNodeLabel,
+    props.cardHeight
   );
 
   const maxListLength: NumberOfDisplayedNodesForTree | HeightForTree =
