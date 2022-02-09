@@ -96,11 +96,9 @@ function getExpandableNodeIcon(
   nodeIdsToExpand: Array<string>,
   onToggle: (nodeIdsToExpand: Array<string>) => void,
   iconClassName: string,
-  expandedNodeIcon: ReactElement = (
-    <ChevronRightIcon className={iconClassName} />
-  ),
+  expandedNodeIcon: ReactElement = <ExpandMoreIcon className={iconClassName} />,
   nonExpandedNodeIcon: ReactElement = (
-    <ExpandMoreIcon className={iconClassName} />
+    <ChevronRightIcon className={iconClassName} />
   )
 ): ReactElement {
   const ariaLabel = isExpandedNode ? `expand ${nodeId}` : `collapse ${nodeId}`;
