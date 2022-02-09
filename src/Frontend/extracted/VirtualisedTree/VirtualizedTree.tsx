@@ -80,6 +80,10 @@ export function VirtualizedTree(
           ]) as number,
         };
 
+  const indexToScrollTo = treeNodeProps.findIndex(
+    (itemData) => itemData.nodeId === props.selectedNodeId
+  );
+
   return props.nodes ? (
     <div aria-label={props.ariaLabel} className={clsx(props.className)}>
       <div className={classes.content}>
@@ -98,6 +102,7 @@ export function VirtualizedTree(
             />
           )}
           alwaysShowHorizontalScrollBar={props.alwaysShowHorizontalScrollBar}
+          indexToScrollTo={indexToScrollTo}
         />
       </div>
     </div>

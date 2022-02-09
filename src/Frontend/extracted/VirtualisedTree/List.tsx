@@ -23,6 +23,7 @@ interface ListProps {
   cardVerticalDistance?: number;
   alwaysShowHorizontalScrollBar?: boolean;
   className?: string;
+  indexToScrollTo?: number;
 }
 
 function maxHeightWasGiven(
@@ -42,9 +43,16 @@ export function List(props: ListProps): ReactElement {
     ? maxHeight
     : Math.min(currentHeight, maxHeight);
 
+  const scrollOffset = props.indexToScrollTo
+    ? props.indexToScrollTo * cardHeight < maxHeight / 2
+      ? 0
+      : props.indexToScrollTo * cardHeight - maxHeight / 2
+    : 0;
+
   return (
     <div className={props.className} style={{ maxHeight: currentHeight }}>
       <VirtualizedList
+        initialScrollOffset={scrollOffset}
         height={listHeight}
         width={'vertical'}
         itemSize={cardHeight}
