@@ -41,10 +41,12 @@ export function FileSearchPopup(): ReactElement {
       header={'Search for Files and Directories'}
       isOpen={true}
       fullWidth={true}
-      rightButtonText={ButtonText.Cancel}
+      rightButtonConfig={{
+        onClick: close,
+        buttonText: ButtonText.Cancel,
+      }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
-      onRightButtonClick={close}
     />
   );
 }

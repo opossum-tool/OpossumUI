@@ -43,7 +43,7 @@ export function ReplaceAttributionPopup(): ReactElement {
     dispatch(closePopup());
   }
 
-  function handleOkClick(): void {
+  function handleReplaceClick(): void {
     targetAttributionId &&
       dispatch(
         savePackageInfo(
@@ -96,10 +96,14 @@ export function ReplaceAttributionPopup(): ReactElement {
     <NotificationPopup
       content={content}
       header={'Replacing an attribution'}
-      leftButtonText={ButtonText.Replace}
-      onLeftButtonClick={handleOkClick}
-      rightButtonText={ButtonText.Cancel}
-      onRightButtonClick={handleCancelClick}
+      leftButtonConfig={{
+        onClick: handleReplaceClick,
+        buttonText: ButtonText.Replace,
+      }}
+      rightButtonConfig={{
+        onClick: handleCancelClick,
+        buttonText: ButtonText.Cancel,
+      }}
       isOpen={true}
     />
   );

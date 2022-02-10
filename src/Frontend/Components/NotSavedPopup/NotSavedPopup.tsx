@@ -76,22 +76,30 @@ export function NotSavedPopup(): ReactElement {
     <NotificationPopup
       content={content}
       header={'Warning'}
-      leftButtonText={ButtonText.Save}
-      isLeftButtonDisabled={isSavingDisabled}
-      onLeftButtonClick={
-        showSaveGloballyButton ? handleSaveClick : handleSaveGloballyClick
+      leftButtonConfig={{
+        onClick: showSaveGloballyButton
+          ? handleSaveClick
+          : handleSaveGloballyClick,
+        buttonText: ButtonText.Save,
+        isDisabled: isSavingDisabled,
+      }}
+      centerLeftButtonConfig={
+        showSaveGloballyButton
+          ? {
+              onClick: handleSaveGloballyClick,
+              buttonText: ButtonText.SaveGlobally,
+              isDisabled: isSavingDisabled,
+            }
+          : undefined
       }
-      centerLeftButtonText={
-        showSaveGloballyButton ? ButtonText.SaveGlobally : undefined
-      }
-      isCenterLeftButtonDisabled={isSavingDisabled}
-      onCenterLeftButtonClick={
-        showSaveGloballyButton ? handleSaveGloballyClick : undefined
-      }
-      centerRightButtonText={ButtonText.Undo}
-      onCenterRightButtonClick={handleUndoClick}
-      rightButtonText={ButtonText.Cancel}
-      onRightButtonClick={handleCancelClick}
+      centerRightButtonConfig={{
+        onClick: handleUndoClick,
+        buttonText: ButtonText.Undo,
+      }}
+      rightButtonConfig={{
+        onClick: handleCancelClick,
+        buttonText: ButtonText.Cancel,
+      }}
       isOpen={true}
     />
   );

@@ -73,13 +73,17 @@ export function EditAttributionPopup(): ReactElement {
       header={'Edit Attribution'}
       isOpen={true}
       fullWidth={false}
-      leftButtonText={ButtonText.Save}
-      rightButtonText={ButtonText.Cancel}
+      leftButtonConfig={{
+        onClick: savePackageInfoBeforeClosing,
+        buttonText: ButtonText.Save,
+        isDisabled: isSavingDisabled,
+      }}
+      rightButtonConfig={{
+        onClick: checkForModifiedPackageInfoBeforeClosing,
+        buttonText: ButtonText.Cancel,
+      }}
       onBackdropClick={checkForModifiedPackageInfoBeforeClosing}
       onEscapeKeyDown={checkForModifiedPackageInfoBeforeClosing}
-      onLeftButtonClick={savePackageInfoBeforeClosing}
-      onRightButtonClick={checkForModifiedPackageInfoBeforeClosing}
-      isLeftButtonDisabled={isSavingDisabled}
     />
   );
 }

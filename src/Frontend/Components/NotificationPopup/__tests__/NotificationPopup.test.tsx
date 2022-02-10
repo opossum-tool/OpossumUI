@@ -6,6 +6,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { NotificationPopup } from '../NotificationPopup';
+import { ButtonConfig } from '../../../types/types';
 
 describe('NotificationPopup', () => {
   test('renders open popup with text', () => {
@@ -14,18 +15,30 @@ describe('NotificationPopup', () => {
     const onCenterLeftButtonClick = jest.fn();
     const onCenterRightButtonClick = jest.fn();
 
+    const leftButtonConfig: ButtonConfig = {
+      onClick: onLeftButtonClick,
+      buttonText: 'leftButtonText',
+    };
+    const rightButtonConfig: ButtonConfig = {
+      onClick: onRightButtonClick,
+      buttonText: 'rightButtonText',
+    };
+    const centerLeftButtonConfig: ButtonConfig = {
+      onClick: onCenterLeftButtonClick,
+      buttonText: 'centerLeftButtonText',
+    };
+    const centerRightButtonConfig: ButtonConfig = {
+      onClick: onCenterRightButtonClick,
+      buttonText: 'centerRightButtonText',
+    };
     render(
       <NotificationPopup
         content={'content text'}
         header={'header text'}
-        leftButtonText={'leftButtonText'}
-        onLeftButtonClick={onLeftButtonClick}
-        rightButtonText={'rightButtonText'}
-        onRightButtonClick={onRightButtonClick}
-        centerLeftButtonText={'centerLeftButtonText'}
-        onCenterLeftButtonClick={onCenterLeftButtonClick}
-        centerRightButtonText={'centerRightButtonText'}
-        onCenterRightButtonClick={onCenterRightButtonClick}
+        leftButtonConfig={leftButtonConfig}
+        rightButtonConfig={rightButtonConfig}
+        centerLeftButtonConfig={centerLeftButtonConfig}
+        centerRightButtonConfig={centerRightButtonConfig}
         isOpen={true}
       />
     );

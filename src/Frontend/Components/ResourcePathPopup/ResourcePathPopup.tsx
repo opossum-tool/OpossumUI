@@ -77,8 +77,10 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
     <NotificationPopup
       header={header}
       headerClassname={classes.header}
-      rightButtonText={ButtonText.Close}
-      onRightButtonClick={props.closePopup}
+      rightButtonConfig={{
+        onClick: props.closePopup,
+        buttonText: ButtonText.Close,
+      }}
       onBackdropClick={props.closePopup}
       onEscapeKeyDown={props.closePopup}
       content={
