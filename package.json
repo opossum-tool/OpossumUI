@@ -33,7 +33,7 @@
     "stream-json": "^1.7.2",
     "upath": "^2.0.1",
     "uuid": "^8.3.0",
-    "write-file-atomic": "^4.0.0"
+    "write-file-atomic": "^4.0.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^8.11.3",
