@@ -11,22 +11,15 @@ import MuiDialogTitle from '@mui/material/DialogTitle';
 import React, { ReactElement, useEffect } from 'react';
 import { Button } from '../Button/Button';
 import { doNothing } from '../../util/do-nothing';
+import { ButtonConfig } from '../../types/types';
 
 interface NotificationPopupProps {
   header: string;
   content: ReactElement | string;
-  leftButtonText?: string;
-  centerLeftButtonText?: string;
-  centerRightButtonText?: string;
-  rightButtonText?: string;
-  isLeftButtonDisabled?: boolean;
-  isCenterLeftButtonDisabled?: boolean;
-  isCenterRightButtonDisabled?: boolean;
-  isRightButtonDisabled?: boolean;
-  onLeftButtonClick?(): void;
-  onCenterLeftButtonClick?(): void;
-  onCenterRightButtonClick?(): void;
-  onRightButtonClick?(): void;
+  leftButtonConfig?: ButtonConfig;
+  rightButtonConfig?: ButtonConfig;
+  centerLeftButtonConfig?: ButtonConfig;
+  centerRightButtonConfig?: ButtonConfig;
   onBackdropClick?(): void;
   onEscapeKeyDown?(): void;
   isOpen: boolean;
@@ -78,36 +71,36 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
         )}
       </MuiDialogContent>
       <MuiDialogActions>
-        {props.leftButtonText && props.onLeftButtonClick ? (
+        {props.leftButtonConfig ? (
           <Button
-            buttonText={props.leftButtonText}
-            onClick={props.onLeftButtonClick}
+            buttonText={props.leftButtonConfig.buttonText}
+            onClick={props.leftButtonConfig.onClick}
             isDark={true}
-            disabled={props.isLeftButtonDisabled}
+            disabled={props.leftButtonConfig.isDisabled}
           />
         ) : null}
-        {props.centerLeftButtonText && props.onCenterLeftButtonClick ? (
+        {props.centerLeftButtonConfig ? (
           <Button
-            buttonText={props.centerLeftButtonText}
-            onClick={props.onCenterLeftButtonClick}
+            buttonText={props.centerLeftButtonConfig.buttonText}
+            onClick={props.centerLeftButtonConfig.onClick}
             isDark={false}
-            disabled={props.isCenterLeftButtonDisabled}
+            disabled={props.centerLeftButtonConfig.isDisabled}
           />
         ) : null}
-        {props.centerRightButtonText && props.onCenterRightButtonClick ? (
+        {props.centerRightButtonConfig ? (
           <Button
-            buttonText={props.centerRightButtonText}
-            onClick={props.onCenterRightButtonClick}
+            buttonText={props.centerRightButtonConfig.buttonText}
+            onClick={props.centerRightButtonConfig.onClick}
             isDark={false}
-            disabled={props.isCenterRightButtonDisabled}
+            disabled={props.centerRightButtonConfig.isDisabled}
           />
         ) : null}
-        {props.rightButtonText && props.onRightButtonClick ? (
+        {props.rightButtonConfig ? (
           <Button
-            buttonText={props.rightButtonText}
-            onClick={props.onRightButtonClick}
+            buttonText={props.rightButtonConfig.buttonText}
+            onClick={props.rightButtonConfig.onClick}
             isDark={false}
-            disabled={props.isRightButtonDisabled}
+            disabled={props.rightButtonConfig.isDisabled}
           />
         ) : null}
       </MuiDialogActions>

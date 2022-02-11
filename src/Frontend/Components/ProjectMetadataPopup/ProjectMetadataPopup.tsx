@@ -81,10 +81,12 @@ export function ProjectMetadataPopup(): ReactElement {
       header={'Project Metadata'}
       isOpen={true}
       fullWidth={true}
-      rightButtonText={ButtonText.Close}
+      rightButtonConfig={{
+        onClick: close,
+        buttonText: ButtonText.Close,
+      }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
-      onRightButtonClick={close}
     />
   );
 }

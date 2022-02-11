@@ -82,3 +82,9 @@ export interface PopupInfo {
   popup: PopupType;
   attributionId?: string;
 }
+
+export interface ButtonConfig {
+  onClick(): void;
+  buttonText: string;
+  isDisabled?: boolean;
+}

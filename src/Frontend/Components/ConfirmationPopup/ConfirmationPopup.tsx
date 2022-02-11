@@ -31,10 +31,14 @@ export function ConfirmationPopup(props: ConfirmationPopupProps): ReactElement {
     <NotificationPopup
       content={props.content}
       header={props.header}
-      leftButtonText={ButtonText.Confirm}
-      onLeftButtonClick={handleDeletionClick}
-      rightButtonText={ButtonText.Cancel}
-      onRightButtonClick={handleCancelClick}
+      leftButtonConfig={{
+        onClick: handleDeletionClick,
+        buttonText: ButtonText.Confirm,
+      }}
+      rightButtonConfig={{
+        onClick: handleCancelClick,
+        buttonText: ButtonText.Cancel,
+      }}
       isOpen={true}
     />
   );
