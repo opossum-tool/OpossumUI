@@ -2282,10 +2282,10 @@
   resolved "https://registry.yarnpkg.com/@types/verror/-/verror-1.10.5.tgz#2a1413aded46e67a1fe2386800e291123ed75eb1"
   integrity sha512-9UjMCHK5GPgQRoNbqdLIAvAy0EInuiqbW0PBMtVP6B5B2HQJlvoJHM+KodPZMEjOa5VkSc+5LH7xy+cUzQdmHw==
 
-"@types/write-file-atomic@^3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@types/write-file-atomic/-/write-file-atomic-3.0.3.tgz#e95762b82e8f51a5e45034eb5d4f879dcde19310"
-  integrity sha512-RfbL28ev+HeIcQyl8TDU5pxHdDQrKyuKHXfz2bKFJn4/IFa34SGDT1DDXYsIf9s/KuW6zGBR+yZoe8pAlvMPXg==
+"@types/write-file-atomic@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/write-file-atomic/-/write-file-atomic-4.0.0.tgz#ffcedcb1ae027e0a28ddfe218b72b3573797b5bc"
+  integrity sha512-piEKt2KKBUtye+feTlfdPjtW7uPFsAaLNX3/f6AJD+Y1T1YPTFwnqtlO9Y+gy9qGshrvxKa/Kay9vqbyVIuhwQ==
   dependencies:
     "@types/node" "*"
 
