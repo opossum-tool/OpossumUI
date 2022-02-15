@@ -62,4 +62,10 @@ describe('getLicenseFetchingInformation', () => {
       convertPayload: convertGithubPayload,
     });
   });
+
+  it('recognizes github urls', () => {
+    expect(
+      getLicenseFetchingInformation('https://github.com/opossum-tool/')
+    ).toBeNull();
+  });
 });

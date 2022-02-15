@@ -13,7 +13,7 @@ import {
 
 const PYPI_REGEX = new RegExp('^https://pypi.org/(pypi|project)/[\\w-+,_]+/?$');
 const NPM_REGEX = new RegExp('^https://npmjs.com/(package/)?[\\w-+,_@/]+/?$');
-const GITHUB_REGEX = new RegExp('^https://github.com/');
+const GITHUB_REGEX = new RegExp('^https://github.com/[^/]+/[^/]+');
 
 export interface LicenseFetchingInformation {
   url: string;
