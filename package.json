@@ -10,7 +10,7 @@
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.4.1",
     "@mui/lab": "^5.0.0-alpha.68",
-    "@mui/material": "^5.4.1",
+    "@mui/material": "^5.4.2",
     "@mui/styles": "^5.4.1",
     "clsx": "^1.1.1",
     "electron-devtools-installer": "^3.2.0",
