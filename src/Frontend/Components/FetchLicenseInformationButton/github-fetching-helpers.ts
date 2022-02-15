@@ -42,24 +42,30 @@ const GITHUB_SCHEMA: Schema = {
   required: ['license', 'html_url'],
 };
 
+interface Payload {
+  html_url: string;
+  content?: string;
+  license: {
+    spdx_id: string;
+  };
+}
+
 export async function convertGithubPayload(
   payload: Response
 ): Promise<PackageInfo> {
-  const convertedPayload = await payload.json();
+  const convertedPayload = (await payload.json()) as Payload;
   jsonSchemaValidator.validate(convertedPayload, GITHUB_SCHEMA, {
     throwError: true,
   });
 
   const { namespace, packageName } =
-    getPackageNamespaceAndPackageNameFromGithubURL(
-      convertedPayload.html_url as string
-    );
+    getPackageNamespaceAndPackageNameFromGithubURL(convertedPayload.html_url);
   const licenseText = convertedPayload.content
     ? Buffer.from(convertedPayload.content, 'base64').toString()
-    : null;
+    : undefined;
   return {
-    licenseName: convertedPayload.license.spdx_id as string,
-    licenseText: licenseText ?? undefined,
+    licenseName: convertedPayload.license.spdx_id,
+    licenseText,
     packageType: 'github',
     packageNamespace: namespace,
     packageName,
