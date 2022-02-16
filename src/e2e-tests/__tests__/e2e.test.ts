@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,8 +6,8 @@
 import { ElectronApplication, Page } from 'playwright';
 import {
   conditionalIt,
-  getApp,
   E2E_TEST_TIMEOUT,
+  getApp,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
 

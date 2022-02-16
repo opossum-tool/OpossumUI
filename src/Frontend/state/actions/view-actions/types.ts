@@ -1,9 +1,9 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { View, FilterType } from '../../../enums/enums';
+import { FilterType, View } from '../../../enums/enums';
 import { PopupInfo } from '../../../types/types';
 
 export const ACTION_SET_TARGET_VIEW = 'ACTION_SET_TARGET_VIEW';

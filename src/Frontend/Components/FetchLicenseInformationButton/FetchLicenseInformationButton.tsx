@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -8,9 +8,9 @@ import CachedIcon from '@mui/icons-material/Cached';
 import { IconButton } from '../IconButton/IconButton';
 import { makeStyles } from '@mui/styles';
 import {
+  baseIcon,
   clickableIcon,
   disabledIcon,
-  baseIcon,
   OpossumColors,
 } from '../../shared-styles';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';

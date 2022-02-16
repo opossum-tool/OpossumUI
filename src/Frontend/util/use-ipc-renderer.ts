@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,9 +6,9 @@
 import { IpcRendererEvent } from 'electron';
 import { useEffect } from 'react';
 import {
+  BaseURLForRootArgs,
   ExportType,
   ParsedFileContent,
-  BaseURLForRootArgs,
 } from '../../shared/shared-types';
 
 type ResetStateListener = (

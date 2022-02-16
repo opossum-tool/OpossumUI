@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,8 +6,8 @@
 import {
   generatePurlAppendix,
   generatePurlFromPackageInfo,
-  parsePurl,
   ParsedPurl,
+  parsePurl,
 } from '../handle-purl';
 import { PackageURL } from 'packageurl-js';
 import { PackageInfo } from '../../../shared/shared-types';

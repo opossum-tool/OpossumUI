@@ -1,44 +1,44 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import {
   Attributions,
+  BaseUrlsForSources,
+  ExternalAttributionSources,
   FrequentLicences,
   PackageInfo,
-  BaseUrlsForSources,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
-  ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import { getAttributionDataFromSetAttributionDataPayload } from '../../helpers/action-and-reducer-helpers';
 import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
+  ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
+  ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
-  ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_PROGRESS_BAR_DATA,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOURCES,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   ResetResourceStateAction,
   SetAttributionBreakpoints,
+  SetBaseUrlsForSources,
+  SetExternalAttributionSources,
   SetExternalDataAction,
   SetFilesWithChildren,
   SetFrequentLicencesAction,
   SetManualDataAction,
-  SetBaseUrlsForSources,
   SetProgressBarData,
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryPackageInfoAction,
-  SetExternalAttributionSources,
-  ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {

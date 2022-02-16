@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import { PackageInfo } from '../../../shared/shared-types';
-import { Validator, Schema } from 'jsonschema';
+import { Schema, Validator } from 'jsonschema';
 
 const jsonSchemaValidator = new Validator();
 

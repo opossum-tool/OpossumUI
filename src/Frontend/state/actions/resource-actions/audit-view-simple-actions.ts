@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,19 +6,19 @@
 import { PanelPackage } from '../../../types/types';
 import {
   ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION,
+  ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
-  ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
   AddResolvedExternalAttribution,
+  RemoveResolvedExternalAttribution,
   SetDisplayedPanelPackageAction,
   SetExpandedIdsAction,
   SetResolvedExternalAttributions,
   SetSelectedResourceIdAction,
   SetTargetSelectedResourceId,
-  RemoveResolvedExternalAttribution,
 } from './types';
 
 export function setSelectedResourceId(
