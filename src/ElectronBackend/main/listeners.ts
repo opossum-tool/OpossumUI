@@ -151,6 +151,7 @@ export function getSendErrorInformationListener(
   webContents: WebContents
 ): (_: unknown, args: SendErrorInformationArgs) => Promise<void> {
   return async (_, args: SendErrorInformationArgs): Promise<void> => {
+    log.error(args.error.message + args.errorInfo.componentStack);
     await getMessageBoxForErrors(
       args.error.message,
       args.errorInfo.componentStack,
@@ -243,14 +244,19 @@ export function _exportFileAndOpenFolder(mainWindow: BrowserWindow) {
 
     try {
       if (exportedFilePath) {
+        log.info(
+          `Starting to create ${exportArgs.type} export to ${exportedFilePath}`
+        );
         await fileExporter(exportedFilePath, exportArgs);
       } else {
+        log.error(`Failed to create ${exportArgs.type} export.`);
         throw new Error(`Failed to create ${exportArgs.type} export.`);
       }
     } finally {
       loadingWindow.close();
 
       if (exportedFilePath) {
+        log.info(`... Successfully created ${exportArgs.type} export`);
         shell.showItemInFolder(exportedFilePath);
       }
     }

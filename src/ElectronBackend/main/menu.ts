@@ -169,5 +169,16 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
       ],
     },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Open log files folder',
+          click: async (): Promise<void> => {
+            await shell.openPath(app.getPath('logs'));
+          },
+        },
+      ],
+    },
   ]);
 }
