@@ -19,6 +19,7 @@ SPDX-License-Identifier: CC0-1.0
 * **[Maximilian Huber](https://github.com/maxhbr)** (<maximilian.huber@tngtech.com>)
 * **[Michael Cheng](https://github.com/syotfs)** (<m@priorart.io>)
 * **[Nico Carl](https://github.com/nicarl)**
+* **[Ruiyun Xie](https://github.com/mayayunx)**
 * **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
 
 
