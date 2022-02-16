@@ -61,7 +61,7 @@ export async function loadJsonFromFilePath(
     return;
   }
 
-  log.info('Successfully parsed input file.');
+  log.info('... Successfully parsed input file.');
   const externalAttributions = sanitizeRawAttributions(
     parsingResult.externalAttributions
   );
@@ -72,15 +72,16 @@ export async function loadJsonFromFilePath(
   );
   const projectId = parsingResult.metadata.projectId;
 
-  log.info(
-    `Creating output file if it does not exist, project ID is ${projectId}`
-  );
-  createOutputFileIfItDoesNotExist(
-    manualAttributionFilePath,
-    externalAttributions,
-    parsingResult.resourcesToAttributions,
-    projectId
-  );
+  if (!fs.existsSync(manualAttributionFilePath)) {
+    log.info(`Starting to create output file, project ID is ${projectId}`);
+    createOutputFile(
+      manualAttributionFilePath,
+      externalAttributions,
+      parsingResult.resourcesToAttributions,
+      projectId
+    );
+    log.info('... Successfully created output file.');
+  }
 
   log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
   const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
@@ -160,71 +161,65 @@ export async function loadJsonFromFilePath(
   log.info('File import finished successfully');
 }
 
-function createOutputFileIfItDoesNotExist(
+function createOutputFile(
   manualAttributionFilePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string
 ): void {
-  if (!fs.existsSync(manualAttributionFilePath)) {
-    const externalAttributionsCopy = cloneDeep(externalAttributions);
-    const preselectedExternalAttributions = Object.fromEntries(
-      Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
-        delete packageInfo.source;
-        return Boolean(packageInfo.preSelected);
-      })
-    );
-    const preselectedAttributionIdsToExternalAttributionIds =
-      Object.fromEntries(
-        Object.keys(preselectedExternalAttributions).map((attributionId) => [
-          attributionId,
-          uuid4(),
-        ])
-      );
-    const preselectedAttributionsToResources = Object.fromEntries(
-      Object.entries(resourcesToExternalAttributions).map(
-        ([resourceId, attributionIds]) => {
-          const filteredAttributionIds = attributionIds.filter(
-            (attributionId) =>
-              Object.keys(preselectedExternalAttributions).includes(
-                attributionId
-              )
-          );
-          return filteredAttributionIds.length
-            ? [
-                resourceId,
-                filteredAttributionIds.map(
-                  (attributionId) =>
-                    preselectedAttributionIdsToExternalAttributionIds[
-                      attributionId
-                    ]
-                ),
-              ]
-            : [];
-        }
-      )
-    );
-    const preselectedAttributions = Object.fromEntries(
-      Object.entries(preselectedExternalAttributions).map(
-        ([attributionId, packageInfo]) => [
-          preselectedAttributionIdsToExternalAttributionIds[attributionId],
-          packageInfo,
-        ]
-      )
-    );
+  const externalAttributionsCopy = cloneDeep(externalAttributions);
+  const preselectedExternalAttributions = Object.fromEntries(
+    Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
+      delete packageInfo.source;
+      return Boolean(packageInfo.preSelected);
+    })
+  );
+  const preselectedAttributionIdsToExternalAttributionIds = Object.fromEntries(
+    Object.keys(preselectedExternalAttributions).map((attributionId) => [
+      attributionId,
+      uuid4(),
+    ])
+  );
+  const preselectedAttributionsToResources = Object.fromEntries(
+    Object.entries(resourcesToExternalAttributions).map(
+      ([resourceId, attributionIds]) => {
+        const filteredAttributionIds = attributionIds.filter((attributionId) =>
+          Object.keys(preselectedExternalAttributions).includes(attributionId)
+        );
+        return filteredAttributionIds.length
+          ? [
+              resourceId,
+              filteredAttributionIds.map(
+                (attributionId) =>
+                  preselectedAttributionIdsToExternalAttributionIds[
+                    attributionId
+                  ]
+              ),
+            ]
+          : [];
+      }
+    )
+  );
+  const preselectedAttributions = Object.fromEntries(
+    Object.entries(preselectedExternalAttributions).map(
+      ([attributionId, packageInfo]) => [
+        preselectedAttributionIdsToExternalAttributionIds[attributionId],
+        packageInfo,
+      ]
+    )
+  );
 
-    const attributionJSON: OpossumOutputFile = {
-      metadata: {
-        projectId,
-        fileCreationDate: String(Date.now()),
-      },
-      manualAttributions: preselectedAttributions,
-      resourcesToAttributions: preselectedAttributionsToResources,
-      resolvedExternalAttributions: [],
-    };
+  const attributionJSON: OpossumOutputFile = {
+    metadata: {
+      projectId,
+      fileCreationDate: String(Date.now()),
+    },
+    manualAttributions: preselectedAttributions,
+    resourcesToAttributions: preselectedAttributionsToResources,
+    resolvedExternalAttributions: [],
+  };
 
-    writeJsonToFile(manualAttributionFilePath, attributionJSON);
-  }
+  writeJsonToFile(manualAttributionFilePath, attributionJSON);
 }
 
 function getFilePathWithAppendix(
