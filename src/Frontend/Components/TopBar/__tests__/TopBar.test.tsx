@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -8,9 +8,9 @@ import { IpcRenderer } from 'electron';
 import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
-  isReportViewSelected,
   isAttributionViewSelected,
   isAuditViewSelected,
+  isReportViewSelected,
 } from '../../../state/selectors/view-selector';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { TopBar } from '../TopBar';

@@ -1,9 +1,9 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { WithStyles, createStyles, withStyles } from '@mui/styles';
+import { createStyles, WithStyles, withStyles } from '@mui/styles';
 import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { IpcChannel } from '../../../shared/ipc-channels';

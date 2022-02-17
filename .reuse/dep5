@@ -6,18 +6,18 @@ Files: *.json
        *.prettierrc
        **.gitignore
        **yarn.lock
-Copyright: Facebook, Inc. and its affiliates
+Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: Apache-2.0
 
 Files: docs/logo.png
-Copyright: Facebook, Inc. and its affiliates
+Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: Apache-2.0
 
 Files: docs/*
        public/icons/*
        .github/pull_request_template.md
-Copyright: Facebook, Inc. and its affiliates
+Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: CC0-1.0

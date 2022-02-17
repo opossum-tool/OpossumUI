@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -54,12 +54,11 @@ import {
   UpdateAttribution,
 } from './types';
 
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual, sortBy } from 'lodash';
 import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
 import { openPopup } from '../view-actions/view-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
 import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
-import { isEqual, sortBy } from 'lodash';
 
 export function setIsSavingDisabled(
   isSavingDisabled: boolean

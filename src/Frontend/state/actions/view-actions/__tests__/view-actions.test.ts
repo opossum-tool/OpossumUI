@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Facebook, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -8,8 +8,8 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import {
   getActiveFilters,
   getOpenPopup,
-  getSelectedView,
   getPopupAttributionId,
+  getSelectedView,
   getTargetView,
   isAttributionViewSelected,
   isAuditViewSelected,
@@ -20,8 +20,8 @@ import {
   navigateToView,
   openPopup,
   resetViewState,
-  updateActiveFilters,
   setTargetView,
+  updateActiveFilters,
 } from '../view-actions';
 
 describe('view actions', () => {
