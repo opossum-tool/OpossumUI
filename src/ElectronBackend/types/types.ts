@@ -73,7 +73,7 @@ export interface ParsedOpossumInputFile {
 }
 
 export interface RawBaseUrlsForSources {
-  [path: string]: string;
+  [path: string]: string | null;
 }
 
 export interface ParsedOpossumOutputFile {
