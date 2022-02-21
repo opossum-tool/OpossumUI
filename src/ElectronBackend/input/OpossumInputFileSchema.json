@@ -203,7 +203,7 @@
     },
     "baseUrlsForSources": {
       "type": "object",
-      "description": "Map from paths to the respective base url. The base url should contain a {path} placeholder. E.g. https://github.com/opossum-tool/opossumUI/blob/main/{path}",
+      "description": "Map from paths to the respective base url. The base url should contain a {path} placeholder. E.g. https://github.com/opossum-tool/opossumUI/blob/main/{path}. The base url might be null to indicate a missing link.",
       "additionalProperties": true
     },
     "externalAttributionSources": {

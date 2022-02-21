@@ -68,4 +68,18 @@ describe('The GoToLinkButton', () => {
       );
     }
   );
+
+  it('does not show link if base url of parent is null ', () => {
+    const parentPath = '/parent_directory/';
+    const testBaseUrlsForSources: BaseUrlsForSources = {
+      [parentPath]: null,
+    };
+    const { store } = renderComponentWithStore(<GoToLinkButton />);
+    store.dispatch(setSelectedResourceId(parentPath));
+    store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
+
+    expect(screen.getByLabelText('link to open')).toHaveStyle(
+      'visibility: hidden'
+    );
+  });
 });

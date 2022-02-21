@@ -106,7 +106,7 @@ export interface ParsedFileContent {
 }
 
 export interface BaseUrlsForSources {
-  [path: string]: string;
+  [path: string]: string | null;
 }
 
 export interface SendErrorInformationArgs {
