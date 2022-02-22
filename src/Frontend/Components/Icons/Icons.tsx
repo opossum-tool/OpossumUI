@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -14,6 +15,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import ReplayIcon from '@mui/icons-material/Replay';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
+import SearchIcon from '@mui/icons-material/Search';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import {
@@ -172,5 +174,15 @@ export function PreSelectedIcon(props: IconProps): ReactElement {
         className={clsx(classes.nonClickableIcon, props.className)}
       />
     </MuiTooltip>
+  );
+}
+
+export function SearchPackagesIcon(props: IconProps): ReactElement {
+  const classes = useStyles();
+  return (
+    <SearchIcon
+      className={clsx(classes.nonClickableIcon, props.className)}
+      aria-label={'Search packages icon'}
+    />
   );
 }

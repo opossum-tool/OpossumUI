@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -191,10 +192,9 @@ export function closeEditAttributionPopupOrOpenUnsavedPopup(
   popupAttributionId: string
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    dispatch(closePopup());
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
-    } else {
-      dispatch(closePopup());
     }
   };
 }

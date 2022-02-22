@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -180,5 +181,37 @@ describe('popup actions', () => {
     expect(getOpenPopup(testStore.getState())).toBe(
       PopupType.ConfirmDeletionPopup
     );
+  });
+
+  test('handles multiple opened popups', () => {
+    const testStore = createTestAppStore();
+    const testAttributionId = 'test';
+    testStore.dispatch(
+      openPopup(PopupType.EditAttributionPopup, testAttributionId)
+    );
+    expect(getPopupAttributionId(testStore.getState())).toEqual(
+      testAttributionId
+    );
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.EditAttributionPopup
+    );
+
+    testStore.dispatch(openPopup(PopupType.PackageSearchPopup));
+    expect(getPopupAttributionId(testStore.getState())).toBeNull();
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.PackageSearchPopup
+    );
+
+    testStore.dispatch(closePopup());
+    expect(getPopupAttributionId(testStore.getState())).toEqual(
+      testAttributionId
+    );
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.EditAttributionPopup
+    );
+
+    testStore.dispatch(closePopup());
+    expect(getPopupAttributionId(testStore.getState())).toBeNull();
+    expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 });

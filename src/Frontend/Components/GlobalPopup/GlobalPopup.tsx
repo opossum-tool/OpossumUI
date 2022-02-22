@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -16,6 +17,7 @@ import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPop
 import { useAppSelector } from '../../state/hooks';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
 import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPopup';
+import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -39,6 +41,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ConfirmMultiSelectDeletionPopup />;
     case PopupType.EditAttributionPopup:
       return <EditAttributionPopup />;
+    case PopupType.PackageSearchPopup:
+      return <PackageSearchPopup />;
     default:
       return null;
   }

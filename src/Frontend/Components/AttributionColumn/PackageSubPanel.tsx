@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -15,6 +16,7 @@ import { IconButton } from '../IconButton/IconButton';
 import { makeStyles } from '@mui/styles';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
+import { SearchPackagesIcon } from '../Icons/Icons';
 
 const useStyles = makeStyles({ clickableIcon, disabledIcon });
 
@@ -28,6 +30,7 @@ interface PackageSubPanelProps {
   isEditable: boolean;
   temporaryPurl: string;
   handlePurlChange(event: React.ChangeEvent<{ value: string }>): void;
+  openPackageSearchPopup(): void;
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
@@ -58,6 +61,23 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           text={props.displayPackageInfo.packageName}
           handleChange={props.setUpdateTemporaryPackageInfoFor('packageName')}
           isEditable={props.nameAndVersionAreEditable}
+          endIcon={
+            <IconButton
+              tooltipTitle="Search for package information"
+              placement="right"
+              onClick={props.openPackageSearchPopup}
+              disabled={!props.isEditable}
+              icon={
+                <SearchPackagesIcon
+                  className={
+                    props.isEditable
+                      ? iconClasses.clickableIcon
+                      : iconClasses.disabledIcon
+                  }
+                />
+              }
+            />
+          }
         />
         <TextBox
           className={clsx(classes.textBox, classes.rightTextBox)}
