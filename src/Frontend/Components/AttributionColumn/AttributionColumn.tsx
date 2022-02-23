@@ -113,13 +113,15 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     props.resetViewIfThisIdChanges,
     props.smallerLicenseTextOrCommentField
   );
-  const { temporaryPurl, isDisplayedPurlValid, handlePurlChange } = usePurl(
-    dispatch,
-    packageInfoWereModified,
-    temporaryPackageInfo,
-    props.displayPackageInfo,
-    selectedPackage
-  );
+  const { temporaryPurl, isDisplayedPurlValid, handlePurlChange, updatePurl } =
+    usePurl(
+      dispatch,
+      packageInfoWereModified,
+      temporaryPackageInfo,
+      props.displayPackageInfo,
+      selectedPackage,
+      selectedAttributionId
+    );
   const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
   const currentViewSelectedAttributionId =
     view === View.Attribution
@@ -145,7 +147,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         ? ButtonText.Confirm
         : ButtonText.Save,
       disabled: isSavingDisabled,
-      onClick: props.onSaveButtonClick,
+      onClick: () => {
+        updatePurl(temporaryPackageInfo);
+        props.onSaveButtonClick && props.onSaveButtonClick();
+      },
       hidden: false,
     });
   }
@@ -156,7 +161,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         ? ButtonText.ConfirmGlobally
         : ButtonText.SaveGlobally,
       disabled: isSavingDisabled,
-      onClick: props.onSaveGloballyButtonClick,
+      onClick: () => {
+        updatePurl(temporaryPackageInfo);
+        props.onSaveGloballyButtonClick && props.onSaveGloballyButtonClick();
+      },
       hidden: !Boolean(props.showSaveGloballyButton),
     });
   }
@@ -166,6 +174,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.Undo,
       disabled: !packageInfoWereModified,
       onClick: (): void => {
+        updatePurl(initialPackageInfo);
         dispatch(setTemporaryPackageInfo(initialPackageInfo));
       },
     },

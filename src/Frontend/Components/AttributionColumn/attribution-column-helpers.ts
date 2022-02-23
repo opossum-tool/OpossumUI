@@ -8,7 +8,6 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FollowUp, PackageInfo } from '../../../shared/shared-types';
 import { AppThunkDispatch } from '../../state/types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { PanelPackage } from '../../types/types';
 import {
   addResolvedExternalAttribution,
   removeResolvedExternalAttribution,
@@ -19,6 +18,7 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { useWindowHeight } from '../../util/use-window-height';
 import { generatePurlFromPackageInfo, parsePurl } from '../../util/handle-purl';
+import { PanelPackage } from '../../types/types';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
 const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
@@ -199,11 +199,13 @@ export function usePurl(
   packageInfoWereModified: boolean,
   temporaryPackageInfo: PackageInfo,
   displayPackageInfo: PackageInfo,
-  selectedPackage: PanelPackage | null
+  selectedPackage: PanelPackage | null,
+  selectedAttributionId: string | null
 ): {
   temporaryPurl: string;
   isDisplayedPurlValid: boolean;
   handlePurlChange: (event: React.ChangeEvent<{ value: string }>) => void;
+  updatePurl: (packageInfo: PackageInfo) => void;
 } {
   const [temporaryPurl, setTemporaryPurl] = useState<string>('');
   const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
@@ -224,20 +226,20 @@ export function usePurl(
 
   useEffect(() => {
     setTemporaryPurl(generatePurlFromPackageInfo(displayPackageInfo) || '');
-  }, [displayPackageInfo, selectedPackage]);
+    // Dependency for displayPackageInfo is not included because otherwise displayed purl will be regenerated after every new input
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedPackage?.panel,
+    selectedPackage?.attributionId,
+    selectedAttributionId,
+  ]);
 
   function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
     const enteredPurl = event.target.value;
     setTemporaryPurl(enteredPurl);
-    // TODO: this is a quick fix. The entire handling of the PURL should be
-    //       refactored to always show the string the user entered instead of
-    //       parsing and resembling it over and over again.
-    const purlEndsOnSpecialCharacter = ['?', '#', '@', '&'].includes(
-      enteredPurl.slice(-1)
-    );
     const { isValid, purl } = parsePurl(enteredPurl);
 
-    if (isValid && purl && !purlEndsOnSpecialCharacter) {
+    if (isValid && purl) {
       dispatch(
         setTemporaryPackageInfo({
           ...temporaryPackageInfo,
@@ -251,10 +253,16 @@ export function usePurl(
     }
   }
 
+  function updatePurl(packageInfo: PackageInfo): void {
+    const purl = generatePurlFromPackageInfo(packageInfo);
+    setTemporaryPurl(purl);
+  }
+
   return {
     temporaryPurl,
     isDisplayedPurlValid,
     handlePurlChange,
+    updatePurl,
   };
 }
 

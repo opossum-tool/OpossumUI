@@ -14,6 +14,7 @@ import {
   Source,
 } from '../../../../shared/shared-types';
 import {
+  ButtonText,
   CheckboxLabel,
   DiscreteConfidence,
   PackagePanelTitle,
@@ -41,6 +42,8 @@ import { setSelectedAttributionId } from '../../../state/actions/resource-action
 import {
   clickGoToLinkIcon,
   expectGoToLinkButtonIsDisabled,
+  expectValueInTextBox,
+  insertValueIntoTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
 
 let originalIpcRenderer: IpcRenderer;
@@ -140,6 +143,127 @@ describe('The AttributionColumn', () => {
     expect(
       screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix')
     );
+  });
+
+  test('renders qualifier in the purl correctly', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.Low,
+      packageName: 'jQuery',
+      packageVersion: '16.5.0',
+      packagePURLAppendix: '?appendix',
+      packageNamespace: 'namespace',
+      packageType: 'type',
+      comment: 'some comment',
+      copyright: 'Copyright Doe Inc. 2019',
+      licenseText: 'Permission is hereby granted',
+      licenseName: 'Made up license name',
+      url: 'www.1999.com',
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+    store.dispatch(setSelectedResourceId('test_id'));
+    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    insertValueIntoTextBox(
+      screen,
+      'PURL',
+      'pkg:type/namespace/jQuery@16.5.0?appendix&#test'
+    );
+    clickOnButton(screen, ButtonText.Save);
+    expectValueInTextBox(
+      screen,
+      'PURL',
+      'pkg:type/namespace/jQuery@16.5.0?appendix=#test'
+    );
+  });
+
+  test('sorts qualifier in the purl alphabetically', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.Low,
+      packageName: 'jQuery',
+      packageVersion: '16.5.0',
+      packagePURLAppendix: '?appendix',
+      packageNamespace: 'namespace',
+      packageType: 'type',
+      comment: 'some comment',
+      copyright: 'Copyright Doe Inc. 2019',
+      licenseText: 'Permission is hereby granted',
+      licenseName: 'Made up license name',
+      url: 'www.1999.com',
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+    store.dispatch(setSelectedResourceId('test_id'));
+    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    insertValueIntoTextBox(
+      screen,
+      'PURL',
+      'pkg:type/namespace/jQuery@16.5.0?test=appendix&appendix=test#test'
+    );
+    clickOnButton(screen, ButtonText.Save);
+    expectValueInTextBox(
+      screen,
+      'PURL',
+      'pkg:type/namespace/jQuery@16.5.0?appendix=test&test=appendix#test'
+    );
+  });
+
+  test('removes special symbol from the end of the purl if nothing follows', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.Low,
+      packageName: 'jQuery',
+      packageVersion: '16.5.0',
+      packagePURLAppendix: '?appendix',
+      packageNamespace: 'namespace',
+      packageType: 'type',
+      comment: 'some comment',
+      copyright: 'Copyright Doe Inc. 2019',
+      licenseText: 'Permission is hereby granted',
+      licenseName: 'Made up license name',
+      url: 'www.1999.com',
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+    store.dispatch(setSelectedResourceId('test_id'));
+    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    insertValueIntoTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0?');
+    clickOnButton(screen, ButtonText.Save);
+    expectValueInTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0');
   });
 
   test('renders a TextBox for the source, if it is defined', () => {
