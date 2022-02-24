@@ -20,25 +20,8 @@ import {
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
 import { AttributionView } from '../AttributionView';
-import { IpcRenderer } from 'electron';
-
-let originalIpcRenderer: IpcRenderer;
 
 describe('The Attribution View', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';
   const testOtherManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120003';
   const testManualAttributions: Attributions = {};

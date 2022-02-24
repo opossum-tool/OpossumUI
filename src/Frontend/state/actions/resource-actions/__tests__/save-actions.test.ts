@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IpcRenderer } from 'electron';
 import {
   AttributionData,
   Attributions,
@@ -108,23 +107,6 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
 };
 
 describe('The savePackageInfo action', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('does not save if saving is disabled', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
@@ -718,23 +700,6 @@ describe('The savePackageInfo action', () => {
 });
 
 describe('The unlinkAttributionAndSavePackageInfo action', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('saves attribution updates for a single resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
@@ -793,23 +758,6 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
 });
 
 describe('The deleteAttributionAndSave action', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('unlinks resource from attribution with single linked attribution', () => {
     const testResources: Resources = {
       file1: 1,
@@ -920,23 +868,6 @@ describe('The deleteAttributionAndSave action', () => {
 });
 
 describe('The deleteAttributionGloballyAndSave action', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('deletes attribution', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
@@ -1003,23 +934,6 @@ describe('The deleteAttributionGloballyAndSave action', () => {
 });
 
 describe('The addToSelectedResource action', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('links an already existing manual attribution to the selected resource', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(

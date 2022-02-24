@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import { initialViewState } from '../../../state/reducers/view-reducer';
@@ -12,25 +11,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { screen } from '@testing-library/react';
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('ErrorBoundary', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   function TestComponent(props: { throws: boolean }): JSX.Element {
     if (props.throws) {
       throw new Error();

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
@@ -16,25 +15,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { TopBar } from '../TopBar';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('TopBar', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
     expect(window.ipcRenderer.on).toHaveBeenCalledTimes(7);

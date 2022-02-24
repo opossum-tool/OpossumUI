@@ -6,10 +6,8 @@
 import { App } from '../../../Components/App/App';
 import {
   EMPTY_PARSED_FILE_CONTENT,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
-import { IpcRenderer } from 'electron';
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -22,37 +20,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
-
 describe('The go to link button', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    const mockInvoke = jest.fn();
-    mockInvoke.mockReturnValue(Promise.resolve());
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: mockInvoke,
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('is visible and opens link in external browser', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,

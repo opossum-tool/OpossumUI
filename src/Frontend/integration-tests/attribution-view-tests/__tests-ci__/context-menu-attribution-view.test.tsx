@@ -5,11 +5,9 @@
 
 import { App } from '../../../Components/App/App';
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
   Attributions,
-  ParsedFileContent,
   Resources,
   ResourcesToAttributions,
   SaveFileArgs,
@@ -42,25 +40,12 @@ import {
   expectSelectCheckboxInPackageCardIsChecked,
   getParsedInputFileEnrichedWithTestData,
   goToView,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import {
   expectConfirmMultiSelectDeletionPopupNotVisible,
   expectConfirmMultiSelectDeletionPopupVisible,
 } from '../../../test-helpers/popup-test-helpers';
-
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
 
 const testResources: Resources = {
   'firstResource.js': 1,
@@ -96,22 +81,6 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 };
 
 describe('In Attribution View the ContextMenu', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('confirmation buttons work correctly', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({

@@ -24,8 +24,19 @@ import isEmpty from 'lodash/isEmpty';
 
 import { ButtonText } from '../enums/enums';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
+import { IpcChannel } from '../../shared/ipc-channels';
 
 export const TEST_TIMEOUT = 15000;
+
+export function mockElectronBackend(
+  mockChannelReturn: ParsedFileContent
+): void {
+  window.ipcRenderer.on
+    // @ts-ignore
+    .mockImplementation(
+      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
+    );
+}
 
 export function mockElectronIpcRendererOn(
   mockChannel: string,

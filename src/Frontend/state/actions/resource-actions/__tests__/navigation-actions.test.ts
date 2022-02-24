@@ -30,7 +30,6 @@ import {
 import { savePackageInfo } from '../save-actions';
 import { navigateToView, setTargetView } from '../../view-actions/view-actions';
 import { getSelectedView } from '../../../selectors/view-selector';
-import { IpcRenderer } from 'electron';
 import {
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
@@ -263,23 +262,6 @@ describe('setDisplayedPackageAndResetTemporaryPackageInfo', () => {
 });
 
 describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
-  let originalIpcRenderer: IpcRenderer;
-
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('resets the selectedPackage attributionId if the attribution has been removed from the resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',

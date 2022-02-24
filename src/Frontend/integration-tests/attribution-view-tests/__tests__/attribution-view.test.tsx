@@ -10,8 +10,7 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   goToView,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
@@ -22,7 +21,6 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import { clickOnPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
 import {
@@ -42,35 +40,7 @@ import {
   expectUnsavedChangesPopupIsShown,
 } from '../../../test-helpers/popup-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
-
 describe('The App in attribution view', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('app shows empty AttributionsDetailsViewer for selected Signals', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,

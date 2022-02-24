@@ -11,8 +11,7 @@ import {
   expectButtonIsNotShown,
   expectElementsInAutoCompleteAndSelectFirst,
   expectValuesInProgressbarTooltip,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
@@ -22,7 +21,6 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
   clickAddNewAttributionButton,
@@ -41,40 +39,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(
-  mockFileLoadedChannelReturn: ParsedFileContent
-): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(
-        IpcChannel.FileLoaded,
-        mockFileLoadedChannelReturn
-      )
-    );
-}
-
 describe('The App in Audit View', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('saves new attributions to file in AuditView', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (global as any).document.createRange = (): unknown => ({

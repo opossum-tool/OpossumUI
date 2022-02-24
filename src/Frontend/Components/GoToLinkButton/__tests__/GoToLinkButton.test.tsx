@@ -9,33 +9,12 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { GoToLinkButton } from '../GoToLinkButton';
 import { BaseUrlsForSources } from '../../../../shared/shared-types';
 import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { IpcRenderer } from 'electron';
 import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import each from 'jest-each';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('The GoToLinkButton', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    const mockInvoke = jest.fn();
-    mockInvoke.mockReturnValue(Promise.resolve());
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: mockInvoke,
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   each([
     [
       '/parent_directory/child_directory/directory_in_source_tree/file',

@@ -23,27 +23,8 @@ import {
 } from '../../../test-helpers/general-test-helpers';
 import { ButtonText } from '../../../enums/enums';
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
-import { IpcRenderer } from 'electron';
-
-let originalIpcRenderer: IpcRenderer;
 
 describe('The ConfirmMultiSelectDeletionPopup', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('renders', () => {
     const expectedContent =
       'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.';

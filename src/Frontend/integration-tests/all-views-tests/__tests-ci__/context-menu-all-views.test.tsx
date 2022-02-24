@@ -8,13 +8,11 @@ import {
   expectValuesInProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
   goToView,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import {
   Attributions,
-  ParsedFileContent,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -27,10 +25,8 @@ import {
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ButtonText, View } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
 import { screen } from '@testing-library/react';
 import React from 'react';
 import {
@@ -54,35 +50,7 @@ import {
   expectShowResourcesPopupVisible,
 } from '../../../test-helpers/popup-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
-
 describe('The ContextMenu', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   describe('deletion buttons', () => {
     const testResources: Resources = {
       'firstResource.js': 1,
