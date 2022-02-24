@@ -11,31 +11,12 @@ import { navigateToView } from '../../../state/actions/view-actions/view-actions
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
-import { IpcRenderer } from 'electron';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('The AttributionDetailsViewer', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('renders TextBoxes with right titles and content', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,

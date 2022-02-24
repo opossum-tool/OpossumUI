@@ -3,10 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IpcRenderer } from 'electron';
 import {
   Attributions,
-  ParsedFileContent,
   Resources,
   ResourcesToAttributions,
   SaveFileArgs,
@@ -14,8 +12,7 @@ import {
 import {
   expectValuesInProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import {
@@ -51,18 +48,6 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
-
 const testResources: Resources = {
   folder1: { 'firstResource.js': 1 },
   'secondResource.js': 1,
@@ -93,22 +78,6 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 };
 
 describe('In Audit View the ContextMenu', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('is not shown for add new attribution PackageCard', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({

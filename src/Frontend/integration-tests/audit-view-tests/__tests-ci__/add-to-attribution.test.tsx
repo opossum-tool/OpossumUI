@@ -6,21 +6,17 @@
 import {
   clickOnButton,
   getParsedInputFileEnrichedWithTestData,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import {
   Attributions,
-  ParsedFileContent,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
   clickAddIconOnCardInAttributionList,
@@ -38,35 +34,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
-
 describe('Add to attribution', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test(
     'AddToAttribution shows attribution correctly, ' +
       'does not show parent attribution, and adds attribution',

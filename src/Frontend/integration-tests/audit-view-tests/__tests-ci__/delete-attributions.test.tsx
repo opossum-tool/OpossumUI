@@ -9,15 +9,12 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectValuesInProgressbarTooltip,
   goToView,
-  mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import { ButtonText, View } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
   clickOnButtonInHamburgerMenu,
@@ -36,40 +33,7 @@ import {
   expectConfirmDeletionPopupVisible,
 } from '../../../test-helpers/popup-test-helpers';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(
-  mockFileLoadedChannelReturn: ParsedFileContent
-): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(
-        IpcChannel.FileLoaded,
-        mockFileLoadedChannelReturn
-      )
-    );
-}
-
 describe('The App in Audit View', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('delete buttons are shown and work for non-preselected with popup', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,

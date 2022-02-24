@@ -19,31 +19,12 @@ import {
 import { ButtonText, PopupType, View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { IpcRenderer } from 'electron';
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('The EditAttributionPopup', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   const testResources: Resources = {
     thirdParty: {
       'package_1.tr.gz': 1,

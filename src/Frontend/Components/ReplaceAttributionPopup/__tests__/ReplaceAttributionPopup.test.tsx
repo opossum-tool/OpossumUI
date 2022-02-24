@@ -27,7 +27,6 @@ import {
   setSelectedAttributionId,
 } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Attributions, Resources } from '../../../../shared/shared-types';
-import { IpcRenderer } from 'electron';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 
 function setupTestState(store: EnhancedTestStore): void {
@@ -65,25 +64,7 @@ function setupTestState(store: EnhancedTestStore): void {
   );
 }
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('ReplaceAttributionPopup and do not change view', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('renders a ReplaceAttributionPopup and click cancel', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcRenderer } from 'electron';
 import React from 'react';
 import {
   Attributions,
@@ -72,25 +71,7 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
   store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
 }
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('The ResourceDetailsViewer', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('renders an Attribution column', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageName: 'jQuery',

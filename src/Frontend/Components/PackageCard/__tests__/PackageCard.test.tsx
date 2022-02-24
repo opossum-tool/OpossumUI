@@ -20,7 +20,6 @@ import {
 } from '../../../../shared/shared-types';
 import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
-import { IpcRenderer } from 'electron';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
 
@@ -38,25 +37,7 @@ const testAttributions: Attributions = {
   [anotherAttributionId]: { packageName: 'pkg2', preSelected: true },
 };
 
-let originalIpcRenderer: IpcRenderer;
-
 describe('The PackageCard', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('has working confirm button', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],

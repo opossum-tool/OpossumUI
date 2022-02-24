@@ -10,7 +10,7 @@ import {
   expectButton,
   getOpenResourcesButtonForPackagePanel,
   mockElectronIpcRendererOn,
-  TEST_TIMEOUT,
+  mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -21,7 +21,6 @@ import {
 } from '../../../../shared/shared-types';
 import { fireEvent, screen } from '@testing-library/react';
 import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
-import { IpcRenderer } from 'electron';
 import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
 import React from 'react';
 import {
@@ -48,18 +47,6 @@ import {
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
-let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
-
-function mockElectronBackend(mockChannelReturn: ParsedFileContent): void {
-  window.ipcRenderer.on
-    // @ts-ignore
-    .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
-    );
-}
-
 function mockSaveFileRequestChannel(): void {
   window.ipcRenderer.on
     // @ts-ignore
@@ -69,22 +56,6 @@ function mockSaveFileRequestChannel(): void {
 }
 
 describe('Other popups of the app', () => {
-  beforeAll(() => {
-    originalIpcRenderer = global.window.ipcRenderer;
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-  });
-
-  beforeEach(() => jest.clearAllMocks());
-
-  afterAll(() => {
-    // Important to restore the original value.
-    global.window.ipcRenderer = originalIpcRenderer;
-  });
-
   test('warning popup appears and cancel button works', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
