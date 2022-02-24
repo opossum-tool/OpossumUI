@@ -11,6 +11,7 @@ import {
   getExpandedIds,
   getResolvedExternalAttributions,
   getSelectedResourceId,
+  getTargetDisplayedPackage,
   getTargetSelectedResourceId,
 } from '../../../selectors/audit-view-resource-selectors';
 import {
@@ -19,6 +20,7 @@ import {
   setDisplayedPackage,
   setExpandedIds,
   setSelectedResourceId,
+  setTargetDisplayedPackage,
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
 import { setExternalData, setResources } from '../all-views-simple-actions';
@@ -68,6 +70,21 @@ describe('The audit view simple actions', () => {
     testStore.dispatch(setDisplayedPackage(testSelectedPackage));
     expect(getDisplayedPackage(testStore.getState())).toEqual(
       testSelectedPackage
+    );
+  });
+
+  test('sets and gets targetDisplayedPackage', () => {
+    const testTargetSelectedPackage: PanelPackage = {
+      panel: PackagePanelTitle.AllAttributions,
+      attributionId: 'uuid',
+    };
+
+    const testStore = createTestAppStore();
+    expect(getTargetDisplayedPackage(testStore.getState())).toBeNull();
+
+    testStore.dispatch(setTargetDisplayedPackage(testTargetSelectedPackage));
+    expect(getTargetDisplayedPackage(testStore.getState())).toEqual(
+      testTargetSelectedPackage
     );
   });
 

@@ -15,17 +15,23 @@ import {
 import { doNothing } from '../../../util/do-nothing';
 import { getParents } from '../../helpers/get-parents';
 import { navigateToView } from '../view-actions/view-actions';
-import { setSelectedAttributionId } from './attribution-view-simple-actions';
+import {
+  setSelectedAttributionId,
+  setTargetSelectedAttributionId,
+} from './attribution-view-simple-actions';
 import {
   setDisplayedPackage,
   setExpandedIds,
   setSelectedResourceId,
+  setTargetDisplayedPackage,
+  setTargetSelectedResourceId,
 } from './audit-view-simple-actions';
 import { setTemporaryPackageInfo } from './all-views-simple-actions';
 import {
   getAttributionOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
   getSelectedResourceId,
+  getTargetDisplayedPackage,
   getTargetSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
@@ -59,10 +65,20 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedView = getSelectedView(getState());
     const targetSelectedView = getTargetView(getState());
+    const targetSelectedResourceId = getTargetSelectedResourceId(getState());
     if (selectedView === View.Audit) {
-      const targetSelectedResourceId = getTargetSelectedResourceId(getState());
+      const targetDisplayedPackage = getTargetDisplayedPackage(getState());
+      if (targetDisplayedPackage) {
+        dispatch(
+          setDisplayedPackageAndResetTemporaryPackageInfo(
+            targetDisplayedPackage
+          )
+        );
+        dispatch(setTargetDisplayedPackage(null));
+      }
       if (targetSelectedResourceId) {
         dispatch(setSelectedResourceId(targetSelectedResourceId));
+        dispatch(setTargetSelectedResourceId(null));
       }
     } else if (selectedView === View.Attribution) {
       const targetSelectedAttributionId = getTargetSelectedAttributionId(
@@ -70,11 +86,11 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       );
       if (targetSelectedAttributionId) {
         dispatch(setSelectedAttributionId(targetSelectedAttributionId));
-        if (targetSelectedView === View.Audit) {
-          dispatch(
-            setSelectedResourceId(getTargetSelectedResourceId(getState()))
-          );
-        }
+        dispatch(setTargetSelectedAttributionId(null));
+      }
+      if (targetSelectedView === View.Audit && targetSelectedResourceId) {
+        dispatch(setSelectedResourceId(targetSelectedResourceId));
+        dispatch(setTargetSelectedResourceId(null));
       }
     }
   };

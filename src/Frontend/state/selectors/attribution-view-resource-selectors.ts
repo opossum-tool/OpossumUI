@@ -10,7 +10,7 @@ export function getSelectedAttributionId(state: State): string {
   return state.resourceState.attributionView.selectedAttributionId;
 }
 
-export function getTargetSelectedAttributionId(state: State): string {
+export function getTargetSelectedAttributionId(state: State): string | null {
   return state.resourceState.attributionView.targetSelectedAttributionId;
 }
 

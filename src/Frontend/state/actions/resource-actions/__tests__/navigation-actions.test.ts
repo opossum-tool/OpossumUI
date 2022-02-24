@@ -38,6 +38,7 @@ import {
 import {
   setDisplayedPackage,
   setSelectedResourceId,
+  setTargetDisplayedPackage,
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
 import { loadFromFile } from '../load-actions';
@@ -171,6 +172,29 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedView(state)).toBe(View.Attribution);
     expect(getSelectedResourceId(state)).toBe('previousResourceId');
     expect(getSelectedAttributionId(state)).toBe('newAttributionId');
+  });
+
+  test('setDisplayedPackage in case of audit view', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(navigateToView(View.Audit));
+    testStore.dispatch(
+      setDisplayedPackage({
+        panel: PackagePanelTitle.AllAttributions,
+        attributionId: 'previousAttributionId',
+      })
+    );
+    testStore.dispatch(
+      setTargetDisplayedPackage({
+        panel: PackagePanelTitle.AllAttributions,
+        attributionId: 'newAttributionId',
+      })
+    );
+
+    testStore.dispatch(setSelectedResourceOrAttributionIdToTargetValue());
+
+    const state = testStore.getState();
+    expect(getSelectedView(state)).toBe(View.Audit);
+    expect(getDisplayedPackage(state)?.attributionId).toBe('newAttributionId');
   });
 });
 

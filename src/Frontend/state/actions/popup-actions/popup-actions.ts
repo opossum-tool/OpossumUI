@@ -35,6 +35,7 @@ import {
 } from '../resource-actions/attribution-view-simple-actions';
 import {
   setSelectedResourceId,
+  setTargetDisplayedPackage,
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
 import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-actions';
@@ -100,6 +101,12 @@ export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
+      dispatch(
+        setTargetDisplayedPackage({
+          panel: packagePanelTitle,
+          attributionId,
+        })
+      );
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
@@ -118,6 +125,12 @@ export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
+      dispatch(
+        setTargetDisplayedPackage({
+          panel: packagePanelTitle,
+          attributionId,
+        })
+      );
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
