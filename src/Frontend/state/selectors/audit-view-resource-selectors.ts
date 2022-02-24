@@ -18,7 +18,7 @@ export function getSelectedResourceId(state: State): string {
   return state.resourceState.auditView.selectedResourceId;
 }
 
-export function getTargetSelectedResourceId(state: State): string {
+export function getTargetSelectedResourceId(state: State): string | null {
   return state.resourceState.auditView.targetSelectedResourceId;
 }
 
@@ -28,6 +28,10 @@ export function getExpandedIds(state: State): Array<string> {
 
 export function getDisplayedPackage(state: State): PanelPackage | null {
   return state.resourceState.auditView.displayedPanelPackage;
+}
+
+export function getTargetDisplayedPackage(state: State): PanelPackage | null {
+  return state.resourceState.auditView.targetDisplayedPanelPackage;
 }
 
 export function getResolvedExternalAttributions(state: State): Set<string> {

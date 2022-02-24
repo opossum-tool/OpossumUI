@@ -24,7 +24,7 @@ export function setSelectedAttributionId(
 }
 
 export function setTargetSelectedAttributionId(
-  targetSelectedAttributionId: string
+  targetSelectedAttributionId: string | null
 ): SetTargetSelectedAttributionIdAction {
   return {
     type: ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,

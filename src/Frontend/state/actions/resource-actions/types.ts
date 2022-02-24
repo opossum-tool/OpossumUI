@@ -45,6 +45,8 @@ export const ACTION_DELETE_ATTRIBUTION =
   'ACTION_DELETE_ATTRIBUTION_FOR_SELECTED';
 export const ACTION_SET_DISPLAYED_PANEL_PACKAGE =
   'ACTION_SET_DISPLAYED_PANEL_PACKAGE';
+export const ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE =
+  'ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE';
 export const ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID';
 export const ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT =
@@ -88,6 +90,7 @@ export type ResourceAction =
   | DeleteAttribution
   | CreateAttributionForSelectedResource
   | SetDisplayedPanelPackageAction
+  | SetTargetDisplayedPanelPackageAction
   | SetTargetSelectedAttributionIdAction
   | ReplaceAttributionWithMatchingAttributionAction
   | LinkToAttributionAction
@@ -151,7 +154,7 @@ export interface SetSelectedResourceIdAction {
 
 export interface SetTargetSelectedResourceId {
   type: typeof ACTION_SET_TARGET_SELECTED_RESOURCE_ID;
-  payload: string;
+  payload: string | null;
 }
 
 export interface SetExpandedIdsAction {
@@ -164,6 +167,10 @@ export interface SetDisplayedPanelPackageAction {
   payload: PanelPackage | null;
 }
 
+export interface SetTargetDisplayedPanelPackageAction {
+  type: typeof ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE;
+  payload: PanelPackage | null;
+}
 export interface SetSelectedAttributionId {
   type: typeof ACTION_SET_SELECTED_ATTRIBUTION_ID;
   payload: string;
@@ -171,7 +178,7 @@ export interface SetSelectedAttributionId {
 
 export interface SetTargetSelectedAttributionIdAction {
   type: typeof ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID;
-  payload: string;
+  payload: string | null;
 }
 
 export interface SetIsSavingDisabled {

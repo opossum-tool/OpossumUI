@@ -47,6 +47,7 @@ import {
   ACTION_SET_RESOURCES,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
+  ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
@@ -90,14 +91,15 @@ export const initialResourceState: ResourceState = {
   },
   auditView: {
     selectedResourceId: '',
-    targetSelectedResourceId: '',
+    targetSelectedResourceId: null,
     expandedIds: ['/'],
     displayedPanelPackage: null,
+    targetDisplayedPanelPackage: null,
     resolvedExternalAttributions: new Set(),
   },
   attributionView: {
     selectedAttributionId: '',
-    targetSelectedAttributionId: '',
+    targetSelectedAttributionId: null,
     multiSelectSelectedAttributionIds: [],
   },
   fileSearchPopup: {
@@ -123,14 +125,15 @@ export type ResourceState = {
   };
   auditView: {
     selectedResourceId: string;
-    targetSelectedResourceId: string;
+    targetSelectedResourceId: string | null;
     expandedIds: Array<string>;
     displayedPanelPackage: PanelPackage | null;
+    targetDisplayedPanelPackage: PanelPackage | null;
     resolvedExternalAttributions: Set<string>;
   };
   attributionView: {
     selectedAttributionId: string;
-    targetSelectedAttributionId: string;
+    targetSelectedAttributionId: string | null;
     multiSelectSelectedAttributionIds: Array<string>;
   };
   fileSearchPopup: {
@@ -264,6 +267,16 @@ export const resourceState = (
         auditView: {
           ...state.auditView,
           displayedPanelPackage: action.payload && {
+            ...action.payload,
+          },
+        },
+      };
+    case ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE:
+      return {
+        ...state,
+        auditView: {
+          ...state.auditView,
+          targetDisplayedPanelPackage: action.payload && {
             ...action.payload,
           },
         },

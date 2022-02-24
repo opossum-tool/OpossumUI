@@ -11,6 +11,7 @@ import {
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_SELECTED_RESOURCE_ID,
+  ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   AddResolvedExternalAttribution,
   RemoveResolvedExternalAttribution,
@@ -18,6 +19,7 @@ import {
   SetExpandedIdsAction,
   SetResolvedExternalAttributions,
   SetSelectedResourceIdAction,
+  SetTargetDisplayedPanelPackageAction,
   SetTargetSelectedResourceId,
 } from './types';
 
@@ -28,7 +30,7 @@ export function setSelectedResourceId(
 }
 
 export function setTargetSelectedResourceId(
-  targetSelectedResourceId: string
+  targetSelectedResourceId: string | null
 ): SetTargetSelectedResourceId {
   return {
     type: ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
@@ -48,6 +50,15 @@ export function setDisplayedPackage(
   return {
     type: ACTION_SET_DISPLAYED_PANEL_PACKAGE,
     payload: displayedPanel,
+  };
+}
+
+export function setTargetDisplayedPackage(
+  targetDisplayedPanel: PanelPackage | null
+): SetTargetDisplayedPanelPackageAction {
+  return {
+    type: ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
+    payload: targetDisplayedPanel,
   };
 }
 
