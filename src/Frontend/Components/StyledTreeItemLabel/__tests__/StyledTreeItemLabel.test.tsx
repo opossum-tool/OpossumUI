@@ -22,6 +22,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={false}
         isAttributionBreakpoint={false}
         showFolderIcon={false}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -45,6 +46,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -67,6 +69,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -90,6 +93,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -113,6 +117,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={false}
         isAttributionBreakpoint={false}
         showFolderIcon={false}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -136,6 +141,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -158,6 +164,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -180,6 +187,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
@@ -202,12 +210,38 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon without information')
+    ).toBeInTheDocument();
+  });
+
+  test('renders a folder with all children containing signal also containing attributions', () => {
+    render(
+      <StyledTreeItemLabel
+        labelText={'Test label'}
+        hasManualAttribution={false}
+        hasExternalAttribution={false}
+        hasUnresolvedExternalAttribution={false}
+        hasParentWithManualAttribution={false}
+        containsExternalAttribution={true}
+        containsManualAttribution={true}
+        canHaveChildren={true}
+        isAttributionBreakpoint={false}
+        showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={false}
+      />
+    );
+
+    expect(screen.getByText('Test label')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(
+        'Directory icon with all children containing signal also containing attributions'
+      )
     ).toBeInTheDocument();
   });
 
@@ -224,6 +258,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={true}
         showFolderIcon={true}
+        containsResourcesWithOnlyExternalAttribution={true}
       />
     );
 
