@@ -65,6 +65,9 @@ const useStyles = makeStyles({
   resourceWithoutInformation: {
     color: OpossumColors.disabledGrey,
   },
+  notContainsResourcesWithOnlyExternalAttribution: {
+    color: OpossumColors.pastelMiddleGreen,
+  },
   tooltip: tooltipStyle,
 });
 
@@ -79,6 +82,7 @@ interface StyledTreeItemProps {
   canHaveChildren: boolean;
   isAttributionBreakpoint: boolean;
   showFolderIcon: boolean;
+  containsResourcesWithOnlyExternalAttribution: boolean;
 }
 
 export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
@@ -95,6 +99,13 @@ export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
   } else if (props.hasUnresolvedExternalAttribution) {
     iconClassName = classes.hasSignal;
     labelDetail = 'with signal';
+  } else if (
+    props.containsExternalAttribution &&
+    !props.containsResourcesWithOnlyExternalAttribution
+  ) {
+    iconClassName = classes.notContainsResourcesWithOnlyExternalAttribution;
+    labelDetail =
+      'with all children containing signal also containing attributions';
   } else if (
     props.containsExternalAttribution &&
     props.containsManualAttribution
