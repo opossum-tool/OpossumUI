@@ -6,19 +6,17 @@
 import { screen } from '@testing-library/react';
 import React from 'react';
 import {
-  AttributionIdWithCount,
   Attributions,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
-import { PanelData } from '../../ResourceDetailsTabs/resource-details-tabs-helpers';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { expectPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
 import {
@@ -27,9 +25,24 @@ import {
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
+import {
+  getNewContainedExternalAttributionsAccordionWorker,
+  getNewContainedManualAttributionsAccordionWorker,
+  ResourceDetailsTabsWorkers,
+} from '../../../web-workers/get-new-accordion-worker';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+
+const mockResourceDetailsTabsWorkers: ResourceDetailsTabsWorkers = {
+  containedExternalAttributionsAccordionWorker:
+    getNewContainedExternalAttributionsAccordionWorker(),
+  containedManualAttributionsAccordionWorker:
+    getNewContainedManualAttributionsAccordionWorker(),
+};
 
 describe('The AggregatedAttributionsPanel', () => {
   test('renders', () => {
+    const testResources: Resources = { file: 1 };
+
     const testManualAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
@@ -42,45 +55,38 @@ describe('The AggregatedAttributionsPanel', () => {
         packageVersion: '16',
       },
     };
-    const testManualAttributionIds: Array<AttributionIdWithCount> = [
-      { attributionId: 'uuid1' },
-      { attributionId: 'uuid2' },
-      { attributionId: 'uuid3' },
-    ];
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/file': ['uuid1', 'uuid2', 'uuid3'],
+    };
+
     const testExternalAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
         packageVersion: '17.0.0',
       },
     };
-    const testExternalAttributionIds: Array<AttributionIdWithCount> = [
-      { attributionId: 'uuid1' },
-    ];
-    const testPanelPackages: Array<PanelData> = [
-      {
-        title: PackagePanelTitle.ContainedManualPackages,
-        attributionIdsWithCount: testManualAttributionIds,
-        attributions: testManualAttributions,
-      },
-      {
-        title: PackagePanelTitle.ContainedExternalPackages,
-        attributionIdsWithCount: testExternalAttributionIds,
-        attributions: testExternalAttributions,
-      },
-    ];
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/file': ['uuid1'],
+    };
+
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
           manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
           externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
         })
       )
     );
+    testStore.dispatch(setSelectedResourceId('/'));
+
     renderComponentWithStore(
       <AggregatedAttributionsPanel
-        panelData={testPanelPackages}
         isAddToPackageEnabled={true}
+        resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers}
       />,
       { store: testStore }
     );
@@ -129,18 +135,6 @@ describe('The AggregatedAttributionsPanel', () => {
       '/root/src/file_1': ['uuid_1'],
       '/root/src/file_2': ['uuid_2', 'uuid_3'],
     };
-    const testManualAttributionIds: Array<AttributionIdWithCount> = [
-      { attributionId: 'uuid_1' },
-      { attributionId: 'uuid_2' },
-      { attributionId: 'uuid_3' },
-    ];
-    const testPanelPackages: Array<PanelData> = [
-      {
-        title: PackagePanelTitle.ContainedManualPackages,
-        attributionIdsWithCount: testManualAttributionIds,
-        attributions: testManualAttributions,
-      },
-    ];
 
     const testStore = createTestAppStore();
     testStore.dispatch(
@@ -152,10 +146,12 @@ describe('The AggregatedAttributionsPanel', () => {
         })
       )
     );
+    testStore.dispatch(setSelectedResourceId('/root/src/'));
+
     renderComponentWithStore(
       <AggregatedAttributionsPanel
-        panelData={testPanelPackages}
         isAddToPackageEnabled={true}
+        resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers}
       />,
       { store: testStore }
     );
