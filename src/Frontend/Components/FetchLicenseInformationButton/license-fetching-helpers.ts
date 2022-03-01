@@ -11,9 +11,13 @@ import {
   getGithubAPIUrl,
 } from './github-fetching-helpers';
 
-const PYPI_REGEX = new RegExp('^https://pypi.org/(pypi|project)/[\\w-+,_]+/?$');
-const NPM_REGEX = new RegExp('^https://npmjs.com/(package/)?[\\w-+,_@/]+/?$');
-const GITHUB_REGEX = new RegExp('^https://github.com/[^/]+/[^/]+');
+const PYPI_REGEX = new RegExp(
+  '^https://(www.)?pypi.org/(pypi|project)/[\\w-+,_]+/?$'
+);
+const NPM_REGEX = new RegExp(
+  '^https://(www.)?npmjs.com/(package/)?[\\w-+,_@/]+/?$'
+);
+const GITHUB_REGEX = new RegExp('^https://(www.)?github.com/[^/]+/[^/]+');
 
 export interface LicenseFetchingInformation {
   url: string;

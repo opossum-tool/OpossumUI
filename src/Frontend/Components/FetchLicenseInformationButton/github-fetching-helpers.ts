@@ -20,7 +20,7 @@ function getPackageNamespaceAndPackageNameFromGithubURL(url: string): {
   packageName: string;
 } {
   const urlSuffix = url
-    .replace(new RegExp('^https://github.com/'), '')
+    .replace(new RegExp('^https://(www.)?github.com/'), '')
     .split('/');
   return {
     namespace: urlSuffix[0],

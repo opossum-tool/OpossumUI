@@ -8,7 +8,7 @@ import { Schema, Validator } from 'jsonschema';
 
 export function getNpmAPIUrl(url: string, version?: string): string {
   const packageName = url
-    .replace(new RegExp('^https://npmjs.com/(package/)?'), '')
+    .replace(new RegExp('^https://(www.)?npmjs.com/(package/)?'), '')
     .replace(new RegExp('/$'), '');
   return `https://registry.npmjs.org/${packageName}${
     version ? `/${version}` : ''
