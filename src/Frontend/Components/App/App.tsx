@@ -3,11 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  StyledEngineProvider,
-  Theme,
-  ThemeProvider,
-} from '@mui/material/styles';
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { View } from '../../enums/enums';
@@ -20,11 +16,6 @@ import { AuditView } from '../AuditView/AuditView';
 import { TopBar } from '../TopBar/TopBar';
 import { createTheme } from '@mui/material';
 import { useAppSelector } from '../../state/hooks';
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 const useStyles = makeStyles({
   root: {
