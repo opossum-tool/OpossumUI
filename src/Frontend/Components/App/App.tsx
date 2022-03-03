@@ -5,7 +5,7 @@
 
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import makeStyles from '@mui/styles/makeStyles';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { View } from '../../enums/enums';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
@@ -16,6 +16,13 @@ import { AuditView } from '../AuditView/AuditView';
 import { TopBar } from '../TopBar/TopBar';
 import { createTheme } from '@mui/material';
 import { useAppSelector } from '../../state/hooks';
+import {
+  getNewContainedExternalAttributionsAccordionWorker,
+  getNewContainedManualAttributionsAccordionWorker,
+  ResourceDetailsTabsWorkers,
+} from '../../web-workers/get-new-accordion-worker';
+import { getExternalData } from '../../state/selectors/all-views-resource-selectors';
+import { AttributionData } from '../../../shared/shared-types';
 
 const useStyles = makeStyles({
   root: {
@@ -62,10 +69,34 @@ const theme = createTheme({
 export function App(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
 
+  const resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers = {
+    containedExternalAttributionsAccordionWorker:
+      getNewContainedExternalAttributionsAccordionWorker(),
+    containedManualAttributionsAccordionWorker:
+      getNewContainedManualAttributionsAccordionWorker(),
+  };
+
+  const externalData = useAppSelector(getExternalData);
+  useMemo(() => {
+    try {
+      loadExternalDataInWebWorker(
+        externalData,
+        resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker
+      );
+    } catch (error) {
+      console.info('WebWorker error in App component: ', error);
+    }
+  }, [
+    externalData,
+    resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker,
+  ]);
+
   function getSelectedViewContainer(): ReactElement {
     switch (selectedView) {
       case View.Audit:
-        return <AuditView />;
+        return (
+          <AuditView resourceDetailsTabsWorkers={resourceDetailsTabsWorkers} />
+        );
       case View.Attribution:
         return <AttributionView />;
       case View.Report:
@@ -88,4 +119,11 @@ export function App(): ReactElement {
       </StyledEngineProvider>
     </ErrorBoundary>
   );
+}
+
+function loadExternalDataInWebWorker(
+  externalData: AttributionData,
+  worker: Worker
+): void {
+  worker.postMessage({ externalData });
 }

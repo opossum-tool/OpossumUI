@@ -7,23 +7,18 @@ import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTab from '@mui/material/Tab';
-import {
-  getExternalData,
-  getManualData,
-} from '../../state/selectors/all-views-resource-selectors';
-import { PanelPackage } from '../../types/types';
+import { getManualData } from '../../state/selectors/all-views-resource-selectors';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { isEqual, remove } from 'lodash';
-import { getPanelData, PanelData } from './resource-details-tabs-helpers';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
-  getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
+import { ResourceDetailsTabsWorkers } from '../../web-workers/get-new-accordion-worker';
 
 const useStyles = makeStyles({
   tabsRoot: {
@@ -50,6 +45,7 @@ const useStyles = makeStyles({
 interface ResourceDetailsTabsProps {
   isAllAttributionsTabEnabled: boolean;
   isAddToPackageEnabled: boolean;
+  resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers;
 }
 
 export function ResourceDetailsTabs(
@@ -58,17 +54,12 @@ export function ResourceDetailsTabs(
   const classes = useStyles();
 
   const manualData = useAppSelector(getManualData);
-  const externalData = useAppSelector(getExternalData);
 
-  const selectedPackage: PanelPackage | null =
-    useAppSelector(getDisplayedPackage);
+  const selectedPackage = useAppSelector(getDisplayedPackage);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResource: Array<string> = useAppSelector(
     getAttributionIdsOfSelectedResource,
     isEqual
-  );
-  const resolvedExternalAttributions: Set<string> = useAppSelector(
-    getResolvedExternalAttributions
   );
 
   enum Tabs {
@@ -80,36 +71,22 @@ export function ResourceDetailsTabs(
     setSelectedTab(Tabs.SignalsAndContent);
   }, [selectedResourceId, Tabs.SignalsAndContent]);
 
-  const panelData: Array<PanelData> = useMemo(
-    () =>
-      getPanelData(
-        selectedResourceId,
-        manualData,
-        externalData,
-        resolvedExternalAttributions
-      ),
-    /*
-      manualData is excluded from dependencies on purpose to avoid recalculation when
-      it changes. Usually this is not an issue as the displayed data remains correct.
-      In consequence, the panelData is eventually consistent.
-      We still need manualData.attributionsToResources in the dependencies to update panelData, when
-      replaceAttributionPopup was called. This is relevant for manual attributions in the attributions in folder
-      content panel.
-    */
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      selectedResourceId,
-      externalData,
-      resolvedExternalAttributions,
-      manualData.attributionsToResources,
-    ]
-  );
-
   const assignableAttributionIds: Array<string> = remove(
     Object.keys(manualData.attributions),
     (attributionId: string): boolean =>
       !attributionIdsOfSelectedResource.includes(attributionId)
+  );
+
+  const isAddToPackageEnabled: boolean =
+    props.isAllAttributionsTabEnabled && props.isAddToPackageEnabled;
+  const aggregatedAttributionsPanel = useMemo(
+    () => (
+      <AggregatedAttributionsPanel
+        resourceDetailsTabsWorkers={props.resourceDetailsTabsWorkers}
+        isAddToPackageEnabled={isAddToPackageEnabled}
+      />
+    ),
+    [isAddToPackageEnabled, props.resourceDetailsTabsWorkers]
   );
 
   return (
@@ -141,12 +118,7 @@ export function ResourceDetailsTabs(
         />
       </MuiTabs>
       {selectedTab === Tabs.SignalsAndContent ? (
-        <AggregatedAttributionsPanel
-          panelData={panelData}
-          isAddToPackageEnabled={
-            props.isAllAttributionsTabEnabled && props.isAddToPackageEnabled
-          }
-        />
+        aggregatedAttributionsPanel
       ) : (
         <AllAttributionsPanel
           attributions={manualData.attributions}

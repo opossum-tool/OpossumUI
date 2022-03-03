@@ -11,6 +11,8 @@ jest.setTimeout(TEST_TIMEOUT);
 
 let originalIpcRenderer: IpcRenderer;
 
+jest.mock('./src/Frontend/web-workers/get-new-accordion-worker');
+
 beforeAll(() => {
   originalIpcRenderer = global.window.ipcRenderer;
   const mockInvoke = jest.fn();
@@ -20,6 +22,8 @@ beforeAll(() => {
     removeListener: jest.fn(),
     invoke: mockInvoke,
   } as unknown as IpcRenderer;
+
+  jest.spyOn(console, 'info').mockImplementation();
 });
 
 beforeEach(() => jest.clearAllMocks());

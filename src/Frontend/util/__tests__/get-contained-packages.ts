@@ -4,18 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  computeAggregatedAttributionsFromChildren,
-  getPanelData,
-  PanelData,
-  sortByCountAndPackageName,
-} from '../resource-details-tabs-helpers';
-import {
   AttributionIdWithCount,
   Attributions,
   ResourcesToAttributions,
-} from '../../../../shared/shared-types';
-import { PackagePanelTitle } from '../../../enums/enums';
-import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
+} from '../../../shared/shared-types';
+import {
+  computeAggregatedAttributionsFromChildren,
+  sortByCountAndPackageName,
+} from '../get-contained-packages';
 
 describe('computeAggregatedAttributionsFromChildren', () => {
   const testAttributions: Attributions = {
@@ -161,33 +157,5 @@ describe('sortByCountAndPackageName', () => {
       sortByCountAndPackageName(testAttributions)
     );
     expect(result).toEqual(expectedAttributionIdsWithCount);
-  });
-});
-
-describe('getPanelData', () => {
-  test('returns only the Signals sub-panel for a file', () => {
-    const panelData: Array<PanelData> = getPanelData(
-      '/file.txt',
-      EMPTY_ATTRIBUTION_DATA,
-      EMPTY_ATTRIBUTION_DATA,
-      new Set<string>()
-    );
-    expect(panelData.length).toBe(1);
-    expect(panelData[0].title).toBe(PackagePanelTitle.ExternalPackages);
-  });
-
-  test('returns all three sub-panels for a folder', () => {
-    const panelData: Array<PanelData> = getPanelData(
-      '/folder/',
-      EMPTY_ATTRIBUTION_DATA,
-      EMPTY_ATTRIBUTION_DATA,
-      new Set<string>()
-    );
-    expect(panelData.length).toBe(3);
-    expect(panelData[0].title).toBe(PackagePanelTitle.ExternalPackages);
-    expect(panelData[1].title).toBe(
-      PackagePanelTitle.ContainedExternalPackages
-    );
-    expect(panelData[2].title).toBe(PackagePanelTitle.ContainedManualPackages);
   });
 });

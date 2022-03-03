@@ -25,6 +25,7 @@ import {
   resourceBrowserWidthInPixels,
 } from '../../shared-styles';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { ResourceDetailsTabsWorkers } from '../../web-workers/get-new-accordion-worker';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
 
@@ -56,7 +57,13 @@ const useStyles = makeStyles({
   },
 });
 
-export function ResourceDetailsViewer(): ReactElement | null {
+interface ResourceDetailsViewerProps {
+  resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers;
+}
+
+export function ResourceDetailsViewer(
+  props: ResourceDetailsViewerProps
+): ReactElement | null {
   const classes = useStyles();
 
   const [overrideParentMode, setOverrideParentMode] = useState<boolean>(false);
@@ -120,6 +127,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
             <ResourceDetailsTabs
               isAllAttributionsTabEnabled={!showParentAttributions}
               isAddToPackageEnabled={!resourceIsAttributionBreakpoint}
+              resourceDetailsTabsWorkers={props.resourceDetailsTabsWorkers}
             />
           </div>
         </div>

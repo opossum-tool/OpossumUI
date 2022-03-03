@@ -1,67 +1,17 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackagePanelTitle } from '../../enums/enums';
 import {
   AttributionData,
   AttributionIdWithCount,
   Attributions,
   PackageInfo,
   ResourcesToAttributions,
-} from '../../../shared/shared-types';
-import { getAttributedChildren } from '../../util/get-attributed-children';
-import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
+} from '../../shared/shared-types';
+import { getAttributedChildren } from './get-attributed-children';
 
-export interface PanelData {
-  title: PackagePanelTitle;
-  attributionIdsWithCount: Array<AttributionIdWithCount>;
-  attributions: Attributions;
-}
-
-export function getPanelData(
-  selectedResourceId: string,
-  manualData: AttributionData,
-  externalData: AttributionData,
-  resolvedExternalAttributions: Set<string>
-): Array<PanelData> {
-  let panelData: Array<PanelData> = [
-    {
-      title: PackagePanelTitle.ExternalPackages,
-      attributionIdsWithCount: getExternalAttributionIdsWithCount(
-        externalData.resourcesToAttributions[selectedResourceId] || []
-      ),
-      attributions: externalData.attributions,
-    },
-  ];
-
-  if (isIdOfResourceWithChildren(selectedResourceId)) {
-    panelData = panelData.concat([
-      {
-        title: PackagePanelTitle.ContainedExternalPackages,
-        attributionIdsWithCount: getContainedExternalPackages(
-          selectedResourceId,
-          externalData,
-          resolvedExternalAttributions
-        ),
-        attributions: externalData.attributions,
-      },
-      {
-        title: PackagePanelTitle.ContainedManualPackages,
-        attributionIdsWithCount: getContainedManualPackages(
-          selectedResourceId,
-          manualData
-        ),
-        attributions: manualData.attributions,
-      },
-    ]);
-  }
-
-  return panelData;
-}
-
-function getExternalAttributionIdsWithCount(
+export function getExternalAttributionIdsWithCount(
   attributionIds: Array<string>
 ): Array<AttributionIdWithCount> {
   return attributionIds.map((attributionId) => ({
@@ -69,36 +19,36 @@ function getExternalAttributionIdsWithCount(
   }));
 }
 
-function getContainedExternalPackages(
-  selectedResourceId: string,
-  externalData: AttributionData,
-  resolvedExternalAttributions: Set<string>
-): Array<AttributionIdWithCount> {
+export function getContainedExternalPackages(args: {
+  selectedResourceId: string;
+  externalData: AttributionData;
+  resolvedExternalAttributions: Set<string>;
+}): Array<AttributionIdWithCount> {
   const externalAttributedChildren = getAttributedChildren(
-    externalData.resourcesWithAttributedChildren,
-    selectedResourceId
+    args.externalData.resourcesWithAttributedChildren,
+    args.selectedResourceId
   );
 
   return computeAggregatedAttributionsFromChildren(
-    externalData.attributions,
-    externalData.resourcesToAttributions,
+    args.externalData.attributions,
+    args.externalData.resourcesToAttributions,
     externalAttributedChildren,
-    resolvedExternalAttributions
+    args.resolvedExternalAttributions
   );
 }
 
-function getContainedManualPackages(
-  selectedResourceId: string,
-  manualData: AttributionData
-): Array<AttributionIdWithCount> {
+export function getContainedManualPackages(args: {
+  selectedResourceId: string;
+  manualData: AttributionData;
+}): Array<AttributionIdWithCount> {
   const manualAttributedChildren = getAttributedChildren(
-    manualData.resourcesWithAttributedChildren,
-    selectedResourceId
+    args.manualData.resourcesWithAttributedChildren,
+    args.selectedResourceId
   );
 
   return computeAggregatedAttributionsFromChildren(
-    manualData.attributions,
-    manualData.resourcesToAttributions,
+    args.manualData.attributions,
+    args.manualData.resourcesToAttributions,
     manualAttributedChildren
   );
 }

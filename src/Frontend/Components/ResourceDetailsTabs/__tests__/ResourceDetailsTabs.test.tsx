@@ -16,6 +16,18 @@ import { act, screen } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
+import {
+  getNewContainedExternalAttributionsAccordionWorker,
+  getNewContainedManualAttributionsAccordionWorker,
+  ResourceDetailsTabsWorkers,
+} from '../../../web-workers/get-new-accordion-worker';
+
+const mockResourceDetailsTabsWorkers: ResourceDetailsTabsWorkers = {
+  containedExternalAttributionsAccordionWorker:
+    getNewContainedExternalAttributionsAccordionWorker(),
+  containedManualAttributionsAccordionWorker:
+    getNewContainedManualAttributionsAccordionWorker(),
+};
 
 describe('The ResourceDetailsTabs', () => {
   test('switches between tabs', () => {
@@ -32,6 +44,7 @@ describe('The ResourceDetailsTabs', () => {
       <ResourceDetailsTabs
         isAllAttributionsTabEnabled={true}
         isAddToPackageEnabled={true}
+        resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers}
       />
     );
     store.dispatch(
@@ -70,6 +83,7 @@ describe('The ResourceDetailsTabs', () => {
       <ResourceDetailsTabs
         isAllAttributionsTabEnabled={true}
         isAddToPackageEnabled={true}
+        resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers}
       />
     );
     store.dispatch(

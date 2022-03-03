@@ -3,116 +3,116 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiAccordion from '@mui/material/Accordion';
-import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import MuiAccordionSummary from '@mui/material/AccordionSummary';
-import makeStyles from '@mui/styles/makeStyles';
-import MuiTypography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import clsx from 'clsx';
-import React, { ReactElement, useCallback, useEffect } from 'react';
+import React, { ReactElement, useMemo } from 'react';
+import { PackagePanelTitle } from '../../enums/enums';
+import { WorkerAccordionPanel } from './WorkerAccordionPanel';
+import { useAppSelector } from '../../state/hooks';
+import {
+  getExternalData,
+  getManualData,
+} from '../../state/selectors/all-views-resource-selectors';
+import {
+  getResolvedExternalAttributions,
+  getSelectedResourceId,
+} from '../../state/selectors/audit-view-resource-selectors';
+import { ResourceDetailsTabsWorkers } from '../../web-workers/get-new-accordion-worker';
+import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { AttributionIdWithCount } from '../../../shared/shared-types';
-import { PackagePanel } from '../PackagePanel/PackagePanel';
-import { PanelData } from '../ResourceDetailsTabs/resource-details-tabs-helpers';
-
-const useStyles = makeStyles({
-  expansionPanelExpanded: {
-    margin: '0px !important',
-  },
-  expansionPanelSummary: {
-    minHeight: '24px !important',
-    '& div.MuiAccordionSummary-content': {
-      margin: 0,
-    },
-    '& div.MuiAccordionSummary-expandIcon': {
-      padding: '6px 12px',
-    },
-    padding: '0 12px',
-  },
-  disabledAccordion: {},
-  expansionPanelDetails: { height: '100%', padding: '0 0 16px 12px ' },
-});
+import { SyncAccordionPanel } from './SyncAccordionPanel';
+import {
+  getContainedExternalPackages,
+  getContainedManualPackages,
+  getExternalAttributionIdsWithCount,
+} from '../../util/get-contained-packages';
 
 interface AggregatedAttributionsPanelProps {
-  panelData: Array<PanelData>;
   isAddToPackageEnabled: boolean;
+  resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers;
 }
 
 export function AggregatedAttributionsPanel(
   props: AggregatedAttributionsPanelProps
 ): ReactElement {
-  const classes = useStyles();
+  const manualData = useAppSelector(getManualData);
+  const externalData = useAppSelector(getExternalData);
 
-  const [expanded, setExpanded] = React.useState<Array<string>>([]);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const resolvedExternalAttributions: Set<string> = useAppSelector(
+    getResolvedExternalAttributions
+  );
 
-  const openPopulatedPanels = useCallback(() => {
-    const openPanels = props.panelData
-      .filter(
-        (panelData: PanelData) => !isDisabled(panelData.attributionIdsWithCount)
-      )
-      .map((panelPackage: PanelData) => panelPackage.title);
-    setExpanded(openPanels);
-  }, [props.panelData]);
-  useEffect(() => openPopulatedPanels(), [openPopulatedPanels]);
+  const containedExternalPackagesWorkerArgs = useMemo(
+    () => ({
+      selectedResourceId,
+      resolvedExternalAttributions,
+    }),
+    [selectedResourceId, resolvedExternalAttributions]
+  );
+  const containedExternalPackagesSyncFallbackArgs = useMemo(
+    () => ({
+      selectedResourceId,
+      externalData,
+      resolvedExternalAttributions,
+    }),
+    [selectedResourceId, externalData, resolvedExternalAttributions]
+  );
 
-  const handleChange =
-    (panel: string) =>
-    (event: React.ChangeEvent<unknown>, isExpanded: boolean): void => {
-      setExpanded(
-        isExpanded
-          ? expanded.concat(panel)
-          : expanded.filter((panelName) => panel !== panelName)
-      );
-    };
+  const containedManualPackagesWorkerArgs = useMemo(
+    () => ({
+      selectedResourceId,
+      manualData,
+    }),
 
-  function isDisabled(
-    attributionIdsWithCount: Array<AttributionIdWithCount>
-  ): boolean {
-    return (
-      attributionIdsWithCount === undefined ||
-      (attributionIdsWithCount && attributionIdsWithCount.length === 0)
-    );
-  }
+    //  manualData is excluded from dependencies on purpose to avoid recalculation
+    //  when it changes. Usually this is not an issue as the displayed data
+    //  remains correct. Therefore the panelData is eventually consistent.
+    //  We still need manualData.attributionsToResources in the dependencies to
+    //  update panelData, when replaceAttributionPopup was called. This is
+    //  relevant for manual attributions in the attributions in folder content panel.
 
-  function isExpanded(panelPackage: PanelData): boolean {
-    return expanded.includes(panelPackage.title);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedResourceId, manualData.attributionsToResources]
+  );
 
   return (
     <>
-      {props.panelData.map((panelData: PanelData) => (
-        <MuiAccordion
-          className={clsx(
-            isDisabled(panelData.attributionIdsWithCount)
-              ? classes.disabledAccordion
-              : null
-          )}
-          classes={{ expanded: classes.expansionPanelExpanded }}
-          elevation={0}
-          square={true}
-          key={`PackagePanel-${panelData.title}`}
-          expanded={isExpanded(panelData)}
-          onChange={handleChange(panelData.title)}
-          disabled={isDisabled(panelData.attributionIdsWithCount)}
-        >
-          <MuiAccordionSummary
-            classes={{ root: classes.expansionPanelSummary }}
-            expandIcon={<ExpandMoreIcon />}
-          >
-            <MuiTypography>{panelData.title}</MuiTypography>
-          </MuiAccordionSummary>
-          <MuiAccordionDetails
-            classes={{ root: classes.expansionPanelDetails }}
-          >
-            <PackagePanel
-              title={panelData.title}
-              attributionIdsWithCount={panelData.attributionIdsWithCount}
-              attributions={panelData.attributions}
-              isAddToPackageEnabled={props.isAddToPackageEnabled}
-            />
-          </MuiAccordionDetails>
-        </MuiAccordion>
-      ))}
+      <SyncAccordionPanel
+        title={PackagePanelTitle.ExternalPackages}
+        getAttributionIdsWithCount={(): Array<AttributionIdWithCount> =>
+          getExternalAttributionIdsWithCount(
+            externalData.resourcesToAttributions[selectedResourceId] || []
+          )
+        }
+        attributions={externalData.attributions}
+        isAddToPackageEnabled={props.isAddToPackageEnabled}
+      />
+      {isIdOfResourceWithChildren(selectedResourceId) ? (
+        <>
+          <WorkerAccordionPanel
+            title={PackagePanelTitle.ContainedExternalPackages}
+            workerArgs={containedExternalPackagesWorkerArgs}
+            syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
+            worker={
+              props.resourceDetailsTabsWorkers
+                .containedExternalAttributionsAccordionWorker
+            }
+            getAttributionIdsWithCount={getContainedExternalPackages}
+            attributions={externalData.attributions}
+            isAddToPackageEnabled={props.isAddToPackageEnabled}
+          />
+          <WorkerAccordionPanel
+            title={PackagePanelTitle.ContainedManualPackages}
+            workerArgs={containedManualPackagesWorkerArgs}
+            worker={
+              props.resourceDetailsTabsWorkers
+                .containedManualAttributionsAccordionWorker
+            }
+            getAttributionIdsWithCount={getContainedManualPackages}
+            attributions={manualData.attributions}
+            isAddToPackageEnabled={props.isAddToPackageEnabled}
+          />
+        </>
+      ) : null}
     </>
   );
 }

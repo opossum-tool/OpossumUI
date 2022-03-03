@@ -7,7 +7,11 @@ import { IpcRenderer } from 'electron';
 import { PackagePanelTitle, PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { ViewState } from '../state/reducers/view-reducer';
-import { PackageInfo } from '../../shared/shared-types';
+import {
+  AttributionIdWithCount,
+  Attributions,
+  PackageInfo,
+} from '../../shared/shared-types';
 
 declare global {
   interface Window {
@@ -87,4 +91,15 @@ export interface ButtonConfig {
   onClick(): void;
   buttonText: string;
   isDisabled?: boolean;
+}
+
+export interface PanelData {
+  title: PackagePanelTitle;
+  attributionIdsWithCount: Array<AttributionIdWithCount>;
+  attributions: Attributions;
+}
+
+export interface AttributionIdsWithCountAndResourceId {
+  resourceId: string;
+  attributionIdsWithCount: Array<AttributionIdWithCount>;
 }
