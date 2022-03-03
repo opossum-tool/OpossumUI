@@ -26,8 +26,6 @@ import { ButtonText } from '../enums/enums';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
 import { IpcChannel } from '../../shared/ipc-channels';
 
-export const TEST_TIMEOUT = 15000;
-
 export function mockElectronBackend(
   mockChannelReturn: ParsedFileContent
 ): void {
