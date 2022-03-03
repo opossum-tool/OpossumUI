@@ -23,7 +23,8 @@
   },
   "include": [
     "src/**/*",
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "setupTests.ts"
   ],
   "exclude": [
     "src/ElectronBackend/**/*"

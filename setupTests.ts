@@ -5,11 +5,11 @@
 
 import '@testing-library/jest-dom/extend-expect';
 import { IpcRenderer } from 'electron';
-import { TEST_TIMEOUT } from './src/Frontend/test-helpers/general-test-helpers';
+
+const TEST_TIMEOUT = 15000;
+jest.setTimeout(TEST_TIMEOUT);
 
 let originalIpcRenderer: IpcRenderer;
-
-jest.setTimeout(TEST_TIMEOUT);
 
 beforeAll(() => {
   originalIpcRenderer = global.window.ipcRenderer;
