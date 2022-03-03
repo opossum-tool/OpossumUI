@@ -22,6 +22,8 @@ beforeAll(() => {
     removeListener: jest.fn(),
     invoke: mockInvoke,
   } as unknown as IpcRenderer;
+
+  jest.spyOn(console, 'info').mockImplementation();
 });
 
 beforeEach(() => jest.clearAllMocks());

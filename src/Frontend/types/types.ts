@@ -98,3 +98,8 @@ export interface PanelData {
   attributionIdsWithCount: Array<AttributionIdWithCount>;
   attributions: Attributions;
 }
+
+export interface AttributionIdsWithCountAndResourceId {
+  resourceId: string;
+  attributionIdsWithCount: Array<AttributionIdWithCount>;
+}

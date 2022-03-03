@@ -84,7 +84,7 @@ export function App(): ReactElement {
         resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker
       );
     } catch (error) {
-      console.log('WebWorker error in App component: ', error);
+      console.info('WebWorker error in App component: ', error);
     }
   }, [
     externalData,

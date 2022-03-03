@@ -9,9 +9,17 @@ import {
 } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
-import { PanelData } from '../../types/types';
+import {
+  AttributionIdsWithCountAndResourceId,
+  PanelData,
+} from '../../types/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+const EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID = {
+  resourceId: '',
+  attributionIdsWithCount: [],
+};
 
 interface WorkerAccordionPanelProps {
   title: PackagePanelTitle;
@@ -26,41 +34,43 @@ interface WorkerAccordionPanelProps {
 export function WorkerAccordionPanel(
   props: WorkerAccordionPanelProps
 ): ReactElement {
-  const [attributionIdsWithCount, setAttributionIdsWithCount] = useState<
-    Array<AttributionIdWithCount>
-  >([]);
+  const [
+    attributionIdsWithCountAndResourceId,
+    setAttributionIdsWithCountAndResourceId,
+  ] = useState<AttributionIdsWithCountAndResourceId>(
+    EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
+  );
 
   useMemo(() => {
-    let active = true;
-    setAttributionIdsWithCount([]);
-
     loadAttributionIdsWithCount(
       props.workerArgs,
       props.worker,
-      active,
       props.title,
-      setAttributionIdsWithCount,
+      setAttributionIdsWithCountAndResourceId,
       props.getAttributionIdsWithCount,
       props.syncFallbackArgs
     );
-
-    return (): void => {
-      active = false;
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    props.workerArgs,
-    props.worker,
-    props.getAttributionIdsWithCount,
-    props.attributions,
-    props.title,
-  ]);
+  }, [props.syncFallbackArgs, props.worker, props.workerArgs]);
 
-  const panelData: PanelData = {
-    title: props.title,
-    attributionIdsWithCount,
-    attributions: props.attributions,
-  };
+  let panelData: PanelData;
+  if (
+    props.workerArgs.selectedResourceId ===
+    attributionIdsWithCountAndResourceId.resourceId
+  ) {
+    panelData = {
+      title: props.title,
+      attributionIdsWithCount:
+        attributionIdsWithCountAndResourceId.attributionIdsWithCount,
+      attributions: props.attributions,
+    };
+  } else {
+    panelData = {
+      title: props.title,
+      attributionIdsWithCount: [],
+      attributions: props.attributions,
+    };
+  }
 
   return (
     <AccordionPanel
@@ -74,16 +84,19 @@ export function WorkerAccordionPanel(
 async function loadAttributionIdsWithCount(
   workerArgs: any,
   worker: Worker,
-  active: boolean,
   panelTitle: string,
-  setAttributionIdsWithCount: (
-    AttributionIdsWithCount: Array<AttributionIdWithCount>
+  setAttributionIdsWithCountAndResourceId: (
+    attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
   getAttributionIdsWithCount: (
     workerArgs: any
   ) => Array<AttributionIdWithCount>,
   syncFallbackArgs?: any
 ): Promise<void> {
+  setAttributionIdsWithCountAndResourceId(
+    EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
+  );
+
   // WebWorkers can fail for different reasons, e.g. because they run out
   // of memory with huge input files or because Jest does not support
   // them. When they fail the accordion is calculated on main. The error
@@ -91,31 +104,25 @@ async function loadAttributionIdsWithCount(
   try {
     worker.postMessage(workerArgs);
 
-    if (!active) {
-      return;
-    }
-
     worker.onmessage = ({ data: { output } }): void => {
       if (!output) {
         logErrorAndComputeInMainProcess(
-          active,
           panelTitle,
           Error('Web Worker execution error.'),
-          setAttributionIdsWithCount,
+          setAttributionIdsWithCountAndResourceId,
           getAttributionIdsWithCount,
           workerArgs,
           syncFallbackArgs
         );
       } else {
-        setAttributionIdsWithCount(output);
+        setAttributionIdsWithCountAndResourceId(output);
       }
     };
   } catch (error) {
     logErrorAndComputeInMainProcess(
-      active,
       panelTitle,
       error,
-      setAttributionIdsWithCount,
+      setAttributionIdsWithCountAndResourceId,
       getAttributionIdsWithCount,
       workerArgs,
       syncFallbackArgs
@@ -124,11 +131,10 @@ async function loadAttributionIdsWithCount(
 }
 
 function logErrorAndComputeInMainProcess(
-  active: boolean,
   panelTitle: string,
   error: unknown,
-  setAttributionIdsWithCount: (
-    AttributionIdsWithCount: Array<AttributionIdWithCount>
+  setAttributionIdsWithCountAndResourceId: (
+    attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
   getAttributionIdsWithCount: (
     workerArgs: any
@@ -136,13 +142,14 @@ function logErrorAndComputeInMainProcess(
   workerArgs: any,
   syncFallbackArgs?: any
 ): void {
-  console.log(`Error in ResourceDetailsTab ${panelTitle}: `, error);
+  console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
 
-  const output = getAttributionIdsWithCount(syncFallbackArgs || workerArgs);
+  const attributionIdsWithCount = getAttributionIdsWithCount(
+    syncFallbackArgs || workerArgs
+  );
 
-  if (!active) {
-    return;
-  }
-
-  setAttributionIdsWithCount(output);
+  setAttributionIdsWithCountAndResourceId({
+    resourceId: workerArgs.selectedResourceId,
+    attributionIdsWithCount,
+  });
 }

@@ -4,6 +4,7 @@
 
 import { AttributionData } from '../../shared/shared-types';
 import { getContainedExternalPackages } from '../util/get-contained-packages';
+import { AttributionIdsWithCountAndResourceId } from '../types/types';
 
 let cachedExternalData: AttributionData | null = null;
 
@@ -16,11 +17,15 @@ self.onmessage = ({
 
   if (selectedResourceId) {
     if (cachedExternalData) {
-      const output = getContainedExternalPackages({
+      const attributionIdsWithCount = getContainedExternalPackages({
         selectedResourceId,
         externalData: cachedExternalData,
         resolvedExternalAttributions,
       });
+      const output: AttributionIdsWithCountAndResourceId = {
+        resourceId: selectedResourceId,
+        attributionIdsWithCount,
+      };
 
       self.postMessage({
         output,
