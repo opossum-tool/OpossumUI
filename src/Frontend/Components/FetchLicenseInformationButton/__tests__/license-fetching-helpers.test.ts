@@ -35,6 +35,15 @@ describe('getLicenseFetchingInformation', () => {
     });
   });
 
+  it('recognizes npm urls starting with www', () => {
+    expect(
+      getLicenseFetchingInformation('https://www.npmjs.com/package/react')
+    ).toMatchObject({
+      url: 'https://registry.npmjs.org/react',
+      convertPayload: convertNpmPayload,
+    });
+  });
+
   it('recognizes npm urls with complicated package names', () => {
     expect(
       getLicenseFetchingInformation(
