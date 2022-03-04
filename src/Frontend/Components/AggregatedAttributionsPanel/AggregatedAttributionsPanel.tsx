@@ -15,7 +15,6 @@ import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { ResourceDetailsTabsWorkers } from '../../web-workers/get-new-accordion-worker';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { AttributionIdWithCount } from '../../../shared/shared-types';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
@@ -27,7 +26,6 @@ import {
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;
-  resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers;
 }
 
 export function AggregatedAttributionsPanel(
@@ -92,10 +90,6 @@ export function AggregatedAttributionsPanel(
             title={PackagePanelTitle.ContainedExternalPackages}
             workerArgs={containedExternalPackagesWorkerArgs}
             syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-            worker={
-              props.resourceDetailsTabsWorkers
-                .containedExternalAttributionsAccordionWorker
-            }
             getAttributionIdsWithCount={getContainedExternalPackages}
             attributions={externalData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
@@ -103,10 +97,6 @@ export function AggregatedAttributionsPanel(
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
-            worker={
-              props.resourceDetailsTabsWorkers
-                .containedManualAttributionsAccordionWorker
-            }
             getAttributionIdsWithCount={getContainedManualPackages}
             attributions={manualData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}

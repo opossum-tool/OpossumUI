@@ -7,7 +7,16 @@ export interface ResourceDetailsTabsWorkers {
   containedManualAttributionsAccordionWorker: Worker;
 }
 
-export function getNewContainedExternalAttributionsAccordionWorker(): Worker {
+export function getNewAccordionWorkers(): ResourceDetailsTabsWorkers {
+  return {
+    containedExternalAttributionsAccordionWorker:
+      getNewContainedExternalAttributionsAccordionWorker(),
+    containedManualAttributionsAccordionWorker:
+      getNewContainedManualAttributionsAccordionWorker(),
+  };
+}
+
+function getNewContainedExternalAttributionsAccordionWorker(): Worker {
   return new Worker(
     new URL(
       './contained-external-attributions-accordion-worker',
@@ -16,7 +25,7 @@ export function getNewContainedExternalAttributionsAccordionWorker(): Worker {
   );
 }
 
-export function getNewContainedManualAttributionsAccordionWorker(): Worker {
+function getNewContainedManualAttributionsAccordionWorker(): Worker {
   return new Worker(
     new URL('./contained-manual-attributions-accordion-worker', import.meta.url)
   );

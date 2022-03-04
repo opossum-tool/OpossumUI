@@ -6,23 +6,9 @@
 import { AuditView } from '../AuditView';
 import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  getNewContainedExternalAttributionsAccordionWorker,
-  getNewContainedManualAttributionsAccordionWorker,
-  ResourceDetailsTabsWorkers,
-} from '../../../web-workers/get-new-accordion-worker';
 
 describe('The AuditView', () => {
   test('renders AuditView', () => {
-    const mockResourceDetailsTabsWorkers: ResourceDetailsTabsWorkers = {
-      containedExternalAttributionsAccordionWorker:
-        getNewContainedExternalAttributionsAccordionWorker(),
-      containedManualAttributionsAccordionWorker:
-        getNewContainedManualAttributionsAccordionWorker(),
-    };
-
-    renderComponentWithStore(
-      <AuditView resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers} />
-    );
+    renderComponentWithStore(<AuditView />);
   });
 });

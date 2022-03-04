@@ -6,19 +6,12 @@
 import React, { ReactElement } from 'react';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer/ResourceDetailsViewer';
 import { ResourceBrowser } from '../ResourceBrowser/ResourceBrowser';
-import { ResourceDetailsTabsWorkers } from '../../web-workers/get-new-accordion-worker';
 
-interface AuditViewProps {
-  resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers;
-}
-
-export function AuditView(props: AuditViewProps): ReactElement {
+export function AuditView(): ReactElement {
   return (
     <React.Fragment>
       <ResourceBrowser />
-      <ResourceDetailsViewer
-        resourceDetailsTabsWorkers={props.resourceDetailsTabsWorkers}
-      />
+      <ResourceDetailsViewer />
     </React.Fragment>
   );
 }
