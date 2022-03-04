@@ -11,7 +11,7 @@ jest.setTimeout(TEST_TIMEOUT);
 
 let originalIpcRenderer: IpcRenderer;
 
-jest.mock('./src/Frontend/web-workers/get-new-accordion-worker');
+jest.mock('./src/Frontend/web-workers/get-new-accordion-workers');
 
 beforeAll(() => {
   originalIpcRenderer = global.window.ipcRenderer;

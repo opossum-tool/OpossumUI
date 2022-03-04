@@ -25,19 +25,7 @@ import {
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import {
-  getNewContainedExternalAttributionsAccordionWorker,
-  getNewContainedManualAttributionsAccordionWorker,
-  ResourceDetailsTabsWorkers,
-} from '../../../web-workers/get-new-accordion-worker';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-
-const mockResourceDetailsTabsWorkers: ResourceDetailsTabsWorkers = {
-  containedExternalAttributionsAccordionWorker:
-    getNewContainedExternalAttributionsAccordionWorker(),
-  containedManualAttributionsAccordionWorker:
-    getNewContainedManualAttributionsAccordionWorker(),
-};
 
 describe('The AggregatedAttributionsPanel', () => {
   test('renders', () => {
@@ -84,10 +72,7 @@ describe('The AggregatedAttributionsPanel', () => {
     testStore.dispatch(setSelectedResourceId('/'));
 
     renderComponentWithStore(
-      <AggregatedAttributionsPanel
-        isAddToPackageEnabled={true}
-        resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers}
-      />,
+      <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
       { store: testStore }
     );
 
@@ -149,10 +134,7 @@ describe('The AggregatedAttributionsPanel', () => {
     testStore.dispatch(setSelectedResourceId('/root/src/'));
 
     renderComponentWithStore(
-      <AggregatedAttributionsPanel
-        isAddToPackageEnabled={true}
-        resourceDetailsTabsWorkers={mockResourceDetailsTabsWorkers}
-      />,
+      <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
       { store: testStore }
     );
 

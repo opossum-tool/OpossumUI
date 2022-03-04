@@ -18,7 +18,6 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
-import { ResourceDetailsTabsWorkers } from '../../web-workers/get-new-accordion-worker';
 
 const useStyles = makeStyles({
   tabsRoot: {
@@ -45,7 +44,6 @@ const useStyles = makeStyles({
 interface ResourceDetailsTabsProps {
   isAllAttributionsTabEnabled: boolean;
   isAddToPackageEnabled: boolean;
-  resourceDetailsTabsWorkers: ResourceDetailsTabsWorkers;
 }
 
 export function ResourceDetailsTabs(
@@ -82,11 +80,10 @@ export function ResourceDetailsTabs(
   const aggregatedAttributionsPanel = useMemo(
     () => (
       <AggregatedAttributionsPanel
-        resourceDetailsTabsWorkers={props.resourceDetailsTabsWorkers}
         isAddToPackageEnabled={isAddToPackageEnabled}
       />
     ),
-    [isAddToPackageEnabled, props.resourceDetailsTabsWorkers]
+    [isAddToPackageEnabled]
   );
 
   return (

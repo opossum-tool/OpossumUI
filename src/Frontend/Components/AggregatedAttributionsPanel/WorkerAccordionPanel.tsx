@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useMemo, useState } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
   AttributionIdWithCount,
   Attributions,
@@ -13,6 +13,7 @@ import {
   AttributionIdsWithCountAndResourceId,
   PanelData,
 } from '../../types/types';
+import { WorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -22,12 +23,13 @@ const EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID = {
 };
 
 interface WorkerAccordionPanelProps {
-  title: PackagePanelTitle;
+  title:
+    | PackagePanelTitle.ContainedExternalPackages
+    | PackagePanelTitle.ContainedManualPackages;
   workerArgs: any;
   syncFallbackArgs?: any;
   getAttributionIdsWithCount(workerArgs: any): Array<AttributionIdWithCount>;
   attributions: Attributions;
-  worker: Worker;
   isAddToPackageEnabled: boolean;
 }
 
@@ -40,18 +42,31 @@ export function WorkerAccordionPanel(
   ] = useState<AttributionIdsWithCountAndResourceId>(
     EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
   );
+  const resourceDetailsTabsWorkers = useContext(WorkersContext);
+
+  let worker: Worker;
+  switch (props.title) {
+    case PackagePanelTitle.ContainedExternalPackages:
+      worker =
+        resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker;
+      break;
+    case PackagePanelTitle.ContainedManualPackages:
+      worker =
+        resourceDetailsTabsWorkers.containedManualAttributionsAccordionWorker;
+      break;
+  }
 
   useMemo(() => {
     loadAttributionIdsWithCount(
       props.workerArgs,
-      props.worker,
+      worker,
       props.title,
       setAttributionIdsWithCountAndResourceId,
       props.getAttributionIdsWithCount,
       props.syncFallbackArgs
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.syncFallbackArgs, props.worker, props.workerArgs]);
+  }, [props.syncFallbackArgs, worker, props.workerArgs]);
 
   let panelData: PanelData;
   if (

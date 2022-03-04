@@ -7,6 +7,7 @@ import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
+import { WorkersContextProvider } from '../WorkersContextProvider/WorkersContextProvider';
 
 const store = createAppStore();
 
@@ -14,7 +15,9 @@ export function AppContainer(): ReactElement {
   return (
     <React.StrictMode>
       <Provider store={store}>
-        <App />
+        <WorkersContextProvider>
+          <App />
+        </WorkersContextProvider>
       </Provider>
     </React.StrictMode>
   );
