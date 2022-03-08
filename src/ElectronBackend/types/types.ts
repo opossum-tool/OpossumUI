@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  Criticality,
   ExternalAttributionSources,
   ProjectMetadata,
   Resources,
@@ -48,6 +49,7 @@ interface RawPackageInfo {
   originId?: string;
   preSelected?: boolean;
   excludeFromNotice?: boolean;
+  criticality?: Criticality;
 }
 
 export interface RawAttributions {

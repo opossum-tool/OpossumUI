@@ -66,6 +66,10 @@
             "type": "string",
             "description": "Additional human-readable comments about the attribution that don't fit into other fields"
           },
+          "criticality": {
+            "type": "string",
+            "description": "Indication on how critical a signal is. Possible values are \"high\" and \"medium\"."
+          },
           "copyright": {
             "type": "string",
             "description": "Copyright of the package"

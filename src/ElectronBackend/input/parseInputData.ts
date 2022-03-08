@@ -8,6 +8,7 @@ import { IpcChannel } from '../../shared/ipc-channels';
 import {
   Attributions,
   BaseUrlsForSources,
+  Criticality,
   FollowUp,
   FrequentLicences,
   Resources,
@@ -124,7 +125,7 @@ export function cleanNonExistentResolvedExternalSignals(
   return resolvedExternalAttributions;
 }
 
-export function sanitizeRawAttributions(
+export function parseRawAttributions(
   rawAttributions: RawAttributions
 ): Attributions {
   for (const attributionId of Object.keys(rawAttributions)) {
@@ -133,6 +134,10 @@ export function sanitizeRawAttributions(
     }
     if (rawAttributions[attributionId]?.comment === '') {
       delete rawAttributions[attributionId].comment;
+    }
+    const criticality = rawAttributions[attributionId]?.criticality;
+    if (criticality && !Object.values(Criticality).includes(criticality)) {
+      delete rawAttributions[attributionId].criticality;
     }
   }
 

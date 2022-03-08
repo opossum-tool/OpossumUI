@@ -13,6 +13,11 @@ export interface Resources {
 export type FollowUp = 'FOLLOW_UP';
 export const FollowUp = 'FOLLOW_UP';
 
+export enum Criticality {
+  High = 'high',
+  Medium = 'medium',
+}
+
 export interface PackageInfo {
   attributionConfidence?: number;
   comment?: string;
@@ -31,6 +36,7 @@ export interface PackageInfo {
   originId?: string;
   preSelected?: boolean;
   excludeFromNotice?: boolean;
+  criticality?: Criticality;
 }
 
 export interface Source {

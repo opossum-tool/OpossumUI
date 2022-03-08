@@ -89,6 +89,7 @@ export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
     originId: 'Origin Attribution ID',
     preSelected: 'pre-selected',
     excludeFromNotice: 'exclude-from-notice',
+    criticality: 'criticality',
   };
 
   const headers: { [key: string]: string } = {};

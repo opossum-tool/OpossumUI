@@ -19,7 +19,7 @@ import { createTempFolder, deleteFolder } from '../../test-helpers';
 const testCsvHeader =
   '"Index";"Confidence";"Comment";"Package Name";"Package Version";"Package Namespace";' +
   '"Package Type";"PURL Appendix";"URL";"Copyright";"License Name";"License Text (truncated)";"Source";"First Party";' +
-  '"Follow-up";"Origin Attribution ID";"pre-selected";"exclude-from-notice";"Resources"';
+  '"Follow-up";"Origin Attribution ID";"pre-selected";"exclude-from-notice";"criticality";"Resources"';
 
 describe('writeCsvToFile', () => {
   test('writeCsvToFile short', async () => {
@@ -46,13 +46,13 @@ describe('writeCsvToFile', () => {
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"/test.file"'
     );
     expect(content).toContain(
-      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm"'
+      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm"'
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/b"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/b"'
     );
     deleteFolder(temporaryPath);
   });
@@ -117,10 +117,10 @@ describe('writeCsvToFile', () => {
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"/test.file"'
     );
     expect(content).toContain(
-      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm\n' +
+      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm\n' +
         '/b"'
     );
     deleteFolder(temporaryPath);
@@ -162,10 +162,10 @@ describe('writeCsvToFile', () => {
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"/test.file"'
     );
     expect(content).toContain(
-      `"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"${expectedResources}"`
+      `"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"${expectedResources}"`
     );
     deleteFolder(temporaryPath);
   });
@@ -451,25 +451,25 @@ describe('writeCsvToFile', () => {
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"/test.file"'
     );
     expect(content).toContain(
-      `"2";"";"";"Fancy name with long license";"";"";"";"";"";"";"";"${expectedLicenseText}";"";"";"";"";"";"";"/a"`
+      `"2";"";"";"Fancy name with long license";"";"";"";"";"";"";"";"${expectedLicenseText}";"";"";"";"";"";"";"";"/a"`
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b"'
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c"'
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.bla"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.bla"'
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.blub"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.blub"'
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/other"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/other"'
     );
     deleteFolder(temporaryPath);
   });

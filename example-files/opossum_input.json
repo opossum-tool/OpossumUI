@@ -140,6 +140,7 @@
       "comment": "TypeScript is great. \nhttps://www.npmjs.com/package/typescript",
       "packageName": "TypeScript",
       "preSelected": true,
+      "criticality": "high",
       "packageVersion": "3.9.6",
       "url": "www.typescriptlang.org",
       "licenseName": "Apache License Version 2.0",
