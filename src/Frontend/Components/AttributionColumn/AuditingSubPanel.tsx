@@ -19,6 +19,7 @@ import { useAttributionColumnStyles } from './shared-attribution-column-styles';
 import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { useAppSelector } from '../../state/hooks';
 import { useCheckboxStyles } from '../../shared-styles';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 
 const useStyles = makeStyles({
   confidenceDropDown: {
@@ -48,6 +49,7 @@ interface AuditingSubPanelProps {
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  showHighlight?: boolean;
 }
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
@@ -102,6 +104,13 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
                 name: `Low (${DiscreteConfidence.Low})`,
               },
             ]}
+            isHighlighted={
+              props.showHighlight &&
+              isImportantAttributionInformationMissing(
+                'attributionConfidence',
+                props.displayPackageInfo
+              )
+            }
           />
         ) : (
           <NumberBox
@@ -115,6 +124,13 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             min={0}
             max={100}
             value={props.displayPackageInfo.attributionConfidence}
+            isHighlighted={
+              props.showHighlight &&
+              isImportantAttributionInformationMissing(
+                'attributionConfidence',
+                props.displayPackageInfo
+              )
+            }
           />
         )}
         {props.displayPackageInfo.source ? (

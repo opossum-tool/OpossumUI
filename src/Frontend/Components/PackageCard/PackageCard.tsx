@@ -56,6 +56,8 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { getKey, getRightIcons } from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { PackageInfo } from '../../../shared/shared-types';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { getPackageInfoKeys } from '../../../shared/shared-util';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -143,6 +145,23 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     };
   }
 
+  function getPackageInfo(currentAttributionId: string): PackageInfo {
+    return currentAttributionId === selectedAttributionId
+      ? temporaryPackageInfo
+      : manualAttributions[currentAttributionId];
+  }
+
+  function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
+    if (!packageInfo) return false;
+    return getPackageInfoKeys().some((attributionProperty) =>
+      isImportantAttributionInformationMissing(attributionProperty, packageInfo)
+    );
+  }
+
+  const highlightedAttribution =
+    selectedView === View.Attribution &&
+    isPackageInfoIncomplete(getPackageInfo(attributionId));
+
   function getContextMenuItems(): Array<ContextMenuItem> {
     function openConfirmDeletionPopup(): void {
       if (isPreselected) {
@@ -160,12 +179,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           openPopup(PopupType.ConfirmDeletionGloballyPopup, attributionId)
         );
       }
-    }
-
-    function getPackageInfo(currentAttributionId: string): PackageInfo {
-      return currentAttributionId === selectedAttributionId
-        ? temporaryPackageInfo
-        : manualAttributions[currentAttributionId];
     }
 
     function confirmAttribution(): void {
@@ -406,6 +419,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             openResourcesIcon
           )}
           leftElement={leftElement}
+          highlightedCard={highlightedAttribution}
         />
       </ContextMenu>
     </div>

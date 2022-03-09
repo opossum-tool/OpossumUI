@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Source } from '../../../shared/shared-types';
-import { AttributionInfo, TableConfig } from '../Table/Table';
+import { AttributionInfo, Source } from '../../../shared/shared-types';
+import { TableConfig } from '../Table/Table';
 import { PathPredicate } from '../../types/types';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 
@@ -40,28 +40,4 @@ export function getFormattedCellData(
   }
 
   return cellData;
-}
-
-export function isMarkedTableCell(
-  config: TableConfig,
-  attributionInfo: AttributionInfo
-): boolean {
-  if (attributionInfo.excludeFromNotice || attributionInfo.firstParty) {
-    return false;
-  }
-  switch (config.attributionProperty) {
-    case 'copyright':
-    case 'licenseName':
-    case 'packageName':
-    case 'packageVersion':
-    case 'url':
-      return !attributionInfo[config.attributionProperty];
-    case 'attributionConfidence':
-      return (
-        !attributionInfo['attributionConfidence'] ||
-        attributionInfo['attributionConfidence'] < 50
-      );
-    default:
-      return false;
-  }
 }

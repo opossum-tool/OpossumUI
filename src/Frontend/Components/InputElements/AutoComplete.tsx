@@ -52,7 +52,10 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
     <div className={props.className}>
       <MuiAutocomplete
         freeSolo
-        classes={{ popper: classes.popper }}
+        classes={{
+          root: props.isHighlighted ? classes.highlightedTextField : undefined,
+          popper: classes.popper,
+        }}
         options={props.options}
         disableClearable={true}
         disabled={!props.isEditable}

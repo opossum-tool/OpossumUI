@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ErrorInfo } from 'react';
-import { AttributionInfo } from '../Frontend/Components/Table/Table';
 
 export interface Resources {
   [resourceName: string]: Resources | 1;
@@ -64,6 +63,10 @@ export interface AttributionData {
   resourcesToAttributions: ResourcesToAttributions;
   attributionsToResources: AttributionsToResources;
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren;
+}
+
+export interface AttributionInfo extends PackageInfo {
+  resources: Array<string>;
 }
 
 export interface AttributionsWithResources {

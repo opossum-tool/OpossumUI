@@ -24,7 +24,11 @@ export function TextBox(props: TextProps): ReactElement {
     <div className={props.className}>
       <MuiTextField
         disabled={!props.isEditable}
-        className={clsx(props.textFieldClassname, classes.textField)}
+        className={clsx(
+          props.textFieldClassname,
+          classes.textField,
+          props.isHighlighted && classes.highlightedTextField
+        )}
         label={props.title}
         InputProps={{
           inputProps: {

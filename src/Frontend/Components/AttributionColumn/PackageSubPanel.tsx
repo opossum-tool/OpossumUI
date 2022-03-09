@@ -17,6 +17,7 @@ import { makeStyles } from '@mui/styles';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { SearchPackagesIcon } from '../Icons/Icons';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 
 const useStyles = makeStyles({ clickableIcon, disabledIcon });
 
@@ -31,6 +32,7 @@ interface PackageSubPanelProps {
   temporaryPurl: string;
   handlePurlChange(event: React.ChangeEvent<{ value: string }>): void;
   openPackageSearchPopup(): void;
+  showHighlight?: boolean;
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
@@ -78,6 +80,13 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               }
             />
           }
+          isHighlighted={
+            props.showHighlight &&
+            isImportantAttributionInformationMissing(
+              'packageName',
+              props.displayPackageInfo
+            )
+          }
         />
         <TextBox
           className={clsx(classes.textBox, classes.rightTextBox)}
@@ -87,6 +96,13 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             'packageVersion'
           )}
           isEditable={props.nameAndVersionAreEditable}
+          isHighlighted={
+            props.showHighlight &&
+            isImportantAttributionInformationMissing(
+              'packageVersion',
+              props.displayPackageInfo
+            )
+          }
         />
       </div>
       <TextBox
@@ -129,6 +145,13 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               }
             />
           </>
+        }
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'url',
+            props.displayPackageInfo
+          )
         }
       />
     </MuiPaper>

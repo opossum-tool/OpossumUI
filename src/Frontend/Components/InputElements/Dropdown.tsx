@@ -7,6 +7,7 @@ import React, { ReactElement } from 'react';
 import { InputElementProps, useInputElementStyles } from './shared';
 import MuiTextField from '@mui/material/TextField';
 import MuiMenuItem from '@mui/material/MenuItem';
+import clsx from 'clsx';
 
 interface DropdownProps extends InputElementProps {
   value: number;
@@ -39,7 +40,10 @@ export function Dropdown(props: DropdownProps): ReactElement {
     <div className={props.className}>
       <MuiTextField
         disabled={!props.isEditable}
-        className={classes.textField}
+        className={clsx(
+          classes.textField,
+          props.isHighlighted && classes.highlightedTextField
+        )}
         select
         label={props.title}
         InputProps={{
