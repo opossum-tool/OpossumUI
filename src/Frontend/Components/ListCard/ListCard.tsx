@@ -7,8 +7,10 @@ import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { OpossumColors } from '../../shared-styles';
+import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
+import { Criticality } from '../../../shared/shared-types';
+import MuiTooltip from '@mui/material/Tooltip';
 
 const defaultCardHeight = 40;
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
@@ -110,6 +112,58 @@ const useStyles = makeStyles({
   resolved: {
     opacity: 0.5,
   },
+  criticalMedium: {
+    border: packageBorder,
+    background: getHighlightedBackground(
+      OpossumColors.lightOrange,
+      defaultBackgroundColor
+    ),
+    '&:hover': {
+      background: getHighlightedBackground(
+        OpossumColors.lightOrangeOnHover,
+        hoveredBackgroundColor
+      ),
+    },
+  },
+  criticalMediumSelected: {
+    border: packageBorder,
+    background: getHighlightedBackground(
+      OpossumColors.lightOrange,
+      OpossumColors.middleBlue
+    ),
+    '&:hover': {
+      background: getHighlightedBackground(
+        OpossumColors.lightOrangeOnHover,
+        hoveredSelectedBackgroundColor
+      ),
+    },
+  },
+  criticalHigh: {
+    border: packageBorder,
+    background: getHighlightedBackground(
+      OpossumColors.orange,
+      defaultBackgroundColor
+    ),
+    '&:hover': {
+      background: getHighlightedBackground(
+        OpossumColors.orangeOnHover,
+        hoveredBackgroundColor
+      ),
+    },
+  },
+  criticalHighSelected: {
+    border: packageBorder,
+    background: getHighlightedBackground(
+      OpossumColors.orange,
+      OpossumColors.middleBlue
+    ),
+    '&:hover': {
+      background: getHighlightedBackground(
+        OpossumColors.orangeOnHover,
+        hoveredSelectedBackgroundColor
+      ),
+    },
+  },
   textShortened: {
     overflowY: 'auto',
     textOverflow: 'ellipsis',
@@ -176,6 +230,7 @@ const useStyles = makeStyles({
       background: OpossumColors.white,
     },
   },
+  tooltip: tooltipStyle,
 });
 
 interface ListCardProps {
@@ -205,7 +260,21 @@ export function ListCard(props: ListCardProps): ReactElement | null {
     }
   }
 
-  return (
+  function wrapInTooltip(children: ReactElement): ReactElement {
+    return props.cardConfig.criticality ? (
+      <MuiTooltip
+        classes={{ tooltip: classes.tooltip }}
+        title={`has criticality ${props.cardConfig.criticality}`}
+        placement="left"
+      >
+        {children}
+      </MuiTooltip>
+    ) : (
+      <span>{children}</span>
+    );
+  }
+
+  return wrapInTooltip(
     <div
       className={clsx(
         classes.root,
@@ -221,13 +290,23 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           : null,
         props.cardConfig.isHeader ? classes.header : classes.hover,
         props.cardConfig.isSelected
-          ? props.cardConfig.isContextMenuOpen
+          ? props.cardConfig.criticality === Criticality.High
+            ? classes.criticalHighSelected
+            : props.cardConfig.criticality === Criticality.Medium
+            ? classes.criticalMediumSelected
+            : props.cardConfig.isContextMenuOpen
             ? classes.hoveredSelected
             : props.highlightedCard
             ? classes.highlightedSelected
             : classes.selected
           : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
+        props.cardConfig.isResolved && classes.resolved,
+        props.cardConfig.criticality === Criticality.High
+          ? classes.criticalHigh
+          : props.cardConfig.criticality === Criticality.Medium
+          ? classes.criticalMedium
+          : null,
         props.cardConfig.isResolved && classes.resolved,
         props.highlightedCard && classes.highlightedPackage
       )}

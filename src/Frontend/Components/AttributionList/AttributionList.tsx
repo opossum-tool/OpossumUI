@@ -66,6 +66,9 @@ export function AttributionList(props: AttributionListProps): ReactElement {
       firstParty: attribution.firstParty,
       excludeFromNotice: attribution.excludeFromNotice,
       followUp: Boolean(attribution.followUp),
+      criticality: attribution.preSelected
+        ? attribution.criticality
+        : undefined,
     };
 
     return (

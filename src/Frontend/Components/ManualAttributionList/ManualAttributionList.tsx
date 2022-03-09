@@ -57,6 +57,9 @@ export function ManualAttributionList(
       firstParty: attribution.firstParty,
       excludeFromNotice: attribution.excludeFromNotice,
       followUp: Boolean(attribution.followUp),
+      criticality: attribution.preSelected
+        ? attribution.criticality
+        : undefined,
     };
 
     return (
