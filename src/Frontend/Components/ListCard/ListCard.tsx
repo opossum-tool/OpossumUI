@@ -89,12 +89,12 @@ const useStyles = makeStyles({
   },
   highlightedSelected: {
     background: getHighlightedBackground(
-      OpossumColors.middleOrange,
+      OpossumColors.lightOrange,
       OpossumColors.middleBlue
     ),
     '&:hover': {
       background: getHighlightedBackground(
-        OpossumColors.middleOrangeOnHover,
+        OpossumColors.lightOrangeOnHover,
         hoveredSelectedBackgroundColor
       ),
     },
