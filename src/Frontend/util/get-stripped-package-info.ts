@@ -15,6 +15,7 @@ export function getStrippedPackageInfo(
   );
   delete strippedTemporaryPackageInfo.source;
   delete strippedTemporaryPackageInfo.preSelected;
+  delete strippedTemporaryPackageInfo.criticality;
 
   return removeExcessProperties(strippedTemporaryPackageInfo);
 }

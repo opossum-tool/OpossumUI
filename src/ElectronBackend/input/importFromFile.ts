@@ -17,10 +17,10 @@ import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalSignals,
   parseFrequentLicenses,
-  sanitizeRawAttributions,
+  parseRawAttributions,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
-} from './cleanInputData';
+} from './parseInputData';
 import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
 import {
   GlobalBackendState,
@@ -62,7 +62,7 @@ export async function loadJsonFromFilePath(
   }
 
   log.info('... Successfully parsed input file.');
-  const externalAttributions = sanitizeRawAttributions(
+  const externalAttributions = parseRawAttributions(
     parsingResult.externalAttributions
   );
 
@@ -85,7 +85,7 @@ export async function loadJsonFromFilePath(
 
   log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
   const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
-  const manualAttributions = sanitizeRawAttributions(
+  const manualAttributions = parseRawAttributions(
     opossumOutputData.manualAttributions
   );
   log.info('... Successfully parsed output file.');

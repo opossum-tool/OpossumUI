@@ -15,6 +15,7 @@ export function packageInfoHasNoSignificantFields(
   delete packageInfoWithSignificantFields.originId;
   delete packageInfoWithSignificantFields.preSelected;
   delete packageInfoWithSignificantFields.excludeFromNotice;
+  delete packageInfoWithSignificantFields.criticality;
   delete packageInfoWithSignificantFields.source;
   return isEmpty(packageInfoWithSignificantFields);
 }

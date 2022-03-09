@@ -7,6 +7,7 @@ import { WebContents } from 'electron';
 import {
   Attributions,
   AttributionsToResources,
+  Criticality,
   FollowUp,
   FrequentLicences,
   Resources,
@@ -17,10 +18,10 @@ import {
   cleanNonExistentResolvedExternalSignals,
   getAllResourcePaths,
   parseFrequentLicenses,
-  sanitizeRawAttributions,
+  parseRawAttributions,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
-} from '../cleanInputData';
+} from '../parseInputData';
 import {
   RawAttributions,
   RawBaseUrlsForSources,
@@ -95,9 +96,7 @@ describe('sanitizeRawAttributions', () => {
       },
     };
 
-    expect(sanitizeRawAttributions(rawAttributions)).toEqual(
-      expectedAttributions
-    );
+    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
   });
 
   test('removes unknown strings from followUp', () => {
@@ -110,9 +109,7 @@ describe('sanitizeRawAttributions', () => {
       id: {},
     };
 
-    expect(sanitizeRawAttributions(rawAttributions)).toEqual(
-      expectedAttributions
-    );
+    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
   });
 
   test('leaves non-empty comment unchanged', () => {
@@ -127,9 +124,7 @@ describe('sanitizeRawAttributions', () => {
       },
     };
 
-    expect(sanitizeRawAttributions(rawAttributions)).toEqual(
-      expectedAttributions
-    );
+    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
   });
 
   test('removes empty comment', () => {
@@ -142,9 +137,35 @@ describe('sanitizeRawAttributions', () => {
       id: {},
     };
 
-    expect(sanitizeRawAttributions(rawAttributions)).toEqual(
-      expectedAttributions
-    );
+    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+  });
+
+  test('leaves criticality unchanged', () => {
+    const rawAttributions: RawAttributions = {
+      id: {
+        criticality: 'high' as Criticality,
+      },
+    };
+    const expectedAttributions: Attributions = {
+      id: {
+        criticality: Criticality.High,
+      },
+    };
+
+    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+  });
+
+  test('removes empty comment', () => {
+    const rawAttributions: RawAttributions = {
+      id: {
+        criticality: 'invalid value' as Criticality,
+      },
+    };
+    const expectedAttributions: Attributions = {
+      id: {},
+    };
+
+    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
   });
 });
 

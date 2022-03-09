@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import each from 'jest-each';
-import { FollowUp, PackageInfo } from '../../../shared/shared-types';
+import {
+  Criticality,
+  FollowUp,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { packageInfoHasNoSignificantFields } from '../package-info-has-no-significant-fields';
 
 describe('The test package', () => {
@@ -15,6 +19,7 @@ describe('The test package', () => {
     { originId: 'another-uuid', attributionConfidence: 100 },
     { followUp: FollowUp },
     { excludeFromNotice: true },
+    { criticality: Criticality.Medium },
     {
       source: {
         name: 'test name',

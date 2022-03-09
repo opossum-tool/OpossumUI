@@ -8,6 +8,7 @@ import { BrowserWindow, dialog } from 'electron';
 import path from 'path';
 import upath from 'upath';
 import {
+  Criticality,
   FollowUp,
   PackageInfo,
   ParsedFileContent,
@@ -81,6 +82,7 @@ const inputFileContent: ParsedOpossumInputFile = {
       copyright: '(c) first party',
       firstParty: true,
       excludeFromNotice: true,
+      criticality: Criticality.High,
     },
   },
   frequentLicenses: [
@@ -126,6 +128,7 @@ const expectedFileContent: ParsedFileContent = {
         copyright: '(c) first party',
         excludeFromNotice: true,
         firstParty: true,
+        criticality: Criticality.High,
       },
     },
     resourcesToAttributions: {

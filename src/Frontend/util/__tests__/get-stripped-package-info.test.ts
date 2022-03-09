@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { getStrippedPackageInfo } from '../get-stripped-package-info';
 
 describe('The getStrippedPackageInfo function', () => {
@@ -36,6 +36,17 @@ describe('The getStrippedPackageInfo function', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       preSelected: true,
+    };
+
+    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
+      packageName: 'React',
+    });
+  });
+
+  test('strips criticality ', () => {
+    const testPackageInfo: PackageInfo = {
+      packageName: 'React',
+      criticality: Criticality.High,
     };
 
     expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
