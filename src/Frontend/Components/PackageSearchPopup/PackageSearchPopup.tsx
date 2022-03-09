@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -22,6 +23,7 @@ import MuiTypography from '@mui/material/Typography';
 const useStyles = makeStyles({
   root: {
     minWidth: '300px',
+    marginTop: 5,
   },
   packages: {
     margin: '0px 10px 0px 10px',
