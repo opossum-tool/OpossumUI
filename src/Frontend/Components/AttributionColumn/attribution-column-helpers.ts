@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -224,15 +225,20 @@ export function usePurl(
     temporaryPackageInfo,
   ]);
 
-  useEffect(() => {
-    setTemporaryPurl(generatePurlFromPackageInfo(displayPackageInfo) || '');
-    // Dependency for displayPackageInfo is not included because otherwise displayed purl will be regenerated after every new input
+  useEffect(
+    () => {
+      setTemporaryPurl(generatePurlFromPackageInfo(displayPackageInfo) || '');
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    selectedPackage?.panel,
-    selectedPackage?.attributionId,
-    selectedAttributionId,
-  ]);
+    [
+      selectedPackage?.panel,
+      selectedPackage?.attributionId,
+      selectedAttributionId,
+      displayPackageInfo.packageType,
+      displayPackageInfo.packageNamespace,
+      displayPackageInfo.packageName,
+    ]
+  );
 
   function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
     const enteredPurl = event.target.value;

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -27,7 +28,8 @@ export function getTargetView(state: State): View | null {
 }
 
 export function getOpenPopup(state: State): null | PopupType {
-  return state.viewState.popupInfo?.popup || null;
+  const popup = state.viewState.popupInfo.slice(-1);
+  return popup.length === 1 ? popup[0].popup : null;
 }
 
 export function getActiveFilters(state: State): Set<FilterType> {
@@ -35,5 +37,6 @@ export function getActiveFilters(state: State): Set<FilterType> {
 }
 
 export function getPopupAttributionId(state: State): string | null {
-  return state.viewState.popupInfo?.attributionId || null;
+  const popup = state.viewState.popupInfo.slice(-1);
+  return popup.length === 1 ? popup[0].attributionId ?? null : null;
 }

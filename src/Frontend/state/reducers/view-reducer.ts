@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -19,14 +20,14 @@ import { getUpdatedFilters } from '../helpers/set-filters';
 export interface ViewState {
   view: View;
   targetView: View | null;
-  popupInfo: PopupInfo | null;
+  popupInfo: Array<PopupInfo>;
   activeFilters: Set<FilterType>;
 }
 
 export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
-  popupInfo: null,
+  popupInfo: [],
   activeFilters: new Set<FilterType>(),
 };
 
@@ -50,12 +51,12 @@ export function viewState(
     case ACTION_CLOSE_POPUP:
       return {
         ...state,
-        popupInfo: null,
+        popupInfo: state.popupInfo.slice(0, -1),
       };
     case ACTION_OPEN_POPUP:
       return {
         ...state,
-        popupInfo: action.payload,
+        popupInfo: state.popupInfo.concat(action.payload),
       };
     case ACTION_UPDATE_ACTIVE_FILTERS:
       return {

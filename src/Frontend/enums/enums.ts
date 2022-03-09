@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -20,6 +21,7 @@ export enum PopupType {
   ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
   ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',
   EditAttributionPopup = 'EditAttributionPopup',
+  PackageSearchPopup = 'PackageSearchPopup',
 }
 
 export enum SavePackageInfoOperation {

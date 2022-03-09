@@ -255,6 +255,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           props.setUpdateTemporaryPackageInfoFor
         }
         temporaryPurl={temporaryPurl}
+        openPackageSearchPopup={(): void => {
+          dispatch(openPopup(PopupType.PackageSearchPopup));
+        }}
       />
       <CopyrightSubPanel
         setUpdateTemporaryPackageInfoFor={
