@@ -22,6 +22,7 @@ export const useInputElementStyles = makeStyles({
     '& label': {
       backgroundColor: OpossumColors.white,
       padding: '1px 3px',
+      fontSize: '13px',
     },
     '& span': {
       padding: 0,
