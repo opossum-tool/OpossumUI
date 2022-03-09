@@ -9,14 +9,12 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   Attributions,
   AttributionsToResources,
-  AttributionsWithResources,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import {
   getFilesWithChildren,
-  getFrequentLicensesTexts,
   getManualAttributions,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -44,7 +42,6 @@ export function ReportView(): ReactElement {
   const attributionsToResources: AttributionsToResources = useAppSelector(
     getManualAttributionsToResources
   );
-  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
   const dispatch = useAppDispatch();
@@ -54,33 +51,6 @@ export function ReportView(): ReactElement {
     attributionsToResources
   );
 
-  function getAttributionsWithResourcesIncludingLicenseTexts(): AttributionsWithResources {
-    return Object.fromEntries(
-      Object.entries(attributionsWithResources).map(
-        ([uuid, attributionInfo]) => {
-          const isFrequentLicenseAndHasNoText =
-            attributionInfo.licenseName &&
-            !attributionInfo.licenseText &&
-            Object.keys(frequentLicenseTexts).includes(
-              attributionInfo.licenseName
-            );
-
-          if (attributionInfo.licenseName && isFrequentLicenseAndHasNoText) {
-            return [
-              uuid,
-              {
-                ...attributionInfo,
-                licenseText: frequentLicenseTexts[attributionInfo.licenseName],
-              },
-            ];
-          } else {
-            return [uuid, attributionInfo];
-          }
-        }
-      )
-    );
-  }
-
   function getOnIconClick(): (attributionId: string) => void {
     return (attributionId): void => {
       dispatch(openPopup(PopupType.EditAttributionPopup, attributionId));
@@ -88,15 +58,10 @@ export function ReportView(): ReactElement {
     };
   }
 
-  const attributionsWithResourcesIncludingLicenseTexts =
-    getAttributionsWithResourcesIncludingLicenseTexts();
-
   return (
     <div className={classes.root}>
       <Table
-        attributionsWithResources={useFilters(
-          attributionsWithResourcesIncludingLicenseTexts
-        )}
+        attributionsWithResources={useFilters(attributionsWithResources)}
         isFileWithChildren={isFileWithChildren}
         onIconClick={getOnIconClick()}
         topElement={<FilterMultiSelect className={classes.multiselect} />}

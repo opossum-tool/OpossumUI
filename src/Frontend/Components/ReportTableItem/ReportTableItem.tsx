@@ -167,31 +167,24 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     config: TableConfig,
     index: number
   ): ReactElement {
+    const hasFrequentLicenseName =
+      attributionInfo.licenseName &&
+      Object.keys(frequentLicenseTexts).includes(attributionInfo.licenseName);
+    const isFrequentLicenseAndHasNoText =
+      hasFrequentLicenseName && !attributionInfo.licenseText;
+    const displayAttributionInfo =
+      attributionInfo.licenseName && isFrequentLicenseAndHasNoText
+        ? {
+            ...attributionInfo,
+            licenseText: frequentLicenseTexts[attributionInfo.licenseName],
+          }
+        : attributionInfo;
+
     const cellData = getFormattedCellData(
       config,
-      attributionInfo,
+      displayAttributionInfo,
       props.isFileWithChildren
     );
-
-    const hasFrequentLicenseName = (): boolean => {
-      if (attributionInfo.licenseName) {
-        return Object.keys(frequentLicenseTexts).includes(
-          attributionInfo.licenseName
-        );
-      }
-      return false;
-    };
-
-    const hasFrequentLicenseText = (): boolean => {
-      if (attributionInfo.licenseName) {
-        return (
-          hasFrequentLicenseName() &&
-          attributionInfo.licenseText ===
-            frequentLicenseTexts[attributionInfo.licenseName]
-        );
-      }
-      return false;
-    };
 
     return (
       <div
@@ -230,10 +223,10 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
               CELLS_WITHOUT_TEXT_WRAP.includes(config.attributionProperty) &&
                 classes.noWrap,
               config.attributionProperty === 'licenseName' &&
-                hasFrequentLicenseName() &&
+                hasFrequentLicenseName &&
                 classes.bold,
               config.attributionProperty === 'licenseText' &&
-                hasFrequentLicenseText() &&
+                isFrequentLicenseAndHasNoText &&
                 classes.greyText
             )}
             component={'div'}
