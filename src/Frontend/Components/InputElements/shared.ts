@@ -34,6 +34,16 @@ export const useInputElementStyles = makeStyles({
       },
     },
   },
+  highlightedTextField: {
+    '& div': {
+      backgroundColor: OpossumColors.lightOrange,
+      borderRadius: 0,
+    },
+    '& label': {
+      backgroundColor: OpossumColors.lightOrange,
+      padding: '1px 3px',
+    },
+  },
   popper: {
     '& div': {
       fontWeight: 'bold',
@@ -49,4 +59,5 @@ export interface InputElementProps {
   handleChange(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void;
+  isHighlighted?: boolean;
 }

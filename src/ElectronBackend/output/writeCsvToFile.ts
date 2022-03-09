@@ -7,11 +7,11 @@ import * as csv from 'fast-csv';
 import { CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
 import {
+  AttributionInfo,
   Attributions,
   AttributionsWithResources,
   PackageInfo,
 } from '../../shared/shared-types';
-import { AttributionInfo } from '../../Frontend/Components/Table/Table';
 import { KeysOfAttributionInfo } from '../types/types';
 
 const CUT_OFF_LENGTH = 30000;

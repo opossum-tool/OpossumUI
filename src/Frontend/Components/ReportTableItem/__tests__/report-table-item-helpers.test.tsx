@@ -3,12 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionInfo, TableConfig } from '../../Table/Table';
-import {
-  getFormattedCellData,
-  isMarkedTableCell,
-} from '../report-table-item-helpers';
-import { FollowUp } from '../../../../shared/shared-types';
+import { TableConfig } from '../../Table/Table';
+import { getFormattedCellData } from '../report-table-item-helpers';
+import { AttributionInfo, FollowUp } from '../../../../shared/shared-types';
+import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
 
 describe('The table helpers', () => {
   const testPathOfFileWithChildren = '/test/path/';
@@ -133,26 +131,35 @@ describe('The table helpers', () => {
       resources: ['1'],
     };
 
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      true
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(true);
 
     testAttributionInfo = {
       resources: ['1'],
     };
 
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      true
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(true);
 
     testAttributionInfo = {
       [property]: 'test',
       resources: ['1'],
     };
 
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      false
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(false);
   });
 
   test('isMarkedTableCell handles attributionConfidence correctly', () => {
@@ -166,26 +173,35 @@ describe('The table helpers', () => {
       resources: ['1'],
     };
 
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      true
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(true);
 
     testAttributionInfo = {
       resources: ['1'],
     };
 
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      true
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(true);
 
     testAttributionInfo = {
       attributionConfidence: 50,
       resources: ['1'],
     };
 
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      false
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(false);
   });
 
   test('isMarkedTableCell does not mark first party or excluded attributions', () => {
@@ -197,33 +213,45 @@ describe('The table helpers', () => {
     let testAttributionInfo: AttributionInfo = {
       resources: ['1'],
     };
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      true
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(true);
 
     testAttributionInfo = {
       resources: ['1'],
       firstParty: true,
     };
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      false
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(false);
 
     testAttributionInfo = {
       resources: ['1'],
       excludeFromNotice: true,
     };
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      false
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(false);
 
     testAttributionInfo = {
       resources: ['1'],
       firstParty: false,
       excludeFromNotice: false,
     };
-    expect(isMarkedTableCell(testTableConfig, testAttributionInfo)).toEqual(
-      true
-    );
+    expect(
+      isImportantAttributionInformationMissing(
+        testTableConfig.attributionProperty,
+        testAttributionInfo
+      )
+    ).toEqual(true);
   });
 });

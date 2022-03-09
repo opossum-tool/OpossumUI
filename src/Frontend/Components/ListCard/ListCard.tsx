@@ -16,6 +16,19 @@ const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
 const defaultBackgroundColor = OpossumColors.lightestBlue;
 const packageBorder = `1px ${OpossumColors.white} solid`;
 
+const getHighlightedBackground = (
+  highlightColor: string,
+  backgroundColor: string
+): string => {
+  return (
+    'linear-gradient(225deg, ' +
+    highlightColor +
+    ' 44.5px, ' +
+    backgroundColor +
+    ' 0) 0 0/100% 40px no-repeat'
+  );
+};
+
 const useStyles = makeStyles({
   root: {
     flex: 1,
@@ -39,6 +52,19 @@ const useStyles = makeStyles({
       background: hoveredBackgroundColor,
     },
   },
+  highlightedPackage: {
+    border: packageBorder,
+    background: getHighlightedBackground(
+      OpossumColors.lightOrange,
+      defaultBackgroundColor
+    ),
+    '&:hover': {
+      background: getHighlightedBackground(
+        OpossumColors.lightOrangeOnHover,
+        hoveredBackgroundColor
+      ),
+    },
+  },
   externalAttribution: {
     background: defaultBackgroundColor,
     '&:hover': {
@@ -59,6 +85,18 @@ const useStyles = makeStyles({
     background: OpossumColors.middleBlue,
     '&:hover': {
       background: hoveredSelectedBackgroundColor,
+    },
+  },
+  highlightedSelected: {
+    background: getHighlightedBackground(
+      OpossumColors.lightOrange,
+      OpossumColors.middleBlue
+    ),
+    '&:hover': {
+      background: getHighlightedBackground(
+        OpossumColors.lightOrangeOnHover,
+        hoveredSelectedBackgroundColor
+      ),
     },
   },
   hoveredSelected: {
@@ -149,6 +187,7 @@ interface ListCardProps {
   leftIcon?: JSX.Element;
   rightIcons?: Array<JSX.Element>;
   leftElement?: JSX.Element;
+  highlightedCard?: boolean;
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
@@ -184,10 +223,13 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         props.cardConfig.isSelected
           ? props.cardConfig.isContextMenuOpen
             ? classes.hoveredSelected
+            : props.highlightedCard
+            ? classes.highlightedSelected
             : classes.selected
           : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
-        props.cardConfig.isResolved && classes.resolved
+        props.cardConfig.isResolved && classes.resolved,
+        props.highlightedCard && classes.highlightedPackage
       )}
     >
       {props.leftElement ? props.leftElement : null}

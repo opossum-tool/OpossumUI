@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import { useAttributionColumnStyles } from './shared-attribution-column-styles';
 import { useAppSelector } from '../../state/hooks';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 
 const useStyles = makeStyles({
   expansionPanel: {
@@ -60,6 +61,7 @@ interface LicenseSubPanelProps {
   isLicenseTextShown: boolean;
   licenseTextRows: number;
   setIsLicenseTextShown(isLicenseTextShown: boolean): void;
+  showHighlight?: boolean;
 }
 
 export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
@@ -106,6 +108,13 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
               props.displayPackageInfo.licenseText
                 ? '(Licence text modified)'
                 : ''
+            }
+            isHighlighted={
+              props.showHighlight &&
+              isImportantAttributionInformationMissing(
+                'licenseName',
+                props.displayPackageInfo
+              )
             }
           />
         </MuiAccordionSummary>

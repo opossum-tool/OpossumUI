@@ -4,10 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import {
-  getFormattedCellData,
-  isMarkedTableCell,
-} from './report-table-item-helpers';
+import { getFormattedCellData } from './report-table-item-helpers';
 import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
 import {
@@ -17,14 +14,15 @@ import {
   FollowUpIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
-import { AttributionInfo, TableConfig, tableConfigs } from '../Table/Table';
+import { TableConfig, tableConfigs } from '../Table/Table';
 import makeStyles from '@mui/styles/makeStyles';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { useStylesReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
-import { Source } from '../../../shared/shared-types';
+import { AttributionInfo, Source } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
 import EditorIcon from '@mui/icons-material/Edit';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 
 export const reportTableRowHeight = 190;
 const padding = 10;
@@ -163,7 +161,13 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           classes.scrollableTableCell,
           config.attributionProperty === 'icons'
             ? [classes.iconTableCell]
-            : [classes.tableCell],
+            : [
+                classes.tableCell,
+                isImportantAttributionInformationMissing(
+                  config.attributionProperty,
+                  attributionInfo
+                ) && classes.markedTableCell,
+              ],
           config.width === 'small'
             ? classes.smallTableCell
             : config.width === 'wide'
@@ -172,8 +176,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
             ? classes.mediumTableCell
             : config.width === 'verySmall'
             ? classes.verySmallTableCell
-            : undefined,
-          isMarkedTableCell(config, attributionInfo) && classes.markedTableCell
+            : undefined
         )}
         key={`table-row-${config.attributionProperty}-${index}`}
       >

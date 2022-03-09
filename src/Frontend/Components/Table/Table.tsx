@@ -6,8 +6,8 @@
 import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement, useMemo } from 'react';
 import {
+  AttributionInfo,
   AttributionsWithResources,
-  PackageInfo,
 } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
 import {
@@ -106,10 +106,6 @@ export const tableConfigs: Array<TableConfig> = [
     width: 'small',
   },
 ];
-
-export interface AttributionInfo extends PackageInfo {
-  resources: Array<string>;
-}
 
 interface TableProps {
   attributionsWithResources: AttributionsWithResources;

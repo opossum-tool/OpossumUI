@@ -243,6 +243,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     props.saveFileRequestListener,
   ]);
 
+  const showHighlight =
+    view === View.Attribution &&
+    !props.displayPackageInfo.firstParty &&
+    !props.displayPackageInfo.excludeFromNotice;
+
   return (
     <div className={clsx(classes.root)}>
       <PackageSubPanel
@@ -258,6 +263,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         openPackageSearchPopup={(): void => {
           dispatch(openPopup(PopupType.PackageSearchPopup));
         }}
+        showHighlight={showHighlight}
       />
       <CopyrightSubPanel
         setUpdateTemporaryPackageInfoFor={
@@ -266,6 +272,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         isEditable={props.isEditable}
         displayPackageInfo={props.displayPackageInfo}
         copyrightRows={copyrightRows}
+        showHighlight={showHighlight}
       />
       <LicenseSubPanel
         isLicenseTextShown={isLicenseTextShown}
@@ -276,6 +283,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         }
         licenseTextRows={licenseTextRows}
         setIsLicenseTextShown={setIsLicenseTextShown}
+        showHighlight={showHighlight}
       />
       <AuditingSubPanel
         commentRows={commentRows}
@@ -301,6 +309,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           dispatch
         )}
         showManualAttributionData={props.showManualAttributionData}
+        showHighlight={showHighlight}
       />
       <ButtonRow
         showButtonGroup={props.showManualAttributionData}

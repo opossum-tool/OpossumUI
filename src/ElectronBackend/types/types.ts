@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  AttributionInfo,
   Attributions,
   Criticality,
   ExternalAttributionSources,
@@ -12,7 +13,6 @@ import {
   ResourcesToAttributions,
   Source,
 } from '../../shared/shared-types';
-import { AttributionInfo } from '../../Frontend/Components/Table/Table';
 
 export interface JsonParsingError {
   message: string;
