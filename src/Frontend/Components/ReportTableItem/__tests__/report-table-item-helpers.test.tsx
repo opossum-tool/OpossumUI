@@ -120,49 +120,52 @@ describe('The table helpers', () => {
     ${'packageName'}
     ${'url'}
     ${'packageVersion'}
-  `('isMarkedTableCell handles $property correctly', ({ property }) => {
-    const testTableConfig: TableConfig = {
-      attributionProperty: property,
-      displayName: 'Follow-up',
-    };
+  `(
+    'isImportantAttributionInformationMissing handles $property correctly',
+    ({ property }) => {
+      const testTableConfig: TableConfig = {
+        attributionProperty: property,
+        displayName: 'Follow-up',
+      };
 
-    let testAttributionInfo: AttributionInfo = {
-      [property]: '',
-      resources: ['1'],
-    };
+      let testAttributionInfo: AttributionInfo = {
+        [property]: '',
+        resources: ['1'],
+      };
 
-    expect(
-      isImportantAttributionInformationMissing(
-        testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
-    ).toEqual(true);
+      expect(
+        isImportantAttributionInformationMissing(
+          testTableConfig.attributionProperty,
+          testAttributionInfo
+        )
+      ).toEqual(true);
 
-    testAttributionInfo = {
-      resources: ['1'],
-    };
+      testAttributionInfo = {
+        resources: ['1'],
+      };
 
-    expect(
-      isImportantAttributionInformationMissing(
-        testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
-    ).toEqual(true);
+      expect(
+        isImportantAttributionInformationMissing(
+          testTableConfig.attributionProperty,
+          testAttributionInfo
+        )
+      ).toEqual(true);
 
-    testAttributionInfo = {
-      [property]: 'test',
-      resources: ['1'],
-    };
+      testAttributionInfo = {
+        [property]: 'test',
+        resources: ['1'],
+      };
 
-    expect(
-      isImportantAttributionInformationMissing(
-        testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
-    ).toEqual(false);
-  });
+      expect(
+        isImportantAttributionInformationMissing(
+          testTableConfig.attributionProperty,
+          testAttributionInfo
+        )
+      ).toEqual(false);
+    }
+  );
 
-  test('isMarkedTableCell handles attributionConfidence correctly', () => {
+  test('isImportantAttributionInformationMissing handles attributionConfidence correctly', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'attributionConfidence',
       displayName: 'Follow-up',
@@ -204,7 +207,7 @@ describe('The table helpers', () => {
     ).toEqual(false);
   });
 
-  test('isMarkedTableCell does not mark first party or excluded attributions', () => {
+  test('isImportantAttributionInformationMissing does not mark first party or excluded attributions', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'licenseName',
       displayName: 'Unimportant',

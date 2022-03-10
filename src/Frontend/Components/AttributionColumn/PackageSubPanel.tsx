@@ -114,6 +114,13 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
         text={props.temporaryPurl}
         handleChange={props.handlePurlChange}
         isEditable={props.isEditable}
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'packageNamespace',
+            props.displayPackageInfo
+          )
+        }
       />
       <TextBox
         isEditable={props.isEditable}

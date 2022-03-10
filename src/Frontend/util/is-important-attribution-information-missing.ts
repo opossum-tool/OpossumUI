@@ -5,6 +5,14 @@
 
 import { AttributionInfo } from '../../shared/shared-types';
 
+const TYPES_REQUIRING_NAMESPACE = [
+  'bitbucket',
+  'composer',
+  'deb',
+  'golang',
+  'github',
+  'maven',
+];
 interface ExtendedAttributionInfo extends AttributionInfo {
   icons: unknown;
 }
@@ -30,7 +38,26 @@ export function isImportantAttributionInformationMissing(
         !extendedAttributionInfo['attributionConfidence'] ||
         extendedAttributionInfo['attributionConfidence'] < 50
       );
+    case 'packageNamespace':
+      return isNamespaceRequiredButMissing(
+        extendedAttributionInfo['packageType'],
+        extendedAttributionInfo[attributionProperty]
+      );
     default:
       return false;
   }
+}
+
+function isNamespaceRequiredButMissing(
+  packageType?: string,
+  packageNamespace?: string
+): boolean {
+  if (
+    packageType &&
+    TYPES_REQUIRING_NAMESPACE.includes(packageType) &&
+    !packageNamespace
+  ) {
+    return true;
+  }
+  return false;
 }
