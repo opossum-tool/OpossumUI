@@ -8,7 +8,7 @@
   "dependencies": {
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.5.0",
+    "@mui/icons-material": "^5.5.1",
     "@mui/lab": "^5.0.0-alpha.72",
     "@mui/material": "^5.5.0",
     "@mui/styles": "^5.5.0",
@@ -74,7 +74,7 @@
     "lint-staged": "^12.3.5",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
-    "playwright": "^1.19.2",
+    "playwright": "^1.20.0",
     "prettier": "^2.5.1",
     "react-scripts": "5.0.0",
     "redux-devtools-extension": "^2.13.9",
