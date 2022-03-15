@@ -30,7 +30,7 @@ describe('The ResourceDetailsTabs', () => {
 
     const { store } = renderComponentWithStore(
       <ResourceDetailsTabs
-        isAllAttributionsTabEnabled={true}
+        isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
       />
     );
@@ -48,10 +48,10 @@ describe('The ResourceDetailsTabs', () => {
     });
     expect(screen.getByText('Signals'));
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expect(screen.queryByText('Signals')).not.toBeInTheDocument();
 
-    clickOnTab(screen, 'Signals & Content Tab');
+    clickOnTab(screen, 'Local Tab');
     expect(screen.getByText('Signals'));
   });
 
@@ -68,7 +68,7 @@ describe('The ResourceDetailsTabs', () => {
 
     const { store } = renderComponentWithStore(
       <ResourceDetailsTabs
-        isAllAttributionsTabEnabled={true}
+        isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
       />
     );
@@ -87,7 +87,7 @@ describe('The ResourceDetailsTabs', () => {
     });
     expect(screen.getByText('Signals'));
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expect(screen.getByText('Signals'));
   });
 });

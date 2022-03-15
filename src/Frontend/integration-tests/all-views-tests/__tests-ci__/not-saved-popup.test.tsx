@@ -247,7 +247,7 @@ describe('Not saved popup of the app', () => {
       expectUnsavedChangesPopupIsShown(screen);
 
       clickOnButton(screen, ButtonText.Cancel);
-      clickOnTab(screen, 'All Attributions Tab');
+      clickOnTab(screen, 'Global Tab');
       clickAddIconOnCardInAttributionList(screen, 'React, 16.0.0');
       expectUnsavedChangesPopupIsShown(screen);
     }

@@ -118,7 +118,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
           )}
           <div className={classes.tabsDiv}>
             <ResourceDetailsTabs
-              isAllAttributionsTabEnabled={!showParentAttributions}
+              isGlobalTabEnabled={!showParentAttributions}
               isAddToPackageEnabled={!resourceIsAttributionBreakpoint}
             />
           </div>

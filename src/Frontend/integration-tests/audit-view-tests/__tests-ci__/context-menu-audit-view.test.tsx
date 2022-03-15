@@ -180,7 +180,7 @@ describe('In Audit View the ContextMenu', () => {
       'React, 16.5.0'
     );
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectGlobalOnlyContextMenuForPreselectedAttribution(screen, 'Vue, 1.2.0');
     clickOnButtonInPackageContextMenu(
       screen,

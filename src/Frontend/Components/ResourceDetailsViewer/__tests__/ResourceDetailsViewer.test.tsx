@@ -482,11 +482,11 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByText('Signals'));
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expect(screen.queryByText('Signals')).not.toBeInTheDocument();
     expect(screen.getByText(manualPackagePanelLabel));
 
-    clickOnTab(screen, 'Signals & Content Tab');
+    clickOnTab(screen, 'Local Tab');
     expect(screen.getByText('Signals'));
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
   });
@@ -515,7 +515,7 @@ describe('The ResourceDetailsViewer', () => {
     store.dispatch(setSelectedResourceId('/fileWithAttribution'));
     expect(screen.getByText('Signals'));
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expect(screen.getByText('Signals'));
   });
 
@@ -546,7 +546,7 @@ describe('The ResourceDetailsViewer', () => {
     );
     expect(screen.getByText('Signals'));
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expect(screen.getByText('Signals'));
   });
 
