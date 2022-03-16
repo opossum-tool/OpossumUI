@@ -4,12 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ElectronApplication, Page } from 'playwright';
-import {
-  conditionalIt,
-  E2E_LARGE_TEST_TIMEOUT,
-  getApp,
-} from '../test-helpers/test-helpers';
-import os from 'os';
+import { E2E_LARGE_TEST_TIMEOUT, getApp } from '../test-helpers/test-helpers';
 
 jest.setTimeout(E2E_LARGE_TEST_TIMEOUT);
 
@@ -29,12 +24,8 @@ describe('Open large zipped file via command line', () => {
     }
   });
 
-  // The test was flaky on mac. Not sure which machines are available
-  // in that case to run the test.
-  conditionalIt(os.platform() !== 'darwin')(
-    'should open large zipped file via command line',
-    async () => {
-      await window.$$('text=package.json');
-    }
-  );
+  // The test was flaky and is now disabled.
+  it.skip('should open large zipped file via command line', async () => {
+    await window.$$('text=package.json');
+  });
 });
