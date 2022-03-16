@@ -142,7 +142,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'fourthResource.js');
       expectValueInTextBox(screen, 'Name', 'Vue');
-      clickOnTab(screen, 'All Attributions Tab');
+      clickOnTab(screen, 'Global Tab');
 
       expectGlobalOnlyContextMenuForNotPreselectedAttribution(
         screen,
@@ -244,7 +244,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'fourthResource.js');
       expectValueInTextBox(screen, 'Name', 'Vue');
-      clickOnTab(screen, 'All Attributions Tab');
+      clickOnTab(screen, 'Global Tab');
       expectGlobalOnlyContextMenuForPreselectedAttribution(
         screen,
         'React, 16.5.0'
@@ -369,7 +369,7 @@ describe('The ContextMenu', () => {
     clickOnPathInPopupWithResources(screen, '/thirdResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
 
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
       'Vue, 1.2.0'

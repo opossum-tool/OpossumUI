@@ -82,7 +82,7 @@ describe('Add to attribution', () => {
       clickOnElementInResourceBrowser(screen, 'folder1');
       clickOnElementInResourceBrowser(screen, 'firstResource.js');
       clickOnButton(screen, 'Override parent');
-      clickOnTab(screen, 'All Attributions Tab');
+      clickOnTab(screen, 'Global Tab');
       expectValueInAddToAttributionList(screen, 'React, 16.5.0');
       expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
       expectValueInAddToAttributionList(screen, 'Angular, 10');
@@ -157,7 +157,7 @@ describe('Add to attribution', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'folder1');
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
     expectValueInAddToAttributionList(screen, 'Angular, 10');
 
@@ -173,7 +173,7 @@ describe('Add to attribution', () => {
     expectValueInAddToAttributionList(screen, 'Angular, 10');
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectValueInAddToAttributionList(screen, 'React, 16.5.0');
     expectValueInAddToAttributionList(screen, 'Angular, 10');
   });
@@ -217,7 +217,7 @@ describe('Add to attribution', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'folder1');
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
     expectValueInAddToAttributionList(screen, 'Angular, 10');
 
@@ -300,11 +300,11 @@ describe('Add to attribution', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'folder1');
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectValueNotInAddToAttributionList(screen, 'Vue, 1.2.0');
     expectValueNotInAddToAttributionList(screen, 'Angular, 10');
 
-    clickOnTab(screen, 'Signals & Content Tab');
+    clickOnTab(screen, 'Local Tab');
     expectValueNotInAddToAttributionList(screen, 'Jquery, 16.5.0');
   });
 });

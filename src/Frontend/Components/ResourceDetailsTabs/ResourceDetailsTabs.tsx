@@ -42,7 +42,7 @@ const useStyles = makeStyles({
 });
 
 interface ResourceDetailsTabsProps {
-  isAllAttributionsTabEnabled: boolean;
+  isGlobalTabEnabled: boolean;
   isAddToPackageEnabled: boolean;
 }
 
@@ -61,13 +61,13 @@ export function ResourceDetailsTabs(
   );
 
   enum Tabs {
-    SignalsAndContent = 0,
-    AllAttributions = 1,
+    Local = 0,
+    Global = 1,
   }
-  const [selectedTab, setSelectedTab] = useState<Tabs>(Tabs.SignalsAndContent);
+  const [selectedTab, setSelectedTab] = useState<Tabs>(Tabs.Local);
   useEffect(() => {
-    setSelectedTab(Tabs.SignalsAndContent);
-  }, [selectedResourceId, Tabs.SignalsAndContent]);
+    setSelectedTab(Tabs.Local);
+  }, [selectedResourceId, Tabs.Local]);
 
   const assignableAttributionIds: Array<string> = remove(
     Object.keys(manualData.attributions),
@@ -76,7 +76,7 @@ export function ResourceDetailsTabs(
   );
 
   const isAddToPackageEnabled: boolean =
-    props.isAllAttributionsTabEnabled && props.isAddToPackageEnabled;
+    props.isGlobalTabEnabled && props.isAddToPackageEnabled;
   const aggregatedAttributionsPanel = useMemo(
     () => (
       <AggregatedAttributionsPanel
@@ -85,6 +85,11 @@ export function ResourceDetailsTabs(
     ),
     [isAddToPackageEnabled]
   );
+
+  const tabLabels = {
+    [Tabs.Local]: 'Local',
+    [Tabs.Global]: 'Global',
+  };
 
   return (
     <React.Fragment>
@@ -98,23 +103,22 @@ export function ResourceDetailsTabs(
         classes={{ indicator: classes.indicator }}
       >
         <MuiTab
-          label={'Signals & Content'}
-          aria-label={'Signals & Content Tab'}
-          id={`tab-${Tabs.SignalsAndContent}`}
+          label={tabLabels[Tabs.Local]}
+          aria-label={'Local Tab'}
+          id={`tab-${Tabs.Local}`}
           className={classes.tab}
         />
         <MuiTab
-          label={'All Attributions'}
-          aria-label={'All Attributions Tab'}
-          id={`tab-${Tabs.AllAttributions}`}
+          label={tabLabels[Tabs.Global]}
+          aria-label={'Global Tab'}
+          id={`tab-${Tabs.Global}`}
           disabled={
-            !props.isAllAttributionsTabEnabled ||
-            assignableAttributionIds.length < 1
+            !props.isGlobalTabEnabled || assignableAttributionIds.length < 1
           }
           className={classes.tab}
         />
       </MuiTabs>
-      {selectedTab === Tabs.SignalsAndContent ? (
+      {selectedTab === Tabs.Local ? (
         aggregatedAttributionsPanel
       ) : (
         <AllAttributionsPanel
@@ -124,7 +128,7 @@ export function ResourceDetailsTabs(
           }
           attributionIds={assignableAttributionIds}
           isAddToPackageEnabled={
-            props.isAllAttributionsTabEnabled && props.isAddToPackageEnabled
+            props.isGlobalTabEnabled && props.isAddToPackageEnabled
           }
         />
       )}

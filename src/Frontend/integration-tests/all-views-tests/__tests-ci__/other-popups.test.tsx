@@ -107,7 +107,7 @@ describe('Other popups of the app', () => {
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
-    clickOnTab(screen, 'All Attributions Tab');
+    clickOnTab(screen, 'Global Tab');
     expectValueInAddToAttributionList(screen, 'Vue, 1.2.0');
     clickOnCardInAttributionList(screen, 'Vue, 1.2.0');
     expectUnsavedChangesPopupIsShown(screen);

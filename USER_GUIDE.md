@@ -160,10 +160,10 @@ In the opossumUI, a distinction between **signals** and **attributions** is made
 In the `Attribution Selection Column` the following sub-panels may be present:
 
 - `Attribution Sub-Panel` (always shown),
-- `Signals Sub-Panel` (accessible via the `SIGNALS & CONTENT` tab),
-- `Attributions in Folder Content Sub-Panel` (accessible via the `SIGNALS & CONTENT` tab),
-- `Signals in Folder Content Sub-Panel` (accessible via the `SIGNALS & CONTENT` tab),
-- `Add to Attribution Sub-Panel` (accessible via the `ALL ATTRIBUTIONS` tab).
+- `Signals Sub-Panel` (accessible via the `LOCAL` tab),
+- `Attributions in Folder Content Sub-Panel` (accessible via the `LOCAL` tab),
+- `Signals in Folder Content Sub-Panel` (accessible via the `LOCAL` tab),
+- `Add to Attribution Sub-Panel` (accessible via the `GLOBAL` tab).
 
 The `Attributions Sub-Panel` shows a list of all attributions that are assigned to the selected resource.
 **Pre-selected** attributions are signaled by an `P` icon. They can be confirmed, therefore being considered
