@@ -23,6 +23,9 @@ import { AttributionInfo, Source } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
 import EditorIcon from '@mui/icons-material/Edit';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { getPackageInfoKeys } from '../../../shared/shared-util';
+import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
+import { useAppSelector } from '../../state/hooks';
 
 export const reportTableRowHeight = 190;
 const padding = 10;
@@ -36,6 +39,12 @@ const useStyles = makeStyles({
   },
   noWrap: {
     whiteSpace: 'pre',
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  greyText: {
+    color: OpossumColors.disabledGrey,
   },
   iconTableData: {
     overflow: 'hidden',
@@ -125,6 +134,16 @@ interface ReportTableItemProps {
 
 export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   const classes = { ...useStylesReportTableHeader(), ...useStyles() };
+  const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
+
+  function isPackageInfoIncomplete(attributionInfo: AttributionInfo): boolean {
+    return getPackageInfoKeys().some((attributionProperty) =>
+      isImportantAttributionInformationMissing(
+        attributionProperty,
+        attributionInfo
+      )
+    );
+  }
 
   function getTableRow(
     attributionInfo: AttributionInfo,
@@ -148,9 +167,22 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     config: TableConfig,
     index: number
   ): ReactElement {
+    const hasFrequentLicenseName =
+      attributionInfo.licenseName &&
+      Object.keys(frequentLicenseTexts).includes(attributionInfo.licenseName);
+    const isFrequentLicenseAndHasNoText =
+      hasFrequentLicenseName && !attributionInfo.licenseText;
+    const displayAttributionInfo =
+      attributionInfo.licenseName && isFrequentLicenseAndHasNoText
+        ? {
+            ...attributionInfo,
+            licenseText: frequentLicenseTexts[attributionInfo.licenseName],
+          }
+        : attributionInfo;
+
     const cellData = getFormattedCellData(
       config,
-      attributionInfo,
+      displayAttributionInfo,
       props.isFileWithChildren
     );
 
@@ -160,7 +192,11 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           classes.borders,
           classes.scrollableTableCell,
           config.attributionProperty === 'icons'
-            ? [classes.iconTableCell]
+            ? [
+                classes.iconTableCell,
+                isPackageInfoIncomplete(attributionInfo) &&
+                  classes.markedTableCell,
+              ]
             : [
                 classes.tableCell,
                 isImportantAttributionInformationMissing(
@@ -185,7 +221,13 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
             className={clsx(
               classes.tableData,
               CELLS_WITHOUT_TEXT_WRAP.includes(config.attributionProperty) &&
-                classes.noWrap
+                classes.noWrap,
+              config.attributionProperty === 'licenseName' &&
+                hasFrequentLicenseName &&
+                classes.bold,
+              config.attributionProperty === 'licenseText' &&
+                isFrequentLicenseAndHasNoText &&
+                classes.greyText
             )}
             component={'div'}
           >
