@@ -80,6 +80,8 @@ describe('ClearlyDefinedPackageCard', () => {
     expect(getOpenPopup(store.getState())).toBeNull();
   });
   it('shows error message when fetch fails', async () => {
+    // suppress output to console
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     axiosMock.onGet(definitionEndpoint).replyOnce(404);
 
     renderComponentWithStore(
