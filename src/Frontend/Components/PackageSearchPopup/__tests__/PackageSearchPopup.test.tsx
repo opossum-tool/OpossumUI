@@ -111,6 +111,8 @@ describe('PackageSearchPopup', () => {
   });
 
   it('shows an error message', async () => {
+    // suppress output to console
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     axiosMock.onGet(requestURLSearchEndpoint).replyOnce(200, []);
     axiosMock.onGet(requestURLSearchEndpoint).replyOnce(404);
 
