@@ -7,7 +7,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { OpossumColors, tooltipStyle } from '../../shared-styles';
+import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { Criticality } from '../../../shared/shared-types';
 
@@ -25,19 +25,6 @@ const getHighlightedBackground = (
     'linear-gradient(225deg, ' +
     highlightColor +
     ' 44.5px, ' +
-    backgroundColor +
-    ' 0) 0 0/100% 40px no-repeat'
-  );
-};
-
-const getCriticalBackground = (
-  highlightColor: string,
-  backgroundColor: string
-): string => {
-  return (
-    'linear-gradient(270deg, ' +
-    highlightColor +
-    ' 4px, ' +
     backgroundColor +
     ' 0) 0 0/100% 40px no-repeat'
   );
@@ -124,57 +111,15 @@ const useStyles = makeStyles({
   resolved: {
     opacity: 0.5,
   },
-  criticalMedium: {
-    border: packageBorder,
-    background: getCriticalBackground(
-      OpossumColors.mediumOrange,
-      defaultBackgroundColor
-    ),
-    '&:hover': {
-      background: getCriticalBackground(
-        OpossumColors.mediumOrangeOnHover,
-        hoveredBackgroundColor
-      ),
-    },
+  highCriticality: {
+    width: 4,
+    height: defaultCardHeight,
+    background: OpossumColors.orange,
   },
-  criticalMediumSelected: {
-    border: packageBorder,
-    background: getCriticalBackground(
-      OpossumColors.mediumOrange,
-      OpossumColors.middleBlue
-    ),
-    '&:hover': {
-      background: getCriticalBackground(
-        OpossumColors.mediumOrangeOnHover,
-        hoveredSelectedBackgroundColor
-      ),
-    },
-  },
-  criticalHigh: {
-    border: packageBorder,
-    background: getCriticalBackground(
-      OpossumColors.orange,
-      defaultBackgroundColor
-    ),
-    '&:hover': {
-      background: getCriticalBackground(
-        OpossumColors.orangeOnHover,
-        hoveredBackgroundColor
-      ),
-    },
-  },
-  criticalHighSelected: {
-    border: packageBorder,
-    background: getCriticalBackground(
-      OpossumColors.orange,
-      OpossumColors.middleBlue
-    ),
-    '&:hover': {
-      background: getCriticalBackground(
-        OpossumColors.orangeOnHover,
-        hoveredSelectedBackgroundColor
-      ),
-    },
+  mediumCriticality: {
+    width: 4,
+    height: defaultCardHeight,
+    background: OpossumColors.mediumOrange,
   },
   textShortened: {
     overflowY: 'auto',
@@ -242,7 +187,6 @@ const useStyles = makeStyles({
       background: OpossumColors.white,
     },
   },
-  tooltip: tooltipStyle,
 });
 
 interface ListCardProps {
@@ -288,11 +232,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           : null,
         props.cardConfig.isHeader ? classes.header : classes.hover,
         props.cardConfig.isSelected
-          ? props.cardConfig.criticality === Criticality.High
-            ? classes.criticalHighSelected
-            : props.cardConfig.criticality === Criticality.Medium
-            ? classes.criticalMediumSelected
-            : props.cardConfig.isContextMenuOpen
+          ? props.cardConfig.isContextMenuOpen
             ? classes.hoveredSelected
             : props.highlightedCard
             ? classes.highlightedSelected
@@ -300,11 +240,6 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
         props.cardConfig.isResolved && classes.resolved,
-        props.cardConfig.criticality === Criticality.High
-          ? classes.criticalHigh
-          : props.cardConfig.criticality === Criticality.Medium
-          ? classes.criticalMedium
-          : null,
         props.cardConfig.isResolved && classes.resolved,
         props.highlightedCard && classes.highlightedPackage
       )}
@@ -364,6 +299,15 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           <div className={classes.iconColumn}>{props.rightIcons}</div>
         ) : null}
       </div>
+      <div
+        className={
+          props.cardConfig.criticality === Criticality.High
+            ? classes.highCriticality
+            : props.cardConfig.criticality === Criticality.Medium
+            ? classes.mediumCriticality
+            : undefined
+        }
+      />
     </div>
   );
 }
