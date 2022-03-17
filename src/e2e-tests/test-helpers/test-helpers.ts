@@ -5,8 +5,8 @@
 
 import { _electron, ElectronApplication } from 'playwright';
 
-const ELECTRON_LAUNCH_TEST_TIMEOUT = 60000;
-export const E2E_TEST_TIMEOUT = 50000;
+const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
+export const E2E_TEST_TIMEOUT = 100000;
 export const E2E_LARGE_TEST_TIMEOUT = 600000;
 
 export async function getApp(
