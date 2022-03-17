@@ -64,7 +64,7 @@ const useStyles = makeStyles({
     visibility: 'hidden',
   },
   followUpIcon: {
-    color: OpossumColors.lightRed,
+    color: OpossumColors.orange,
   },
   excludeFromNoticeIcon: {
     color: OpossumColors.grey,

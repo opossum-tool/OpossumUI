@@ -10,7 +10,6 @@ import React, { ReactElement } from 'react';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { Criticality } from '../../../shared/shared-types';
-import MuiTooltip from '@mui/material/Tooltip';
 
 const defaultCardHeight = 40;
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
@@ -26,6 +25,19 @@ const getHighlightedBackground = (
     'linear-gradient(225deg, ' +
     highlightColor +
     ' 44.5px, ' +
+    backgroundColor +
+    ' 0) 0 0/100% 40px no-repeat'
+  );
+};
+
+const getCriticalBackground = (
+  highlightColor: string,
+  backgroundColor: string
+): string => {
+  return (
+    'linear-gradient(270deg, ' +
+    highlightColor +
+    ' 4px, ' +
     backgroundColor +
     ' 0) 0 0/100% 40px no-repeat'
   );
@@ -114,38 +126,38 @@ const useStyles = makeStyles({
   },
   criticalMedium: {
     border: packageBorder,
-    background: getHighlightedBackground(
-      OpossumColors.lightOrange,
+    background: getCriticalBackground(
+      OpossumColors.mediumOrange,
       defaultBackgroundColor
     ),
     '&:hover': {
-      background: getHighlightedBackground(
-        OpossumColors.lightOrangeOnHover,
+      background: getCriticalBackground(
+        OpossumColors.mediumOrangeOnHover,
         hoveredBackgroundColor
       ),
     },
   },
   criticalMediumSelected: {
     border: packageBorder,
-    background: getHighlightedBackground(
-      OpossumColors.lightOrange,
+    background: getCriticalBackground(
+      OpossumColors.mediumOrange,
       OpossumColors.middleBlue
     ),
     '&:hover': {
-      background: getHighlightedBackground(
-        OpossumColors.lightOrangeOnHover,
+      background: getCriticalBackground(
+        OpossumColors.mediumOrangeOnHover,
         hoveredSelectedBackgroundColor
       ),
     },
   },
   criticalHigh: {
     border: packageBorder,
-    background: getHighlightedBackground(
+    background: getCriticalBackground(
       OpossumColors.orange,
       defaultBackgroundColor
     ),
     '&:hover': {
-      background: getHighlightedBackground(
+      background: getCriticalBackground(
         OpossumColors.orangeOnHover,
         hoveredBackgroundColor
       ),
@@ -153,12 +165,12 @@ const useStyles = makeStyles({
   },
   criticalHighSelected: {
     border: packageBorder,
-    background: getHighlightedBackground(
+    background: getCriticalBackground(
       OpossumColors.orange,
       OpossumColors.middleBlue
     ),
     '&:hover': {
-      background: getHighlightedBackground(
+      background: getCriticalBackground(
         OpossumColors.orangeOnHover,
         hoveredSelectedBackgroundColor
       ),
@@ -260,21 +272,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
     }
   }
 
-  function wrapInTooltip(children: ReactElement): ReactElement {
-    return props.cardConfig.criticality ? (
-      <MuiTooltip
-        classes={{ tooltip: classes.tooltip }}
-        title={`has criticality ${props.cardConfig.criticality}`}
-        placement="left"
-      >
-        {children}
-      </MuiTooltip>
-    ) : (
-      <span>{children}</span>
-    );
-  }
-
-  return wrapInTooltip(
+  return (
     <div
       className={clsx(
         classes.root,
