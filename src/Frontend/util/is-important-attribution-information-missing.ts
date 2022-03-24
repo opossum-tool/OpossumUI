@@ -33,11 +33,6 @@ export function isImportantAttributionInformationMissing(
     case 'packageVersion':
     case 'url':
       return !extendedAttributionInfo[attributionProperty];
-    case 'attributionConfidence':
-      return (
-        !extendedAttributionInfo['attributionConfidence'] ||
-        extendedAttributionInfo['attributionConfidence'] < 50
-      );
     case 'packageNamespace':
       return isNamespaceRequiredButMissing(
         extendedAttributionInfo['packageType'],
