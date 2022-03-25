@@ -165,48 +165,6 @@ describe('The table helpers', () => {
     }
   );
 
-  test('isImportantAttributionInformationMissing handles attributionConfidence correctly', () => {
-    const testTableConfig: TableConfig = {
-      attributionProperty: 'attributionConfidence',
-      displayName: 'Follow-up',
-    };
-
-    let testAttributionInfo: AttributionInfo = {
-      attributionConfidence: 49,
-      resources: ['1'],
-    };
-
-    expect(
-      isImportantAttributionInformationMissing(
-        testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
-    ).toEqual(true);
-
-    testAttributionInfo = {
-      resources: ['1'],
-    };
-
-    expect(
-      isImportantAttributionInformationMissing(
-        testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
-    ).toEqual(true);
-
-    testAttributionInfo = {
-      attributionConfidence: 50,
-      resources: ['1'],
-    };
-
-    expect(
-      isImportantAttributionInformationMissing(
-        testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
-    ).toEqual(false);
-  });
-
   test('isImportantAttributionInformationMissing does not mark first party or excluded attributions', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'licenseName',

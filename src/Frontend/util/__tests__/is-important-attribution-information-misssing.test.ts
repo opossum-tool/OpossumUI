@@ -54,17 +54,4 @@ describe('isImportantAttributionInformationMissing', () => {
       isImportantAttributionInformationMissing('copyright', testAttributionInfo)
     ).toEqual(false);
   });
-
-  test('returns true if confidence is smaller then 50 ', () => {
-    const testAttributionInfo: AttributionInfo = {
-      attributionConfidence: 20,
-      resources: ['1'],
-    };
-    expect(
-      isImportantAttributionInformationMissing(
-        'attributionConfidence',
-        testAttributionInfo
-      )
-    ).toEqual(true);
-  });
 });

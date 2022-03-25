@@ -104,13 +104,6 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
                 name: `Low (${DiscreteConfidence.Low})`,
               },
             ]}
-            isHighlighted={
-              props.showHighlight &&
-              isImportantAttributionInformationMissing(
-                'attributionConfidence',
-                props.displayPackageInfo
-              )
-            }
           />
         ) : (
           <NumberBox
