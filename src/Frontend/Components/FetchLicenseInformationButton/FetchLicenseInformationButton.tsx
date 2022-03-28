@@ -72,8 +72,10 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>(FetchStatus.Idle);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [fetchedPackageInfo, setFetchedPackageInfo] =
-    useState<{ selectedResourceId: string; packageInfo: PackageInfo }>();
+  const [fetchedPackageInfo, setFetchedPackageInfo] = useState<{
+    selectedResourceId: string;
+    packageInfo: PackageInfo;
+  }>();
 
   function fetchData(): void {
     setFetchStatus(FetchStatus.InFlight);
