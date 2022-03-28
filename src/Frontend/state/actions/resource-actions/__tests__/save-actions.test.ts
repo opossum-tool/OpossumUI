@@ -1057,7 +1057,7 @@ describe('The addToSelectedResource action', () => {
     testStore.dispatch(saveManualAndResolvedAttributionsToFile());
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['SaveFile'],
+      IpcChannel.SaveFile,
       expectedSaveFileArgs
     );
   });

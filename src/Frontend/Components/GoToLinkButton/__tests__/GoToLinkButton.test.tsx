@@ -42,7 +42,7 @@ describe('The GoToLinkButton', () => {
 
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
       expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-        IpcChannel['OpenLink'],
+        IpcChannel.OpenLink,
         { link: expected_link }
       );
     }

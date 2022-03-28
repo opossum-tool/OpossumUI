@@ -15,6 +15,7 @@ export enum IpcChannel {
   SaveFile = 'save-file',
   SaveFileRequest = 'save-file-request',
   SendErrorInformation = 'send-error-information',
+  ToggleHighlightForCriticalSignals = 'toggle-highlight-for-critical-signals',
   ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   SetBaseURLForRoot = 'set-base-url-for-root',

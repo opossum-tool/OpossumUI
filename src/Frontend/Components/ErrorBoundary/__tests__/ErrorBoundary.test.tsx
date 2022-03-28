@@ -45,12 +45,12 @@ describe('ErrorBoundary', () => {
 
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(2);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['SendErrorInformation'],
+      IpcChannel.SendErrorInformation,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledTimes(1);
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['RestoreFrontend'],
+      IpcChannel.RestoreFrontend,
       expect.anything()
     );
 

@@ -122,7 +122,7 @@ describe('The App in Audit View', () => {
 
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
 
     expectButton(screen, ButtonText.Save, true);

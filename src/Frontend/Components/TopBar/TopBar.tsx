@@ -18,6 +18,7 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   ParsedFileContent,
+  ToggleHighlightForCriticalSignalsArgs,
 } from '../../../shared/shared-types';
 import { PopupType, View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -34,7 +35,10 @@ import {
   getManualData,
   getResources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedView } from '../../state/selectors/view-selector';
+import {
+  getHighlightForCriticalSignals,
+  getSelectedView,
+} from '../../state/selectors/view-selector';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
   getAttributionsWithResources,
@@ -47,7 +51,10 @@ import { OpossumColors } from '../../shared-styles';
 
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  setHighlightForCriticalSignals,
+} from '../../state/actions/view-actions/view-actions';
 import { IconButton } from '../IconButton/IconButton';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
@@ -100,6 +107,9 @@ export function TopBar(): ReactElement {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
+  const showHighlightForCriticalSignals = useAppSelector(
+    getHighlightForCriticalSignals
+  );
   const dispatch = useAppDispatch();
 
   function fileLoadedListener(
@@ -273,6 +283,19 @@ export function TopBar(): ReactElement {
     }
   }
 
+  function setToggleHighlightForCriticalSignalsListener(
+    event: IpcRendererEvent,
+    toggleHighlightForCriticalSignalsArgs: ToggleHighlightForCriticalSignalsArgs
+  ): void {
+    if (
+      toggleHighlightForCriticalSignalsArgs?.toggleHighlightForCriticalSignals
+    ) {
+      dispatch(
+        setHighlightForCriticalSignals(!showHighlightForCriticalSignals)
+      );
+    }
+  }
+
   useIpcRenderer(IpcChannel.FileLoaded, fileLoadedListener, [dispatch]);
   useIpcRenderer(IpcChannel.ResetLoadedFile, resetLoadedFileListener, [
     dispatch,
@@ -296,6 +319,11 @@ export function TopBar(): ReactElement {
     frequentLicenseTexts,
     filesWithChildren,
   ]);
+  useIpcRenderer(
+    IpcChannel.ToggleHighlightForCriticalSignals,
+    setToggleHighlightForCriticalSignalsListener,
+    [dispatch, showHighlightForCriticalSignals]
+  );
 
   function handleClick(
     event: React.MouseEvent<HTMLElement>,

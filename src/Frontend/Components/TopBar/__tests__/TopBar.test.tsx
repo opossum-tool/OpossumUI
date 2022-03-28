@@ -18,42 +18,44 @@ import { IpcChannel } from '../../../../shared/ipc-channels';
 describe('TopBar', () => {
   test('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(7);
+    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(8);
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['FileLoaded'],
+      IpcChannel.FileLoaded,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['Logging'],
+      IpcChannel.Logging,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['ResetLoadedFile'],
+      IpcChannel.ResetLoadedFile,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['ExportFileRequest'],
+      IpcChannel.ExportFileRequest,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['ShowSearchPopup'],
+      IpcChannel.ShowSearchPopup,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['ShowProjectMetadataPopup'],
+      IpcChannel.ShowProjectMetadataPopup,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel['SetBaseURLForRoot'],
+      IpcChannel.SetBaseURLForRoot,
+      expect.anything()
+    );
+    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
+      IpcChannel.ToggleHighlightForCriticalSignals,
       expect.anything()
     );
 
     fireEvent.click(screen.queryByLabelText('open file') as Element);
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['OpenFile']
-    );
+    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(IpcChannel.OpenFile);
   });
 
   test('switches between views', () => {

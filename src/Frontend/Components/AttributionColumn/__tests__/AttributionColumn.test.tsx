@@ -594,7 +594,7 @@ describe('The AttributionColumn', () => {
       clickOnButton(screen, 'resolve attribution');
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
       expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-        IpcChannel['SaveFile'],
+        IpcChannel.SaveFile,
         expectedSaveFileArgs
       );
     });
