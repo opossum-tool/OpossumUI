@@ -75,6 +75,7 @@ export function PackageList(props: PackageListProps): ReactElement {
           attributionId
         )
       : packageInfo.preSelected;
+
     const cardConfig: ListCardConfig = {
       isSelected: attributionId === props.selectedAttributionId,
       isPreSelected: isPreselected,
@@ -83,6 +84,11 @@ export function PackageList(props: PackageListProps): ReactElement {
       firstParty: packageInfo.firstParty,
       excludeFromNotice: packageInfo.excludeFromNotice,
       followUp: Boolean(packageInfo.followUp),
+      criticality: props.isExternalAttribution
+        ? packageInfo.criticality
+        : packageInfo.preSelected
+        ? packageInfo.criticality
+        : undefined,
     };
 
     function onIconClick(): void {

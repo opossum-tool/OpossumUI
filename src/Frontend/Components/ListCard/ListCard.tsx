@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
+import { Criticality } from '../../../shared/shared-types';
 
 const defaultCardHeight = 40;
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
@@ -109,6 +110,16 @@ const useStyles = makeStyles({
   },
   resolved: {
     opacity: 0.5,
+  },
+  highCriticality: {
+    width: 4,
+    height: defaultCardHeight,
+    background: OpossumColors.orange,
+  },
+  mediumCriticality: {
+    width: 4,
+    height: defaultCardHeight,
+    background: OpossumColors.mediumOrange,
   },
   textShortened: {
     overflowY: 'auto',
@@ -229,6 +240,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           : null,
         props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
         props.cardConfig.isResolved && classes.resolved,
+        props.cardConfig.isResolved && classes.resolved,
         props.highlightedCard && classes.highlightedPackage
       )}
     >
@@ -287,6 +299,15 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           <div className={classes.iconColumn}>{props.rightIcons}</div>
         ) : null}
       </div>
+      <div
+        className={
+          props.cardConfig.criticality === Criticality.High
+            ? classes.highCriticality
+            : props.cardConfig.criticality === Criticality.Medium
+            ? classes.mediumCriticality
+            : undefined
+        }
+      />
     </div>
   );
 }

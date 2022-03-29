@@ -175,8 +175,12 @@ export function expectValueInAddToAttributionList(
         (
           (
             (
-              (screen.getAllByLabelText(/add/)[0].parentElement as HTMLElement)
-                .parentElement as HTMLElement
+              (
+                (
+                  screen.getAllByLabelText(/add/)[0]
+                    .parentElement as HTMLElement
+                ).parentElement as HTMLElement
+              ).parentElement as HTMLElement
             ).parentElement as HTMLElement
           ).parentElement as HTMLElement
         ).parentElement as HTMLElement

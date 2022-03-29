@@ -10,6 +10,7 @@ import { ViewState } from '../state/reducers/view-reducer';
 import {
   AttributionIdWithCount,
   Attributions,
+  Criticality,
   PackageInfo,
 } from '../../shared/shared-types';
 
@@ -71,6 +72,7 @@ export interface ListCardConfig {
   isHeader?: boolean;
   isContextMenuOpen?: boolean;
   isMultiSelected?: boolean;
+  criticality?: Criticality;
 }
 
 export interface PathPredicate {

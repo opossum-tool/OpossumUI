@@ -59,6 +59,7 @@ export function AllAttributionsPanel(
       firstParty: packageInfo.firstParty,
       excludeFromNotice: packageInfo.excludeFromNotice,
       followUp: Boolean(packageInfo.followUp),
+      criticality: packageInfo.criticality,
     };
 
     return (
