@@ -403,16 +403,6 @@ describe('The AttributionColumn', () => {
   });
 
   describe('there are different license text labels', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (global as any).document.createRange = (): unknown => ({
-      setStart: (): void => {},
-      setEnd: (): void => {},
-      commonAncestorContainer: {
-        nodeName: 'BODY',
-        ownerDocument: document,
-      },
-    });
-
     test('shows standard text if editable and non frequent license', () => {
       const testTemporaryPackageInfo: PackageInfo = { packageName: 'jQuery' };
       renderComponentWithStore(
