@@ -8,15 +8,23 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
+import { getCurrentAttributionId } from '../../state/selectors/all-views-resource-selectors';
 
 export function ConfirmDeletionGloballyPopup(): ReactElement {
   const targetAttributionId = useAppSelector(getPopupAttributionId);
+  const selectedAttributionId =
+    useAppSelector(getCurrentAttributionId) ?? undefined;
 
   const dispatch = useAppDispatch();
 
   function deleteAttributionGlobally(): void {
     targetAttributionId &&
-      dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
+      dispatch(
+        deleteAttributionGloballyAndSave(
+          targetAttributionId,
+          selectedAttributionId
+        )
+      );
   }
 
   return (

@@ -7,7 +7,7 @@
 import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import {
-  getAttributionIdToSaveTo,
+  getCurrentAttributionId,
   getManualAttributions,
   getPackageInfoOfSelected,
   getTemporaryPackageInfo,
@@ -147,7 +147,7 @@ export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
 export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
-    const attributionId = getAttributionIdToSaveTo(getState()) as string;
+    const attributionId = getCurrentAttributionId(getState()) as string;
     const temporaryPackageInfo = getTemporaryPackageInfo(getState());
 
     dispatch(
@@ -164,7 +164,7 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): Ap
 export function saveTemporaryPackageInfoAndNavigateToTargetView(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
-    const attributionId = getAttributionIdToSaveTo(getState());
+    const attributionId = getCurrentAttributionId(getState());
     const temporaryPackageInfo = getTemporaryPackageInfo(getState());
 
     dispatch(

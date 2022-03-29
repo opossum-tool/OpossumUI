@@ -340,7 +340,7 @@ export const resourceState = (
       const { newManualData, newAttributionId } = createManualAttribution(
         state.allViews.manualData,
         state.auditView.selectedResourceId,
-        action.payload
+        action.payload.strippedPackageInfo
       );
 
       return {
@@ -360,10 +360,12 @@ export const resourceState = (
         },
         auditView: {
           ...state.auditView,
-          displayedPanelPackage: {
-            panel: PackagePanelTitle.ManualPackages,
-            attributionId: newAttributionId,
-          },
+          ...(action.payload.jumpToCreatedAttribution && {
+            displayedPanelPackage: {
+              panel: PackagePanelTitle.ManualPackages,
+              attributionId: newAttributionId,
+            },
+          }),
         },
       };
     case ACTION_UPDATE_ATTRIBUTION:
@@ -386,7 +388,9 @@ export const resourceState = (
             getAttributionBreakpointCheckForResourceState(state),
             getFileWithChildrenCheckForResourceState(state)
           ),
-          temporaryPackageInfo: action.payload.strippedPackageInfo,
+          ...(action.payload.jumpToUpdatedAttribution && {
+            temporaryPackageInfo: action.payload.strippedPackageInfo,
+          }),
         },
       };
     case ACTION_DELETE_ATTRIBUTION:
@@ -473,14 +477,18 @@ export const resourceState = (
         },
         auditView: {
           ...state.auditView,
-          displayedPanelPackage: {
-            panel: PackagePanelTitle.ManualPackages,
-            attributionId: matchingAttributionIdForReplace,
-          },
+          ...(action.payload.jumpToMatchingAttribution && {
+            displayedPanelPackage: {
+              panel: PackagePanelTitle.ManualPackages,
+              attributionId: matchingAttributionIdForReplace,
+            },
+          }),
         },
         attributionView: {
           ...state.attributionView,
-          selectedAttributionId: matchingAttributionIdForReplace,
+          ...(action.payload.jumpToMatchingAttribution && {
+            selectedAttributionId: matchingAttributionIdForReplace,
+          }),
         },
       };
     case ACTION_LINK_TO_ATTRIBUTION:

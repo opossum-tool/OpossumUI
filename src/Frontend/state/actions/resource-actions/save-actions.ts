@@ -86,7 +86,8 @@ export function savePackageInfoIfSavingIsNotDisabled(
 export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
+  applyContextMenuActionOnDifferentAttribution?: boolean
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const strippedPackageInfo: PackageInfo = getStrippedPackageInfo(
@@ -110,11 +111,22 @@ export function savePackageInfo(
 
     switch (saveOperation) {
       case SavePackageInfoOperation.Create:
-        dispatch(createAttributionForSelectedResource(strippedPackageInfo));
+        dispatch(
+          createAttributionForSelectedResource(
+            strippedPackageInfo,
+            !applyContextMenuActionOnDifferentAttribution
+          )
+        );
         break;
       case SavePackageInfoOperation.Update:
         attributionId &&
-          dispatch(updateAttribution(attributionId, strippedPackageInfo));
+          dispatch(
+            updateAttribution(
+              attributionId,
+              strippedPackageInfo,
+              !applyContextMenuActionOnDifferentAttribution
+            )
+          );
         break;
       case SavePackageInfoOperation.Delete:
         attributionId && dispatch(deleteAttribution(attributionId));
@@ -124,7 +136,8 @@ export function savePackageInfo(
           dispatch(
             replaceAttributionWithMatchingAttribution(
               attributionId,
-              strippedPackageInfo
+              strippedPackageInfo,
+              !applyContextMenuActionOnDifferentAttribution
             )
           );
         break;
@@ -135,7 +148,9 @@ export function savePackageInfo(
     }
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
-    dispatch(resetTemporaryPackageInfo());
+    if (!applyContextMenuActionOnDifferentAttribution) {
+      dispatch(resetTemporaryPackageInfo());
+    }
     dispatch(
       filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
         attributionId
@@ -184,7 +199,8 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
 export function unlinkAttributionAndSavePackageInfo(
   resourceId: string,
   attributionId: string,
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
+  selectedAttributionId?: string
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
@@ -194,7 +210,16 @@ export function unlinkAttributionAndSavePackageInfo(
       dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
     }
 
-    dispatch(savePackageInfo(resourceId, null, packageInfo));
+    dispatch(
+      savePackageInfo(
+        resourceId,
+        null,
+        packageInfo,
+        selectedAttributionId
+          ? attributionId !== selectedAttributionId
+          : undefined
+      )
+    );
   };
 }
 
@@ -217,25 +242,44 @@ export function addToSelectedResource(
 }
 
 export function deleteAttributionGloballyAndSave(
-  attributionId: string
+  attributionId: string,
+  selectedAttributionId?: string
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
-    dispatch(savePackageInfo(null, attributionId, {}));
+    dispatch(
+      savePackageInfo(
+        null,
+        attributionId,
+        {},
+        selectedAttributionId
+          ? attributionId !== selectedAttributionId
+          : undefined
+      )
+    );
   };
 }
 
 export function deleteAttributionAndSave(
   resourceId: string,
-  attributionId: string
+  attributionId: string,
+  selectedAttributionId?: string
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
       getManualAttributionsToResources(getState());
 
     if (attributionsToResources[attributionId].length > 1) {
-      dispatch(unlinkResourceFromAttributionAndSave(resourceId, attributionId));
+      dispatch(
+        unlinkResourceFromAttributionAndSave(
+          resourceId,
+          attributionId,
+          selectedAttributionId
+        )
+      );
     } else {
-      dispatch(deleteAttributionGloballyAndSave(attributionId));
+      dispatch(
+        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId)
+      );
     }
   };
 }
@@ -263,15 +307,20 @@ function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
 
 function unlinkResourceFromAttributionAndSave(
   resourceId: string,
-  attributionId: string
+  attributionId: string,
+  selectedAttributionId?: string
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
+    const differentAttributionIsDeleted = selectedAttributionId
+      ? attributionId !== selectedAttributionId
+      : undefined;
     dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
 
     dispatch(unlinkAttribtionsIfParentAttributionsAreIdentical(resourceId));
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
-    dispatch(resetTemporaryPackageInfo());
-
+    if (!differentAttributionIsDeleted) {
+      dispatch(resetTemporaryPackageInfo());
+    }
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
@@ -299,21 +348,23 @@ function unlinkAttribtionsIfParentAttributionsAreIdentical(
 }
 
 function createAttributionForSelectedResource(
-  strippedPackageInfo: PackageInfo
+  strippedPackageInfo: PackageInfo,
+  jumpToCreatedAttribution = true
 ): CreateAttributionForSelectedResource {
   return {
     type: ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
-    payload: strippedPackageInfo,
+    payload: { strippedPackageInfo, jumpToCreatedAttribution },
   };
 }
 
 function updateAttribution(
   attributionId: string,
-  strippedPackageInfo: PackageInfo
+  strippedPackageInfo: PackageInfo,
+  jumpToUpdatedAttribution = true
 ): UpdateAttribution {
   return {
     type: ACTION_UPDATE_ATTRIBUTION,
-    payload: { attributionId, strippedPackageInfo },
+    payload: { attributionId, strippedPackageInfo, jumpToUpdatedAttribution },
   };
 }
 
@@ -326,11 +377,12 @@ function deleteAttribution(attributionIdToDelete: string): DeleteAttribution {
 
 function replaceAttributionWithMatchingAttribution(
   attributionId: string,
-  strippedPackageInfo: PackageInfo
+  strippedPackageInfo: PackageInfo,
+  jumpToMatchingAttribution = true
 ): ReplaceAttributionWithMatchingAttributionAction {
   return {
     type: ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
-    payload: { attributionId, strippedPackageInfo },
+    payload: { attributionId, strippedPackageInfo, jumpToMatchingAttribution },
   };
 }
 

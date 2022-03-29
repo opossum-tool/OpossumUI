@@ -198,7 +198,10 @@ export interface SetFilesWithChildren {
 
 export interface CreateAttributionForSelectedResource {
   type: typeof ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE;
-  payload: PackageInfo;
+  payload: {
+    strippedPackageInfo: PackageInfo;
+    jumpToCreatedAttribution: boolean;
+  };
 }
 
 export interface UpdateAttribution {
@@ -206,6 +209,7 @@ export interface UpdateAttribution {
   payload: {
     attributionId: string;
     strippedPackageInfo: PackageInfo;
+    jumpToUpdatedAttribution: boolean;
   };
 }
 
@@ -219,6 +223,7 @@ export interface ReplaceAttributionWithMatchingAttributionAction {
   payload: {
     attributionId: string;
     strippedPackageInfo: PackageInfo;
+    jumpToMatchingAttribution: boolean;
   };
 }
 
