@@ -11,7 +11,7 @@
     "@mui/icons-material": "^5.5.1",
     "@mui/lab": "^5.0.0-alpha.74",
     "@mui/material": "^5.5.3",
-    "@mui/styles": "^5.5.1",
+    "@mui/styles": "^5.5.3",
     "axios": "^0.26.1",
     "clsx": "^1.1.1",
     "electron-devtools-installer": "^3.2.0",
