@@ -493,7 +493,7 @@ describe('The App in Audit View', () => {
     // make sure resources are now linked to React attribution
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
   });
 });

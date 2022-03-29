@@ -9,6 +9,7 @@ import {
   BaseURLForRootArgs,
   ExportType,
   ParsedFileContent,
+  ToggleHighlightForCriticalSignalsArgs,
 } from '../../shared/shared-types';
 
 type ResetStateListener = (
@@ -33,12 +34,18 @@ type SetBaseURLForRootListener = (
   baseURLForRootArgs: BaseURLForRootArgs
 ) => void;
 
+type ToggleHighlightForCriticalSignalsListener = (
+  event: IpcRendererEvent,
+  showHighlightForCriticalSignalsArgs: ToggleHighlightForCriticalSignalsArgs
+) => void;
+
 type Listener =
   | ResetStateListener
   | SetStateListener
   | LoggingListener
   | ExportFileRequestListener
-  | SetBaseURLForRootListener;
+  | SetBaseURLForRootListener
+  | ToggleHighlightForCriticalSignalsListener;
 
 export function useIpcRenderer(
   channel: string,

@@ -166,7 +166,7 @@ describe('Other popups of the app', () => {
 
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
     expectUnsavedChangesPopupIsNotShown(screen);
     expectValueNotInTextBox(screen, 'Name', testPackageName);
@@ -227,7 +227,7 @@ describe('Other popups of the app', () => {
     };
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
     expectUnsavedChangesPopupIsNotShown(screen);
     expectButton(screen, ButtonText.Save, true);
@@ -360,7 +360,7 @@ describe('Other popups of the app', () => {
 
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
   });
 });

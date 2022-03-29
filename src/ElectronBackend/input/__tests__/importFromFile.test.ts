@@ -228,7 +228,7 @@ describe('Test of loading function', () => {
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        IpcChannel['FileLoaded'],
+        IpcChannel.FileLoaded,
         expectedFileContent
       );
 
@@ -252,7 +252,7 @@ describe('Test of loading function', () => {
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        IpcChannel['FileLoaded'],
+        IpcChannel.FileLoaded,
         expectedFileContent
       );
       expect(dialog.showMessageBox).not.toBeCalled();
@@ -460,7 +460,7 @@ describe('Test of loading function', () => {
     };
 
     expect(mainWindow.webContents.send).toBeCalledWith(
-      IpcChannel['FileLoaded'],
+      IpcChannel.FileLoaded,
       expectedLoadedFile
     );
     expect(dialog.showMessageBox).not.toBeCalled();
@@ -506,7 +506,7 @@ describe('Test of loading function', () => {
     };
 
     expect(mainWindow.webContents.send).toBeCalledWith(
-      IpcChannel['FileLoaded'],
+      IpcChannel.FileLoaded,
       expectedLoadedFile
     );
     expect(dialog.showMessageBox).not.toBeCalled();
@@ -533,7 +533,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
   };
 
   expect(mainWindow.webContents.send).toBeCalledWith(
-    IpcChannel['FileLoaded'],
+    IpcChannel.FileLoaded,
     expectedLoadedFile
   );
   expect(dialog.showMessageBox).not.toBeCalled();

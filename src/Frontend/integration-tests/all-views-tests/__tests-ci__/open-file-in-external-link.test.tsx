@@ -51,7 +51,7 @@ describe('The go to link button', () => {
     clickGoToLinkIcon(screen, 'link to open');
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['OpenLink'],
+      IpcChannel.OpenLink,
       { link: expectedLinkForParent }
     );
 
@@ -60,7 +60,7 @@ describe('The go to link button', () => {
     clickGoToLinkIcon(screen, 'link to open');
     expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(2);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['OpenLink'],
+      IpcChannel.OpenLink,
       { link: expectedLinkForFile }
     );
   });

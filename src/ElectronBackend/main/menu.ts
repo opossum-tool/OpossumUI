@@ -142,6 +142,15 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         { label: 'Full Screen', role: 'togglefullscreen' },
         { label: 'Zoom In', role: 'zoomIn' },
         { label: 'Zoom Out', role: 'zoomOut' },
+        {
+          label: 'Highlight critical signals',
+          type: 'checkbox',
+          click(): void {
+            webContents.send(IpcChannel.ToggleHighlightForCriticalSignals, {
+              toggleHighlightForCriticalSignals: true,
+            });
+          },
+        },
       ],
     },
     {

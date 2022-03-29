@@ -141,7 +141,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(getOpenPopup(store.getState())).toBe(null);
 
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel['SaveFile'],
+      IpcChannel.SaveFile,
       {
         manualAttributions: {
           test_selected_id: {

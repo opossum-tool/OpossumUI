@@ -244,9 +244,9 @@ describe('The App in attribution view', () => {
     };
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['OpenFile']],
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
-      [IpcChannel['SaveFile'], expect.anything()],
+      [IpcChannel.OpenFile],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
+      [IpcChannel.SaveFile, expect.anything()],
     ]);
   });
 
@@ -334,8 +334,8 @@ describe('The App in attribution view', () => {
 
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['OpenFile']],
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.OpenFile],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
   });
 
@@ -397,8 +397,8 @@ describe('The App in attribution view', () => {
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['OpenFile']],
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.OpenFile],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
   });
 
@@ -480,8 +480,8 @@ describe('The App in attribution view', () => {
     // make sure resources are now linked to React attribution
     // @ts-ignore
     expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel['OpenFile']],
-      [IpcChannel['SaveFile'], expectedSaveFileArgs],
+      [IpcChannel.OpenFile],
+      [IpcChannel.SaveFile, expectedSaveFileArgs],
     ]);
   });
 });

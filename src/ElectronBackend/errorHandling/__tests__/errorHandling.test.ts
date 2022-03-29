@@ -135,7 +135,7 @@ describe('error handling', () => {
       );
       expect(mockCallback.mock.calls.length).toBe(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
-        IpcChannel['RestoreFrontend']
+        IpcChannel.RestoreFrontend
       );
       expect(loadJsonFromFilePath).toBeCalled();
     });
@@ -176,7 +176,7 @@ describe('error handling', () => {
       );
       expect(mockCallback.mock.calls.length).toBe(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
-        IpcChannel['RestoreFrontend']
+        IpcChannel.RestoreFrontend
       );
       expect(loadJsonFromFilePath).toBeCalled();
     });

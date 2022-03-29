@@ -4,14 +4,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ListCard } from '../ListCard';
 import { Checkbox } from '../../Checkbox/Checkbox';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 
 describe('The ListCard', () => {
   test('renders text with no count', () => {
-    render(
+    renderComponentWithStore(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -25,7 +26,7 @@ describe('The ListCard', () => {
   });
 
   test('renders text with small count', () => {
-    render(
+    renderComponentWithStore(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -41,7 +42,7 @@ describe('The ListCard', () => {
   });
 
   test('renders text with medium count', () => {
-    render(
+    renderComponentWithStore(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -57,7 +58,7 @@ describe('The ListCard', () => {
   });
 
   test('renders text with large count', () => {
-    render(
+    renderComponentWithStore(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
@@ -74,7 +75,7 @@ describe('The ListCard', () => {
 
   test('renders leftElement if provided as input', () => {
     const leftElement = <Checkbox checked={false} onChange={jest.fn()} />;
-    render(
+    renderComponentWithStore(
       <ListCard
         text={'card text'}
         secondLineText={'card text of second line'}
