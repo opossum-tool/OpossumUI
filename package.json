@@ -150,10 +150,10 @@
   },
   "browserslist": {
     "production": [
-      "Chrome 98"
+      "Chrome 100"
     ],
     "development": [
-      "Chrome 98"
+      "Chrome 100"
     ]
   },
   "lint-staged": {
