@@ -266,15 +266,6 @@ export function expectValuesInProgressbarTooltip(
   filesWithOnlyPreSelectedAttributions: number,
   filesWithOnlySignals: number
 ): void {
-  global.document.createRange = (): Range =>
-    ({
-      setStart: (): void => {},
-      setEnd: (): void => {},
-      commonAncestorContainer: {
-        nodeName: 'BODY',
-        ownerDocument: document,
-      },
-    } as unknown as Range);
   jest.useFakeTimers();
   const progressBar = screen.getByLabelText('ProgressBar');
   fireEvent.mouseOver(progressBar);

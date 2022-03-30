@@ -9,16 +9,6 @@ import { doNothing } from '../../../util/do-nothing';
 import { AutoComplete } from '../AutoComplete';
 import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).document.createRange = (): unknown => ({
-  setStart: (): void => {},
-  setEnd: (): void => {},
-  commonAncestorContainer: {
-    nodeName: 'BODY',
-    ownerDocument: document,
-  },
-});
-
 describe('The AutoComplete', () => {
   test('renders text and label', () => {
     const testLicenseNames = ['MIT', 'GPL'];

@@ -19,16 +19,6 @@ import { DiscreteConfidence } from '../../../enums/enums';
 describe('ProgressBar', () => {
   jest.useFakeTimers();
   test('ProgressBar renders', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (global as any).document.createRange = (): unknown => ({
-      setStart: (): void => {},
-      setEnd: (): void => {},
-      commonAncestorContainer: {
-        nodeName: 'BODY',
-        ownerDocument: document,
-      },
-    });
-
     const testResources: Resources = {
       folder1: { file1: 1, file2: 1 },
       folder2: { file1: 1, file2: 1 },

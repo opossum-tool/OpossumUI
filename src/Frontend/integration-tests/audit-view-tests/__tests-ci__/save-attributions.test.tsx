@@ -41,16 +41,6 @@ import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-
 
 describe('The App in Audit View', () => {
   test('saves new attributions to file in AuditView', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (global as any).document.createRange = (): unknown => ({
-      setStart: (): void => {},
-      setEnd: (): void => {},
-      commonAncestorContainer: {
-        nodeName: 'BODY',
-        ownerDocument: document,
-      },
-    });
-
     const testPackageName = 'React';
     const testLicenseNames = ['MIT', 'MIT License'];
     const mockChannelReturn: ParsedFileContent = {
