@@ -12,6 +12,7 @@ import { doNothing } from '../../util/do-nothing';
 import MuiTypography from '@mui/material/Typography';
 import {
   getAttributionIdMarkedForReplacement,
+  getCurrentAttributionId,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { PackageCard } from '../PackageCard/PackageCard';
@@ -38,6 +39,8 @@ export function ReplaceAttributionPopup(): ReactElement {
     getAttributionIdMarkedForReplacement
   );
   const targetAttributionId = useAppSelector(getPopupAttributionId);
+  const selectedAttributionId =
+    useAppSelector(getCurrentAttributionId) ?? undefined;
 
   function handleCancelClick(): void {
     dispatch(closePopup());
@@ -49,7 +52,8 @@ export function ReplaceAttributionPopup(): ReactElement {
         savePackageInfo(
           null,
           markedAttributionId,
-          attributions[targetAttributionId]
+          attributions[targetAttributionId],
+          markedAttributionId !== selectedAttributionId
         )
       );
     dispatch(setAttributionIdMarkedForReplacement(''));

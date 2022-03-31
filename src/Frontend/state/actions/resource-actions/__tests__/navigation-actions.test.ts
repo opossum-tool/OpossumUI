@@ -50,7 +50,7 @@ import {
 import { getSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
 
 describe('resetTemporaryPackageInfo', () => {
-  test('works correctly on audit', () => {
+  test('works correctly on audit view', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
     };

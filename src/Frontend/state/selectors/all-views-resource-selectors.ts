@@ -114,7 +114,7 @@ export function getProjectMetadata(state: State): ProjectMetadata {
   return state.resourceState.allViews.metadata;
 }
 
-export function getAttributionIdToSaveTo(state: State): string | null {
+export function getCurrentAttributionId(state: State): string | null {
   switch (getSelectedView(state)) {
     case View.Attribution:
       return getSelectedAttributionId(state);

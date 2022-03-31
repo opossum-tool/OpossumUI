@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
+import { getCurrentAttributionId } from '../../state/selectors/all-views-resource-selectors';
 
 export function ConfirmMultiSelectDeletionPopup(): ReactElement {
   const multiSelectSelectedAttributionIds = useAppSelector(
@@ -16,9 +17,14 @@ export function ConfirmMultiSelectDeletionPopup(): ReactElement {
 
   const dispatch = useAppDispatch();
 
+  const selectedAttributionId =
+    useAppSelector(getCurrentAttributionId) ?? undefined;
+
   function deleteMultiSelectSelectedAttributionIds(): void {
     multiSelectSelectedAttributionIds.forEach((attributionId) => {
-      dispatch(deleteAttributionGloballyAndSave(attributionId));
+      dispatch(
+        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId)
+      );
     });
   }
 

@@ -18,7 +18,7 @@ import {
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
 } from '../../state/actions/popup-actions/popup-actions';
 import {
-  getAttributionIdToSaveTo,
+  getCurrentAttributionId,
   getIsSavingDisabled,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -29,7 +29,7 @@ import { setTargetSelectedResourceId } from '../../state/actions/resource-action
 
 export function NotSavedPopup(): ReactElement {
   const dispatch = useAppDispatch();
-  const currentAttributionId = useAppSelector(getAttributionIdToSaveTo);
+  const currentAttributionId = useAppSelector(getCurrentAttributionId);
   const attributionsToResources = useAppSelector(
     getManualAttributionsToResources
   );

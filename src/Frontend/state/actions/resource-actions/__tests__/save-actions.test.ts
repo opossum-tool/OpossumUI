@@ -611,7 +611,12 @@ describe('The savePackageInfo action', () => {
       setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1'])
     );
     testStore.dispatch(
-      savePackageInfo('/somethingElse.js', 'toReplaceUuid', testPackageInfo)
+      savePackageInfo(
+        '/somethingElse.js',
+        'toReplaceUuid',
+        testPackageInfo,
+        false
+      )
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getProgressBarData(testStore.getState())).toEqual(
@@ -695,6 +700,200 @@ describe('The savePackageInfo action', () => {
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getProgressBarData(testStore.getState())).toEqual(
       expectedFinalProgressBarData
+    );
+  });
+
+  test('removes an attribution and keeps temporary package info for selected attribution', () => {
+    const testUuidA = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
+    const testUuidB = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
+    const testResources: Resources = {
+      root: { src: { 'something.js': 1 }, 'somethingElse.js': 1 },
+    };
+    const testManualAttributions: Attributions = {
+      [testUuidA]: {
+        packageVersion: '1.0',
+        packageName: 'test Package',
+        licenseText: ' test License text',
+      },
+      [testUuidB]: { packageName: 'second test Package' },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/something.js': [testUuidA, testUuidB],
+      '/root/somethingElse.js': [testUuidB],
+    };
+
+    const testTemporaryPackageInfo: PackageInfo = {
+      packageVersion: '1.0',
+      packageName: 'test Package modified',
+      licenseText: ' test License text',
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
+      )
+    );
+    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
+    testStore.dispatch(setSelectedAttributionId(testUuidA));
+
+    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+
+    testStore.dispatch(
+      savePackageInfo('/root/src/something.js', testUuidB, {}, true)
+    );
+    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      testTemporaryPackageInfo
+    );
+  });
+
+  test('replaces an attribution with an existing one, keeps temporary package info for selected attribution and stay at selected attribution', () => {
+    const testPackageInfo = {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.High,
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+      'somethingElse.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      uuid1: testPackageInfo,
+      toReplaceUuid: { packageName: 'Vue' },
+      uuid2: { packageName: 'second test Package' },
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['uuid1'],
+      '/somethingElse.js': ['toReplaceUuid', 'uuid2'],
+    };
+
+    const testTemporaryPackageInfo: PackageInfo = {
+      packageVersion: '1.0',
+      packageName: 'test Package modified',
+      licenseText: ' test License text',
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+          externalAttributions: { uuid_1: { copyright: 'copyright' } },
+          resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
+        })
+      )
+    );
+    testStore.dispatch(setSelectedAttributionId('uuid2'));
+    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    testStore.dispatch(
+      setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1'])
+    );
+    testStore.dispatch(
+      savePackageInfo(
+        '/somethingElse.js',
+        'toReplaceUuid',
+        testPackageInfo,
+        true
+      )
+    );
+    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      testTemporaryPackageInfo
+    );
+    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
+  });
+
+  test('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      packageVersion: '1.1',
+      packageName: 'test Package',
+      licenseText: ' test License text',
+    };
+
+    const testPackageInfo = {
+      packageName: 'React',
+      attributionConfidence: DiscreteConfidence.High,
+    };
+    const testResources: Resources = {
+      'something.js': 1,
+    };
+    const testInitialManualAttributions: Attributions = {
+      uuid1: testPackageInfo,
+    };
+    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+      '/something.js': ['uuid1'],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
+      )
+    );
+
+    testStore.dispatch(setSelectedResourceId('/something.js'));
+    testStore.dispatch(
+      setDisplayedPackage({
+        panel: PackagePanelTitle.ManualPackages,
+        attributionId: 'uuid1',
+      })
+    );
+    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    testStore.dispatch(savePackageInfo('/something.js', null, {}, true));
+    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      testTemporaryPackageInfo
+    );
+    expect(
+      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
+    ).toBe('uuid1');
+  });
+
+  test('updates an attribution and keeps temporary package info for selected attribution', () => {
+    const testStore = createTestAppStore();
+    const testTemporaryPackageInfo: PackageInfo = {
+      packageName: 'test Package modified',
+    };
+    const packageInfoToUpdate = {
+      ...secondTestTemporaryPackageInfo,
+      preselected: false,
+    };
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
+    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+
+    testStore.dispatch(
+      savePackageInfo(
+        null,
+        testManualAttributionUuid_2,
+        packageInfoToUpdate,
+        true
+      )
+    );
+
+    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      testTemporaryPackageInfo
     );
   });
 });

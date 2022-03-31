@@ -165,7 +165,13 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   function getContextMenuItems(): Array<ContextMenuItem> {
     function openConfirmDeletionPopup(): void {
       if (isPreselected) {
-        dispatch(deleteAttributionAndSave(selectedResourceId, attributionId));
+        dispatch(
+          deleteAttributionAndSave(
+            selectedResourceId,
+            attributionId,
+            selectedAttributionId
+          )
+        );
       } else {
         dispatch(openPopup(PopupType.ConfirmDeletionPopup, attributionId));
       }
@@ -173,7 +179,9 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
 
     function openConfirmDeletionGloballyPopup(): void {
       if (isPreselected) {
-        dispatch(deleteAttributionGloballyAndSave(attributionId));
+        dispatch(
+          deleteAttributionGloballyAndSave(attributionId, selectedAttributionId)
+        );
       } else {
         dispatch(
           openPopup(PopupType.ConfirmDeletionGloballyPopup, attributionId)
@@ -190,7 +198,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           unlinkAttributionAndSavePackageInfo(
             selectedResourceId,
             attributionId,
-            packageInfo
+            packageInfo,
+            selectedAttributionId
           )
         );
       }
@@ -198,7 +207,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
 
     function confirmAttributionGlobally(currentAttributionId: string): void {
       const packageInfo = getPackageInfo(currentAttributionId);
-      dispatch(savePackageInfo(null, currentAttributionId, packageInfo));
+      dispatch(
+        savePackageInfo(
+          null,
+          currentAttributionId,
+          packageInfo,
+          currentAttributionId !== selectedAttributionId
+        )
+      );
     }
 
     function confirmSelectedAttributionsGlobally(): void {

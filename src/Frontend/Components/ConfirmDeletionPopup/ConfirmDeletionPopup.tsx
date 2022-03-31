@@ -10,17 +10,27 @@ import {
   getSelectedView,
 } from '../../state/selectors/view-selector';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import {
+  getAttributionIdOfDisplayedPackageInManualPanel,
+  getSelectedResourceId,
+} from '../../state/selectors/audit-view-resource-selectors';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
 } from '../../state/actions/resource-actions/save-actions';
 import { View } from '../../enums/enums';
+import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 
 export function ConfirmDeletionPopup(): ReactElement {
   const view = useAppSelector(getSelectedView);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const targetAttributionId = useAppSelector(getPopupAttributionId);
+  const selectedAttributionIdAttributionView = useAppSelector(
+    getSelectedAttributionId
+  );
+  const selectedAttributionIdAuditView =
+    useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel) ??
+    undefined;
 
   const dispatch = useAppDispatch();
 
@@ -28,11 +38,20 @@ export function ConfirmDeletionPopup(): ReactElement {
     if (view === View.Audit) {
       targetAttributionId &&
         dispatch(
-          deleteAttributionAndSave(selectedResourceId, targetAttributionId)
+          deleteAttributionAndSave(
+            selectedResourceId,
+            targetAttributionId,
+            selectedAttributionIdAuditView
+          )
         );
     } else {
       targetAttributionId &&
-        dispatch(deleteAttributionGloballyAndSave(targetAttributionId));
+        dispatch(
+          deleteAttributionGloballyAndSave(
+            targetAttributionId,
+            selectedAttributionIdAttributionView
+          )
+        );
     }
   }
 
