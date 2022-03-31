@@ -7,7 +7,7 @@ import { App } from '../../../Components/App/App';
 import {
   clickOnButton,
   EMPTY_PARSED_FILE_CONTENT,
-  expectValuesInProgressbarTooltip,
+  expectValuesInTopProgressbarTooltip,
   goToView,
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
@@ -77,7 +77,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
-    expectValuesInProgressbarTooltip(screen, 5, 5, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
@@ -86,7 +86,7 @@ describe('The App in Audit View', () => {
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
-    expectValuesInProgressbarTooltip(screen, 5, 4, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 4, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -98,7 +98,7 @@ describe('The App in Audit View', () => {
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
-    expectValuesInProgressbarTooltip(screen, 5, 2, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 2, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
     expectValueNotInTextBox(screen, 'Name', 'React');
@@ -116,7 +116,7 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
-    expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 
   test('delete buttons are shown and work for preselected without popup', () => {
@@ -164,7 +164,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
-    expectValuesInProgressbarTooltip(screen, 5, 0, 5, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 0, 5, 0);
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
@@ -172,7 +172,7 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupNotVisible(screen);
     expectValueNotInTextBox(screen, 'Name', 'React');
-    expectValuesInProgressbarTooltip(screen, 5, 0, 4, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 0, 4, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -183,7 +183,7 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
     expectConfirmDeletionPopupNotVisible(screen);
     expectValueNotInTextBox(screen, 'Name', 'React');
-    expectValuesInProgressbarTooltip(screen, 5, 0, 2, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 0, 2, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
     expectValueNotInTextBox(screen, 'Name', 'React');
@@ -200,6 +200,6 @@ describe('The App in Audit View', () => {
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupNotVisible(screen);
-    expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 });

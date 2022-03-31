@@ -10,7 +10,7 @@ import {
   expectButton,
   expectButtonIsNotShown,
   expectElementsInAutoCompleteAndSelectFirst,
-  expectValuesInProgressbarTooltip,
+  expectValuesInTopProgressbarTooltip,
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
@@ -230,14 +230,14 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
-    expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
     expectButton(screen, ButtonText.Confirm);
     expectButton(screen, ButtonText.ConfirmGlobally);
 
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 1, 3, 0);
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
@@ -254,7 +254,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.ConfirmGlobally);
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 3, 1, 0);
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
@@ -277,7 +277,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInConfidenceField(screen, '90');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 4, 0, 0);
     expectButtonIsNotShown(screen, ButtonText.Confirm);
   });
 });

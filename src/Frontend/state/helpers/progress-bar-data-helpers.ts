@@ -10,6 +10,8 @@ import {
 } from '../../../shared/shared-types';
 import { PathPredicate, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
+import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
 export function getUpdatedProgressBarData(
   resources: Resources,
@@ -20,13 +22,7 @@ export function getUpdatedProgressBarData(
   isAttributionBreakpoint: PathPredicate,
   isFileWithChildren: PathPredicate
 ): ProgressBarData {
-  const progressBarData: ProgressBarData = {
-    fileCount: 0,
-    filesWithManualAttributionCount: 0,
-    filesWithOnlyPreSelectedAttributionCount: 0,
-    filesWithOnlyExternalAttributionCount: 0,
-    resourcesWithNonInheritedSignalOnly: [],
-  };
+  const progressBarData = getEmptyProgressBarData();
 
   updateProgressBarDataForResources(
     progressBarData,
@@ -44,7 +40,7 @@ export function getUpdatedProgressBarData(
   return progressBarData;
 }
 
-function filterResourcesToAttributions(
+export function filterResourcesToAttributions(
   resourcesToAttributions: ResourcesToAttributions,
   attributionIdsToRemove: Set<string>
 ): ResourcesToAttributions {
@@ -160,4 +156,68 @@ export function resourceHasOnlyPreSelectedAttributions(
       }
     )
   );
+}
+
+export function getFolderProgressBarData(args: {
+  resources: Resources;
+  resourceId: string;
+  manualAttributions: Attributions;
+  resourcesToManualAttributions: ResourcesToAttributions;
+  resourcesToExternalAttributions: ResourcesToAttributions;
+  resolvedExternalAttributions: Set<string>;
+  attributionBreakpoints: Set<string>;
+  filesWithChildren: Set<string>;
+}): ProgressBarData {
+  const isAttributionBreakpoint = getAttributionBreakpointCheck(
+    args.attributionBreakpoints
+  );
+  const isFileWithChildren = getFileWithChildrenCheck(args.filesWithChildren);
+  const progressBarData = getEmptyProgressBarData();
+
+  const parentAndCurrentResources = args.resourceId.slice(1, -1).split('/');
+  const resources = {
+    '': getCurrentSubTree(parentAndCurrentResources, args.resources),
+  };
+
+  updateProgressBarDataForResources(
+    progressBarData,
+    resources,
+    args.manualAttributions,
+    args.resourcesToManualAttributions,
+    filterResourcesToAttributions(
+      args.resourcesToExternalAttributions,
+      args.resolvedExternalAttributions
+    ),
+    isAttributionBreakpoint,
+    isFileWithChildren
+  );
+
+  return progressBarData;
+}
+
+export function getEmptyProgressBarData(): ProgressBarData {
+  return {
+    fileCount: 0,
+    filesWithManualAttributionCount: 0,
+    filesWithOnlyPreSelectedAttributionCount: 0,
+    filesWithOnlyExternalAttributionCount: 0,
+    resourcesWithNonInheritedSignalOnly: [],
+  };
+}
+
+function getCurrentSubTree(
+  parentAndCurrentResources: string[],
+  resources: Resources
+): Resources {
+  const resource = parentAndCurrentResources.shift();
+  if (resource) {
+    return {
+      [resource]: getCurrentSubTree(
+        parentAndCurrentResources,
+        resources[resource] as Resources
+      ),
+    };
+  } else {
+    return resources;
+  }
 }

@@ -7,7 +7,7 @@ import { App } from '../../../Components/App/App';
 import {
   clickOnButton,
   clickOnOpenFileIcon,
-  clickOnProgressBar,
+  clickOnTopProgressBar,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
   mockElectronBackend,
@@ -216,14 +216,14 @@ describe('Not saved popup of the app', () => {
     insertValueIntoTextBox(screen, 'Name', 'Vue');
     expectValueInTextBox(screen, 'Name', 'Vue');
 
-    clickOnProgressBar(screen);
+    clickOnTopProgressBar(screen);
     expectUnsavedChangesPopupIsShown(screen);
 
     clickOnButton(screen, ButtonText.Undo);
     getElementInResourceBrowser(screen, 'root');
 
     goToView(screen, View.Attribution);
-    clickOnProgressBar(screen);
+    clickOnTopProgressBar(screen);
     expectUnsavedChangesPopupIsNotShown(screen);
     getElementInResourceBrowser(screen, 'root');
   });

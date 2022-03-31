@@ -13,7 +13,7 @@ import {
   AttributionIdsWithCountAndResourceId,
   PanelData,
 } from '../../types/types';
-import { WorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
+import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -42,7 +42,7 @@ export function WorkerAccordionPanel(
   ] = useState<AttributionIdsWithCountAndResourceId>(
     EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
   );
-  const resourceDetailsTabsWorkers = useContext(WorkersContext);
+  const resourceDetailsTabsWorkers = useContext(AccordionWorkersContext);
 
   let worker: Worker;
   switch (props.title) {

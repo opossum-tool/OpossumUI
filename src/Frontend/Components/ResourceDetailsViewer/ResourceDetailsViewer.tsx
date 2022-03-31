@@ -27,6 +27,8 @@ import {
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
+import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
+import { FolderProgressBar } from '../ProgressBar/FolderProgressBar';
 
 const useStyles = makeStyles({
   root: {
@@ -103,6 +105,8 @@ export function ResourceDetailsViewer(): ReactElement | null {
     );
   }
 
+  const showProgressBar = isIdOfResourceWithChildren(selectedResourceId);
+
   return selectedResourceId && displayedPackage ? (
     <div className={classes.root}>
       <PathBar />
@@ -115,6 +119,9 @@ export function ResourceDetailsViewer(): ReactElement | null {
               showAddNewAttributionButton={!showParentAttributions}
               onOverrideParentClick={onOverrideParentClick}
             />
+          )}
+          {showProgressBar && (
+            <FolderProgressBar resourceId={selectedResourceId} />
           )}
           <div className={classes.tabsDiv}>
             <ResourceDetailsTabs

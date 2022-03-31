@@ -12,13 +12,13 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ProgressBar } from '../ProgressBar';
+import { TopProgressBar } from '../TopProgressBar';
 import { setProgressBarData } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { DiscreteConfidence } from '../../../enums/enums';
 
-describe('ProgressBar', () => {
+describe('TopProgressBar', () => {
   jest.useFakeTimers();
-  test('ProgressBar renders', () => {
+  test('TopProgressBar renders', () => {
     const testResources: Resources = {
       folder1: { file1: 1, file2: 1 },
       folder2: { file1: 1, file2: 1 },
@@ -56,7 +56,7 @@ describe('ProgressBar', () => {
       '/folder2/file2': [testExternalAttributionUuid],
     };
 
-    const { store } = renderComponentWithStore(<ProgressBar />);
+    const { store } = renderComponentWithStore(<TopProgressBar />);
     store.dispatch(
       setProgressBarData(
         testResources,
@@ -67,7 +67,7 @@ describe('ProgressBar', () => {
       )
     );
 
-    const progressBar = screen.getByLabelText('ProgressBar');
+    const progressBar = screen.getByLabelText('TopProgressBar');
     fireEvent.mouseOver(progressBar);
     act(() => {
       jest.runAllTimers();
@@ -80,8 +80,8 @@ describe('ProgressBar', () => {
     ).toBeDefined();
   });
 
-  test('ProgressBar renders without progress data', () => {
-    renderComponentWithStore(<ProgressBar />);
-    expect(screen.queryByLabelText('ProgressBar')).not.toBeInTheDocument();
+  test('TopProgressBar renders without progress data', () => {
+    renderComponentWithStore(<TopProgressBar />);
+    expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
   });
 });

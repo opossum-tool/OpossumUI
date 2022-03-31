@@ -5,7 +5,7 @@
 
 import {
   clickOnButton,
-  expectValuesInProgressbarTooltip,
+  expectValuesInTopProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
   goToView,
   mockElectronBackend,
@@ -103,7 +103,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'firstResource.js');
       expectValueInTextBox(screen, 'Name', 'Angular');
-      expectValuesInProgressbarTooltip(screen, 5, 5, 0, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
         'Angular, 12.2.8'
@@ -131,7 +131,7 @@ describe('The ContextMenu', () => {
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
       expectValueNotInTextBox(screen, 'Name', 'React');
-      expectValuesInProgressbarTooltip(screen, 5, 4, 0, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 4, 0, 0);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
       expectValueInTextBox(screen, 'Name', 'React');
@@ -158,7 +158,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
       expectValueNotInTextBox(screen, 'Name', 'React');
-      expectValuesInProgressbarTooltip(screen, 5, 2, 0, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 2, 0, 0);
 
       clickOnElementInResourceBrowser(screen, 'thirdResource.js');
       expectValueNotInTextBox(screen, 'Name', 'React');
@@ -177,7 +177,7 @@ describe('The ContextMenu', () => {
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
-      expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
     });
 
     test('work correctly for pre-selected attributions', () => {
@@ -233,7 +233,7 @@ describe('The ContextMenu', () => {
       );
       expectConfirmDeletionPopupNotVisible(screen);
       expectValueNotInTextBox(screen, 'Name', 'React');
-      expectValuesInProgressbarTooltip(screen, 5, 0, 4, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 0, 4, 0);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
       expectValueInTextBox(screen, 'Name', 'React');
@@ -258,7 +258,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
       expectValueNotInTextBox(screen, 'Name', 'React');
-      expectValuesInProgressbarTooltip(screen, 5, 0, 2, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 0, 2, 0);
 
       clickOnElementInResourceBrowser(screen, 'thirdResource.js');
       expectValueNotInTextBox(screen, 'Name', 'React');
@@ -276,7 +276,7 @@ describe('The ContextMenu', () => {
         ButtonText.DeleteGlobally
       );
       expectConfirmDeletionPopupNotVisible(screen);
-      expectValuesInProgressbarTooltip(screen, 5, 0, 0, 0);
+      expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
     });
   });
 

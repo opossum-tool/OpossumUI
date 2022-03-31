@@ -10,7 +10,7 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import {
-  expectValuesInProgressbarTooltip,
+  expectValuesInTopProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
@@ -131,7 +131,7 @@ describe('In Audit View the ContextMenu', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
-    expectValuesInProgressbarTooltip(screen, 4, 0, 4, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
     expectContextMenuForPreSelectedAttributionMultipleResources(
       screen,
       'React, 16.5.0'
@@ -144,7 +144,7 @@ describe('In Audit View the ContextMenu', () => {
     );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValuesInProgressbarTooltip(screen, 4, 1, 3, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 1, 3, 0);
     expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -166,7 +166,7 @@ describe('In Audit View the ContextMenu', () => {
     );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValuesInProgressbarTooltip(screen, 4, 3, 1, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 3, 1, 0);
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
       'React, 16.5.0'
@@ -192,7 +192,7 @@ describe('In Audit View the ContextMenu', () => {
     expectValueInTextBox(screen, 'Name', 'Vue');
     expectValueNotInConfidenceField(screen, '90');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    expectValuesInProgressbarTooltip(screen, 4, 4, 0, 0);
+    expectValuesInTopProgressbarTooltip(screen, 4, 4, 0, 0);
 
     expectContextMenuForNotPreSelectedAttributionSingleResource(
       screen,

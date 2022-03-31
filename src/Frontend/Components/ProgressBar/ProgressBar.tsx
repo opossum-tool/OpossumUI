@@ -6,7 +6,6 @@
 import makeStyles from '@mui/styles/makeStyles';
 import MuiTooltip from '@mui/material/Tooltip';
 import React, { ReactElement } from 'react';
-import { getProgressBarData } from '../../state/selectors/all-views-resource-selectors';
 import { ProgressBarData } from '../../types/types';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import {
@@ -14,14 +13,9 @@ import {
   getProgressBarTooltipText,
   useOnProgressBarClick,
 } from './progress-bar-helpers';
-import { useAppSelector } from '../../state/hooks';
+import clsx from 'clsx';
 
 const useStyles = makeStyles({
-  root: {
-    flex: 1,
-    marginLeft: 12,
-    marginRight: 12,
-  },
   tooltip: {
     ...tooltipStyle,
     whiteSpace: 'pre-wrap',
@@ -30,41 +24,55 @@ const useStyles = makeStyles({
   bar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
-    height: 20,
     marginTop: 6,
     '&:hover': {
       cursor: 'pointer',
       opacity: 0.75,
     },
   },
+  folderBar: {
+    height: 10,
+  },
+  topBar: {
+    height: 20,
+  },
 });
 
-export function ProgressBar(): ReactElement {
+interface ProgressBarProps {
+  className: string;
+  progressBarData: ProgressBarData;
+  label: string;
+  isFolderProgressBar?: boolean;
+}
+
+export function ProgressBar(props: ProgressBarProps): ReactElement {
   const classes = useStyles();
-  const progressBarData: ProgressBarData | null =
-    useAppSelector(getProgressBarData);
 
   const onProgressBarClick = useOnProgressBarClick(
-    progressBarData?.resourcesWithNonInheritedSignalOnly || []
+    props.progressBarData.resourcesWithNonInheritedSignalOnly
   );
 
   return (
-    <div className={classes.root}>
-      {progressBarData ? (
-        <MuiTooltip
-          classes={{ tooltip: classes.tooltip }}
-          title={getProgressBarTooltipText(progressBarData)}
-        >
-          <div
-            aria-label={'ProgressBar'}
-            className={classes.bar}
-            style={{
-              background: getProgressBarBackground(progressBarData),
-            }}
-            onClick={onProgressBarClick}
-          />
-        </MuiTooltip>
-      ) : null}
+    <div className={props.className}>
+      <MuiTooltip
+        classes={{ tooltip: classes.tooltip }}
+        title={getProgressBarTooltipText(props.progressBarData)}
+      >
+        <div
+          aria-label={props.label}
+          className={clsx(
+            classes.bar,
+            props.isFolderProgressBar ? classes.folderBar : classes.topBar
+          )}
+          style={{
+            background: getProgressBarBackground(
+              props.progressBarData,
+              props.isFolderProgressBar
+            ),
+          }}
+          onClick={onProgressBarClick}
+        />
+      </MuiTooltip>
     </div>
   );
 }
