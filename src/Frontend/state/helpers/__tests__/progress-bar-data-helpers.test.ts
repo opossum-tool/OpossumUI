@@ -411,10 +411,10 @@ describe('The getFolderProgressBarData function', () => {
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
     });
-    expect(progressBarData.fileCount).toEqual(2);
-    expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);
-    expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([]);
+    expect(progressBarData?.fileCount).toEqual(2);
+    expect(progressBarData?.filesWithManualAttributionCount).toEqual(1);
+    expect(progressBarData?.filesWithOnlyExternalAttributionCount).toEqual(0);
+    expect(progressBarData?.resourcesWithNonInheritedSignalOnly).toEqual([]);
   });
 });
 

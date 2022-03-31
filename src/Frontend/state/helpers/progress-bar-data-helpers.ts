@@ -8,7 +8,11 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import { PathPredicate, ProgressBarData } from '../../types/types';
+import {
+  PathPredicate,
+  ProgressBarData,
+  ProgressBarWorkerArgs,
+} from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
@@ -158,16 +162,9 @@ export function resourceHasOnlyPreSelectedAttributions(
   );
 }
 
-export function getFolderProgressBarData(args: {
-  resources: Resources;
-  resourceId: string;
-  manualAttributions: Attributions;
-  resourcesToManualAttributions: ResourcesToAttributions;
-  resourcesToExternalAttributions: ResourcesToAttributions;
-  resolvedExternalAttributions: Set<string>;
-  attributionBreakpoints: Set<string>;
-  filesWithChildren: Set<string>;
-}): ProgressBarData {
+export function getFolderProgressBarData(
+  args: ProgressBarWorkerArgs
+): ProgressBarData | null {
   const isAttributionBreakpoint = getAttributionBreakpointCheck(
     args.attributionBreakpoints
   );
@@ -176,7 +173,7 @@ export function getFolderProgressBarData(args: {
 
   const parentAndCurrentResources = args.resourceId.slice(1, -1).split('/');
   const resources = {
-    '': getCurrentSubTree(parentAndCurrentResources, args.resources),
+    '': getCurrentSubTree(parentAndCurrentResources, args.resources || {}),
   };
 
   updateProgressBarDataForResources(

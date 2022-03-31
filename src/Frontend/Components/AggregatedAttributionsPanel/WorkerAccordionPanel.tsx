@@ -4,6 +4,7 @@
 
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
+  AttributionData,
   AttributionIdWithCount,
   Attributions,
 } from '../../../shared/shared-types';
@@ -15,20 +16,37 @@ import {
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 const EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID = {
   resourceId: '',
   attributionIdsWithCount: [],
 };
 
+interface ContainedExternalAttributionsAccordionWorkerArgs {
+  selectedResourceId: string;
+  externalData?: AttributionData;
+  resolvedExternalAttributions: Set<string>;
+}
+
+interface ContainedManualAttributionsAccordionWorkerArgs {
+  selectedResourceId: string;
+  manualData: AttributionData;
+}
+
 interface WorkerAccordionPanelProps {
   title:
     | PackagePanelTitle.ContainedExternalPackages
     | PackagePanelTitle.ContainedManualPackages;
-  workerArgs: any;
-  syncFallbackArgs?: any;
-  getAttributionIdsWithCount(workerArgs: any): Array<AttributionIdWithCount>;
+  workerArgs:
+    | ContainedExternalAttributionsAccordionWorkerArgs
+    | ContainedManualAttributionsAccordionWorkerArgs;
+  syncFallbackArgs?:
+    | ContainedExternalAttributionsAccordionWorkerArgs
+    | ContainedManualAttributionsAccordionWorkerArgs;
+  getAttributionIdsWithCount(
+    workerArgs:
+      | ContainedExternalAttributionsAccordionWorkerArgs
+      | ContainedManualAttributionsAccordionWorkerArgs
+  ): Array<AttributionIdWithCount>;
   attributions: Attributions;
   isAddToPackageEnabled: boolean;
 }
@@ -97,16 +115,22 @@ export function WorkerAccordionPanel(
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function loadAttributionIdsWithCount(
-  workerArgs: any,
+  workerArgs:
+    | ContainedExternalAttributionsAccordionWorkerArgs
+    | ContainedManualAttributionsAccordionWorkerArgs,
   worker: Worker,
   panelTitle: string,
   setAttributionIdsWithCountAndResourceId: (
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
   getAttributionIdsWithCount: (
-    workerArgs: any
+    workerArgs:
+      | ContainedExternalAttributionsAccordionWorkerArgs
+      | ContainedManualAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
-  syncFallbackArgs?: any
+  syncFallbackArgs?:
+    | ContainedExternalAttributionsAccordionWorkerArgs
+    | ContainedManualAttributionsAccordionWorkerArgs
 ): Promise<void> {
   setAttributionIdsWithCountAndResourceId(
     EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
@@ -152,10 +176,16 @@ function logErrorAndComputeInMainProcess(
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
   getAttributionIdsWithCount: (
-    workerArgs: any
+    workerArgs:
+      | ContainedExternalAttributionsAccordionWorkerArgs
+      | ContainedManualAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
-  workerArgs: any,
-  syncFallbackArgs?: any
+  workerArgs:
+    | ContainedExternalAttributionsAccordionWorkerArgs
+    | ContainedManualAttributionsAccordionWorkerArgs,
+  syncFallbackArgs?:
+    | ContainedExternalAttributionsAccordionWorkerArgs
+    | ContainedManualAttributionsAccordionWorkerArgs
 ): void {
   console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
 

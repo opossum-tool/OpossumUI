@@ -17,14 +17,13 @@ import {
 import {
   FolderProgressBarDataAndResourceId,
   ProgressBarData,
+  ProgressBarWorkerArgs,
 } from '../../types/types';
 import { useAppSelector } from '../../state/hooks';
 import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import { ProgressBarWorkerContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { getFolderProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBar } from './ProgressBar';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const useStyles = makeStyles({
   root: {
@@ -142,11 +141,11 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
 // eslint-disable-next-line @typescript-eslint/require-await
 async function loadProgressBarData(
   worker: Worker,
-  workerArgs: any,
+  workerArgs: Partial<ProgressBarWorkerArgs>,
   setFolderProgressBarDataAndResourceId: (
     folderProgressBarDataAndResourceId: FolderProgressBarDataAndResourceId
   ) => void,
-  syncFallbackArgs: any
+  syncFallbackArgs: ProgressBarWorkerArgs
 ): Promise<void> {
   setFolderProgressBarDataAndResourceId(
     EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID
@@ -180,7 +179,7 @@ function logErrorAndComputeInMainProcess(
   setFolderProgressBarDataAndResourceId: (
     folderProgressBarDataAndResourceId: FolderProgressBarDataAndResourceId
   ) => void,
-  syncFallbackArgs: any
+  syncFallbackArgs: ProgressBarWorkerArgs
 ): void {
   console.info('Error in rendering folder progress bar: ', error);
   const folderProgressBarData = getFolderProgressBarData(syncFallbackArgs);
