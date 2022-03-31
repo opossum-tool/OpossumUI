@@ -15,11 +15,17 @@ import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { ListCardConfig } from '../../types/types';
 import { makeStyles } from '@mui/styles';
 import clsx from 'clsx';
-import useScrollbarSize from 'react-scrollbar-size';
 
 const NUMBER_OF_DISPLAYED_ITEMS = 15;
 const CARD_VERTICAL_DISTANCE = 41;
 const MAX_HEIGHT = NUMBER_OF_DISPLAYED_ITEMS * CARD_VERTICAL_DISTANCE;
+const TYPICAL_SCROLLBAR_WIDTH = 13;
+
+const useStyles = makeStyles({
+  paddingRight: {
+    paddingRight: TYPICAL_SCROLLBAR_WIDTH,
+  },
+});
 
 interface PackageListProps {
   attributionIdsWithCount?: Array<AttributionIdWithCount>;
@@ -37,13 +43,6 @@ interface PackageListProps {
 
 export function PackageList(props: PackageListProps): ReactElement {
   const attributionIdsWithCount = props.attributionIdsWithCount || [];
-  const { width } = useScrollbarSize();
-
-  const useStyles = makeStyles({
-    paddingRight: {
-      paddingRight: width,
-    },
-  });
 
   const classes = useStyles();
 

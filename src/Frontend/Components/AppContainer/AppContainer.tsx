@@ -19,16 +19,16 @@ const queryClient = new QueryClient();
 
 export function AppContainer(): ReactElement {
   return (
-    <React.StrictMode>
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <AccordionWorkersContextProvider>
-            <ProgressBarWorkerContextProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <AccordionWorkersContextProvider>
+          <ProgressBarWorkerContextProvider>
+            <React.StrictMode>
               <App />
-            </ProgressBarWorkerContextProvider>
-          </AccordionWorkersContextProvider>
-        </QueryClientProvider>
-      </Provider>
-    </React.StrictMode>
+            </React.StrictMode>
+          </ProgressBarWorkerContextProvider>
+        </AccordionWorkersContextProvider>
+      </QueryClientProvider>
+    </Provider>
   );
 }
