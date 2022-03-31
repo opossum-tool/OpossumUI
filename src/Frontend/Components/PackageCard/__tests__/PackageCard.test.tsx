@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { PackageCard } from '../PackageCard';
 import {
@@ -173,10 +173,11 @@ describe('The PackageCard', () => {
 
     expect(screen.getByText('packageName'));
     expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
-
-    store.dispatch(
-      setMultiSelectSelectedAttributionIds([anotherAttributionId])
-    );
+    act(() => {
+      store.dispatch(
+        setMultiSelectSelectedAttributionIds([anotherAttributionId])
+      );
+    });
     fireEvent.click(screen.getByRole('checkbox') as Element);
     expect(
       getMultiSelectSelectedAttributionIds(store.getState())

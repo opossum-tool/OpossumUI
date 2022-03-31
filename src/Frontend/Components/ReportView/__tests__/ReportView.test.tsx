@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -59,16 +59,18 @@ describe('The ReportView', () => {
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
     const { store } = renderComponentWithStore(<ReportView />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
-    );
-    store.dispatch(setFrequentLicences(testFrequentLicenses));
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
+        )
+      );
+      store.dispatch(setFrequentLicences(testFrequentLicenses));
+    });
     expect(screen.getByText('Test package'));
     expect(screen.getByText('MIT text'));
     expect(screen.getByText('Test other package'));
@@ -77,15 +79,17 @@ describe('The ReportView', () => {
 
   test('filters Follow-ups', () => {
     const { store } = renderComponentWithStore(<ReportView />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
+        )
+      );
+    });
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 
@@ -98,15 +102,17 @@ describe('The ReportView', () => {
 
   test('filters only first party', () => {
     const { store } = renderComponentWithStore(<ReportView />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
+        )
+      );
+    });
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 
@@ -123,15 +129,17 @@ describe('The ReportView', () => {
 
   test('filters Only First Party and follow ups and then hide first party and follow ups', () => {
     const { store } = renderComponentWithStore(<ReportView />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          })
+        )
+      );
+    });
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 

@@ -19,7 +19,7 @@ import {
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
 import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
 import React from 'react';
@@ -307,7 +307,9 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
 
     expectErrorPopupIsShown(screen);
-    jest.advanceTimersByTime(TIME_POPUP_IS_DISPLAYED);
+    act(() => {
+      jest.advanceTimersByTime(TIME_POPUP_IS_DISPLAYED);
+    });
     expectErrorPopupIsNotShown(screen);
   });
 

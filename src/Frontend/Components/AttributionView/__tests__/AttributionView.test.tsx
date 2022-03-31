@@ -20,6 +20,7 @@ import {
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
 import { AttributionView } from '../AttributionView';
+import { act } from 'react-dom/test-utils';
 
 describe('The Attribution View', () => {
   const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';
@@ -60,8 +61,10 @@ describe('The Attribution View', () => {
         })
       )
     );
+    act(() => {
+      store.dispatch(navigateToView(View.Attribution));
+    });
 
-    store.dispatch(navigateToView(View.Attribution));
     expect(screen.getByText('All Attributions (2)'));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
@@ -83,7 +86,10 @@ describe('The Attribution View', () => {
         })
       )
     );
-    store.dispatch(navigateToView(View.Attribution));
+    act(() => {
+      store.dispatch(navigateToView(View.Attribution));
+    });
+
     expect(screen.getByText('All Attributions (2)'));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
@@ -106,7 +112,10 @@ describe('The Attribution View', () => {
         })
       )
     );
-    store.dispatch(navigateToView(View.Attribution));
+    act(() => {
+      store.dispatch(navigateToView(View.Attribution));
+    });
+
     expect(screen.getByText('All Attributions (2)'));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
@@ -131,7 +140,10 @@ describe('The Attribution View', () => {
         })
       )
     );
-    store.dispatch(navigateToView(View.Attribution));
+    act(() => {
+      store.dispatch(navigateToView(View.Attribution));
+    });
+
     expect(screen.getByText('All Attributions (2)'));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  act,
   fireEvent,
   getByLabelText,
   queryByLabelText,
@@ -46,7 +47,9 @@ describe('ResourceBrowser', () => {
     };
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
-    store.dispatch(setResources(testResources));
+    act(() => {
+      store.dispatch(setResources(testResources));
+    });
 
     expect(screen.getByText('/'));
     expect(screen.getByText('root'));
@@ -98,7 +101,9 @@ describe('ResourceBrowser', () => {
     };
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
-    store.dispatch(setResources(testResources));
+    act(() => {
+      store.dispatch(setResources(testResources));
+    });
 
     expect(screen.getByText('/'));
     expect(screen.getByText('parentDirectory'));
@@ -140,16 +145,18 @@ describe('ResourceBrowser', () => {
     };
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
-    store.dispatch(setResources(testResources));
-    store.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
-    );
-    store.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
-    );
+    act(() => {
+      store.dispatch(setResources(testResources));
+      store.dispatch(
+        setManualData(testManualAttributions, testResourcesToManualAttributions)
+      );
+      store.dispatch(
+        setExternalData(
+          testExternalAttributions,
+          testResourcesToExternalAttributions
+        )
+      );
+    });
 
     expect(screen.getByText('/')).toBeInTheDocument();
     expect(screen.getByText('root')).toBeInTheDocument();
@@ -174,8 +181,9 @@ describe('ResourceBrowser', () => {
       'something.js',
       'File icon without information'
     );
-
-    store.dispatch(addResolvedExternalAttribution(testUuid));
+    act(() => {
+      store.dispatch(addResolvedExternalAttribution(testUuid));
+    });
     expectIconToExist(screen, 'Signal icon', 'src', true);
     expectResourceIconLabelToBe(
       screen,
@@ -199,7 +207,9 @@ describe('ResourceBrowser', () => {
     };
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
-    store.dispatch(setResources(testResources));
+    act(() => {
+      store.dispatch(setResources(testResources));
+    });
 
     expect(screen.getByText('/'));
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
@@ -229,7 +239,9 @@ describe('ResourceBrowser', () => {
     };
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
-    store.dispatch(setResources(testResources));
+    act(() => {
+      store.dispatch(setResources(testResources));
+    });
     expect(screen.getByText('/'));
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
@@ -260,8 +272,10 @@ describe('ResourceBrowser', () => {
     };
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
-    store.dispatch(setResources(testResources));
-    store.dispatch(setFilesWithChildren(new Set(['/package.json/'])));
+    act(() => {
+      store.dispatch(setResources(testResources));
+      store.dispatch(setFilesWithChildren(new Set(['/package.json/'])));
+    });
 
     expect(screen.getByText('/'));
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();

@@ -43,7 +43,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(2);
+    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(3);
     expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
       IpcChannel.SendErrorInformation,
       expect.anything()

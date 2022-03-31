@@ -13,6 +13,7 @@ import { screen } from '@testing-library/react';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import each from 'jest-each';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
+import { act } from 'react-dom/test-utils';
 
 describe('The GoToLinkButton', () => {
   each([
@@ -33,8 +34,10 @@ describe('The GoToLinkButton', () => {
           'https://www.testurl.com/code/{path}?base=123456789',
       };
       const { store } = renderComponentWithStore(<GoToLinkButton />);
-      store.dispatch(setSelectedResourceId(path));
-      store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
+      act(() => {
+        store.dispatch(setSelectedResourceId(path));
+        store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
+      });
 
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
       expect(screen.getByLabelText('link to open'));

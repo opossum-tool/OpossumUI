@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import React from 'react';
 import {
   AttributionIdWithCount,
@@ -101,7 +101,9 @@ describe('The PackagePanel', () => {
       />,
       { store: testStore }
     );
-    testStore.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
+    act(() => {
+      testStore.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
+    });
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;
     // eslint-disable-next-line testing-library/prefer-screen-queries

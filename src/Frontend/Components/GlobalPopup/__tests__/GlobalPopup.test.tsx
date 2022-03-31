@@ -16,6 +16,7 @@ import { Attributions } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { act } from 'react-dom/test-utils';
 
 describe('The GlobalPopUp', () => {
   test('does not open by default', () => {
@@ -26,21 +27,27 @@ describe('The GlobalPopUp', () => {
 
   test('opens the NotSavedPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.NotSavedPopup));
+    act(() => {
+      store.dispatch(openPopup(PopupType.NotSavedPopup));
+    });
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
   });
 
   test('opens the ErrorPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.UnableToSavePopup));
+    act(() => {
+      store.dispatch(openPopup(PopupType.UnableToSavePopup));
+    });
 
     expect(screen.getByText('Error')).toBeInTheDocument();
   });
 
   test('opens the FileSearchPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.FileSearchPopup));
+    act(() => {
+      store.dispatch(openPopup(PopupType.FileSearchPopup));
+    });
 
     expect(
       screen.getByText('Search for Files and Directories')
@@ -49,7 +56,9 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ProjectMetadataPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
+    act(() => {
+      store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
+    });
 
     expect(screen.getByText('Project Metadata')).toBeInTheDocument();
   });
@@ -70,7 +79,9 @@ describe('The GlobalPopUp', () => {
     renderComponentWithStore(<GlobalPopup />, {
       store: testStore,
     });
-    testStore.dispatch(openPopup(PopupType.ReplaceAttributionPopup, 'uuid1'));
+    act(() => {
+      testStore.dispatch(openPopup(PopupType.ReplaceAttributionPopup, 'uuid1'));
+    });
 
     expect(
       screen.getByText('This removes the following attribution')
@@ -79,7 +90,9 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmDeletionPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ConfirmDeletionPopup, 'test'));
+    act(() => {
+      store.dispatch(openPopup(PopupType.ConfirmDeletionPopup, 'test'));
+    });
 
     expect(
       screen.getByText(
@@ -90,7 +103,9 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmDeletionGloballyPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup, 'test'));
+    act(() => {
+      store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup, 'test'));
+    });
 
     expect(
       screen.getByText(
@@ -101,8 +116,12 @@ describe('The GlobalPopUp', () => {
 
   test('opens the ConfirmMultiSelectDeletionPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
-    store.dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
-    store.dispatch(setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']));
+    act(() => {
+      store.dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
+      store.dispatch(
+        setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2'])
+      );
+    });
 
     expect(
       screen.getByText(

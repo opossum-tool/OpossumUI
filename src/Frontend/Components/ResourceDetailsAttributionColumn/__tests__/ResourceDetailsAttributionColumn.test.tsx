@@ -22,7 +22,7 @@ import {
   setManualData,
   setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
@@ -50,20 +50,21 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
     '/test_parent': ['uuid_1'],
     '/test_parent/test_child_with_own_attr': ['uuid_2'],
   };
-
-  store.dispatch(
-    loadFromFile(
-      getParsedInputFileEnrichedWithTestData({
-        manualAttributions,
-        resourcesToManualAttributions,
-      })
-    )
-  );
-  store.dispatch(
-    setManualData(manualAttributions, resourcesToManualAttributions)
-  );
-  store.dispatch(setSelectedResourceId(selectedResourceId));
-  store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+  act(() => {
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions,
+          resourcesToManualAttributions,
+        })
+      )
+    );
+    store.dispatch(
+      setManualData(manualAttributions, resourcesToManualAttributions)
+    );
+    store.dispatch(setSelectedResourceId(selectedResourceId));
+    store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+  });
 }
 
 describe('The ResourceDetailsAttributionColumn', () => {
@@ -79,8 +80,10 @@ describe('The ResourceDetailsAttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />
     );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
 
     expect(screen.queryAllByText('Confidence'));
     expect(
