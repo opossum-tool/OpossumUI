@@ -12,6 +12,8 @@ import {
   Attributions,
   Criticality,
   PackageInfo,
+  Resources,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 
 declare global {
@@ -109,4 +111,15 @@ export interface AttributionIdsWithCountAndResourceId {
 export interface FolderProgressBarDataAndResourceId {
   folderProgressBarData: ProgressBarData | null;
   resourceId: string;
+}
+
+export interface ProgressBarWorkerArgs {
+  resources: Resources | null;
+  resourceId: string;
+  manualAttributions: Attributions;
+  resourcesToManualAttributions: ResourcesToAttributions;
+  resourcesToExternalAttributions: ResourcesToAttributions;
+  resolvedExternalAttributions: Set<string>;
+  attributionBreakpoints: Set<string>;
+  filesWithChildren: Set<string>;
 }
