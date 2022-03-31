@@ -29,7 +29,7 @@ const useStyles = makeStyles({
   },
   expansionPanelDetails: {
     height: '100%',
-    padding: '0 0 16px 12px ',
+    padding: '0 12px 16px',
   },
   expansionPanelTransition: {
     '& div.MuiCollapse-root': { transition: 'none' },
