@@ -10,6 +10,8 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import {
+  getEmptyProgressBarData,
+  getFolderProgressBarData,
   getUpdatedProgressBarData,
   resourceHasOnlyPreSelectedAttributions,
   updateProgressBarDataForResources,
@@ -316,13 +318,7 @@ describe('The getUpdatedProgressBarData function', () => {
   });
 
   test('updateProgressBarDataForResources', () => {
-    const progressBarData: ProgressBarData = {
-      fileCount: 0,
-      filesWithManualAttributionCount: 0,
-      filesWithOnlyPreSelectedAttributionCount: 0,
-      filesWithOnlyExternalAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [],
-    };
+    const progressBarData = getEmptyProgressBarData();
     const resources: Resources = {
       dir1: { subdir1: { file1: 1 } },
       dir2: { subdir2: { file2: 1 } },
@@ -357,6 +353,68 @@ describe('The getUpdatedProgressBarData function', () => {
       () => false
     );
     expect(progressBarData).toMatchObject(expectedProgressBarData);
+  });
+});
+
+describe('The getFolderProgressBarData function', () => {
+  test('gets updated progress data for current folder', () => {
+    const testResources: Resources = {
+      thirdParty: {
+        'package_1.tr.gz': 1,
+        'package_2.tr.gz': 1,
+      },
+      root: {
+        src: {
+          'something.js': 1,
+        },
+        'readme.md': 1,
+      },
+    };
+    const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
+    const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+      packageVersion: '1.0',
+      packageName: 'test Package',
+      licenseText: ' test License text',
+    };
+    const secondTestTemporaryPackageInfo: PackageInfo = {
+      packageVersion: '2.0',
+      packageName: 'not assigned test Package',
+      licenseText: ' test not assigned License text',
+    };
+    const testManualAttributions: Attributions = {
+      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
+      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+    };
+
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/root/src/something.js': [testManualAttributionUuid_1],
+    };
+
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/root/src/something.js': [
+        'testExternalAttributionUuid_1',
+        'resolved_id',
+      ],
+      '/thirdParty/package_1.tr.gz': ['testExternalAttributionUuid_1'],
+      '/thirdParty/package_2.tr.gz': ['resolved_id'],
+    };
+
+    const progressBarData = getFolderProgressBarData({
+      resources: testResources,
+      resourceId: '/root/',
+      manualAttributions: testManualAttributions,
+      resourcesToManualAttributions: testResourcesToManualAttributions,
+      resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      resolvedExternalAttributions: new Set<string>(),
+      attributionBreakpoints: new Set<string>(),
+      filesWithChildren: new Set<string>(),
+    });
+    expect(progressBarData.fileCount).toEqual(2);
+    expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
+    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);
+    expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([]);
   });
 });
 

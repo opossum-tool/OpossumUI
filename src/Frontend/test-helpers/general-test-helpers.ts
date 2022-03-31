@@ -188,8 +188,8 @@ export function clickOnEditIconForElement(
   fireEvent.click(screen.getByLabelText(`edit ${element}`) as Element);
 }
 
-export function clickOnProgressBar(screen: Screen): void {
-  fireEvent.click(screen.getByLabelText('ProgressBar') as Element);
+export function clickOnTopProgressBar(screen: Screen): void {
+  fireEvent.click(screen.getByLabelText('TopProgressBar') as Element);
 }
 
 export function clickOnCheckbox(screen: Screen, label: string): void {
@@ -259,7 +259,7 @@ export function expectElementsInAutoCompleteAndSelectFirst(
   fireEvent.click(screen.getByText(elements[0]) as Element);
 }
 
-export function expectValuesInProgressbarTooltip(
+export function expectValuesInTopProgressbarTooltip(
   screen: Screen,
   numberOfFiles: number,
   filesWithAttribution: number,
@@ -267,7 +267,7 @@ export function expectValuesInProgressbarTooltip(
   filesWithOnlySignals: number
 ): void {
   jest.useFakeTimers();
-  const progressBar = screen.getByLabelText('ProgressBar');
+  const progressBar = screen.getByLabelText('TopProgressBar');
   fireEvent.mouseOver(progressBar);
   act(() => {
     jest.runAllTimers();

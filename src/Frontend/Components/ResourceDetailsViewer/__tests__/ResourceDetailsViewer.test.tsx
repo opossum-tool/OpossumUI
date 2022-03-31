@@ -175,12 +175,14 @@ describe('The ResourceDetailsViewer', () => {
       },
     };
     const resourcesToExternalAttributions: ResourcesToAttributions = {
-      '/test_id': ['uuid_1'],
+      '/test_id/': ['uuid_1'],
       '/test_id/subdirectory': ['uuid_2'],
     };
+
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
+          resources: { test_id: { subdirectory: 1 } },
           externalAttributions,
           resourcesToExternalAttributions,
         })

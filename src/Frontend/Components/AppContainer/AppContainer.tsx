@@ -9,7 +9,10 @@ import { Provider } from 'react-redux';
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { WorkersContextProvider } from '../WorkersContextProvider/WorkersContextProvider';
+import {
+  ProgressBarWorkerContextProvider,
+  AccordionWorkersContextProvider,
+} from '../WorkersContextProvider/WorkersContextProvider';
 
 const store = createAppStore();
 const queryClient = new QueryClient();
@@ -19,9 +22,11 @@ export function AppContainer(): ReactElement {
     <React.StrictMode>
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <WorkersContextProvider>
-            <App />
-          </WorkersContextProvider>
+          <AccordionWorkersContextProvider>
+            <ProgressBarWorkerContextProvider>
+              <App />
+            </ProgressBarWorkerContextProvider>
+          </AccordionWorkersContextProvider>
         </QueryClientProvider>
       </Provider>
     </React.StrictMode>

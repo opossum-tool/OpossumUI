@@ -5,7 +5,7 @@
 
 import {
   clickOnButton,
-  clickOnProgressBar,
+  clickOnTopProgressBar,
   EMPTY_PARSED_FILE_CONTENT,
   getOpenFileIcon,
   getParsedInputFileEnrichedWithTestData,
@@ -292,7 +292,7 @@ describe('The App in Audit View', () => {
 
     renderComponentWithStore(<App />);
 
-    clickOnProgressBar(screen);
+    clickOnTopProgressBar(screen);
     expectPackageInPackagePanel(screen, 'JQuery', 'Signals');
     clickAddIconOnCardInAttributionList(screen, 'JQuery');
 
@@ -303,11 +303,11 @@ describe('The App in Audit View', () => {
     expectPackageInPackagePanel(screen, 'Vue', 'Signals');
     clickAddIconOnCardInAttributionList(screen, 'Vue');
 
-    clickOnProgressBar(screen);
+    clickOnTopProgressBar(screen);
     expectPackageInPackagePanel(screen, 'React', 'Signals');
     clickAddIconOnCardInAttributionList(screen, 'React');
 
-    clickOnProgressBar(screen);
+    clickOnTopProgressBar(screen);
     expectPackageInPackagePanel(screen, 'React', 'Signals');
   });
 

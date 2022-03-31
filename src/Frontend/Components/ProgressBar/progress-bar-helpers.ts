@@ -42,7 +42,8 @@ export function getProgressBarTooltipText(
 }
 
 export function getProgressBarBackground(
-  progressBarData: ProgressBarData
+  progressBarData: ProgressBarData,
+  isFolderProgressBar?: boolean
 ): string {
   let filesWithManualAttributions: number =
     (progressBarData.filesWithManualAttributionCount /
@@ -86,7 +87,11 @@ export function getProgressBarBackground(
     ` ${OpossumColors.pastelLightGreen} ${filesWithManualAttributions}%,` +
     ` ${OpossumColors.pastelMiddleGreen} ${filesWithPreselectedOrManualAttributions}%,` +
     ` ${OpossumColors.pastelRed} ${filesWithPreselectedOrManualAttributions}% ${allFilesWithAttributions}%,` +
-    ` ${OpossumColors.lightestBlue} ${allFilesWithAttributions}%)`
+    ` ${
+      isFolderProgressBar
+        ? OpossumColors.almostWhiteBlue
+        : OpossumColors.lightestBlue
+    } ${allFilesWithAttributions}%)`
   );
 }
 

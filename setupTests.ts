@@ -12,6 +12,7 @@ jest.setTimeout(TEST_TIMEOUT);
 let originalIpcRenderer: IpcRenderer;
 
 jest.mock('./src/Frontend/web-workers/get-new-accordion-workers');
+jest.mock('./src/Frontend/web-workers/get-new-folder-progress-bar-worker');
 
 beforeAll(() => {
   originalIpcRenderer = global.window.ipcRenderer;

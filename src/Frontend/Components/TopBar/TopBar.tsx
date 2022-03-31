@@ -13,7 +13,7 @@ import { View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
-import { ProgressBar } from '../ProgressBar/ProgressBar';
+import { TopProgressBar } from '../ProgressBar/TopProgressBar';
 import { OpossumColors } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
@@ -87,7 +87,7 @@ export function TopBar(): ReactElement {
           />
         }
       />
-      <ProgressBar />
+      <TopProgressBar />
       <MuiToggleButtonGroup
         size="small"
         value={selectedView}
