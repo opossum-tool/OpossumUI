@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import { DiscreteConfidence, View } from '../../../enums/enums';
@@ -27,8 +27,10 @@ describe('The AttributionDetailsViewer', () => {
       licenseText: 'Permission is hereby granted',
     };
     const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
-    store.dispatch(setSelectedAttributionId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedAttributionId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
 
     expect(screen.queryAllByText('Confidence'));
     expect(
@@ -75,16 +77,18 @@ describe('The AttributionDetailsViewer', () => {
       },
     };
     const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testManualAttributions,
-        })
-      )
-    );
-    store.dispatch(navigateToView(View.Attribution));
-    store.dispatch(setSelectedAttributionId('uuid_1'));
-    store.dispatch(setTemporaryPackageInfo(expectedPackageInfo));
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions: testManualAttributions,
+          })
+        )
+      );
+      store.dispatch(navigateToView(View.Attribution));
+      store.dispatch(setSelectedAttributionId('uuid_1'));
+      store.dispatch(setTemporaryPackageInfo(expectedPackageInfo));
+    });
     expect(screen.getByDisplayValue('React'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }) as Element);

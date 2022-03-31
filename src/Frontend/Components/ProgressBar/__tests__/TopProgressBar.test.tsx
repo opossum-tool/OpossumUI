@@ -57,15 +57,17 @@ describe('TopProgressBar', () => {
     };
 
     const { store } = renderComponentWithStore(<TopProgressBar />);
-    store.dispatch(
-      setProgressBarData(
-        testResources,
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testResourcesToExternalAttributions,
-        new Set<string>().add('resolved')
-      )
-    );
+    act(() => {
+      store.dispatch(
+        setProgressBarData(
+          testResources,
+          testManualAttributions,
+          testResourcesToManualAttributions,
+          testResourcesToExternalAttributions,
+          new Set<string>().add('resolved')
+        )
+      );
+    });
 
     const progressBar = screen.getByLabelText('TopProgressBar');
     fireEvent.mouseOver(progressBar);

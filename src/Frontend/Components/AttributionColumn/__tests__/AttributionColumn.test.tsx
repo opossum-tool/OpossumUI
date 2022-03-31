@@ -44,6 +44,7 @@ import {
   expectValueInTextBox,
   insertValueIntoTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
+import { act } from 'react-dom/test-utils';
 
 describe('The AttributionColumn', () => {
   test('renders TextBoxes with right titles and content', () => {
@@ -74,8 +75,10 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
 
     expect(screen.queryAllByText('Confidence')).toHaveLength(2);
     expect(
@@ -152,8 +155,11 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
+
     insertValueIntoTextBox(
       screen,
       'PURL',
@@ -195,8 +201,11 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
+
     insertValueIntoTextBox(
       screen,
       'PURL',
@@ -238,8 +247,11 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
+
     insertValueIntoTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0?');
     clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0');
@@ -263,8 +275,10 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
 
     expect(
       screen.getByDisplayValue((testTemporaryPackageInfo.source as Source).name)
@@ -289,7 +303,10 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
+
     expect(getTemporaryPackageInfo(store.getState()).followUp).toBeUndefined();
 
     clickOnCheckbox(screen, CheckboxLabel.FollowUp);
@@ -314,7 +331,10 @@ describe('The AttributionColumn', () => {
         onDeleteGloballyButtonClick={doNothing}
       />
     );
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
+
     expect(
       getTemporaryPackageInfo(store.getState()).excludeFromNotice
     ).toBeUndefined();
@@ -450,7 +470,9 @@ describe('The AttributionColumn', () => {
         nameOrder: ['MIT'],
         texts: { MIT: 'text' },
       };
-      store.dispatch(setFrequentLicences(testFrequentLicenses));
+      act(() => {
+        store.dispatch(setFrequentLicences(testFrequentLicenses));
+      });
 
       expect(screen.getByLabelText('Standard license text implied.'));
     });
@@ -478,7 +500,9 @@ describe('The AttributionColumn', () => {
         nameOrder: ['MIT'],
         texts: { MIT: 'text' },
       };
-      store.dispatch(setFrequentLicences(testFrequentLicenses));
+      act(() => {
+        store.dispatch(setFrequentLicences(testFrequentLicenses));
+      });
 
       expect(
         screen.getByLabelText(
@@ -534,7 +558,9 @@ describe('The AttributionColumn', () => {
           onDeleteGloballyButtonClick={doNothing}
         />
       );
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      act(() => {
+        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      });
 
       expect(getTemporaryPackageInfo(store.getState()).copyright).toBe(
         testCopyright
@@ -571,15 +597,19 @@ describe('The AttributionColumn', () => {
           onDeleteGloballyButtonClick={doNothing}
         />
       );
-      store.dispatch(setSelectedAttributionId('TestId'));
-      store.dispatch(setResources({}));
-      store.dispatch(
-        setDisplayedPackage({
-          panel: PackagePanelTitle.ExternalPackages,
-          attributionId: 'TestId',
-        })
-      );
-      store.dispatch(addResolvedExternalAttribution('TestExternalAttribution'));
+      act(() => {
+        store.dispatch(setSelectedAttributionId('TestId'));
+        store.dispatch(setResources({}));
+        store.dispatch(
+          setDisplayedPackage({
+            panel: PackagePanelTitle.ExternalPackages,
+            attributionId: 'TestId',
+          })
+        );
+        store.dispatch(
+          addResolvedExternalAttribution('TestExternalAttribution')
+        );
+      });
 
       clickOnButton(screen, 'resolve attribution');
       expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);

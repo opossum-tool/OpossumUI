@@ -23,6 +23,7 @@ import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { act } from 'react-dom/test-utils';
 
 describe('The EditAttributionPopup', () => {
   const testResources: Resources = {
@@ -69,8 +70,10 @@ describe('The EditAttributionPopup', () => {
         })
       )
     );
-    store.dispatch(setSelectedAttributionId('test_selected_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedAttributionId('test_selected_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
 
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
     expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();
@@ -100,8 +103,10 @@ describe('The EditAttributionPopup', () => {
       comment: 'changed comment',
     };
 
-    store.dispatch(setSelectedAttributionId('test_selected_id'));
-    store.dispatch(setTemporaryPackageInfo(changedTestTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedAttributionId('test_selected_id'));
+      store.dispatch(setTemporaryPackageInfo(changedTestTemporaryPackageInfo));
+    });
 
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
     expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();
@@ -130,9 +135,10 @@ describe('The EditAttributionPopup', () => {
       ...testTemporaryPackageInfo,
       comment: 'changed comment',
     };
-
-    store.dispatch(setSelectedAttributionId('test_selected_id'));
-    store.dispatch(setTemporaryPackageInfo(changedTestTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedAttributionId('test_selected_id'));
+      store.dispatch(setTemporaryPackageInfo(changedTestTemporaryPackageInfo));
+    });
 
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
     expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();

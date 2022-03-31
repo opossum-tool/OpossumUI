@@ -10,6 +10,7 @@ import { ManualPackagePanel } from '../ManualPackagePanel';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { act } from 'react-dom/test-utils';
 
 describe('The ManualPackagePanel', () => {
   test('shows default and input attributions', () => {
@@ -22,19 +23,21 @@ describe('The ManualPackagePanel', () => {
         onOverrideParentClick={mockOnOverride}
       />
     );
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { file: 1 },
-          manualAttributions: {
-            uuid1: { packageName: 'React' },
-            uuid2: { packageName: 'Angular' },
-          },
-          resourcesToManualAttributions: { '/file': ['uuid1'] },
-        })
-      )
-    );
-    store.dispatch(setSelectedResourceId('/file'));
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: { file: 1 },
+            manualAttributions: {
+              uuid1: { packageName: 'React' },
+              uuid2: { packageName: 'Angular' },
+            },
+            resourcesToManualAttributions: { '/file': ['uuid1'] },
+          })
+        )
+      );
+      store.dispatch(setSelectedResourceId('/file'));
+    });
 
     expect(screen.getByText('React'));
     expect(screen.getByText('Add new attribution'));

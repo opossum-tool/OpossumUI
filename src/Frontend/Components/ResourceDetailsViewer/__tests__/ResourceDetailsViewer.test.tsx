@@ -29,6 +29,7 @@ import {
   expectValueNotInTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
+import { act } from 'react-dom/test-utils';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
@@ -58,17 +59,18 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
     '/test_parent': ['uuid_1'],
     '/test_parent/test_child_with_own_attr': ['uuid_2'],
   };
-
-  store.dispatch(
-    loadFromFile(
-      getParsedInputFileEnrichedWithTestData({
-        manualAttributions,
-        resourcesToManualAttributions,
-      })
-    )
-  );
-  store.dispatch(setSelectedResourceId(selectedResourceId));
-  store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+  act(() => {
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions,
+          resourcesToManualAttributions,
+        })
+      )
+    );
+    store.dispatch(setSelectedResourceId(selectedResourceId));
+    store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+  });
 }
 
 describe('The ResourceDetailsViewer', () => {
@@ -77,8 +79,10 @@ describe('The ResourceDetailsViewer', () => {
       packageName: 'jQuery',
     };
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(setSelectedResourceId('test_id'));
-    store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
 
     expect(screen.queryAllByText('Name'));
     expect(
@@ -101,19 +105,21 @@ describe('The ResourceDetailsViewer', () => {
         },
       };
       const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-      store.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: { '/': { file: 1 } },
-            manualAttributions: testManualAttributions,
-            resourcesToManualAttributions: {
-              '/': ['alphabetically_second', 'alphabetically_first'],
-            },
-          })
-        )
-      );
+      act(() => {
+        store.dispatch(
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: { '/': { file: 1 } },
+              manualAttributions: testManualAttributions,
+              resourcesToManualAttributions: {
+                '/': ['alphabetically_second', 'alphabetically_first'],
+              },
+            })
+          )
+        );
+        store.dispatch(setSelectedResourceId('/'));
+      });
 
-      store.dispatch(setSelectedResourceId('/'));
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
         'aaaaa'
       );
@@ -145,19 +151,20 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_1'],
     };
-
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions,
-          resourcesToExternalAttributions,
-        })
-      )
-    );
-    store.dispatch(
-      setExternalData(externalAttributions, resourcesToExternalAttributions)
-    );
-    store.dispatch(setTemporaryPackageInfo({}));
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions,
+            resourcesToExternalAttributions,
+          })
+        )
+      );
+      store.dispatch(
+        setExternalData(externalAttributions, resourcesToExternalAttributions)
+      );
+      store.dispatch(setTemporaryPackageInfo({}));
+    });
 
     expect(screen.getByText('Signals'));
     expect(screen.getByText('JQuery'));
@@ -178,19 +185,19 @@ describe('The ResourceDetailsViewer', () => {
       '/test_id/': ['uuid_1'],
       '/test_id/subdirectory': ['uuid_2'],
     };
-
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { test_id: { subdirectory: 1 } },
-          externalAttributions,
-          resourcesToExternalAttributions,
-        })
-      )
-    );
-
-    store.dispatch(setSelectedResourceId('/test_id/'));
-    store.dispatch(setTemporaryPackageInfo({}));
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: { test_id: { subdirectory: 1 } },
+            externalAttributions,
+            resourcesToExternalAttributions,
+          })
+        )
+      );
+      store.dispatch(setSelectedResourceId('/test_id/'));
+      store.dispatch(setTemporaryPackageInfo({}));
+    });
 
     expect(screen.getByText('Signals in Folder Content'));
     expect(screen.getByText('JQuery, 1.0'));
@@ -210,18 +217,20 @@ describe('The ResourceDetailsViewer', () => {
     };
     const resourcesToExternalAttributions = { '/test_id': ['uuid_2'] };
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(setSelectedResourceId('/test_id'));
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(setSelectedResourceId('/test_id'));
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: { a: { b: 1 } },
+            manualAttributions,
+            resourcesToManualAttributions,
+            externalAttributions,
+            resourcesToExternalAttributions,
+          })
+        )
+      );
+    });
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expect(screen.getByDisplayValue('jQuery'));
@@ -285,18 +294,20 @@ describe('The ResourceDetailsViewer', () => {
       '/test_id': ['uuid_2'],
     };
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(setSelectedResourceId('/test_id'));
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(setSelectedResourceId('/test_id'));
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: { a: { b: 1 } },
+            manualAttributions,
+            resourcesToManualAttributions,
+            externalAttributions,
+            resourcesToExternalAttributions,
+          })
+        )
+      );
+    });
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expect(screen.getByText('JQuery'));
@@ -373,19 +384,20 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_2', 'uuid_3'],
     };
-
-    store.dispatch(setSelectedResourceId('/test_id'));
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(setSelectedResourceId('/test_id'));
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: { a: { b: 1 } },
+            manualAttributions,
+            resourcesToManualAttributions,
+            externalAttributions,
+            resourcesToExternalAttributions,
+          })
+        )
+      );
+    });
 
     fireEvent.click(screen.getByText('Other package') as Element);
     expectValueNotInTextBox(
@@ -479,8 +491,9 @@ describe('The ResourceDetailsViewer', () => {
         })
       )
     );
-
-    store.dispatch(setSelectedResourceId('/root/'));
+    act(() => {
+      store.dispatch(setSelectedResourceId('/root/'));
+    });
     expect(screen.getByText('Signals'));
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
 
@@ -513,8 +526,9 @@ describe('The ResourceDetailsViewer', () => {
         })
       )
     );
-
-    store.dispatch(setSelectedResourceId('/fileWithAttribution'));
+    act(() => {
+      store.dispatch(setSelectedResourceId('/fileWithAttribution'));
+    });
     expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'Global Tab');
@@ -533,19 +547,21 @@ describe('The ResourceDetailsViewer', () => {
       '/folderWithAttribution/': ['uuid_1'],
     };
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions,
-          resourcesToManualAttributions,
-        })
-      )
-    );
+    act(() => {
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions,
+            resourcesToManualAttributions,
+          })
+        )
+      );
+      store.dispatch(
+        setSelectedResourceId('/folderWithAttribution/childrenFile')
+      );
+    });
 
-    store.dispatch(
-      setSelectedResourceId('/folderWithAttribution/childrenFile')
-    );
     expect(screen.getByText('Signals'));
 
     clickOnTab(screen, 'Global Tab');
@@ -567,20 +583,21 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_3'],
     };
-
-    store.dispatch(setSelectedResourceId('/test_id'));
-    store.dispatch(
-      loadFromFile({
-        ...getParsedInputFileEnrichedWithTestData({
-          resources: { a: { b: 1 } },
-          manualAttributions,
-          resourcesToManualAttributions,
-          externalAttributions,
-          resourcesToExternalAttributions,
-        }),
-        attributionBreakpoints: new Set(['/test_id']),
-      })
-    );
+    act(() => {
+      store.dispatch(setSelectedResourceId('/test_id'));
+      store.dispatch(
+        loadFromFile({
+          ...getParsedInputFileEnrichedWithTestData({
+            resources: { a: { b: 1 } },
+            manualAttributions,
+            resourcesToManualAttributions,
+            externalAttributions,
+            resourcesToExternalAttributions,
+          }),
+          attributionBreakpoints: new Set(['/test_id']),
+        })
+      );
+    });
 
     expect(screen.queryByText('Attributions')).not.toBeInTheDocument();
     expect(screen.queryByText('Add new attribution')).not.toBeInTheDocument();

@@ -7,7 +7,7 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import React from 'react';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -33,7 +33,11 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     const { store } = renderComponentWithStore(
       <ConfirmMultiSelectDeletionPopup />
     );
-    store.dispatch(setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']));
+    act(() => {
+      store.dispatch(
+        setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2'])
+      );
+    });
 
     expect(screen.getByText(expectedContent)).toBeInTheDocument();
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
@@ -79,8 +83,9 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
       <ConfirmMultiSelectDeletionPopup />,
       { store: testStore }
     );
-
-    store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
+    act(() => {
+      store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
+    });
     expect(screen.getByText(expectedContent)).toBeInTheDocument();
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
     clickOnButton(screen, ButtonText.Confirm);

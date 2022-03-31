@@ -8,14 +8,16 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { PathBar } from '../PathBar';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setFilesWithChildren } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 
 describe('The PathBar', () => {
   test('renders a path', () => {
     const testPath = '/test_path';
 
     const { store } = renderComponentWithStore(<PathBar />);
-    store.dispatch(setSelectedResourceId(testPath));
+    act(() => {
+      store.dispatch(setSelectedResourceId(testPath));
+    });
 
     expect(screen.getByText(testPath));
   });
@@ -24,8 +26,10 @@ describe('The PathBar', () => {
     const testPath = '/test_path/';
 
     const { store } = renderComponentWithStore(<PathBar />);
-    store.dispatch(setSelectedResourceId(testPath));
-    store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));
+    act(() => {
+      store.dispatch(setSelectedResourceId(testPath));
+      store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));
+    });
 
     expect(screen.getByText(testPath.slice(0, -1)));
   });
