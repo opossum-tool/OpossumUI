@@ -368,7 +368,9 @@ describe('The AttributionColumn', () => {
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.ipcRenderer.invoke).toHaveBeenCalledWith(
       IpcChannel.OpenLink,
-      { link: testTemporaryPackageInfo.url }
+      {
+        link: testTemporaryPackageInfo.url,
+      }
     );
   });
 
@@ -394,7 +396,9 @@ describe('The AttributionColumn', () => {
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.ipcRenderer.invoke).toHaveBeenCalledWith(
       IpcChannel.OpenLink,
-      { link: 'https://' + testTemporaryPackageInfo.url }
+      {
+        link: 'https://' + testTemporaryPackageInfo.url,
+      }
     );
   });
 

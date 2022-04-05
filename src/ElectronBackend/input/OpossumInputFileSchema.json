@@ -45,9 +45,7 @@
           "description": "To be shown as application title when the file is opened."
         }
       },
-      "required": [
-        "projectId"
-      ],
+      "required": ["projectId"],
       "additionalProperties": true
     },
     "externalAttributions": {
@@ -70,10 +68,7 @@
                 "maximum": 100
               }
             },
-            "required": [
-              "name",
-              "documentConfidence"
-            ],
+            "required": ["name", "documentConfidence"],
             "additionalProperties": false
           },
           "packageName": {
@@ -148,9 +143,7 @@
             "description": "Can be set to track a signal from the tooling that generated the input file. Will be copied into the output when the signal is converted into an attribution."
           }
         },
-        "required": [
-          "source"
-        ],
+        "required": ["source"],
         "additionalProperties": false
       }
     },
@@ -184,11 +177,7 @@
             "description": "Text of the license"
           }
         },
-        "required": [
-          "fullName",
-          "shortName",
-          "defaultText"
-        ]
+        "required": ["fullName", "shortName", "defaultText"]
       }
     },
     "attributionBreakpoints": {
@@ -224,10 +213,7 @@
           }
         },
         "additionalProperties": false,
-        "required": [
-          "name",
-          "priority"
-        ]
+        "required": ["name", "priority"]
       }
     }
   }
