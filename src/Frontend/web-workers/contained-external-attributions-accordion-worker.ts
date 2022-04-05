@@ -11,7 +11,8 @@ let cachedExternalData: AttributionData | null = null;
 self.onmessage = ({
   data: { selectedResourceId, externalData, resolvedExternalAttributions },
 }): void => {
-  if (externalData) {
+  // externalData = null is used to empty the cached data
+  if (externalData !== undefined) {
     cachedExternalData = externalData;
   }
 
