@@ -25,6 +25,10 @@ export const AccordionWorkersContextProvider: FC = ({ children }) => {
   const externalData = useAppSelector(getExternalData);
   useMemo(() => {
     try {
+      // remove data from previous file or empty data from app just opened
+      resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker.postMessage(
+        { externalData: null }
+      );
       resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker.postMessage(
         { externalData }
       );
