@@ -81,7 +81,9 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
 
     const { store } = renderComponentWithStore(
       <ConfirmMultiSelectDeletionPopup />,
-      { store: testStore }
+      {
+        store: testStore,
+      }
     );
     act(() => {
       store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
