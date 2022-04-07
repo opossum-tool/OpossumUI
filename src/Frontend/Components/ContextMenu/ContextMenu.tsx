@@ -19,23 +19,11 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { ButtonText } from '../../enums/enums';
-import makeStyles from '@mui/styles/makeStyles';
 import { PopoverPosition, PopoverReference } from '@mui/material';
 import { OpossumColors } from '../../shared-styles';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
-const useStyles = makeStyles({
-  icon: {
-    marginRight: -20,
-  },
-  menuItem: {
-    '&:hover': {
-      backgroundColor: OpossumColors.lightBlueOnHover,
-    },
-  },
-});
 
 const BUTTON_TITLE_TO_ICON_MAP: {
   [buttonText in ButtonText]?: JSX.Element;
@@ -81,8 +69,6 @@ interface anchorAttributes {
 }
 
 export function ContextMenu(props: ContextMenuProps): ReactElement | null {
-  const iconClasses = useStyles();
-
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
   const [anchorPosition, setAnchorPosition] = useState<
     undefined | PopoverPosition
@@ -164,9 +150,13 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
             }}
             disabled={menuItem.disabled}
             role={'button'}
-            className={iconClasses.menuItem}
+            sx={{
+              '&:hover': {
+                backgroundColor: OpossumColors.lightBlueOnHover,
+              },
+            }}
           >
-            <MuiListItemIcon className={iconClasses.icon}>
+            <MuiListItemIcon sx={{ marginRight: '-20px' }}>
               {BUTTON_TITLE_TO_ICON_MAP[menuItem.buttonText]}
             </MuiListItemIcon>
             <MuiListItemText sx={{ pl: 2 }} primary={menuItem.buttonText} />

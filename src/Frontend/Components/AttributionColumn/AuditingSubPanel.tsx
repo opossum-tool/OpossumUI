@@ -64,21 +64,18 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
     <MuiPaper className={classes.panel} elevation={0} square={true}>
       <div className={classes.displayRow}>
         <Checkbox
-          className={classes.checkBox}
           label={CheckboxLabel.FirstParty}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.firstParty)}
           onChange={props.firstPartyChangeHandler}
         />
         <Checkbox
-          className={classes.checkBox}
           label={CheckboxLabel.FollowUp}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.followUp)}
           onChange={props.followUpChangeHandler}
         />
         <Checkbox
-          className={classes.checkBox}
           label={CheckboxLabel.ExcludeFromNotice}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.excludeFromNotice)}

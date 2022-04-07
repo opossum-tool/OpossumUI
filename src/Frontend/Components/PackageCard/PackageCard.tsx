@@ -361,7 +361,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       <Checkbox
         checked={multiSelectSelectedAttributionIds.includes(attributionId)}
         onChange={handleMultiSelectAttributionSelected}
-        className={classes.multiSelectCheckbox}
+        isMultiSelect
       />
     ) : undefined;
 

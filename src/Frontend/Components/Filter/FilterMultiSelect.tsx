@@ -15,9 +15,8 @@ import { FilterType } from '../../enums/enums';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
 import { getActiveFilters } from '../../state/selectors/view-selector';
-import { makeStyles } from '@mui/styles';
 import { OpossumColors } from '../../shared-styles';
-import clsx from 'clsx';
+import { SxProps } from '@mui/material';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -27,7 +26,7 @@ const FILTERS = [
   FilterType.HideFirstParty,
 ];
 
-const useStyles = makeStyles({
+const classes = {
   dropDownForm: {
     margin: '12px 0px 8px 0px',
     backgroundColor: OpossumColors.white,
@@ -36,13 +35,13 @@ const useStyles = makeStyles({
     },
     '& label': {
       backgroundColor: OpossumColors.white,
-      padding: 1,
+      padding: '1px',
     },
   },
   dropDownSelect: {
     minHeight: 36,
     '& svg': {
-      paddingRight: 6,
+      paddingRight: '6px',
     },
   },
   dropDownBox: {
@@ -55,17 +54,18 @@ const useStyles = makeStyles({
     fontSize: 12,
   },
   dropdownStyle: {
-    maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-    left: '7px !important',
+    '& paper': {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      left: '7px !important',
+    },
   },
-});
+};
 
 interface FilterMultiSelectProps {
-  className?: string;
+  sx?: SxProps;
 }
 
 export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
 
@@ -91,25 +91,32 @@ export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
 
   return (
     <MuiFormControl
-      className={clsx(classes.dropDownForm, props.className)}
+      sx={[
+        classes.dropDownForm,
+        ...(props.sx
+          ? Array.isArray(props.sx)
+            ? props.sx
+            : [props.sx]
+          : [{}]),
+      ]}
       size="small"
       fullWidth
     >
       <MuiInputLabel>Filter</MuiInputLabel>
       <MuiSelect
-        className={classes.dropDownSelect}
+        sx={classes.dropDownSelect}
         data-testid="test-id-filter-multi-select"
         multiple
         value={activeFilters}
         input={<MuiOutlinedInput />}
         renderValue={(selectedFilters): ReactElement => (
-          <MuiBox className={classes.dropDownBox}>
+          <MuiBox sx={classes.dropDownBox}>
             {selectedFilters.map((filter) => (
               <MuiChip
                 key={filter}
                 label={filter}
                 size="small"
-                className={classes.chip}
+                sx={classes.chip}
                 onMouseDown={(event): void => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -121,7 +128,7 @@ export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
             ))}
           </MuiBox>
         )}
-        MenuProps={{ classes: { paper: classes.dropdownStyle } }}
+        MenuProps={{ sx: classes.dropdownStyle }}
       >
         {getMenuItems()}
       </MuiSelect>

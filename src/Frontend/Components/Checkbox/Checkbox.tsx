@@ -5,34 +5,39 @@
 
 import MuiCheckbox from '@mui/material/Checkbox';
 import React, { ReactElement } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
-
-const useStyles = makeStyles({
-  white: {
-    color: OpossumColors.white,
-  },
-  disabledLabel: {
-    color: OpossumColors.disabledGrey,
-  },
-});
-
+import { styled } from '@mui/material/styles';
 interface CheckboxProps {
   label?: string;
   disabled?: boolean;
   checked: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
-  className?: string;
   white?: boolean;
+  isMultiSelect?: boolean;
 }
 
+const CheckboxComponent = styled('div')({
+  height: 40,
+  display: 'flex',
+  alignItems: 'center',
+  marginRight: 12,
+  marginLeft: -2,
+});
+
+const MultiSelectCheckboxComponent = styled('div')({
+  height: 40,
+  marginTop: 1,
+});
+
 export function Checkbox(props: CheckboxProps): ReactElement {
-  const classes = useStyles();
-  const whiteMode = clsx(props.white && classes.white);
+  const whiteMode = props.white ? { color: OpossumColors.white } : {};
+  const Component = props.isMultiSelect
+    ? MultiSelectCheckboxComponent
+    : CheckboxComponent;
+
   return (
-    <div className={props.className}>
+    <Component>
       <MuiCheckbox
         disabled={props.disabled}
         checked={props.checked}
@@ -41,19 +46,16 @@ export function Checkbox(props: CheckboxProps): ReactElement {
           'aria-label': `checkbox ${props.label}`,
         }}
         color={'default'}
-        classes={{
-          root: whiteMode,
-          checked: whiteMode,
-        }}
+        sx={{ '&:root': whiteMode, '&:checked': whiteMode }}
       />
       <MuiTypography
-        className={clsx(
-          whiteMode,
-          props.disabled ? classes.disabledLabel : null
-        )}
+        sx={{
+          ...whiteMode,
+          color: props.disabled ? OpossumColors.disabledGrey : '',
+        }}
       >
         {props.label || ''}
       </MuiTypography>
-    </div>
+    </Component>
   );
 }
