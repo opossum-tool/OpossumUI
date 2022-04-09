@@ -45,7 +45,7 @@
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.181",
     "@types/object-hash": "^2.2.1",
-    "@types/react": "^17.0.43",
+    "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/react-redux": "^7.1.23",
     "@types/react-window": "^1.8.5",
