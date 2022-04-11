@@ -8,6 +8,7 @@ import React, { ReactElement } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 import { styled } from '@mui/material/styles';
+import { StyledComponent } from '@mui/styles';
 
 interface CheckboxProps {
   label?: string;
@@ -15,8 +16,8 @@ interface CheckboxProps {
   checked: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
   white?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component?: any;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  component?: StyledComponent<{}>;
 }
 
 const CheckboxComponent = styled('div')({
