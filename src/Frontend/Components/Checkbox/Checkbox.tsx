@@ -8,13 +8,15 @@ import React, { ReactElement } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 import { styled } from '@mui/material/styles';
+
 interface CheckboxProps {
   label?: string;
   disabled?: boolean;
   checked: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
   white?: boolean;
-  isMultiSelect?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component?: any;
 }
 
 const CheckboxComponent = styled('div')({
@@ -25,16 +27,9 @@ const CheckboxComponent = styled('div')({
   marginLeft: -2,
 });
 
-const MultiSelectCheckboxComponent = styled('div')({
-  height: 40,
-  marginTop: 1,
-});
-
 export function Checkbox(props: CheckboxProps): ReactElement {
   const whiteMode = props.white ? { color: OpossumColors.white } : {};
-  const Component = props.isMultiSelect
-    ? MultiSelectCheckboxComponent
-    : CheckboxComponent;
+  const Component = props.component ?? CheckboxComponent;
 
   return (
     <Component>

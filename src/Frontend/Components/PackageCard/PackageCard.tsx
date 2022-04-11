@@ -58,6 +58,7 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { PackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { getPackageInfoKeys } from '../../../shared/shared-util';
+import { styled } from '@mui/material/styles';
 
 const useStyles = makeStyles({
   hiddenIcon: {
@@ -78,6 +79,11 @@ const useStyles = makeStyles({
     flexGrow: 1,
     minWidth: 0,
   },
+});
+
+const MultiSelectCheckboxComponent = styled('div')({
+  height: 40,
+  marginTop: 1,
 });
 
 interface PackageCardProps {
@@ -361,7 +367,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       <Checkbox
         checked={multiSelectSelectedAttributionIds.includes(attributionId)}
         onChange={handleMultiSelectAttributionSelected}
-        isMultiSelect
+        component={MultiSelectCheckboxComponent}
       />
     ) : undefined;
 
