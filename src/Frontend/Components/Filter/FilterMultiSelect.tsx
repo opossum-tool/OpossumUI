@@ -17,6 +17,7 @@ import { updateActiveFilters } from '../../state/actions/view-actions/view-actio
 import { getActiveFilters } from '../../state/selectors/view-selector';
 import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -91,14 +92,10 @@ export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
 
   return (
     <MuiFormControl
-      sx={[
-        classes.dropDownForm,
-        ...(props.sx
-          ? Array.isArray(props.sx)
-            ? props.sx
-            : [props.sx]
-          : [{}]),
-      ]}
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.dropDownForm,
+        sxProps: props.sx,
+      })}
       size="small"
       fullWidth
     >
