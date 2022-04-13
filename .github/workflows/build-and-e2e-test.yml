@@ -21,8 +21,7 @@ jobs:
             E2E: export DISPLAY=:99 && Xvfb $DISPLAY -screen 0 1920x1080x24 & yarn test:e2e
           - os: macos-latest
             SHIP: ship-mac
-            # e2e tests currently deactivated on macOS due to flakiness
-            E2E: ''
+            E2E: yarn test:e2e
           - os: windows-latest
             SHIP: ship-win
             E2E: yarn test:e2e
