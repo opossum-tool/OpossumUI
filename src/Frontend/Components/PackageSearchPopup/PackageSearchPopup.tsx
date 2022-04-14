@@ -109,7 +109,7 @@ export function PackageSearchPopup(): ReactElement {
         search={currentSearchTerm}
         autoFocus={false}
       />
-      {isLoading ? (
+      {isLoading && Boolean(currentSearchTerm) ? (
         <Spinner />
       ) : isError ? (
         <Alert
