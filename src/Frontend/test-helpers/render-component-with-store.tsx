@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { render, RenderResult } from '@testing-library/react';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
 import { createAppStore } from '../state/configure-store';
@@ -26,7 +26,7 @@ export const renderComponentWithStore = (
   component: ReactElement,
   { store = createTestAppStore(), ...renderOptions } = {}
 ): RenderResultWithStore => {
-  const Wrapper: React.FC = ({ children }) => {
+  const Wrapper: React.FC<{ children: ReactNode | null }> = ({ children }) => {
     return <Provider store={store as Store}>{children}</Provider>;
   };
   // @ts-ignore

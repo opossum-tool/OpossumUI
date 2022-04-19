@@ -69,6 +69,9 @@ describe('useFetchPackageInfo', () => {
 
   it('returns idle', () => {
     const store = createTestAppStore();
+    const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
+      getWrapper(store, children);
+
     const { result } = renderHook(
       () =>
         useFetchPackageInfo({
@@ -76,7 +79,7 @@ describe('useFetchPackageInfo', () => {
           convertPayload: mockConvertPayload,
         }),
       {
-        wrapper: ({ children }) => getWrapper(store, children),
+        wrapper,
       }
     );
     expect(result.current.fetchStatus).toBe(FetchStatus.Idle);
@@ -84,6 +87,8 @@ describe('useFetchPackageInfo', () => {
 
   it('fetches data', async () => {
     const store = createTestAppStore();
+    const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
+      getWrapper(store, children);
     const { result } = renderHook(
       () =>
         useFetchPackageInfo({
@@ -91,7 +96,7 @@ describe('useFetchPackageInfo', () => {
           convertPayload: mockConvertPayload,
         }),
       {
-        wrapper: ({ children }) => getWrapper(store, children),
+        wrapper,
       }
     );
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -106,6 +111,8 @@ describe('useFetchPackageInfo', () => {
 
   it('handles errors', async () => {
     const store = createTestAppStore();
+    const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
+      getWrapper(store, children);
     const { result } = renderHook(
       () =>
         useFetchPackageInfo({
@@ -113,7 +120,7 @@ describe('useFetchPackageInfo', () => {
           convertPayload: mockConvertPayloadRaises,
         }),
       {
-        wrapper: ({ children }) => getWrapper(store, children),
+        wrapper,
       }
     );
     // eslint-disable-next-line @typescript-eslint/require-await
