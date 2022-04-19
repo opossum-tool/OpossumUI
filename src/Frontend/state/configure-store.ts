@@ -5,7 +5,11 @@
 
 import { reducer } from './reducer';
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
-import { applyMiddleware, createStore, Store } from 'redux';
+import {
+  applyMiddleware,
+  legacy_createStore as createStore,
+  Store,
+} from 'redux';
 import thunk from 'redux-thunk';
 
 export function createAppStore(): Store {
