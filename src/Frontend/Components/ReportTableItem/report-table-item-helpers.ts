@@ -3,17 +3,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionInfo, Source } from '../../../shared/shared-types';
+import { AttributionInfo } from '../../../shared/shared-types';
 import { TableConfig } from '../Table/Table';
 import { PathPredicate } from '../../types/types';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
+import { ReactText } from 'react';
 
 export function getFormattedCellData(
   config: TableConfig,
   attributionInfo: AttributionInfo,
   isFileWithChildren: PathPredicate
-): string | number | Source {
-  let cellData;
+): ReactText {
+  let cellData: ReactText;
   switch (config.attributionProperty) {
     case 'resources':
       cellData = attributionInfo[config.attributionProperty]
@@ -35,7 +36,12 @@ export function getFormattedCellData(
       cellData = '';
       break;
     default:
-      cellData = attributionInfo[config.attributionProperty] || '';
+      const attributionProperty =
+        attributionInfo[config.attributionProperty] || '';
+      cellData =
+        typeof attributionProperty === 'object'
+          ? attributionProperty.name
+          : attributionProperty;
       cellData = typeof cellData == 'string' ? cellData.trim() : cellData;
   }
 

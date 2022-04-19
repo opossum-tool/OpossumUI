@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { FC, useMemo } from 'react';
+import React, { FC, ReactNode, useMemo } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -21,7 +21,9 @@ export const AccordionWorkersContext = React.createContext(
   resourceDetailsTabsWorkers
 );
 
-export const AccordionWorkersContextProvider: FC = ({ children }) => {
+export const AccordionWorkersContextProvider: FC<{
+  children: ReactNode | null;
+}> = ({ children }) => {
   const externalData = useAppSelector(getExternalData);
   useMemo(() => {
     try {
@@ -49,7 +51,9 @@ export const ProgressBarWorkerContext = React.createContext(
   folderProgressBarWorker
 );
 
-export const ProgressBarWorkerContextProvider: FC = ({ children }) => {
+export const ProgressBarWorkerContextProvider: FC<{
+  children: ReactNode | null;
+}> = ({ children }) => {
   const resources = useAppSelector(getResources);
   const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactText } from 'react';
 import { getFormattedCellData } from './report-table-item-helpers';
 import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
@@ -19,7 +19,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { useStylesReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
-import { AttributionInfo, Source } from '../../../shared/shared-types';
+import { AttributionInfo } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
 import EditorIcon from '@mui/icons-material/Edit';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
@@ -122,8 +122,6 @@ const CELLS_WITHOUT_TEXT_WRAP = [
   'copyright',
   'licenseText',
 ];
-
-type CellData = number | string | Source;
 
 interface ReportTableItemProps {
   attributionInfo: AttributionInfo;
@@ -241,7 +239,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   }
 
   function getCellData(
-    cellData: CellData,
+    cellData: ReactText,
     attributionProperty: keyof AttributionInfo
   ): ReactElement {
     if (attributionProperty === 'resources' && typeof cellData === 'string') {
