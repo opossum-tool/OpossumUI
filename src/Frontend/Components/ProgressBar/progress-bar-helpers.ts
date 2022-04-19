@@ -4,16 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { ProgressBarData } from '../../types/types';
 import { doNothing } from '../../util/do-nothing';
 import { OpossumColors } from '../../shared-styles';
 import { sum } from 'lodash';
+import { useAppDispatch } from '../../state/hooks';
 
 export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
   const [numberOfClicks, setNumberOfClicks] = useState(-1);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   function onProgressBarClick(): void {
     if (!resourceIds.length) {
