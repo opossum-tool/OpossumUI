@@ -31,9 +31,6 @@ const useStyles = makeStyles({
     height: '100%',
     backgroundColor: OpossumColors.lightestBlue,
   },
-  multiselect: {
-    maxWidth: '300px',
-  },
 });
 
 export function ReportView(): ReactElement {
@@ -64,7 +61,7 @@ export function ReportView(): ReactElement {
         attributionsWithResources={useFilters(attributionsWithResources)}
         isFileWithChildren={isFileWithChildren}
         onIconClick={getOnIconClick()}
-        topElement={<FilterMultiSelect className={classes.multiselect} />}
+        topElement={<FilterMultiSelect sx={{ maxWidth: '300px' }} />}
       />
     </div>
   );

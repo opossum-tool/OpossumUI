@@ -43,9 +43,6 @@ const useStyles = makeStyles({
   },
   disabledIcon,
   clickableIcon,
-  hiddenFilter: {
-    display: 'none',
-  },
 });
 
 export function AttributionView(): ReactElement {
@@ -105,9 +102,7 @@ export function AttributionView(): ReactElement {
           />
         }
         filterElement={
-          <FilterMultiSelect
-            className={showMultiSelect ? undefined : classes.hiddenFilter}
-          />
+          <FilterMultiSelect sx={showMultiSelect ? {} : { display: 'none' }} />
         }
       />
       <AttributionDetailsViewer />
