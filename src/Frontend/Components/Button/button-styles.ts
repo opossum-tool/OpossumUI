@@ -3,10 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import { OpossumColors } from '../../shared-styles';
 
-export const useButtonStyles = makeStyles({
+export const buttonStyles = {
   dark: {
     backgroundColor: OpossumColors.darkBlue,
     color: OpossumColors.lightBlue,
@@ -33,4 +32,4 @@ export const useButtonStyles = makeStyles({
   disabledLight: {
     backgroundColor: OpossumColors.disabledButtonGrey,
   },
-});
+};

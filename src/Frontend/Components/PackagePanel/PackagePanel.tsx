@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -31,12 +31,12 @@ import {
 } from './package-panel-helpers';
 import { prettifySource } from '../../util/prettify-source';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     flexGrow: 1,
     flexShrink: 1,
   },
-});
+};
 
 interface PackagePanelProps {
   attributionIdsWithCount: Array<AttributionIdWithCount>;
@@ -48,7 +48,6 @@ interface PackagePanelProps {
 export function PackagePanel(
   props: PackagePanelProps
 ): React.ReactElement | null {
-  const classes = useStyles();
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributionIds = useAppSelector(
     getResolvedExternalAttributions
@@ -104,7 +103,7 @@ export function PackagePanel(
   );
 
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       {sortedSources.map((sourceName) => (
         <div key={`PackageListForSource-${sourceName}`}>
           {sourceName ? (
@@ -142,6 +141,6 @@ export function PackagePanel(
           />
         </div>
       ))}
-    </div>
+    </MuiBox>
   );
 }

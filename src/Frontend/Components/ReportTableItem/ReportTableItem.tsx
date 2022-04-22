@@ -5,7 +5,6 @@
 
 import React, { ReactElement, ReactText } from 'react';
 import { getFormattedCellData } from './report-table-item-helpers';
-import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
 import {
   CommentIcon,
@@ -281,7 +280,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           <IconButton
             tooltipTitle="edit"
             placement="left"
-            className={clsx(classes.iconButton)}
+            sx={classes.iconButton}
             onClick={(): void => {
               props.onIconClick(attributionId);
             }}

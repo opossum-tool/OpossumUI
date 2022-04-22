@@ -6,17 +6,14 @@
 import React, { ReactElement } from 'react';
 import MuiMoreVertIcon from '@mui/icons-material/MoreVert';
 import MuiButton from '@mui/material/Button';
-import { useButtonStyles } from '../Button/button-styles';
-import clsx from 'clsx';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { buttonStyles } from '../Button/button-styles';
 
 interface HamburgerMenuProps {
   menuItems: Array<ContextMenuItem>;
 }
 
 export function HamburgerMenu(props: HamburgerMenuProps): ReactElement | null {
-  const buttonClasses = useButtonStyles();
-
   const displayedMenuItems = props.menuItems.filter(
     (menuItem) => !menuItem.hidden
   );
@@ -29,12 +26,12 @@ export function HamburgerMenu(props: HamburgerMenuProps): ReactElement | null {
       <MuiButton
         aria-label={'button-hamburger-menu'}
         key={'button-group-hamburger-menu'}
-        className={clsx(
+        className={'MuiButtonGroup-grouped MuiButtonGroup-groupedHorizontal'}
+        sx={
           !contextMenuIsDisabled
-            ? buttonClasses.light
-            : buttonClasses.disabledLight,
-          'MuiButtonGroup-grouped MuiButtonGroup-groupedHorizontal'
-        )}
+            ? buttonStyles.light
+            : buttonStyles.disabledLight
+        }
         disabled={contextMenuIsDisabled}
       >
         <MuiMoreVertIcon />

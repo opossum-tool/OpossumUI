@@ -4,14 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { IpcChannel } from '../../../shared/ipc-channels';
-import clsx from 'clsx';
 import { getParents } from '../../state/helpers/get-parents';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { OpenLinkArgs } from '../../../shared/shared-types';
@@ -22,19 +20,14 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
 
-const useStyles = makeStyles({
+const classes = {
   hidden: {
     visibility: 'hidden',
   },
   clickableIcon,
-});
+};
 
-interface GoToLinkProps {
-  className?: string;
-}
-
-export function GoToLinkButton(props: GoToLinkProps): ReactElement {
-  const classes = useStyles();
+export function GoToLinkButton(): ReactElement {
   const path = useAppSelector(getSelectedResourceId);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
@@ -104,12 +97,9 @@ export function GoToLinkButton(props: GoToLinkProps): ReactElement {
       }
       placement="right"
       onClick={onClick}
-      className={!openLinkArgs.link ? classes.hidden : undefined}
+      sx={!openLinkArgs.link ? classes.hidden : {}}
       icon={
-        <OpenInNewIcon
-          className={clsx(props.className, classes.clickableIcon)}
-          aria-label={'link to open'}
-        />
+        <OpenInNewIcon sx={classes.clickableIcon} aria-label={'link to open'} />
       }
     />
   );

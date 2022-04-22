@@ -12,6 +12,7 @@ import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
 import { checkboxClass } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/material';
 
 const classes = {
   ...checkboxClass,
@@ -31,7 +32,7 @@ interface AttributionListProps {
   selectedAttributionId: string | null;
   attributionIdMarkedForReplacement: string;
   onCardClick(attributionId: string, isButton?: boolean): void;
-  className?: string;
+  sx?: SxProps;
   maxHeight: number;
   title: string;
   topRightElement?: JSX.Element;
@@ -94,7 +95,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   }
 
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiBox sx={classes.topElements}>
         <MuiTypography sx={classes.title}>{props.title}</MuiTypography>
         {props.topRightElement}
@@ -107,6 +108,6 @@ export function AttributionList(props: AttributionListProps): ReactElement {
         max={{ height: props.maxHeight }}
         cardVerticalDistance={41}
       />
-    </div>
+    </MuiBox>
   );
 }

@@ -3,15 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiToggleButton from '@mui/material/ToggleButton';
-import clsx from 'clsx';
+
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
+import { SxProps } from '@mui/material';
 
-const useStyles = makeStyles({
+const classes = {
   button: {
-    height: 40,
+    height: '40px',
     background: OpossumColors.lightBlue,
     color: OpossumColors.black,
     '&:hover': {
@@ -22,26 +22,24 @@ const useStyles = makeStyles({
       color: OpossumColors.black,
     },
   },
-});
+};
 
 interface ToggleButtonProps {
   buttonText: string;
   selected: boolean;
   handleChange: () => void;
   disabled?: boolean;
-  className?: string;
+  sx?: SxProps;
   ariaLabel?: string;
 }
 
 export function ToggleButton(props: ToggleButtonProps): ReactElement {
-  const classes = useStyles();
-
   return (
     <MuiToggleButton
       value="check"
       selected={props.selected}
       onChange={props.handleChange}
-      className={clsx(classes.button, props.className)}
+      sx={{ ...classes.button, ...props.sx }}
       aria-label={props.ariaLabel}
     >
       {props.buttonText}

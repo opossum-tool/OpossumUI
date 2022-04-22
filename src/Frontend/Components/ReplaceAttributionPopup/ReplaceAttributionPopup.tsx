@@ -16,23 +16,21 @@ import {
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { PackageCard } from '../PackageCard/PackageCard';
-import makeStyles from '@mui/styles/makeStyles';
 import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   typography: {
-    margin: 5,
+    margin: '5px',
   },
   contentRoot: {
-    maxWidth: 430,
+    maxWidth: '430px',
   },
-});
+};
 
 export function ReplaceAttributionPopup(): ReactElement {
-  const classes = useStyles();
-
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
   const markedAttributionId = useAppSelector(
@@ -84,16 +82,16 @@ export function ReplaceAttributionPopup(): ReactElement {
   }
 
   const content = (
-    <div className={classes.contentRoot}>
-      <MuiTypography className={classes.typography}>
+    <MuiBox sx={classes.contentRoot}>
+      <MuiTypography sx={classes.typography}>
         This removes the following attribution
       </MuiTypography>
       {getAttributionCard(markedAttributionId)}
-      <MuiTypography className={classes.typography}>
+      <MuiTypography sx={classes.typography}>
         and links its resources to the attribution
       </MuiTypography>
       {targetAttributionId && getAttributionCard(targetAttributionId)}
-    </div>
+    </MuiBox>
   );
 
   return (

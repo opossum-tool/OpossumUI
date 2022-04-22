@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { SxProps } from '@mui/material';
+
 export interface HeightForTree {
   height: number;
 }
@@ -20,8 +22,8 @@ export interface NodesForTree {
 }
 
 export interface TreeNodeStyle {
-  root: string;
-  childrenOfSelected: string;
-  selected: string;
-  treeExpandIcon: string;
+  root: SxProps;
+  childrenOfSelected: SxProps;
+  selected: SxProps;
+  treeExpandIcon: SxProps;
 }

@@ -21,6 +21,7 @@ const CARD_VERTICAL_DISTANCE = 41;
 const MAX_HEIGHT = NUMBER_OF_DISPLAYED_ITEMS * CARD_VERTICAL_DISTANCE;
 const TYPICAL_SCROLLBAR_WIDTH = 13;
 
+// deprecated
 const useStyles = makeStyles({
   paddingRight: {
     paddingRight: TYPICAL_SCROLLBAR_WIDTH,

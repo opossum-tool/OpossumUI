@@ -34,9 +34,8 @@ import {
   OpossumColors,
   resourceBrowserWidthInPixels,
 } from '../../shared-styles';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles({
+const classes = {
   tree: {
     width: resourceBrowserWidthInPixels,
     padding: '4px 0',
@@ -44,7 +43,7 @@ const useStyles = makeStyles({
     height: '100%',
   },
   treeItemLabel: {
-    height: 19,
+    height: '19px',
     whiteSpace: 'nowrap',
     '&:hover': {
       backgroundColor: `${OpossumColors.lightBlueOnHover}`,
@@ -63,22 +62,21 @@ const useStyles = makeStyles({
     },
   },
   treeExpandIcon: {
-    width: 16,
-    height: 20,
-    padding: 0,
-    margin: 0,
+    width: '16px',
+    height: '20px',
+    padding: '0px',
+    margin: '0px',
     color: OpossumColors.darkBlue,
     '&:hover': {
       background: OpossumColors.middleBlue,
     },
   },
-});
+};
 
 const TREE_ROW_HEIGHT = 20;
 const ROOT_FOLDER_LABEL = '';
 
 export function ResourceBrowser(): ReactElement | null {
-  const classes = useStyles();
   const resources = useAppSelector(getResources);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
@@ -160,7 +158,7 @@ export function ResourceBrowser(): ReactElement | null {
       getTreeNodeLabel={getTreeItemLabelGetter()}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
-      className={classes.tree}
+      sx={classes.tree}
       alwaysShowHorizontalScrollBar={true}
       treeNodeStyle={{
         root: classes.treeItemLabel,

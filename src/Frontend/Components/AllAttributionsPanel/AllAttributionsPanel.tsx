@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiPaper from '@mui/material/Paper';
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
@@ -17,12 +16,12 @@ import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
-    padding: 10,
+    padding: '10px',
     backgroundColor: OpossumColors.white,
   },
-});
+};
 
 interface AllAttributionsPanelProps {
   attributions: Attributions;
@@ -34,7 +33,6 @@ interface AllAttributionsPanelProps {
 export function AllAttributionsPanel(
   props: AllAttributionsPanelProps
 ): ReactElement {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
 
   function getPackagePanelCard(attributionId: string): ReactElement | null {
@@ -85,7 +83,7 @@ export function AllAttributionsPanel(
   }
 
   return (
-    <MuiPaper className={classes.root} elevation={0} square={true}>
+    <MuiPaper sx={classes.root} elevation={0} square={true}>
       <MuiTypography>{PackagePanelTitle.AllAttributions}</MuiTypography>
       <FilteredList
         attributions={props.attributions}

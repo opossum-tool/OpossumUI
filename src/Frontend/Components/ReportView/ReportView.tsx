@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -24,17 +23,17 @@ import { Table } from '../Table/Table';
 import { OpossumColors } from '../../shared-styles';
 import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     width: '100vw',
     height: '100%',
     backgroundColor: OpossumColors.lightestBlue,
   },
-});
+};
 
 export function ReportView(): ReactElement {
-  const classes = useStyles();
   const attributions: Attributions = useAppSelector(getManualAttributions);
   const attributionsToResources: AttributionsToResources = useAppSelector(
     getManualAttributionsToResources
@@ -56,13 +55,13 @@ export function ReportView(): ReactElement {
   }
 
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       <Table
         attributionsWithResources={useFilters(attributionsWithResources)}
         isFileWithChildren={isFileWithChildren}
         onIconClick={getOnIconClick()}
         topElement={<FilterMultiSelect sx={{ maxWidth: '300px' }} />}
       />
-    </div>
+    </MuiBox>
   );
 }

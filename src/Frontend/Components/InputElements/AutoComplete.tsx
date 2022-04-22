@@ -4,11 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ChangeEvent, ReactElement } from 'react';
-import { InputElementProps, inputElementClasses } from './shared';
+import { inputElementClasses, InputElementProps } from './shared';
 import MuiAutocomplete from '@mui/material/Autocomplete';
 import MuiTextField from '@mui/material/TextField';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiBox from '@mui/material/Box';
+
 interface AutoCompleteProps extends InputElementProps {
   options: Array<string>;
   endAdornmentText?: string;
@@ -51,7 +52,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
         freeSolo
         sx={{
           ...(props.isHighlighted
-            ? { '& root': classes.highlightedTextField }
+            ? { '&.MuiAutocomplete-root': classes.highlightedTextField }
             : {}),
           ...classes.popper,
         }}

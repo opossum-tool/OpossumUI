@@ -32,7 +32,7 @@ const classes = {
     margin: '12px 0px 8px 0px',
     backgroundColor: OpossumColors.white,
     '& fieldset': {
-      borderRadius: 0,
+      borderRadius: '0px',
     },
     '& label': {
       backgroundColor: OpossumColors.white,
@@ -40,7 +40,7 @@ const classes = {
     },
   },
   dropDownSelect: {
-    minHeight: 36,
+    minHeight: '36px',
     '& svg': {
       paddingRight: '6px',
     },
@@ -51,12 +51,12 @@ const classes = {
     gap: 0.5,
   },
   chip: {
-    maxHeight: 19,
+    maxHeight: '19px',
     fontSize: 12,
   },
   dropdownStyle: {
     '& paper': {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      maxHeight: `${ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP}px`,
       left: '7px !important',
     },
   },

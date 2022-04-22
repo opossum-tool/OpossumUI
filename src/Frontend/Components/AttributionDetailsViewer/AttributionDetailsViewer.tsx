@@ -43,7 +43,7 @@ const classes = {
     height: '100%',
     paddingRight: '8px',
     overflowY: 'auto',
-    minWidth: 240,
+    minWidth: '240px',
   },
   typography: {
     marginTop: '8px',

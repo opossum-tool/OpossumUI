@@ -26,7 +26,7 @@ const classes = {
     backgroundColor: OpossumColors.lighterBlue,
   },
   expansionPanelExpanded: {
-    '& expanded': {
+    '&.MuiAccordion-expanded': {
       margin: '0px 0px 6px 0px !important',
     },
   },

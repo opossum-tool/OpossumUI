@@ -6,7 +6,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import CachedIcon from '@mui/icons-material/Cached';
 import { IconButton } from '../IconButton/IconButton';
-import { makeStyles } from '@mui/styles';
 import {
   baseIcon,
   clickableIcon,
@@ -16,7 +15,6 @@ import {
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import clsx from 'clsx';
 import { PackageInfo } from '../../../shared/shared-types';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
@@ -26,7 +24,7 @@ import {
   LicenseFetchingInformation,
 } from './license-fetching-helpers';
 
-const useStyles = makeStyles({
+const classes = {
   clickableIcon,
   disabledIcon,
   baseIcon,
@@ -51,7 +49,7 @@ const useStyles = makeStyles({
       transform: 'rotate(-360deg)',
     },
   },
-});
+};
 
 const FETCH_DATA_TOOLTIP = 'Fetch data';
 
@@ -123,15 +121,13 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
 }
 
 function DisabledFetchLicenseInformationButton(): ReactElement {
-  const classes = useStyles();
-
   return (
     <IconButton
       tooltipTitle={FETCH_DATA_TOOLTIP}
       placement="right"
       disabled={false}
       onClick={doNothing}
-      icon={<CachedIcon className={classes.disabledIcon} />}
+      icon={<CachedIcon sx={classes.disabledIcon} />}
     />
   );
 }
@@ -139,31 +135,26 @@ function DisabledFetchLicenseInformationButton(): ReactElement {
 function EnabledFetchLicenseInformationButton(
   props: LicenseFetchingInformation
 ): ReactElement {
-  const classes = useStyles();
   const { fetchStatus, errorMessage, fetchData } = useFetchPackageInfo(props);
 
   function getIcon(): ReactElement {
     switch (fetchStatus) {
       case FetchStatus.InFlight:
         return (
-          <CachedIcon
-            className={clsx(classes.baseIcon, classes.spinningIcon)}
-          />
+          <CachedIcon sx={{ ...classes.baseIcon, ...classes.spinningIcon }} />
         );
       case FetchStatus.Error:
         return (
           <ErrorOutlineIcon
-            className={clsx(classes.baseIcon, classes.errorIcon)}
+            sx={{ ...classes.baseIcon, ...classes.errorIcon }}
           />
         );
       case FetchStatus.Success:
         return (
-          <CachedIcon
-            className={clsx(classes.baseIcon, classes.successfulIcon)}
-          />
+          <CachedIcon sx={{ ...classes.baseIcon, ...classes.successfulIcon }} />
         );
       default:
-        return <CachedIcon className={classes.clickableIcon} />;
+        return <CachedIcon sx={classes.clickableIcon} />;
     }
   }
 

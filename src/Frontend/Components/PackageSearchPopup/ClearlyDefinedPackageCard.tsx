@@ -10,7 +10,6 @@ import MuiSkeleton from '@mui/material/Skeleton';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiAccordion from '@mui/material/Accordion';
-import makeStyles from '@mui/styles/makeStyles';
 import { IconButton } from '../IconButton/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PlusIcon from '@mui/icons-material/Add';
@@ -20,12 +19,13 @@ import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { fetchFromClearlyDefined } from './fetch-from-clearly-defined';
 import { Alert } from '../Alert/Alert';
 import { baseIcon } from '../../shared-styles';
+import MuiBox from '@mui/material/Box';
 
 interface ClearlyDefinedPackageCardProps {
   coordinate: string;
 }
 
-const useStyles = makeStyles({
+const classes = {
   baseIcon,
   copyrightHolders: {
     whiteSpace: 'pre-wrap',
@@ -42,12 +42,11 @@ const useStyles = makeStyles({
   accordionSummaryContent: {
     width: 'calc( 100% - 24px)',
   },
-});
+};
 
 export function ClearlyDefinedPackageCard(
   props: ClearlyDefinedPackageCardProps
 ): ReactElement {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
 
   const [expanded, setExpanded] = useState<boolean>(false);
@@ -72,44 +71,40 @@ export function ClearlyDefinedPackageCard(
             color={data?.copyright ? 'primary' : 'disabled'}
           />
         }
-        classes={{
-          root: classes.accordionSummary,
-          content: classes.accordionSummaryContent,
+        sx={{
+          '&.MuiAccordionSummary-root': classes.accordionSummary,
+          '& div.MuiAccordionSummary-content': classes.accordionSummaryContent,
         }}
       >
         {!isError ? (
           <>
             {isLoading ? (
               <>
-                <div className={classes.text}>
+                <MuiBox sx={classes.text}>
                   <MuiSkeleton width="60px" />
-                </div>
-                <MuiTypography noWrap className={classes.text}>
+                </MuiBox>
+                <MuiTypography noWrap sx={classes.text}>
                   {props.coordinate}
                 </MuiTypography>
-                <div className={classes.text}>
+                <MuiBox sx={classes.text}>
                   <MuiSkeleton width="60px" />
-                </div>
-                <div className={classes.text}>
+                </MuiBox>
+                <MuiBox sx={classes.text}>
                   <MuiSkeleton width="60px" />
-                </div>
+                </MuiBox>
               </>
             ) : (
               <>
-                <MuiTypography noWrap className={classes.text}>
+                <MuiTypography noWrap sx={classes.text}>
                   {data?.packageName} - {data?.packageVersion}
                 </MuiTypography>
-                <MuiTypography noWrap className={classes.text}>
+                <MuiTypography noWrap sx={classes.text}>
                   {props.coordinate}
                 </MuiTypography>
-                <MuiTypography
-                  noWrap
-                  color="text.secondary"
-                  className={classes.text}
-                >
+                <MuiTypography noWrap color="text.secondary" sx={classes.text}>
                   {data?.licenseName ?? ''}
                 </MuiTypography>
-                <MuiTypography noWrap className={classes.text}>
+                <MuiTypography noWrap sx={classes.text}>
                   {data?.url ?? ''}
                 </MuiTypography>
               </>
@@ -122,7 +117,7 @@ export function ClearlyDefinedPackageCard(
                 dispatch(setTemporaryPackageInfo(data ?? {}));
                 dispatch(closePopup());
               }}
-              icon={<PlusIcon className={classes.baseIcon} />}
+              icon={<PlusIcon sx={classes.baseIcon} />}
             />
           </>
         ) : (
@@ -134,7 +129,7 @@ export function ClearlyDefinedPackageCard(
         )}
       </MuiAccordionSummary>
       <MuiAccordionDetails>
-        <MuiTypography className={classes.copyrightHolders} variant={'body1'}>
+        <MuiTypography sx={classes.copyrightHolders} variant={'body1'}>
           {data?.copyright ?? ''}
         </MuiTypography>
       </MuiAccordionDetails>

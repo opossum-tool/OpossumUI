@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
+import MuiBox from '@mui/material/Box';
 import React, { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
@@ -31,7 +31,7 @@ import { getActiveFilters } from '../../state/selectors/view-selector';
 
 const countAndSearchOffset = 119;
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     width: '100%',
     display: 'flex',
@@ -39,14 +39,13 @@ const useStyles = makeStyles({
   },
   attributionList: {
     width: '30%',
-    margin: 5,
+    margin: '5px',
   },
   disabledIcon,
   clickableIcon,
-});
+};
 
 export function AttributionView(): ReactElement {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
   const attributions: Attributions = useAppSelector(getManualAttributions);
   const selectedAttributionId: string = useAppSelector(
@@ -74,13 +73,13 @@ export function AttributionView(): ReactElement {
   }
 
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       <AttributionList
         attributions={filteredAttributions}
         selectedAttributionId={selectedAttributionId}
         attributionIdMarkedForReplacement={attributionIdMarkedForReplacement}
         onCardClick={onCardClick}
-        className={classes.attributionList}
+        sx={classes.attributionList}
         maxHeight={useWindowHeight() - topBarHeight - countAndSearchOffset}
         title={title}
         topRightElement={
@@ -92,7 +91,7 @@ export function AttributionView(): ReactElement {
             icon={
               <FilterAltIcon
                 aria-label={'Filter icon'}
-                className={
+                sx={
                   activeFilters.length != 0
                     ? classes.disabledIcon
                     : classes.clickableIcon
@@ -106,6 +105,6 @@ export function AttributionView(): ReactElement {
         }
       />
       <AttributionDetailsViewer />
-    </div>
+    </MuiBox>
   );
 }

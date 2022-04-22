@@ -48,7 +48,7 @@ const classes = {
     width: '30%',
     height: '100%',
     marginRight: '4px',
-    minWidth: 240,
+    minWidth: '240px',
   },
   tabsDiv: {
     overflowY: 'auto',

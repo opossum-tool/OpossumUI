@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTooltip from '@mui/material/Tooltip';
 import React, { ReactElement } from 'react';
 import { ProgressBarData } from '../../types/types';
@@ -13,9 +12,10 @@ import {
   getProgressBarTooltipText,
   useOnProgressBarClick,
 } from './progress-bar-helpers';
-import clsx from 'clsx';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   tooltip: {
     fontSize: '12px',
     whiteSpace: 'pre-wrap',
@@ -24,46 +24,44 @@ const useStyles = makeStyles({
   bar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
-    marginTop: 6,
+    marginTop: '6px',
     '&:hover': {
       cursor: 'pointer',
       opacity: 0.75,
     },
   },
   folderBar: {
-    height: 10,
+    height: '10px',
   },
   topBar: {
-    height: 20,
+    height: '20px',
   },
-});
+};
 
 interface ProgressBarProps {
-  className: string;
+  sx: SxProps;
   progressBarData: ProgressBarData;
   label: string;
   isFolderProgressBar?: boolean;
 }
 
 export function ProgressBar(props: ProgressBarProps): ReactElement {
-  const classes = useStyles();
-
   const onProgressBarClick = useOnProgressBarClick(
     props.progressBarData.resourcesWithNonInheritedSignalOnly
   );
 
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiTooltip
-        classes={{ tooltip: classes.tooltip }}
+        sx={{ '&.MuiTooltip-tooltip': classes.tooltip }}
         title={getProgressBarTooltipText(props.progressBarData)}
       >
-        <div
+        <MuiBox
           aria-label={props.label}
-          className={clsx(
-            classes.bar,
-            props.isFolderProgressBar ? classes.folderBar : classes.topBar
-          )}
+          sx={{
+            ...classes.bar,
+            ...(props.isFolderProgressBar ? classes.folderBar : classes.topBar),
+          }}
           style={{
             background: getProgressBarBackground(
               props.progressBarData,
@@ -73,6 +71,6 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
           onClick={onProgressBarClick}
         />
       </MuiTooltip>
-    </div>
+    </MuiBox>
   );
 }
