@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement, useMemo } from 'react';
 import {
   AttributionInfo,
@@ -12,7 +11,7 @@ import {
 import { PathPredicate } from '../../types/types';
 import {
   ReportTableHeader,
-  useStylesReportTableHeader,
+  reportTableClasses,
 } from '../ReportTableHeader/ReportTableHeader';
 import { List } from '../List/List';
 import {
@@ -20,15 +19,16 @@ import {
   reportTableRowHeight,
 } from '../ReportTableItem/ReportTableItem';
 import { useWindowHeight } from '../../util/use-window-height';
-import clsx from 'clsx';
 import { OpossumColors } from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
+  ...reportTableClasses,
   root: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 10,
+    paddingLeft: '10px',
+    paddingRight: '10px',
+    paddingBottom: '10px',
     width: 'calc(100% - 20px)',
   },
   tableAndHeader: {
@@ -37,9 +37,9 @@ const useStyles = makeStyles({
   table: {
     backgroundColor: OpossumColors.white,
     borderCollapse: 'separate',
-    borderSpacing: 0,
+    borderSpacing: '0px',
   },
-});
+};
 
 export interface TableConfig {
   attributionProperty: keyof AttributionInfo | 'icons';
@@ -115,7 +115,6 @@ interface TableProps {
 }
 
 export function Table(props: TableProps): ReactElement | null {
-  const classes = { ...useStylesReportTableHeader(), ...useStyles() };
   const tableHeaderOffset = 110;
   const maxHeight = useWindowHeight() - topBarHeight - tableHeaderOffset;
   const attributionsIds = useMemo(() => {
@@ -135,14 +134,14 @@ export function Table(props: TableProps): ReactElement | null {
   }
 
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       {props.topElement}
       {attributionsIds.length ? (
-        <div className={classes.tableAndHeader}>
-          <div className={clsx(classes.tableWidth, classes.table)}>
+        <MuiBox sx={classes.tableAndHeader}>
+          <MuiBox sx={{ ...classes.tableWidth, ...classes.table }}>
             <ReportTableHeader />
-          </div>
-          <div className={classes.tableWidth}>
+          </MuiBox>
+          <MuiBox sx={classes.tableWidth}>
             <List
               length={attributionsIds.length}
               cardVerticalDistance={reportTableRowHeight}
@@ -150,9 +149,9 @@ export function Table(props: TableProps): ReactElement | null {
               getListItem={getReportTableItem}
               leftScrollBar={true}
             />
-          </div>
-        </div>
+          </MuiBox>
+        </MuiBox>
       ) : null}
-    </div>
+    </MuiBox>
   );
 }

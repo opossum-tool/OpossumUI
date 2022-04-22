@@ -9,6 +9,8 @@ import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 
 const useStyles = makeStyles({
   white: {
@@ -24,7 +26,7 @@ interface CheckboxProps {
   disabled?: boolean;
   checked: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
-  className?: string;
+  sx?: SxProps;
   white?: boolean;
 }
 
@@ -32,7 +34,7 @@ export function Checkbox(props: CheckboxProps): ReactElement {
   const classes = useStyles();
   const whiteMode = clsx(props.white && classes.white);
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiCheckbox
         disabled={props.disabled}
         checked={props.checked}
@@ -54,6 +56,6 @@ export function Checkbox(props: CheckboxProps): ReactElement {
       >
         {props.label || ''}
       </MuiTypography>
-    </div>
+    </MuiBox>
   );
 }

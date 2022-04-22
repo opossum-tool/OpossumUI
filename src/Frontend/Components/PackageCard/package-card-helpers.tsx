@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ListCardConfig, ListCardContent } from '../../types/types';
-import { ClassNameMap } from '@mui/styles';
 import React, { ReactElement } from 'react';
 import {
   ExcludeFromNoticeIcon,
@@ -12,15 +11,24 @@ import {
   FollowUpIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
+import { OpossumColors } from '../../shared-styles';
 
 export function getKey(prefix: string, cardContent: ListCardContent): string {
   return `${prefix}-${cardContent.id}`;
 }
 
+const classes = {
+  followUpIcon: {
+    color: OpossumColors.orange,
+  },
+  excludeFromNoticeIcon: {
+    color: OpossumColors.grey,
+  },
+};
+
 export function getRightIcons(
   cardContent: ListCardContent,
   cardConfig: ListCardConfig,
-  classes: ClassNameMap<'followUpIcon' | 'excludeFromNoticeIcon'>,
   openResourcesIcon?: JSX.Element
 ): Array<ReactElement> {
   const rightIcons: Array<JSX.Element> = [];
@@ -38,7 +46,7 @@ export function getRightIcons(
     rightIcons.push(
       <ExcludeFromNoticeIcon
         key={getKey('exclude-icon', cardContent)}
-        className={classes.excludeFromNoticeIcon}
+        sx={classes.excludeFromNoticeIcon}
       />
     );
   }
@@ -46,7 +54,7 @@ export function getRightIcons(
     rightIcons.push(
       <FollowUpIcon
         key={getKey('follow-up-icon', cardContent)}
-        className={classes.followUpIcon}
+        sx={classes.followUpIcon}
       />
     );
   }

@@ -4,31 +4,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ChangeEvent, ReactElement } from 'react';
-import { InputElementProps, useInputElementStyles } from './shared';
+import { InputElementProps, inputElementClasses } from './shared';
 import MuiAutocomplete from '@mui/material/Autocomplete';
 import MuiTextField from '@mui/material/TextField';
-import clsx from 'clsx';
 import MuiInputAdornment from '@mui/material/InputAdornment';
-import makeStyles from '@mui/styles/makeStyles';
-
+import MuiBox from '@mui/material/Box';
 interface AutoCompleteProps extends InputElementProps {
   options: Array<string>;
   endAdornmentText?: string;
 }
 
-const useStyles = makeStyles({
+const classes = {
+  ...inputElementClasses,
   endAdornment: {
-    paddingRight: 6,
+    paddingRight: '6px',
   },
-});
+};
 
 function enterWasPressed(event: KeyboardEvent): boolean {
   return event.which == 13 || event.keyCode == 13;
 }
 
 export function AutoComplete(props: AutoCompleteProps): ReactElement {
-  const classes = { ...useInputElementStyles(), ...useStyles() };
-
   function onInputChange(
     event: ChangeEvent<unknown> | KeyboardEvent,
     value: string
@@ -49,12 +46,14 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
   const isInputValueInOptions: boolean = inputValueIndexInOptions > -1;
 
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiAutocomplete
         freeSolo
-        classes={{
-          root: props.isHighlighted ? classes.highlightedTextField : undefined,
-          popper: classes.popper,
+        sx={{
+          ...(props.isHighlighted
+            ? { '& root': classes.highlightedTextField }
+            : {}),
+          ...classes.popper,
         }}
         options={props.options}
         disableClearable={true}
@@ -68,10 +67,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
                 InputProps: {
                   ...params.InputProps,
                   endAdornment: (
-                    <MuiInputAdornment
-                      position="end"
-                      className={classes.endAdornment}
-                    >
+                    <MuiInputAdornment position="end" sx={classes.endAdornment}>
                       {props.endAdornmentText}
                     </MuiInputAdornment>
                   ),
@@ -83,10 +79,10 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
             <MuiTextField
               {...paramsWithAdornment}
               label={props.title}
-              className={clsx(
-                classes.textField,
-                isInputValueInOptions ? classes.textFieldBoldText : null
-              )}
+              sx={{
+                ...classes.textField,
+                ...(isInputValueInOptions ? classes.textFieldBoldText : {}),
+              }}
               variant="outlined"
               size="small"
               onChange={props.handleChange}
@@ -94,6 +90,6 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
           );
         }}
       />
-    </div>
+    </MuiBox>
   );
 }

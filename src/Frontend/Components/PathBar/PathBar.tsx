@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import MuiTooltip from '@mui/material/Tooltip';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
@@ -14,11 +13,12 @@ import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
 import { useAppSelector } from '../../state/hooks';
 import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
-    paddingLeft: 6,
-    height: 24,
+    paddingLeft: '6px',
+    height: '24px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -31,24 +31,23 @@ const useStyles = makeStyles({
     direction: 'rtl',
   },
   tooltip: tooltipStyle,
-});
+};
 
 export function PathBar(): ReactElement | null {
-  const classes = useStyles();
   const path = useAppSelector(getSelectedResourceId);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
 
   return path ? (
-    <div className={classes.root}>
-      <MuiTooltip classes={{ tooltip: classes.tooltip }} title={path}>
-        <MuiTypography className={classes.leftEllipsis} variant={'subtitle1'}>
+    <MuiBox sx={classes.root}>
+      <MuiTooltip sx={classes.tooltip} title={path}>
+        <MuiTypography sx={classes.leftEllipsis} variant={'subtitle1'}>
           <bdi>
             {removeTrailingSlashIfFileWithChildren(path, isFileWithChildren)}
           </bdi>
         </MuiTypography>
       </MuiTooltip>
       <GoToLinkButton />
-    </div>
+    </MuiBox>
   ) : null;
 }

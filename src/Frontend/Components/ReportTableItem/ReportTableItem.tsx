@@ -15,10 +15,9 @@ import {
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { TableConfig, tableConfigs } from '../Table/Table';
-import makeStyles from '@mui/styles/makeStyles';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
-import { useStylesReportTableHeader } from '../ReportTableHeader/ReportTableHeader';
+import { reportTableClasses } from '../ReportTableHeader/ReportTableHeader';
 import { AttributionInfo } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
 import EditorIcon from '@mui/icons-material/Edit';
@@ -26,16 +25,17 @@ import { isImportantAttributionInformationMissing } from '../../util/is-importan
 import { getPackageInfoKeys } from '../../../shared/shared-util';
 import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
 import { useAppSelector } from '../../state/hooks';
+import MuiBox from '@mui/material/Box';
 
 export const reportTableRowHeight = 190;
 const padding = 10;
 
-const useStyles = makeStyles({
+const classes = {
   tableData: {
     overflow: 'auto',
     whiteSpace: 'pre-line',
-    padding,
-    height: reportTableRowHeight - 2 * padding,
+    padding: `${padding}px`,
+    height: `${reportTableRowHeight - 2 * padding}px`,
   },
   noWrap: {
     whiteSpace: 'pre',
@@ -49,9 +49,9 @@ const useStyles = makeStyles({
   iconTableData: {
     overflow: 'hidden',
     whiteSpace: 'pre-line',
-    paddingTop: 7,
-    paddingBottom: 7,
-    height: reportTableRowHeight - 2 * padding,
+    paddingTop: '7px',
+    paddingBottom: '7px',
+    height: `${reportTableRowHeight - 2 * padding}px`,
     textAlign: 'center',
   },
   tableCell: {
@@ -64,18 +64,18 @@ const useStyles = makeStyles({
     flex: '1 1 auto',
     overflowY: 'auto',
     verticalAlign: 'text-top',
-    borderRightWidth: 0.5,
+    borderRightWidth: '0.5px',
   },
   borders: {
     border: `0.5px ${OpossumColors.lightBlue} solid`,
   },
   icon: {
-    width: 15,
-    height: 15,
-    margin: 1,
+    width: '15px',
+    height: '15px',
+    margin: '1px',
   },
   iconButton: {
-    marginBottom: 5,
+    marginBottom: '5px',
   },
   editIcon: {
     backgroundColor: OpossumColors.white,
@@ -106,7 +106,7 @@ const useStyles = makeStyles({
   },
   tableRow: {
     display: 'flex',
-    minWidth: 2480,
+    minWidth: '2480px',
     backgroundColor: OpossumColors.white,
     alignItems: 'stretch',
   },
@@ -114,7 +114,7 @@ const useStyles = makeStyles({
     whiteSpace: 'nowrap',
   },
   clickableIcon,
-});
+};
 
 const CELLS_WITHOUT_TEXT_WRAP = [
   'resources',
@@ -131,7 +131,7 @@ interface ReportTableItemProps {
 }
 
 export function ReportTableItem(props: ReportTableItemProps): ReactElement {
-  const classes = { ...useStylesReportTableHeader(), ...useStyles() };
+  const reportTableItemClasses = { ...reportTableClasses, ...classes };
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
 
   function isPackageInfoIncomplete(attributionInfo: AttributionInfo): boolean {
@@ -148,14 +148,14 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     attributionId: string
   ): ReactElement {
     return (
-      <div
+      <MuiBox
         key={`table-row-${attributionInfo.packageName}-${attributionId}`}
-        className={classes.tableRow}
+        sx={reportTableItemClasses.tableRow}
       >
         {tableConfigs.map((config, index) =>
           getTableCell(attributionInfo, attributionId, config, index)
         )}
-      </div>
+      </MuiBox>
     );
   }
 
@@ -185,48 +185,54 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     );
 
     return (
-      <div
-        className={clsx(
-          classes.borders,
-          classes.scrollableTableCell,
-          config.attributionProperty === 'icons'
-            ? [
-                classes.iconTableCell,
-                isPackageInfoIncomplete(attributionInfo) &&
-                  classes.markedTableCell,
-              ]
-            : [
-                classes.tableCell,
-                isImportantAttributionInformationMissing(
+      <MuiBox
+        sx={{
+          ...reportTableItemClasses.borders,
+          ...reportTableItemClasses.scrollableTableCell,
+          ...(config.attributionProperty === 'icons'
+            ? {
+                ...classes.iconTableCell,
+                ...(isPackageInfoIncomplete(attributionInfo)
+                  ? classes.markedTableCell
+                  : {}),
+              }
+            : {
+                ...classes.tableCell,
+                ...(isImportantAttributionInformationMissing(
                   config.attributionProperty,
                   attributionInfo
-                ) && classes.markedTableCell,
-              ],
-          config.width === 'small'
-            ? classes.smallTableCell
+                )
+                  ? classes.markedTableCell
+                  : {}),
+              }),
+          ...(config.width === 'small'
+            ? reportTableItemClasses.smallTableCell
             : config.width === 'wide'
-            ? classes.wideTableCell
+            ? reportTableItemClasses.wideTableCell
             : config.width === 'medium'
-            ? classes.mediumTableCell
+            ? reportTableItemClasses.mediumTableCell
             : config.width === 'verySmall'
-            ? classes.verySmallTableCell
-            : undefined
-        )}
+            ? reportTableItemClasses.verySmallTableCell
+            : {}),
+        }}
         key={`table-row-${config.attributionProperty}-${index}`}
       >
         {config.attributionProperty !== 'icons' && (
           <MuiTypography
-            className={clsx(
-              classes.tableData,
-              CELLS_WITHOUT_TEXT_WRAP.includes(config.attributionProperty) &&
-                classes.noWrap,
-              config.attributionProperty === 'licenseName' &&
-                hasFrequentLicenseName &&
-                classes.bold,
-              config.attributionProperty === 'licenseText' &&
-                isFrequentLicenseAndHasNoText &&
-                classes.greyText
-            )}
+            sx={{
+              ...classes.tableData,
+              ...(CELLS_WITHOUT_TEXT_WRAP.includes(config.attributionProperty)
+                ? classes.noWrap
+                : {}),
+              ...(config.attributionProperty === 'licenseName' &&
+              hasFrequentLicenseName
+                ? classes.bold
+                : {}),
+              ...(config.attributionProperty === 'licenseText' &&
+              isFrequentLicenseAndHasNoText
+                ? classes.greyText
+                : {}),
+            }}
             component={'div'}
           >
             {getCellData(cellData, config.attributionProperty)}
@@ -234,7 +240,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         )}
         {config.attributionProperty === 'icons' &&
           getIcons(attributionInfo, attributionId)}
-      </div>
+      </MuiBox>
     );
   }
 
@@ -246,18 +252,20 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
       return (
         <div>
           {cellData.split('\n').map((path, index) => (
-            <div
+            <MuiBox
               key={`table-cell-content-${attributionProperty}-${index}`}
-              className={classes.containerWithoutLineBreak}
+              sx={reportTableItemClasses.containerWithoutLineBreak}
             >
               {path}
-            </div>
+            </MuiBox>
           ))}
         </div>
       );
     } else if (attributionProperty === 'url') {
       return (
-        <div className={classes.containerWithoutLineBreak}>{cellData}</div>
+        <MuiBox sx={reportTableItemClasses.containerWithoutLineBreak}>
+          {cellData}
+        </MuiBox>
       );
     }
     return <div>{cellData}</div>;
@@ -268,7 +276,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     attributionId: string
   ): ReactElement {
     return (
-      <div className={classes.iconTableData}>
+      <MuiBox sx={reportTableItemClasses.iconTableData}>
         <>
           <IconButton
             tooltipTitle="edit"
@@ -279,11 +287,11 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
             }}
             icon={
               <EditorIcon
-                className={clsx(
-                  classes.editIcon,
-                  classes.icon,
-                  classes.clickableIcon
-                )}
+                sx={{
+                  ...reportTableItemClasses.editIcon,
+                  ...reportTableItemClasses.icon,
+                  ...reportTableItemClasses.clickableIcon,
+                }}
                 aria-label={`edit ${attributionInfo['packageName'] || ''}`}
               />
             }
@@ -293,21 +301,32 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         {attributionInfo.followUp && (
           <>
             <FollowUpIcon
-              className={clsx(classes.icon, classes.followUpIcon)}
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.followUpIcon,
+              }}
             />{' '}
             <br />
           </>
         )}
         {attributionInfo.comment && (
           <>
-            <CommentIcon className={clsx(classes.icon, classes.commentIcon)} />{' '}
+            <CommentIcon
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.commentIcon,
+              }}
+            />{' '}
             <br />
           </>
         )}
         {attributionInfo.firstParty && (
           <>
             <FirstPartyIcon
-              className={clsx(classes.icon, classes.firstPartyIcon)}
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.firstPartyIcon,
+              }}
             />{' '}
             <br />
           </>
@@ -315,7 +334,10 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         {attributionInfo.excludeFromNotice && (
           <>
             <ExcludeFromNoticeIcon
-              className={clsx(classes.icon, classes.excludeFromNoticeIcon)}
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.excludeFromNoticeIcon,
+              }}
             />{' '}
             <br />
           </>
@@ -323,12 +345,15 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         {attributionInfo.preSelected && (
           <>
             <PreSelectedIcon
-              className={clsx(classes.icon, classes.preSelectedIcon)}
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.preSelectedIcon,
+              }}
             />{' '}
             <br />
           </>
         )}
-      </div>
+      </MuiBox>
     );
   }
 

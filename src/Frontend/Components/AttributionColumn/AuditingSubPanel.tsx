@@ -4,8 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiPaper from '@mui/material/Paper';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';
 import { CheckboxLabel, DiscreteConfidence } from '../../enums/enums';
@@ -15,23 +13,26 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { Dropdown } from '../InputElements/Dropdown';
 import { NumberBox } from '../InputElements/NumberBox';
 import { TextBox } from '../InputElements/TextBox';
-import { useAttributionColumnStyles } from './shared-attribution-column-styles';
+import { attributionColumnClasses } from './shared-attribution-column-styles';
 import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { useAppSelector } from '../../state/hooks';
-import { useCheckboxStyles } from '../../shared-styles';
+import { checkboxClass } from '../../shared-styles';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
+  ...checkboxClass,
+  ...attributionColumnClasses,
   confidenceDropDown: {
     flex: 0,
     flexBasis: 100,
-    marginBottom: 4,
+    marginBottom: '4px',
   },
   sourceField: {
-    marginBottom: 4,
+    marginBottom: '4px',
     flex: 0.5,
   },
-});
+};
 
 interface AuditingSubPanelProps {
   isEditable: boolean;
@@ -53,32 +54,27 @@ interface AuditingSubPanelProps {
 }
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
-  const classes = {
-    ...useAttributionColumnStyles(),
-    ...useCheckboxStyles(),
-    ...useStyles(),
-  };
   const attributionSources = useAppSelector(getExternalAttributionSources);
 
   return (
-    <MuiPaper className={classes.panel} elevation={0} square={true}>
-      <div className={classes.displayRow}>
+    <MuiPaper sx={classes.panel} elevation={0} square={true}>
+      <MuiBox sx={classes.displayRow}>
         <Checkbox
-          className={classes.checkBox}
+          sx={classes.checkBox}
           label={CheckboxLabel.FirstParty}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.firstParty)}
           onChange={props.firstPartyChangeHandler}
         />
         <Checkbox
-          className={classes.checkBox}
+          sx={classes.checkBox}
           label={CheckboxLabel.FollowUp}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.followUp)}
           onChange={props.followUpChangeHandler}
         />
         <Checkbox
-          className={classes.checkBox}
+          sx={classes.checkBox}
           label={CheckboxLabel.ExcludeFromNotice}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.excludeFromNotice)}
@@ -86,7 +82,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
         />
         {props.showManualAttributionData ? (
           <Dropdown
-            className={classes.confidenceDropDown}
+            sx={classes.confidenceDropDown}
             isEditable={props.isEditable}
             title={'Confidence'}
             handleChange={props.discreteConfidenceChangeHandler}
@@ -107,7 +103,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
           />
         ) : (
           <NumberBox
-            className={classes.confidenceDropDown}
+            sx={classes.confidenceDropDown}
             title={'Confidence'}
             handleChange={props.setUpdateTemporaryPackageInfoFor(
               'attributionConfidence'
@@ -129,7 +125,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
         {props.displayPackageInfo.source ? (
           <TextBox
             isEditable={false}
-            className={clsx(classes.sourceField, classes.rightTextBox)}
+            sx={{ ...classes.sourceField, ...classes.rightTextBox }}
             title={'Source'}
             text={prettifySource(
               props.displayPackageInfo.source.name,
@@ -138,10 +134,10 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             handleChange={doNothing}
           />
         ) : null}
-      </div>
+      </MuiBox>
       <TextBox
         isEditable={props.isEditable}
-        className={classes.textBox}
+        sx={classes.textBox}
         title={'Comment'}
         text={props.displayPackageInfo.comment}
         minRows={props.commentRows}

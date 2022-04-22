@@ -7,7 +7,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import MuiTooltip from '@mui/material/Tooltip';
 import React, { ReactElement } from 'react';
 import { ProgressBarData } from '../../types/types';
-import { OpossumColors, tooltipStyle } from '../../shared-styles';
+import { OpossumColors } from '../../shared-styles';
 import {
   getProgressBarBackground,
   getProgressBarTooltipText,
@@ -17,7 +17,7 @@ import clsx from 'clsx';
 
 const useStyles = makeStyles({
   tooltip: {
-    ...tooltipStyle,
+    fontSize: '12px',
     whiteSpace: 'pre-wrap',
     display: 'flex',
   },

@@ -7,12 +7,7 @@ import React, { ReactElement } from 'react';
 import MuiButtonBase from '@mui/material/ButtonBase';
 import MuiTooltip from '@mui/material/Tooltip';
 import { tooltipStyle } from '../../shared-styles';
-import { makeStyles } from '@mui/styles';
 import clsx from 'clsx';
-
-const useStyles = makeStyles({
-  tooltip: tooltipStyle,
-});
 
 interface IconButtonProps {
   tooltipTitle: string;
@@ -24,13 +19,12 @@ interface IconButtonProps {
 }
 
 export function IconButton(props: IconButtonProps): ReactElement {
-  const classes = useStyles();
   function wrapInTooltip(children: ReactElement): ReactElement {
     return props.disabled ? (
       <span>{children}</span>
     ) : (
       <MuiTooltip
-        classes={{ tooltip: classes.tooltip }}
+        sx={tooltipStyle}
         title={props.tooltipTitle}
         placement={props.placement}
       >

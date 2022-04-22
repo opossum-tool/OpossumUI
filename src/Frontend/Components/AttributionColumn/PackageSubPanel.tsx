@@ -5,21 +5,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiPaper from '@mui/material/Paper';
-import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { IpcChannel } from '../../../shared/ipc-channels';
 import { PackageInfo } from '../../../shared/shared-types';
 import { TextBox } from '../InputElements/TextBox';
-import { useAttributionColumnStyles } from './shared-attribution-column-styles';
+import { attributionColumnClasses } from './shared-attribution-column-styles';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { IconButton } from '../IconButton/IconButton';
-import { makeStyles } from '@mui/styles';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { SearchPackagesIcon } from '../Icons/Icons';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({ clickableIcon, disabledIcon });
+const iconClasses = { clickableIcon, disabledIcon };
 
 interface PackageSubPanelProps {
   displayPackageInfo: PackageInfo;
@@ -36,9 +35,6 @@ interface PackageSubPanelProps {
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
-  const classes = useAttributionColumnStyles();
-  const iconClasses = useStyles();
-
   function openUrl(): void {
     let urlString = props.displayPackageInfo.url;
     if (urlString) {
@@ -55,10 +51,10 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
   }
 
   return (
-    <MuiPaper className={classes.panel} elevation={0} square={true}>
-      <div className={classes.displayRow}>
+    <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
+      <MuiBox sx={attributionColumnClasses.displayRow}>
         <TextBox
-          className={clsx(classes.textBox)}
+          sx={attributionColumnClasses.textBox}
           title={'Name'}
           text={props.displayPackageInfo.packageName}
           handleChange={props.setUpdateTemporaryPackageInfoFor('packageName')}
@@ -71,7 +67,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               disabled={!props.isEditable}
               icon={
                 <SearchPackagesIcon
-                  className={
+                  sx={
                     props.isEditable
                       ? iconClasses.clickableIcon
                       : iconClasses.disabledIcon
@@ -89,7 +85,10 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           }
         />
         <TextBox
-          className={clsx(classes.textBox, classes.rightTextBox)}
+          sx={{
+            ...attributionColumnClasses.textBox,
+            ...attributionColumnClasses.rightTextBox,
+          }}
           title={'Version'}
           text={props.displayPackageInfo.packageVersion}
           handleChange={props.setUpdateTemporaryPackageInfoFor(
@@ -104,12 +103,14 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             )
           }
         />
-      </div>
+      </MuiBox>
       <TextBox
-        className={classes.textBox}
-        textFieldClassname={clsx(
-          props.isDisplayedPurlValid ? null : classes.textBoxInvalidInput
-        )}
+        sx={attributionColumnClasses.textBox}
+        textFieldSx={
+          props.isDisplayedPurlValid
+            ? {}
+            : attributionColumnClasses.textBoxInvalidInput
+        }
         title={'PURL'}
         text={props.temporaryPurl}
         handleChange={props.handlePurlChange}
@@ -124,7 +125,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
       />
       <TextBox
         isEditable={props.isEditable}
-        className={clsx(classes.textBox)}
+        sx={attributionColumnClasses.textBox}
         title={'URL'}
         text={props.displayPackageInfo.url}
         handleChange={props.setUpdateTemporaryPackageInfoFor('url')}
@@ -143,7 +144,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               icon={
                 <OpenInNewIcon
                   aria-label={'Url icon'}
-                  className={
+                  sx={
                     props.displayPackageInfo.url
                       ? iconClasses.clickableIcon
                       : iconClasses.disabledIcon

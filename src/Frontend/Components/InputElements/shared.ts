@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
+import { SxProps } from '@mui/material';
 import { ChangeEvent } from 'react';
 import { OpossumColors } from '../../shared-styles';
 
-export const useInputElementStyles = makeStyles({
+export const inputElementClasses = {
   textFieldBoldText: {
     '& input': {
       fontWeight: 'bold',
@@ -17,7 +17,7 @@ export const useInputElementStyles = makeStyles({
     width: '100%',
     '& div': {
       backgroundColor: OpossumColors.white,
-      borderRadius: 0,
+      borderRadius: '0px',
     },
     '& label': {
       backgroundColor: OpossumColors.white,
@@ -25,20 +25,20 @@ export const useInputElementStyles = makeStyles({
       fontSize: '13px',
     },
     '& span': {
-      padding: 0,
+      padding: '0px',
     },
     '& legend': {
-      marginLeft: 6,
+      marginLeft: '6px',
       '& span': {
-        paddingLeft: 0,
-        paddingRight: 0,
+        paddingLeft: '0px',
+        paddingRight: '0px',
       },
     },
   },
   highlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
-      borderRadius: 0,
+      borderRadius: '0px',
     },
     '& label': {
       backgroundColor: OpossumColors.lightOrange,
@@ -46,17 +46,19 @@ export const useInputElementStyles = makeStyles({
     },
   },
   popper: {
-    '& div': {
-      fontWeight: 'bold',
+    '& popper': {
+      '& div': {
+        fontWeight: 'bold',
+      },
     },
   },
-});
+};
 
 export interface InputElementProps {
   title?: string;
   isEditable?: boolean;
   text?: string;
-  className?: string;
+  sx?: SxProps;
   handleChange(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void;

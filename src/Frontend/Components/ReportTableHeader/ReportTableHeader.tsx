@@ -4,66 +4,62 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
 import { tableConfigs } from '../Table/Table';
-import makeStyles from '@mui/styles/makeStyles';
 import { OpossumColors } from '../../shared-styles';
+import MuiBox from '@mui/material/Box';
 
-export const useStylesReportTableHeader = makeStyles({
+export const reportTableClasses = {
   tableHeader: {
     backgroundColor: OpossumColors.darkBlue,
     position: 'sticky',
-    top: 10,
+    top: '10px',
     textAlign: 'left',
   },
   topHeader: {
-    height: 10,
+    height: '10px',
     backgroundColor: OpossumColors.lightestBlue,
     position: 'sticky',
-    top: 0,
-    border: `0.5px ${OpossumColors.lightestBlue} solid`,
+    top: '0px',
   },
   headerData: {
     fontWeight: 'bold',
     color: OpossumColors.white,
   },
   tableCell: {
-    padding: 10,
+    padding: '10px',
     flex: '1 1 auto',
   },
   emptyTableCell: {
-    paddingTop: 10,
+    paddingTop: '10px',
     flex: '1 1 auto',
   },
   emptyTableCellNoFlexGrow: {
     flex: '0 1 auto',
   },
   wideTableCell: {
-    width: 380,
+    width: '380px',
   },
   mediumTableCell: {
-    width: 250,
+    width: '250px',
   },
   smallTableCell: {
-    width: 120,
+    width: '120px',
   },
   verySmallTableCell: {
-    width: 30,
-    maxWidth: 40,
+    width: '30px',
+    maxWidth: '40px',
   },
   tableRow: {
     display: 'flex',
     alignItems: 'stretch',
   },
   tableWidth: {
-    minWidth: 2500,
+    minWidth: '2500px',
   },
-});
+};
 
 export function ReportTableHeader(): ReactElement {
-  const classes = useStylesReportTableHeader();
-
   function getTableHeader(): ReactElement {
     return (
       <div>
@@ -71,46 +67,56 @@ export function ReportTableHeader(): ReactElement {
           {
             // this elements implements the top padding
           }
-          <div className={clsx(classes.topHeader, classes.tableHeader)}>
+          <MuiBox
+            sx={{
+              ...reportTableClasses.topHeader,
+              ...reportTableClasses.tableHeader,
+            }}
+          >
             {''}
-          </div>
+          </MuiBox>
         </div>
-        <div className={clsx(classes.tableRow, classes.tableWidth)}>
+        <MuiBox
+          sx={{
+            ...reportTableClasses.tableRow,
+            ...reportTableClasses.tableWidth,
+          }}
+        >
           {tableConfigs.map((config) => (
-            <div
-              className={clsx(
-                config.attributionProperty === 'icons'
-                  ? classes.emptyTableCell
-                  : classes.tableCell,
-                config.width === 'small'
-                  ? classes.smallTableCell
+            <MuiBox
+              sx={{
+                ...(config.attributionProperty === 'icons'
+                  ? reportTableClasses.emptyTableCell
+                  : reportTableClasses.tableCell),
+                ...(config.width === 'small'
+                  ? reportTableClasses.smallTableCell
                   : config.width === 'wide'
-                  ? classes.wideTableCell
+                  ? reportTableClasses.wideTableCell
                   : config.width === 'medium'
-                  ? classes.mediumTableCell
+                  ? reportTableClasses.mediumTableCell
                   : config.width === 'verySmall'
-                  ? classes.verySmallTableCell
-                  : undefined,
-                classes.tableHeader
-              )}
+                  ? reportTableClasses.verySmallTableCell
+                  : {}),
+                ...reportTableClasses.tableHeader,
+              }}
               key={`table-header-${config.attributionProperty}-${config.displayName}`}
             >
-              <MuiTypography className={classes.headerData}>
+              <MuiTypography sx={reportTableClasses.headerData}>
                 {config.displayName}
               </MuiTypography>
-            </div>
+            </MuiBox>
           ))}
-          <div
-            className={clsx(
-              classes.tableHeader,
-              classes.emptyTableCellNoFlexGrow
-            )}
+          <MuiBox
+            sx={{
+              ...reportTableClasses.tableHeader,
+              ...reportTableClasses.emptyTableCellNoFlexGrow,
+            }}
           >
             {
               // This element offsets the additional spacing by the virtualized list
             }
-          </div>
-        </div>
+          </MuiBox>
+        </MuiBox>
       </div>
     );
   }

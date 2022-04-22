@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTooltip from '@mui/material/Tooltip';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import InsertCommentIcon from '@mui/icons-material/InsertComment';
@@ -16,7 +15,6 @@ import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox
 import ReplayIcon from '@mui/icons-material/Replay';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
-import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import {
   baseIcon,
@@ -24,16 +22,17 @@ import {
   OpossumColors,
   tooltipStyle,
 } from '../../shared-styles';
+import { SxProps } from '@mui/material';
 
-const useStyles = makeStyles({
+const classes = {
   clickableIcon,
   nonClickableIcon: {
     ...baseIcon,
     color: OpossumColors.darkBlue,
   },
   resourceIcon: {
-    width: 18,
-    height: 18,
+    width: '18px',
+    height: '18px',
     paddingLeft: '2px',
     paddingRight: '2px',
   },
@@ -42,15 +41,15 @@ const useStyles = makeStyles({
   },
   tooltip: tooltipStyle,
   openCloseFolderIcons: {
-    margin: 0,
-    padding: 0,
-    width: 16,
-    height: 20,
+    margin: '0px',
+    padding: '0px',
+    width: '16px',
+    height: '20px',
   },
-});
+};
 
 interface IconProps {
-  className?: string;
+  sx?: SxProps;
 }
 
 interface LabelDetailIconProps extends IconProps {
@@ -59,129 +58,116 @@ interface LabelDetailIconProps extends IconProps {
 }
 
 export function FirstPartyIcon(props: IconProps): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTooltip classes={{ tooltip: classes.tooltip }} title="is first party">
+    <MuiTooltip sx={classes.tooltip} title="is first party">
       <Filter1Icon
         aria-label={'First party icon'}
-        className={clsx(classes.nonClickableIcon, props.className)}
+        sx={{ ...classes.nonClickableIcon, ...props.sx }}
       />
     </MuiTooltip>
   );
 }
 
 export function CommentIcon(props: IconProps): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTooltip classes={{ tooltip: classes.tooltip }} title="has comment">
+    <MuiTooltip sx={classes.tooltip} title="has comment">
       <InsertCommentIcon
         aria-label={'Comment icon'}
-        className={clsx(classes.nonClickableIcon, props.className)}
+        sx={{ ...classes.nonClickableIcon, ...props.sx }}
       />
     </MuiTooltip>
   );
 }
 
 export function ExcludeFromNoticeIcon(props: IconProps): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTooltip
-      classes={{ tooltip: classes.tooltip }}
-      title="excluded from notice"
-    >
+    <MuiTooltip sx={classes.tooltip} title="excluded from notice">
       <IndeterminateCheckBoxIcon
         aria-label={'Exclude from notice icon'}
-        className={clsx(classes.nonClickableIcon, props.className)}
+        sx={{ ...classes.nonClickableIcon, ...props.sx }}
       />
     </MuiTooltip>
   );
 }
 
 export function FollowUpIcon(props: IconProps): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTooltip classes={{ tooltip: classes.tooltip }} title="has follow-up">
+    <MuiTooltip sx={classes.tooltip} title="has follow-up">
       <ReplayIcon
         aria-label={'Follow-up icon'}
-        className={clsx(classes.nonClickableIcon, props.className)}
+        sx={{ ...classes.nonClickableIcon, ...props.sx }}
       />
     </MuiTooltip>
   );
 }
 
 export function SignalIcon(): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTooltip classes={{ tooltip: classes.tooltip }} title="has signals">
+    <MuiTooltip sx={classes.tooltip} title="has signals">
       <AnnouncementIcon
         aria-label={'Signal icon'}
-        className={classes.nonClickableIcon}
+        sx={classes.nonClickableIcon}
       />
     </MuiTooltip>
   );
 }
 
 export function DirectoryIcon({
-  className,
+  sx,
   labelDetail,
 }: LabelDetailIconProps): ReactElement {
-  const classes = useStyles();
   return (
     <FolderOutlinedIcon
       aria-label={
         labelDetail ? `Directory icon ${labelDetail}` : 'Directory icon'
       }
-      className={clsx(
-        classes.resourceIcon,
-        className ?? classes.resourceDefaultColor
-      )}
+      sx={{
+        ...classes.resourceIcon,
+        ...(sx ?? classes.resourceDefaultColor),
+      }}
     />
   );
 }
 
 export function BreakpointIcon(): ReactElement {
-  const classes = useStyles();
   return (
     <WidgetsIcon
       aria-label={'Breakpoint icon'}
-      className={clsx(classes.resourceIcon, classes.resourceDefaultColor)}
+      sx={{ ...classes.resourceIcon, ...classes.resourceDefaultColor }}
     />
   );
 }
 
 export function FileIcon({
-  className,
+  sx,
   labelDetail,
 }: LabelDetailIconProps): ReactElement {
-  const classes = useStyles();
   return (
     <DescriptionIcon
       aria-label={labelDetail ? `File icon ${labelDetail}` : 'File icon'}
-      className={clsx(
-        classes.resourceIcon,
-        className ?? classes.resourceDefaultColor
-      )}
+      sx={{
+        ...classes.resourceIcon,
+        ...(sx ?? classes.resourceDefaultColor),
+      }}
     />
   );
 }
 
 export function PreSelectedIcon(props: IconProps): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTooltip classes={{ tooltip: classes.tooltip }} title="was pre-selected">
+    <MuiTooltip sx={classes.tooltip} title="was pre-selected">
       <LocalParkingIcon
         aria-label={'Pre-selected icon'}
-        className={clsx(classes.nonClickableIcon, props.className)}
+        sx={{ ...classes.nonClickableIcon, ...props.sx }}
       />
     </MuiTooltip>
   );
 }
 
 export function SearchPackagesIcon(props: IconProps): ReactElement {
-  const classes = useStyles();
   return (
     <SearchIcon
-      className={clsx(classes.nonClickableIcon, props.className)}
+      sx={{ ...classes.nonClickableIcon, ...props.sx }}
       aria-label={'Search packages icon'}
     />
   );
