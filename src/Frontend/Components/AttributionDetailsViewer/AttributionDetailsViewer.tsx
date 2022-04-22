@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -27,13 +26,14 @@ import { useWindowHeight } from '../../util/use-window-height';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
 import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     background: OpossumColors.lightestBlue,
     flex: 1,
     display: 'flex',
-    padding: 8,
+    padding: '8px',
     height: '100%',
   },
   resourceColumn: {
@@ -41,18 +41,16 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     width: '30%',
     height: '100%',
-    paddingRight: 8,
+    paddingRight: '8px',
     overflowY: 'auto',
     minWidth: 240,
   },
   typography: {
-    marginTop: 8,
+    marginTop: '8px',
   },
-});
+};
 
 export function AttributionDetailsViewer(): ReactElement | null {
-  const classes = useStyles();
-
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
   const resourceIdsOfSelectedAttributionId: Array<string> = useAppSelector(
@@ -94,9 +92,9 @@ export function AttributionDetailsViewer(): ReactElement | null {
   }
 
   return selectedAttributionId ? (
-    <div className={classes.root}>
-      <div className={classes.resourceColumn}>
-        <MuiTypography className={classes.typography} variant={'subtitle1'}>
+    <MuiBox sx={classes.root}>
+      <MuiBox sx={classes.resourceColumn}>
+        <MuiTypography sx={classes.typography} variant={'subtitle1'}>
           Linked Resources
         </MuiTypography>
         <ResourcesList
@@ -105,7 +103,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
           ]}
           maxHeight={resourceListMaxHeight}
         />
-      </div>
+      </MuiBox>
       <AttributionColumn
         isEditable={true}
         showManualAttributionData={true}
@@ -119,6 +117,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
         }}
         saveFileRequestListener={saveFileRequestListener}
       />
-    </div>
+    </MuiBox>
   ) : null;
 }

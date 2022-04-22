@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -16,13 +15,14 @@ import { convertResourcesListBatchesToResourcesListItems } from './resource-list
 import { ResourcesListBatch } from '../../types/types';
 import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
-    marginTop: 6,
+    marginTop: '6px',
     backgroundColor: OpossumColors.white,
   },
-});
+};
 
 interface ResourcesListProps {
   resourcesListBatches: Array<ResourcesListBatch>;
@@ -36,7 +36,6 @@ export interface ResourcesListItem {
 }
 
 export function ResourcesList(props: ResourcesListProps): ReactElement {
-  const classes = useStyles();
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
   const dispatch = useAppDispatch();
@@ -72,7 +71,7 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
     : { numberOfDisplayedItems: 30 };
 
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       <List
         getListItem={getResourceCard}
         max={max}
@@ -80,6 +79,6 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
         addPaddingBottom={true}
         allowHorizontalScrolling={true}
       />
-    </div>
+    </MuiBox>
   );
 }

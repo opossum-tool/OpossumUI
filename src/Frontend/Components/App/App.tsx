@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { View } from '../../enums/enums';
 import { getSelectedView } from '../../state/selectors/view-selector';
@@ -16,8 +15,9 @@ import { AuditView } from '../AuditView/AuditView';
 import { TopBar } from '../TopBar/TopBar';
 import { createTheme } from '@mui/material';
 import { useAppSelector } from '../../state/hooks';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     width: '100vw',
     height: '100vh',
@@ -28,7 +28,7 @@ const useStyles = makeStyles({
     width: '100%',
     overflow: 'hidden',
   },
-});
+};
 
 const theme = createTheme({
   components: {
@@ -78,12 +78,10 @@ export function App(): ReactElement {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <GlobalPopup />
-          <div className={useStyles().root}>
+          <MuiBox sx={classes.root}>
             <TopBar />
-            <div className={useStyles().panelDiv}>
-              {getSelectedViewContainer()}
-            </div>
-          </div>
+            <MuiBox sx={classes.panelDiv}>{getSelectedViewContainer()}</MuiBox>
+          </MuiBox>
         </ThemeProvider>
       </StyledEngineProvider>
     </ErrorBoundary>

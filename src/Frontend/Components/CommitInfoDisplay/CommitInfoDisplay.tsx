@@ -3,22 +3,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import commitInfo from '../../../commitInfo.json';
 import { OpossumColors } from '../../shared-styles';
 
-const useStyles = makeStyles({
+const classes = {
   commitDisplay: {
     color: OpossumColors.lightBlue,
   },
-});
+};
 
 export function CommitInfoDisplay(): ReactElement {
-  const classes = useStyles();
   return (
-    <MuiTypography variant={'subtitle2'} className={classes.commitDisplay}>
+    <MuiTypography variant={'subtitle2'} sx={classes.commitDisplay}>
       {commitInfo.commitInfo}
     </MuiTypography>
   );

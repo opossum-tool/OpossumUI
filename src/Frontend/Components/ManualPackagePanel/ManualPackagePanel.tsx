@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiPaper from '@mui/material/Paper';
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -20,11 +19,12 @@ import {
 import { Button } from '../Button/Button';
 import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
 import { OpossumColors } from '../../shared-styles';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
-    marginRight: 1,
-    padding: 8,
+    marginRight: '1px',
+    padding: '8px',
     background: OpossumColors.white,
     border: `1px ${OpossumColors.white} solid`,
   },
@@ -32,10 +32,10 @@ const useStyles = makeStyles({
     backgroundColor: OpossumColors.white,
   },
   buttonDiv: {
-    marginTop: 6,
-    marginBottom: 4,
+    marginTop: '6px',
+    marginBottom: '4px',
   },
-});
+};
 
 interface ManualPackagePanelProps {
   showParentAttributions: boolean;
@@ -47,7 +47,6 @@ interface ManualPackagePanelProps {
 export function ManualPackagePanel(
   props: ManualPackagePanelProps
 ): ReactElement | null {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
 
   const selectedAttributionId: string | null = useAppSelector(
@@ -82,7 +81,7 @@ export function ManualPackagePanel(
     props.showParentAttributions && !props.overrideParentMode;
 
   return (
-    <MuiPaper className={classes.root} elevation={0} square={true}>
+    <MuiPaper sx={classes.root} elevation={0} square={true}>
       <MuiTypography variant={'subtitle1'}>
         {showParentAttributions
           ? 'Attributions (from parents)'
@@ -95,7 +94,7 @@ export function ManualPackagePanel(
         isAddNewAttributionItemShown={props.showAddNewAttributionButton}
         onCardClick={onCardClick}
       />
-      <div className={classes.buttonDiv}>
+      <MuiBox sx={classes.buttonDiv}>
         {showParentAttributions && (
           <Button
             buttonText={'Override parent'}
@@ -103,7 +102,7 @@ export function ManualPackagePanel(
             onClick={props.onOverrideParentClick}
           />
         )}
-      </div>
+      </MuiBox>
     </MuiPaper>
   );
 }

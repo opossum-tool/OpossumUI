@@ -4,25 +4,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { InputAdornment } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTextField from '@mui/material/TextField';
 import { Search } from '@mui/icons-material';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 
-const useStyles = makeStyles({
+const classes = {
   searchField: {
-    marginTop: 4,
-    marginBottom: 8,
+    marginTop: '4px',
+    marginBottom: '8px',
     '& div': {
-      borderRadius: 0,
+      borderRadius: '0px',
     },
   },
   endAdornment: {
-    width: 20,
+    width: '20px',
     color: OpossumColors.grey,
   },
-});
+};
 
 interface SearchTextFieldProps {
   onInputChange(search: string): void;
@@ -31,8 +30,6 @@ interface SearchTextFieldProps {
 }
 
 export function SearchTextField(props: SearchTextFieldProps): ReactElement {
-  const classes = useStyles();
-
   return (
     <MuiTextField
       label="Search"
@@ -40,14 +37,14 @@ export function SearchTextField(props: SearchTextFieldProps): ReactElement {
       variant="outlined"
       autoFocus={props.autoFocus ?? false}
       size="small"
-      className={classes.searchField}
+      sx={classes.searchField}
       value={props.search}
       fullWidth={true}
       onChange={(event): void => props.onInputChange(event.target.value)}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
-            <Search className={classes.endAdornment} />
+            <Search sx={classes.endAdornment} />
           </InputAdornment>
         ),
       }}

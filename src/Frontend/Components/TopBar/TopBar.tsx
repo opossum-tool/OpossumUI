@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React, { ReactElement } from 'react';
@@ -18,20 +17,21 @@ import { OpossumColors } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
+import MuiBox from '@mui/material/Box';
 
 export const topBarHeight = 36;
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     height: topBarHeight,
     background: OpossumColors.darkBlue,
     display: 'flex',
   },
   openFileIcon: {
-    margin: 8,
-    width: 18,
-    height: 18,
-    padding: 2,
+    margin: '8px',
+    width: '18px',
+    height: '18px',
+    padding: '2px',
     color: OpossumColors.white,
     '&:hover': {
       background: OpossumColors.middleBlue,
@@ -56,11 +56,9 @@ const useStyles = makeStyles({
     background: OpossumColors.darkBlue,
     float: 'right',
   },
-});
+};
 
 export function TopBar(): ReactElement {
-  const classes = useStyles();
-
   const selectedView = useAppSelector(getSelectedView);
   const dispatch = useAppDispatch();
 
@@ -72,7 +70,7 @@ export function TopBar(): ReactElement {
   }
 
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       <BackendCommunication />
       <IconButton
         tooltipTitle="open file"
@@ -82,7 +80,7 @@ export function TopBar(): ReactElement {
         }}
         icon={
           <FolderOpenIcon
-            className={classes.openFileIcon}
+            sx={classes.openFileIcon}
             aria-label={'open file icon'}
           />
         }
@@ -96,29 +94,29 @@ export function TopBar(): ReactElement {
       >
         <MuiToggleButton
           value={View.Audit}
-          className={classes.viewButtons}
+          sx={classes.viewButtons}
           disabled={selectedView === View.Audit}
         >
           {'Audit'}
         </MuiToggleButton>
         <MuiToggleButton
           value={View.Attribution}
-          className={classes.viewButtons}
+          sx={classes.viewButtons}
           disabled={selectedView === View.Attribution}
         >
           {'Attribution'}
         </MuiToggleButton>
         <MuiToggleButton
           value={View.Report}
-          className={classes.viewButtons}
+          sx={classes.viewButtons}
           disabled={selectedView === View.Report}
         >
           {'Report'}
         </MuiToggleButton>
       </MuiToggleButtonGroup>
-      <div className={classes.versionInfo}>
+      <MuiBox sx={classes.versionInfo}>
         <CommitInfoDisplay />
-      </div>
-    </div>
+      </MuiBox>
+    </MuiBox>
   );
 }

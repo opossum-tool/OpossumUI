@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
@@ -48,13 +46,14 @@ import { ButtonText, PopupType, View } from '../../enums/enums';
 import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     flex: 1,
     height: '100%',
   },
-});
+};
 
 interface AttributionColumnProps {
   isEditable: boolean;
@@ -78,8 +77,6 @@ interface AttributionColumnProps {
 }
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
-  const classes = useStyles();
-
   const dispatch = useAppDispatch();
   const initialPackageInfo = useAppSelector(getPackageInfoOfSelected);
   const selectedPackage = useAppSelector(getDisplayedPackage);
@@ -249,7 +246,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     !props.displayPackageInfo.excludeFromNotice;
 
   return (
-    <div className={clsx(classes.root)}>
+    <MuiBox sx={classes.root}>
       <PackageSubPanel
         displayPackageInfo={props.displayPackageInfo}
         handlePurlChange={handlePurlChange}
@@ -327,6 +324,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         hamburgerMenuButtonConfigs={hamburgerMenuButtonConfigs}
         displayTexts={displayTexts}
       />
-    </div>
+    </MuiBox>
   );
 }
