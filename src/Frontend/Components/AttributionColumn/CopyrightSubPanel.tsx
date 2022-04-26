@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiPaper from '@mui/material/Paper';
-import clsx from 'clsx';
 import React, { ChangeEvent, ReactElement } from 'react';
 import { PackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { TextBox } from '../InputElements/TextBox';
-import { useAttributionColumnStyles } from './shared-attribution-column-styles';
+import { attributionColumnClasses } from './shared-attribution-column-styles';
+import MuiBox from '@mui/material/Box';
 
 interface CopyrightSubPanelProps {
   isEditable: boolean;
@@ -22,14 +22,12 @@ interface CopyrightSubPanelProps {
 }
 
 export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
-  const classes = useAttributionColumnStyles();
-
   return (
-    <MuiPaper className={classes.panel} elevation={0} square={true}>
-      <div className={classes.displayRow}>
+    <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
+      <MuiBox sx={attributionColumnClasses.displayRow}>
         <TextBox
           isEditable={props.isEditable}
-          className={clsx(classes.textBox)}
+          sx={attributionColumnClasses.textBox}
           title={'Copyright'}
           text={props.displayPackageInfo.copyright}
           minRows={props.copyrightRows}
@@ -44,7 +42,7 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
             )
           }
         />
-      </div>
+      </MuiBox>
     </MuiPaper>
   );
 }

@@ -3,14 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import { OpossumColors } from '../../shared-styles';
 
-export const useAttributionColumnStyles = makeStyles({
+export const attributionColumnClasses = {
   panel: {
-    marginBottom: 5,
-    padding: 6,
-    paddingBottom: 0,
+    marginBottom: '5px',
+    padding: '6px',
+    paddingBottom: '0px',
     background: OpossumColors.lightestBlue,
     border: `1px ${OpossumColors.lightestBlue} solid`,
   },
@@ -18,15 +17,15 @@ export const useAttributionColumnStyles = makeStyles({
     display: 'flex',
   },
   textBox: {
-    marginBottom: 10,
+    marginBottom: '4px',
     flex: 1,
   },
   rightTextBox: {
-    marginLeft: 8,
+    marginLeft: '8px',
   },
   textBoxInvalidInput: {
     '& textarea, input': {
       color: OpossumColors.orange,
     },
   },
-});
+};

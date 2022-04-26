@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
-
 export const OpossumColors = {
   almostWhiteBlue: 'hsl(220, 41%, 97%)',
   lightestBlue: 'hsl(220, 41%, 92%)',
@@ -40,13 +38,15 @@ export const OpossumColors = {
 export const resourceBrowserWidthInPixels = 420;
 
 export const tooltipStyle = {
-  fontSize: 12,
+  '& tooltip': {
+    fontSize: '12px',
+  },
 };
 
 export const baseIcon = {
-  width: 15,
-  height: 15,
-  padding: 2,
+  width: '15px',
+  height: '15px',
+  padding: '2px',
   margin: '0 2px',
 };
 
@@ -62,16 +62,6 @@ export const disabledIcon = {
   ...baseIcon,
   color: OpossumColors.disabledButtonGrey,
 };
-
-export const useCheckboxStyles = makeStyles({
-  checkBox: {
-    height: 40,
-    display: 'flex',
-    alignItems: 'center',
-    marginRight: 12,
-    marginLeft: -2,
-  },
-});
 
 export const checkboxClass = {
   checkBox: {

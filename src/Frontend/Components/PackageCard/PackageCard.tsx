@@ -6,12 +6,10 @@
 import React, { ReactElement, useState } from 'react';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from '../../util/get-card-labels';
-import makeStyles from '@mui/styles/makeStyles';
 import { ListCardConfig, ListCardContent } from '../../types/types';
-import { clickableIcon, OpossumColors } from '../../shared-styles';
+import { clickableIcon } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@mui/icons-material/Add';
-import clsx from 'clsx';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { useSelector } from 'react-redux';
@@ -58,27 +56,22 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { PackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { getPackageInfoKeys } from '../../../shared/shared-util';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   hiddenIcon: {
     visibility: 'hidden',
   },
-  followUpIcon: {
-    color: OpossumColors.orange,
-  },
-  excludeFromNoticeIcon: {
-    color: OpossumColors.grey,
-  },
   clickableIcon,
   multiSelectCheckbox: {
-    height: 40,
-    marginTop: 1,
+    height: '40px',
+    marginTop: '1px',
   },
   multiSelectPackageCard: {
     flexGrow: 1,
-    minWidth: 0,
+    minWidth: '0px',
   },
-});
+};
 
 interface PackageCardProps {
   cardContent: ListCardContent;
@@ -94,8 +87,6 @@ interface PackageCardProps {
 }
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
-  const classes = useStyles();
-
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
   const selectedView = useSelector(getSelectedView);
@@ -361,7 +352,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       <Checkbox
         checked={multiSelectSelectedAttributionIds.includes(attributionId)}
         onChange={handleMultiSelectAttributionSelected}
-        className={classes.multiSelectCheckbox}
+        sx={classes.multiSelectCheckbox}
       />
     ) : undefined;
 
@@ -373,10 +364,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       key={getKey('add-icon', props.cardContent)}
       icon={
         <PlusIcon
-          className={clsx(
-            props.cardConfig.isResolved ? classes.hiddenIcon : undefined,
-            classes.clickableIcon
-          )}
+          sx={{
+            ...(props.cardConfig.isResolved ? classes.hiddenIcon : {}),
+            ...classes.clickableIcon,
+          }}
           aria-label={`add ${packageLabels[0] || ''}`}
         />
       }
@@ -393,7 +384,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       key={`open-resources-icon-${props.cardContent.name}-${props.cardContent.packageVersion}`}
       icon={
         <OpenInBrowserIcon
-          className={classes.clickableIcon}
+          sx={classes.clickableIcon}
           aria-label={'show resources'}
         />
       }
@@ -401,9 +392,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   ) : undefined;
 
   return (
-    <div
-      className={clsx(!props.showCheckBox && classes.multiSelectPackageCard)}
-    >
+    <MuiBox sx={!props.showCheckBox ? classes.multiSelectPackageCard : {}}>
       {!Boolean(props.hideContextMenuAndMultiSelect) && (
         <ResourcePathPopup
           isOpen={showAssociatedResourcesPopup}
@@ -431,13 +420,12 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           rightIcons={getRightIcons(
             props.cardContent,
             props.cardConfig,
-            classes,
             openResourcesIcon
           )}
           leftElement={leftElement}
           highlightedCard={highlightedAttribution}
         />
       </ContextMenu>
-    </div>
+    </MuiBox>
   );
 }

@@ -5,12 +5,13 @@
 
 import MuiTextField from '@mui/material/TextField';
 import React, { ReactElement } from 'react';
-import { InputElementProps, useInputElementStyles } from './shared';
-import clsx from 'clsx';
+import { InputElementProps, inputElementClasses } from './shared';
 import MuiInputAdornment from '@mui/material/InputAdornment';
+import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/material';
 
 interface TextProps extends InputElementProps {
-  textFieldClassname?: string;
+  textFieldSx?: SxProps;
   minRows?: number;
   maxRows?: number;
   endIcon?: ReactElement;
@@ -18,17 +19,17 @@ interface TextProps extends InputElementProps {
 }
 
 export function TextBox(props: TextProps): ReactElement {
-  const classes = useInputElementStyles();
-
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiTextField
         disabled={!props.isEditable}
-        className={clsx(
-          props.textFieldClassname,
-          classes.textField,
-          props.isHighlighted && classes.highlightedTextField
-        )}
+        sx={{
+          ...props.textFieldSx,
+          ...inputElementClasses.textField,
+          ...(props.isHighlighted
+            ? inputElementClasses.highlightedTextField
+            : {}),
+        }}
         label={props.title}
         InputProps={{
           inputProps: {
@@ -48,6 +49,6 @@ export function TextBox(props: TextProps): ReactElement {
         value={props.text || ''}
         onChange={props.handleChange}
       />
-    </div>
+    </MuiBox>
   );
 }

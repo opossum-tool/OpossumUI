@@ -4,10 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiTextField from '@mui/material/TextField';
-import clsx from 'clsx';
 import React, { ReactElement } from 'react';
-import { InputElementProps, useInputElementStyles } from './shared';
-
+import { InputElementProps, inputElementClasses } from './shared';
+import MuiBox from '@mui/material/Box';
 interface NumericProps extends InputElementProps {
   value?: number;
   min?: number;
@@ -16,16 +15,16 @@ interface NumericProps extends InputElementProps {
 }
 
 export function NumberBox(props: NumericProps): ReactElement {
-  const classes = useInputElementStyles();
-
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiTextField
         disabled={!props.isEditable}
-        className={clsx(
-          classes.textField,
-          props.isHighlighted && classes.highlightedTextField
-        )}
+        sx={{
+          ...inputElementClasses.textField,
+          ...(props.isHighlighted
+            ? inputElementClasses.highlightedTextField
+            : {}),
+        }}
         label={props.title}
         InputProps={{
           inputProps: {
@@ -41,7 +40,7 @@ export function NumberBox(props: NumericProps): ReactElement {
         value={isFiniteNumber(props.value) ? props.value : ''}
         onChange={props.handleChange}
       />
-    </div>
+    </MuiBox>
   );
 }
 

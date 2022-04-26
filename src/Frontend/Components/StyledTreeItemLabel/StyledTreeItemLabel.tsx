@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import {
@@ -13,18 +12,19 @@ import {
   SignalIcon,
 } from '../Icons/Icons';
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
-import clsx from 'clsx';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   manualIcon: {
     color: OpossumColors.darkBlue,
-    height: 20,
-    width: 20,
+    height: '20px',
+    width: '20px',
   },
   externalIcon: {
     color: OpossumColors.black,
-    height: 20,
-    width: 20,
+    height: '20px',
+    width: '20px',
   },
   labelRoot: {
     display: 'flex',
@@ -34,11 +34,11 @@ const useStyles = makeStyles({
     flex: 1,
   },
   arrowPlaceholder: {
-    height: 20,
-    width: 20,
+    height: '20px',
+    width: '20px',
   },
   text: {
-    paddingRight: 5,
+    paddingRight: '5px',
   },
   breakpoint: {
     fontWeight: 'bold',
@@ -69,7 +69,7 @@ const useStyles = makeStyles({
     color: OpossumColors.pastelMiddleGreen,
   },
   tooltip: tooltipStyle,
-});
+};
 
 interface StyledTreeItemProps {
   labelText: string;
@@ -86,9 +86,7 @@ interface StyledTreeItemProps {
 }
 
 export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
-  const classes = useStyles();
-
-  let iconClassName: string | undefined;
+  let iconClassName: SxProps | undefined;
   let labelDetail: string | undefined;
   if (props.hasManualAttribution) {
     iconClassName = classes.hasAttribution;
@@ -129,25 +127,25 @@ export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
   }
 
   return (
-    <div className={classes.labelRoot}>
+    <MuiBox sx={classes.labelRoot}>
       {props.showFolderIcon ? (
         props.isAttributionBreakpoint ? (
           <BreakpointIcon />
         ) : (
-          <DirectoryIcon className={iconClassName} labelDetail={labelDetail} />
+          <DirectoryIcon sx={iconClassName} labelDetail={labelDetail} />
         )
       ) : (
-        <FileIcon className={iconClassName} labelDetail={labelDetail} />
+        <FileIcon sx={iconClassName} labelDetail={labelDetail} />
       )}
       <MuiTypography
-        className={clsx(
-          classes.text,
-          props.isAttributionBreakpoint && classes.breakpoint
-        )}
+        sx={{
+          ...classes.text,
+          ...(props.isAttributionBreakpoint ? classes.breakpoint : {}),
+        }}
       >
         {props.labelText}
       </MuiTypography>
       {props.hasExternalAttribution ? <SignalIcon /> : null}
-    </div>
+    </MuiBox>
   );
 }

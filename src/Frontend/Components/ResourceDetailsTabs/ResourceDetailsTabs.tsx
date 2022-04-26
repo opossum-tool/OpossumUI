@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTab from '@mui/material/Tab';
@@ -19,7 +18,7 @@ import {
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 
-const useStyles = makeStyles({
+const classes = {
   tabsRoot: {
     minHeight: 'fit-content',
   },
@@ -39,7 +38,7 @@ const useStyles = makeStyles({
   indicator: {
     backgroundColor: OpossumColors.darkBlue,
   },
-});
+};
 
 interface ResourceDetailsTabsProps {
   isGlobalTabEnabled: boolean;
@@ -49,8 +48,6 @@ interface ResourceDetailsTabsProps {
 export function ResourceDetailsTabs(
   props: ResourceDetailsTabsProps
 ): ReactElement | null {
-  const classes = useStyles();
-
   const manualData = useAppSelector(getManualData);
 
   const selectedPackage = useAppSelector(getDisplayedPackage);
@@ -99,14 +96,13 @@ export function ResourceDetailsTabs(
           setSelectedTab(newTab);
         }}
         aria-label="Add To Tabs"
-        className={classes.tabsRoot}
-        classes={{ indicator: classes.indicator }}
+        sx={{ ...classes.tabsRoot, indicator: classes.indicator }}
       >
         <MuiTab
           label={tabLabels[Tabs.Local]}
           aria-label={'Local Tab'}
           id={`tab-${Tabs.Local}`}
-          className={classes.tab}
+          sx={classes.tab}
         />
         <MuiTab
           label={tabLabels[Tabs.Global]}
@@ -115,7 +111,7 @@ export function ResourceDetailsTabs(
           disabled={
             !props.isGlobalTabEnabled || assignableAttributionIds.length < 1
           }
-          className={classes.tab}
+          sx={classes.tab}
         />
       </MuiTabs>
       {selectedTab === Tabs.Local ? (

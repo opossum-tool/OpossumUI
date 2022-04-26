@@ -4,11 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { InputElementProps, useInputElementStyles } from './shared';
+import { InputElementProps, inputElementClasses } from './shared';
 import MuiTextField from '@mui/material/TextField';
 import MuiMenuItem from '@mui/material/MenuItem';
-import clsx from 'clsx';
-
+import MuiBox from '@mui/material/Box';
 interface DropdownProps extends InputElementProps {
   value: number;
   menuItems: Array<menuItem>;
@@ -20,7 +19,6 @@ interface menuItem {
 }
 
 export function Dropdown(props: DropdownProps): ReactElement {
-  const classes = useInputElementStyles();
   const menuItems = getMenuItemsWithSelectedValueIncluded();
 
   function getMenuItemsWithSelectedValueIncluded(): Array<menuItem> {
@@ -37,13 +35,15 @@ export function Dropdown(props: DropdownProps): ReactElement {
   }
 
   return (
-    <div className={props.className}>
+    <MuiBox sx={props.sx}>
       <MuiTextField
         disabled={!props.isEditable}
-        className={clsx(
-          classes.textField,
-          props.isHighlighted && classes.highlightedTextField
-        )}
+        sx={{
+          ...inputElementClasses.textField,
+          ...(props.isHighlighted
+            ? inputElementClasses.highlightedTextField
+            : {}),
+        }}
         select
         label={props.title}
         InputProps={{
@@ -65,6 +65,6 @@ export function Dropdown(props: DropdownProps): ReactElement {
           );
         })}
       </MuiTextField>
-    </div>
+    </MuiBox>
   );
 }
