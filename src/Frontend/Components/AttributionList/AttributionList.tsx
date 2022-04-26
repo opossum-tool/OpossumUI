@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
@@ -11,9 +10,11 @@ import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { FilteredList } from '../FilteredList/FilteredList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
-import { useCheckboxStyles } from '../../shared-styles';
+import { checkboxClass } from '../../shared-styles';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
+  ...checkboxClass,
   topElements: {
     display: 'flex',
     alignItems: 'center',
@@ -21,9 +22,9 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
   },
   title: {
-    marginLeft: 5,
+    marginLeft: '5px',
   },
-});
+};
 
 interface AttributionListProps {
   attributions: Attributions;
@@ -38,7 +39,6 @@ interface AttributionListProps {
 }
 
 export function AttributionList(props: AttributionListProps): ReactElement {
-  const classes = { ...useCheckboxStyles(), ...useStyles() };
   const attributions = { ...props.attributions };
   const attributionIds: Array<string> = Object.keys({
     ...props.attributions,
@@ -95,10 +95,10 @@ export function AttributionList(props: AttributionListProps): ReactElement {
 
   return (
     <div className={props.className}>
-      <div className={classes.topElements}>
-        <MuiTypography className={classes.title}>{props.title}</MuiTypography>
+      <MuiBox sx={classes.topElements}>
+        <MuiTypography sx={classes.title}>{props.title}</MuiTypography>
         {props.topRightElement}
-      </div>
+      </MuiBox>
       {props.filterElement}
       <FilteredList
         attributions={props.attributions}

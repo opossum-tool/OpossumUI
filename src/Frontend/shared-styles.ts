@@ -72,3 +72,13 @@ export const useCheckboxStyles = makeStyles({
     marginLeft: -2,
   },
 });
+
+export const checkboxClass = {
+  checkBox: {
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    marginRight: '12px',
+    marginLeft: '-2px',
+  },
+};

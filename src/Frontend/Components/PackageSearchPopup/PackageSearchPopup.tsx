@@ -10,7 +10,6 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { ClearlyDefinedPackageCard } from './ClearlyDefinedPackageCard';
-import makeStyles from '@mui/styles/makeStyles';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import { Validator } from 'jsonschema';
@@ -18,8 +17,9 @@ import { PackageInfo } from '../../../shared/shared-types';
 import { Spinner } from '../Spinner/Spinner';
 import { Alert } from '../Alert/Alert';
 import MuiTypography from '@mui/material/Typography';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     minWidth: '300px',
   },
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+};
 
 function useDebounceInput(input: string, delay: number): string {
   const [debouncedInput, setDebouncedInput] = useState<string>(input);
@@ -78,7 +78,6 @@ function getInitialSearchTerm(packageInfo: PackageInfo): string {
 }
 
 export function PackageSearchPopup(): ReactElement {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
   const [currentSearchTerm, setCurrentSearchTerm] = useState<string>(
@@ -103,7 +102,7 @@ export function PackageSearchPopup(): ReactElement {
   }
 
   const content = (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       <SearchTextField
         onInputChange={handleChange}
         search={currentSearchTerm}
@@ -118,7 +117,7 @@ export function PackageSearchPopup(): ReactElement {
           }`}
         />
       ) : (
-        <div className={classes.packages}>
+        <MuiBox sx={classes.packages}>
           {data && data.length > 0 ? (
             data.map((packageCoordinates: string, idx: number) => {
               return (
@@ -129,13 +128,13 @@ export function PackageSearchPopup(): ReactElement {
               );
             })
           ) : (
-            <div className={classes.noResultsFound}>
+            <MuiBox sx={classes.noResultsFound}>
               <MuiTypography>{'No results found'}</MuiTypography>
-            </div>
+            </MuiBox>
           )}
-        </div>
+        </MuiBox>
       )}
-    </div>
+    </MuiBox>
   );
 
   return (

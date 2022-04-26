@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { PanelPackage } from '../../types/types';
 import { ManualPackagePanel } from '../ManualPackagePanel/ManualPackagePanel';
@@ -29,17 +28,18 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { FolderProgressBar } from '../ProgressBar/FolderProgressBar';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     background: OpossumColors.lightestBlue,
     flex: 1,
-    padding: 8,
+    padding: '8px',
     width: `calc(100% - ${resourceBrowserWidthInPixels}px)`,
   },
   columnDiv: {
     display: 'flex',
-    marginTop: 8,
+    marginTop: '8px',
     height: 'calc(100% - 32px)',
   },
   packageColumn: {
@@ -47,20 +47,18 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     width: '30%',
     height: '100%',
-    marginRight: 4,
+    marginRight: '4px',
     minWidth: 240,
   },
   tabsDiv: {
     overflowY: 'auto',
-    marginTop: 8,
+    marginTop: '8px',
     flex: 1,
-    paddingRight: 1,
+    paddingRight: '1px',
   },
-});
+};
 
 export function ResourceDetailsViewer(): ReactElement | null {
-  const classes = useStyles();
-
   const [overrideParentMode, setOverrideParentMode] = useState<boolean>(false);
 
   const displayedPackage: PanelPackage | null =
@@ -108,10 +106,10 @@ export function ResourceDetailsViewer(): ReactElement | null {
   const showProgressBar = isIdOfResourceWithChildren(selectedResourceId);
 
   return selectedResourceId && displayedPackage ? (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       <PathBar />
-      <div className={classes.columnDiv}>
-        <div className={classes.packageColumn}>
+      <MuiBox sx={classes.columnDiv}>
+        <MuiBox sx={classes.packageColumn}>
           {!resourceIsAttributionBreakpoint && (
             <ManualPackagePanel
               showParentAttributions={showParentAttributions}
@@ -123,17 +121,17 @@ export function ResourceDetailsViewer(): ReactElement | null {
           {showProgressBar && (
             <FolderProgressBar resourceId={selectedResourceId} />
           )}
-          <div className={classes.tabsDiv}>
+          <MuiBox sx={classes.tabsDiv}>
             <ResourceDetailsTabs
               isGlobalTabEnabled={!showParentAttributions}
               isAddToPackageEnabled={!resourceIsAttributionBreakpoint}
             />
-          </div>
-        </div>
+          </MuiBox>
+        </MuiBox>
         <ResourceDetailsAttributionColumn
           showParentAttributions={showParentAttributions}
         />
-      </div>
-    </div>
+      </MuiBox>
+    </MuiBox>
   ) : null;
 }
