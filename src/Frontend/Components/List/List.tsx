@@ -6,18 +6,14 @@
 import React, { CSSProperties, ReactElement } from 'react';
 import { FixedSizeList as VirtualizedList } from 'react-window';
 import { Height, NumberOfDisplayedItems } from '../../types/types';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
+import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/material';
 
-// deprecated
-const useStyles = makeStyles({
-  paddingBottomScrollbar: {
-    paddingBottom: 18,
-  },
+const classes = {
   scrollChild: {
     direction: 'ltr',
   },
-});
+};
 
 interface ListProps {
   length: number;
@@ -28,7 +24,7 @@ interface ListProps {
   addPaddingBottom?: boolean;
   allowHorizontalScrolling?: boolean;
   leftScrollBar?: boolean;
-  className?: string;
+  sx?: SxProps;
 }
 
 function maxHeightWasGiven(
@@ -38,7 +34,6 @@ function maxHeightWasGiven(
 }
 
 export function List(props: ListProps): ReactElement {
-  const classes = useStyles();
   const cardHeight = props.cardVerticalDistance || 24;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
@@ -49,20 +44,18 @@ export function List(props: ListProps): ReactElement {
     : Math.min(currentHeight, maxHeight);
 
   return (
-    <div className={props.className} style={{ maxHeight: currentHeight }}>
+    <MuiBox sx={props.sx} style={{ maxHeight: `${currentHeight}` }}>
       <VirtualizedList
         height={listHeight}
         width={'vertical'}
         itemSize={cardHeight}
         itemCount={props.length}
-        className={clsx(
-          props.addPaddingBottom ? classes.paddingBottomScrollbar : null
-        )}
         style={{
           direction: `${props.leftScrollBar ? 'rtl' : 'ltr'}`,
           overflow: `${
             props.alwaysShowHorizontalScrollBar ? 'scroll' : 'auto'
           } ${currentHeight < maxHeight ? 'hidden' : 'auto'}`,
+          paddingBottom: `${props.addPaddingBottom ? '18px' : '0px'}`,
         }}
       >
         {({
@@ -72,8 +65,8 @@ export function List(props: ListProps): ReactElement {
           index: number;
           style: CSSProperties;
         }): ReactElement => (
-          <div
-            className={clsx(props.leftScrollBar && classes.scrollChild)}
+          <MuiBox
+            sx={props.leftScrollBar ? classes.scrollChild : {}}
             style={
               props.allowHorizontalScrolling
                 ? {
@@ -85,9 +78,9 @@ export function List(props: ListProps): ReactElement {
             }
           >
             {props.getListItem(index)}
-          </div>
+          </MuiBox>
         )}
       </VirtualizedList>
-    </div>
+    </MuiBox>
   );
 }

@@ -13,20 +13,17 @@ import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { List } from '../List/List';
 import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { ListCardConfig } from '../../types/types';
-import { makeStyles } from '@mui/styles';
-import clsx from 'clsx';
 
 const NUMBER_OF_DISPLAYED_ITEMS = 15;
 const CARD_VERTICAL_DISTANCE = 41;
 const MAX_HEIGHT = NUMBER_OF_DISPLAYED_ITEMS * CARD_VERTICAL_DISTANCE;
 const TYPICAL_SCROLLBAR_WIDTH = 13;
 
-// deprecated
-const useStyles = makeStyles({
+const classes = {
   paddingRight: {
-    paddingRight: TYPICAL_SCROLLBAR_WIDTH,
+    paddingRight: `${TYPICAL_SCROLLBAR_WIDTH}px`,
   },
-});
+};
 
 interface PackageListProps {
   attributionIdsWithCount?: Array<AttributionIdWithCount>;
@@ -44,8 +41,6 @@ interface PackageListProps {
 
 export function PackageList(props: PackageListProps): ReactElement {
   const attributionIdsWithCount = props.attributionIdsWithCount || [];
-
-  const classes = useStyles();
 
   function getSortedAttributionIds(): Array<string> {
     if (!attributionIdsWithCount.length) {
@@ -126,7 +121,7 @@ export function PackageList(props: PackageListProps): ReactElement {
       max={{ numberOfDisplayedItems: NUMBER_OF_DISPLAYED_ITEMS }}
       length={attributionIdsWithCount.length}
       cardVerticalDistance={CARD_VERTICAL_DISTANCE}
-      className={clsx(currentHeight < MAX_HEIGHT && classes.paddingRight)}
+      sx={currentHeight < MAX_HEIGHT ? classes.paddingRight : {}}
     />
   );
 }

@@ -5,17 +5,17 @@
 
 import React, { CSSProperties, ReactElement } from 'react';
 import { FixedSizeList as VirtualizedList } from 'react-window';
-import makeStyles from '@mui/styles/makeStyles';
+import MuiBox from '@mui/material/Box';
 import { HeightForTree, NumberOfDisplayedNodesForTree } from './types';
+import { SxProps } from '@mui/material';
 
 const DEFAULT_CARD_HEIGHT = 24;
 
-// deprecated
-const useStyles = makeStyles({
+const classes = {
   scrollChild: {
     direction: 'ltr',
   },
-});
+};
 
 interface ListProps {
   length: number;
@@ -23,7 +23,7 @@ interface ListProps {
   getListItem(index: number): ReactElement | null;
   cardVerticalDistance?: number;
   alwaysShowHorizontalScrollBar?: boolean;
-  className?: string;
+  sx?: SxProps;
   indexToScrollTo?: number;
 }
 
@@ -34,7 +34,6 @@ function maxHeightWasGiven(
 }
 
 export function List(props: ListProps): ReactElement {
-  const classes = useStyles();
   const cardHeight = props.cardVerticalDistance || DEFAULT_CARD_HEIGHT;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
@@ -51,7 +50,7 @@ export function List(props: ListProps): ReactElement {
     : 0;
 
   return (
-    <div className={props.className} style={{ maxHeight: currentHeight }}>
+    <MuiBox sx={props.sx} style={{ maxHeight: currentHeight }}>
       <VirtualizedList
         initialScrollOffset={scrollOffset}
         height={listHeight}
@@ -71,11 +70,11 @@ export function List(props: ListProps): ReactElement {
           index: number;
           style: CSSProperties;
         }): ReactElement => (
-          <div className={classes.scrollChild} style={style}>
+          <MuiBox sx={classes.scrollChild} style={style}>
             {props.getListItem(index)}
-          </div>
+          </MuiBox>
         )}
       </VirtualizedList>
-    </div>
+    </MuiBox>
   );
 }

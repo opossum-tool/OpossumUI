@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { createStyles, WithStyles, withStyles } from '@mui/styles';
 import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { IpcChannel } from '../../../shared/ipc-channels';
@@ -12,14 +11,15 @@ import { AnyAction } from 'redux';
 import { resetViewState } from '../../state/actions/view-actions/view-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { OpossumColors } from '../../shared-styles';
+import MuiBox from '@mui/material/Box';
 
-const styles = createStyles({
+const classes = {
   root: {
     background: OpossumColors.lightBlue,
     width: '100vw',
     height: '100vh',
   },
-});
+};
 
 // catches errors that are not thrown during render
 // it's known to fire twice in dev mode: https://github.com/facebook/react/issues/19613
@@ -37,7 +37,7 @@ interface DispatchProps {
   resetState(): void;
 }
 
-interface ErrorBoundaryProps extends DispatchProps, WithStyles<typeof styles> {
+interface ErrorBoundaryProps extends DispatchProps {
   children: ReactNode;
 }
 
@@ -85,7 +85,7 @@ class ProtoErrorBoundary extends React.Component<
 
   render(): ReactNode {
     if (this.state.hasError) {
-      return <div className={this.props.classes.root}> </div>;
+      return <MuiBox sx={classes.root} />;
     }
 
     return this.props.children;
@@ -101,6 +101,7 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>): DispatchProps {
   };
 }
 
-export const ErrorBoundary = withStyles(styles)(
-  connect(null, mapDispatchToProps)(ProtoErrorBoundary)
-);
+export const ErrorBoundary = connect(
+  null,
+  mapDispatchToProps
+)(ProtoErrorBoundary);

@@ -3,17 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
-import clsx from 'clsx';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { Criticality } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getHighlightForCriticalSignals } from '../../state/selectors/view-selector';
+import MuiBox from '@mui/material/Box';
 
-const defaultCardHeight = 40;
+const defaultCardHeight = '40px';
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
 const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
 const defaultBackgroundColor = OpossumColors.lightestBlue;
@@ -32,8 +31,7 @@ const getHighlightedBackground = (
   );
 };
 
-// deprecated
-const useStyles = makeStyles({
+const classes = {
   root: {
     flex: 1,
     display: 'flex',
@@ -83,7 +81,7 @@ const useStyles = makeStyles({
     '&:hover': {
       background: OpossumColors.whiteOnHover,
     },
-    height: 24,
+    height: '24px',
   },
   selected: {
     background: OpossumColors.middleBlue,
@@ -109,18 +107,18 @@ const useStyles = makeStyles({
   markedForReplacement: {
     borderRightWidth: 'medium',
     borderRightColor: OpossumColors.brown,
-    borderRadius: 2,
+    borderRadius: '2px',
   },
   resolved: {
     opacity: 0.5,
   },
   highCriticality: {
-    width: 4,
+    width: '4px',
     height: defaultCardHeight,
     background: OpossumColors.orange,
   },
   mediumCriticality: {
-    width: 4,
+    width: '4px',
     height: defaultCardHeight,
     background: OpossumColors.mediumOrange,
   },
@@ -129,7 +127,7 @@ const useStyles = makeStyles({
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    paddingLeft: 6,
+    paddingLeft: '6px',
     marginRight: 'auto',
   },
   textShortenedFromLeftSide: {
@@ -137,7 +135,7 @@ const useStyles = makeStyles({
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    paddingLeft: 6,
+    paddingLeft: '6px',
     direction: 'rtl',
     textAlign: 'left',
     marginRight: 'auto',
@@ -148,8 +146,8 @@ const useStyles = makeStyles({
       fontWeight: 'bold',
       lineHeight: '19px',
     },
-    height: 19,
-    width: 26,
+    height: '19px',
+    width: '26px',
     textAlign: 'center',
     writingMode: 'horizontal-tb',
   },
@@ -169,7 +167,7 @@ const useStyles = makeStyles({
   },
   longTextInFlexbox: {
     // standard fix for css problem "child element with text in flexbox is too long"
-    minWidth: 0,
+    minWidth: '0px',
   },
   textLine: {
     '&.MuiTypography-body2': {
@@ -184,13 +182,13 @@ const useStyles = makeStyles({
     '&.MuiTypography-body2': {
       fontWeight: 'bold',
     },
-    height: 20,
+    height: '20px',
     textAlign: 'left',
     '&:hover': {
       background: OpossumColors.white,
     },
   },
-});
+};
 
 interface ListCardProps {
   text: string;
@@ -205,7 +203,6 @@ interface ListCardProps {
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
-  const classes = useStyles();
   const showHighlightForCriticalSignals = useAppSelector(
     getHighlightForCriticalSignals
   );
@@ -223,75 +220,79 @@ export function ListCard(props: ListCardProps): ReactElement | null {
   }
 
   return (
-    <div
-      className={clsx(
-        classes.root,
-        props.cardConfig.isResource
+    <MuiBox
+      sx={{
+        ...classes.root,
+        ...(props.cardConfig.isResource
           ? classes.resource
           : props.cardConfig.isContextMenuOpen
           ? classes.hoveredPackage
-          : classes.package,
-        props.cardConfig.isExternalAttribution
+          : classes.package),
+        ...(props.cardConfig.isExternalAttribution
           ? props.cardConfig.isContextMenuOpen
             ? classes.hoveredExternalAttribution
             : classes.externalAttribution
-          : null,
-        props.cardConfig.isHeader ? classes.header : classes.hover,
-        props.cardConfig.isSelected
+          : {}),
+        ...(props.cardConfig.isHeader ? classes.header : classes.hover),
+        ...(props.cardConfig.isSelected
           ? props.cardConfig.isContextMenuOpen
             ? classes.hoveredSelected
             : props.highlightedCard
             ? classes.highlightedSelected
             : classes.selected
-          : null,
-        props.cardConfig.isMarkedForReplacement && classes.markedForReplacement,
-        props.cardConfig.isResolved && classes.resolved,
-        props.cardConfig.isResolved && classes.resolved,
-        props.highlightedCard && classes.highlightedPackage
-      )}
+          : {}),
+        ...(props.cardConfig.isMarkedForReplacement
+          ? classes.markedForReplacement
+          : {}),
+        ...(props.cardConfig.isResolved ? classes.resolved : {}),
+        ...(props.cardConfig.isResolved ? classes.resolved : {}),
+        ...(props.highlightedCard ? classes.highlightedPackage : {}),
+      }}
     >
       {props.leftElement ? props.leftElement : null}
-      <div
-        className={clsx(
-          classes.root,
-          props.cardConfig.isResource ? null : classes.longTextInFlexbox
-        )}
+      <MuiBox
+        sx={{
+          ...classes.root,
+          ...(props.cardConfig.isResource ? {} : classes.longTextInFlexbox),
+        }}
         onClick={props.onClick}
       >
-        <div className={classes.iconColumn}>
+        <MuiBox sx={classes.iconColumn}>
           {props.leftIcon ? props.leftIcon : null}
           {getDisplayedCount() ? (
-            <MuiTypography variant={'body2'} className={classes.count}>
+            <MuiTypography variant={'body2'} sx={classes.count}>
               {getDisplayedCount()}
             </MuiTypography>
           ) : null}
-        </div>
-        <div
-          className={clsx(
-            classes.textLines,
-            props.cardConfig.isResource ? null : classes.longTextInFlexbox
-          )}
+        </MuiBox>
+        <MuiBox
+          sx={{
+            ...classes.textLines,
+            ...(props.cardConfig.isResource ? {} : classes.longTextInFlexbox),
+          }}
         >
           <MuiTypography
             variant={'body2'}
-            className={clsx(
-              props.cardConfig.isHeader ? classes.header : classes.textLine,
-              props.cardConfig.isResource
+            sx={{
+              ...(props.cardConfig.isHeader
+                ? classes.header
+                : classes.textLine),
+              ...(props.cardConfig.isResource
                 ? classes.textShortenedFromLeftSide
-                : classes.textShortened
-            )}
+                : classes.textShortened),
+            }}
           >
             {props.cardConfig.isResource ? <bdi>{props.text}</bdi> : props.text}
           </MuiTypography>
           {props.secondLineText ? (
             <MuiTypography
               variant={'body2'}
-              className={clsx(
-                classes.textLine,
-                props.cardConfig.isResource
+              sx={{
+                ...classes.textLine,
+                ...(props.cardConfig.isResource
                   ? classes.textShortenedFromLeftSide
-                  : classes.textShortened
-              )}
+                  : classes.textShortened),
+              }}
             >
               {props.cardConfig.isResource ? (
                 <bdi>{props.secondLineText}</bdi>
@@ -300,22 +301,22 @@ export function ListCard(props: ListCardProps): ReactElement | null {
               )}
             </MuiTypography>
           ) : null}
-        </div>
+        </MuiBox>
         {props.rightIcons ? (
-          <div className={classes.iconColumn}>{props.rightIcons}</div>
+          <MuiBox sx={classes.iconColumn}>{props.rightIcons}</MuiBox>
         ) : null}
-      </div>
+      </MuiBox>
       {showHighlightForCriticalSignals ? (
-        <div
-          className={
-            props.cardConfig.criticality === Criticality.High
+        <MuiBox
+          sx={{
+            ...(props.cardConfig.criticality === Criticality.High
               ? classes.highCriticality
               : props.cardConfig.criticality === Criticality.Medium
               ? classes.mediumCriticality
-              : undefined
-          }
+              : {}),
+          }}
         />
       ) : null}
-    </div>
+    </MuiBox>
   );
 }
