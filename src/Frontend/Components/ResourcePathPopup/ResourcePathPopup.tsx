@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ResourcesList } from '../ResourcesList/ResourcesList';
@@ -17,17 +16,18 @@ import { splitResourceIdsToCurrentAndOtherFolder } from './resource-path-popup-h
 import { ResourcesListBatch } from '../../types/types';
 import { useAppSelector } from '../../state/hooks';
 import { ButtonText } from '../../enums/enums';
+import MuiBox from '@mui/material/Box';
 
 const heightOffset = 300;
 
-const useStyles = makeStyles({
+const classes = {
   header: {
     whiteSpace: 'nowrap',
   },
   resourceListContainer: {
     overflowY: 'hidden',
   },
-});
+};
 
 interface ResourcePathPopupProps {
   isOpen: boolean;
@@ -38,7 +38,6 @@ interface ResourcePathPopupProps {
 }
 
 export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
-  const classes = useStyles();
   const folderPath = useAppSelector(getSelectedResourceId);
 
   const externalAttributionsToResources = useAppSelector(
@@ -76,7 +75,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   return (
     <NotificationPopup
       header={header}
-      headerClassname={classes.header}
+      headerSx={classes.header}
       rightButtonConfig={{
         onClick: props.closePopup,
         buttonText: ButtonText.Close,
@@ -84,12 +83,12 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       onBackdropClick={props.closePopup}
       onEscapeKeyDown={props.closePopup}
       content={
-        <div className={classes.resourceListContainer}>
+        <MuiBox sx={classes.resourceListContainer}>
           <ResourcesList
             resourcesListBatches={resourcesListBatches}
             maxHeight={useWindowHeight() - heightOffset}
           />
-        </div>
+        </MuiBox>
       }
       isOpen={props.isOpen}
       fullWidth={true}

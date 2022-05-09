@@ -9,6 +9,7 @@ import { Height, NumberOfDisplayedItems } from '../../types/types';
 import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 
+// deprecated
 const useStyles = makeStyles({
   paddingBottomScrollbar: {
     paddingBottom: 18,

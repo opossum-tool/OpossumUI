@@ -3,11 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { List } from './List';
-
-import clsx from 'clsx';
 import {
   HeightForTree,
   NodeIdPredicateForTree,
@@ -21,12 +18,14 @@ import {
   VirtualizedTreeNodeData,
 } from './VirtualizedTreeNode';
 import { getTreeNodeProps } from './utils/get-tree-node-props';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   content: {
     height: '100%',
   },
-});
+};
 
 const DEFAULT_MAX_TREE_DISPLAYED_NODES = 5;
 
@@ -47,7 +46,7 @@ interface VirtualizedTreeProps {
   maxHeight?: number;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
-  className?: string;
+  sx?: SxProps;
   treeNodeStyle?: TreeNodeStyle;
   alwaysShowHorizontalScrollBar?: boolean;
 }
@@ -55,8 +54,6 @@ interface VirtualizedTreeProps {
 export function VirtualizedTree(
   props: VirtualizedTreeProps
 ): ReactElement | null {
-  const classes = useStyles();
-
   // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
     props.nodes,
@@ -85,8 +82,8 @@ export function VirtualizedTree(
   );
 
   return props.nodes ? (
-    <div aria-label={props.ariaLabel} className={clsx(props.className)}>
-      <div className={classes.content}>
+    <MuiBox aria-label={props.ariaLabel} sx={props.sx}>
+      <MuiBox sx={classes.content}>
         <List
           length={treeNodeProps.length}
           max={maxListLength}
@@ -104,7 +101,7 @@ export function VirtualizedTree(
           alwaysShowHorizontalScrollBar={props.alwaysShowHorizontalScrollBar}
           indexToScrollTo={indexToScrollTo}
         />
-      </div>
-    </div>
+      </MuiBox>
+    </MuiBox>
   ) : null;
 }

@@ -5,21 +5,19 @@
 
 import MuiCheckbox from '@mui/material/Checkbox';
 import React, { ReactElement } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
 import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   white: {
     color: OpossumColors.white,
   },
   disabledLabel: {
     color: OpossumColors.disabledGrey,
   },
-});
+};
 
 interface CheckboxProps {
   label?: string;
@@ -31,8 +29,8 @@ interface CheckboxProps {
 }
 
 export function Checkbox(props: CheckboxProps): ReactElement {
-  const classes = useStyles();
-  const whiteMode = clsx(props.white && classes.white);
+  const whiteMode = props.white ? classes.white : {};
+
   return (
     <MuiBox sx={props.sx}>
       <MuiCheckbox
@@ -43,16 +41,16 @@ export function Checkbox(props: CheckboxProps): ReactElement {
           'aria-label': `checkbox ${props.label}`,
         }}
         color={'default'}
-        classes={{
-          root: whiteMode,
-          checked: whiteMode,
+        sx={{
+          '&.MuiCheckbox-root': whiteMode,
+          '&.MuiCheckbox-checked': whiteMode,
         }}
       />
       <MuiTypography
-        className={clsx(
-          whiteMode,
-          props.disabled ? classes.disabledLabel : null
-        )}
+        sx={{
+          ...whiteMode,
+          ...(props.disabled ? classes.disabledLabel : {}),
+        }}
       >
         {props.label || ''}
       </MuiTypography>

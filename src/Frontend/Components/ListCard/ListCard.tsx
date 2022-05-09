@@ -32,6 +32,7 @@ const getHighlightedBackground = (
   );
 };
 
+// deprecated
 const useStyles = makeStyles({
   root: {
     flex: 1,

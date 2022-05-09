@@ -4,10 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import clsx from 'clsx';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 
 interface NodeIconProps {
-  className?: string;
+  sx?: SxProps;
   ariaLabel: string;
   onClick: () => void;
   icon: ReactElement;
@@ -15,8 +16,8 @@ interface NodeIconProps {
 
 export function NodeIcon(props: NodeIconProps): ReactElement {
   return (
-    <div
-      className={clsx(props.className)}
+    <MuiBox
+      sx={props.sx}
       onClick={(event): void => {
         event.stopPropagation();
         props.onClick();
@@ -24,6 +25,6 @@ export function NodeIcon(props: NodeIconProps): ReactElement {
       aria-label={props.ariaLabel}
     >
       {props.icon}
-    </div>
+    </MuiBox>
   );
 }

@@ -7,12 +7,12 @@ import React, { ReactElement } from 'react';
 import MuiButtonBase from '@mui/material/ButtonBase';
 import MuiTooltip from '@mui/material/Tooltip';
 import { tooltipStyle } from '../../shared-styles';
-import clsx from 'clsx';
+import { SxProps } from '@mui/material';
 
 interface IconButtonProps {
   tooltipTitle: string;
   placement: 'left' | 'right';
-  className?: string;
+  sx?: SxProps;
   onClick(): void;
   icon: ReactElement;
   disabled?: boolean;
@@ -34,7 +34,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
   }
   return wrapInTooltip(
     <MuiButtonBase
-      className={clsx(props.className)}
+      sx={props.sx}
       onClick={(event): void => {
         event.stopPropagation();
         props.onClick();

@@ -10,6 +10,7 @@ import { HeightForTree, NumberOfDisplayedNodesForTree } from './types';
 
 const DEFAULT_CARD_HEIGHT = 24;
 
+// deprecated
 const useStyles = makeStyles({
   scrollChild: {
     direction: 'ltr',

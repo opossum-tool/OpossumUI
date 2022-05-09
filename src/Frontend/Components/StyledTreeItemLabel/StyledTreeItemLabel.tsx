@@ -86,43 +86,43 @@ interface StyledTreeItemProps {
 }
 
 export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
-  let iconClassName: SxProps | undefined;
+  let iconSx: SxProps | undefined;
   let labelDetail: string | undefined;
   if (props.hasManualAttribution) {
-    iconClassName = classes.hasAttribution;
+    iconSx = classes.hasAttribution;
     labelDetail = 'with attribution';
   } else if (props.hasParentWithManualAttribution) {
-    iconClassName = classes.hasParentWithManualAttribution;
+    iconSx = classes.hasParentWithManualAttribution;
     labelDetail = 'with parent attribution';
   } else if (props.hasUnresolvedExternalAttribution) {
-    iconClassName = classes.hasSignal;
+    iconSx = classes.hasSignal;
     labelDetail = 'with signal';
   } else if (
     props.containsExternalAttribution &&
     !props.containsResourcesWithOnlyExternalAttribution
   ) {
-    iconClassName = classes.notContainsResourcesWithOnlyExternalAttribution;
+    iconSx = classes.notContainsResourcesWithOnlyExternalAttribution;
     labelDetail =
       'with all children containing signal also containing attributions';
   } else if (
     props.containsExternalAttribution &&
     props.containsManualAttribution
   ) {
-    iconClassName = classes.containsManualAndExternalAttribution;
+    iconSx = classes.containsManualAndExternalAttribution;
   } else if (
     props.containsExternalAttribution &&
     !props.containsManualAttribution
   ) {
-    iconClassName = classes.containsExternalAttribution;
+    iconSx = classes.containsExternalAttribution;
     labelDetail = 'containing signals';
   } else if (
     !props.containsExternalAttribution &&
     props.containsManualAttribution
   ) {
-    iconClassName = classes.containsManualAttribution;
+    iconSx = classes.containsManualAttribution;
     labelDetail = 'containing attributions';
   } else {
-    iconClassName = classes.resourceWithoutInformation;
+    iconSx = classes.resourceWithoutInformation;
     labelDetail = 'without information';
   }
 
@@ -132,10 +132,10 @@ export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
         props.isAttributionBreakpoint ? (
           <BreakpointIcon />
         ) : (
-          <DirectoryIcon sx={iconClassName} labelDetail={labelDetail} />
+          <DirectoryIcon sx={iconSx} labelDetail={labelDetail} />
         )
       ) : (
-        <FileIcon sx={iconClassName} labelDetail={labelDetail} />
+        <FileIcon sx={iconSx} labelDetail={labelDetail} />
       )}
       <MuiTypography
         sx={{

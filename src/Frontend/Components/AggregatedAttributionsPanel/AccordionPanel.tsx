@@ -5,7 +5,6 @@
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
-import makeStyles from '@mui/styles/makeStyles';
 import MuiTypography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { ReactElement, useMemo, useState } from 'react';
@@ -13,14 +12,14 @@ import { AttributionIdWithCount } from '../../../shared/shared-types';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
 import { PanelData } from '../../types/types';
 
-const useStyles = makeStyles({
+const classes = {
   expansionPanelExpanded: {
     margin: '0px !important',
   },
   expansionPanelSummary: {
     minHeight: '24px !important',
     '& div.MuiAccordionSummary-content': {
-      margin: 0,
+      margin: '0px',
     },
     '& div.MuiAccordionSummary-expandIcon': {
       padding: '6px 12px',
@@ -34,7 +33,7 @@ const useStyles = makeStyles({
   expansionPanelTransition: {
     '& div.MuiCollapse-root': { transition: 'none' },
   },
-});
+};
 
 interface AccordionPanelProps {
   panelData: PanelData;
@@ -42,8 +41,6 @@ interface AccordionPanelProps {
 }
 
 export function AccordionPanel(props: AccordionPanelProps): ReactElement {
-  const classes = useStyles();
-
   const [expanded, setExpanded] = useState<boolean>(false);
 
   useMemo(() => {
@@ -60,9 +57,9 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
 
   return (
     <MuiAccordion
-      classes={{
-        expanded: classes.expansionPanelExpanded,
-        root: classes.expansionPanelTransition,
+      sx={{
+        ...classes.expansionPanelExpanded,
+        '&.MuiAccordion-root': classes.expansionPanelTransition,
       }}
       elevation={0}
       square={true}
@@ -72,12 +69,18 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       disabled={isDisabled(props.panelData.attributionIdsWithCount)}
     >
       <MuiAccordionSummary
-        classes={{ root: classes.expansionPanelSummary }}
+        sx={{
+          '&.MuiAccordionSummary-root': classes.expansionPanelSummary,
+        }}
         expandIcon={<ExpandMoreIcon />}
       >
         <MuiTypography>{props.panelData.title}</MuiTypography>
       </MuiAccordionSummary>
-      <MuiAccordionDetails classes={{ root: classes.expansionPanelDetails }}>
+      <MuiAccordionDetails
+        sx={{
+          '&.MuiAccordionDetails-root': classes.expansionPanelDetails,
+        }}
+      >
         <PackagePanel
           title={props.panelData.title}
           attributionIdsWithCount={props.panelData.attributionIdsWithCount}

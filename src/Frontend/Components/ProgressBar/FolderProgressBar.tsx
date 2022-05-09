@@ -3,9 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import MuiSkeleton from '@mui/material/Skeleton';
-import React, { ReactElement, useContext, useState, useMemo } from 'react';
+import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
   getAttributionBreakpoints,
   getFilesWithChildren,
@@ -25,11 +24,11 @@ import { ProgressBarWorkerContext } from '../WorkersContextProvider/WorkersConte
 import { getFolderProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBar } from './ProgressBar';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     flex: 0,
   },
-});
+};
 
 const EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID = {
   folderProgressBarData: null,
@@ -42,7 +41,6 @@ interface FolderProgressBarProps {
 
 export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
   const resourceId = props.resourceId;
-  const classes = useStyles();
 
   const resources = useAppSelector(getResources);
   const manualAttributions = useAppSelector(getManualAttributions);
@@ -128,7 +126,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
 
   return displayedProgressBarData ? (
     <ProgressBar
-      className={classes.root}
+      sx={classes.root}
       progressBarData={displayedProgressBarData}
       label={'FolderProgressBar'}
       isFolderProgressBar

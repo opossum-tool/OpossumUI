@@ -23,7 +23,7 @@ export const topBarHeight = 36;
 
 const classes = {
   root: {
-    height: topBarHeight,
+    height: `${topBarHeight}px`,
     background: OpossumColors.darkBlue,
     display: 'flex',
   },

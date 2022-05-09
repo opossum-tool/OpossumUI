@@ -12,6 +12,7 @@ import React, { ReactElement, useEffect } from 'react';
 import { Button } from '../Button/Button';
 import { doNothing } from '../../util/do-nothing';
 import { ButtonConfig } from '../../types/types';
+import { SxProps } from '@mui/material';
 
 interface NotificationPopupProps {
   header: string;
@@ -24,7 +25,7 @@ interface NotificationPopupProps {
   onEscapeKeyDown?(): void;
   isOpen: boolean;
   fullWidth?: boolean;
-  headerClassname?: string;
+  headerSx?: SxProps;
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
@@ -60,7 +61,9 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       disableEscapeKeyDown={true}
       onClose={handleOnClose}
     >
-      <MuiDialogTitle classes={{ root: props.headerClassname }}>
+      <MuiDialogTitle
+        sx={{ '&.MuiDialogTitle-root': props.headerSx } as SxProps}
+      >
         {props.header}
       </MuiDialogTitle>
       <MuiDialogContent>

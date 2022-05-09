@@ -3,33 +3,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
+import MuiBox from '@mui/material/Box';
 import React, { ReactElement } from 'react';
 import { getProgressBarData } from '../../state/selectors/all-views-resource-selectors';
 import { ProgressBarData } from '../../types/types';
 import { useAppSelector } from '../../state/hooks';
 import { ProgressBar } from './ProgressBar';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
     flex: 1,
-    marginLeft: 12,
-    marginRight: 12,
+    marginLeft: '12px',
+    marginRight: '12px',
   },
-});
+};
 
 export function TopProgressBar(): ReactElement {
-  const classes = useStyles();
   const progressBarData: ProgressBarData | null =
     useAppSelector(getProgressBarData);
 
   return progressBarData ? (
     <ProgressBar
-      className={classes.root}
+      sx={classes.root}
       progressBarData={progressBarData}
       label={'TopProgressBar'}
     />
   ) : (
-    <div className={classes.root} />
+    <MuiBox sx={classes.root} />
   );
 }

@@ -7,26 +7,23 @@ import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiPaper from '@mui/material/Paper';
-import makeStyles from '@mui/styles/makeStyles';
 import { getProjectMetadata } from '../../state/selectors/all-views-resource-selectors';
 import { ProjectMetadata } from '../../../shared/shared-types';
 import { ButtonText } from '../../enums/enums';
 
-const useStyles = makeStyles({
+const classes = {
   table: {
-    minWidth: 350,
+    minWidth: '350px',
   },
-});
+};
 
 export function ProjectMetadataPopup(): ReactElement {
-  const classes = useStyles();
   const dispatch = useAppDispatch();
   const metadata: ProjectMetadata = useAppSelector(getProjectMetadata);
 
@@ -67,7 +64,7 @@ export function ProjectMetadataPopup(): ReactElement {
 
   const content = (
     <MuiTableContainer component={MuiPaper}>
-      <MuiTable className={classes.table} aria-label="project metadata table">
+      <MuiTable sx={classes.table} aria-label="project metadata table">
         <MuiTableBody>
           {Object.keys(metadata).map((key) => getMuiTableRow(key))}
         </MuiTableBody>

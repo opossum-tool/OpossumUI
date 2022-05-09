@@ -7,17 +7,18 @@ import React, { ReactElement } from 'react';
 import MuiButtonGroup from '@mui/material/ButtonGroup';
 import { Button } from '../Button/Button';
 import { HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { SxProps } from '@mui/material';
+
+const classes = {
   root: {
-    marginTop: 10,
+    marginTop: '10px',
     justifyContent: 'space-evenly',
     display: 'flex',
   },
-});
+};
 
 export interface MainButtonConfig {
   buttonText: string;
@@ -30,14 +31,12 @@ interface ButtonGroupProps {
   mainButtonConfigs: Array<MainButtonConfig>;
   hamburgerMenuButtonConfigs?: Array<ContextMenuItem>;
   isHidden?: boolean;
-  className?: string;
+  sx?: SxProps;
 }
 
 export function ButtonGroup(props: ButtonGroupProps): ReactElement | null {
-  const classes = useStyles();
-
   return props.isHidden ? null : (
-    <div className={clsx(classes.root, props.className)}>
+    <MuiBox sx={{ ...classes.root, ...props.sx }}>
       <MuiButtonGroup disableElevation variant="contained">
         {props.mainButtonConfigs
           .filter((buttonConfig) => !buttonConfig.hidden)
@@ -52,6 +51,6 @@ export function ButtonGroup(props: ButtonGroupProps): ReactElement | null {
           <HamburgerMenu menuItems={props.hamburgerMenuButtonConfigs} />
         ) : null}
       </MuiButtonGroup>
-    </div>
+    </MuiBox>
   );
 }

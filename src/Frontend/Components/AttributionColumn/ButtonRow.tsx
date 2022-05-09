@@ -3,32 +3,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import makeStyles from '@mui/styles/makeStyles';
 import React, { ReactElement } from 'react';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import MuiTypography from '@mui/material/Typography';
 import { ButtonText } from '../../enums/enums';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import MuiBox from '@mui/material/Box';
 
-const useStyles = makeStyles({
+const classes = {
   root: {
-    marginLeft: 10,
-    marginTop: 5,
+    marginLeft: '10px',
+    marginTop: '5px',
   },
   buttonRow: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    marginRight: 8,
-    marginBottom: 16,
+    bottom: '0px',
+    right: '0px',
+    marginRight: '8px',
+    marginBottom: '16px',
     marginLeft: 'auto',
   },
   resolveButton: {
-    marginTop: 0,
-    marginRight: 0,
+    marginTop: '0px',
+    marginRight: '0px',
   },
-});
+};
 
 interface ButtonRowProps {
   showButtonGroup: boolean;
@@ -41,16 +41,14 @@ interface ButtonRowProps {
 }
 
 export function ButtonRow(props: ButtonRowProps): ReactElement {
-  const classes = useStyles();
-
   return (
-    <div className={classes.root}>
+    <MuiBox sx={classes.root}>
       {props.displayTexts.map((text, index) => (
         <MuiTypography variant={'subtitle1'} key={`${text}-${index}`}>
           {text}
         </MuiTypography>
       ))}
-      <div className={classes.buttonRow}>
+      <MuiBox sx={classes.buttonRow}>
         {props.showButtonGroup ? (
           <ButtonGroup
             isHidden={props.areButtonsHidden}
@@ -60,13 +58,13 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
         ) : (
           <ToggleButton
             buttonText={ButtonText.Hide}
-            className={classes.resolveButton}
+            sx={classes.resolveButton}
             selected={props.selectedPackageIsResolved}
             handleChange={props.resolvedToggleHandler}
             ariaLabel={'resolve attribution'}
           />
         )}
-      </div>
-    </div>
+      </MuiBox>
+    </MuiBox>
   );
 }
