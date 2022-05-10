@@ -65,7 +65,7 @@
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.5.0",
     "eslint-plugin-testing-library": "^5.4.0",
-    "husky": "7.0.4",
+    "husky": "8.0.1",
     "jest-each": "^28.1.0",
     "lint-staged": "^12.4.1",
     "mockdate": "^3.0.5",
