@@ -70,7 +70,7 @@
     "lint-staged": "^12.4.1",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
-    "playwright": "^1.22.1",
+    "playwright": "^1.22.2",
     "prettier": "^2.6.2",
     "react-scripts": "5.0.1",
     "redux-devtools-extension": "^2.13.9",
