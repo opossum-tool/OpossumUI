@@ -1638,10 +1638,10 @@
     "@emotion/cache" "^11.7.1"
     prop-types "^15.8.1"
 
-"@mui/system@^5.7.0", "@mui/system@^5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.8.0.tgz#5e8fe9016727863eb1b467ed44398a9bab25a7a2"
-  integrity sha512-1tEj2S59RjlZ/6JMJMUktQDbV2ev7hyGXqO7dRRUQ7nOJi9qHmCFP0uXj3YS6LbM6hVasgYXJg8GBjbEtfTJvg==
+"@mui/system@^5.8.0", "@mui/system@^5.8.1":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.8.1.tgz#57863657c5dc3edb6b2b11836dede3e0c4871ae9"
+  integrity sha512-kWJMEN62+HJb4LMRNEAZQYc++FPYsqPsU9dCL7ByLgmz/ZzRrZ8FjDi2r4j0ZeE4kaVvqBXh+RA7tLzmCKqV9w==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@mui/private-theming" "^5.8.0"
