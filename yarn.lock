@@ -1638,10 +1638,10 @@
     "@emotion/cache" "^11.7.1"
     prop-types "^15.8.1"
 
-"@mui/system@^5.7.0", "@mui/system@^5.8.1":
-  version "5.8.1"
-  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.8.1.tgz#57863657c5dc3edb6b2b11836dede3e0c4871ae9"
-  integrity sha512-kWJMEN62+HJb4LMRNEAZQYc++FPYsqPsU9dCL7ByLgmz/ZzRrZ8FjDi2r4j0ZeE4kaVvqBXh+RA7tLzmCKqV9w==
+"@mui/system@^5.8.1", "@mui/system@^5.8.2":
+  version "5.8.2"
+  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.8.2.tgz#b6d889051caec1efe31a87f0bb96d52f003e517d"
+  integrity sha512-N74gDNKM+MnWvKTMmCPvCVLH4f0ZzakP1bcMDaPctrHwcyxNcEmtTGNpIiVk0Iu7vtThZAFL3DjHpINPGF7+cg==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@mui/private-theming" "^5.8.0"
@@ -1649,7 +1649,7 @@
     "@mui/types" "^7.1.3"
     "@mui/utils" "^5.8.0"
     clsx "^1.1.1"
-    csstype "^3.0.11"
+    csstype "^3.1.0"
     prop-types "^15.8.1"
 
 "@mui/types@^7.1.3":
@@ -4246,10 +4246,10 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-csstype@^3.0.11, csstype@^3.0.2:
-  version "3.0.11"
-  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.11.tgz#d66700c5eacfac1940deb4e3ee5642792d85cd33"
-  integrity sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==
+csstype@^3.0.11, csstype@^3.0.2, csstype@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.0.tgz#4ddcac3718d787cf9df0d1b7d15033925c8f29f2"
+  integrity sha512-uX1KG+x9h5hIJsaKR9xHUeUraxf8IODOwq9JLNPq6BwB04a/xgpq3rcx47l5BZu5zBPlgD342tdke3Hom/nJRA==
 
 damerau-levenshtein@^1.0.7:
   version "1.0.8"
