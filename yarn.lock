@@ -9020,10 +9020,10 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.0.0.tgz#026f6c4a27dbe33bf4a35655b9e1327c4e55e3f5"
   integrity sha512-yUcBYdBBbo3QiPsgYDcfQcIkGZHfxOaoE6HLSnr1sPzMhdyxusbfKOSUbSd/ocGi32dxcj366PsTj+5oggeKKw==
 
-react-query@^4.0.0-beta.19:
-  version "4.0.0-beta.19"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-4.0.0-beta.19.tgz#21ad1f6fca09ccbf42f726153108f83a39447986"
-  integrity sha512-0QR8coF2WFih9p7s25h+QM9HDhlyr6Q1Pj8dWe0j1qjxku3egt0v7W9XqHiovZlIYlwyChOBeQ/3wQqWdUfUWg==
+react-query@^4.0.0-beta.20:
+  version "4.0.0-beta.20"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-4.0.0-beta.20.tgz#37e73280ccbee291d845e08159eb84e9baff6d7b"
+  integrity sha512-ESDxiHbv4R6KL7IOduPZjgVQo1pH5tenehAemh7sNETqXt9r4mfk9vVG6aSWbzGp6F1tudRllTreADOi19RJqg==
   dependencies:
     "@babel/runtime" "^7.17.9"
     "@types/use-sync-external-store" "^0.0.3"
