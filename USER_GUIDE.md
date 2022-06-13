@@ -68,6 +68,20 @@ To generate a document, open the `File` menu and select `Export`.
 
 ![integration](./docs/user_guide_screenshots/exports.png)
 
+### Attributions
+
+The basic building block of license/attribution information in the opossumUI is the **Attribution**. An **Attribution**
+isn't only a software package with name & version (or purl) and copyright, distributed under one or more licenses. It
+can in principle be any file which has a copyright or is distributed under a license. **The purpose of the opossumUI is to
+link resources to the corresponding attributions, with an emphasis on correct licensing and copyright information.**
+In the opossumUI, a distinction between **signals** and **attributions** is made:
+
+- **attributions** are attribution information that are created in the current run of the opossumUI. They are stored in
+  the output file, together with the resources they have been linked to,
+- **signals** are attribution information that have been linked to a resource before the current opossumUI run. They can
+  come from automatic tools or previous run of the opossumUI. They have a **source** and can be used as starting point for
+  assigning attributions.
+
 ### Top Bar
 
 In the `Top Bar`, the following elements are present. From left to right:
@@ -114,7 +128,9 @@ structure:
 
 - a **file icon** ![integration](./docs/user_guide_screenshots/file_icon.png) indicates that the resource is a file,
 - a **folder icon** ![integration](./docs/user_guide_screenshots/directory_icon.png) indicates that the resource is a folder,
-- a **icon consisting of four squares** ![integration](./docs/user_guide_screenshots/breakpoint_icon.png) indicates that the resource is a breakpoint,
+- a **icon consisting of four squares** ![integration](./docs/user_guide_screenshots/breakpoint_icon.png) indicates that the resource is a breakpoint (**breakpoints** are special folders
+that are included to visually collect a set of dependencies. These folders cannot have any signal or attribution.
+Furthermore, no attribution is inferred beyond such a breakpoint),
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
 ![integration](./docs/user_guide_screenshots/filetree.png)
@@ -128,10 +144,6 @@ The coloring scheme reads as follows:
 - **grey** indicates the absence of both, signals and attribution, in children,
 - **blue** indicates the presence of signals in children but no attribution of the resource itself.
 
-On the interpretation of breakpoints: **Breakpoints** are special folders that are included to visually collect a set of
-dependencies. These folders cannot have any signal or attribution. Furthermore, no attribution is inferred beyond
-such a breakpoint.
-
 #### Selected Resource Panel
 
 The `Selected Resource Panel` shows the path of the selected resource at the top. If the input file contains information
@@ -144,18 +156,6 @@ the right, additional information is shown for the selected attribution/signal.
 ![integration](./docs/user_guide_screenshots/selected_resource_panel.png)
 
 ##### Attribution Selection Column
-
-The basic building block of license/attribution information in the opossumUI is the **Attribution**. An **Attribution**
-isn't only a software package with name & version (or purl) and copyright, distributed under one or more licenses. It
-can in principle be any file which has a copyright or is distributed under a license. **The purpose of the opossumUI is to
-link resources to the corresponding attributions, with an emphasis on correct licensing and copyright information.**
-In the opossumUI, a distinction between **signals** and **attributions** is made:
-
-- **attributions** are attribution information that are created in the current run of the opossumUI. They are stored in
-  the output file, together with the resources they have been linked to,
-- **signals** are attribution information that have been linked to a resource before the current opossumUI run. They can
-  come from automatic tools or previous run of the opossumUI. They have a **source** and can be used as starting point for
-  assigning attributions.
 
 In the `Attribution Selection Column` the following sub-panels may be present:
 
