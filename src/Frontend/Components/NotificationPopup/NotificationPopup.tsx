@@ -66,7 +66,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       >
         {props.header}
       </MuiDialogTitle>
-      <MuiDialogContent>
+      <MuiDialogContent style={{ paddingTop: '5px' }}>
         {typeof props.content === 'string' ? (
           <MuiDialogContentText>{props.content}</MuiDialogContentText>
         ) : (
