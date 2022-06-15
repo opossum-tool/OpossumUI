@@ -44,7 +44,7 @@ export function List(props: ListProps): ReactElement {
     : Math.min(currentHeight, maxHeight);
 
   return (
-    <MuiBox sx={props.sx} style={{ maxHeight: `${currentHeight}` }}>
+    <MuiBox sx={props.sx} style={{ maxHeight: `${maxHeight}` }}>
       <VirtualizedList
         height={listHeight}
         width={'vertical'}
