@@ -176,7 +176,8 @@ export function BackendCommunication(): ReactElement | null {
       Object.keys(attributions).filter(
         (attributionId) =>
           !attributions[attributionId].followUp &&
-          !attributions[attributionId].firstParty
+          !attributions[attributionId].firstParty &&
+          !attributions[attributionId].excludeFromNotice
       )
     );
   }
