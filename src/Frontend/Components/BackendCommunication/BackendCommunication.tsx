@@ -176,24 +176,6 @@ export function BackendCommunication(): ReactElement | null {
     });
   }
 
-  function getBomAttributions(
-    attributions: Attributions,
-    exportType: ExportType
-  ): Attributions {
-    return pick(
-      attributions,
-      Object.keys(attributions).filter(
-        (attributionId) =>
-          !attributions[attributionId].followUp &&
-          !attributions[attributionId].firstParty &&
-          !(
-            exportType == ExportType.CompactBom &&
-            attributions[attributionId].excludeFromNotice
-          )
-      )
-    );
-  }
-
   function resetLoadedFileListener(
     event: IpcRendererEvent,
     resetState: boolean
@@ -284,4 +266,22 @@ export function BackendCommunication(): ReactElement | null {
   );
 
   return null;
+}
+
+export function getBomAttributions(
+  attributions: Attributions,
+  exportType: ExportType
+): Attributions {
+  return pick(
+    attributions,
+    Object.keys(attributions).filter(
+      (attributionId) =>
+        !attributions[attributionId].followUp &&
+        !attributions[attributionId].firstParty &&
+        !(
+          exportType == ExportType.CompactBom &&
+          attributions[attributionId].excludeFromNotice
+        )
+    )
+  );
 }
