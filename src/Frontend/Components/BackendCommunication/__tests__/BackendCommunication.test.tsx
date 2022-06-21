@@ -11,7 +11,7 @@ import { BackendCommunication } from '../BackendCommunication';
 describe('BackendCommunication', () => {
   test('renders an Open file icon', () => {
     renderComponentWithStore(<BackendCommunication />);
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(8);
+    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(9);
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel.FileLoaded,
       expect.anything()
@@ -34,6 +34,10 @@ describe('BackendCommunication', () => {
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel.ShowProjectMetadataPopup,
+      expect.anything()
+    );
+    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
+      IpcChannel.ShowProjectStatisticsPopup,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
