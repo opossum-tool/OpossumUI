@@ -59,8 +59,8 @@ To view project metadata, open the `File` menu and select `Show Project Metadata
 It is possible to directly export data to files. The following formats are available:
 
 - Follow-Up: Just the items marked as follow-up are present in this file as csv file.
-- Compact component list: All attributions are present as csv file.
-- Detailed component list: All attributions are present as csv file.
+- Compact component list: All attributions not marked as follow-up or 1st Party are exported to a csv file. Attributions marked as "exclude from notice" are not exported.
+- Detailed component list: All attributions not marked as follow-up or 1st Party are exported to a csv file.
 - SPDX JSON: All attributions are listed as JSON file.
 - SPDX YAML: All attributions are listed as YAML file.
 
