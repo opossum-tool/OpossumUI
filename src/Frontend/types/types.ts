@@ -27,6 +27,13 @@ export type State = {
   viewState: ViewState;
 };
 
+export type SortingOrder = 'asc' | 'desc';
+
+export type SignalsPerSource = {
+  source: string;
+  numberOfEntries: number;
+};
+
 export interface ProgressBarData {
   fileCount: number;
   filesWithManualAttributionCount: number;

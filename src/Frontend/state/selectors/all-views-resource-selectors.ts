@@ -114,10 +114,6 @@ export function getProjectMetadata(state: State): ProjectMetadata {
   return state.resourceState.allViews.metadata;
 }
 
-export function getProjectExternalData(state: State): AttributionData {
-  return state.resourceState.allViews.externalData;
-}
-
 export function getCurrentAttributionId(state: State): string | null {
   switch (getSelectedView(state)) {
     case View.Attribution:
