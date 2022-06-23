@@ -144,7 +144,10 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function getDetailedBomExportListener(): void {
-    const bomAttributions = getBomAttributions(manualData.attributions);
+    const bomAttributions = getBomAttributions(
+      manualData.attributions,
+      ExportType.DetailedBom
+    );
 
     const bomAttributionsWithResources = getAttributionsWithResources(
       bomAttributions,
@@ -166,19 +169,11 @@ export function BackendCommunication(): ReactElement | null {
   function getCompactBomExportListener(): void {
     window.ipcRenderer.invoke(IpcChannel.ExportFile, {
       type: ExportType.CompactBom,
-      bomAttributions: getBomAttributions(manualData.attributions),
+      bomAttributions: getBomAttributions(
+        manualData.attributions,
+        ExportType.CompactBom
+      ),
     });
-  }
-
-  function getBomAttributions(attributions: Attributions): Attributions {
-    return pick(
-      attributions,
-      Object.keys(attributions).filter(
-        (attributionId) =>
-          !attributions[attributionId].followUp &&
-          !attributions[attributionId].firstParty
-      )
-    );
   }
 
   function resetLoadedFileListener(
@@ -271,4 +266,22 @@ export function BackendCommunication(): ReactElement | null {
   );
 
   return null;
+}
+
+export function getBomAttributions(
+  attributions: Attributions,
+  exportType: ExportType
+): Attributions {
+  return pick(
+    attributions,
+    Object.keys(attributions).filter(
+      (attributionId) =>
+        !attributions[attributionId].followUp &&
+        !attributions[attributionId].firstParty &&
+        !(
+          exportType == ExportType.CompactBom &&
+          attributions[attributionId].excludeFromNotice
+        )
+    )
+  );
 }
