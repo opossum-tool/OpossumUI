@@ -90,6 +90,7 @@
     "compile-all": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "react-scripts test --watchAll=false --setupFilesAfterEnv=./setupTests.ts --testPathIgnorePatterns=src/e2e-tests --testPathIgnorePatterns=src/Frontend/integration-tests",
     "test:local": "react-scripts test --watchAll=false src/ --setupFilesAfterEnv=./setupTests.ts --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__tests__/**/*.ts?(x)\" ]",
+    "test:changed": "react-scripts test --watchAll=false --setupFilesAfterEnv=./setupTests.ts --onlyChanged",
     "test:all": "react-scripts test --watchAll=false src/ --setupFilesAfterEnv=./setupTests.ts --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__(tests|tests-ci)__/**/*.ts?(x)\", \"**/?(*.)+(test).ts?(x)\" ] && yarn test:e2e",
     "test:integration-ci": "react-scripts test --watchAll=false src/Frontend/integration-tests --setupFilesAfterEnv=./setupTests.ts --testMatch=[ \"**/__(tests|tests-ci)__/**/*.ts?(x)\", \"**/?(*.)+(test).ts?(x)\" ]",
     "test:e2e": "run-script-os",
