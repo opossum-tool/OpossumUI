@@ -11,6 +11,7 @@ import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { FileSearchPopup } from '../FileSearchPopup/FileSearchPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
+import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttributionPopup';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
@@ -31,6 +32,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <FileSearchPopup />;
     case PopupType.ProjectMetadataPopup:
       return <ProjectMetadataPopup />;
+    case PopupType.ProjectStatisticsPopup:
+      return <ProjectStatisticsPopup />;
     case PopupType.ReplaceAttributionPopup:
       return <ReplaceAttributionPopup />;
     case PopupType.ConfirmDeletionGloballyPopup:

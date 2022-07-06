@@ -63,6 +63,15 @@ describe('The GlobalPopUp', () => {
     expect(screen.getByText('Project Metadata')).toBeInTheDocument();
   });
 
+  test('opens the ProjectStatisticsPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    act(() => {
+      store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    });
+
+    expect(screen.getByText('Project Statistics')).toBeInTheDocument();
+  });
+
   test('opens the ReplaceAttributionPopup', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'name 1' },
