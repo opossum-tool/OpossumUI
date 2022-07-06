@@ -8,6 +8,7 @@ import React from 'react';
 import {
   AttributionIdWithCount,
   Attributions,
+  ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../enums/enums';
 import {
@@ -17,7 +18,6 @@ import {
 import { PackagePanel } from '../PackagePanel';
 import { getByText } from '@testing-library/dom';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 
@@ -84,6 +84,9 @@ describe('The PackagePanel', () => {
         packageName: 'JQuery 2',
       },
     };
+    const testAttributionSources: ExternalAttributionSources = {
+      SC: { name: 'ScanCode', priority: 3 },
+    };
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -102,7 +105,7 @@ describe('The PackagePanel', () => {
       { store: testStore }
     );
     act(() => {
-      testStore.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
+      testStore.dispatch(setExternalAttributionSources(testAttributionSources));
     });
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;

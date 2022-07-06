@@ -5,7 +5,21 @@
 
 import { prettifySource } from '../prettify-source';
 import each from 'jest-each';
-import { ATTRIBUTION_SOURCES } from '../../../shared/shared-constants';
+import { ExternalAttributionSources } from '../../../shared/shared-types';
+
+const testAttributionSources: ExternalAttributionSources = {
+  MERGER: { name: 'Suggested', priority: 11 },
+  HHC: { name: 'High High Compute', priority: 10 },
+  MS: { name: 'Metadata Scanner', priority: 9 },
+  'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 8 },
+  'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 7 },
+  'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
+  'REUSER:HC': { name: 'High Compute (old scan)', priority: 5 },
+  'REUSER:MERGER': { name: 'Suggested (old scan)', priority: 4 },
+  SC: { name: 'ScanCode', priority: 3 },
+  HC: { name: 'High Compute', priority: 2 },
+  HINT: { name: 'Hint', priority: 1 },
+};
 
 describe('prettifySource', () => {
   each([
@@ -23,7 +37,7 @@ describe('prettifySource', () => {
   ]).it(
     'transforms known sources and only those',
     (src: string, expectedResult: string) => {
-      expect(prettifySource(src, ATTRIBUTION_SOURCES)).toBe(expectedResult);
+      expect(prettifySource(src, testAttributionSources)).toBe(expectedResult);
     }
   );
 });
