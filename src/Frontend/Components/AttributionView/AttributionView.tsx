@@ -29,8 +29,6 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
 
-const countAndSearchOffset = 119;
-
 const classes = {
   root: {
     width: '100%',
@@ -72,6 +70,8 @@ export function AttributionView(): ReactElement {
     setShowMultiselect(!showMultiSelect);
   }
 
+  const countAndSearchAndFilterOffset = showMultiSelect ? 137 : 80;
+
   return (
     <MuiBox sx={classes.root}>
       <AttributionList
@@ -80,7 +80,9 @@ export function AttributionView(): ReactElement {
         attributionIdMarkedForReplacement={attributionIdMarkedForReplacement}
         onCardClick={onCardClick}
         sx={classes.attributionList}
-        maxHeight={useWindowHeight() - topBarHeight - countAndSearchOffset}
+        maxHeight={
+          useWindowHeight() - topBarHeight - countAndSearchAndFilterOffset
+        }
         title={title}
         topRightElement={
           <IconButton
