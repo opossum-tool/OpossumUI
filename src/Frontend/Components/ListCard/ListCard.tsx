@@ -11,6 +11,8 @@ import { Criticality } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getHighlightForCriticalSignals } from '../../state/selectors/view-selector';
 import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/material';
+import { merge } from 'lodash';
 
 const defaultCardHeight = '40px';
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
@@ -220,35 +222,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
   }
 
   return (
-    <MuiBox
-      sx={{
-        ...classes.root,
-        ...(props.cardConfig.isResource
-          ? classes.resource
-          : props.cardConfig.isContextMenuOpen
-          ? classes.hoveredPackage
-          : classes.package),
-        ...(props.cardConfig.isExternalAttribution
-          ? props.cardConfig.isContextMenuOpen
-            ? classes.hoveredExternalAttribution
-            : classes.externalAttribution
-          : {}),
-        ...(props.cardConfig.isHeader ? classes.header : classes.hover),
-        ...(props.cardConfig.isSelected
-          ? props.cardConfig.isContextMenuOpen
-            ? classes.hoveredSelected
-            : props.highlightedCard
-            ? classes.highlightedSelected
-            : classes.selected
-          : {}),
-        ...(props.cardConfig.isMarkedForReplacement
-          ? classes.markedForReplacement
-          : {}),
-        ...(props.cardConfig.isResolved ? classes.resolved : {}),
-        ...(props.cardConfig.isResolved ? classes.resolved : {}),
-        ...(props.highlightedCard ? classes.highlightedPackage : {}),
-      }}
-    >
+    <MuiBox sx={getSx(props.cardConfig, props.highlightedCard)}>
       {props.leftElement ? props.leftElement : null}
       <MuiBox
         sx={{
@@ -319,4 +293,56 @@ export function ListCard(props: ListCardProps): ReactElement | null {
       ) : null}
     </MuiBox>
   );
+}
+
+function getSx(cardConfig: ListCardConfig, highlightedCard?: boolean): SxProps {
+  let sxProps: SxProps = { ...classes.root };
+
+  if (cardConfig.isResource) {
+    sxProps = merge(sxProps, classes.resource);
+  } else {
+    if (cardConfig.isContextMenuOpen) {
+      sxProps = merge(sxProps, classes.hoveredPackage);
+    } else {
+      sxProps = merge(sxProps, classes.package);
+    }
+  }
+
+  if (cardConfig.isExternalAttribution) {
+    if (cardConfig.isContextMenuOpen) {
+      sxProps = merge(sxProps, classes.hoveredExternalAttribution);
+    } else {
+      sxProps = merge(sxProps, classes.externalAttribution);
+    }
+  }
+
+  if (cardConfig.isHeader) {
+    sxProps = merge(sxProps, classes.header);
+  } else {
+    sxProps = merge(sxProps, classes.hover);
+  }
+
+  if (cardConfig.isMarkedForReplacement) {
+    sxProps = merge(sxProps, classes.markedForReplacement);
+  }
+
+  if (cardConfig.isResolved) {
+    sxProps = merge(sxProps, classes.resolved);
+  }
+
+  if (cardConfig.isSelected) {
+    if (cardConfig.isContextMenuOpen) {
+      sxProps = merge(sxProps, classes.hoveredSelected);
+    } else {
+      if (highlightedCard) {
+        sxProps = merge(sxProps, classes.highlightedSelected);
+      } else {
+        sxProps = merge(sxProps, classes.selected);
+      }
+    }
+  } else if (highlightedCard) {
+    sxProps = merge(sxProps, classes.highlightedPackage);
+  }
+
+  return sxProps;
 }
