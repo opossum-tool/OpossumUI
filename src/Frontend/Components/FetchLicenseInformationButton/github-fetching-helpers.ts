@@ -50,10 +50,8 @@ interface Payload {
   };
 }
 
-export async function convertGithubPayload(
-  payload: Response
-): Promise<PackageInfo> {
-  const convertedPayload = (await payload.json()) as Payload;
+export function convertGithubPayload(payload: Response): PackageInfo {
+  const convertedPayload = payload as unknown as Payload;
   jsonSchemaValidator.validate(convertedPayload, GITHUB_SCHEMA, {
     throwError: true,
   });

@@ -19,6 +19,9 @@ import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import MockAdapter from 'axios-mock-adapter';
+import axios from 'axios';
+import { convertGithubPayload } from '../github-fetching-helpers';
 
 describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
@@ -38,12 +41,12 @@ describe('FetchLicenseInformationButton', () => {
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function mockConvertPayload(_: Response): Promise<PackageInfo> {
-  return Promise.resolve({ licenseName: 'testLicense' });
+function mockConvertPayload(_: Response): PackageInfo {
+  return { licenseName: 'testLicense' };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function mockConvertPayloadRaises(_: Response): Promise<PackageInfo> {
+function mockConvertPayloadRaises(_: Response): PackageInfo {
   throw new Error('unexpected error');
 }
 
@@ -53,19 +56,10 @@ function getWrapper(store: Store, children: ReactNode): ReactElement {
   return <Provider store={store}>{children}</Provider>;
 }
 
-describe('useFetchPackageInfo', () => {
-  // @ts-ignore
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      json: () => {
-        Promise.resolve({});
-      },
-    })
-  );
+const GITHUB_URL = 'https://github.com/opossum-tool/OpossumUI';
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+describe('useFetchPackageInfo', () => {
+  const axiosMock = new MockAdapter(axios);
 
   it('returns idle', () => {
     const store = createTestAppStore();
@@ -86,26 +80,31 @@ describe('useFetchPackageInfo', () => {
   });
 
   it('fetches data', async () => {
+    axiosMock.onGet(GITHUB_URL).replyOnce(200, {
+      license: { spdx_id: 'Apache-2.0' },
+      content: 'TGljZW5zZSBUZXh0', // "License Text" in base64
+      html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
+    });
+
+    const licenseFetchingInformation = {
+      url: GITHUB_URL,
+      convertPayload: convertGithubPayload,
+    };
+
     const store = createTestAppStore();
     const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
       getWrapper(store, children);
     const { result } = renderHook(
-      () =>
-        useFetchPackageInfo({
-          url: MOCK_URL,
-          convertPayload: mockConvertPayload,
-        }),
-      {
-        wrapper,
-      }
+      () => useFetchPackageInfo(licenseFetchingInformation),
+      { wrapper }
     );
-    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
-      result.current.fetchData();
+      await result.current.fetchData();
     });
+
     expect(result.current.fetchStatus).toBe(FetchStatus.Success);
     expect(getTemporaryPackageInfo(store.getState())).toMatchObject({
-      licenseName: 'testLicense',
+      licenseName: 'Apache-2.0',
     });
   });
 
@@ -123,9 +122,8 @@ describe('useFetchPackageInfo', () => {
         wrapper,
       }
     );
-    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
-      result.current.fetchData();
+      await result.current.fetchData();
     });
     expect(result.current.fetchStatus).toBe(FetchStatus.Error);
     expect(getTemporaryPackageInfo(store.getState())).toMatchObject({});

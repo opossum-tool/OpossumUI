@@ -22,30 +22,24 @@ describe('getPypiAPIUrl', () => {
 });
 
 describe('convertPypiPayload', () => {
-  it('raises for invalid payload', async () => {
+  it('raises for invalid payload', () => {
     const payload = {
       info: { packageName: 'test' },
     };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
-
-    await expect(
-      convertPypiPayload(mockResponse as unknown as Response)
-    ).rejects.toBeTruthy();
+    expect(() => convertPypiPayload(payload as unknown as Response)).toThrow(
+      'requires property "license"'
+    );
+    /*     await expect(
+      convertPypiPayload(payload as unknown as Response)
+    ).rejects.toBeTruthy(); */
   });
 
-  it('returns correct packageInfo', async () => {
+  it('returns correct packageInfo', () => {
     const payload = {
       info: { license: 'test', name: 'test package' },
     };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    const packageInfo = await convertPypiPayload(
-      mockResponse as unknown as Response
-    );
+    const packageInfo = convertPypiPayload(payload as unknown as Response);
     expect(packageInfo).toStrictEqual({
       licenseName: 'test',
       packageName: 'test package',

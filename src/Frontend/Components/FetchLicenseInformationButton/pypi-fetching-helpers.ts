@@ -36,16 +36,21 @@ const PYPI_SCHEMA: Schema = {
   required: ['info'],
 };
 
-export async function convertPypiPayload(
-  payload: Response
-): Promise<PackageInfo> {
-  const convertedPayload = await payload.json();
+interface Payload {
+  info: {
+    license: string;
+    name: string;
+  };
+}
+
+export function convertPypiPayload(payload: Response): PackageInfo {
+  const convertedPayload = payload as unknown as Payload;
   jsonSchemaValidator.validate(convertedPayload, PYPI_SCHEMA, {
     throwError: true,
   });
   return {
-    licenseName: convertedPayload.info.license as string,
-    packageName: convertedPayload.info.name as string,
+    licenseName: convertedPayload.info.license,
+    packageName: convertedPayload.info.name,
     packageType: 'pypi',
     packageNamespace: undefined,
     packagePURLAppendix: undefined,
