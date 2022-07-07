@@ -43,14 +43,16 @@ interface Payload {
   };
 }
 
-export function convertPypiPayload(payload: Response): PackageInfo {
-  const convertedPayload = payload as unknown as Payload;
-  jsonSchemaValidator.validate(convertedPayload, PYPI_SCHEMA, {
+export function convertPypiPayload(payload: unknown): PackageInfo {
+  jsonSchemaValidator.validate(payload, PYPI_SCHEMA, {
     throwError: true,
   });
+
+  const validatedPayload = payload as Payload;
+
   return {
-    licenseName: convertedPayload.info.license,
-    packageName: convertedPayload.info.name,
+    licenseName: validatedPayload.info.license,
+    packageName: validatedPayload.info.name,
     packageType: 'pypi',
     packageNamespace: undefined,
     packagePURLAppendix: undefined,

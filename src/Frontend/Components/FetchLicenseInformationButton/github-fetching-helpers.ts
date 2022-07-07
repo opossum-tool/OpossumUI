@@ -50,19 +50,20 @@ interface Payload {
   };
 }
 
-export function convertGithubPayload(payload: Response): PackageInfo {
-  const convertedPayload = payload as unknown as Payload;
-  jsonSchemaValidator.validate(convertedPayload, GITHUB_SCHEMA, {
+export function convertGithubPayload(payload: unknown): PackageInfo {
+  jsonSchemaValidator.validate(payload, GITHUB_SCHEMA, {
     throwError: true,
   });
 
+  const validatedPayload = payload as Payload;
+
   const { namespace, packageName } =
-    getPackageNamespaceAndPackageNameFromGithubURL(convertedPayload.html_url);
-  const licenseText = convertedPayload.content
-    ? Buffer.from(convertedPayload.content, 'base64').toString()
+    getPackageNamespaceAndPackageNameFromGithubURL(validatedPayload.html_url);
+  const licenseText = validatedPayload.content
+    ? Buffer.from(validatedPayload.content, 'base64').toString()
     : undefined;
   return {
-    licenseName: convertedPayload.license.spdx_id,
+    licenseName: validatedPayload.license.spdx_id,
     licenseText,
     packageType: 'github',
     packageNamespace: namespace,

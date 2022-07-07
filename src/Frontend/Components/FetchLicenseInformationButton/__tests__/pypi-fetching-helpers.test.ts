@@ -26,12 +26,9 @@ describe('convertPypiPayload', () => {
     const payload = {
       info: { packageName: 'test' },
     };
-    expect(() => convertPypiPayload(payload as unknown as Response)).toThrow(
+    expect(() => convertPypiPayload(payload)).toThrow(
       'requires property "license"'
     );
-    /*     await expect(
-      convertPypiPayload(payload as unknown as Response)
-    ).rejects.toBeTruthy(); */
   });
 
   it('returns correct packageInfo', () => {
@@ -39,7 +36,7 @@ describe('convertPypiPayload', () => {
       info: { license: 'test', name: 'test package' },
     };
 
-    const packageInfo = convertPypiPayload(payload as unknown as Response);
+    const packageInfo = convertPypiPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'test',
       packageName: 'test package',

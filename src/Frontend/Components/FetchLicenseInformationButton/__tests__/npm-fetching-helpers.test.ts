@@ -47,7 +47,7 @@ describe('convertNpmPayload', () => {
   it('raises error for invalid payload', () => {
     const payload = { name: 'test' };
 
-    expect(() => convertNpmPayload(payload as unknown as Response)).toThrow(
+    expect(() => convertNpmPayload(payload)).toThrow(
       'requires property "license"'
     );
   });
@@ -55,7 +55,7 @@ describe('convertNpmPayload', () => {
   it('parses payload correctly', () => {
     const payload = { name: 'test', license: 'MIT' };
 
-    const packageInfo = convertNpmPayload(payload as unknown as Response);
+    const packageInfo = convertNpmPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'MIT',
       packageName: 'test',

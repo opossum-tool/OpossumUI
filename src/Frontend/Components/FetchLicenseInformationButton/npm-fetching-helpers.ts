@@ -31,14 +31,16 @@ interface Payload {
   license: string;
 }
 
-export function convertNpmPayload(payload: Response): PackageInfo {
-  const convertedPayload = payload as unknown as Payload;
-  jsonSchemaValidator.validate(convertedPayload, NPM_SCHEMA, {
+export function convertNpmPayload(payload: unknown): PackageInfo {
+  jsonSchemaValidator.validate(payload, NPM_SCHEMA, {
     throwError: true,
   });
+
+  const validatedPayload = payload as Payload;
+
   return {
-    licenseName: convertedPayload.license,
-    packageName: convertedPayload.name,
+    licenseName: validatedPayload.license,
+    packageName: validatedPayload.name,
     packageType: 'npm',
     packageNamespace: undefined,
     packagePURLAppendix: undefined,

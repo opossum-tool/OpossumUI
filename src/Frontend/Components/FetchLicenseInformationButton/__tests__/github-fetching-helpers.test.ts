@@ -34,7 +34,7 @@ describe('convertGithubPayload', () => {
   it('raises for invalid payload', () => {
     const payload = { license: {} };
 
-    expect(() => convertGithubPayload(payload as unknown as Response)).toThrow(
+    expect(() => convertGithubPayload(payload)).toThrow(
       'requires property "spdx_id"'
     );
   });
@@ -46,7 +46,7 @@ describe('convertGithubPayload', () => {
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
     };
 
-    const packageInfo = convertGithubPayload(payload as unknown as Response);
+    const packageInfo = convertGithubPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'Apache-2.0',
       licenseText: 'License Text',
@@ -63,7 +63,7 @@ describe('convertGithubPayload', () => {
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
     };
 
-    const packageInfo = convertGithubPayload(payload as unknown as Response);
+    const packageInfo = convertGithubPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'Apache-2.0',
       packageType: 'github',
@@ -81,7 +81,7 @@ describe('convertGithubPayload', () => {
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
     };
 
-    const packageInfo = convertGithubPayload(payload as unknown as Response);
+    const packageInfo = convertGithubPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'Apache-2.0',
       packageType: 'github',
