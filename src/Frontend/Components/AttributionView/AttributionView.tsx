@@ -68,7 +68,7 @@ export function AttributionView(): ReactElement {
 
   const [showMultiSelect, setShowMultiselect] = useState<boolean>(false);
 
-  if (activeFilters.length != 0 && !showMultiSelect) {
+  if (activeFilters.length !== 0 && !showMultiSelect) {
     setShowMultiselect(!showMultiSelect);
   }
 
@@ -87,12 +87,12 @@ export function AttributionView(): ReactElement {
             tooltipTitle="Filters"
             placement="right"
             onClick={(): void => setShowMultiselect(!showMultiSelect)}
-            disabled={activeFilters.length != 0}
+            disabled={activeFilters.length !== 0}
             icon={
               <FilterAltIcon
                 aria-label={'Filter icon'}
                 sx={
-                  activeFilters.length != 0
+                  activeFilters.length !== 0
                     ? classes.disabledIcon
                     : classes.clickableIcon
                 }
