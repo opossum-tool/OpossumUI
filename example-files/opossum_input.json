@@ -262,6 +262,14 @@
     "/Frontend/test-helpers/": null
   },
   "externalAttributionSources": {
+    "MERGER": {
+      "name": "Suggested",
+      "priority": 11
+    },
+    "HHC": {
+      "name": "High High Compute",
+      "priority": 10
+    },
     "SC": {
       "name": "ScanCode",
       "priority": 2

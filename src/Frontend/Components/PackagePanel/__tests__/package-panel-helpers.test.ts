@@ -12,7 +12,20 @@ import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
 } from '../package-panel-helpers';
-import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
+
+const testAttributionSources: ExternalAttributionSources = {
+  MERGER: { name: 'Suggested', priority: 11 },
+  HHC: { name: 'High High Compute', priority: 10 },
+  MS: { name: 'Metadata Scanner', priority: 9 },
+  'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 8 },
+  'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 7 },
+  'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
+  'REUSER:HC': { name: 'High Compute (old scan)', priority: 5 },
+  'REUSER:MERGER': { name: 'Suggested (old scan)', priority: 4 },
+  SC: { name: 'ScanCode', priority: 3 },
+  HC: { name: 'High Compute', priority: 2 },
+  HINT: { name: 'Hint', priority: 1 },
+};
 
 describe('PackagePanel helpers', () => {
   const testAttributionIds: Array<AttributionIdWithCount> = [
@@ -117,25 +130,25 @@ describe('PackagePanel helpers', () => {
       getSortedSources(
         testAttributions,
         testAttributionIds,
-        ATTRIBUTION_SOURCES
+        testAttributionSources
       )
     ).toEqual(expectedSortedSources);
   });
 
   test('getSources returns empty array for no attributionIds', () => {
-    expect(getSortedSources(testAttributions, [], ATTRIBUTION_SOURCES)).toEqual(
-      []
-    );
+    expect(
+      getSortedSources(testAttributions, [], testAttributionSources)
+    ).toEqual([]);
   });
 
   test('getSources returns empty string for no attributions', () => {
     expect(
-      getSortedSources({}, testAttributionIds, ATTRIBUTION_SOURCES)
+      getSortedSources({}, testAttributionIds, testAttributionSources)
     ).toEqual(['']);
   });
 
   test('getSources sorts alphabetically if priority is identical', () => {
-    const testAttributionSources: ExternalAttributionSources = {
+    const testAttributionSourcesEqualPrio: ExternalAttributionSources = {
       MERGER: { name: 'Suggested', priority: 1 },
       HHC: { name: 'High High Compute', priority: 1 },
       MS: { name: 'Metadata Scanner', priority: 1 },
@@ -151,7 +164,7 @@ describe('PackagePanel helpers', () => {
       getSortedSources(
         testAttributions,
         testAttributionIds,
-        testAttributionSources
+        testAttributionSourcesEqualPrio
       )
     ).toEqual([
       'HC', // High Compute

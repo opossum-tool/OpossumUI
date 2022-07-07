@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BrowserWindow, dialog } from 'electron';
-// @ts-ignore
 import path from 'path';
 import upath from 'upath';
 import {
@@ -97,7 +96,7 @@ const inputFileContent: ParsedOpossumInputFile = {
     '/folder': [externalAttributionUuid],
   },
   externalAttributionSources: {
-    SC: { name: 'Scancode', priority: 1000 },
+    SC: { name: 'ScanCode', priority: 1000 },
     OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
   },
 };
@@ -147,18 +146,8 @@ const expectedFileContent: ParsedFileContent = {
   filesWithChildren: new Set(),
   baseUrlsForSources: {},
   externalAttributionSources: {
-    SC: { name: 'Scancode', priority: 1000 },
+    SC: { name: 'ScanCode', priority: 1000 },
     OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-    MERGER: { name: 'Suggested', priority: 11 },
-    HHC: { name: 'High High Compute', priority: 10 },
-    MS: { name: 'Metadata Scanner', priority: 9 },
-    'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 8 },
-    'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 7 },
-    'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
-    'REUSER:HC': { name: 'High Compute (old scan)', priority: 5 },
-    'REUSER:MERGER': { name: 'Suggested (old scan)', priority: 4 },
-    HC: { name: 'High Compute', priority: 2 },
-    HINT: { name: 'Hint', priority: 1 },
   },
 };
 
@@ -446,16 +435,6 @@ describe('Test of loading function', () => {
       externalAttributionSources: {
         SC: { name: 'ScanCode', priority: 1000 },
         OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-        MERGER: { name: 'Suggested', priority: 11 },
-        HHC: { name: 'High High Compute', priority: 10 },
-        MS: { name: 'Metadata Scanner', priority: 9 },
-        'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 8 },
-        'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 7 },
-        'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
-        'REUSER:HC': { name: 'High Compute (old scan)', priority: 5 },
-        'REUSER:MERGER': { name: 'Suggested (old scan)', priority: 4 },
-        HC: { name: 'High Compute', priority: 2 },
-        HINT: { name: 'Hint', priority: 1 },
       },
     };
 

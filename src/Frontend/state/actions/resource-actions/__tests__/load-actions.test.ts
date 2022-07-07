@@ -32,7 +32,6 @@ import {
 import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
 import { loadFromFile } from '../load-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
-import { ATTRIBUTION_SOURCES } from '../../../../../shared/shared-constants';
 import { DiscreteConfidence } from '../../../../enums/enums';
 
 const testResources: Resources = {
@@ -113,7 +112,7 @@ describe('loadFromFile', () => {
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
       baseUrlsForSources: testBaseUrlsForSources,
-      externalAttributionSources: ATTRIBUTION_SOURCES,
+      externalAttributionSources: { SC: { name: 'ScanCode', priority: 1 } },
     };
     const expectedResources: Resources = testResources;
     const expectedManualData: AttributionData = {
@@ -182,8 +181,8 @@ describe('loadFromFile', () => {
     expect(getBaseUrlsForSources(testStore.getState())).toEqual(
       testBaseUrlsForSources
     );
-    expect(getExternalAttributionSources(testStore.getState())).toEqual(
-      ATTRIBUTION_SOURCES
-    );
+    expect(getExternalAttributionSources(testStore.getState())).toEqual({
+      SC: { name: 'ScanCode', priority: 1 },
+    });
   });
 });

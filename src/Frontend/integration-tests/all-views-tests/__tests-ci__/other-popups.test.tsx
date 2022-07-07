@@ -9,8 +9,8 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   getOpenResourcesButtonForPackagePanel,
-  mockElectronIpcRendererOn,
   mockElectronBackend,
+  mockElectronIpcRendererOn,
 } from '../../../test-helpers/general-test-helpers';
 import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -44,8 +44,6 @@ import {
   expectPackagePanelShown,
   expectValueInAddToAttributionList,
 } from '../../../test-helpers/package-panel-helpers';
-import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { ATTRIBUTION_SOURCES } from '../../../../shared/shared-constants';
 
 function mockSaveFileRequestChannel(): void {
   window.ipcRenderer.on
@@ -264,10 +262,10 @@ describe('Other popups of the app', () => {
           '/root/src/': ['uuid_1'],
         },
       },
+      externalAttributionSources: { HC: { name: 'High Compute', priority: 1 } },
     };
     mockElectronBackend(mockChannelReturn);
-    const { store } = renderComponentWithStore(<App />);
-    store.dispatch(setExternalAttributionSources(ATTRIBUTION_SOURCES));
+    renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, '/');
 
