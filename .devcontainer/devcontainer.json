@@ -11,7 +11,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": { 
-			"VARIANT": "17-bullseye"
+			"VARIANT": "18-bullseye"
 		}
 	},
 
