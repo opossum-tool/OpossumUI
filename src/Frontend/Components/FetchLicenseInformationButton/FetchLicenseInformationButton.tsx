@@ -23,6 +23,7 @@ import {
   getLicenseFetchingInformation,
   LicenseFetchingInformation,
 } from './license-fetching-helpers';
+import axios from 'axios';
 
 const classes = {
   clickableIcon,
@@ -63,7 +64,7 @@ export enum FetchStatus {
 export function useFetchPackageInfo(props: LicenseFetchingInformation): {
   fetchStatus: FetchStatus;
   errorMessage: string;
-  fetchData: () => void;
+  fetchData: () => Promise<void>;
 } {
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
@@ -75,13 +76,14 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
     packageInfo: PackageInfo;
   }>();
 
-  function fetchData(): void {
+  async function fetchData(): Promise<void> {
     setFetchStatus(FetchStatus.InFlight);
-    fetch(props.url)
-      .then(async (res) => {
+    await axios
+      .get(props.url)
+      .then((res) => {
         setFetchedPackageInfo({
           selectedResourceId,
-          packageInfo: await props.convertPayload(res),
+          packageInfo: props.convertPayload(res.data),
         });
         setFetchStatus(FetchStatus.Success);
       })

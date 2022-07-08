@@ -26,16 +26,21 @@ const NPM_SCHEMA: Schema = {
   required: ['name', 'license'],
 };
 
-export async function convertNpmPayload(
-  payload: Response
-): Promise<PackageInfo> {
-  const convertedPayload = await payload.json();
-  jsonSchemaValidator.validate(convertedPayload, NPM_SCHEMA, {
+interface Payload {
+  name: string;
+  license: string;
+}
+
+export function convertNpmPayload(payload: unknown): PackageInfo {
+  jsonSchemaValidator.validate(payload, NPM_SCHEMA, {
     throwError: true,
   });
+
+  const validatedPayload = payload as Payload;
+
   return {
-    licenseName: convertedPayload.license as string,
-    packageName: convertedPayload.name as string,
+    licenseName: validatedPayload.license,
+    packageName: validatedPayload.name,
     packageType: 'npm',
     packageNamespace: undefined,
     packagePURLAppendix: undefined,

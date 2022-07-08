@@ -21,7 +21,7 @@ const GITHUB_REGEX = new RegExp('^https://(www.)?github.com/[^/]+/[^/]+');
 
 export interface LicenseFetchingInformation {
   url: string;
-  convertPayload: (payload: Response) => Promise<PackageInfo>;
+  convertPayload: (payload: Response) => PackageInfo;
 }
 
 export function getLicenseFetchingInformation(

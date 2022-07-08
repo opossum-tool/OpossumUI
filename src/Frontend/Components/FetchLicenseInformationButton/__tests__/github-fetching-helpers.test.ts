@@ -31,30 +31,22 @@ describe('getGithubAPIUrl', () => {
 });
 
 describe('convertGithubPayload', () => {
-  it('raises for invalid payload', async () => {
+  it('raises for invalid payload', () => {
     const payload = { license: {} };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    await expect(
-      convertGithubPayload(mockResponse as unknown as Response)
-    ).rejects.toBeTruthy();
+    expect(() => convertGithubPayload(payload)).toThrow(
+      'requires property "spdx_id"'
+    );
   });
 
-  it('parses payload correctly', async () => {
+  it('parses payload correctly', () => {
     const payload = {
       license: { spdx_id: 'Apache-2.0' },
       content: 'TGljZW5zZSBUZXh0', // "License Text" in base64
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
     };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    const packageInfo = await convertGithubPayload(
-      mockResponse as unknown as Response
-    );
+    const packageInfo = convertGithubPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'Apache-2.0',
       licenseText: 'License Text',
@@ -65,18 +57,13 @@ describe('convertGithubPayload', () => {
     });
   });
 
-  it('handles non existing license text correctly', async () => {
+  it('handles non existing license text correctly', () => {
     const payload = {
       license: { spdx_id: 'Apache-2.0' },
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
     };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    const packageInfo = await convertGithubPayload(
-      mockResponse as unknown as Response
-    );
+    const packageInfo = convertGithubPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'Apache-2.0',
       packageType: 'github',
@@ -87,19 +74,14 @@ describe('convertGithubPayload', () => {
     });
   });
 
-  it('handles empty license text correctly', async () => {
+  it('handles empty license text correctly', () => {
     const payload = {
       license: { spdx_id: 'Apache-2.0' },
       content: '',
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
     };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    const packageInfo = await convertGithubPayload(
-      mockResponse as unknown as Response
-    );
+    const packageInfo = convertGithubPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'Apache-2.0',
       packageType: 'github',

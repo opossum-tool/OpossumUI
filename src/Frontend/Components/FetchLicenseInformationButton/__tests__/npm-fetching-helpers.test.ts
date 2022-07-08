@@ -44,26 +44,18 @@ describe('getNpmAPIUrl', () => {
 });
 
 describe('convertNpmPayload', () => {
-  it('raises error for invalid payload', async () => {
+  it('raises error for invalid payload', () => {
     const payload = { name: 'test' };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    await expect(
-      convertNpmPayload(mockResponse as unknown as Response)
-    ).rejects.toBeTruthy();
+    expect(() => convertNpmPayload(payload)).toThrow(
+      'requires property "license"'
+    );
   });
 
-  it('parses payload correctly', async () => {
+  it('parses payload correctly', () => {
     const payload = { name: 'test', license: 'MIT' };
-    const mockResponse = {
-      json: (): typeof payload => payload,
-    };
 
-    const packageInfo = await convertNpmPayload(
-      mockResponse as unknown as Response
-    );
+    const packageInfo = convertNpmPayload(payload);
     expect(packageInfo).toStrictEqual({
       licenseName: 'MIT',
       packageName: 'test',
