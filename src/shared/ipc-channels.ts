@@ -18,5 +18,6 @@ export enum IpcChannel {
   ToggleHighlightForCriticalSignals = 'toggle-highlight-for-critical-signals',
   ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
+  ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   SetBaseURLForRoot = 'set-base-url-for-root',
 }

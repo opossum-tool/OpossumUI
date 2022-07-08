@@ -18,7 +18,7 @@ import { IpcChannel } from '../../../../shared/ipc-channels';
 describe('TopBar', () => {
   test('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(8);
+    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(9);
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel.FileLoaded,
       expect.anything()
@@ -41,6 +41,10 @@ describe('TopBar', () => {
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(
       IpcChannel.ShowProjectMetadataPopup,
+      expect.anything()
+    );
+    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
+      IpcChannel.ShowProjectStatisticsPopup,
       expect.anything()
     );
     expect(window.ipcRenderer.on).toHaveBeenCalledWith(

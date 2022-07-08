@@ -87,11 +87,21 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           ],
         },
         {
-          label: 'Show Project Metadata',
+          label: 'Project Metadata',
           click(): void {
             if (getGlobalBackendState().resourceFilePath) {
               webContents.send(IpcChannel.ShowProjectMetadataPopup, {
                 showProjectMetadataPopup: true,
+              });
+            }
+          },
+        },
+        {
+          label: 'Project Statistics',
+          click(): void {
+            if (getGlobalBackendState().resourceFilePath) {
+              webContents.send(IpcChannel.ShowProjectStatisticsPopup, {
+                showProjectStatisticsPopup: true,
               });
             }
           },

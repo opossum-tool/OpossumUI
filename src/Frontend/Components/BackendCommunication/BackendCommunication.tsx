@@ -209,6 +209,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function showProjectStatisticsPopupListener(
+    event: IpcRendererEvent,
+    showProjectStatisticsPopup: boolean
+  ): void {
+    if (showProjectStatisticsPopup) {
+      dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    }
+  }
+
   function setBaseURLForRootListener(
     event: IpcRendererEvent,
     baseURLForRootArgs: BaseURLForRootArgs
@@ -247,6 +256,11 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(
     IpcChannel.ShowProjectMetadataPopup,
     showProjectMetadataPopupListener,
+    [dispatch]
+  );
+  useIpcRenderer(
+    IpcChannel.ShowProjectStatisticsPopup,
+    showProjectStatisticsPopupListener,
     [dispatch]
   );
   useIpcRenderer(IpcChannel.SetBaseURLForRoot, setBaseURLForRootListener, [
