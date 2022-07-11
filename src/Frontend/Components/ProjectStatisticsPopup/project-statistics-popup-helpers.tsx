@@ -25,6 +25,7 @@ interface SignalCountPerSourcePerLicense {
 export const SOURCE_TOTAL = 'Total';
 export const LICENSE_TOTAL = 'Total';
 const PLACEHOLDER = '-';
+const VIEWPORT_HEIGHT_MINUS_SHOWN_TABLE_HEIGHT = 210;
 
 const StyledTableCell = styled(TableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
@@ -126,7 +127,11 @@ export function getProjectStatisticsTable(
 
   return (
     <Box sx={{ width: '100%' }}>
-      <TableContainer style={{ maxHeight: 300 }}>
+      <TableContainer
+        style={{
+          height: `calc(100vh - ${VIEWPORT_HEIGHT_MINUS_SHOWN_TABLE_HEIGHT}px)`,
+        }}
+      >
         <Table sx={{ minWidth: 300 }} size="small" stickyHeader>
           <TableHead>
             <TableRow>
