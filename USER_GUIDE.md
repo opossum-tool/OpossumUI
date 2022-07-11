@@ -50,9 +50,13 @@ To search for a path, press `CTRL + F` or open the `Edit` menu and select `Searc
 
 ![integration](./docs/user_guide_screenshots/search.png)
 
-### View Project Metadata
+### Project Metadata
 
-To view project metadata, open the `File` menu and select `Show Project Metadata`.
+To view project metadata, open the `File` menu and select `Project Metadata`.
+
+### Project Statistics
+
+To view project statistics, open the `File` menu and select `Project Statistics`. This opens a new window that shows a table that summarizes the license data of the project by source.
 
 ### Exporting Formats
 
