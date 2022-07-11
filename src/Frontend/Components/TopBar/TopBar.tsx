@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +8,6 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { IpcChannel } from '../../../shared/ipc-channels';
 import { View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getSelectedView } from '../../state/selectors/view-selector';
@@ -76,7 +76,7 @@ export function TopBar(): ReactElement {
         tooltipTitle="open file"
         placement="right"
         onClick={(): void => {
-          window.ipcRenderer.invoke(IpcChannel.OpenFile);
+          window.electronAPI.openFile();
         }}
         icon={
           <FolderOpenIcon

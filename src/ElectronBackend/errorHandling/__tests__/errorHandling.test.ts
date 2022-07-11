@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -13,7 +14,7 @@ import {
   getMessageBoxForErrors,
   getMessageBoxForParsingError,
 } from '../errorHandling';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { JsonParsingError } from '../../types/types';
 
 jest.mock('electron', () => ({
@@ -135,7 +136,7 @@ describe('error handling', () => {
       );
       expect(mockCallback.mock.calls.length).toBe(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
-        IpcChannel.RestoreFrontend
+        AllowedFrontendChannels.RestoreFrontend
       );
       expect(loadJsonFromFilePath).toBeCalled();
     });
@@ -176,7 +177,7 @@ describe('error handling', () => {
       );
       expect(mockCallback.mock.calls.length).toBe(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
-        IpcChannel.RestoreFrontend
+        AllowedFrontendChannels.RestoreFrontend
       );
       expect(loadJsonFromFilePath).toBeCalled();
     });

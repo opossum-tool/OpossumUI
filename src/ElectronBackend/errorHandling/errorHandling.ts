@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -11,7 +12,7 @@ import {
   WebContents,
 } from 'electron';
 import log from 'electron-log';
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { loadJsonFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
 
@@ -120,7 +121,7 @@ function performButtonAction(
   const globalBackendState = getGlobalBackendState();
   switch (buttonIndex) {
     case 0:
-      webContents.send(IpcChannel.RestoreFrontend);
+      webContents.send(AllowedFrontendChannels.RestoreFrontend);
       loadJsonFromFilePath(
         webContents,
         globalBackendState.resourceFilePath as string

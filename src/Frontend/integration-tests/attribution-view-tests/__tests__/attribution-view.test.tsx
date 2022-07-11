@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -13,7 +14,6 @@ import {
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   PackageInfo,
@@ -242,12 +242,11 @@ describe('The App in attribution view', () => {
         '/root/src/file_2': ['uuid_2'],
       },
     };
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.OpenFile],
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-      [IpcChannel.SaveFile, expect.anything()],
-    ]);
+    expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(2);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 
   test('saves an updated attribution to file', () => {
@@ -332,11 +331,11 @@ describe('The App in attribution view', () => {
     expectValueNotInTextBox(screen, 'Name', 'jQuery');
     expect(screen.getByText('Angular, 16.0.0'));
 
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.OpenFile],
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 
   test('deletes an attribution', () => {
@@ -395,11 +394,11 @@ describe('The App in attribution view', () => {
     clickOnButton(screen, ButtonText.Save);
 
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.OpenFile],
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 
   test('replaces attributions', () => {
@@ -478,10 +477,10 @@ describe('The App in attribution view', () => {
     screen.getByText('/root/src/file_2');
 
     // make sure resources are now linked to React attribution
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.OpenFile],
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 });

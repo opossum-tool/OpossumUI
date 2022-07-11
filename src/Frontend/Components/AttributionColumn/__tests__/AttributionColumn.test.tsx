@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -36,7 +37,6 @@ import {
 } from '../../../test-helpers/general-test-helpers';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionColumn } from '../AttributionColumn';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   clickGoToLinkIcon,
@@ -366,11 +366,8 @@ describe('The AttributionColumn', () => {
 
     expect(screen.getByLabelText('Url icon'));
     clickGoToLinkIcon(screen, 'Url icon');
-    expect(global.window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.OpenLink,
-      {
-        link: testTemporaryPackageInfo.url,
-      }
+    expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
+      testTemporaryPackageInfo.url
     );
   });
 
@@ -394,11 +391,8 @@ describe('The AttributionColumn', () => {
     );
 
     clickGoToLinkIcon(screen, 'Url icon');
-    expect(global.window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.OpenLink,
-      {
-        link: 'https://' + testTemporaryPackageInfo.url,
-      }
+    expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
+      'https://' + testTemporaryPackageInfo.url
     );
   });
 
@@ -422,7 +416,7 @@ describe('The AttributionColumn', () => {
     );
 
     clickGoToLinkIcon(screen, 'Url icon');
-    expect(global.window.ipcRenderer.invoke).not.toHaveBeenCalled();
+    expect(global.window.electronAPI.openLink).not.toHaveBeenCalled();
     expectGoToLinkButtonIsDisabled(screen);
   });
 
@@ -616,9 +610,8 @@ describe('The AttributionColumn', () => {
       });
 
       clickOnButton(screen, 'resolve attribution');
-      expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
-      expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-        IpcChannel.SaveFile,
+      expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+      expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
         expectedSaveFileArgs
       );
     });

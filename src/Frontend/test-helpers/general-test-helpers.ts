@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -24,15 +25,18 @@ import isEmpty from 'lodash/isEmpty';
 
 import { ButtonText } from '../enums/enums';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 
 export function mockElectronBackend(
   mockChannelReturn: ParsedFileContent
 ): void {
-  window.ipcRenderer.on
+  window.electronAPI.on
     // @ts-ignore
     .mockImplementation(
-      mockElectronIpcRendererOn(IpcChannel.FileLoaded, mockChannelReturn)
+      mockElectronIpcRendererOn(
+        AllowedFrontendChannels.FileLoaded,
+        mockChannelReturn
+      )
     );
 }
 

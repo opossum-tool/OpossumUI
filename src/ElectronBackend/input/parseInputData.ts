@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import { WebContents } from 'electron';
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
   BaseUrlsForSources,
@@ -93,7 +94,7 @@ export function cleanNonExistentAttributions(
         );
         if (filteredAttributionIds.length < entryAttributionIds.length) {
           webContents.send(
-            IpcChannel.Logging,
+            AllowedFrontendChannels.Logging,
             `WARNING: There were abandoned attributions for path ${path}.` +
               ' The import from the attribution file was cleaned up.'
           );
@@ -115,7 +116,7 @@ export function cleanNonExistentResolvedExternalSignals(
     if (!externalAttributionIds.has(resolvedExternalAttributionId)) {
       resolvedExternalAttributions.delete(resolvedExternalAttributionId);
       webContents.send(
-        IpcChannel.Logging,
+        AllowedFrontendChannels.Logging,
         `WARNING: There was an abandoned resolved external attribution: ${resolvedExternalAttributionId}.` +
           ' The import from the attribution file was cleaned up.'
       );

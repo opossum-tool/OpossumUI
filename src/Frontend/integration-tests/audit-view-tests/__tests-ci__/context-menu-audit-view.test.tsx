@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -29,7 +30,6 @@ import {
   expectNoConfirmationButtonsShown,
   handleReplaceMarkedAttributionViaContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
@@ -362,10 +362,10 @@ describe('In Audit View the ContextMenu', () => {
       expectValueInTextBox(screen, 'Name', 'React');
 
       // make sure resources are now linked to React attribution
-      // @ts-ignore
-      expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-        [IpcChannel.SaveFile, expectedSaveFileArgs],
-      ]);
+      expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+      expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+        expectedSaveFileArgs
+      );
     });
 
     test('in the attributions in folder content panel', () => {
@@ -407,10 +407,10 @@ describe('In Audit View the ContextMenu', () => {
       expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
 
       // make sure resources are now linked to React attribution
-      // @ts-ignore
-      expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-        [IpcChannel.SaveFile, expectedSaveFileArgs],
-      ]);
+      expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+      expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+        expectedSaveFileArgs
+      );
     });
   });
 });

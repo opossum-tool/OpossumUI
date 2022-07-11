@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -21,7 +22,7 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { IpcRendererEvent } from 'electron';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   getDiscreteConfidenceChangeHandler,
   getDisplayTexts,
@@ -236,7 +237,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       props.saveFileRequestListener();
     }
   }
-  useIpcRenderer(IpcChannel.SaveFileRequest, listener, [
+  useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, listener, [
     props.saveFileRequestListener,
   ]);
 

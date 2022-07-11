@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -9,7 +10,6 @@ import {
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
 import { ParsedFileContent } from '../../../../shared/shared-types';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { screen } from '@testing-library/react';
 import React from 'react';
@@ -49,19 +49,17 @@ describe('The go to link button', () => {
     clickOnElementInResourceBrowser(screen, 'parent');
     expectGoToLinkIconIsVisible(screen);
     clickGoToLinkIcon(screen, 'link to open');
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.OpenLink,
-      { link: expectedLinkForParent }
+    expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.openLink).toHaveBeenCalledWith(
+      expectedLinkForParent
     );
 
     clickOnElementInResourceBrowser(screen, 'something_else.js');
     expectGoToLinkIconIsVisible(screen);
     clickGoToLinkIcon(screen, 'link to open');
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(2);
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.OpenLink,
-      { link: expectedLinkForFile }
+    expect(window.electronAPI.openLink).toHaveBeenCalledTimes(2);
+    expect(window.electronAPI.openLink).toHaveBeenCalledWith(
+      expectedLinkForFile
     );
   });
 });

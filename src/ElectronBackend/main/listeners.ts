@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import { BrowserWindow, shell, WebContents } from 'electron';
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportArgsType,
   ExportCompactBomArgs,
@@ -104,7 +105,7 @@ export function getSelectBaseURLListener(webContents: WebContents): () => void {
     const baseURL = baseURLs[0];
     const formattedBaseURL = formatBaseURL(baseURL);
 
-    webContents.send(IpcChannel.SetBaseURLForRoot, {
+    webContents.send(AllowedFrontendChannels.SetBaseURLForRoot, {
       baseURLForRoot: formattedBaseURL,
     });
   });

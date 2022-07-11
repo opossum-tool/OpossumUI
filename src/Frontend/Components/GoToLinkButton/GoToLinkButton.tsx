@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -9,7 +10,6 @@ import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { IpcChannel } from '../../../shared/ipc-channels';
 import { getParents } from '../../state/helpers/get-parents';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { OpenLinkArgs } from '../../../shared/shared-types';
@@ -79,13 +79,11 @@ export function GoToLinkButton(): ReactElement {
   const openLinkArgs = getOpenLinkArgs();
 
   function onClick(): void {
-    window.ipcRenderer
-      .invoke(IpcChannel.OpenLink, openLinkArgs)
-      .then((result) => {
-        if (result instanceof Error) {
-          dispatch(openPopup(PopupType.InvalidLinkPopup));
-        }
-      });
+    window.electronAPI.openLink(openLinkArgs.link).then((result) => {
+      if (result instanceof Error) {
+        dispatch(openPopup(PopupType.InvalidLinkPopup));
+      }
+    });
   }
 
   return (

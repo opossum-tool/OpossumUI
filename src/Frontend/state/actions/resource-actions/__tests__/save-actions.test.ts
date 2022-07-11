@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -62,7 +63,6 @@ import {
   setIsSavingDisabled,
   unlinkAttributionAndSavePackageInfo,
 } from '../save-actions';
-import { IpcChannel } from '../../../../../shared/ipc-channels';
 import { getOpenPopup } from '../../../selectors/view-selector';
 
 const testResources: Resources = {
@@ -1254,9 +1254,8 @@ describe('The addToSelectedResource action', () => {
     };
 
     testStore.dispatch(saveManualAndResolvedAttributionsToFile());
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.SaveFile,
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
       expectedSaveFileArgs
     );
   });

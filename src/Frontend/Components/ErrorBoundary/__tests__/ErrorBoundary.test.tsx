@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -8,7 +9,7 @@ import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import { initialViewState } from '../../../state/reducers/view-reducer';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ErrorBoundary } from '../ErrorBoundary';
-import { IpcChannel } from '../../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { screen } from '@testing-library/react';
 
 describe('ErrorBoundary', () => {
@@ -27,8 +28,8 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.openFile).toHaveBeenCalledTimes(0);
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(1);
 
     screen.getByText('Test');
   });
@@ -43,14 +44,11 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(3);
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.SendErrorInformation,
-      expect.anything()
-    );
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(1);
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.RestoreFrontend,
+    expect(window.electronAPI.sendErrorInformation).toHaveBeenCalledTimes(3);
+
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.RestoreFrontend,
       expect.anything()
     );
 

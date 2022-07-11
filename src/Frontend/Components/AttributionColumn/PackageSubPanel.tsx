@@ -6,7 +6,6 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { IpcChannel } from '../../../shared/ipc-channels';
 import { PackageInfo } from '../../../shared/shared-types';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -44,9 +43,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
       ) {
         urlString = 'https://' + urlString;
       }
-      window.ipcRenderer.invoke(IpcChannel.OpenLink, {
-        link: urlString,
-      });
+      window.electronAPI.openLink(urlString);
     }
   }
 
