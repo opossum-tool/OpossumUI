@@ -25,6 +25,7 @@ import {
   getOpenLinkListener,
   getSaveFileListener,
   getSelectBaseURLListener,
+  linkHasHttpSchema,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -538,7 +539,7 @@ describe('getExportSpdxDocumentListener', () => {
 
 describe('getOpenLinkListener', () => {
   test('opens link', async () => {
-    const testLink = 'www.test.de/link';
+    const testLink = 'https://www.test.de/link';
     await getOpenLinkListener()(IpcChannel.OpenLink, {
       link: testLink,
     });
@@ -594,3 +595,23 @@ async function prepareBomSPdxAndFollowUpTest(): Promise<BrowserWindow> {
 
   return await createWindow();
 }
+
+describe('linkHasHttpSchema', () => {
+  it('throws for invalid url', () => {
+    expect(() => {
+      linkHasHttpSchema('/some/local/file');
+    }).toThrow();
+  });
+
+  it('returns true for http', () => {
+    expect(linkHasHttpSchema('http://opossum.de')).toBeTruthy();
+  });
+
+  it('return true for https', () => {
+    expect(linkHasHttpSchema('https://opossum.de')).toBeTruthy();
+  });
+
+  it('returns false for ftp', () => {
+    expect(linkHasHttpSchema('ftp://opossum.de')).toBeFalsy();
+  });
+});
