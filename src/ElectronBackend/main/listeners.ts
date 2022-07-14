@@ -161,12 +161,20 @@ export function getSendErrorInformationListener(
   };
 }
 
+export function linkHasHttpSchema(link: string): boolean {
+  const url = new URL(link);
+  return url.protocol === 'https:' || url.protocol === 'http:';
+}
+
 export function getOpenLinkListener(): (
   _: unknown,
   args: OpenLinkArgs
 ) => Promise<Error | void> {
   return async (_, args: OpenLinkArgs): Promise<Error | void> => {
     try {
+      if (!linkHasHttpSchema(args.link)) {
+        throw new Error(`Invalid URL ${args.link}`);
+      }
       // Does not throw on Linux if link cannot be opened.
       // see https://github.com/electron/electron/issues/28183
       return await shell.openExternal(args.link);
