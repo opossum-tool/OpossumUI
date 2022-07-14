@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -18,7 +19,7 @@ import {
 } from '../../main/globalBackendState';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { loadJsonFromFilePath } from '../importFromFile';
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import * as fs from 'fs';
@@ -217,7 +218,7 @@ describe('Test of loading function', () => {
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        IpcChannel.FileLoaded,
+        AllowedFrontendChannels.FileLoaded,
         expectedFileContent
       );
 
@@ -241,7 +242,7 @@ describe('Test of loading function', () => {
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
-        IpcChannel.FileLoaded,
+        AllowedFrontendChannels.FileLoaded,
         expectedFileContent
       );
       expect(dialog.showMessageBox).not.toBeCalled();
@@ -439,7 +440,7 @@ describe('Test of loading function', () => {
     };
 
     expect(mainWindow.webContents.send).toBeCalledWith(
-      IpcChannel.FileLoaded,
+      AllowedFrontendChannels.FileLoaded,
       expectedLoadedFile
     );
     expect(dialog.showMessageBox).not.toBeCalled();
@@ -485,7 +486,7 @@ describe('Test of loading function', () => {
     };
 
     expect(mainWindow.webContents.send).toBeCalledWith(
-      IpcChannel.FileLoaded,
+      AllowedFrontendChannels.FileLoaded,
       expectedLoadedFile
     );
     expect(dialog.showMessageBox).not.toBeCalled();
@@ -512,7 +513,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
   };
 
   expect(mainWindow.webContents.send).toBeCalledWith(
-    IpcChannel.FileLoaded,
+    AllowedFrontendChannels.FileLoaded,
     expectedLoadedFile
   );
   expect(dialog.showMessageBox).not.toBeCalled();

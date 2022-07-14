@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IpcRenderer } from 'electron';
 import { PackagePanelTitle, PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { ViewState } from '../state/reducers/view-reducer';
@@ -15,12 +15,6 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-
-declare global {
-  interface Window {
-    ipcRenderer: IpcRenderer;
-  }
-}
 
 export type State = {
   resourceState: ResourceState;

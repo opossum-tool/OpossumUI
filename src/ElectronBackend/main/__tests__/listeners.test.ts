@@ -1,10 +1,14 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import {
+  IpcChannel,
+  AllowedFrontendChannels,
+} from '../../../shared/ipc-channels';
 import {
   Attributions,
   AttributionsWithResources,
@@ -246,9 +250,12 @@ describe('getSelectBaseURLListener', () => {
     getSelectBaseURLListener(webContents)();
 
     expect(selectBaseURLDialog).toBeCalled();
-    expect(webContents.send).toBeCalledWith(IpcChannel.SetBaseURLForRoot, {
-      baseURLForRoot: expectedFormattedBaseURL,
-    });
+    expect(webContents.send).toBeCalledWith(
+      AllowedFrontendChannels.SetBaseURLForRoot,
+      {
+        baseURLForRoot: expectedFormattedBaseURL,
+      }
+    );
   });
 });
 
@@ -263,11 +270,14 @@ describe('getSaveFileListener', () => {
     const webContents = { send: mockCallback as unknown } as WebContents;
     setGlobalBackendState({});
 
-    await getSaveFileListener(webContents)(IpcChannel.SaveFileRequest, {
-      manualAttributions: {},
-      resourcesToAttributions: {},
-      resolvedExternalAttributions: new Set(),
-    });
+    await getSaveFileListener(webContents)(
+      AllowedFrontendChannels.SaveFileRequest,
+      {
+        manualAttributions: {},
+        resourcesToAttributions: {},
+        resolvedExternalAttributions: new Set(),
+      }
+    );
 
     expect(dialog.showMessageBox).toBeCalledWith(
       expect.objectContaining({
@@ -296,7 +306,7 @@ describe('getSaveFileListener', () => {
         projectId: 'uuid_1',
       });
 
-      listener(IpcChannel.SaveFileRequest, {
+      listener(AllowedFrontendChannels.SaveFileRequest, {
         manualAttributions: {},
         resourcesToAttributions: {},
         resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),

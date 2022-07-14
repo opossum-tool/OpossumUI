@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import { IpcRendererEvent } from 'electron';
 import { useEffect } from 'react';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,
   ExportType,
@@ -48,15 +50,15 @@ type Listener =
   | ToggleHighlightForCriticalSignalsListener;
 
 export function useIpcRenderer(
-  channel: string,
+  channel: AllowedFrontendChannels,
   listener: Listener,
   dependencies: Array<unknown>
 ): void {
   useEffect(() => {
-    window.ipcRenderer.on(channel, listener);
+    window.electronAPI.on(channel, listener);
 
     return (): void => {
-      window.ipcRenderer.removeListener(channel, listener);
+      window.electronAPI.removeListener(channel, listener);
     };
     // eslint-disable-next-line
   }, dependencies);

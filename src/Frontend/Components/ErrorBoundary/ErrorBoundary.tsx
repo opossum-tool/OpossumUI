@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { AnyAction } from 'redux';
 import { resetViewState } from '../../state/actions/view-actions/view-actions';
@@ -46,10 +47,7 @@ function sendErrorInfo(error: Error, errorInfo: ErrorInfo): void {
     error,
     errorInfo,
   };
-  window.ipcRenderer.invoke(
-    IpcChannel.SendErrorInformation,
-    sendErrorInformationArgs
-  );
+  window.electronAPI.sendErrorInformation(sendErrorInformationArgs);
 }
 
 class ProtoErrorBoundary extends React.Component<
@@ -62,17 +60,20 @@ class ProtoErrorBoundary extends React.Component<
   }
 
   componentDidMount(): void {
-    window.ipcRenderer.on(IpcChannel.RestoreFrontend, () => {
+    window.electronAPI.on(AllowedFrontendChannels.RestoreFrontend, () => {
       this.props.resetState();
       this.setState({ hasError: false });
     });
   }
 
   componentWillUnmount(): void {
-    window.ipcRenderer.removeListener(IpcChannel.RestoreFrontend, () => {
-      this.props.resetState();
-      this.setState({ hasError: false });
-    });
+    window.electronAPI.removeListener(
+      AllowedFrontendChannels.RestoreFrontend,
+      () => {
+        this.props.resetState();
+        this.setState({ hasError: false });
+      }
+    );
   }
 
   static getDerivedStateFromError(): ErrorBoundaryState {

@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { IpcRendererEvent } from 'electron';
 import { ErrorInfo } from 'react';
+import { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
   [resourceName: string]: Resources | 1;
@@ -186,4 +189,27 @@ export interface ExternalAttributionSources {
     name: string;
     priority: number;
   };
+}
+
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
+
+export interface IElectronAPI {
+  openLink: (link: string) => Promise<unknown>;
+  openFile: () => void;
+  sendErrorInformation: (
+    errorInformationArgs: SendErrorInformationArgs
+  ) => void;
+  exportFile: (args: ExportArgsType) => void;
+  saveFile: (saveFileArgs: SaveFileArgs) => void;
+  on: (channel: AllowedFrontendChannels, listener: Listener) => void;
+  removeListener: (
+    channel: AllowedFrontendChannels,
+    listener: Listener
+  ) => void;
+}
+declare global {
+  interface Window {
+    electronAPI: IElectronAPI;
+  }
 }

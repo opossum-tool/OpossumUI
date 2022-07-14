@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { IpcChannel } from '../../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import {
   BackendCommunication,
   getBomAttributions,
@@ -15,41 +16,41 @@ import { ExportType, Attributions } from '../../../../shared/shared-types';
 describe('BackendCommunication', () => {
   test('renders an Open file icon', () => {
     renderComponentWithStore(<BackendCommunication />);
-    expect(window.ipcRenderer.on).toHaveBeenCalledTimes(9);
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.FileLoaded,
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(9);
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.FileLoaded,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.Logging,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.Logging,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.ResetLoadedFile,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ResetLoadedFile,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.ExportFileRequest,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ExportFileRequest,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.ShowSearchPopup,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowSearchPopup,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.ShowProjectMetadataPopup,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowProjectMetadataPopup,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.ShowProjectStatisticsPopup,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowProjectStatisticsPopup,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.SetBaseURLForRoot,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.SetBaseURLForRoot,
       expect.anything()
     );
-    expect(window.ipcRenderer.on).toHaveBeenCalledWith(
-      IpcChannel.ToggleHighlightForCriticalSignals,
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
       expect.anything()
     );
   });

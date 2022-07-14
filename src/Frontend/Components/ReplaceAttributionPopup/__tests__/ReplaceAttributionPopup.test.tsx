@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -27,7 +28,6 @@ import {
   setSelectedAttributionId,
 } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Attributions, Resources } from '../../../../shared/shared-types';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 
 function setupTestState(store: EnhancedTestStore): void {
   const testResources: Resources = {
@@ -140,21 +140,18 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     fireEvent.click(screen.queryByText(ButtonText.Replace) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
 
-    expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-      IpcChannel.SaveFile,
-      {
-        manualAttributions: {
-          test_selected_id: {
-            packageName: 'React',
-            attributionConfidence: DiscreteConfidence.High,
-          },
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
+      manualAttributions: {
+        test_selected_id: {
+          packageName: 'React',
+          attributionConfidence: DiscreteConfidence.High,
         },
-        resolvedExternalAttributions: new Set(),
-        resourcesToAttributions: {
-          'package_1.tr.gz': ['test_selected_id'],
-          'package_2.tr.gz': ['test_selected_id'],
-        },
-      }
-    );
+      },
+      resolvedExternalAttributions: new Set(),
+      resourcesToAttributions: {
+        'package_1.tr.gz': ['test_selected_id'],
+        'package_2.tr.gz': ['test_selected_id'],
+      },
+    });
   });
 });

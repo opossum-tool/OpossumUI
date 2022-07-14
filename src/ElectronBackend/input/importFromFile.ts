@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import fs from 'fs';
 import path from 'path';
 import upath from 'upath';
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
   AttributionsToResources,
@@ -45,7 +46,7 @@ export async function loadJsonFromFilePath(
   webContents: WebContents,
   filePath: string
 ): Promise<void> {
-  webContents.send(IpcChannel.ResetLoadedFile, {
+  webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
 
@@ -131,7 +132,7 @@ export async function loadJsonFromFilePath(
     externalAttributionSources: parsingResult.externalAttributionSources ?? {},
   };
   log.info('Sending data to electron frontend');
-  webContents.send(IpcChannel.FileLoaded, parsedFileContent);
+  webContents.send(AllowedFrontendChannels.FileLoaded, parsedFileContent);
 
   log.info('Updating global backend state');
   const newGlobalBackendState: GlobalBackendState = {

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,7 +13,7 @@ import {
   mockElectronBackend,
   mockElectronIpcRendererOn,
 } from '../../../test-helpers/general-test-helpers';
-import { IpcChannel } from '../../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   PackageInfo,
@@ -46,10 +47,10 @@ import {
 } from '../../../test-helpers/package-panel-helpers';
 
 function mockSaveFileRequestChannel(): void {
-  window.ipcRenderer.on
+  window.electronAPI.on
     // @ts-ignore
     .mockImplementationOnce(
-      mockElectronIpcRendererOn(IpcChannel.SaveFileRequest, true)
+      mockElectronIpcRendererOn(AllowedFrontendChannels.SaveFileRequest, true)
     );
 }
 
@@ -162,10 +163,10 @@ describe('Other popups of the app', () => {
       resolvedExternalAttributions: new Set(),
     };
 
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
     expectUnsavedChangesPopupIsNotShown(screen);
     expectValueNotInTextBox(screen, 'Name', testPackageName);
     expectButton(screen, ButtonText.Save, true);
@@ -223,10 +224,10 @@ describe('Other popups of the app', () => {
       },
       resolvedExternalAttributions: new Set(),
     };
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
     expectUnsavedChangesPopupIsNotShown(screen);
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
@@ -358,9 +359,9 @@ describe('Other popups of the app', () => {
       resolvedExternalAttributions: new Set(),
     };
 
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 });

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -7,7 +8,7 @@ import { IpcRendererEvent } from 'electron';
 import { ReactElement } from 'react';
 import pick from 'lodash/pick';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { IpcChannel } from '../../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Attributions,
   BaseURLForRootArgs,
@@ -104,7 +105,7 @@ export function BackendCommunication(): ReactElement | null {
         getFileWithChildrenCheck(filesWithChildren)
       );
 
-    window.ipcRenderer.invoke(IpcChannel.ExportFile, {
+    window.electronAPI.exportFile({
       type: ExportType.FollowUp,
       followUpAttributionsWithResources:
         followUpAttributionsWithFormattedResources,
@@ -140,7 +141,7 @@ export function BackendCommunication(): ReactElement | null {
       spdxAttributions: attributions,
     };
 
-    window.ipcRenderer.invoke(IpcChannel.ExportFile, args);
+    window.electronAPI.exportFile(args);
   }
 
   function getDetailedBomExportListener(): void {
@@ -160,14 +161,14 @@ export function BackendCommunication(): ReactElement | null {
         getFileWithChildrenCheck(filesWithChildren)
       );
 
-    window.ipcRenderer.invoke(IpcChannel.ExportFile, {
+    window.electronAPI.exportFile({
       type: ExportType.DetailedBom,
       bomAttributionsWithResources: bomAttributionsWithFormattedResources,
     });
   }
 
   function getCompactBomExportListener(): void {
-    window.ipcRenderer.invoke(IpcChannel.ExportFile, {
+    window.electronAPI.exportFile({
       type: ExportType.CompactBom,
       bomAttributions: getBomAttributions(
         manualData.attributions,
@@ -245,36 +246,47 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  useIpcRenderer(IpcChannel.FileLoaded, fileLoadedListener, [dispatch]);
-  useIpcRenderer(IpcChannel.ResetLoadedFile, resetLoadedFileListener, [
-    dispatch,
-  ]);
-  useIpcRenderer(IpcChannel.Logging, loggingListener, [dispatch]);
-  useIpcRenderer(IpcChannel.ShowSearchPopup, showSearchPopupListener, [
+  useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
   useIpcRenderer(
-    IpcChannel.ShowProjectMetadataPopup,
+    AllowedFrontendChannels.ResetLoadedFile,
+    resetLoadedFileListener,
+    [dispatch]
+  );
+  useIpcRenderer(AllowedFrontendChannels.Logging, loggingListener, [dispatch]);
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowSearchPopup,
+    showSearchPopupListener,
+    [dispatch]
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowProjectMetadataPopup,
     showProjectMetadataPopupListener,
     [dispatch]
   );
   useIpcRenderer(
-    IpcChannel.ShowProjectStatisticsPopup,
+    AllowedFrontendChannels.ShowProjectStatisticsPopup,
     showProjectStatisticsPopupListener,
     [dispatch]
   );
-  useIpcRenderer(IpcChannel.SetBaseURLForRoot, setBaseURLForRootListener, [
-    dispatch,
-    baseUrlsForSources,
-  ]);
-  useIpcRenderer(IpcChannel.ExportFileRequest, getExportFileRequestListener, [
-    manualData,
-    attributionBreakpoints,
-    frequentLicenseTexts,
-    filesWithChildren,
-  ]);
   useIpcRenderer(
-    IpcChannel.ToggleHighlightForCriticalSignals,
+    AllowedFrontendChannels.SetBaseURLForRoot,
+    setBaseURLForRootListener,
+    [dispatch, baseUrlsForSources]
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ExportFileRequest,
+    getExportFileRequestListener,
+    [
+      manualData,
+      attributionBreakpoints,
+      frequentLicenseTexts,
+      filesWithChildren,
+    ]
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
     setToggleHighlightForCriticalSignalsListener,
     [dispatch, showHighlightForCriticalSignals]
   );

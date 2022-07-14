@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -10,7 +11,6 @@ import { GoToLinkButton } from '../GoToLinkButton';
 import { BaseUrlsForSources } from '../../../../shared/shared-types';
 import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { screen } from '@testing-library/react';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import each from 'jest-each';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 import { act } from 'react-dom/test-utils';
@@ -39,15 +39,12 @@ describe('The GoToLinkButton', () => {
         store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
       });
 
-      expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(0);
+      expect(window.electronAPI.openLink).toHaveBeenCalledTimes(0);
       expect(screen.getByLabelText('link to open'));
       clickGoToLinkIcon(screen, 'link to open');
 
-      expect(window.ipcRenderer.invoke).toHaveBeenCalledTimes(1);
-      expect(window.ipcRenderer.invoke).toHaveBeenCalledWith(
-        IpcChannel.OpenLink,
-        { link: expected_link }
-      );
+      expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
+      expect(window.electronAPI.openLink).toHaveBeenCalledWith(expected_link);
     }
   );
 

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -24,7 +25,6 @@ import {
   getResourcesToManualAttributions,
   wereTemporaryPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
   resetSelectedPackagePanelIfContainedAttributionWasRemoved,
@@ -192,7 +192,7 @@ export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
       resolvedExternalAttributions: getResolvedExternalAttributions(getState()),
     };
 
-    window.ipcRenderer.invoke(IpcChannel.SaveFile, saveFileArgs);
+    window.electronAPI.saveFile(saveFileArgs);
   };
 }
 

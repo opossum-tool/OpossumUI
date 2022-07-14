@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { IpcRenderer } from 'electron';
 import {
   DiscreteConfidence,
   PackagePanelTitle,
@@ -373,12 +373,6 @@ describe('The actions checking for unsaved changes', () => {
 describe('The actions called from the unsaved popup', () => {
   describe('unlinkAttributionAndSavePackageInfoAndNavigateToTargetView', () => {
     test('unlinks and navigates to target view', () => {
-      global.window.ipcRenderer = {
-        on: jest.fn(),
-        removeListener: jest.fn(),
-        invoke: jest.fn(),
-      } as unknown as IpcRenderer;
-
       const testReact = {
         packageName: 'React',
       };
@@ -438,12 +432,6 @@ describe('The actions called from the unsaved popup', () => {
   });
 
   describe('saveTemporaryPackageInfoAndNavigateToTargetView', () => {
-    global.window.ipcRenderer = {
-      on: jest.fn(),
-      removeListener: jest.fn(),
-      invoke: jest.fn(),
-    } as unknown as IpcRenderer;
-
     function prepareTestState(): State {
       const testStore = createTestAppStore();
       const testResources: Resources = {

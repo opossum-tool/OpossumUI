@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -14,7 +15,6 @@ import {
 import { App } from '../../../Components/App/App';
 import { screen } from '@testing-library/react';
 import React from 'react';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import {
   Attributions,
   ParsedFileContent,
@@ -491,9 +491,9 @@ describe('The App in Audit View', () => {
     expectValueInTextBox(screen, 'Name', 'React');
 
     // make sure resources are now linked to React attribution
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 });

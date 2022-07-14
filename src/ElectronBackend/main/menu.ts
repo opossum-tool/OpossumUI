@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
 import { app, BrowserWindow, Menu, shell } from 'electron';
-import { IpcChannel } from '../../shared/ipc-channels';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { getOpenFileListener, getSelectBaseURLListener } from './listeners';
 import { getGlobalBackendState } from './globalBackendState';
 import {
@@ -31,7 +32,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Save',
           accelerator: 'CmdOrCtrl+S',
           click(): void {
-            webContents.send(IpcChannel.SaveFileRequest, {
+            webContents.send(AllowedFrontendChannels.SaveFileRequest, {
               saveFile: true,
             });
           },
@@ -43,7 +44,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'Follow-Up',
               click(): void {
                 webContents.send(
-                  IpcChannel.ExportFileRequest,
+                  AllowedFrontendChannels.ExportFileRequest,
                   ExportType.FollowUp
                 );
               },
@@ -52,7 +53,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'Compact component list',
               click(): void {
                 webContents.send(
-                  IpcChannel.ExportFileRequest,
+                  AllowedFrontendChannels.ExportFileRequest,
                   ExportType.CompactBom
                 );
               },
@@ -61,7 +62,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'Detailed component list',
               click(): void {
                 webContents.send(
-                  IpcChannel.ExportFileRequest,
+                  AllowedFrontendChannels.ExportFileRequest,
                   ExportType.DetailedBom
                 );
               },
@@ -70,7 +71,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'SPDX (yaml)',
               click(): void {
                 webContents.send(
-                  IpcChannel.ExportFileRequest,
+                  AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentYaml
                 );
               },
@@ -79,7 +80,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'SPDX (json)',
               click(): void {
                 webContents.send(
-                  IpcChannel.ExportFileRequest,
+                  AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentJson
                 );
               },
@@ -90,9 +91,12 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Project Metadata',
           click(): void {
             if (getGlobalBackendState().resourceFilePath) {
-              webContents.send(IpcChannel.ShowProjectMetadataPopup, {
-                showProjectMetadataPopup: true,
-              });
+              webContents.send(
+                AllowedFrontendChannels.ShowProjectMetadataPopup,
+                {
+                  showProjectMetadataPopup: true,
+                }
+              );
             }
           },
         },
@@ -100,9 +104,12 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Project Statistics',
           click(): void {
             if (getGlobalBackendState().resourceFilePath) {
-              webContents.send(IpcChannel.ShowProjectStatisticsPopup, {
-                showProjectStatisticsPopup: true,
-              });
+              webContents.send(
+                AllowedFrontendChannels.ShowProjectStatisticsPopup,
+                {
+                  showProjectStatisticsPopup: true,
+                }
+              );
             }
           },
         },
@@ -137,7 +144,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           accelerator: 'CmdOrCtrl+F',
           click(): void {
             if (getGlobalBackendState().resourceFilePath) {
-              webContents.send(IpcChannel.ShowSearchPopup, {
+              webContents.send(AllowedFrontendChannels.ShowSearchPopup, {
                 showSearchPopup: true,
               });
             }
@@ -156,9 +163,12 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Highlight critical signals',
           type: 'checkbox',
           click(): void {
-            webContents.send(IpcChannel.ToggleHighlightForCriticalSignals, {
-              toggleHighlightForCriticalSignals: true,
-            });
+            webContents.send(
+              AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
+              {
+                toggleHighlightForCriticalSignals: true,
+              }
+            );
           },
         },
       ],

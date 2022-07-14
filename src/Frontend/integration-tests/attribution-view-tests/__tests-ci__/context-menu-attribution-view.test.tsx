@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -21,7 +22,6 @@ import {
   expectNoConfirmationButtonsShown,
   handleReplaceMarkedAttributionViaContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { IpcChannel } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
 import {
@@ -222,10 +222,10 @@ describe('In Attribution View the ContextMenu', () => {
     screen.getByText('/root/src/file_2');
 
     // make sure resources are now linked to React attribution
-    // @ts-ignore
-    expect(window.ipcRenderer.invoke.mock.calls).toEqual([
-      [IpcChannel.SaveFile, expectedSaveFileArgs],
-    ]);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      expectedSaveFileArgs
+    );
   });
 
   test('deletes multi-selected attributions correctly', () => {

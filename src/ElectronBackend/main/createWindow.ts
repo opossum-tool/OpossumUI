@@ -34,7 +34,7 @@ export async function createWindow(): Promise<BrowserWindow> {
     width: 1920,
     height: 1080,
     webPreferences: {
-      contextIsolation: false,
+      contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
