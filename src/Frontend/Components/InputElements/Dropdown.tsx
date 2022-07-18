@@ -4,10 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { InputElementProps, inputElementClasses } from './shared';
+import { inputElementClasses, InputElementProps } from './shared';
 import MuiTextField from '@mui/material/TextField';
 import MuiMenuItem from '@mui/material/MenuItem';
 import MuiBox from '@mui/material/Box';
+
 interface DropdownProps extends InputElementProps {
   value: number;
   menuItems: Array<menuItem>;

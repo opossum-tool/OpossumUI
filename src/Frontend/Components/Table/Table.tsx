@@ -10,8 +10,8 @@ import {
 } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
 import {
-  ReportTableHeader,
   reportTableClasses,
+  ReportTableHeader,
 } from '../ReportTableHeader/ReportTableHeader';
 import { List } from '../List/List';
 import {

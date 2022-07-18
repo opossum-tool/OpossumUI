@@ -10,8 +10,8 @@ import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import {
-  ProgressBarWorkerContextProvider,
   AccordionWorkersContextProvider,
+  ProgressBarWorkerContextProvider,
 } from '../WorkersContextProvider/WorkersContextProvider';
 
 const store = createAppStore();

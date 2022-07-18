@@ -11,7 +11,7 @@ import {
   BackendCommunication,
   getBomAttributions,
 } from '../BackendCommunication';
-import { ExportType, Attributions } from '../../../../shared/shared-types';
+import { Attributions, ExportType } from '../../../../shared/shared-types';
 
 describe('BackendCommunication', () => {
   test('renders an Open file icon', () => {

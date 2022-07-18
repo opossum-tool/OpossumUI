@@ -5,7 +5,7 @@
 
 import MuiTextField from '@mui/material/TextField';
 import React, { ReactElement } from 'react';
-import { InputElementProps, inputElementClasses } from './shared';
+import { inputElementClasses, InputElementProps } from './shared';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
