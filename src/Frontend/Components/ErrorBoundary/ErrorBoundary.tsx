@@ -67,13 +67,7 @@ class ProtoErrorBoundary extends React.Component<
   }
 
   componentWillUnmount(): void {
-    window.electronAPI.removeListener(
-      AllowedFrontendChannels.RestoreFrontend,
-      () => {
-        this.props.resetState();
-        this.setState({ hasError: false });
-      }
-    );
+    window.electronAPI.removeListener(AllowedFrontendChannels.RestoreFrontend);
   }
 
   static getDerivedStateFromError(): ErrorBoundaryState {

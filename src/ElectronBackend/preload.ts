@@ -19,12 +19,12 @@ function on(channel: AllowedFrontendChannels, listener: Listener): void {
   }
 }
 
-function removeListener(
-  channel: AllowedFrontendChannels,
-  listener: Listener
-): void {
+function removeListener(channel: AllowedFrontendChannels): void {
   if (Object.values(AllowedFrontendChannels).includes(channel)) {
-    ipcRenderer.removeListener(channel, listener);
+    // we remove all listeners to fix a bug we had with using
+    // ipcRenderer.removeListener in combination with the
+    // context bridge.
+    ipcRenderer.removeAllListeners(channel);
   }
 }
 
