@@ -288,14 +288,9 @@ async function createFollowUp(
   const followUpColumnOrder: Array<KeysOfAttributionInfo> = [
     'packageName',
     'packageVersion',
-    'packageNamespace',
-    'packageType',
-    'packagePURLAppendix',
     'url',
     'copyright',
     'licenseName',
-    'licenseText',
-    'excludeFromNotice',
     'resources',
   ];
 
