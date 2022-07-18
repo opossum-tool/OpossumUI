@@ -6,8 +6,8 @@
 
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
 import {
-  IpcChannel,
   AllowedFrontendChannels,
+  IpcChannel,
 } from '../../../shared/ipc-channels';
 import {
   Attributions,
@@ -376,14 +376,9 @@ describe('getExportFollowUpListener', () => {
       [
         'packageName',
         'packageVersion',
-        'packageNamespace',
-        'packageType',
-        'packagePURLAppendix',
         'url',
         'copyright',
         'licenseName',
-        'licenseText',
-        'excludeFromNotice',
         'resources',
       ],
       true
