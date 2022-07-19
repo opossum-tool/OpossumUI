@@ -5,8 +5,9 @@
 
 import MuiTextField from '@mui/material/TextField';
 import React, { ReactElement } from 'react';
-import { InputElementProps, inputElementClasses } from './shared';
+import { inputElementClasses, InputElementProps } from './shared';
 import MuiBox from '@mui/material/Box';
+
 interface NumericProps extends InputElementProps {
   value?: number;
   min?: number;

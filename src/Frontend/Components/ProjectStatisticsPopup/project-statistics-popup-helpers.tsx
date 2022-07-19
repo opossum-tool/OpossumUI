@@ -14,8 +14,8 @@ import TableFooter from '@mui/material/TableFooter';
 import TableRow from '@mui/material/TableRow';
 import { styled } from '@mui/system';
 import {
-  PackageInfo,
   ExternalAttributionSources,
+  PackageInfo,
 } from '../../../shared/shared-types';
 
 interface SignalCountPerSourcePerLicense {

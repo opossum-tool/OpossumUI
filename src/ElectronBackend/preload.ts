@@ -3,14 +3,14 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ipcRenderer, contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import { AllowedFrontendChannels, IpcChannel } from '../shared/ipc-channels';
 import {
-  SendErrorInformationArgs,
-  IElectronAPI,
   ExportArgsType,
+  IElectronAPI,
   Listener,
   SaveFileArgs,
+  SendErrorInformationArgs,
 } from '../shared/shared-types';
 
 function on(channel: AllowedFrontendChannels, listener: Listener): void {

@@ -13,8 +13,8 @@ import {
   getExternalAttributionSources,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  getProjectStatisticsTable,
   aggregateLicensesAndSourcesFromSignals,
+  getProjectStatisticsTable,
 } from './project-statistics-popup-helpers';
 
 export function ProjectStatisticsPopup(): ReactElement {
