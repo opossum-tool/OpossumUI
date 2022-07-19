@@ -203,10 +203,7 @@ export interface IElectronAPI {
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => void;
-  removeListener: (
-    channel: AllowedFrontendChannels,
-    listener: Listener
-  ) => void;
+  removeListener: (channel: AllowedFrontendChannels) => void;
 }
 declare global {
   interface Window {

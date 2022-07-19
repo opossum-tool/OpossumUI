@@ -58,7 +58,7 @@ export function useIpcRenderer(
     window.electronAPI.on(channel, listener);
 
     return (): void => {
-      window.electronAPI.removeListener(channel, listener);
+      window.electronAPI.removeListener(channel);
     };
     // eslint-disable-next-line
   }, dependencies);
