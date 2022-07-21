@@ -11,33 +11,66 @@ import { ButtonText } from '../../enums/enums';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
+  getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  aggregateLicensesAndSourcesFromSignals,
-  getProjectStatisticsTable,
+  aggregateLicensesAndSourcesFromAttributions,
+  aggregateAttributionPropertiesFromAttributions,
+  sortAttributionPropertiesEntries,
 } from './project-statistics-popup-helpers';
+import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
+import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
+
+const attributionCountPerSourcePerLicenseTableTitle = 'Signals per Sources';
+const attributionPropertyCountTableTitle =
+  'First Party and Follow Up Attributions';
 
 export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  const signals = Object.values(useAppSelector(getExternalAttributions));
+  const externalAttributionValues = Object.values(
+    useAppSelector(getExternalAttributions)
+  );
+  const manualAttributionValues = Object.values(
+    useAppSelector(getManualAttributions)
+  );
   const attributionSources = useAppSelector(getExternalAttributionSources);
 
-  const [signalCountPerSourcePerLicense, licenseNames] =
-    aggregateLicensesAndSourcesFromSignals(signals, attributionSources);
+  const [externalAttributionCountPerSourcePerLicense, licenseNames] =
+    aggregateLicensesAndSourcesFromAttributions(
+      externalAttributionValues,
+      attributionSources
+    );
+  const manualAttributionPropertyCounts =
+    aggregateAttributionPropertiesFromAttributions(manualAttributionValues);
+  const sortedManualAttributionPropertyCountsEntries =
+    sortAttributionPropertiesEntries(
+      Object.entries(manualAttributionPropertyCounts)
+    );
 
   function close(): void {
     dispatch(closePopup());
   }
 
-  const content = getProjectStatisticsTable(
-    signalCountPerSourcePerLicense,
-    licenseNames
-  );
-
   return (
     <NotificationPopup
-      content={content}
+      content={
+        <>
+          <AttributionCountPerSourcePerLicenseTable
+            attributionCountPerSourcePerLicense={
+              externalAttributionCountPerSourcePerLicense
+            }
+            licenseNames={licenseNames}
+            title={attributionCountPerSourcePerLicenseTableTitle}
+          />
+          <AttributionPropertyCountTable
+            attributionPropertyCountsEntries={
+              sortedManualAttributionPropertyCountsEntries
+            }
+            title={attributionPropertyCountTableTitle}
+          />
+        </>
+      }
       header={'Project Statistics'}
       isOpen={true}
       fullWidth={true}

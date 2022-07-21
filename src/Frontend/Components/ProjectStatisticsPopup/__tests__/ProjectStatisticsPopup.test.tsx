@@ -48,7 +48,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('reuser'.toUpperCase())).toBeInTheDocument();
   });
 
-  test('renders when there are no signals', () => {
+  test('renders when there are no attributions', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};
     store.dispatch(
@@ -62,6 +62,7 @@ describe('The ProjectStatisticsPopup', () => {
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(screen.getByText('LICENSE')).toBeInTheDocument();
     expect(screen.getByText('Total')).toBeInTheDocument();
-    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('Follow up')).toBeInTheDocument();
+    expect(screen.getByText('First party')).toBeInTheDocument();
   });
 });
