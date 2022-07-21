@@ -35,7 +35,12 @@ export const SOURCE_TOTAL = 'Total';
 export const LICENSE_TOTAL = 'Total';
 export const ATTRIBUTION_TOTAL = 'Total Attributions';
 const PLACEHOLDER = '-';
-// const VIEWPORT_HEIGHT_MINUS_SHOWN_TABLE_HEIGHT = 260;
+const ATTRIBUTION_PROPERTIES_SHORT_NAME_TO_LONG_NAME: {
+  [attributionProperty: string]: string;
+} = {
+  followUp: 'Follow up',
+  firstParty: 'First party',
+};
 
 const StyledTableCell = styled(MuiTableCell)(() => ({
   [`&.${tableCellClasses.head}`]: {
@@ -138,6 +143,15 @@ function getSourceLongNameFromShortName(
   return sourceShortName;
 }
 
+function getAttributionPropertyLongNameFromShortName(
+  attributionProperty: string
+): string {
+  if (attributionProperty in ATTRIBUTION_PROPERTIES_SHORT_NAME_TO_LONG_NAME) {
+    return ATTRIBUTION_PROPERTIES_SHORT_NAME_TO_LONG_NAME[attributionProperty];
+  }
+  return attributionProperty;
+}
+
 function getSignalCountPerSourcePerLicenseTable(
   signalCountPerSourcePerLicense: SignalCountPerSourcePerLicense,
   licenseNames: Array<string>
@@ -209,45 +223,40 @@ function getSignalCountPerSourcePerLicenseTable(
 function getAttributionPropertyCountTable(
   attributionPropertyCounts: SignalCountPerAttributionProperty
 ): ReactElement {
-  const attributionPropertiesOrTotal = Object.keys(attributionPropertyCounts);
+  const attributionPropertiesOrTotalEntries = Object.entries(
+    attributionPropertyCounts
+  );
 
   // Move ATTRIBUTION_TOTAL to the end of the list
-  attributionPropertiesOrTotal.splice(
-    attributionPropertiesOrTotal.indexOf(ATTRIBUTION_TOTAL),
-    1
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  attributionPropertiesOrTotalEntries.sort(
+    ([property1, _count1], [_property2, _count2]) =>
+      property1 == ATTRIBUTION_TOTAL ? 1 : 0
   );
-  attributionPropertiesOrTotal.push(ATTRIBUTION_TOTAL);
-
-  const attributionPropertiesOrTotalCounts = attributionPropertiesOrTotal.map(
-    (attributionProperty) =>
-      String(attributionPropertyCounts[attributionProperty])
-  );
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   return (
     <MuiBox sx={{ width: '100%' }}>
       <MuiTypography variant="h6">Attribution types</MuiTypography>
-      <MuiTableContainer>
-        <MuiTable sx={{ minWidth: 300 }} size="small" stickyHeader>
-          <MuiTableHead>
-            <MuiTableRow>
-              {attributionPropertiesOrTotal.map((attributionType, index) => (
-                <StyledTableCell key={index} align="center">
-                  {attributionType.toUpperCase()}
-                </StyledTableCell>
-              ))}
-            </MuiTableRow>
-          </MuiTableHead>
-
+      <MuiTableContainer
+        style={{
+          width: 'calc(40%)',
+        }}
+      >
+        <MuiTable size="small">
           <MuiTableBody>
-            <MuiTableRow>
-              {attributionPropertiesOrTotalCounts.map(
-                (attributionType, index) => (
-                  <StyledTableCell key={index} align="center">
-                    {attributionType}
+            {attributionPropertiesOrTotalEntries.map(
+              ([attributionProperty, count], index) => (
+                <MuiTableRow key={index}>
+                  <StyledTableCell align="center">
+                    {getAttributionPropertyLongNameFromShortName(
+                      attributionProperty
+                    )}
                   </StyledTableCell>
-                )
-              )}
-            </MuiTableRow>
+                  <StyledTableCell align="center">{count}</StyledTableCell>
+                </MuiTableRow>
+              )
+            )}
           </MuiTableBody>
         </MuiTable>
       </MuiTableContainer>
