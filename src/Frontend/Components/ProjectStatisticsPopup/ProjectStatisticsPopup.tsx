@@ -14,7 +14,8 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import {
   aggregateLicensesAndSourcesFromSignals,
-  getProjectStatisticsTable,
+  aggregateAttributionPropertiesFromSignals,
+  getProjectStatisticsPopupContent,
 } from './project-statistics-popup-helpers';
 
 export function ProjectStatisticsPopup(): ReactElement {
@@ -25,14 +26,17 @@ export function ProjectStatisticsPopup(): ReactElement {
 
   const [signalCountPerSourcePerLicense, licenseNames] =
     aggregateLicensesAndSourcesFromSignals(signals, attributionSources);
+  const attributionPropertyCounts =
+    aggregateAttributionPropertiesFromSignals(signals);
 
   function close(): void {
     dispatch(closePopup());
   }
 
-  const content = getProjectStatisticsTable(
+  const content = getProjectStatisticsPopupContent(
     signalCountPerSourcePerLicense,
-    licenseNames
+    licenseNames,
+    attributionPropertyCounts
   );
 
   return (
