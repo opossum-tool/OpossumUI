@@ -8131,10 +8131,10 @@ package-json@^6.3.0:
     registry-url "^5.0.0"
     semver "^6.2.0"
 
-packageurl-js@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/packageurl-js/-/packageurl-js-0.0.6.tgz#b226bb6f3b72f5ca1dc216998bcbe395c5edbb32"
-  integrity sha512-XtwEbLN9FXkojPymZ6VVhW7HrBrUZmNexAG43P5HF7lqbFVOTgZ5OQ7OTaIF4uZ6Z4vkWP1N4ze0X3XLX/pqvA==
+packageurl-js@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/packageurl-js/-/packageurl-js-0.0.7.tgz#13cb534f495888060c6906dc3474cfb9581f4f80"
+  integrity sha512-ucJzaXINlIgpqYEY6aNf0J2QGHEeMNwt9fiuhbsZsq3kZ5NRxNlnaEUe6ehB5fWjYRSp75j0/lJWpfTKmBc2oA==
 
 pako@~1.0.2:
   version "1.0.11"
