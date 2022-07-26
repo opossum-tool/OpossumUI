@@ -17,8 +17,8 @@ SPDX-License-Identifier: CC0-1.0
 * **[Jakob Schubert](https://github.com/JakobSchubert)**
 * **[Jonas Tai](https://github.com/jonas-tai)**
 * **[Leslie Lazzarino](https://github.com/leslielazzarino)** (<leslie.lazzarino@tngtech.com>)
-* **[Maximilian Huber](https://github.com/maxhbr)** (<maximilian.huber@tngtech.com>)
 * **[Markus Obendrauf](https://github.com/MarkusObendrauf)** (<markus.obendrauf@tngtech.com>)
+* **[Maximilian Huber](https://github.com/maxhbr)** (<maximilian.huber@tngtech.com>)
 * **[Michael Cheng](https://github.com/syotfs)** (<m@priorart.io>)
 * **[Nico Carl](https://github.com/nicarl)**
 * **[Ruiyun Xie](https://github.com/mayayunx)**
