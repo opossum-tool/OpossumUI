@@ -20,7 +20,7 @@
     "jsonschema": "^1.4.1",
     "lodash": "^4.17.21",
     "object-hash": "^3.0.0",
-    "packageurl-js": "^0.0.6",
+    "packageurl-js": "^0.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^4.0.0-beta.23",
