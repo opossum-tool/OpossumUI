@@ -57,7 +57,7 @@ describe('The App backend', () => {
   test('calls ipc handler', async () => {
     await main();
 
-    expect(ipcMain.handle).toHaveBeenCalledTimes(5);
+    expect(ipcMain.handle).toHaveBeenCalledTimes(6);
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       1,
       IpcChannel.OpenFile,
@@ -70,16 +70,21 @@ describe('The App backend', () => {
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       3,
-      IpcChannel.SendErrorInformation,
+      IpcChannel.OverwriteFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       4,
-      IpcChannel.ExportFile,
+      IpcChannel.SendErrorInformation,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       5,
+      IpcChannel.ExportFile,
+      expect.any(Function)
+    );
+    expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      6,
       IpcChannel.OpenLink,
       expect.any(Function)
     );

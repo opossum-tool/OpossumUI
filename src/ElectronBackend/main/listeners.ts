@@ -56,6 +56,7 @@ export function getSaveFileListener(
           metadata: {
             projectId: globalBackendState.projectId,
             fileCreationDate: String(Date.now()),
+            inputFileMD5Checksum: globalBackendState.inputFileChecksum,
           },
           manualAttributions: args.manualAttributions,
           resourcesToAttributions: args.resourcesToAttributions,
@@ -96,6 +97,28 @@ export function getOpenFileListener(
   );
 }
 
+export function getOvewriteFileListener(
+  mainWindow: BrowserWindow
+): () => Promise<void> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow.webContents,
+    async () => {
+      let filePath: string;
+      const globalBackendState = getGlobalBackendState();
+      if (globalBackendState.resourceFilePath) {
+        filePath = globalBackendState.resourceFilePath;
+      } else {
+        throw new Error(
+          'Failed to open input file. Resource file path is incorrect:' +
+            `\n${globalBackendState.resourceFilePath}`
+        );
+      }
+
+      await openFile(mainWindow, filePath, true);
+    }
+  );
+}
+
 export function getSelectBaseURLListener(webContents: WebContents): () => void {
   return createListenerCallbackWithErrorHandling(webContents, () => {
     const baseURLs = selectBaseURLDialog();
@@ -128,12 +151,17 @@ function tryToGetInputFileFromOutputFile(filePath: string): string {
 
 export async function openFile(
   mainWindow: BrowserWindow,
-  filePath: string
+  filePath: string,
+  overwriteOutputFile = false
 ): Promise<void> {
   const loadingWindow = await openLoadingWindow(mainWindow);
 
   try {
-    await loadJsonFromFilePath(mainWindow.webContents, filePath);
+    await loadJsonFromFilePath(
+      mainWindow.webContents,
+      filePath,
+      overwriteOutputFile
+    );
     setTitle(mainWindow, filePath);
   } finally {
     loadingWindow.close();

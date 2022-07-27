@@ -7,6 +7,7 @@
 export enum IpcChannel {
   ExportFile = 'export-file',
   OpenFile = 'open-file',
+  OverwriteFile = 'overwrite-file',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   SendErrorInformation = 'send-error-information',
@@ -20,8 +21,10 @@ export enum AllowedFrontendChannels {
   RestoreFrontend = 'restore-frontend',
   SaveFileRequest = 'save-file-request',
   ToggleHighlightForCriticalSignals = 'toggle-highlight-for-critical-signals',
+  ShowChangedInputFilePopup = 'show-changed-input-file-pop-up',
   ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
+  SendErrorInformation = 'send-error-information',
   SetBaseURLForRoot = 'set-base-url-for-root',
 }

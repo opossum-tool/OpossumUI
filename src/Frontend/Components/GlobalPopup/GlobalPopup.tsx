@@ -19,6 +19,7 @@ import { useAppSelector } from '../../state/hooks';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
 import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPopup';
 import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
+import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -46,6 +47,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <EditAttributionPopup />;
     case PopupType.PackageSearchPopup:
       return <PackageSearchPopup />;
+    case PopupType.ChangedInputFilePopup:
+      return <ChangedInputFilePopup />;
     default:
       return null;
   }

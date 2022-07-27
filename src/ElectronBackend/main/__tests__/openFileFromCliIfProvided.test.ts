@@ -45,6 +45,7 @@ describe('openFileFromCli', () => {
       expect(mockOpenFile).toHaveBeenCalledWith([
         'mockBrowserWindow',
         inputFileName,
+        false,
       ]);
 
       process.argv = oldProcessArgv;

@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import fs from 'fs';
+import md5 from 'md5';
 import path from 'path';
 import upath from 'upath';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
@@ -44,7 +45,8 @@ function isJsonParsingError(
 
 export async function loadJsonFromFilePath(
   webContents: WebContents,
-  filePath: string
+  filePath: string,
+  overwriteOutputFile = false
 ): Promise<void> {
   webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
@@ -71,13 +73,17 @@ export async function loadJsonFromFilePath(
   );
   const projectId = parsingResult.metadata.projectId;
 
-  if (!fs.existsSync(manualAttributionFilePath)) {
+  const inputFileContent = fs.readFileSync(filePath, 'utf8');
+  const inputFileChecksum = md5(inputFileContent);
+
+  if (!fs.existsSync(manualAttributionFilePath) || overwriteOutputFile) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
     createOutputFile(
       manualAttributionFilePath,
       externalAttributions,
       parsingResult.resourcesToAttributions,
-      projectId
+      projectId,
+      inputFileChecksum
     );
     log.info('... Successfully created output file.');
   }
@@ -87,6 +93,7 @@ export async function loadJsonFromFilePath(
   const manualAttributions = parseRawAttributions(
     opossumOutputData.manualAttributions
   );
+  const outputFileChecksum = opossumOutputData.metadata.inputFileMD5Checksum;
   log.info('... Successfully parsed output file.');
 
   log.info('Parsing frequent licenses from input');
@@ -151,17 +158,59 @@ export async function loadJsonFromFilePath(
     spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
     spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
     projectTitle: parsingResult.metadata.projectTitle,
+    inputFileChecksum,
   };
   setGlobalBackendState(newGlobalBackendState);
 
+  log.info('Checking input file checksum');
+  if (outputFileChecksum === undefined) {
+    log.info('Checksum in the output file is undefined.');
+    const attributionFileContent: OpossumOutputFile = {
+      metadata: {
+        projectId,
+        fileCreationDate: String(Date.now()),
+        inputFileMD5Checksum: newGlobalBackendState.inputFileChecksum,
+      },
+      manualAttributions,
+      resourcesToAttributions: resourcesToExternalAttributions,
+      resolvedExternalAttributions: Array.from(
+        parsedFileContent.resolvedExternalAttributions
+      ),
+    };
+
+    writeJsonToFile(manualAttributionFilePath, attributionFileContent);
+  } else {
+    compareInputAndOutputChecksums(
+      inputFileChecksum,
+      outputFileChecksum,
+      webContents
+    );
+  }
+
   log.info('File import finished successfully');
+}
+
+export function compareInputAndOutputChecksums(
+  inputFileChecksum: string,
+  outputFileChecksum: string,
+  webContents: Electron.WebContents
+): void {
+  if (inputFileChecksum === outputFileChecksum) {
+    log.info('Checksum of the input file has not changed.');
+  } else {
+    log.info('Checksum of the input file has changed.');
+    webContents.send(AllowedFrontendChannels.ShowChangedInputFilePopup, {
+      showChangedInputFilePopup: true,
+    });
+  }
 }
 
 function createOutputFile(
   manualAttributionFilePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
-  projectId: string
+  projectId: string,
+  inputFileMD5Checksum: string
 ): void {
   const externalAttributionsCopy = cloneDeep(externalAttributions);
   const preselectedExternalAttributions = Object.fromEntries(
@@ -209,6 +258,7 @@ function createOutputFile(
     metadata: {
       projectId,
       fileCreationDate: String(Date.now()),
+      inputFileMD5Checksum,
     },
     manualAttributions: preselectedAttributions,
     resourcesToAttributions: preselectedAttributionsToResources,

@@ -20,7 +20,10 @@ import {
 import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { loadJsonFromFilePath } from '../importFromFile';
+import {
+  compareInputAndOutputChecksums,
+  loadJsonFromFilePath,
+} from '../importFromFile';
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import * as fs from 'fs';
 import * as zlib from 'zlib';
@@ -308,6 +311,42 @@ describe('Test of loading function', () => {
     deleteFolder(temporaryPath);
   });
 
+  test('Overwrite the existing attribution file', async () => {
+    const testUuid = 'test_uuid';
+    const temporaryPath: string = createTempFolder();
+    const jsonName = 'test.json';
+    const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
+    const attributionJsonPath = path.join(
+      upath.toUnix(temporaryPath),
+      'test_attributions.json'
+    );
+
+    writeJsonToFile(jsonPath, inputFileContent);
+    const attributions: OpossumOutputFile = {
+      metadata: validMetadata,
+      manualAttributions: {
+        [testUuid]: validAttribution,
+      },
+      resourcesToAttributions: {
+        '/path/1': [testUuid],
+      },
+      resolvedExternalAttributions: [],
+    };
+    writeJsonToFile(attributionJsonPath, attributions);
+
+    Date.now = jest.fn(() => 1);
+
+    await loadJsonFromFilePath(mainWindow.webContents, jsonPath, true);
+
+    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
+    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
+      AllowedFrontendChannels.FileLoaded,
+      expectedFileContent
+    );
+    expect(dialog.showMessageBox).not.toBeCalled();
+    deleteFolder(temporaryPath);
+  });
+
   test('Load file and parse json successfully, attribution file and preSelected attributions', async () => {
     const inputFileContentWithPreselectedAttribution: ParsedOpossumInputFile = {
       metadata: EMPTY_PROJECT_METADATA,
@@ -491,6 +530,23 @@ describe('Test of loading function', () => {
     );
     expect(dialog.showMessageBox).not.toBeCalled();
     deleteFolder(temporaryPath);
+  });
+
+  test('Test compareInputAndOutputChecksums', () => {
+    const inputFileChecksum = 'test_inputFileChecksum';
+    const outputFileChecksum = 'test_outputFileChecksum';
+
+    compareInputAndOutputChecksums(
+      inputFileChecksum,
+      outputFileChecksum,
+      mainWindow.webContents
+    );
+    expect(mainWindow.webContents.send).toBeCalledWith(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      {
+        showChangedInputFilePopup: true,
+      }
+    );
   });
 });
 

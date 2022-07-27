@@ -31,6 +31,7 @@ function removeListener(channel: AllowedFrontendChannels): void {
 const electronAPI: IElectronAPI = {
   openLink: (link: string) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: () => ipcRenderer.invoke(IpcChannel.OpenFile),
+  overwriteFile: () => ipcRenderer.invoke(IpcChannel.OverwriteFile),
   sendErrorInformation: (errorInformationArgs: SendErrorInformationArgs) =>
     ipcRenderer.invoke(IpcChannel.SendErrorInformation, errorInformationArgs),
   exportFile: (args: ExportArgsType) =>

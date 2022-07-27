@@ -30,6 +30,7 @@ import {
   getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
+  getOvewriteFileListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -136,7 +137,8 @@ describe('getOpenFileListener', () => {
       expect(openFileDialog).toBeCalled();
       expect(loadJsonFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
-        jsonPath
+        jsonPath,
+        false
       );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
     }
@@ -173,9 +175,31 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(loadJsonFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      expectedPath
+      expectedPath,
+      false
     );
     deleteFolder(temporaryPath);
+  });
+
+  test('overwrites attribution file', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    setGlobalBackendState({
+      resourceFilePath: '/somefile.json',
+    });
+
+    await getOvewriteFileListener(mainWindow)();
+
+    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      '/somefile.json',
+      true
+    );
   });
 
   test('handles _attributions.json files correctly if .json.gz present', async () => {
@@ -209,7 +233,8 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(loadJsonFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      expectedPath
+      expectedPath,
+      false
     );
     deleteFolder(temporaryPath);
   });

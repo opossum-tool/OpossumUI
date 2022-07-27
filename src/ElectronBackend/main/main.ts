@@ -17,6 +17,7 @@ import {
   getExportFileListener,
   getOpenFileListener,
   getOpenLinkListener,
+  getOvewriteFileListener,
   getSaveFileListener,
   getSendErrorInformationListener,
 } from './listeners';
@@ -41,6 +42,10 @@ export async function main(): Promise<void> {
 
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(webContents));
+    ipcMain.handle(
+      IpcChannel.OverwriteFile,
+      getOvewriteFileListener(mainWindow)
+    );
     ipcMain.handle(
       IpcChannel.SendErrorInformation,
       getSendErrorInformationListener(webContents)

@@ -24,4 +24,5 @@ export const EMPTY_FREQUENT_LICENSES: FrequentLicences = {
 export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
   projectId: '',
   fileCreationDate: '',
+  inputFileMD5Checksum: '',
 };
