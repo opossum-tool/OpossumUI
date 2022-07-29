@@ -95,8 +95,12 @@ describe('sanitizeRawAttributions', () => {
         followUp: FollowUp,
       },
     };
+    const expectedCriticalSignalsFlag = false;
 
-    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+    expect(parseRawAttributions(rawAttributions)).toEqual([
+      expectedAttributions,
+      expectedCriticalSignalsFlag,
+    ]);
   });
 
   test('removes unknown strings from followUp', () => {
@@ -108,8 +112,11 @@ describe('sanitizeRawAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {},
     };
-
-    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+    const expectedCriticalSignalsFlag = false;
+    expect(parseRawAttributions(rawAttributions)).toEqual([
+      expectedAttributions,
+      expectedCriticalSignalsFlag,
+    ]);
   });
 
   test('leaves non-empty comment unchanged', () => {
@@ -123,8 +130,12 @@ describe('sanitizeRawAttributions', () => {
         comment: 'Test comment',
       },
     };
+    const expectedcriticalSignalsFlag = false;
 
-    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+    expect(parseRawAttributions(rawAttributions)).toEqual([
+      expectedAttributions,
+      expectedcriticalSignalsFlag,
+    ]);
   });
 
   test('removes empty comment', () => {
@@ -136,8 +147,12 @@ describe('sanitizeRawAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {},
     };
+    const expectedCriticalSignalsFlag = false;
 
-    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+    expect(parseRawAttributions(rawAttributions)).toEqual([
+      expectedAttributions,
+      expectedCriticalSignalsFlag,
+    ]);
   });
 
   test('leaves criticality unchanged', () => {
@@ -151,8 +166,12 @@ describe('sanitizeRawAttributions', () => {
         criticality: Criticality.High,
       },
     };
+    const expectedcriticalSignalsFlag = true;
 
-    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+    expect(parseRawAttributions(rawAttributions)).toEqual([
+      expectedAttributions,
+      expectedcriticalSignalsFlag,
+    ]);
   });
 
   test('removes empty comment', () => {
@@ -164,8 +183,12 @@ describe('sanitizeRawAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {},
     };
+    const expectedcriticalSignalsFlag = false;
 
-    expect(parseRawAttributions(rawAttributions)).toEqual(expectedAttributions);
+    expect(parseRawAttributions(rawAttributions)).toEqual([
+      expectedAttributions,
+      expectedcriticalSignalsFlag,
+    ]);
   });
 });
 

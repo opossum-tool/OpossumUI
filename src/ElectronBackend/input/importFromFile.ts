@@ -61,9 +61,8 @@ export async function loadJsonFromFilePath(
   }
 
   log.info('... Successfully parsed input file.');
-  const externalAttributions = parseRawAttributions(
-    parsingResult.externalAttributions
-  );
+  const [externalAttributions, inputContainsCriticalSignals] =
+    parseRawAttributions(parsingResult.externalAttributions);
 
   const manualAttributionFilePath = getFilePathWithAppendix(
     filePath,
@@ -84,7 +83,7 @@ export async function loadJsonFromFilePath(
 
   log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
   const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
-  const manualAttributions = parseRawAttributions(
+  const [manualAttributions] = parseRawAttributions(
     opossumOutputData.manualAttributions
   );
   log.info('... Successfully parsed output file.');
@@ -151,6 +150,7 @@ export async function loadJsonFromFilePath(
     spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
     spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
     projectTitle: parsingResult.metadata.projectTitle,
+    inputContainsCriticalSignals,
   };
   setGlobalBackendState(newGlobalBackendState);
 

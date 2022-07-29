@@ -381,8 +381,8 @@ describe('Test of loading function', () => {
     };
 
     setGlobalBackendState(globalBackendState);
-
     await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+
     const expectedLoadedFile: ParsedFileContent = {
       metadata: EMPTY_PROJECT_METADATA,
       resources: { a: 1 },
