@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { ClearlyDefinedPackageCard } from './ClearlyDefinedPackageCard';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Validator } from 'jsonschema';
 import { PackageInfo } from '../../../shared/shared-types';

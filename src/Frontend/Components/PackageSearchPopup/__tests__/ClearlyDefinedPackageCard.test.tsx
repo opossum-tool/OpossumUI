@@ -4,7 +4,7 @@
 
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import React from 'react';
 import { ClearlyDefinedPackageCard } from '../ClearlyDefinedPackageCard';
