@@ -29,6 +29,7 @@ export interface GlobalBackendState {
   spdxYamlFilePath?: string;
   spdxJsonFilePath?: string;
   projectId?: string;
+  inputContainsCriticalSignals?: boolean;
 }
 
 interface RawPackageInfo {

@@ -128,7 +128,9 @@ export function cleanNonExistentResolvedExternalSignals(
 
 export function parseRawAttributions(
   rawAttributions: RawAttributions
-): Attributions {
+): [Attributions, boolean] {
+  let inputContainsCriticalSignals = false;
+
   for (const attributionId of Object.keys(rawAttributions)) {
     if (rawAttributions[attributionId]?.followUp !== FollowUp) {
       delete rawAttributions[attributionId].followUp;
@@ -140,9 +142,13 @@ export function parseRawAttributions(
     if (criticality && !Object.values(Criticality).includes(criticality)) {
       delete rawAttributions[attributionId].criticality;
     }
+
+    if (rawAttributions[attributionId]?.criticality) {
+      inputContainsCriticalSignals = true;
+    }
   }
 
-  return rawAttributions as Attributions;
+  return [rawAttributions as Attributions, inputContainsCriticalSignals];
 }
 
 export function parseFrequentLicenses(

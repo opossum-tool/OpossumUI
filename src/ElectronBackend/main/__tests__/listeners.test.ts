@@ -75,6 +75,7 @@ jest.mock('electron', () => ({
   Menu: {
     setApplicationMenu: jest.fn(),
     buildFromTemplate: jest.fn(),
+    getApplicationMenu: jest.fn(),
   },
   dialog: {
     showOpenDialogSync: jest.fn(),

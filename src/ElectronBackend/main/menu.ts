@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { app, BrowserWindow, Menu, shell } from 'electron';
+import { app, BrowserWindow, Menu, shell, WebContents } from 'electron';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { getOpenFileListener, getSelectBaseURLListener } from './listeners';
 import { getGlobalBackendState } from './globalBackendState';
@@ -16,6 +16,13 @@ import { ExportType } from '../../shared/shared-types';
 
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
+  const inputContainsCriticalSignals =
+    getGlobalBackendState().inputContainsCriticalSignals;
+  const isHighlightCriticalSignalMenuItemChecked =
+    getCheckedStatusAndSyncWithFrontend(
+      inputContainsCriticalSignals,
+      webContents
+    );
 
   return Menu.buildFromTemplate([
     {
@@ -161,7 +168,10 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         { label: 'Zoom Out', role: 'zoomOut' },
         {
           label: 'Highlight critical signals',
+          enabled: inputContainsCriticalSignals,
+          id: 'highlightCritical',
           type: 'checkbox',
+          checked: isHighlightCriticalSignalMenuItemChecked,
           click(): void {
             webContents.send(
               AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
@@ -210,4 +220,28 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       ],
     },
   ]);
+}
+
+function getCheckedStatusAndSyncWithFrontend(
+  inputContainsCriticalSignals = false,
+  webContents: WebContents
+): boolean {
+  let isHighlightCriticalSignalMenuItemChecked = Boolean(
+    Menu.getApplicationMenu()?.getMenuItemById('highlightCritical')?.checked
+  );
+
+  if (
+    isHighlightCriticalSignalMenuItemChecked &&
+    !inputContainsCriticalSignals
+  ) {
+    webContents.send(
+      AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
+      {
+        toggleHighlightForCriticalSignals: true,
+      }
+    );
+    isHighlightCriticalSignalMenuItemChecked = false;
+  }
+
+  return isHighlightCriticalSignalMenuItemChecked;
 }
