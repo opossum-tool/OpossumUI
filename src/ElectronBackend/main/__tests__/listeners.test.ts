@@ -16,7 +16,10 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
 } from '../../../shared/shared-types';
-import { loadJsonFromFilePath } from '../../input/importFromFile';
+import {
+  getFilePathWithAppendix,
+  loadJsonFromFilePath,
+} from '../../input/importFromFile';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
@@ -144,6 +147,18 @@ describe('getOpenFileListener', () => {
       expect(loadJsonFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
         jsonPath
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_attributions.json'
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_follow_up.csv'
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_compact_component_list.csv'
       );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
     }
