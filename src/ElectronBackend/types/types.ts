@@ -29,6 +29,7 @@ export interface GlobalBackendState {
   spdxYamlFilePath?: string;
   spdxJsonFilePath?: string;
   projectId?: string;
+  inputFileChecksum?: string;
 }
 
 interface RawPackageInfo {
@@ -82,6 +83,7 @@ export interface ParsedOpossumOutputFile {
   metadata: {
     projectId: string;
     fileCreationDate: string;
+    inputFileMD5Checksum?: string;
   };
   manualAttributions: RawAttributions;
   resourcesToAttributions: ResourcesToAttributions;
@@ -92,6 +94,7 @@ export interface OpossumOutputFile {
   metadata: {
     projectId: string;
     fileCreationDate: string;
+    inputFileMD5Checksum?: string;
   };
   manualAttributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;

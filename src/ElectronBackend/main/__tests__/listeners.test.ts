@@ -16,7 +16,10 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
 } from '../../../shared/shared-types';
-import { loadJsonFromFilePath } from '../../input/importFromFile';
+import {
+  getFilePathWithAppendix,
+  loadJsonFromFilePath,
+} from '../../input/importFromFile';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
@@ -24,6 +27,7 @@ import { createWindow } from '../createWindow';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   _exportFileAndOpenFolder,
+  getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getOpenFileListener,
   getOpenLinkListener,
@@ -33,12 +37,15 @@ import {
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
-import each from 'jest-each';
 
 import path from 'path';
 import upath from 'upath';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import each from 'jest-each';
+import fs from 'fs';
+import { ParsedOpossumInputFile } from '../../types/types';
+import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 
 jest.mock('electron', () => ({
   app: {
@@ -103,6 +110,7 @@ jest.mock('../../output/writeSpdxFile', () => ({
 
 jest.mock('../../input/importFromFile', () => ({
   loadJsonFromFilePath: jest.fn(),
+  getFilePathWithAppendix: jest.fn(),
 }));
 
 jest.mock('../dialogs', () => ({
@@ -115,8 +123,8 @@ MockDate.set(new Date(mockDate));
 
 describe('getOpenFileListener', () => {
   each([
-    ['json/path.json', 'path.json'],
-    ['json/path%20with%2Fencoding.json', 'path with/encoding.json'],
+    ['path.json', 'path.json'],
+    ['path%20with%2Fencoding.json', 'path with/encoding.json'],
   ]).test(
     'calls loadJsonFromFilePath and handles %s correctly',
     async (filePath: string, expectedTitle: string) => {
@@ -127,7 +135,9 @@ describe('getOpenFileListener', () => {
         setTitle: jest.fn(),
       } as unknown as BrowserWindow;
 
-      const jsonPath = filePath;
+      const temporaryPath: string = createTempFolder();
+      const jsonPath = path.join(upath.toUnix(temporaryPath), filePath);
+      fs.writeFileSync(jsonPath, 'dummy data');
       // @ts-ignore
       openFileDialog.mockReturnValueOnce([jsonPath]);
 
@@ -137,6 +147,18 @@ describe('getOpenFileListener', () => {
       expect(loadJsonFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
         jsonPath
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_attributions.json'
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_follow_up.csv'
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_compact_component_list.csv'
       );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
     }
@@ -176,6 +198,26 @@ describe('getOpenFileListener', () => {
       expectedPath
     );
     deleteFolder(temporaryPath);
+  });
+
+  test('overwrites attribution file', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    setGlobalBackendState({
+      resourceFilePath: '/somefile.json',
+    });
+
+    await getDeleteAndCreateNewAttributionFileListener(mainWindow)();
+
+    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      '/somefile.json'
+    );
   });
 
   test('handles _attributions.json files correctly if .json.gz present', async () => {
@@ -222,7 +264,29 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const jsonPath = 'json/path.json';
+    // @ts-ignore
+    loadJsonFromFilePath.mockImplementationOnce(
+      jest.requireActual('../../input/importFromFile').loadJsonFromFilePath
+    );
+    // @ts-ignore
+    writeJsonToFile.mockImplementationOnce(
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+    );
+
+    const temporaryPath: string = createTempFolder();
+    const jsonPath = path.join(upath.toUnix(temporaryPath), 'path.json');
+    const inputFileContent: ParsedOpossumInputFile = {
+      metadata: {
+        ...EMPTY_PROJECT_METADATA,
+        projectTitle: 'Test Title',
+      },
+      resources: {},
+      externalAttributions: {},
+      frequentLicenses: [],
+      resourcesToAttributions: {},
+      externalAttributionSources: {},
+    };
+    fs.writeFileSync(jsonPath, JSON.stringify(inputFileContent));
     // @ts-ignore
     openFileDialog.mockReturnValueOnce([jsonPath]);
 
