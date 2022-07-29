@@ -8,35 +8,34 @@ import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText } from '../../enums/enums';
-import { saveManualAndResolvedAttributionsToFile } from '../../state/actions/resource-actions/save-actions';
 
 export function ChangedInputFilePopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  function handleUpdateClick(): void {
-    dispatch(saveManualAndResolvedAttributionsToFile());
+  function handleKeepClick(): void {
+    window.electronAPI.keepFile();
     dispatch(closePopup());
   }
 
   function handleOverwriteClick(): void {
-    window.electronAPI.overwriteFile();
+    window.electronAPI.deleteFile();
     dispatch(closePopup());
   }
 
   const content =
-    'The input file has changed. Do you want to update the output file and continue to use it or completely overwrite it?';
+    'The input file has changed. Do you want to keep the old attribution file or delete it?';
 
   return (
     <NotificationPopup
       content={content}
       header={'Warning'}
       leftButtonConfig={{
-        onClick: handleUpdateClick,
-        buttonText: ButtonText.Update,
+        onClick: handleKeepClick,
+        buttonText: ButtonText.Keep,
       }}
       centerRightButtonConfig={{
         onClick: handleOverwriteClick,
-        buttonText: ButtonText.Overwrite,
+        buttonText: ButtonText.Delete,
       }}
       isOpen={true}
     />

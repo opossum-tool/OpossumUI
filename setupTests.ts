@@ -16,7 +16,8 @@ beforeAll(() => {
   global.window.electronAPI = {
     openLink: jest.fn().mockReturnValue(Promise.resolve()),
     openFile: jest.fn(),
-    overwriteFile: jest.fn(),
+    deleteFile: jest.fn(),
+    keepFile: jest.fn(),
     sendErrorInformation: jest.fn(),
     exportFile: jest.fn(),
     saveFile: jest.fn(),

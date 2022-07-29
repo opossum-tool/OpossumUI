@@ -11,31 +11,31 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { ChangedInputFilePopup } from '../ChangedInputFilePopup';
 
 describe('ChangedInputFilePopup', () => {
-  test('renders a ChangedInputFilePopup and clicks Overwrite', () => {
+  it('renders a ChangedInputFilePopup and clicks Delete', () => {
     const content =
-      'The input file has changed. Do you want to update the output file and continue to use it or completely overwrite it?';
+      'The input file has changed. Do you want to keep the old attribution file or delete it?';
 
     const { store } = renderComponentWithStore(<ChangedInputFilePopup />);
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
 
-    expect(screen.getByText(ButtonText.Overwrite));
-    fireEvent.click(screen.getByText(ButtonText.Overwrite));
-    expect(window.electronAPI.overwriteFile).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(ButtonText.Delete));
+    fireEvent.click(screen.getByText(ButtonText.Delete));
+    expect(window.electronAPI.deleteFile).toHaveBeenCalledTimes(1);
     expect(getOpenPopup(store.getState())).toBe(null);
   });
 
-  test('renders a ChangedInputFilePopup and clicks Update', () => {
+  it('renders a ChangedInputFilePopup and clicks Keep', () => {
     const content =
-      'The input file has changed. Do you want to update the output file and continue to use it or completely overwrite it?';
+      'The input file has changed. Do you want to keep the old attribution file or delete it?';
 
     const { store } = renderComponentWithStore(<ChangedInputFilePopup />);
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
 
-    expect(screen.getByText(ButtonText.Update));
-    fireEvent.click(screen.getByText(ButtonText.Update));
-    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(ButtonText.Keep));
+    fireEvent.click(screen.getByText(ButtonText.Keep));
+    expect(window.electronAPI.keepFile).toHaveBeenCalledTimes(1);
     expect(getOpenPopup(store.getState())).toBe(null);
   });
 });

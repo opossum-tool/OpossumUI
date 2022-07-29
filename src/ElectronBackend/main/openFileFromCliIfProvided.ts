@@ -18,6 +18,6 @@ export async function openFileFromCliIfProvided(
   }
 
   if (inputFileName) {
-    await openFile(mainWindow, inputFileName, false);
+    await openFile(mainWindow, inputFileName);
   }
 }

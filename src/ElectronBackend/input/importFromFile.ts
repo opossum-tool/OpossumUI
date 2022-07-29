@@ -45,8 +45,7 @@ function isJsonParsingError(
 
 export async function loadJsonFromFilePath(
   webContents: WebContents,
-  filePath: string,
-  overwriteOutputFile = false
+  filePath: string
 ): Promise<void> {
   webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
@@ -57,7 +56,7 @@ export async function loadJsonFromFilePath(
 
   if (isJsonParsingError(parsingResult)) {
     log.info('Invalid input file.');
-    await getMessageBoxForParsingError(parsingResult.message, webContents);
+    await getMessageBoxForParsingError(parsingResult.message);
 
     return;
   }
@@ -76,7 +75,7 @@ export async function loadJsonFromFilePath(
   const inputFileContent = fs.readFileSync(filePath, 'utf8');
   const inputFileChecksum = md5(inputFileContent);
 
-  if (!fs.existsSync(manualAttributionFilePath) || overwriteOutputFile) {
+  if (!fs.existsSync(manualAttributionFilePath)) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
     createOutputFile(
       manualAttributionFilePath,
@@ -93,7 +92,6 @@ export async function loadJsonFromFilePath(
   const manualAttributions = parseRawAttributions(
     opossumOutputData.manualAttributions
   );
-  const outputFileChecksum = opossumOutputData.metadata.inputFileMD5Checksum;
   log.info('... Successfully parsed output file.');
 
   log.info('Parsing frequent licenses from input');
@@ -144,6 +142,7 @@ export async function loadJsonFromFilePath(
   log.info('Updating global backend state');
   const newGlobalBackendState: GlobalBackendState = {
     projectId,
+    projectTitle: parsingResult.metadata.projectTitle,
     resourceFilePath: filePath,
     attributionFilePath: manualAttributionFilePath,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
@@ -157,52 +156,10 @@ export async function loadJsonFromFilePath(
     ),
     spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
     spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
-    projectTitle: parsingResult.metadata.projectTitle,
     inputFileChecksum,
   };
   setGlobalBackendState(newGlobalBackendState);
-
-  log.info('Checking input file checksum');
-  if (outputFileChecksum === undefined) {
-    log.info('Checksum in the output file is undefined.');
-    const attributionFileContent: OpossumOutputFile = {
-      metadata: {
-        projectId,
-        fileCreationDate: String(Date.now()),
-        inputFileMD5Checksum: newGlobalBackendState.inputFileChecksum,
-      },
-      manualAttributions,
-      resourcesToAttributions: resourcesToExternalAttributions,
-      resolvedExternalAttributions: Array.from(
-        parsedFileContent.resolvedExternalAttributions
-      ),
-    };
-
-    writeJsonToFile(manualAttributionFilePath, attributionFileContent);
-  } else {
-    compareInputAndOutputChecksums(
-      inputFileChecksum,
-      outputFileChecksum,
-      webContents
-    );
-  }
-
   log.info('File import finished successfully');
-}
-
-export function compareInputAndOutputChecksums(
-  inputFileChecksum: string,
-  outputFileChecksum: string,
-  webContents: Electron.WebContents
-): void {
-  if (inputFileChecksum === outputFileChecksum) {
-    log.info('Checksum of the input file has not changed.');
-  } else {
-    log.info('Checksum of the input file has changed.');
-    webContents.send(AllowedFrontendChannels.ShowChangedInputFilePopup, {
-      showChangedInputFilePopup: true,
-    });
-  }
 }
 
 function createOutputFile(
@@ -268,7 +225,7 @@ function createOutputFile(
   writeJsonToFile(manualAttributionFilePath, attributionJSON);
 }
 
-function getFilePathWithAppendix(
+export function getFilePathWithAppendix(
   resourceFilePath: fs.PathLike,
   appendix: string
 ): string {

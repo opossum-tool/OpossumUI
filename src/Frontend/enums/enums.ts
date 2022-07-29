@@ -57,8 +57,8 @@ export enum ButtonText {
   DeleteGlobally = 'Delete globally',
   DeleteSelectedGlobally = 'Delete selected globally',
   Hide = 'Hide',
+  Keep = 'Keep',
   MarkForReplacement = 'Mark for replacement',
-  Overwrite = 'Overwrite',
   Replace = 'Replace',
   ReplaceMarked = 'Replace marked',
   Save = 'Save',
@@ -67,7 +67,6 @@ export enum ButtonText {
   Undo = 'Undo',
   UnmarkForReplacement = 'Unmark for replacement',
   Unhide = 'Unhide',
-  Update = 'Update',
 }
 
 export enum FilterType {

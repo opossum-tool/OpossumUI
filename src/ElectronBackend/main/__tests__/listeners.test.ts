@@ -30,7 +30,7 @@ import {
   getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
-  getOvewriteFileListener,
+  getDeleteAndCreateNewAttributionFileListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -137,8 +137,7 @@ describe('getOpenFileListener', () => {
       expect(openFileDialog).toBeCalled();
       expect(loadJsonFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
-        jsonPath,
-        false
+        jsonPath
       );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
     }
@@ -175,8 +174,7 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(loadJsonFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      expectedPath,
-      false
+      expectedPath
     );
     deleteFolder(temporaryPath);
   });
@@ -193,12 +191,11 @@ describe('getOpenFileListener', () => {
       resourceFilePath: '/somefile.json',
     });
 
-    await getOvewriteFileListener(mainWindow)();
+    await getDeleteAndCreateNewAttributionFileListener(mainWindow)();
 
     expect(loadJsonFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      '/somefile.json',
-      true
+      '/somefile.json'
     );
   });
 
@@ -233,8 +230,7 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(loadJsonFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      expectedPath,
-      false
+      expectedPath
     );
     deleteFolder(temporaryPath);
   });
@@ -250,7 +246,10 @@ describe('getOpenFileListener', () => {
     const jsonPath = 'json/path.json';
     // @ts-ignore
     openFileDialog.mockReturnValueOnce([jsonPath]);
-
+    /*getChecksums.mockReturnValue({
+      inputFileChecksum: 'input_checksum',
+      outputFileChecksum: 'output_checksum',
+    });*/
     setGlobalBackendState({
       projectTitle: 'Test Title',
     });

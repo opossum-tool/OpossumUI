@@ -7,10 +7,11 @@
 export enum IpcChannel {
   ExportFile = 'export-file',
   OpenFile = 'open-file',
-  OverwriteFile = 'overwrite-file',
+  DeleteFile = 'delete-file',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   SendErrorInformation = 'send-error-information',
+  KeepFile = 'keep-file',
 }
 
 export enum AllowedFrontendChannels {

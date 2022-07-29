@@ -22,17 +22,28 @@ import {
   createListenerCallbackWithErrorHandling,
   getMessageBoxForErrors,
 } from '../errorHandling/errorHandling';
-import { loadJsonFromFilePath } from '../input/importFromFile';
+import {
+  getFilePathWithAppendix,
+  loadJsonFromFilePath,
+} from '../input/importFromFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeJsonToFile } from '../output/writeJsonToFile';
-import { KeysOfAttributionInfo, OpossumOutputFile } from '../types/types';
-import { getGlobalBackendState } from './globalBackendState';
+import {
+  GlobalBackendState,
+  KeysOfAttributionInfo,
+  OpossumOutputFile,
+} from '../types/types';
+import {
+  getGlobalBackendState,
+  setGlobalBackendState,
+} from './globalBackendState';
 import { loadApplication } from './createWindow';
 import { openFileDialog, selectBaseURLDialog } from './dialogs';
-
 import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
+import { parseOpossumOutputFile } from '../input/parseFile';
+import md5 from 'md5';
 
 export function getSaveFileListener(
   webContents: WebContents
@@ -92,31 +103,129 @@ export function getOpenFileListener(
         filePath = tryToGetInputFileFromOutputFile(filePath);
       }
 
-      await openFile(mainWindow, filePath);
+      const checksums = getChecksums(filePath);
+      console.log(checksums);
+
+      log.info('Creating global backend state');
+      updateGlobalBackendState(filePath, checksums.inputFileChecksum);
+
+      log.info('Checking input file checksum');
+      await openFileOrShowChangedInputFilePopup(
+        checksums,
+        mainWindow,
+        filePath
+      );
     }
   );
 }
 
-export function getOvewriteFileListener(
+export function getChecksums(filePath: string): {
+  inputFileChecksum: string;
+  outputFileChecksum: string;
+} {
+  const manualAttributionFilePath = getFilePathWithAppendix(
+    filePath,
+    '_attributions.json'
+  );
+  const inputFileContent = fs.readFileSync(filePath, 'utf8');
+  const inputFileChecksum = md5(inputFileContent);
+  let outputFileChecksum = '';
+
+  if (fs.existsSync(manualAttributionFilePath)) {
+    const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
+    outputFileChecksum = opossumOutputData.metadata.inputFileMD5Checksum ?? '';
+  }
+  return { inputFileChecksum, outputFileChecksum };
+}
+
+export function updateGlobalBackendState(
+  filePath: string,
+  inputFileChecksum: string
+): void {
+  const newGlobalBackendState: GlobalBackendState = {
+    resourceFilePath: filePath,
+    attributionFilePath: getFilePathWithAppendix(
+      filePath,
+      '_attributions.json'
+    ),
+    followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
+    compactBomFilePath: getFilePathWithAppendix(
+      filePath,
+      '_compact_component_list.csv'
+    ),
+    detailedBomFilePath: getFilePathWithAppendix(
+      filePath,
+      '_detailed_component_list.csv'
+    ),
+    spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
+    spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
+    inputFileChecksum,
+  };
+  setGlobalBackendState(newGlobalBackendState);
+}
+
+async function openFileOrShowChangedInputFilePopup(
+  checksums: {
+    inputFileChecksum: string;
+    outputFileChecksum: string;
+  },
+  mainWindow: BrowserWindow,
+  filePath: string
+): Promise<void> {
+  if (
+    checksums.inputFileChecksum === checksums.outputFileChecksum ||
+    !checksums.outputFileChecksum
+  ) {
+    log.info('Checksum of the input file has not changed.');
+    await openFile(mainWindow, filePath);
+  } else {
+    log.info('Checksum of the input file has changed.');
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      {
+        showChangedInputFilePopup: true,
+      }
+    );
+  }
+}
+
+export function getKeepFileListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(
     mainWindow.webContents,
     async () => {
-      let filePath: string;
-      const globalBackendState = getGlobalBackendState();
-      if (globalBackendState.resourceFilePath) {
-        filePath = globalBackendState.resourceFilePath;
-      } else {
-        throw new Error(
-          'Failed to open input file. Resource file path is incorrect:' +
-            `\n${globalBackendState.resourceFilePath}`
-        );
-      }
-
-      await openFile(mainWindow, filePath, true);
+      const filePath = getFilePath();
+      await openFile(mainWindow, filePath);
     }
   );
+}
+
+export function getDeleteAndCreateNewAttributionFileListener(
+  mainWindow: BrowserWindow
+): () => Promise<void> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow.webContents,
+    async () => {
+      const filePath = getFilePath();
+      fs.unlinkSync(getGlobalBackendState().attributionFilePath ?? '');
+      await openFile(mainWindow, filePath);
+    }
+  );
+}
+
+function getFilePath(): string {
+  let filePath: string;
+  const globalBackendState = getGlobalBackendState();
+  if (globalBackendState.resourceFilePath) {
+    filePath = globalBackendState.resourceFilePath;
+  } else {
+    throw new Error(
+      'Failed to open input file. Resource file path is incorrect:' +
+        `\n${globalBackendState.resourceFilePath}`
+    );
+  }
+  return filePath;
 }
 
 export function getSelectBaseURLListener(webContents: WebContents): () => void {
@@ -151,17 +260,12 @@ function tryToGetInputFileFromOutputFile(filePath: string): string {
 
 export async function openFile(
   mainWindow: BrowserWindow,
-  filePath: string,
-  overwriteOutputFile = false
+  filePath: string
 ): Promise<void> {
   const loadingWindow = await openLoadingWindow(mainWindow);
 
   try {
-    await loadJsonFromFilePath(
-      mainWindow.webContents,
-      filePath,
-      overwriteOutputFile
-    );
+    await loadJsonFromFilePath(mainWindow.webContents, filePath);
     setTitle(mainWindow, filePath);
   } finally {
     loadingWindow.close();

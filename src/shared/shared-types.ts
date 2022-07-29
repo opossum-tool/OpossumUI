@@ -197,7 +197,8 @@ export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 export interface IElectronAPI {
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
-  overwriteFile: () => Promise<unknown>;
+  deleteFile: () => Promise<unknown>;
+  keepFile: () => Promise<unknown>;
   sendErrorInformation: (
     errorInformationArgs: SendErrorInformationArgs
   ) => void;
