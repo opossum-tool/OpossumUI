@@ -3,18 +3,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { aggregateLicensesAndSourcesFromSignals } from '../project-statistics-popup-helpers';
-import { PackageInfo } from '../../../../shared/shared-types';
+import {
+  aggregateAttributionPropertiesFromAttributions,
+  aggregateLicensesAndSourcesFromAttributions,
+} from '../project-statistics-popup-helpers';
+import { FollowUp, PackageInfo } from '../../../../shared/shared-types';
 
 describe('The ProjectStatisticsPopup helper', () => {
-  test('counts licenses and sources', () => {
-    const testExternalAttributions: PackageInfo[] = [
+  test('counts licenses, sources and attribution propertes', () => {
+    const testAttributions: Array<PackageInfo> = [
       {
         source: {
           name: 'SC',
           documentConfidence: 10,
         },
         licenseName: 'test-license-name',
+        firstParty: true,
       },
       {
         source: {
@@ -22,6 +26,7 @@ describe('The ProjectStatisticsPopup helper', () => {
           documentConfidence: 90,
         },
         licenseName: 'test-license-name',
+        followUp: FollowUp,
       },
       {
         source: {
@@ -29,6 +34,7 @@ describe('The ProjectStatisticsPopup helper', () => {
           documentConfidence: 90,
         },
         licenseName: 'test-license-name_1',
+        firstParty: true,
       },
     ];
 
@@ -39,16 +45,23 @@ describe('The ProjectStatisticsPopup helper', () => {
       },
     };
 
-    const signalCountPerSourcePerLicense =
-      aggregateLicensesAndSourcesFromSignals(
-        testExternalAttributions,
+    const attributionCountPerSourcePerLicense =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions,
         externalAttributions
       )[0];
-
-    expect(signalCountPerSourcePerLicense).toEqual({
+    expect(attributionCountPerSourcePerLicense).toEqual({
       'test-license-name': { Total: 2, reuser: 1, ScanCode: 1 },
       'test-license-name_1': { Total: 1, reuser: 1 },
       Total: { Total: 3, reuser: 2, ScanCode: 1 },
+    });
+
+    const attributionPropertyCounts =
+      aggregateAttributionPropertiesFromAttributions(testAttributions);
+    expect(attributionPropertyCounts).toEqual({
+      followUp: 1,
+      firstParty: 2,
+      'Total Attributions': 3,
     });
   });
 });
