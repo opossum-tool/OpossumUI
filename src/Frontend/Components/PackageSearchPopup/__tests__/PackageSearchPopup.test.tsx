@@ -8,7 +8,7 @@ import { PackageSearchPopup } from '../PackageSearchPopup';
 import { act, fireEvent, screen } from '@testing-library/react';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 describe('PackageSearchPopup', () => {
   beforeAll(() => {

@@ -8,7 +8,7 @@ import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   AccordionWorkersContextProvider,
   ProgressBarWorkerContextProvider,
