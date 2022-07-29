@@ -14,7 +14,7 @@ import {
   AttributionsToResources,
   ParsedFileContent,
 } from '../../shared/shared-types';
-import { setGlobalBackendState } from '../main/globalBackendState';
+import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalSignals,
@@ -25,7 +25,6 @@ import {
 } from './parseInputData';
 import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
 import {
-  GlobalBackendState,
   JsonParsingError,
   OpossumOutputFile,
   ParsedOpossumInputFile,
@@ -86,14 +85,12 @@ export async function loadJsonFromFilePath(
     );
     log.info('... Successfully created output file.');
   }
-
   log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
   const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
   const manualAttributions = parseRawAttributions(
     opossumOutputData.manualAttributions
   );
   log.info('... Successfully parsed output file.');
-
   log.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsingResult.frequentLicenses
@@ -104,7 +101,6 @@ export async function loadJsonFromFilePath(
     parsingResult.resources,
     parsingResult.resourcesToAttributions
   );
-
   log.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
     metadata: parsingResult.metadata,
@@ -140,25 +136,10 @@ export async function loadJsonFromFilePath(
   webContents.send(AllowedFrontendChannels.FileLoaded, parsedFileContent);
 
   log.info('Updating global backend state');
-  const newGlobalBackendState: GlobalBackendState = {
-    projectId,
-    projectTitle: parsingResult.metadata.projectTitle,
-    resourceFilePath: filePath,
-    attributionFilePath: manualAttributionFilePath,
-    followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
-    compactBomFilePath: getFilePathWithAppendix(
-      filePath,
-      '_compact_component_list.csv'
-    ),
-    detailedBomFilePath: getFilePathWithAppendix(
-      filePath,
-      '_detailed_component_list.csv'
-    ),
-    spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
-    spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
-    inputFileChecksum,
-  };
-  setGlobalBackendState(newGlobalBackendState);
+
+  getGlobalBackendState().projectTitle = parsingResult.metadata.projectTitle;
+  getGlobalBackendState().projectId = projectId;
+
   log.info('File import finished successfully');
 }
 

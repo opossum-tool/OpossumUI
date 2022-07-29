@@ -104,7 +104,6 @@ export function getOpenFileListener(
       }
 
       const checksums = getChecksums(filePath);
-      console.log(checksums);
 
       log.info('Creating global backend state');
       updateGlobalBackendState(filePath, checksums.inputFileChecksum);
@@ -274,6 +273,7 @@ export async function openFile(
 
 function setTitle(mainWindow: BrowserWindow, filePath: string): void {
   const defaultTitle = 'OpossumUI';
+
   mainWindow.setTitle(
     getGlobalBackendState().projectTitle ||
       decodeURIComponent(filePath.split('/').pop() || defaultTitle)
