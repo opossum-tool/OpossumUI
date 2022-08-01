@@ -5,7 +5,7 @@
 
 import React, { ReactElement, useState } from 'react';
 import MuiTypography from '@mui/material/Typography';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import MuiSkeleton from '@mui/material/Skeleton';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
