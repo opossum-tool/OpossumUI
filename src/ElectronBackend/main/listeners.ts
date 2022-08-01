@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { BrowserWindow, shell, WebContents } from 'electron';
+import { BrowserWindow, Menu, shell, WebContents } from 'electron';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportArgsType,
@@ -33,6 +33,7 @@ import { openFileDialog, selectBaseURLDialog } from './dialogs';
 import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
+import { createMenu } from './menu';
 
 export function getSaveFileListener(
   webContents: WebContents
@@ -135,6 +136,8 @@ export async function openFile(
   try {
     await loadJsonFromFilePath(mainWindow.webContents, filePath);
     setTitle(mainWindow, filePath);
+    mainWindow.removeMenu();
+    Menu.setApplicationMenu(createMenu(mainWindow));
   } finally {
     loadingWindow.close();
   }
