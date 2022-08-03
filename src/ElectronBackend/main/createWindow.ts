@@ -36,6 +36,7 @@ export async function createWindow(): Promise<BrowserWindow> {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: false,
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
     icon: getIconPath(),
