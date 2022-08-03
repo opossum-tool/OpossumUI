@@ -17,7 +17,7 @@ import { TopBar } from '../TopBar';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 
 describe('TopBar', () => {
-  test('renders an Open file icon', () => {
+  it('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
     expect(window.electronAPI.on).toHaveBeenCalledTimes(10);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
@@ -66,7 +66,7 @@ describe('TopBar', () => {
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
   });
 
-  test('switches between views', () => {
+  it('switches between views', () => {
     const { store } = renderComponentWithStore(<TopBar />);
 
     fireEvent.click(screen.queryByText('Audit') as Element);

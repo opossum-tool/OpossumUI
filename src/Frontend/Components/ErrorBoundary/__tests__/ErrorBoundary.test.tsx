@@ -21,7 +21,7 @@ describe('ErrorBoundary', () => {
     return <div>{'Test'}</div>;
   }
 
-  test('renders its children', () => {
+  it('renders its children', () => {
     renderComponentWithStore(
       <ErrorBoundary>
         <TestComponent throws={false} />
@@ -34,7 +34,7 @@ describe('ErrorBoundary', () => {
     screen.getByText('Test');
   });
 
-  test('renders fallback and restores state', () => {
+  it('renders fallback and restores state', () => {
     // we expect warnings that we do not want to see
     jest.spyOn(console, 'error').mockImplementation();
 

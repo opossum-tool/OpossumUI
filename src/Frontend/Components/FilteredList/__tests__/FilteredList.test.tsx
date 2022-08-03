@@ -10,7 +10,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { FilteredList } from '../FilteredList';
 
 describe('The FilteredList', () => {
-  test('has search functionality', () => {
+  it('has search functionality', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'name 1',

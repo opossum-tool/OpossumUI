@@ -91,7 +91,7 @@ describe('The ContextMenu', () => {
       '/fifthResource.js': ['uuid_2'],
     };
 
-    test('work correctly for non-pre-selected attributions', () => {
+    it('work correctly for non-pre-selected attributions', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -180,7 +180,7 @@ describe('The ContextMenu', () => {
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
     });
 
-    test('work correctly for pre-selected attributions', () => {
+    it('work correctly for pre-selected attributions', () => {
       const testManualAttributionsPreSelected = {
         ...testExpandedManualAttributions,
         uuid_1: {
@@ -280,7 +280,7 @@ describe('The ContextMenu', () => {
     });
   });
 
-  test('show resource button opens working popup with file list when clicking on show resources icon', () => {
+  it('show resource button opens working popup with file list when clicking on show resources icon', () => {
     const testResources: Resources = {
       folder1: { 'firstResource.js': 1 },
       'secondResource.js': 1,

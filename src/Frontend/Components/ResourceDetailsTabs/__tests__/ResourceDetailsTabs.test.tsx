@@ -18,7 +18,7 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 
 describe('The ResourceDetailsTabs', () => {
-  test('switches between tabs', () => {
+  it('switches between tabs', () => {
     const testResources: Resources = {
       root: {
         fileWithoutAttribution: 1,
@@ -55,7 +55,7 @@ describe('The ResourceDetailsTabs', () => {
     expect(screen.getByText('Signals'));
   });
 
-  test('has All Attributions Tab disabled when no addable attribution is present', () => {
+  it('has All Attributions Tab disabled when no addable attribution is present', () => {
     const testResources: Resources = {
       fileWithAttribution: 1,
     };

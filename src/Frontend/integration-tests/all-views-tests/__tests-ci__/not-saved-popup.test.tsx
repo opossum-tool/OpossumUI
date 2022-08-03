@@ -79,7 +79,7 @@ describe('Not saved popup of the app', () => {
     mockElectronBackend(mockChannelReturn);
   }
 
-  test('switches between views', () => {
+  it('switches between views', () => {
     loadMockFileContent();
     renderComponentWithStore(<App />);
     clickOnOpenFileIcon(screen);
@@ -98,7 +98,7 @@ describe('Not saved popup of the app', () => {
     expectResourceBrowserIsNotShown(screen);
   });
 
-  test('shows working unsaved popup switching from standard view to attribution view', () => {
+  it('shows working unsaved popup switching from standard view to attribution view', () => {
     loadMockFileContent();
     renderComponentWithStore(<App />);
     clickOnOpenFileIcon(screen);
@@ -136,7 +136,7 @@ describe('Not saved popup of the app', () => {
     expectResourceBrowserIsNotShown(screen);
   });
 
-  test('shows working unsaved popup switching from standard view to Report', () => {
+  it('shows working unsaved popup switching from standard view to Report', () => {
     loadMockFileContent();
     renderComponentWithStore(<App />);
     clickOnOpenFileIcon(screen);
@@ -165,7 +165,7 @@ describe('Not saved popup of the app', () => {
     expectValueInTextBox(screen, 'Version', '1.1.1');
   });
 
-  test('shows unsaved popup switching from attribution view to standard view', () => {
+  it('shows unsaved popup switching from attribution view to standard view', () => {
     loadMockFileContent();
     renderComponentWithStore(<App />);
     clickOnOpenFileIcon(screen);
@@ -228,7 +228,7 @@ describe('Not saved popup of the app', () => {
     getElementInResourceBrowser(screen, 'root');
   });
 
-  test(
+  it(
     'shows working unsaved popup when adding attribution or signal' +
       ' while modified attribution exists',
     () => {
@@ -253,7 +253,7 @@ describe('Not saved popup of the app', () => {
     }
   );
 
-  test('does not show NotSavedPopup when nothing was modified', () => {
+  it('does not show NotSavedPopup when nothing was modified', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -300,7 +300,7 @@ describe('Not saved popup of the app', () => {
     expectUnsavedChangesPopupIsNotShown(screen);
   });
 
-  test('shows NotSavedPopup if something was modified and buttons work', () => {
+  it('shows NotSavedPopup if something was modified and buttons work', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {

@@ -28,7 +28,7 @@ import { FolderProgressBar } from '../FolderProgressBar';
 
 describe('FolderProgressBar', () => {
   jest.useFakeTimers();
-  test('renders correctly', () => {
+  it('renders correctly', () => {
     const testResources: Resources = {
       folder1: { file1: 1, file2: 1 },
       folder2: { file1: 1, file2: 1 },
@@ -106,7 +106,7 @@ describe('FolderProgressBar', () => {
     ).toBeDefined();
   });
 
-  test('renders correctly if folder has an attribution', () => {
+  it('renders correctly if folder has an attribution', () => {
     const testResources: Resources = {
       folder1: { file1: 1, file2: 1 },
       folder2: { file1: 1, file2: 1 },

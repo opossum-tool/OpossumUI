@@ -9,7 +9,7 @@ import React from 'react';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup';
 
 describe('The ConfirmDeletionGloballyPopup', () => {
-  test('renders', () => {
+  it('renders', () => {
     const expectedContent =
       'Do you really want to delete this attribution for all files?';
     const expectedHeader = 'Confirm Deletion';

@@ -43,7 +43,7 @@ jest.mock('electron', () => ({
   },
 }));
 describe('The App backend', () => {
-  test('handles errors', async () => {
+  it('handles errors', async () => {
     // we expect warnings that we do not want to see
     jest.spyOn(console, 'log');
 

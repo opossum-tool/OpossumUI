@@ -13,7 +13,7 @@ describe('The FileSearchTextField', () => {
   jest.useFakeTimers('modern');
   const debounceDelayInMs = 200;
 
-  test('renders', () => {
+  it('renders', () => {
     const setFilteredPaths = jest.fn();
     renderComponentWithStore(
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />
@@ -21,7 +21,7 @@ describe('The FileSearchTextField', () => {
     screen.getAllByText('Search');
   });
 
-  test('calls callback after debounce time', () => {
+  it('calls callback after debounce time', () => {
     const setFilteredPaths = jest.fn();
     renderComponentWithStore(
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />

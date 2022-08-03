@@ -42,7 +42,7 @@ describe('The PackagePanelCard', () => {
     },
   };
 
-  test('renders content', () => {
+  it('renders content', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -64,7 +64,7 @@ describe('The PackagePanelCard', () => {
     expect(screen.getByText('Test'));
   });
 
-  test('renders only first party icon and show resources icon', () => {
+  it('renders only first party icon and show resources icon', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -94,7 +94,7 @@ describe('The PackagePanelCard', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('renders many icons at once', () => {
+  it('renders many icons at once', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -119,7 +119,7 @@ describe('The PackagePanelCard', () => {
     expect(screen.getByLabelText('Follow-up icon'));
   });
 
-  test('renders pre-selected icon and show resources icon', () => {
+  it('renders pre-selected icon and show resources icon', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -142,7 +142,7 @@ describe('The PackagePanelCard', () => {
     expect(screen.getAllByLabelText('show resources'));
   });
 
-  test('has working resources icon', () => {
+  it('has working resources icon', () => {
     const manualAttributions: Attributions = {
       uuid_1: { packageName: 'Test package' },
     };

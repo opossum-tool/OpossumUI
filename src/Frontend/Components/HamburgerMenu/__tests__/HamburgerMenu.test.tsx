@@ -11,7 +11,7 @@ import { ButtonText } from '../../../enums/enums';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
 
 describe('The HamburgerMenu', () => {
-  test('is disabled if no enabled button present', () => {
+  it('is disabled if no enabled button present', () => {
     const menuItems: Array<ContextMenuItem> = [
       {
         buttonText: ButtonText.Undo,

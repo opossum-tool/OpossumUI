@@ -11,7 +11,7 @@ import { SxProps } from '@mui/material';
 import { SystemStyleObject } from '@mui/system/styleFunctionSx';
 
 describe('getSxFromPropsAndClasses', () => {
-  test('takes styleClass as only input', () => {
+  it('takes styleClass as only input', () => {
     const testStyleClass: SystemStyleObject = { padding: '6px' };
     const expectedSx: MuiSx = [testStyleClass, {}];
 
@@ -20,7 +20,7 @@ describe('getSxFromPropsAndClasses', () => {
     );
   });
 
-  test('takes sxProps object as only input', () => {
+  it('takes sxProps object as only input', () => {
     const testSxProps: SxProps = { margin: '12px' };
     const expectedSx: MuiSx = [{}, testSxProps];
 
@@ -29,7 +29,7 @@ describe('getSxFromPropsAndClasses', () => {
     );
   });
 
-  test('takes sxProps array as only input', () => {
+  it('takes sxProps array as only input', () => {
     const testSxProps: SxProps = [{ margin: '12px' }, { border: '1.5px' }];
     const expectedSx: MuiSx = [{}, ...testSxProps];
 
@@ -38,7 +38,7 @@ describe('getSxFromPropsAndClasses', () => {
     );
   });
 
-  test('takes styleClass and sxProps as input', () => {
+  it('takes styleClass and sxProps as input', () => {
     const testStyleClass: SystemStyleObject = { padding: '6px' };
     const testSxProps: SxProps = { margin: '12px' };
     const expectedSx: MuiSx = [testStyleClass, testSxProps];

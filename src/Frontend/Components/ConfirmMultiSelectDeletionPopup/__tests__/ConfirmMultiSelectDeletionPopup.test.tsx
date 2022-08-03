@@ -25,7 +25,7 @@ import { ButtonText } from '../../../enums/enums';
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 
 describe('The ConfirmMultiSelectDeletionPopup', () => {
-  test('renders', () => {
+  it('renders', () => {
     const expectedContent =
       'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.';
     const expectedHeader = 'Confirm Deletion';
@@ -43,7 +43,7 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
   });
 
-  test('deletes attributions', () => {
+  it('deletes attributions', () => {
     const expectedContent =
       'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.';
     const expectedHeader = 'Confirm Deletion';

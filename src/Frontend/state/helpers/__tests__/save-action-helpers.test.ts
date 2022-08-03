@@ -24,7 +24,7 @@ import {
 const testUuid: string = uuidNil;
 
 describe('The createManualAttribution function', () => {
-  test('adds a new manual attribution', () => {
+  it('adds a new manual attribution', () => {
     const testManualData: AttributionData = EMPTY_ATTRIBUTION_DATA;
     const testSelectedResourceId = '/something.js';
     const testTemporaryPackageInfo: PackageInfo = { packageName: 'React' };
@@ -44,7 +44,7 @@ describe('The createManualAttribution function', () => {
 });
 
 describe('The deleteManualAttribution function', () => {
-  test('deletes an empty manual attribution', () => {
+  it('deletes an empty manual attribution', () => {
     const testManualData: AttributionData = {
       attributions: {
         [testUuid]: {
@@ -74,7 +74,7 @@ describe('The deleteManualAttribution function', () => {
     expect(isEmpty(newManualData.resourcesWithAttributedChildren)).toBe(true);
   });
 
-  test('correctly maintains childrenFromAttributedResources', () => {
+  it('correctly maintains childrenFromAttributedResources', () => {
     const testAnotherUuid = '000';
     const testManualData: AttributionData = {
       attributions: {
@@ -119,7 +119,7 @@ describe('The deleteManualAttribution function', () => {
 });
 
 describe('The updateManualAttribution function', () => {
-  test('updates an existing manual attribution', () => {
+  it('updates an existing manual attribution', () => {
     const testPackageInfo: PackageInfo = { packageName: 'Vue' };
     const testTemporaryPackageInfo: PackageInfo = {
       packageName: 'React',
@@ -160,7 +160,7 @@ describe('The updateManualAttribution function', () => {
 });
 
 describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
-  test('three matching', () => {
+  it('three matching', () => {
     const testManualData: AttributionData = {
       attributions: {
         uuid1: {
@@ -212,7 +212,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
 
-  test('matching and non-matching children attributions', () => {
+  it('matching and non-matching children attributions', () => {
     const testManualData: AttributionData = {
       attributions: {
         uuid1: {
@@ -318,7 +318,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
 });
 
 describe('_removeAttributionsFromChildrenAndParents', () => {
-  test('matching and non-matching children attributions', () => {
+  it('matching and non-matching children attributions', () => {
     const testManualData: AttributionData = {
       attributions: {
         uuid1: {
@@ -419,7 +419,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
 
-  test('child has subset of attributions from parent', () => {
+  it('child has subset of attributions from parent', () => {
     const testManualData: AttributionData = {
       attributions: {
         uuid1: {
@@ -504,7 +504,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
 });
 
 describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () => {
-  test('returns only parents linked to the same attribution', () => {
+  it('returns only parents linked to the same attribution', () => {
     const testResourceId = '/parent/resource';
     const testAttributionId = 'ATTRIBUTION_ID';
     const expectedOutput = ['/parent/', testResourceId];
@@ -521,7 +521,7 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
     ).toEqual(expectedOutput);
   });
 
-  test('returns only itself & parents if the resource cannot have children', () => {
+  it('returns only itself & parents if the resource cannot have children', () => {
     const testResourceId = '/parent/resource';
     const testAttributionId = 'ATTRIBUTION_ID';
     const expectedOutput = ['/parent/', testResourceId];
@@ -540,7 +540,7 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
     ).toEqual(expectedOutput);
   });
 
-  test('returns itself & parents and children linked to the same attribution', () => {
+  it('returns itself & parents and children linked to the same attribution', () => {
     const testResourceId = '/parent/resource/';
     const testAttributionId = 'ATTRIBUTION_ID';
     const expectedOutput = [

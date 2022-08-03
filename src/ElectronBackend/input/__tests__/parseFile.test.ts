@@ -107,7 +107,7 @@ describe('parseResources', () => {
     jest.resetAllMocks();
   });
 
-  test('reads an input.json file correctly', async () => {
+  it('reads an input.json file correctly', async () => {
     const testFileContent = correctInput;
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
@@ -121,7 +121,7 @@ describe('parseResources', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('reads custom metadata correctly', async () => {
+  it('reads custom metadata correctly', async () => {
     const testFileContent = {
       ...correctInput,
       metadata: {
@@ -147,7 +147,7 @@ describe('parseResources', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('returns JSONParsingError on an incorrect Resource.json file', async () => {
+  it('returns JSONParsingError on an incorrect Resource.json file', async () => {
     const testFileContent = corruptInput;
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
@@ -164,7 +164,7 @@ describe('parseResources', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('reads an input.json.gz file correctly', async () => {
+  it('reads an input.json.gz file correctly', async () => {
     const testFileContent = zlib.gzipSync(JSON.stringify(correctInput));
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
@@ -178,7 +178,7 @@ describe('parseResources', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('returns JSONParsingError on an incorrect Resource.json.gz file', async () => {
+  it('returns JSONParsingError on an incorrect Resource.json.gz file', async () => {
     const testFileContent = zlib.gzipSync(JSON.stringify(corruptInput));
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
@@ -224,7 +224,7 @@ describe('parseOpossumOutputFile', () => {
     jest.resetAllMocks();
   });
 
-  test('reads a correct file', () => {
+  it('reads a correct file', () => {
     const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
@@ -238,7 +238,7 @@ describe('parseOpossumOutputFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('throws when reading an incorrect file', () => {
+  it('throws when reading an incorrect file', () => {
     const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
@@ -255,7 +255,7 @@ describe('parseOpossumOutputFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('tolerates an attribution file with wrong projectId', () => {
+  it('tolerates an attribution file with wrong projectId', () => {
     const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),

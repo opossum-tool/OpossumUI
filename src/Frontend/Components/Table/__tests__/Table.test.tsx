@@ -12,7 +12,7 @@ import { screen } from '@testing-library/react';
 import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The Table', () => {
-  test('renders', () => {
+  it('renders', () => {
     const testAttributionsWithResources: AttributionsWithResources = {
       uuid1: {
         packageName: 'React',

@@ -58,7 +58,7 @@ describe('The AttributionList', () => {
     jest.clearAllMocks();
   });
 
-  test('renders', () => {
+  it('renders', () => {
     renderComponentWithStore(
       <AttributionList
         attributions={packages}
@@ -74,7 +74,7 @@ describe('The AttributionList', () => {
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
-  test('renders first party icon', () => {
+  it('renders first party icon', () => {
     renderComponentWithStore(
       <AttributionList
         attributions={packages}
@@ -90,7 +90,7 @@ describe('The AttributionList', () => {
     expect(screen.getByLabelText('First party icon'));
   });
 
-  test('sets selectedAttributionId on click', () => {
+  it('sets selectedAttributionId on click', () => {
     renderComponentWithStore(
       <AttributionList
         attributions={packages}
@@ -109,7 +109,7 @@ describe('The AttributionList', () => {
     expect(mockCallback.mock.calls[0][0]).toBe('1');
   });
 
-  test('sorts its elements', () => {
+  it('sorts its elements', () => {
     const testPackages: Attributions = {
       '1': {
         packageName: 'zz Test package',
@@ -145,7 +145,7 @@ describe('The AttributionList', () => {
     expect(container.childNodes[0]).toHaveTextContent(/Copyright John Doe 2/);
   });
 
-  test('shows correct replace attribution buttons in the context menu', () => {
+  it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,

@@ -22,7 +22,7 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 
 describe('The PackagePanel', () => {
-  test('renders TextBoxes with right content', () => {
+  it('renders TextBoxes with right content', () => {
     const testSource = { name: 'HC', documentConfidence: 1 };
     const testAttributionIds: Array<AttributionIdWithCount> = [
       { attributionId: 'uuid1' },
@@ -64,7 +64,7 @@ describe('The PackagePanel', () => {
     expect(screen.getAllByLabelText('show resources'));
   });
 
-  test('groups by source and prettifies known sources', () => {
+  it('groups by source and prettifies known sources', () => {
     const testAttributionIds: Array<AttributionIdWithCount> = [
       { attributionId: 'uuid1' },
       { attributionId: 'uuid2' },

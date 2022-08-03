@@ -53,7 +53,7 @@ describe('The resource actions', () => {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
 
-  test('getResourceIdsForSelectedAttributionId returns correct Ids', () => {
+  it('getResourceIdsForSelectedAttributionId returns correct Ids', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));

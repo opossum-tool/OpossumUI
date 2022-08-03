@@ -45,7 +45,7 @@ describe('useFollowUpFilter', () => {
     followUp: FollowUp,
   };
 
-  test('returns working getFilteredAttributions with follow-up filter', () => {
+  it('returns working getFilteredAttributions with follow-up filter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
     renderComponentWithStore(
@@ -57,7 +57,7 @@ describe('useFollowUpFilter', () => {
     });
   });
 
-  test('returns working getFilteredAttributions without filter', () => {
+  it('returns working getFilteredAttributions without filter', () => {
     const store = createTestAppStore();
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
@@ -66,7 +66,7 @@ describe('useFollowUpFilter', () => {
     expect(filteredAttributions).toBe(testManualAttributions);
   });
 
-  test('returns working getFilteredAttributions with only first party filter', () => {
+  it('returns working getFilteredAttributions with only first party filter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     renderComponentWithStore(
@@ -78,7 +78,7 @@ describe('useFollowUpFilter', () => {
     });
   });
 
-  test('returns working getFilteredAttributions with hide first party filter', () => {
+  it('returns working getFilteredAttributions with hide first party filter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.HideFirstParty));
     renderComponentWithStore(
@@ -90,7 +90,7 @@ describe('useFollowUpFilter', () => {
     });
   });
 
-  test('returns working getFilteredAttributions with only first party and follow up filter', () => {
+  it('returns working getFilteredAttributions with only first party and follow up filter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
@@ -101,7 +101,7 @@ describe('useFollowUpFilter', () => {
     expect(filteredAttributions).toEqual({});
   });
 
-  test('returns working getFilteredAttributions with hide first party and follow up filter', () => {
+  it('returns working getFilteredAttributions with hide first party and follow up filter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.HideFirstParty));
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));

@@ -8,7 +8,7 @@ import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 
 describe('The AuditView', () => {
-  test('renders AuditView', () => {
+  it('renders AuditView', () => {
     renderComponentWithStore(<AuditView />);
   });
 });

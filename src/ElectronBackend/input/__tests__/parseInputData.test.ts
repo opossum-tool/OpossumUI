@@ -36,7 +36,7 @@ describe('cleanNonExistentAttributions', () => {
     jest.resetAllMocks();
   });
 
-  test('removes non-existent attributions', () => {
+  it('removes non-existent attributions', () => {
     const resourcesToAttributions: ResourcesToAttributions = {
       '/file1': ['attr1', 'attr2', 'attr3', 'attr4'],
       '/file2': ['attr3'],
@@ -65,7 +65,7 @@ describe('cleanNonExistentResolvedExternalSignals', () => {
     jest.resetAllMocks();
   });
 
-  test('removes non-existent resolved external attributions', () => {
+  it('removes non-existent resolved external attributions', () => {
     const resolvedExternalAttributions: Set<string> = new Set<string>()
       .add('attr2')
       .add('invalid');
@@ -84,7 +84,7 @@ describe('cleanNonExistentResolvedExternalSignals', () => {
 });
 
 describe('sanitizeRawAttributions', () => {
-  test('leaves FollowUp as followUp', () => {
+  it('leaves FollowUp as followUp', () => {
     const rawAttributions: RawAttributions = {
       id: {
         followUp: FollowUp,
@@ -103,7 +103,7 @@ describe('sanitizeRawAttributions', () => {
     ]);
   });
 
-  test('removes unknown strings from followUp', () => {
+  it('removes unknown strings from followUp', () => {
     const rawAttributions: RawAttributions = {
       id: {
         followUp: 'UNKNOWN_STRING',
@@ -119,7 +119,7 @@ describe('sanitizeRawAttributions', () => {
     ]);
   });
 
-  test('leaves non-empty comment unchanged', () => {
+  it('leaves non-empty comment unchanged', () => {
     const rawAttributions: RawAttributions = {
       id: {
         comment: 'Test comment',
@@ -138,7 +138,7 @@ describe('sanitizeRawAttributions', () => {
     ]);
   });
 
-  test('removes empty comment', () => {
+  it('removes empty comment', () => {
     const rawAttributions: RawAttributions = {
       id: {
         comment: '',
@@ -155,7 +155,7 @@ describe('sanitizeRawAttributions', () => {
     ]);
   });
 
-  test('leaves criticality unchanged', () => {
+  it('leaves criticality unchanged', () => {
     const rawAttributions: RawAttributions = {
       id: {
         criticality: 'high' as Criticality,
@@ -174,7 +174,7 @@ describe('sanitizeRawAttributions', () => {
     ]);
   });
 
-  test('removes empty comment', () => {
+  it('removes empty comment', () => {
     const rawAttributions: RawAttributions = {
       id: {
         criticality: 'invalid value' as Criticality,
@@ -193,7 +193,7 @@ describe('sanitizeRawAttributions', () => {
 });
 
 describe('sanitizeRawBaseUrlsForSources', () => {
-  test('adds / to path', () => {
+  it('adds / to path', () => {
     const rawBaseUrlsForSources: RawBaseUrlsForSources = {
       'test/path': 'www.test.it',
     };
@@ -206,13 +206,13 @@ describe('sanitizeRawBaseUrlsForSources', () => {
     );
   });
 
-  test('works with undefined', () => {
+  it('works with undefined', () => {
     expect(sanitizeRawBaseUrlsForSources(undefined)).toEqual({});
   });
 });
 
 describe('parseFrequentLicenses', () => {
-  test('handles undefined', () => {
+  it('handles undefined', () => {
     const rawFrequentLicenses = undefined;
     const expectedFrequentLicenses: FrequentLicences = {
       nameOrder: [],
@@ -224,7 +224,7 @@ describe('parseFrequentLicenses', () => {
     );
   });
 
-  test('handles empty array', () => {
+  it('handles empty array', () => {
     const rawFrequentLicenses: Array<RawFrequentLicense> = [];
     const expectedFrequentLicenses: FrequentLicences = {
       nameOrder: [],
@@ -236,7 +236,7 @@ describe('parseFrequentLicenses', () => {
     );
   });
 
-  test('handles non-empty array', () => {
+  it('handles non-empty array', () => {
     const rawFrequentLicenses: Array<RawFrequentLicense> = [
       {
         shortName: 'MIT',

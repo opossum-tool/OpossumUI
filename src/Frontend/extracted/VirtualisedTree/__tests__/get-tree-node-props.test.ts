@@ -10,7 +10,7 @@ import {
 import { NodesForTree } from '../types';
 
 describe('renderTree', () => {
-  test('isChildOfSelected works as expected', () => {
+  it('isChildOfSelected works as expected', () => {
     const NodeId = '/adapters/';
     const firstChildNodeId = '/adapters/.settings/org';
     const secondChildNodeId = '/adapters/.settings/';
@@ -22,7 +22,7 @@ describe('renderTree', () => {
     expect(isChildOfSelected(secondNotChild, NodeId)).toBe(false);
   });
 
-  test('getNodeIdsToExpand returns correct nodeIds', () => {
+  it('getNodeIdsToExpand returns correct nodeIds', () => {
     const nodeId = '/parent/';
     const node: NodesForTree | 1 = {
       directory: {

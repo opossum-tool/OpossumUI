@@ -21,7 +21,7 @@ import {
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The go to link button', () => {
-  test('is visible and opens link in external browser', () => {
+  it('is visible and opens link in external browser', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {

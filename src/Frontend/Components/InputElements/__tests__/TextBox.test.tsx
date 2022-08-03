@@ -9,7 +9,7 @@ import { TextBox } from '../TextBox';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('The TextBox', () => {
-  test('renders text and label', () => {
+  it('renders text and label', () => {
     render(
       <TextBox
         title={'Test Title'}
@@ -26,7 +26,7 @@ describe('The TextBox', () => {
     expect(screen.getByDisplayValue('Test Content'));
   });
 
-  test('renders icon', () => {
+  it('renders icon', () => {
     render(
       <TextBox
         title={'Test Title'}

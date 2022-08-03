@@ -6,7 +6,7 @@
 import { splitResourceIdsToCurrentAndOtherFolder } from '../resource-path-popup-helpers';
 
 describe('splitResourceItToCurrentAndOtherFolder', () => {
-  test('splits resource ids correctly', () => {
+  it('splits resource ids correctly', () => {
     const allResourceIds = [
       '/folder_1/',
       '/folder_1/resource_1',

@@ -71,7 +71,7 @@ import {
 
 describe('The actions checking for unsaved changes', () => {
   describe('navigateToSelectedPathOrOpenUnsavedPopup', () => {
-    test('sets view, selectedResourceId and expandedResources', () => {
+    it('sets view, selectedResourceId and expandedResources', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(navigateToView(View.Attribution));
       testStore.dispatch(
@@ -92,7 +92,7 @@ describe('The actions checking for unsaved changes', () => {
   });
 
   describe('changeSelectedAttributionIdOrOpenUnsavedPopup', () => {
-    test(
+    it(
       'setsTargetSelectedAttributionId and temporaryPackageInfo' +
         ' and opens popup if packageInfo were modified',
       () => {
@@ -138,7 +138,7 @@ describe('The actions checking for unsaved changes', () => {
       }
     );
 
-    test('setSelectedAttributionId and temporaryPackageInfo if packageInfo were not modified', () => {
+    it('setSelectedAttributionId and temporaryPackageInfo if packageInfo were not modified', () => {
       const testResources: Resources = {
         selectedResource: 1,
         newSelectedResource: 1,
@@ -180,14 +180,14 @@ describe('The actions checking for unsaved changes', () => {
   });
 
   describe('The setViewOrOpenUnsavedPopup action', () => {
-    test('sets view', () => {
+    it('sets view', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
     });
 
-    test('opens unsave-popup', () => {
+    it('opens unsave-popup', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setSelectedResourceId('/testId/'));
@@ -237,7 +237,7 @@ describe('The actions checking for unsaved changes', () => {
       '/root/src/something.js': [testManualAttributionUuid_1],
     };
 
-    test('set selected resource id', () => {
+    it('set selected resource id', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
@@ -256,7 +256,7 @@ describe('The actions checking for unsaved changes', () => {
       expect(getSelectedResourceId(testStore.getState())).toBe('/thirdParty/');
     });
 
-    test('open unsaved-popup', () => {
+    it('open unsaved-popup', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(
         loadFromFile(
@@ -282,7 +282,7 @@ describe('The actions checking for unsaved changes', () => {
   });
 
   describe('selectAttributionInAccordionPanelOrOpenUnsavedPopup', () => {
-    test('selects an attribution in an accordion panel', () => {
+    it('selects an attribution in an accordion panel', () => {
       const testPackageInfo: PackageInfo = { packageName: 'test name' };
       const testResources: Resources = {
         file1: 1,
@@ -325,7 +325,7 @@ describe('The actions checking for unsaved changes', () => {
   });
 
   describe('selectAttributionInManualPackagePanelOrOpenUnsavedPopup', () => {
-    test('ss an attribution in the manual package panel', () => {
+    it('ss an attribution in the manual package panel', () => {
       const testPackageInfo: PackageInfo = { packageName: 'test name' };
       const testResources: Resources = {
         file1: 1,
@@ -372,7 +372,7 @@ describe('The actions checking for unsaved changes', () => {
 
 describe('The actions called from the unsaved popup', () => {
   describe('unlinkAttributionAndSavePackageInfoAndNavigateToTargetView', () => {
-    test('unlinks and navigates to target view', () => {
+    it('unlinks and navigates to target view', () => {
       const testReact = {
         packageName: 'React',
       };
@@ -452,22 +452,22 @@ describe('The actions called from the unsaved popup', () => {
       return testStore.getState();
     }
 
-    test('saves temporaryPackageInfo', () => {
+    it('saves temporaryPackageInfo', () => {
       const state: State = prepareTestState();
       expect(getTemporaryPackageInfo(state)).toMatchObject({});
     });
 
-    test('sets TargetSelectedResourceOrAttribution', () => {
+    it('sets TargetSelectedResourceOrAttribution', () => {
       const state: State = prepareTestState();
       expect(getSelectedResourceId(state)).toBe('newSelectedResource');
     });
 
-    test('sets View', () => {
+    it('sets View', () => {
       const state: State = prepareTestState();
       expect(getSelectedView(state)).toBe(View.Attribution);
     });
 
-    test('closesPopup', () => {
+    it('closesPopup', () => {
       const state: State = prepareTestState();
       expect(getOpenPopup(state)).toBeFalsy();
     });
@@ -489,27 +489,27 @@ describe('The actions called from the unsaved popup', () => {
       return testStore.getState();
     }
 
-    test('closesPopup', () => {
+    it('closesPopup', () => {
       const state: State = prepareTestState();
       expect(getOpenPopup(state)).toBeFalsy();
     });
 
-    test('sets the view', () => {
+    it('sets the view', () => {
       const state: State = prepareTestState();
       expect(getSelectedView(state)).toBe(View.Attribution);
     });
 
-    test('sets targetSelectedResourceOrAttribution', () => {
+    it('sets targetSelectedResourceOrAttribution', () => {
       const state: State = prepareTestState();
       expect(getSelectedResourceId(state)).toBe('newSelectedResource');
     });
 
-    test('sets temporaryPackageInfo', () => {
+    it('sets temporaryPackageInfo', () => {
       const state: State = prepareTestState();
       expect(getTemporaryPackageInfo(state)).toMatchObject({});
     });
 
-    test('does not save temporaryPackageInfo', () => {
+    it('does not save temporaryPackageInfo', () => {
       const state: State = prepareTestState();
       expect(getManualAttributions(state)).toMatchObject({});
     });

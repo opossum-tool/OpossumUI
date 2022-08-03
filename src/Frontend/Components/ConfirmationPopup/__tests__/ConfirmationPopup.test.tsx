@@ -10,7 +10,7 @@ import React from 'react';
 import { ButtonText } from '../../../enums/enums';
 
 describe('The ConfirmationPopup', () => {
-  test('renders and calls onClick function', () => {
+  it('renders and calls onClick function', () => {
     const onClick = jest.fn();
     const content = 'Confirmation Popup';
     const header = 'Confirmation Header';

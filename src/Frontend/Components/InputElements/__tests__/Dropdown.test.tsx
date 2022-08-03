@@ -10,7 +10,7 @@ import { Dropdown } from '../Dropdown';
 import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The Dropdown', () => {
-  test('renders value ', () => {
+  it('renders value ', () => {
     render(
       <Dropdown
         isEditable={true}
@@ -37,7 +37,7 @@ describe('The Dropdown', () => {
     expect(screen.getByText('High (80)'));
   });
 
-  test('renders value not in menuItems', () => {
+  it('renders value not in menuItems', () => {
     render(
       <Dropdown
         isEditable={true}

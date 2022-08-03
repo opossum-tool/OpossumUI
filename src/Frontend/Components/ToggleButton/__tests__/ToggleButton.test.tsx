@@ -9,7 +9,7 @@ import { ToggleButton } from '../ToggleButton';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('ToggleButton', () => {
-  test('renders a button', () => {
+  it('renders a button', () => {
     render(
       <ToggleButton
         buttonText={'Test'}

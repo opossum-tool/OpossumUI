@@ -28,14 +28,14 @@ import {
 } from '../view-actions';
 
 describe('view actions', () => {
-  test('sets view to AuditView as initial value', () => {
+  it('sets view to AuditView as initial value', () => {
     const testStore = createTestAppStore();
     expect(isAuditViewSelected(testStore.getState())).toBe(true);
     expect(isReportViewSelected(testStore.getState())).toBe(false);
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
   });
 
-  test('sets view to AttributionView', () => {
+  it('sets view to AttributionView', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
@@ -44,7 +44,7 @@ describe('view actions', () => {
     expect(isAttributionViewSelected(testStore.getState())).toBe(true);
   });
 
-  test('sets view to ReportView', () => {
+  it('sets view to ReportView', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Report));
 
@@ -53,7 +53,7 @@ describe('view actions', () => {
     expect(isReportViewSelected(testStore.getState())).toBe(true);
   });
 
-  test('sets view to AttributionView and back to AuditView', () => {
+  it('sets view to AttributionView and back to AuditView', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
@@ -68,7 +68,7 @@ describe('view actions', () => {
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
   });
 
-  test('sets view to AuditView even if it is already set', () => {
+  it('sets view to AuditView even if it is already set', () => {
     const testStore = createTestAppStore();
 
     expect(isAuditViewSelected(testStore.getState())).toBe(true);
@@ -82,7 +82,7 @@ describe('view actions', () => {
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
   });
 
-  test('sets the selectedView', () => {
+  it('sets the selectedView', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
@@ -97,7 +97,7 @@ describe('view actions', () => {
     expect(getSelectedView(testStore.getState())).toBe(View.Report);
   });
 
-  test('resets view state', () => {
+  it('resets view state', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
@@ -120,7 +120,7 @@ describe('view actions', () => {
     ).toBe(false);
   });
 
-  test('sets filters correctly', () => {
+  it('sets filters correctly', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     expect(
@@ -151,7 +151,7 @@ describe('view actions', () => {
     ).toBe(true);
   });
 
-  test('sets showHighlightForCriticalSignals', () => {
+  it('sets showHighlightForCriticalSignals', () => {
     const testStore = createTestAppStore();
 
     expect(getHighlightForCriticalSignals(testStore.getState())).toBe(false);
@@ -161,24 +161,24 @@ describe('view actions', () => {
 });
 
 describe('popup actions', () => {
-  test('popup is closed by default', () => {
+  it('popup is closed by default', () => {
     const testStore = createTestAppStore();
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
 
-  test('open NotSavedPopup', () => {
+  it('open NotSavedPopup', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
   });
 
-  test('close NotSavedPopup', () => {
+  it('close NotSavedPopup', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(closePopup());
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
-  test('sets targetAttributionId and popupType', () => {
+  it('sets targetAttributionId and popupType', () => {
     const testStore = createTestAppStore();
     expect(getPopupAttributionId(testStore.getState())).toEqual(null);
     const testAttributionId = 'test';
@@ -193,7 +193,7 @@ describe('popup actions', () => {
     );
   });
 
-  test('handles multiple opened popups', () => {
+  it('handles multiple opened popups', () => {
     const testStore = createTestAppStore();
     const testAttributionId = 'test';
     testStore.dispatch(

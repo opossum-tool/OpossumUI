@@ -32,7 +32,7 @@ describe('Button group', () => {
     },
   ];
 
-  test('renders buttons', () => {
+  it('renders buttons', () => {
     render(<ButtonGroup mainButtonConfigs={mainButtonConfigs} />);
 
     screen.getByText('Test');
@@ -40,7 +40,7 @@ describe('Button group', () => {
     expect(screen.queryByText('Test 3')).not.toBeInTheDocument();
   });
 
-  test('renders context menu', () => {
+  it('renders context menu', () => {
     const contextMenuItems: Array<ContextMenuItem> = [
       {
         buttonText: ButtonText.Save,

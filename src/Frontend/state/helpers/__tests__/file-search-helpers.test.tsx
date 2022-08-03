@@ -20,11 +20,11 @@ describe('The getPathsFromResources function', () => {
     },
   };
 
-  test('returns only base path for empty resources', () => {
+  it('returns only base path for empty resources', () => {
     const paths = getPathsFromResources({});
     expect(paths).toEqual(['/']);
   });
-  test('returns all paths', () => {
+  it('returns all paths', () => {
     const paths = getPathsFromResources(testResources).sort();
     const expectedPaths = [
       '/',

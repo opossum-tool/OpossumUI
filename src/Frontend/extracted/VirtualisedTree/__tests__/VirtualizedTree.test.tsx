@@ -25,7 +25,7 @@ describe('The VirtualizedTree', () => {
     docs: { 'readme.md': 1 },
   };
 
-  test('renders VirtualizedTree', () => {
+  it('renders VirtualizedTree', () => {
     render(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}

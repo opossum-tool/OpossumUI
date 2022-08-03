@@ -58,7 +58,7 @@ describe('getWerePackageInfoModified', () => {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
 
-  test('returns true  when TemporaryPackageInfo have been modified', () => {
+  it('returns true  when TemporaryPackageInfo have been modified', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
@@ -75,7 +75,7 @@ describe('getWerePackageInfoModified', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
   });
 
-  test('returns true  when confidence is changed', () => {
+  it('returns true  when confidence is changed', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
@@ -93,7 +93,7 @@ describe('getWerePackageInfoModified', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
   });
 
-  test('returns false when only confidence is set and true when attribution is created', () => {
+  it('returns false when only confidence is set and true when attribution is created', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
@@ -113,7 +113,7 @@ describe('getWerePackageInfoModified', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
   });
 
-  test('returns false when TemporaryPackageInfo have not been modified', () => {
+  it('returns false when TemporaryPackageInfo have not been modified', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,

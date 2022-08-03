@@ -53,7 +53,7 @@ describe('The ReportView', () => {
     testOtherManualUuid,
   ];
 
-  test('renders', () => {
+  it('renders', () => {
     const testFrequentLicenses: FrequentLicences = {
       nameOrder: ['MIT', 'GPL'],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
@@ -77,7 +77,7 @@ describe('The ReportView', () => {
     expect(screen.getByText('Some other license text'));
   });
 
-  test('filters Follow-ups', () => {
+  it('filters Follow-ups', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     act(() => {
       store.dispatch(
@@ -100,7 +100,7 @@ describe('The ReportView', () => {
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 
-  test('filters only first party', () => {
+  it('filters only first party', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     act(() => {
       store.dispatch(
@@ -127,7 +127,7 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test other package'));
   });
 
-  test('filters Only First Party and follow ups and then hide first party and follow ups', () => {
+  it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
     const { store } = renderComponentWithStore(<ReportView />);
     act(() => {
       store.dispatch(

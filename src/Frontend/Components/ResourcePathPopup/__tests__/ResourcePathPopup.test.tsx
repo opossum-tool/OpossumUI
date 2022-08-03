@@ -55,7 +55,7 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
 describe('ResourcePathPopup', () => {
   const resourcesInOtherFoldersHeader = 'Resources in Other Folders';
 
-  test('renders resources for manual Attributions', () => {
+  it('renders resources for manual Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
     expect(
@@ -64,7 +64,7 @@ describe('ResourcePathPopup', () => {
     expect(screen.getByText('/thirdParty')).toBeInTheDocument();
   });
 
-  test('renders resources for external Attributions', () => {
+  it('renders resources for external Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={true} />);
 
     expect(
@@ -73,7 +73,7 @@ describe('ResourcePathPopup', () => {
     expect(screen.getByText('/firstParty')).toBeInTheDocument();
   });
 
-  test('renders subheader, if resources in other folders exist', () => {
+  it('renders subheader, if resources in other folders exist', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setSelectedResourceId('/folder/anotherFirstParty'));
     renderComponentWithStore(<HelperComponent isExternalAttribution={true} />, {
@@ -85,7 +85,7 @@ describe('ResourcePathPopup', () => {
     expect(screen.getByText('/folder/anotherFirstParty')).toBeInTheDocument();
   });
 
-  test('renders no subheader, if no resources in other folders exist', () => {
+  it('renders no subheader, if no resources in other folders exist', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setSelectedResourceId('/thirdParty'));
     renderComponentWithStore(

@@ -9,7 +9,7 @@ import { render, screen } from '@testing-library/react';
 import { clickOnCheckbox } from '../../../test-helpers/general-test-helpers';
 
 describe('The Checkbox', () => {
-  test('renders', () => {
+  it('renders', () => {
     const mockOnChange = jest.fn();
     const testLabel = 'Test Label';
     render(

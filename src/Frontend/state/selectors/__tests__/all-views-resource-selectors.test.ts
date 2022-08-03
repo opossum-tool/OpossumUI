@@ -41,7 +41,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
 
-  test('returns temporary package info of selected attribution', () => {
+  it('returns temporary package info of selected attribution', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)
@@ -52,7 +52,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
     );
   });
 
-  test('returns empty temporary package info if no selected attribution', () => {
+  it('returns empty temporary package info if no selected attribution', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)
@@ -70,7 +70,7 @@ describe('Attribution breakpoints', () => {
     '/node_modules/',
   ]);
 
-  test('can be created and listed.', () => {
+  it('can be created and listed.', () => {
     const testStore = createTestAppStore();
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(new Set());
 
@@ -88,7 +88,7 @@ describe('Files with children', () => {
     testFileWithChildren
   );
 
-  test('can be created, listed and checked.', () => {
+  it('can be created, listed and checked.', () => {
     const testStore = createTestAppStore();
 
     expect(getFilesWithChildren(testStore.getState())).toEqual(new Set());
@@ -108,7 +108,7 @@ describe('ProjectMetadata', () => {
     fileCreationDate: 'test-date',
   };
 
-  test('can be set and get from store.', () => {
+  it('can be set and get from store.', () => {
     const testStore = createTestAppStore();
     expect(getProjectMetadata(testStore.getState())).toEqual(
       EMPTY_PROJECT_METADATA

@@ -17,7 +17,7 @@ import { NIL as uuidNil } from 'uuid';
 import { computeChildrenWithAttributions } from '../action-and-reducer-helpers';
 
 describe('The attributionForTemporaryPackageInfoExists function', () => {
-  test('checks if manual attributions exist', () => {
+  it('checks if manual attributions exist', () => {
     const testResources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -93,7 +93,7 @@ describe('The attributionForTemporaryPackageInfoExists function', () => {
 });
 
 describe('computeChildrenWithAttributions', () => {
-  test('parses ResourcesWithAttributionsFromDb', () => {
+  it('parses ResourcesWithAttributionsFromDb', () => {
     const testUuid: string = uuidNil;
     const mockResourcesWithAttributionsFromDb: ResourcesToAttributions = {
       '/root/src/': [testUuid],

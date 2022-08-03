@@ -16,10 +16,10 @@ describe('The global backend state', () => {
     projectId: 'uuid_1',
   };
 
-  test('is empty upon initialization.', () => {
+  it('is empty upon initialization.', () => {
     expect(getGlobalBackendState()).toMatchObject({});
   });
-  test('can be set and read', () => {
+  it('can be set and read', () => {
     setGlobalBackendState(newGlobalBackendState);
     expect(getGlobalBackendState()).toMatchObject(newGlobalBackendState);
   });

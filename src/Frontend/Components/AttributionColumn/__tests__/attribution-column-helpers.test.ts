@@ -11,27 +11,27 @@ import {
 } from '../attribution-column-helpers';
 
 describe('The AttributionColumn helpers', () => {
-  test('getLicenseTextMaxRows in audit view', () => {
+  it('getLicenseTextMaxRows in audit view', () => {
     expect(getLicenseTextMaxRows(1080, View.Audit)).toEqual(29);
   });
 
-  test('getLicenseTextMaxRows in attribution view', () => {
+  it('getLicenseTextMaxRows in attribution view', () => {
     expect(getLicenseTextMaxRows(1080, View.Attribution)).toEqual(31);
   });
 
-  test('selectedPackageIsResolved returns true', () => {
+  it('selectedPackageIsResolved returns true', () => {
     expect(
       selectedPackageIsResolved('123', new Set<string>().add('123'))
     ).toEqual(true);
   });
 
-  test('selectedPackageIsResolved returns false if empty attributionId', () => {
+  it('selectedPackageIsResolved returns false if empty attributionId', () => {
     expect(selectedPackageIsResolved('', new Set<string>().add('123'))).toEqual(
       false
     );
   });
 
-  test('selectedPackageIsResolved returns false if id does not match', () => {
+  it('selectedPackageIsResolved returns false if id does not match', () => {
     expect(
       selectedPackageIsResolved('123', new Set<string>().add('321'))
     ).toEqual(false);

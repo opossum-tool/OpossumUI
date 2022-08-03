@@ -27,7 +27,7 @@ import {
 } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The report view', () => {
-  test('opens a EditAttributionPopup by clicking on edit and saves changes', () => {
+  it('opens a EditAttributionPopup by clicking on edit and saves changes', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -78,7 +78,7 @@ describe('The report view', () => {
     expect(screen.getByText('Test comment'));
   });
 
-  test('recognizes frequent licenses and shows full license text in report view', () => {
+  it('recognizes frequent licenses and shows full license text in report view', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: { 'something.js': 1 },

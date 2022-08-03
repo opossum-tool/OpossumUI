@@ -44,7 +44,7 @@ function setupTestState(
 }
 
 describe('NotSavedPopup and do not change view', () => {
-  test('renders a NotSavedPopup', () => {
+  it('renders a NotSavedPopup', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
 
@@ -55,7 +55,7 @@ describe('NotSavedPopup and do not change view', () => {
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
-  test('renders a NotSavedPopup and click cancel', () => {
+  it('renders a NotSavedPopup and click cancel', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
 
@@ -66,7 +66,7 @@ describe('NotSavedPopup and do not change view', () => {
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
-  test('renders a NotSavedPopup and click reset', () => {
+  it('renders a NotSavedPopup and click reset', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
     store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
@@ -83,7 +83,7 @@ describe('NotSavedPopup and do not change view', () => {
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
-  test('renders a NotSavedPopup and click cancel in Report view reopens EditAttribuionPopup', () => {
+  it('renders a NotSavedPopup and click cancel in Report view reopens EditAttribuionPopup', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
@@ -98,7 +98,7 @@ describe('NotSavedPopup and do not change view', () => {
 });
 
 describe('NotSavedPopup and change view', () => {
-  test('renders a NotSavedPopup', () => {
+  it('renders a NotSavedPopup', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
 
@@ -109,7 +109,7 @@ describe('NotSavedPopup and change view', () => {
     expect(isAttributionViewSelected(store.getState())).toBe(true);
   });
 
-  test('renders a NotSavedPopup and click cancel', () => {
+  it('renders a NotSavedPopup and click cancel', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
 
@@ -120,7 +120,7 @@ describe('NotSavedPopup and change view', () => {
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
-  test('renders a NotSavedPopup and click reset', () => {
+  it('renders a NotSavedPopup and click reset', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
     store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));

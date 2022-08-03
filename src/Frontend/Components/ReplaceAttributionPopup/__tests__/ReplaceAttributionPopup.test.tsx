@@ -65,7 +65,7 @@ function setupTestState(store: EnhancedTestStore): void {
 }
 
 describe('ReplaceAttributionPopup and do not change view', () => {
-  test('renders a ReplaceAttributionPopup and click cancel', () => {
+  it('renders a ReplaceAttributionPopup and click cancel', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);
 
@@ -81,7 +81,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(getOpenPopup(store.getState())).toBe(null);
   });
 
-  test('does not show ContextMenu for attributions', () => {
+  it('does not show ContextMenu for attributions', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);
 
@@ -108,7 +108,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('does not show multi-select checkbox for attributions', () => {
+  it('does not show multi-select checkbox for attributions', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);
     testStore.dispatch(
@@ -125,7 +125,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
   });
 
-  test('renders a ReplaceAttributionPopup and click replace', () => {
+  it('renders a ReplaceAttributionPopup and click replace', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);
 

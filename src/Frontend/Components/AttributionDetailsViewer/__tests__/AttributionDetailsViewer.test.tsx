@@ -17,7 +17,7 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('The AttributionDetailsViewer', () => {
-  test('renders TextBoxes with right titles and content', () => {
+  it('renders TextBoxes with right titles and content', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       comment: 'some comment',
@@ -66,7 +66,7 @@ describe('The AttributionDetailsViewer', () => {
     );
   });
 
-  test('saves temporary info', () => {
+  it('saves temporary info', () => {
     const expectedPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageName: 'React',

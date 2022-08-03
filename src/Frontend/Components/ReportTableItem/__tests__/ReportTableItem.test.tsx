@@ -12,7 +12,7 @@ import { ReportTableItem } from '../ReportTableItem';
 import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The ReportTableItem', () => {
-  test('renders', () => {
+  it('renders', () => {
     const testAttributionsWithResources: AttributionsWithResources = {
       uuid1: {
         packageName: 'React',
@@ -59,7 +59,7 @@ describe('The ReportTableItem', () => {
     expect(screen.getByText('/'));
   });
 
-  test('renders icons correctly', () => {
+  it('renders icons correctly', () => {
     const testAttributionsWithResources: AttributionsWithResources = {
       uuid1: {
         packageName: 'React',

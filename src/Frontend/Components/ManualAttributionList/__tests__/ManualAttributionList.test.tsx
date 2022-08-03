@@ -59,7 +59,7 @@ describe('The ManualAttributionList', () => {
     jest.clearAllMocks();
   });
 
-  test('renders', () => {
+  it('renders', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -73,7 +73,7 @@ describe('The ManualAttributionList', () => {
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
-  test('renders first party icon and show resources icon', () => {
+  it('renders first party icon and show resources icon', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -88,7 +88,7 @@ describe('The ManualAttributionList', () => {
     expect(screen.getAllByLabelText('show resources'));
   });
 
-  test('renders button', () => {
+  it('renders button', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -104,7 +104,7 @@ describe('The ManualAttributionList', () => {
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
-  test('sets selectedAttributionId on click', () => {
+  it('sets selectedAttributionId on click', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
@@ -121,7 +121,7 @@ describe('The ManualAttributionList', () => {
     expect(mockCallback.mock.calls[0][0]).toBe('1');
   });
 
-  test('sorts its elements', () => {
+  it('sorts its elements', () => {
     const testPackages: Attributions = {
       '1': {
         packageName: 'zz Test package',
@@ -157,7 +157,7 @@ describe('The ManualAttributionList', () => {
     );
   });
 
-  test('shows correct replace attribution buttons in the context menu', () => {
+  it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,

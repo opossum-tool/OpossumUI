@@ -69,7 +69,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 };
 
 describe('loadFromFile', () => {
-  test('loads from file into state', () => {
+  it('loads from file into state', () => {
     const testExternalAttributions: Attributions = {
       [testManualAttributionUuid_1]: {
         packageVersion: '1.0',

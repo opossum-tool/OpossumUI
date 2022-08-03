@@ -18,7 +18,7 @@ import {
 import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
 
 describe('The load and navigation simple actions', () => {
-  test('sets and gets selectedAttributionId', () => {
+  it('sets and gets selectedAttributionId', () => {
     const testStore = createTestAppStore();
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
 
@@ -26,7 +26,7 @@ describe('The load and navigation simple actions', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('Test');
   });
 
-  test('sets and gets targetSelectedAttributionId', () => {
+  it('sets and gets targetSelectedAttributionId', () => {
     const testStore = createTestAppStore();
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe(null);
 
@@ -34,7 +34,7 @@ describe('The load and navigation simple actions', () => {
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('test');
   });
 
-  test('sets and gets attributionIdMarkedForReplacement', () => {
+  it('sets and gets attributionIdMarkedForReplacement', () => {
     const testStore = createTestAppStore();
     expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe('');
 
@@ -44,7 +44,7 @@ describe('The load and navigation simple actions', () => {
     );
   });
 
-  test('sets and gets multiSelectSelectedAttributionIds', () => {
+  it('sets and gets multiSelectSelectedAttributionIds', () => {
     const testStore = createTestAppStore();
     expect(
       getMultiSelectSelectedAttributionIds(testStore.getState())

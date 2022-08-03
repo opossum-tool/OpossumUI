@@ -35,7 +35,7 @@ import {
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('Add to attribution', () => {
-  test(
+  it(
     'AddToAttribution shows attribution correctly, ' +
       'does not show parent attribution, and adds attribution',
     () => {
@@ -118,7 +118,7 @@ describe('Add to attribution', () => {
     }
   );
 
-  test('AddToAttribution removes abandoned attributions', () => {
+  it('AddToAttribution removes abandoned attributions', () => {
     const testResources: Resources = {
       folder1: { 'firstResource.js': 1 },
       'secondResource.js': 1,
@@ -178,7 +178,7 @@ describe('Add to attribution', () => {
     expectValueInAddToAttributionList(screen, 'Angular, 10');
   });
 
-  test('AddToAttribution and deletion updates attributed children', () => {
+  it('AddToAttribution and deletion updates attributed children', () => {
     const testResources: Resources = {
       folder1: { 'firstResource.js': 1 },
       'secondResource.js': 1,
@@ -247,7 +247,7 @@ describe('Add to attribution', () => {
     );
   });
 
-  test('AddToAttribution not shown for breakpoints', () => {
+  it('AddToAttribution not shown for breakpoints', () => {
     const testResources: Resources = {
       folder1: { 'firstResource.js': 1 },
       'secondResource.js': 1,

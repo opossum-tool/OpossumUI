@@ -22,7 +22,7 @@ const testCsvHeader =
   '"Follow-up";"Origin Attribution ID";"pre-selected";"exclude-from-notice";"criticality";"Resources"';
 
 describe('writeCsvToFile', () => {
-  test('writeCsvToFile short', async () => {
+  it('writeCsvToFile short', async () => {
     const testFollowUpAttributionsWithResources: AttributionsWithResources = {
       key1: {
         followUp: undefined,
@@ -57,7 +57,7 @@ describe('writeCsvToFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('writeCsvToFile custom header', async () => {
+  it('writeCsvToFile custom header', async () => {
     const testFollowUpAttributionsWithResources: AttributionsWithResources = {
       key1: {
         followUp: undefined,
@@ -91,7 +91,7 @@ describe('writeCsvToFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('writeCsvToFile shorten resources', async () => {
+  it('writeCsvToFile shorten resources', async () => {
     const testFollowUpAttributionsWithResources: AttributionsWithResources = {
       key1: {
         followUp: undefined,
@@ -126,7 +126,7 @@ describe('writeCsvToFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('writeCsvToFile shorten resources long', async () => {
+  it('writeCsvToFile shorten resources long', async () => {
     const manyResources = Array.from(
       { length: 250 },
       (_, i) =>
@@ -170,7 +170,7 @@ describe('writeCsvToFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('writeCsvToFile for attributions', async () => {
+  it('writeCsvToFile for attributions', async () => {
     const columns: Array<KeysOfAttributionInfo> = [
       'packageName',
       'licenseText',
@@ -199,7 +199,7 @@ describe('writeCsvToFile', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('writeCsvToFile long', async () => {
+  it('writeCsvToFile long', async () => {
     const testLicenseText =
       ' Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.\n' +
       'Preamble\n' +
@@ -476,7 +476,7 @@ describe('writeCsvToFile', () => {
 });
 
 describe('getHeadersFromColumnOrder', () => {
-  test('returns an header dictionary for keys in package info', () => {
+  it('returns an header dictionary for keys in package info', () => {
     const columns: Array<KeysOfAttributionInfo> = [
       'copyright',
       'licenseName',

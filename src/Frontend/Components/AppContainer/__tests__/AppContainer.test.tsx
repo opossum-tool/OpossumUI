@@ -8,7 +8,7 @@ import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 
 describe('The AppContainer', () => {
-  test('renders AppContainer', () => {
+  it('renders AppContainer', () => {
     renderComponentWithStore(<AppContainer />);
   });
 });

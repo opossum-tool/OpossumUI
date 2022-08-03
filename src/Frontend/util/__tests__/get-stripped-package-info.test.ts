@@ -7,7 +7,7 @@ import { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { getStrippedPackageInfo } from '../get-stripped-package-info';
 
 describe('The getStrippedPackageInfo function', () => {
-  test('strips falsy values', () => {
+  it('strips falsy values', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       packageVersion: '',
@@ -18,7 +18,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  test('strips source ', () => {
+  it('strips source ', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       source: {
@@ -32,7 +32,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  test('strips preSelected ', () => {
+  it('strips preSelected ', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       preSelected: true,
@@ -43,7 +43,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  test('strips criticality ', () => {
+  it('strips criticality ', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       criticality: Criticality.High,
@@ -54,7 +54,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  test('strips excess values', () => {
+  it('strips excess values', () => {
     const testPackageInfo = {
       packageName: 'React',
       childrenWithAttributionCount: 0,

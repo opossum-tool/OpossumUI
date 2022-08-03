@@ -55,7 +55,7 @@ function mockSaveFileRequestChannel(): void {
 }
 
 describe('Other popups of the app', () => {
-  test('warning popup appears and cancel button works', () => {
+  it('warning popup appears and cancel button works', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
@@ -112,7 +112,7 @@ describe('Other popups of the app', () => {
     expectUnsavedChangesPopupIsShown(screen);
   });
 
-  test('warning popup appears and save button works', () => {
+  it('warning popup appears and save button works', () => {
     const testInitialPackageName = 'InitialPackageName';
     const testPackageName = 'React - changed';
     const expectedNewAttribution: PackageInfo = {
@@ -172,7 +172,7 @@ describe('Other popups of the app', () => {
     expectButton(screen, ButtonText.Save, true);
   });
 
-  test('warning popup appears and save for all button works', () => {
+  it('warning popup appears and save for all button works', () => {
     const testInitialPackageName = 'InitialPackageName';
     const testPackageName = 'React - changed';
     const expectedNewAttribution: PackageInfo = {
@@ -233,7 +233,7 @@ describe('Other popups of the app', () => {
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
   });
 
-  test('opens working popup with file list when clicking on show resources icon', () => {
+  it('opens working popup with file list when clicking on show resources icon', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -279,7 +279,7 @@ describe('Other popups of the app', () => {
   });
 
   jest.useFakeTimers();
-  test('error popup works correctly for invalid PURL entry', () => {
+  it('error popup works correctly for invalid PURL entry', () => {
     const testInvalidPurl = 'invalidPurl';
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
@@ -312,7 +312,7 @@ describe('Other popups of the app', () => {
     expectErrorPopupIsNotShown(screen);
   });
 
-  test('saving works correctly with valid PURL entry with no popup', () => {
+  it('saving works correctly with valid PURL entry with no popup', () => {
     const testValidPurl =
       'pkg:testtype/testnamespace/testname@testversion?testqualifiers#testsubpath';
     const expectedNewAttribution: PackageInfo = {

@@ -48,7 +48,7 @@ describe('The AllAttributionsPanel', () => {
     },
   };
 
-  test('renders empty list', () => {
+  it('renders empty list', () => {
     renderComponentWithStore(
       <AllAttributionsPanel
         attributions={{}}
@@ -59,7 +59,7 @@ describe('The AllAttributionsPanel', () => {
     );
   });
 
-  test('renders non-empty list', () => {
+  it('renders non-empty list', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'name 1' },
       uuid2: { packageName: 'name 2' },
@@ -85,7 +85,7 @@ describe('The AllAttributionsPanel', () => {
     screen.getByText('name 2');
   });
 
-  test('does not show resource attribution of selected resource and next attributed parent', () => {
+  it('does not show resource attribution of selected resource and next attributed parent', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -113,7 +113,7 @@ describe('The AllAttributionsPanel', () => {
     expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
   });
 
-  test('has search functionality', () => {
+  it('has search functionality', () => {
     const testAttributions: Attributions = {
       uuid1: {
         packageName: 'name 1',
@@ -154,7 +154,7 @@ describe('The AllAttributionsPanel', () => {
     screen.getByText('name 2');
   });
 
-  test('shows correct replace attribution buttons in the context menu', () => {
+  it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,

@@ -34,7 +34,7 @@ import {
 } from '../../../test-helpers/popup-test-helpers';
 
 describe('The App in Audit View', () => {
-  test('delete buttons are shown and work for non-preselected with popup', () => {
+  it('delete buttons are shown and work for non-preselected with popup', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -119,7 +119,7 @@ describe('The App in Audit View', () => {
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 
-  test('delete buttons are shown and work for preselected without popup', () => {
+  it('delete buttons are shown and work for preselected without popup', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {

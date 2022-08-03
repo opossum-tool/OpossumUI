@@ -10,7 +10,7 @@ import { AutoComplete } from '../AutoComplete';
 import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 
 describe('The AutoComplete', () => {
-  test('renders text and label', () => {
+  it('renders text and label', () => {
     const testLicenseNames = ['MIT', 'GPL'];
     render(
       <AutoComplete
@@ -29,7 +29,7 @@ describe('The AutoComplete', () => {
     expectElementsInAutoCompleteAndSelectFirst(screen, testLicenseNames);
   });
 
-  test('renders end adornment', () => {
+  it('renders end adornment', () => {
     const testLicenseNames = ['MIT', 'GPL'];
     render(
       <AutoComplete

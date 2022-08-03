@@ -47,7 +47,7 @@ import {
 import { act } from 'react-dom/test-utils';
 
 describe('The AttributionColumn', () => {
-  test('renders TextBoxes with right titles and content', () => {
+  it('renders TextBoxes with right titles and content', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
@@ -127,7 +127,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('renders qualifier in the purl correctly', () => {
+  it('renders qualifier in the purl correctly', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
@@ -173,7 +173,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('sorts qualifier in the purl alphabetically', () => {
+  it('sorts qualifier in the purl alphabetically', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
@@ -219,7 +219,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('removes special symbol from the end of the purl if nothing follows', () => {
+  it('removes special symbol from the end of the purl if nothing follows', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
@@ -257,7 +257,7 @@ describe('The AttributionColumn', () => {
     expectValueInTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0');
   });
 
-  test('renders a TextBox for the source, if it is defined', () => {
+  it('renders a TextBox for the source, if it is defined', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       source: { name: 'The Source', documentConfidence: 10 },
     };
@@ -285,7 +285,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('renders a checkbox for Follow-up', () => {
+  it('renders a checkbox for Follow-up', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
     };
@@ -313,7 +313,7 @@ describe('The AttributionColumn', () => {
     expect(getTemporaryPackageInfo(store.getState()).followUp).toBe(FollowUp);
   });
 
-  test('renders a checkbox for Exclude from notice', () => {
+  it('renders a checkbox for Exclude from notice', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
     };
@@ -345,7 +345,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('renders an url icon and opens a link in browser', () => {
+  it('renders an url icon and opens a link in browser', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       url: 'https://www.testurl.com/',
     };
@@ -371,7 +371,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('opens a link without protocol', () => {
+  it('opens a link without protocol', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       url: 'www.testurl.com',
     };
@@ -396,7 +396,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  test('disables url icon if empty url', () => {
+  it('disables url icon if empty url', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       url: '',
     };
@@ -421,7 +421,7 @@ describe('The AttributionColumn', () => {
   });
 
   describe('there are different license text labels', () => {
-    test('shows standard text if editable and non frequent license', () => {
+    it('shows standard text if editable and non frequent license', () => {
       const testTemporaryPackageInfo: PackageInfo = { packageName: 'jQuery' };
       renderComponentWithStore(
         <AttributionColumn
@@ -445,7 +445,7 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    test('shows shortened text if not editable and frequent license', () => {
+    it('shows shortened text if not editable and frequent license', () => {
       const testTemporaryPackageInfo: PackageInfo = {
         packageName: 'jQuery',
         licenseName: 'Mit',
@@ -475,7 +475,7 @@ describe('The AttributionColumn', () => {
       expect(screen.getByLabelText('Standard license text implied.'));
     });
 
-    test('shows long text if editable and frequent license', () => {
+    it('shows long text if editable and frequent license', () => {
       const testTemporaryPackageInfo: PackageInfo = {
         packageName: 'jQuery',
         licenseName: 'mit',
@@ -511,7 +511,7 @@ describe('The AttributionColumn', () => {
   });
 
   describe('while changing the first party value', () => {
-    test('sets first party flag when checking first party', () => {
+    it('sets first party flag when checking first party', () => {
       const testTemporaryPackageInfo: PackageInfo = {};
       const { store } = renderComponentWithStore(
         <AttributionColumn
@@ -536,7 +536,7 @@ describe('The AttributionColumn', () => {
       expect(getTemporaryPackageInfo(store.getState()).firstParty).toBe(true);
     });
 
-    test('leaves copyright unchanged when checking first party', () => {
+    it('leaves copyright unchanged when checking first party', () => {
       const testCopyright = 'Test Copyright';
       const testTemporaryPackageInfo: PackageInfo = {
         copyright: testCopyright,
@@ -572,7 +572,7 @@ describe('The AttributionColumn', () => {
   });
 
   describe('The ResolveButton', () => {
-    test('saves resolved external attributions', () => {
+    it('saves resolved external attributions', () => {
       const testTemporaryPackageInfo: PackageInfo = {};
       const expectedSaveFileArgs: SaveFileArgs = {
         manualAttributions: {},

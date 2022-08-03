@@ -46,7 +46,7 @@ describe('The ContextMenu', () => {
     jest.clearAllMocks();
   });
 
-  test('renders and handles left clicks correctly', () => {
+  it('renders and handles left clicks correctly', () => {
     const testElementText = 'Test Element';
     render(
       <ContextMenu menuItems={testMenuItems} activation={'onLeftClick'}>
@@ -67,7 +67,7 @@ describe('The ContextMenu', () => {
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  test('renders and handles right clicks correctly', () => {
+  it('renders and handles right clicks correctly', () => {
     const testElementText = 'Test Element';
     render(
       <ContextMenu menuItems={testMenuItems} activation={'onRightClick'}>
@@ -88,7 +88,7 @@ describe('The ContextMenu', () => {
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  test('renders and handles left clicks correctly for both activated', () => {
+  it('renders and handles left clicks correctly for both activated', () => {
     const testElementText = 'Test Element';
     render(
       <ContextMenu menuItems={testMenuItems} activation={'both'}>
@@ -105,7 +105,7 @@ describe('The ContextMenu', () => {
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  test('renders and handles right clicks correctly for both clicks activated', () => {
+  it('renders and handles right clicks correctly for both clicks activated', () => {
     const testElementText = 'Test Element';
     render(
       <ContextMenu menuItems={testMenuItems} activation={'both'}>
@@ -122,7 +122,7 @@ describe('The ContextMenu', () => {
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
 
-  test('renders and calls onOpen and onClose correctly', () => {
+  it('renders and calls onOpen and onClose correctly', () => {
     const testElementText = 'Test Element';
     const onCloseMock = jest.fn();
     const onOpenMock = jest.fn();

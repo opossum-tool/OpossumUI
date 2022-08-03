@@ -14,7 +14,7 @@ import {
 import { Attributions, ExportType } from '../../../../shared/shared-types';
 
 describe('BackendCommunication', () => {
-  test('renders an Open file icon', () => {
+  it('renders an Open file icon', () => {
     renderComponentWithStore(<BackendCommunication />);
     expect(window.electronAPI.on).toHaveBeenCalledTimes(10);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
@@ -59,7 +59,7 @@ describe('BackendCommunication', () => {
     );
   });
 
-  test('filters the correct BOM attributions', () => {
+  it('filters the correct BOM attributions', () => {
     const testAttributions: Attributions = {
       genericAttrib: {},
       firstPartyAttrib: { firstParty: true },

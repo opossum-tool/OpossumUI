@@ -15,7 +15,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { screen } from '@testing-library/react';
 
 describe('The ProjectStatisticsPopup', () => {
-  test('displays license names and source names', () => {
+  it('displays license names and source names', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -48,7 +48,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('reuser'.toUpperCase())).toBeInTheDocument();
   });
 
-  test('renders when there are no attributions', () => {
+  it('renders when there are no attributions', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};
     store.dispatch(
