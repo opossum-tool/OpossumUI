@@ -5,7 +5,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export enum IpcChannel {
+  DeleteFile = 'delete-file',
   ExportFile = 'export-file',
+  KeepFile = 'keep-file',
   OpenFile = 'open-file',
   OpenLink = 'open-link',
   SaveFile = 'save-file',
@@ -19,9 +21,10 @@ export enum AllowedFrontendChannels {
   ResetLoadedFile = 'reset-loaded-file',
   RestoreFrontend = 'restore-frontend',
   SaveFileRequest = 'save-file-request',
-  ToggleHighlightForCriticalSignals = 'toggle-highlight-for-critical-signals',
+  SetBaseURLForRoot = 'set-base-url-for-root',
+  ShowChangedInputFilePopup = 'show-changed-input-file-pop-up',
   ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
-  SetBaseURLForRoot = 'set-base-url-for-root',
+  ToggleHighlightForCriticalSignals = 'toggle-highlight-for-critical-signals',
 }

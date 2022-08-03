@@ -5,15 +5,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import fs from 'fs';
-import path from 'path';
-import upath from 'upath';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
   AttributionsToResources,
   ParsedFileContent,
 } from '../../shared/shared-types';
-import { setGlobalBackendState } from '../main/globalBackendState';
+import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalSignals,
@@ -24,7 +22,6 @@ import {
 } from './parseInputData';
 import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
 import {
-  GlobalBackendState,
   JsonParsingError,
   OpossumOutputFile,
   ParsedOpossumInputFile,
@@ -35,6 +32,7 @@ import { cloneDeep } from 'lodash';
 import log from 'electron-log';
 import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
 import { v4 as uuid4 } from 'uuid';
+import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 
 function isJsonParsingError(
   object: ParsedOpossumInputFile | JsonParsingError
@@ -55,7 +53,7 @@ export async function loadJsonFromFilePath(
 
   if (isJsonParsingError(parsingResult)) {
     log.info('Invalid input file.');
-    await getMessageBoxForParsingError(parsingResult.message, webContents);
+    await getMessageBoxForParsingError(parsingResult.message);
 
     return;
   }
@@ -69,6 +67,7 @@ export async function loadJsonFromFilePath(
     '_attributions.json'
   );
   const projectId = parsingResult.metadata.projectId;
+  const inputFileChecksum = getGlobalBackendState().inputFileChecksum;
 
   if (!fs.existsSync(manualAttributionFilePath)) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
@@ -76,18 +75,17 @@ export async function loadJsonFromFilePath(
       manualAttributionFilePath,
       externalAttributions,
       parsingResult.resourcesToAttributions,
-      projectId
+      projectId,
+      inputFileChecksum
     );
     log.info('... Successfully created output file.');
   }
-
   log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
   const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
   const [manualAttributions] = parseRawAttributions(
     opossumOutputData.manualAttributions
   );
   log.info('... Successfully parsed output file.');
-
   log.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsingResult.frequentLicenses
@@ -98,7 +96,6 @@ export async function loadJsonFromFilePath(
     parsingResult.resources,
     parsingResult.resourcesToAttributions
   );
-
   log.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
     metadata: parsingResult.metadata,
@@ -134,25 +131,11 @@ export async function loadJsonFromFilePath(
   webContents.send(AllowedFrontendChannels.FileLoaded, parsedFileContent);
 
   log.info('Updating global backend state');
-  const newGlobalBackendState: GlobalBackendState = {
-    projectId,
-    resourceFilePath: filePath,
-    attributionFilePath: manualAttributionFilePath,
-    followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
-    compactBomFilePath: getFilePathWithAppendix(
-      filePath,
-      '_compact_component_list.csv'
-    ),
-    detailedBomFilePath: getFilePathWithAppendix(
-      filePath,
-      '_detailed_component_list.csv'
-    ),
-    spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
-    spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
-    projectTitle: parsingResult.metadata.projectTitle,
-    inputContainsCriticalSignals,
-  };
-  setGlobalBackendState(newGlobalBackendState);
+
+  getGlobalBackendState().projectTitle = parsingResult.metadata.projectTitle;
+  getGlobalBackendState().projectId = projectId;
+  getGlobalBackendState().inputContainsCriticalSignals =
+    inputContainsCriticalSignals;
 
   log.info('File import finished successfully');
 }
@@ -161,7 +144,8 @@ function createOutputFile(
   manualAttributionFilePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
-  projectId: string
+  projectId: string,
+  inputFileMD5Checksum?: string
 ): void {
   const externalAttributionsCopy = cloneDeep(externalAttributions);
   const preselectedExternalAttributions = Object.fromEntries(
@@ -209,6 +193,7 @@ function createOutputFile(
     metadata: {
       projectId,
       fileCreationDate: String(Date.now()),
+      inputFileMD5Checksum,
     },
     manualAttributions: preselectedAttributions,
     resourcesToAttributions: preselectedAttributionsToResources,
@@ -216,39 +201,4 @@ function createOutputFile(
   };
 
   writeJsonToFile(manualAttributionFilePath, attributionJSON);
-}
-
-function getFilePathWithAppendix(
-  resourceFilePath: fs.PathLike,
-  appendix: string
-): string {
-  const { baseFileName, basePath } = getBasePaths(resourceFilePath);
-
-  const fileNameWithAppendix = baseFileName.concat(appendix);
-  return basePath.concat(fileNameWithAppendix);
-}
-
-function getBasePaths(resourceFilePath: string | Buffer | URL): {
-  baseFileName: string;
-  basePath: string;
-} {
-  const baseFileName: string = path.basename(
-    resourceFilePath.toString(),
-    getFileExtension(resourceFilePath)
-  );
-  const parent_folder = path.dirname(resourceFilePath.toString());
-  const basePath = path.join(upath.toUnix(parent_folder), '/');
-  return { baseFileName, basePath };
-}
-
-function getFileExtension(resourceFilePath: string | Buffer | URL): string {
-  const gzipFileExtension = '.gz';
-  const fileIsGziped =
-    path.extname(resourceFilePath.toString()) === gzipFileExtension;
-
-  return fileIsGziped
-    ? path.extname(
-        path.basename(resourceFilePath.toString(), gzipFileExtension)
-      ) + gzipFileExtension
-    : path.extname(resourceFilePath.toString());
 }

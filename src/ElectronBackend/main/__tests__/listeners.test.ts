@@ -15,6 +15,7 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  PackageInfo,
 } from '../../../shared/shared-types';
 import { loadJsonFromFilePath } from '../../input/importFromFile';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
@@ -24,21 +25,27 @@ import { createWindow } from '../createWindow';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   _exportFileAndOpenFolder,
+  getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
+  getKeepFileListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
-import each from 'jest-each';
 
 import path from 'path';
 import upath from 'upath';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import each from 'jest-each';
+import fs from 'fs';
+import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
+import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
+import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
 
 jest.mock('electron', () => ({
   app: {
@@ -106,6 +113,10 @@ jest.mock('../../input/importFromFile', () => ({
   loadJsonFromFilePath: jest.fn(),
 }));
 
+jest.mock('../../utils/getFilePathWithAppendix', () => ({
+  getFilePathWithAppendix: jest.fn(),
+}));
+
 jest.mock('../dialogs', () => ({
   openFileDialog: jest.fn(),
   selectBaseURLDialog: jest.fn(),
@@ -116,8 +127,8 @@ MockDate.set(new Date(mockDate));
 
 describe('getOpenFileListener', () => {
   each([
-    ['json/path.json', 'path.json'],
-    ['json/path%20with%2Fencoding.json', 'path with/encoding.json'],
+    ['path.json', 'path.json'],
+    ['path%20with%2Fencoding.json', 'path with/encoding.json'],
   ]).test(
     'calls loadJsonFromFilePath and handles %s correctly',
     async (filePath: string, expectedTitle: string) => {
@@ -128,7 +139,10 @@ describe('getOpenFileListener', () => {
         setTitle: jest.fn(),
       } as unknown as BrowserWindow;
 
-      const jsonPath = filePath;
+      const temporaryPath: string = createTempFolder();
+      const jsonPath = path.join(upath.toUnix(temporaryPath), filePath);
+
+      fs.writeFileSync(jsonPath, 'dummy data');
       // @ts-ignore
       openFileDialog.mockReturnValueOnce([jsonPath]);
 
@@ -139,7 +153,20 @@ describe('getOpenFileListener', () => {
         expect.anything(),
         jsonPath
       );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_attributions.json'
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_follow_up.csv'
+      );
+      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
+        expect.anything(),
+        '_compact_component_list.csv'
+      );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
+      deleteFolder(temporaryPath);
     }
   );
 
@@ -175,6 +202,79 @@ describe('getOpenFileListener', () => {
     expect(loadJsonFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       expectedPath
+    );
+    deleteFolder(temporaryPath);
+  });
+
+  test('checks the case with non-matching checksums', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const temporaryPath: string = createTempFolder();
+    const resourcesFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      'path.json'
+    );
+
+    // @ts-ignore
+    getFilePathWithAppendix.mockImplementation(
+      jest.requireActual('../../utils/getFilePathWithAppendix')
+        .getFilePathWithAppendix
+    );
+    // @ts-ignore
+    writeJsonToFile.mockImplementationOnce(
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+    );
+
+    writeJsonToFile(resourcesFilePath, {});
+
+    const attributionsFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      'path_attributions.json'
+    );
+    const validAttribution: PackageInfo = {
+      packageName: 'Package',
+      packageVersion: '1.0',
+      licenseText: 'MIT',
+      followUp: 'FOLLOW_UP',
+    };
+    const attributions_data: OpossumOutputFile = {
+      metadata: {
+        projectId: 'test_id',
+        fileCreationDate: '1',
+        inputFileMD5Checksum: 'fake_checksum',
+      },
+      manualAttributions: {
+        ['test_uuid']: validAttribution,
+      },
+      resourcesToAttributions: {
+        '/path/1': ['test_uuid'],
+      },
+      resolvedExternalAttributions: [],
+    };
+
+    // @ts-ignore
+    writeJsonToFile.mockImplementationOnce(
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+    );
+
+    writeJsonToFile(attributionsFilePath, attributions_data);
+
+    // @ts-ignore
+    openFileDialog.mockReturnValueOnce([resourcesFilePath]);
+
+    await getOpenFileListener(mainWindow)();
+
+    expect(openFileDialog).toBeCalled();
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      {
+        showChangedInputFilePopup: true,
+      }
     );
     deleteFolder(temporaryPath);
   });
@@ -223,18 +323,97 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const jsonPath = 'json/path.json';
+    // @ts-ignore
+    loadJsonFromFilePath.mockImplementationOnce(
+      jest.requireActual('../../input/importFromFile').loadJsonFromFilePath
+    );
+    // @ts-ignore
+    getFilePathWithAppendix.mockImplementation(
+      jest.requireActual('../../utils/getFilePathWithAppendix')
+        .getFilePathWithAppendix
+    );
+    // @ts-ignore
+    writeJsonToFile.mockImplementationOnce(
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+    );
+
+    const temporaryPath: string = createTempFolder();
+    const jsonPath = path.join(upath.toUnix(temporaryPath), 'path.json');
+    const inputFileContent: ParsedOpossumInputFile = {
+      metadata: {
+        ...EMPTY_PROJECT_METADATA,
+        projectTitle: 'Test Title',
+      },
+      resources: {},
+      externalAttributions: {},
+      frequentLicenses: [],
+      resourcesToAttributions: {},
+      externalAttributionSources: {},
+    };
+    fs.writeFileSync(jsonPath, JSON.stringify(inputFileContent));
     // @ts-ignore
     openFileDialog.mockReturnValueOnce([jsonPath]);
-
-    setGlobalBackendState({
-      projectTitle: 'Test Title',
-    });
 
     await getOpenFileListener(mainWindow)();
 
     expect(openFileDialog).toBeCalled();
     expect(mainWindow.setTitle).toBeCalledWith('Test Title');
+    deleteFolder(temporaryPath);
+  });
+});
+
+describe('getDeleteAndCreateNewAttributionFileListener', () => {
+  test('deletes attribution file and calls loadJsonFromFilePath', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const attributionFilePath = '/somefile_attribution.json';
+    const temporaryPath: string = createTempFolder();
+    const jsonPath = path.join(
+      upath.toUnix(temporaryPath),
+      attributionFilePath
+    );
+    fs.writeFileSync(jsonPath, 'dummy data');
+
+    setGlobalBackendState({
+      resourceFilePath: '/somefile.json',
+      attributionFilePath: jsonPath,
+    });
+
+    await getDeleteAndCreateNewAttributionFileListener(mainWindow)();
+
+    expect(fs.existsSync(jsonPath)).toBeFalsy();
+    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      '/somefile.json'
+    );
+    deleteFolder(temporaryPath);
+  });
+});
+
+describe('getKeepFileListener', () => {
+  test('calls loadJsonFromFilePath with a correct path', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    setGlobalBackendState({
+      resourceFilePath: '/somefile.json',
+    });
+
+    await getKeepFileListener(mainWindow)();
+
+    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      '/somefile.json'
+    );
   });
 });
 

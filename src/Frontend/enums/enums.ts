@@ -23,6 +23,7 @@ export enum PopupType {
   ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',
   EditAttributionPopup = 'EditAttributionPopup',
   PackageSearchPopup = 'PackageSearchPopup',
+  ChangedInputFilePopup = 'ChangedInputFilePopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -56,15 +57,16 @@ export enum ButtonText {
   DeleteGlobally = 'Delete globally',
   DeleteSelectedGlobally = 'Delete selected globally',
   Hide = 'Hide',
+  Keep = 'Keep',
   MarkForReplacement = 'Mark for replacement',
-  Save = 'Save',
-  SaveGlobally = 'Save globally',
   Replace = 'Replace',
   ReplaceMarked = 'Replace marked',
+  Save = 'Save',
+  SaveGlobally = 'Save globally',
+  ShowResources = 'Show resources',
   Undo = 'Undo',
   UnmarkForReplacement = 'Unmark for replacement',
   Unhide = 'Unhide',
-  ShowResources = 'Show resources',
 }
 
 export enum FilterType {

@@ -13,6 +13,7 @@
 /example-files/performance_tests/*_follow_up.csv
 /example-files/performance_tests/*_component_list.csv
 /src/e2e-tests/test-resources/*_attributions.json
+/temp-folder*
 
 # production
 /build

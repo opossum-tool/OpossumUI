@@ -19,7 +19,7 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 describe('TopBar', () => {
   test('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(9);
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(10);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expect.anything()
@@ -45,6 +45,10 @@ describe('TopBar', () => {
       expect.anything()
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      expect.anything()
+    );
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowProjectStatisticsPopup,
       expect.anything()
     );
@@ -60,7 +64,6 @@ describe('TopBar', () => {
     fireEvent.click(screen.queryByLabelText('open file') as Element);
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
-    expect(window.electronAPI.openFile).toHaveBeenCalledWith();
   });
 
   test('switches between views', () => {
