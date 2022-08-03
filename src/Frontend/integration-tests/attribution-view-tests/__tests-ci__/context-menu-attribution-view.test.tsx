@@ -81,7 +81,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 };
 
 describe('In Attribution View the ContextMenu', () => {
-  test('confirmation buttons work correctly', () => {
+  it('confirmation buttons work correctly', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -122,7 +122,7 @@ describe('In Attribution View the ContextMenu', () => {
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
   });
 
-  test('replaces attributions correctly', () => {
+  it('replaces attributions correctly', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
         uuid_2: {
@@ -228,7 +228,7 @@ describe('In Attribution View the ContextMenu', () => {
     );
   });
 
-  test('deletes multi-selected attributions correctly', () => {
+  it('deletes multi-selected attributions correctly', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,

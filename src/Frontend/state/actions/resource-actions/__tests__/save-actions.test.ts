@@ -107,7 +107,7 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
 };
 
 describe('The savePackageInfo action', () => {
-  test('does not save if saving is disabled', () => {
+  it('does not save if saving is disabled', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -142,7 +142,7 @@ describe('The savePackageInfo action', () => {
     );
   });
 
-  test('throws an error if resource is a breakpoint', () => {
+  it('throws an error if resource is a breakpoint', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageName: 'test Package',
     };
@@ -174,7 +174,7 @@ describe('The savePackageInfo action', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
   });
 
-  test('creates a new attribution', () => {
+  it('creates a new attribution', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -245,7 +245,7 @@ describe('The savePackageInfo action', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
   });
 
-  test('updates an attribution', () => {
+  it('updates an attribution', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
@@ -309,7 +309,7 @@ describe('The savePackageInfo action', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
   });
 
-  test('removes an attribution', () => {
+  it('removes an attribution', () => {
     const testUuidA = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testUuidB = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
     const testResources: Resources = {
@@ -409,7 +409,7 @@ describe('The savePackageInfo action', () => {
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
   });
 
-  test('removes an attribution keeping the selectedAttributionId when the attribution still exists', () => {
+  it('removes an attribution keeping the selectedAttributionId when the attribution still exists', () => {
     const testResources: Resources = {
       'something.js': 1,
       'somethingElse.js': 1,
@@ -456,7 +456,7 @@ describe('The savePackageInfo action', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
   });
 
-  test('cleans up multiSelectSelectedAttributionIds if attribution was removed', () => {
+  it('cleans up multiSelectSelectedAttributionIds if attribution was removed', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -476,7 +476,7 @@ describe('The savePackageInfo action', () => {
     ).toStrictEqual([]);
   });
 
-  test('removes an attribution from child and removes all remaining attributions if parent has identical ones', () => {
+  it('removes an attribution from child and removes all remaining attributions if parent has identical ones', () => {
     const testResources: Resources = {
       parent: {
         'child.js': 1,
@@ -512,7 +512,7 @@ describe('The savePackageInfo action', () => {
     });
   });
 
-  test('removes an attribution from parent and removes all remaining attributions from child if has now same of parent', () => {
+  it('removes an attribution from parent and removes all remaining attributions from child if has now same of parent', () => {
     const testResources: Resources = {
       parent: {
         'child.js': 1,
@@ -548,7 +548,7 @@ describe('The savePackageInfo action', () => {
     });
   });
 
-  test('replaces an attribution with an existing one', () => {
+  it('replaces an attribution with an existing one', () => {
     const testPackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
@@ -628,7 +628,7 @@ describe('The savePackageInfo action', () => {
     ).toStrictEqual(['uuid1']);
   });
 
-  test('links to an attribution when the attribution already exists', () => {
+  it('links to an attribution when the attribution already exists', () => {
     const testUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testPackageInfo = {
       packageName: 'React',
@@ -703,7 +703,7 @@ describe('The savePackageInfo action', () => {
     );
   });
 
-  test('removes an attribution and keeps temporary package info for selected attribution', () => {
+  it('removes an attribution and keeps temporary package info for selected attribution', () => {
     const testUuidA = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
     const testUuidB = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
     const testResources: Resources = {
@@ -753,7 +753,7 @@ describe('The savePackageInfo action', () => {
     );
   });
 
-  test('replaces an attribution with an existing one, keeps temporary package info for selected attribution and stay at selected attribution', () => {
+  it('replaces an attribution with an existing one, keeps temporary package info for selected attribution and stay at selected attribution', () => {
     const testPackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
@@ -810,7 +810,7 @@ describe('The savePackageInfo action', () => {
     expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
   });
 
-  test('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', () => {
+  it('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -862,7 +862,7 @@ describe('The savePackageInfo action', () => {
     ).toBe('uuid1');
   });
 
-  test('updates an attribution and keeps temporary package info for selected attribution', () => {
+  it('updates an attribution and keeps temporary package info for selected attribution', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
       packageName: 'test Package modified',
@@ -899,7 +899,7 @@ describe('The savePackageInfo action', () => {
 });
 
 describe('The unlinkAttributionAndSavePackageInfo action', () => {
-  test('saves attribution updates for a single resource', () => {
+  it('saves attribution updates for a single resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
@@ -957,7 +957,7 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
 });
 
 describe('The deleteAttributionAndSave action', () => {
-  test('unlinks resource from attribution with single linked attribution', () => {
+  it('unlinks resource from attribution with single linked attribution', () => {
     const testResources: Resources = {
       file1: 1,
     };
@@ -988,7 +988,7 @@ describe('The deleteAttributionAndSave action', () => {
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
   });
 
-  test('deletes attributions from multiSelectSelectedAttributionIds', () => {
+  it('deletes attributions from multiSelectSelectedAttributionIds', () => {
     const testResources: Resources = {
       file1: 1,
     };
@@ -1023,7 +1023,7 @@ describe('The deleteAttributionAndSave action', () => {
     ).toStrictEqual([]);
   });
 
-  test('unlinks resource from attribution multiple linked attribution', () => {
+  it('unlinks resource from attribution multiple linked attribution', () => {
     const testResources: Resources = {
       file1: 1,
     };
@@ -1067,7 +1067,7 @@ describe('The deleteAttributionAndSave action', () => {
 });
 
 describe('The deleteAttributionGloballyAndSave action', () => {
-  test('deletes attribution', () => {
+  it('deletes attribution', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.Low,
@@ -1133,7 +1133,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
 });
 
 describe('The addToSelectedResource action', () => {
-  test('links an already existing manual attribution to the selected resource', () => {
+  it('links an already existing manual attribution to the selected resource', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -1165,7 +1165,7 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toBe(null);
   });
 
-  test('opens popup', () => {
+  it('opens popup', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -1188,7 +1188,7 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toEqual('NotSavedPopup');
   });
 
-  test('adds a signal to the selected resource', () => {
+  it('adds a signal to the selected resource', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -1239,7 +1239,7 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toBe(null);
   });
 
-  test('saves resolved external signals', () => {
+  it('saves resolved external signals', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setResources({}));
     testStore.dispatch(

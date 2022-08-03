@@ -13,7 +13,7 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { act } from 'react-dom/test-utils';
 
 describe('The ManualPackagePanel', () => {
-  test('shows default and input attributions', () => {
+  it('shows default and input attributions', () => {
     const mockOnOverride = jest.fn();
     const { store } = renderComponentWithStore(
       <ManualPackagePanel
@@ -43,7 +43,7 @@ describe('The ManualPackagePanel', () => {
     expect(screen.getByText('Add new attribution'));
   });
 
-  test('Shows hint and override button for parent attribution', () => {
+  it('Shows hint and override button for parent attribution', () => {
     const mockOnOverride = jest.fn();
     renderComponentWithStore(
       <ManualPackagePanel

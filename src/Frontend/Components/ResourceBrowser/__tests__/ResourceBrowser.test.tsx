@@ -32,7 +32,7 @@ import { addResolvedExternalAttribution } from '../../../state/actions/resource-
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('ResourceBrowser', () => {
-  test('renders working tree', () => {
+  it('renders working tree', () => {
     const testResources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -88,7 +88,7 @@ describe('ResourceBrowser', () => {
     expect(screen.getByText('src'));
   });
 
-  test('opens folders recursively', () => {
+  it('opens folders recursively', () => {
     const testResources: Resources = {
       parentDirectory: {
         childDirectory: {
@@ -121,7 +121,7 @@ describe('ResourceBrowser', () => {
     expect(screen.getByText('package_2.tr.gz'));
   });
 
-  test('Resource browser renders icons', () => {
+  it('Resource browser renders icons', () => {
     const testResources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -198,7 +198,7 @@ describe('ResourceBrowser', () => {
     );
   });
 
-  test('Resources are sorted in alphabetical order', () => {
+  it('Resources are sorted in alphabetical order', () => {
     const testResources: Resources = {
       'd_package.exe': 1,
       'c_package.exe': 1,
@@ -230,7 +230,7 @@ describe('ResourceBrowser', () => {
     expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
   });
 
-  test('Resource folders are sorted before files', () => {
+  it('Resource folders are sorted before files', () => {
     const testResources: Resources = {
       'a_package.exe': 1,
       'b_package.exe': 1,
@@ -262,7 +262,7 @@ describe('ResourceBrowser', () => {
     expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
   });
 
-  test('FileWithChildren are sorted with files', () => {
+  it('FileWithChildren are sorted with files', () => {
     const testResources: Resources = {
       'a_package.exe': 1,
       'z_package.exe': 1,

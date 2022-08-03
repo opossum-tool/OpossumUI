@@ -68,7 +68,7 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 }
 
 describe('The ResourceDetailsAttributionColumn', () => {
-  test('renders TextBoxes with right titles and content', () => {
+  it('renders TextBoxes with right titles and content', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       comment: 'some comment',
@@ -119,7 +119,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
     );
   });
 
-  test('shows parent attribution if overrideParentMode is true', () => {
+  it('shows parent attribution if overrideParentMode is true', () => {
     const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />
     );
@@ -134,7 +134,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
     expect(screen.getByDisplayValue(testManualLicense));
   });
 
-  test('does not show parent attribution if overrideParentMode is false', () => {
+  it('does not show parent attribution if overrideParentMode is false', () => {
     const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={false} />
     );

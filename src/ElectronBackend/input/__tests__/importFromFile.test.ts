@@ -169,7 +169,7 @@ describe('Test of loading function', () => {
     jest.resetAllMocks();
   });
 
-  test('handles Parsing error correctly', async () => {
+  it('handles Parsing error correctly', async () => {
     const temporaryPath: string = createTempFolder();
     const corruptJsonPath = path.join(
       upath.toUnix(temporaryPath),
@@ -205,7 +205,7 @@ describe('Test of loading function', () => {
   });
 
   describe('Load file and parse file successfully, no attribution file', () => {
-    test('for json file', async () => {
+    it('for json file', async () => {
       const temporaryPath: string = createTempFolder();
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
       writeJsonToFile(jsonPath, inputFileContent);
@@ -225,7 +225,7 @@ describe('Test of loading function', () => {
       deleteFolder(temporaryPath);
     });
 
-    test('for json.gz file', async () => {
+    it('for json.gz file', async () => {
       const temporaryPath: string = createTempFolder();
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json.gz');
       fs.writeFileSync(
@@ -421,7 +421,7 @@ describe('Test of loading function', () => {
     }
   );
 
-  test('loads file and parses json successfully, custom metadata', async () => {
+  it('loads file and parses json successfully, custom metadata', async () => {
     const inputFileContentWithCustomMetadata: ParsedOpossumInputFile = {
       ...inputFileContent,
       metadata: {

@@ -9,7 +9,7 @@ import { NotificationPopup } from '../NotificationPopup';
 import { ButtonConfig } from '../../../types/types';
 
 describe('NotificationPopup', () => {
-  test('renders open popup with text', () => {
+  it('renders open popup with text', () => {
     const onLeftButtonClick = jest.fn();
     const onRightButtonClick = jest.fn();
     const onCenterLeftButtonClick = jest.fn();
@@ -56,7 +56,7 @@ describe('NotificationPopup', () => {
     expect(onCenterRightButtonClick).toHaveBeenCalled();
   });
 
-  test('renders open popup with component', () => {
+  it('renders open popup with component', () => {
     render(
       <NotificationPopup
         content={<div>{'test component'}</div>}
@@ -69,7 +69,7 @@ describe('NotificationPopup', () => {
     expect(screen.getByText('test component')).toBeInTheDocument();
   });
 
-  test('executes function on escape key', () => {
+  it('executes function on escape key', () => {
     const onEscapeKeyDown = jest.fn();
     render(
       <NotificationPopup

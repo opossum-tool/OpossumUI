@@ -9,7 +9,7 @@ import React from 'react';
 import { StyledTreeItemLabel } from '../StyledTreeItemLabel';
 
 describe('StyledTreeItemLabel', () => {
-  test('renders a file without information', () => {
+  it('renders a file without information', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -33,7 +33,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder with attribution', () => {
+  it('renders a folder with attribution', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -56,7 +56,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder with signal and icon', () => {
+  it('renders a folder with signal and icon', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -80,7 +80,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder with resolved signal and icon', () => {
+  it('renders a folder with resolved signal and icon', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -104,7 +104,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a file with resolved signal and icon', () => {
+  it('renders a file with resolved signal and icon', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -128,7 +128,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder with contained signals', () => {
+  it('renders a folder with contained signals', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -151,7 +151,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder with contained attributions', () => {
+  it('renders a folder with contained attributions', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -174,7 +174,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a file with parent attribution', () => {
+  it('renders a file with parent attribution', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -197,7 +197,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder without information', () => {
+  it('renders a folder without information', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -220,7 +220,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a folder with all children containing signal also containing attributions', () => {
+  it('renders a folder with all children containing signal also containing attributions', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}
@@ -245,7 +245,7 @@ describe('StyledTreeItemLabel', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders a breakpoint', () => {
+  it('renders a breakpoint', () => {
     render(
       <StyledTreeItemLabel
         labelText={'Test label'}

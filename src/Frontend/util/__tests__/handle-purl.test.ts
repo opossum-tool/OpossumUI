@@ -13,7 +13,7 @@ import { PackageURL } from 'packageurl-js';
 import { PackageInfo } from '../../../shared/shared-types';
 
 describe('parsePurl', () => {
-  test('returns false for an invalid purl', () => {
+  it('returns false for an invalid purl', () => {
     const testPurl = 'pkg:xxx';
 
     const parsePurlReturn: ParsedPurl = parsePurl(testPurl);
@@ -21,7 +21,7 @@ describe('parsePurl', () => {
     expect(parsePurlReturn.purl).toBeUndefined();
   });
 
-  test('returns true and packageUrl for a valid purl', () => {
+  it('returns true and packageUrl for a valid purl', () => {
     const testPurl = 'pkg:type/namespace/name@version?qualifiers=#subpath';
     const expectedPackageUrl: Partial<PackageInfo> = {
       packageName: 'name',
@@ -38,7 +38,7 @@ describe('parsePurl', () => {
 });
 
 describe('generatePurlFromPackageInfo', () => {
-  test('generates a valid Purl', () => {
+  it('generates a valid Purl', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
@@ -51,7 +51,7 @@ describe('generatePurlFromPackageInfo', () => {
     expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
   });
 
-  test('generates a valid Purl without appendix', () => {
+  it('generates a valid Purl without appendix', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
@@ -63,7 +63,7 @@ describe('generatePurlFromPackageInfo', () => {
     expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
   });
 
-  test('returns undefined when no packageName is given', () => {
+  it('returns undefined when no packageName is given', () => {
     const testPackageInfo: PackageInfo = {
       packageNamespace: 'namespace',
       packageType: 'type',
@@ -73,7 +73,7 @@ describe('generatePurlFromPackageInfo', () => {
     expect(generatePurlFromPackageInfo(testPackageInfo)).toBe('');
   });
 
-  test('generates Purl with generic type when no packageType is given', () => {
+  it('generates Purl with generic type when no packageType is given', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
@@ -86,7 +86,7 @@ describe('generatePurlFromPackageInfo', () => {
 });
 
 describe('generatePurlAppendix', () => {
-  test('return the purl appendix without subpath', () => {
+  it('return the purl appendix without subpath', () => {
     const testPackageUrl = new PackageURL(
       'type',
       'namespace',
@@ -107,7 +107,7 @@ describe('generatePurlAppendix', () => {
     ).toBe(expectedPurlAppendix);
   });
 
-  test('return the purl appendix with subpath', () => {
+  it('return the purl appendix with subpath', () => {
     const testPackageUrl = new PackageURL(
       'type',
       'namespace',
@@ -126,7 +126,7 @@ describe('generatePurlAppendix', () => {
     ).toBe(expectedPurlAppendix);
   });
 
-  test('return the purl appendix', () => {
+  it('return the purl appendix', () => {
     const testPackageUrl = new PackageURL(
       'type',
       'namespace',

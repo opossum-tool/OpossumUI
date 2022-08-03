@@ -25,7 +25,7 @@ describe('The GoToLinkButton', () => {
       '/parent_directory/child_directory/',
       'https://www.testurl.com/code/?base=123456789',
     ],
-  ]).test(
+  ]).it(
     'navigates to correct link for %s',
     (path: string, expected_link: string) => {
       const testBaseUrlsForSources: BaseUrlsForSources = {

@@ -41,7 +41,7 @@ import {
 } from '../../../test-helpers/popup-test-helpers';
 
 describe('The App in attribution view', () => {
-  test('app shows empty AttributionsDetailsViewer for selected Signals', () => {
+  it('app shows empty AttributionsDetailsViewer for selected Signals', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -85,7 +85,7 @@ describe('The App in attribution view', () => {
     expect(screen.queryByText('Linked Resources')).not.toBeInTheDocument();
   });
 
-  test('allows to modify text in text boxes', () => {
+  it('allows to modify text in text boxes', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -140,7 +140,7 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'jQuery');
   });
 
-  test('handles purls correctly', () => {
+  it('handles purls correctly', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -249,7 +249,7 @@ describe('The App in attribution view', () => {
     );
   });
 
-  test('saves an updated attribution to file', () => {
+  it('saves an updated attribution to file', () => {
     const testManualPackage: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
@@ -338,7 +338,7 @@ describe('The App in attribution view', () => {
     );
   });
 
-  test('deletes an attribution', () => {
+  it('deletes an attribution', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {},
       resourcesToAttributions: {},
@@ -401,7 +401,7 @@ describe('The App in attribution view', () => {
     );
   });
 
-  test('replaces attributions', () => {
+  it('replaces attributions', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
         uuid_2: {

@@ -11,7 +11,7 @@ import { Checkbox } from '../../Checkbox/Checkbox';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 
 describe('The ListCard', () => {
-  test('renders text with no count', () => {
+  it('renders text with no count', () => {
     renderComponentWithStore(
       <ListCard
         text={'card text'}
@@ -25,7 +25,7 @@ describe('The ListCard', () => {
     expect(screen.getByText('card text of second line'));
   });
 
-  test('renders text with small count', () => {
+  it('renders text with small count', () => {
     renderComponentWithStore(
       <ListCard
         text={'card text'}
@@ -41,7 +41,7 @@ describe('The ListCard', () => {
     expect(screen.getByText('13'));
   });
 
-  test('renders text with medium count', () => {
+  it('renders text with medium count', () => {
     renderComponentWithStore(
       <ListCard
         text={'card text'}
@@ -57,7 +57,7 @@ describe('The ListCard', () => {
     expect(screen.getByText('13k'));
   });
 
-  test('renders text with large count', () => {
+  it('renders text with large count', () => {
     renderComponentWithStore(
       <ListCard
         text={'card text'}
@@ -73,7 +73,7 @@ describe('The ListCard', () => {
     expect(screen.getByText('1M'));
   });
 
-  test('renders leftElement if provided as input', () => {
+  it('renders leftElement if provided as input', () => {
     const leftElement = <Checkbox checked={false} onChange={jest.fn()} />;
     renderComponentWithStore(
       <ListCard

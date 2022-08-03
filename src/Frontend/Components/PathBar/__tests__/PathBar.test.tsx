@@ -11,7 +11,7 @@ import { setFilesWithChildren } from '../../../state/actions/resource-actions/al
 import { act, screen } from '@testing-library/react';
 
 describe('The PathBar', () => {
-  test('renders a path', () => {
+  it('renders a path', () => {
     const testPath = '/test_path';
 
     const { store } = renderComponentWithStore(<PathBar />);
@@ -22,7 +22,7 @@ describe('The PathBar', () => {
     expect(screen.getByText(testPath));
   });
 
-  test('renders a path of a file with children', () => {
+  it('renders a path of a file with children', () => {
     const testPath = '/test_path/';
 
     const { store } = renderComponentWithStore(<PathBar />);

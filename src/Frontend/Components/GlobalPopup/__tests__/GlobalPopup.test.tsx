@@ -19,13 +19,13 @@ import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/res
 import { act } from 'react-dom/test-utils';
 
 describe('The GlobalPopUp', () => {
-  test('does not open by default', () => {
+  it('does not open by default', () => {
     renderComponentWithStore(<GlobalPopup />);
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
   });
 
-  test('opens the NotSavedPopup', () => {
+  it('opens the NotSavedPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.NotSavedPopup));
@@ -34,7 +34,7 @@ describe('The GlobalPopUp', () => {
     expect(screen.getByText('Warning')).toBeInTheDocument();
   });
 
-  test('opens the ErrorPopup', () => {
+  it('opens the ErrorPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.UnableToSavePopup));
@@ -43,7 +43,7 @@ describe('The GlobalPopUp', () => {
     expect(screen.getByText('Error')).toBeInTheDocument();
   });
 
-  test('opens the FileSearchPopup', () => {
+  it('opens the FileSearchPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.FileSearchPopup));
@@ -54,7 +54,7 @@ describe('The GlobalPopUp', () => {
     ).toBeInTheDocument();
   });
 
-  test('opens the ProjectMetadataPopup', () => {
+  it('opens the ProjectMetadataPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
@@ -63,7 +63,7 @@ describe('The GlobalPopUp', () => {
     expect(screen.getByText('Project Metadata')).toBeInTheDocument();
   });
 
-  test('opens the ProjectStatisticsPopup', () => {
+  it('opens the ProjectStatisticsPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
@@ -72,7 +72,7 @@ describe('The GlobalPopUp', () => {
     expect(screen.getByText('Project Statistics')).toBeInTheDocument();
   });
 
-  test('opens the ReplaceAttributionPopup', () => {
+  it('opens the ReplaceAttributionPopup', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'name 1' },
     };
@@ -97,7 +97,7 @@ describe('The GlobalPopUp', () => {
     ).toBeInTheDocument();
   });
 
-  test('opens the ConfirmDeletionPopup', () => {
+  it('opens the ConfirmDeletionPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ConfirmDeletionPopup, 'test'));
@@ -110,7 +110,7 @@ describe('The GlobalPopUp', () => {
     ).toBeInTheDocument();
   });
 
-  test('opens the ConfirmDeletionGloballyPopup', () => {
+  it('opens the ConfirmDeletionGloballyPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup, 'test'));
@@ -123,7 +123,7 @@ describe('The GlobalPopUp', () => {
     ).toBeInTheDocument();
   });
 
-  test('opens the ConfirmMultiSelectDeletionPopup', () => {
+  it('opens the ConfirmMultiSelectDeletionPopup', () => {
     const { store } = renderComponentWithStore(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));

@@ -74,7 +74,7 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 }
 
 describe('The ResourceDetailsViewer', () => {
-  test('renders an Attribution column', () => {
+  it('renders an Attribution column', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       packageName: 'jQuery',
     };
@@ -90,7 +90,7 @@ describe('The ResourceDetailsViewer', () => {
     );
   });
 
-  test(
+  it(
     'preselects the first manual attribution and the first manual attribution from parent correctly, ' +
       'despite the alphabetical ordering',
     () => {
@@ -139,7 +139,7 @@ describe('The ResourceDetailsViewer', () => {
     }
   );
 
-  test('renders a ExternalPackageCard', () => {
+  it('renders a ExternalPackageCard', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(setSelectedResourceId('/test_id'));
     const externalAttributions: Attributions = {
@@ -170,7 +170,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByText('JQuery'));
   });
 
-  test('renders Contained External Packages', () => {
+  it('renders Contained External Packages', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     const externalAttributions: Attributions = {
       uuid_2: {
@@ -203,7 +203,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByText('JQuery, 1.0'));
   });
 
-  test('selects an external package and a manual package, showing the right info', () => {
+  it('selects an external package and a manual package, showing the right info', () => {
     const manualAttributions = {
       uuid_1: testTemporaryPackageInfo,
     };
@@ -276,7 +276,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
-  test('adds an external package to a manual package', () => {
+  it('adds an external package to a manual package', () => {
     const manualAttributions: Attributions = {
       uuid_1: testTemporaryPackageInfo,
     };
@@ -360,7 +360,7 @@ describe('The ResourceDetailsViewer', () => {
     );
   });
 
-  test('selects the manual package view after you added an external package', () => {
+  it('selects the manual package view after you added an external package', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
 
     const manualAttributions: Attributions = {
@@ -434,7 +434,7 @@ describe('The ResourceDetailsViewer', () => {
     );
   });
 
-  test('shows parent attribution if child has no other attribution', () => {
+  it('shows parent attribution if child has no other attribution', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
@@ -451,7 +451,7 @@ describe('The ResourceDetailsViewer', () => {
     );
   });
 
-  test('does not show parent attribution if child has another attribution', () => {
+  it('does not show parent attribution if child has another attribution', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
@@ -468,7 +468,7 @@ describe('The ResourceDetailsViewer', () => {
     );
   });
 
-  test('shows enabled add to package tab if assignable packages are present', () => {
+  it('shows enabled add to package tab if assignable packages are present', () => {
     const testResources: Resources = {
       root: {
         fileWithoutAttribution: 1,
@@ -506,7 +506,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
   });
 
-  test('shows disabled add to package tab if no assignable package is present', () => {
+  it('shows disabled add to package tab if no assignable package is present', () => {
     const testResources: Resources = {
       fileWithAttribution: 1,
     };
@@ -535,7 +535,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByText('Signals'));
   });
 
-  test('shows disabled add to package tab if override parent has not been clicked', () => {
+  it('shows disabled add to package tab if override parent has not been clicked', () => {
     const testResources: Resources = {
       folderWithAttribution: { childrenFile: 1 },
     };
@@ -568,7 +568,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByText('Signals'));
   });
 
-  test('hides the package info for attribution breakpoints unless a signal is selected', () => {
+  it('hides the package info for attribution breakpoints unless a signal is selected', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
 
     const manualAttributions: Attributions = {};

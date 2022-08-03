@@ -18,7 +18,7 @@ import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('TopProgressBar', () => {
   jest.useFakeTimers();
-  test('TopProgressBar renders', () => {
+  it('TopProgressBar renders', () => {
     const testResources: Resources = {
       folder1: { file1: 1, file2: 1 },
       folder2: { file1: 1, file2: 1 },
@@ -82,7 +82,7 @@ describe('TopProgressBar', () => {
     ).toBeDefined();
   });
 
-  test('TopProgressBar renders without progress data', () => {
+  it('TopProgressBar renders without progress data', () => {
     renderComponentWithStore(<TopProgressBar />);
     expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
   });

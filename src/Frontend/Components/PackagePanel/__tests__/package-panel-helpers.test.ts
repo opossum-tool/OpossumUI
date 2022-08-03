@@ -87,7 +87,7 @@ describe('PackagePanel helpers', () => {
     },
   };
 
-  test('getAttributionIdsWithCountForSource returns attributionIdsWithCountForSource', () => {
+  it('getAttributionIdsWithCountForSource returns attributionIdsWithCountForSource', () => {
     const sourceName = 'MERGER';
     const expectedAttributionIdsWithCountForSource: Array<AttributionIdWithCount> =
       [
@@ -105,7 +105,7 @@ describe('PackagePanel helpers', () => {
     ).toEqual(expectedAttributionIdsWithCountForSource);
   });
 
-  test('getAttributionIdsWithCountForSource returns empty array', () => {
+  it('getAttributionIdsWithCountForSource returns empty array', () => {
     const sourceName = 'something';
     expect(
       getAttributionIdsWithCountForSource(
@@ -116,7 +116,7 @@ describe('PackagePanel helpers', () => {
     ).toEqual([]);
   });
 
-  test('getSources returns sorted sources', () => {
+  it('getSources returns sorted sources', () => {
     const expectedSortedSources = [
       'MERGER',
       'REUSER:HHC',
@@ -135,19 +135,19 @@ describe('PackagePanel helpers', () => {
     ).toEqual(expectedSortedSources);
   });
 
-  test('getSources returns empty array for no attributionIds', () => {
+  it('getSources returns empty array for no attributionIds', () => {
     expect(
       getSortedSources(testAttributions, [], testAttributionSources)
     ).toEqual([]);
   });
 
-  test('getSources returns empty string for no attributions', () => {
+  it('getSources returns empty string for no attributions', () => {
     expect(
       getSortedSources({}, testAttributionIds, testAttributionSources)
     ).toEqual(['']);
   });
 
-  test('getSources sorts alphabetically if priority is identical', () => {
+  it('getSources sorts alphabetically if priority is identical', () => {
     const testAttributionSourcesEqualPrio: ExternalAttributionSources = {
       MERGER: { name: 'Suggested', priority: 1 },
       HHC: { name: 'High High Compute', priority: 1 },

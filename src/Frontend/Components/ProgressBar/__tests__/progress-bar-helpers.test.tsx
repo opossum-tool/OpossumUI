@@ -31,7 +31,7 @@ function TestComponent(props: { resourceIds: Array<string> }): JSX.Element {
 }
 
 describe('ProgressBar helpers', () => {
-  test('useOnProgressBarClickHook sets correct resourceId', () => {
+  it('useOnProgressBarClickHook sets correct resourceId', () => {
     const { store } = renderComponentWithStore(
       <TestComponent resourceIds={['id_1', 'id_2']} />
     );
@@ -52,7 +52,7 @@ describe('ProgressBar helpers', () => {
     expect(getExpandedIds(store.getState())).toEqual(['id_1']);
   });
 
-  test('useOnProgressBarClickHook selects audit view', () => {
+  it('useOnProgressBarClickHook selects audit view', () => {
     const { store } = renderComponentWithStore(
       <TestComponent resourceIds={['id_1']} />
     );
@@ -68,7 +68,7 @@ describe('ProgressBar helpers', () => {
     expect(getSelectedView(store.getState())).toEqual(View.Audit);
   });
 
-  test('useOnProgressBarClickHook works with empty list', () => {
+  it('useOnProgressBarClickHook works with empty list', () => {
     const { store } = renderComponentWithStore(
       <TestComponent resourceIds={[]} />
     );
@@ -81,7 +81,7 @@ describe('ProgressBar helpers', () => {
     expect(getExpandedIds(store.getState())).toEqual(['test_id']);
   });
 
-  test('getProgressBarBackground returns correct distribution', () => {
+  it('getProgressBarBackground returns correct distribution', () => {
     const testProgressBarData: ProgressBarData = {
       fileCount: 9,
       filesWithManualAttributionCount: 3,
@@ -122,7 +122,7 @@ describe('ProgressBar helpers', () => {
       [33, 33, 1, 33],
       [33, 33, 1, 33],
     ],
-  ]).test(
+  ]).it(
     'roundToAtLeastOnePercentAndNormalize rounds and subtracts difference from the maximum',
     (input: Array<number>, expectedOutput: Array<number>) => {
       expect(roundToAtLeastOnePercentAndNormalize(input)).toEqual(

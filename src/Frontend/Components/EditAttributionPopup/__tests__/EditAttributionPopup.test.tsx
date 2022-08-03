@@ -54,7 +54,7 @@ describe('The EditAttributionPopup', () => {
     'package_2.tr.gz': ['test_marked_id'],
   };
 
-  test('renders and clicks cancel closes the popup', () => {
+  it('renders and clicks cancel closes the popup', () => {
     const expectedHeader = 'Edit Attribution';
     const { store } = renderComponentWithStore(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
@@ -82,7 +82,7 @@ describe('The EditAttributionPopup', () => {
     expect(getOpenPopup(store.getState())).toBe(null);
   });
 
-  test('renders and clicks cancel opens NotSavedPopup if package info has been changed', () => {
+  it('renders and clicks cancel opens NotSavedPopup if package info has been changed', () => {
     const expectedHeader = 'Edit Attribution';
     const { store } = renderComponentWithStore(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
@@ -115,7 +115,7 @@ describe('The EditAttributionPopup', () => {
     expect(getOpenPopup(store.getState())).toBe(PopupType.NotSavedPopup);
   });
 
-  test('renders and clicks save saves changed  package info', () => {
+  it('renders and clicks save saves changed  package info', () => {
     const expectedHeader = 'Edit Attribution';
     const { store } = renderComponentWithStore(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));

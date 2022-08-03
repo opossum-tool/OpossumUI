@@ -66,7 +66,7 @@ describe('The helper getClosestParentAttribution', () => {
         '/f1/f3': [otherPackageUuid],
       },
     ],
-  ]).test(
+  ]).it(
     'finds the closest parent package if one exists',
     (path: string, resourcesToManualAttributions: ResourcesToAttributions) => {
       const closest = getClosestParentAttributions(
@@ -102,7 +102,7 @@ describe('The helper getClosestParentAttribution', () => {
         '/f 1 ': [otherPackage],
       },
     ],
-  ]).test(
+  ]).it(
     'returns null if there is no parent package',
     (path: string, resourcesToManualAttributions: ResourcesToAttributions) => {
       const closest = getClosestParentAttributions(
@@ -115,7 +115,7 @@ describe('The helper getClosestParentAttribution', () => {
     }
   );
 
-  test('returns null for root folder', () => {
+  it('returns null for root folder', () => {
     const closest = getClosestParentAttributions(
       '/',
       {
@@ -129,7 +129,7 @@ describe('The helper getClosestParentAttribution', () => {
 });
 
 describe('getClosestParentWithAttributions', () => {
-  test('returns the id of the closest parent with attributions', () => {
+  it('returns the id of the closest parent with attributions', () => {
     const childId = '/parent1/parent2/parent3/child';
     const resourcesToAttributions: ResourcesToAttributions = {
       '/parent1/parent2/': ['uuid1'],
@@ -145,7 +145,7 @@ describe('getClosestParentWithAttributions', () => {
     ).toBe('/parent1/parent2/');
   });
 
-  test('respects breakpoints', () => {
+  it('respects breakpoints', () => {
     const childId = '/parent1/parent2/parent3/child';
     const resourcesToAttributions: ResourcesToAttributions = {
       '/parent1/parent2/': ['uuid1'],

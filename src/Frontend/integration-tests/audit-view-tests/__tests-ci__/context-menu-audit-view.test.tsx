@@ -78,7 +78,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 };
 
 describe('In Audit View the ContextMenu', () => {
-  test('is not shown for add new attribution PackageCard', () => {
+  it('is not shown for add new attribution PackageCard', () => {
     mockElectronBackend(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -94,7 +94,7 @@ describe('In Audit View the ContextMenu', () => {
     expectContextMenuIsNotShown(screen, cardLabel);
   });
 
-  test('confirmation buttons work correctly', () => {
+  it('confirmation buttons work correctly', () => {
     const testResources: Resources = {
       'firstResource.js': 1,
       'secondResource.js': 1,
@@ -200,7 +200,7 @@ describe('In Audit View the ContextMenu', () => {
     );
   });
 
-  test('hide / unhide buttons work correctly', () => {
+  it('hide / unhide buttons work correctly', () => {
     const testResources: Resources = {
       'firstResource.js': 1,
       'secondResource.js': 1,
@@ -314,7 +314,7 @@ describe('In Audit View the ContextMenu', () => {
       '/root/src/file_2': ['uuid_2', 'uuid_3'],
     };
 
-    test('in the package panel', () => {
+    it('in the package panel', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
@@ -368,7 +368,7 @@ describe('In Audit View the ContextMenu', () => {
       );
     });
 
-    test('in the attributions in folder content panel', () => {
+    it('in the attributions in folder content panel', () => {
       mockElectronBackend(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,

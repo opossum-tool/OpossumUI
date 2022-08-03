@@ -26,7 +26,7 @@ import React from 'react';
 import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 
 describe('The App integration', () => {
-  test('app persists filters when changing views', () => {
+  it('app persists filters when changing views', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {

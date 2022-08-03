@@ -34,7 +34,7 @@ describe('The ResourcesList', () => {
     '/folder1/folder2/resource_1',
   ];
 
-  test('component renders', () => {
+  it('component renders', () => {
     renderComponentWithStore(
       <ResourcesList resourcesListBatches={resourcesListBatches} />
     );
@@ -42,7 +42,7 @@ describe('The ResourcesList', () => {
     expect(screen.getByText('resource_2')).toBeInTheDocument();
   });
 
-  test('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
+  it('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
     const { store } = renderComponentWithStore(
       <ResourcesList resourcesListBatches={resourcesListBatches} />
     );
@@ -56,7 +56,7 @@ describe('The ResourcesList', () => {
     expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
   });
 
-  test('clicking on a path changes the view, selectedResourceId and expandedResources with user callback', () => {
+  it('clicking on a path changes the view, selectedResourceId and expandedResources with user callback', () => {
     const onClickCallback = jest.fn();
     const { store } = renderComponentWithStore(
       <ResourcesList
@@ -75,7 +75,7 @@ describe('The ResourcesList', () => {
     expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
   });
 
-  test('clicking on a header does nothing', () => {
+  it('clicking on a header does nothing', () => {
     const onClickCallback = jest.fn();
     const resourcesListBatchesWithHeader: Array<ResourcesListBatch> = [
       {

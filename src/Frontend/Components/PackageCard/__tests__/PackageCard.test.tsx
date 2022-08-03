@@ -38,7 +38,7 @@ const testAttributions: Attributions = {
 };
 
 describe('The PackageCard', () => {
-  test('has working confirm button', () => {
+  it('has working confirm button', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],
     };
@@ -89,7 +89,7 @@ describe('The PackageCard', () => {
     });
   });
 
-  test('has working confirm globally button', () => {
+  it('has working confirm globally button', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],
       'package_2.tr.gz': [testAttributionId],
@@ -141,7 +141,7 @@ describe('The PackageCard', () => {
     });
   });
 
-  test('has working multi-select box in multi-select mode', () => {
+  it('has working multi-select box in multi-select mode', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],
       'package_2.tr.gz': [testAttributionId],
@@ -190,7 +190,7 @@ describe('The PackageCard', () => {
     ).toStrictEqual([anotherAttributionId]);
   });
 
-  test('has working confirm selected globally button', () => {
+  it('has working confirm selected globally button', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],
       'package_2.tr.gz': [testAttributionId],

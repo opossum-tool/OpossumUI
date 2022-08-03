@@ -50,7 +50,7 @@ import {
 import { getSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
 
 describe('resetTemporaryPackageInfo', () => {
-  test('works correctly on audit view', () => {
+  it('works correctly on audit view', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
     };
@@ -93,7 +93,7 @@ describe('resetTemporaryPackageInfo', () => {
     expect(getTemporaryPackageInfo(testStore.getState())).toEqual(testReact);
   });
 
-  test('works correctly on attribution view', () => {
+  it('works correctly on attribution view', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
     };
@@ -125,7 +125,7 @@ describe('resetTemporaryPackageInfo', () => {
 });
 
 describe('setSelectedResourceOrAttributionIdFromTarget', () => {
-  test('setSelectedResourceId in case of Audit View', () => {
+  it('setSelectedResourceId in case of Audit View', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setSelectedResourceId('previousResourceId'));
@@ -140,7 +140,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedAttributionId(state)).toBe('previousAttributionId');
   });
 
-  test('setSelectedAttributionId in case of attribution view and targetView Resource', () => {
+  it('setSelectedAttributionId in case of attribution view and targetView Resource', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setTargetView(View.Audit));
@@ -156,7 +156,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedAttributionId(state)).toBe('newAttributionId');
   });
 
-  test('setSelectedAttributionId in case of attribution view and stay on attribution view', () => {
+  it('setSelectedAttributionId in case of attribution view and stay on attribution view', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setTargetView(View.Attribution));
@@ -173,7 +173,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedAttributionId(state)).toBe('newAttributionId');
   });
 
-  test('setDisplayedPackage in case of audit view', () => {
+  it('setDisplayedPackage in case of audit view', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(
@@ -198,7 +198,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
 });
 
 describe('setSelectedResourceIdAndExpand', () => {
-  test('sets the selectedResourceId', () => {
+  it('sets the selectedResourceId', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
     const state = testStore.getState();
@@ -206,7 +206,7 @@ describe('setSelectedResourceIdAndExpand', () => {
     expect(getSelectedView(state)).toEqual(View.Audit);
   });
 
-  test('sets the expandedIds', () => {
+  it('sets the expandedIds', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
     const state = testStore.getState();
@@ -220,7 +220,7 @@ describe('setSelectedResourceIdAndExpand', () => {
 });
 
 describe('setDisplayedPackageAndResetTemporaryPackageInfo', () => {
-  test('sets the displayedPackage and loads the right initial temporaryPackageInfo', () => {
+  it('sets the displayedPackage and loads the right initial temporaryPackageInfo', () => {
     const testPackageInfo: PackageInfo = { packageName: 'React' };
     const testResources: Resources = {
       file1: 1,
@@ -262,7 +262,7 @@ describe('setDisplayedPackageAndResetTemporaryPackageInfo', () => {
 });
 
 describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
-  test('resets the selectedPackage attributionId if the attribution has been removed from the resource', () => {
+  it('resets the selectedPackage attributionId if the attribution has been removed from the resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,

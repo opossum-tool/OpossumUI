@@ -50,7 +50,7 @@ describe('The Attribution View', () => {
     testOtherManualUuid,
   ];
 
-  test('renders', () => {
+  it('renders', () => {
     const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
@@ -75,7 +75,7 @@ describe('The Attribution View', () => {
     expect(screen.getByText('test resource'));
   });
 
-  test('filters Follow-ups', () => {
+  it('filters Follow-ups', () => {
     const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
@@ -101,7 +101,7 @@ describe('The Attribution View', () => {
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 
-  test('filters Only First Party', () => {
+  it('filters Only First Party', () => {
     const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(
@@ -129,7 +129,7 @@ describe('The Attribution View', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('filters Only First Party and follow ups and then hide first party and follow ups', () => {
+  it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
     const { store } = renderComponentWithStore(<AttributionView />);
     store.dispatch(
       loadFromFile(

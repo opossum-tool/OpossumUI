@@ -7,7 +7,7 @@ import { Attributions } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../get-alphabetical-comparer';
 
 describe('getAlphabeticalComparer', () => {
-  test('sorts alphabetically by list card title', () => {
+  it('sorts alphabetically by list card title', () => {
     const testAttributions: Attributions = {
       '1': {
         packageName: 'zz Test package',
@@ -40,7 +40,7 @@ describe('getAlphabeticalComparer', () => {
     expect(sortedAttributionIds).toEqual(['3', '5', '4', '2', '1']);
   });
 
-  test('sorts empty attributions to the end of the list', () => {
+  it('sorts empty attributions to the end of the list', () => {
     const testAttributions: Attributions = {
       '1': {},
       '2': {
@@ -60,7 +60,7 @@ describe('getAlphabeticalComparer', () => {
     expect(sortedAttributionIds).toEqual(['2', '3', '1']);
   });
 
-  test('sorts non-alphabetical chars behind alphabetical chars', () => {
+  it('sorts non-alphabetical chars behind alphabetical chars', () => {
     const testAttributions: Attributions = {
       '1': {
         packageName: 'Test package',

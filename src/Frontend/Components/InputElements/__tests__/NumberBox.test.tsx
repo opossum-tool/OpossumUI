@@ -9,7 +9,7 @@ import { NumberBox } from '../NumberBox';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('The NumberBox', () => {
-  test('renders value and label', () => {
+  it('renders value and label', () => {
     render(
       <NumberBox
         title={'Test Title'}

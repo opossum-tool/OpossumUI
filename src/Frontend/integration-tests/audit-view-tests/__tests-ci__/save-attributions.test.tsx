@@ -40,7 +40,7 @@ import {
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The App in Audit View', () => {
-  test('saves new attributions to file in AuditView', () => {
+  it('saves new attributions to file in AuditView', () => {
     const testPackageName = 'React';
     const testLicenseNames = ['MIT', 'MIT License'];
     const mockChannelReturn: ParsedFileContent = {
@@ -119,7 +119,7 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
   });
 
-  test('save and save for all buttons are shown and work', () => {
+  it('save and save for all buttons are shown and work', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: { 'firstResource.js': 1, 'secondResource.js': 1 },
@@ -187,7 +187,7 @@ describe('The App in Audit View', () => {
     expectValueInManualPackagePanel(screen, 'Typescript, 16.5.0');
   });
 
-  test('confirm buttons are shown and work', () => {
+  it('confirm buttons are shown and work', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {

@@ -8,7 +8,7 @@ import { ResourcesListItem } from '../ResourcesList';
 import { ResourcesListBatch } from '../../../types/types';
 
 describe('convertResourceListBatchesToResourceListItems', () => {
-  test('inserts headers correctly', () => {
+  it('inserts headers correctly', () => {
     const resourcesListBatches: Array<ResourcesListBatch> = [
       { resourceIds: ['resource_1'] },
       {
@@ -31,7 +31,7 @@ describe('convertResourceListBatchesToResourceListItems', () => {
     expect(resourcesListItems).toStrictEqual(expectedResourcesListItems);
   });
 
-  test('executes case insensitive sort on resourceIds of each batch', () => {
+  it('executes case insensitive sort on resourceIds of each batch', () => {
     const resourcesListBatches: Array<ResourcesListBatch> = [
       { resourceIds: ['README.md', 'package.json'] },
       {
@@ -55,7 +55,7 @@ describe('convertResourceListBatchesToResourceListItems', () => {
     expect(resourcesListItems).toStrictEqual(expectedResourcesListItems);
   });
 
-  test('inserts no empty line for header at start of table', () => {
+  it('inserts no empty line for header at start of table', () => {
     const resourcesListBatches: Array<ResourcesListBatch> = [
       { resourceIds: ['resource_1'], header: 'Header' },
     ];

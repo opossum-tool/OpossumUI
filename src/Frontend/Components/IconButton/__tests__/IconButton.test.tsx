@@ -9,7 +9,7 @@ import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('Button', () => {
-  test('renders a button', () => {
+  it('renders a button', () => {
     render(
       <IconButton
         tooltipTitle={'Test'}

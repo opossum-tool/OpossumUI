@@ -11,7 +11,7 @@ import {
 } from '../lodash-extension-utils';
 
 describe('replaceInArray', () => {
-  test('replaces several instances of an item in an array', () => {
+  it('replaces several instances of an item in an array', () => {
     const toBeReplaced = 'toBeReplaced';
     const replacement = 'replacement';
     const testArray: Array<string> = [toBeReplaced, 'x', toBeReplaced];
@@ -24,7 +24,7 @@ describe('replaceInArray', () => {
 });
 
 describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
-  test('removes value from array if other values are present', () => {
+  it('removes value from array if other values are present', () => {
     const testObjectToMutate = {
       toModify: ['y', 'x'],
       toLeaveUntouched: ['y', 'x'],
@@ -39,7 +39,7 @@ describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
     expect(testObjectToMutate).toEqual(expectedObject);
   });
 
-  test('removes key from object of the array is left empty after removal', () => {
+  it('removes key from object of the array is left empty after removal', () => {
     const testObjectToMutate = {
       toModify: ['y', 'y'],
       toLeaveUntouched: ['y', 'x'],
@@ -54,7 +54,7 @@ describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
     expect(testObjectToMutate).toEqual(expectedObject);
   });
 
-  test('does nothing if the key is not present in the object', () => {
+  it('does nothing if the key is not present in the object', () => {
     const testObjectToMutate = {
       toLeaveUntouched: ['y', 'x'],
     };
@@ -70,7 +70,7 @@ describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
 });
 
 describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
-  test('removes value from set if other values are present', () => {
+  it('removes value from set if other values are present', () => {
     const testObjectToMutate = {
       toModify: new Set().add('y').add('x'),
       toLeaveUntouched: new Set().add('y').add('x'),
@@ -88,7 +88,7 @@ describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
     expect(testObjectToMutate).toEqual(expectedObject);
   });
 
-  test('removes key from object of the set is left empty after removal', () => {
+  it('removes key from object of the set is left empty after removal', () => {
     const testObjectToMutate = {
       toModify: new Set().add('y'),
       toLeaveUntouched: new Set().add('y').add('x'),
@@ -103,7 +103,7 @@ describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
     expect(testObjectToMutate).toEqual(expectedObject);
   });
 
-  test('does nothing if the key is not present in the object', () => {
+  it('does nothing if the key is not present in the object', () => {
     const testObjectToMutate = {
       toLeaveUntouched: new Set().add('y').add('x'),
     };

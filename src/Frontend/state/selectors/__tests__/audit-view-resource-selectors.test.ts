@@ -49,7 +49,7 @@ describe('The audit view resource selectors', () => {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
 
-  test('sets Attributions and getsAttribution for a ResourceId', () => {
+  it('sets Attributions and getsAttribution for a ResourceId', () => {
     const testStore = createTestAppStore();
     const expectedPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
@@ -68,7 +68,7 @@ describe('The audit view resource selectors', () => {
     );
   });
 
-  test('gets attributions and attribution ids for the selected resource', () => {
+  it('gets attributions and attribution ids for the selected resource', () => {
     const testStore = createTestAppStore();
     const reactPackage: PackageInfo = { packageName: 'React' };
     testStore.dispatch(
@@ -95,7 +95,7 @@ describe('The audit view resource selectors', () => {
     });
   });
 
-  test('gets getSelectedPackageAttributionIdIfManualPackagePanel', () => {
+  it('gets getSelectedPackageAttributionIdIfManualPackagePanel', () => {
     const manualPackagesSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
       attributionId: 'uuid1',
@@ -132,7 +132,7 @@ describe('The audit view resource selectors', () => {
     ).toBeNull();
   });
 
-  test('sets and gets resolvedExternalAttributions', () => {
+  it('sets and gets resolvedExternalAttributions', () => {
     const testStore = createTestAppStore();
     const testResolvedExternalAttributions: Set<string> = new Set();
     testResolvedExternalAttributions

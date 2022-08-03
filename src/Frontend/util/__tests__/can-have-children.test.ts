@@ -10,13 +10,13 @@ import {
 } from '../can-resource-have-children';
 
 describe('canHaveChildren', () => {
-  test('returns true for a folder', () => {
+  it('returns true for a folder', () => {
     const testResources: Resources = {};
 
     expect(canResourceHaveChildren(testResources)).toBe(true);
   });
 
-  test('returns false for a file', () => {
+  it('returns false for a file', () => {
     const testFileFromResources = 1;
 
     expect(canResourceHaveChildren(testFileFromResources)).toBe(false);
@@ -24,13 +24,13 @@ describe('canHaveChildren', () => {
 });
 
 describe('isIdOfResourceWithChildren', () => {
-  test('returns true for a folder id', () => {
+  it('returns true for a folder id', () => {
     const testFolderPath = '/some_folder/';
 
     expect(isIdOfResourceWithChildren(testFolderPath)).toBe(true);
   });
 
-  test('returns false for a file id', () => {
+  it('returns false for a file id', () => {
     const testFilePath = '/some_folder/some_file';
 
     expect(isIdOfResourceWithChildren(testFilePath)).toBe(false);

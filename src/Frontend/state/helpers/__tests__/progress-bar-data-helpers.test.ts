@@ -20,7 +20,7 @@ import { ProgressBarData } from '../../../types/types';
 import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The getUpdatedProgressBarData function', () => {
-  test('gets updated progress data', () => {
+  it('gets updated progress data', () => {
     const testResources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -83,7 +83,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ]);
   });
 
-  test('gets updated progress data without resolved external attributions', () => {
+  it('gets updated progress data without resolved external attributions', () => {
     const testResources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,
@@ -148,7 +148,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ]);
   });
 
-  test('stops inferring attributions at breakpoints', () => {
+  it('stops inferring attributions at breakpoints', () => {
     const testResources: Resources = {
       folder1: {
         breakpoint1: { file1: 1, file2: 1 },
@@ -244,7 +244,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ]);
   });
 
-  test('infers fileWithChildren correctly', () => {
+  it('infers fileWithChildren correctly', () => {
     const testResources: Resources = {
       'package.json': {
         file1: 1,
@@ -293,7 +293,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([]);
   });
 
-  test('resourceHasOnlyPreSelectedAttributions with only pre-selected attributions', () => {
+  it('resourceHasOnlyPreSelectedAttributions with only pre-selected attributions', () => {
     const { testResourcesToManualAttributions, testManualAttributions } =
       getTestObjectsForResourcesWithPreSelectedAttributions();
     expect(
@@ -305,7 +305,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ).toBeTruthy();
   });
 
-  test('resourceHasOnlyPreSelectedAttributions with mixed attributions', () => {
+  it('resourceHasOnlyPreSelectedAttributions with mixed attributions', () => {
     const { testResourcesToManualAttributions, testManualAttributions } =
       getTestObjectsForResourcesWithPreSelectedAttributions();
     expect(
@@ -317,7 +317,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ).toBeFalsy();
   });
 
-  test('updateProgressBarDataForResources', () => {
+  it('updateProgressBarDataForResources', () => {
     const progressBarData = getEmptyProgressBarData();
     const resources: Resources = {
       dir1: { subdir1: { file1: 1 } },
@@ -357,7 +357,7 @@ describe('The getUpdatedProgressBarData function', () => {
 });
 
 describe('The getFolderProgressBarData function', () => {
-  test('gets updated progress data for current folder', () => {
+  it('gets updated progress data for current folder', () => {
     const testResources: Resources = {
       thirdParty: {
         'package_1.tr.gz': 1,

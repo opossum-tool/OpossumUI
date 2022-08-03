@@ -23,7 +23,7 @@ describe('The helper getFilteredAttributionsById', () => {
     [secondExpectedPackageUuid]: secondExpectedPackage,
   };
 
-  test('return correct attributions', () => {
+  it('return correct attributions', () => {
     const filteredAttributions = getFilteredAttributionsById(
       [firstExpectedPackageUuid, secondExpectedPackageUuid],
       testManualAttributions

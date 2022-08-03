@@ -16,7 +16,7 @@ import {
 } from '../get-attributions-with-resources';
 
 describe('getAttributionsWithResources', () => {
-  test('returns attributions with resources', () => {
+  it('returns attributions with resources', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
       uuid2: { packageName: 'Redux' },
@@ -52,13 +52,13 @@ describe('getAttributionsWithResources', () => {
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  test('returns attributions with resources for empty attributions', () => {
+  it('returns attributions with resources for empty attributions', () => {
     expect(getAttributionsWithResources({}, {})).toEqual({});
   });
 });
 
 describe('getAttributionsWithAllChildResources', () => {
-  test('returns attributions with resources recursively', () => {
+  it('returns attributions with resources recursively', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
       uuid2: { packageName: 'Redux' },
@@ -122,7 +122,7 @@ describe('getAttributionsWithAllChildResources', () => {
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  test('returns attributions with resources recursively in the edge case of same folder names', () => {
+  it('returns attributions with resources recursively in the edge case of same folder names', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
     };
@@ -162,7 +162,7 @@ describe('getAttributionsWithAllChildResources', () => {
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  test('returns attributions with resources recursively for a deep file tree', () => {
+  it('returns attributions with resources recursively for a deep file tree', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
     };
@@ -228,7 +228,7 @@ describe('getAttributionsWithAllChildResources', () => {
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  test('returns attributions with resources for empty attributions recursively', () => {
+  it('returns attributions with resources for empty attributions recursively', () => {
     expect(
       getAttributionsWithAllChildResourcesWithoutFolders(
         {},
@@ -241,7 +241,7 @@ describe('getAttributionsWithAllChildResources', () => {
     ).toEqual({});
   });
 
-  test('does not return resources inside a breakpoint', () => {
+  it('does not return resources inside a breakpoint', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
       uuid2: { packageName: 'Vue' },
@@ -295,7 +295,7 @@ describe('getAttributionsWithAllChildResources', () => {
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  test('does return resources that are files with children', () => {
+  it('does return resources that are files with children', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
       uuid2: { packageName: 'Vue' },
@@ -343,7 +343,7 @@ describe('getAttributionsWithAllChildResources', () => {
     ).toEqual(expectedAttributionsWithResources);
   });
 
-  test(
+  it(
     'does return resources that are files with children' +
       ' if it has inferred attributions',
     () => {
@@ -396,7 +396,7 @@ describe('getAttributionsWithAllChildResources', () => {
 });
 
 describe('removeSlashesFromFilesWithChildren', () => {
-  test('formats files with children', () => {
+  it('formats files with children', () => {
     const testAttributionsWithResources: AttributionsWithResources = {
       uuid1: {
         packageName: 'React',

@@ -15,7 +15,7 @@ import { Provider } from 'react-redux';
 import { createAppStore } from '../../../state/configure-store';
 
 describe('FilterMultiSelect', () => {
-  test('renders the filters in a dropdown', () => {
+  it('renders the filters in a dropdown', () => {
     const store = createAppStore();
     render(
       <Provider store={store}>

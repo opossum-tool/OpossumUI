@@ -15,37 +15,37 @@ import {
 } from '../Icons';
 
 describe('The Icons', () => {
-  test('renders CommentIcon', () => {
+  it('renders CommentIcon', () => {
     render(<CommentIcon />);
 
     expect(screen.getByLabelText('Comment icon'));
   });
 
-  test('renders ExcludeFromNoticeIcon', () => {
+  it('renders ExcludeFromNoticeIcon', () => {
     render(<ExcludeFromNoticeIcon />);
 
     expect(screen.getByLabelText('Exclude from notice icon'));
   });
 
-  test('renders FollowUpIcon', () => {
+  it('renders FollowUpIcon', () => {
     render(<FollowUpIcon />);
 
     expect(screen.getByLabelText('Follow-up icon'));
   });
 
-  test('renders FirstPartyIcon', () => {
+  it('renders FirstPartyIcon', () => {
     render(<FirstPartyIcon />);
 
     expect(screen.getByLabelText('First party icon'));
   });
 
-  test('renders DirectoryIcon', () => {
+  it('renders DirectoryIcon', () => {
     render(<DirectoryIcon />);
 
     expect(screen.getByLabelText('Directory icon'));
   });
 
-  test('renders FileIcon', () => {
+  it('renders FileIcon', () => {
     render(<FileIcon />);
 
     expect(screen.getByLabelText('File icon'));

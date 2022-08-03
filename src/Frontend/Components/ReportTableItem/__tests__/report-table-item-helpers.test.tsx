@@ -13,7 +13,7 @@ describe('The table helpers', () => {
   const testIsFileWithChildren = (path: string): boolean =>
     path === testPathOfFileWithChildren;
 
-  test('getFormattedCellData replaces undefined by empty string', () => {
+  it('getFormattedCellData replaces undefined by empty string', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'attributionConfidence',
       displayName: 'confidence',
@@ -30,7 +30,7 @@ describe('The table helpers', () => {
     ).toEqual('');
   });
 
-  test('getFormattedCellData formats resources', () => {
+  it('getFormattedCellData formats resources', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'resources',
       displayName: 'resources',
@@ -47,7 +47,7 @@ describe('The table helpers', () => {
     ).toEqual(testPathOfFileWithChildren.slice(0, -1) + '\nb');
   });
 
-  test('getFormattedCellData handles first-party boolean', () => {
+  it('getFormattedCellData handles first-party boolean', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'firstParty',
       displayName: 'First Party',
@@ -165,7 +165,7 @@ describe('The table helpers', () => {
     }
   );
 
-  test('isImportantAttributionInformationMissing does not mark first party or excluded attributions', () => {
+  it('isImportantAttributionInformationMissing does not mark first party or excluded attributions', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'licenseName',
       displayName: 'Unimportant',

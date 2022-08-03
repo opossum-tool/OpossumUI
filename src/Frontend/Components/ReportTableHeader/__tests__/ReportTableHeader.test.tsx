@@ -9,7 +9,7 @@ import React from 'react';
 import { ReportTableHeader } from '../ReportTableHeader';
 
 describe('The report view table header', () => {
-  test('renders', () => {
+  it('renders', () => {
     renderComponentWithStore(<ReportTableHeader />);
 
     expect(screen.getByText('License'));

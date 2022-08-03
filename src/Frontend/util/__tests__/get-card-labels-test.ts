@@ -69,49 +69,49 @@ describe('Test getPackageLabel', () => {
     url: 'Test url',
   };
 
-  test('finds label for package', () => {
+  it('finds label for package', () => {
     expect(getCardLabels(testProps)).toEqual([
       'Test package name, 1.2',
       '(c) Test copyright',
     ]);
   });
-  test('finds label for package without version', () => {
+  it('finds label for package without version', () => {
     expect(getCardLabels(testPropsWithoutVersion)).toEqual([
       'Test package name',
       '(c) Test copyright',
     ]);
   });
-  test('finds label for package with undefined name', () => {
+  it('finds label for package with undefined name', () => {
     expect(getCardLabels(testPropsWithUndefinedName)).toEqual([
       'Test url',
       '(c) Test copyright',
     ]);
   });
-  test('finds label for package without name', () => {
+  it('finds label for package without name', () => {
     expect(getCardLabels(testPropsWithoutName)).toEqual([
       'Test url',
       '(c) Test copyright',
     ]);
   });
-  test('finds label for package with only copyright, licenseText and comment', () => {
+  it('finds label for package with only copyright, licenseText and comment', () => {
     expect(getCardLabels(testPropsCopyrightLicenseTextAndComment)).toEqual([
       '(c) Test copyright',
       'Test license text',
     ]);
   });
-  test('finds label for package with license text and comment', () => {
+  it('finds label for package with license text and comment', () => {
     expect(getCardLabels(testPropsWithLicenseTextAndComment)).toEqual([
       'Test license text',
       'Test comment',
     ]);
   });
-  test('finds label for package with just comment', () => {
+  it('finds label for package with just comment', () => {
     expect(getCardLabels(testPropsJustComment)).toEqual(['Test comment']);
   });
-  test('finds label for empty package', () => {
+  it('finds label for empty package', () => {
     expect(getCardLabels({ id: '9' })).toEqual([]);
   });
-  test('finds label for package with just url and copyright', () => {
+  it('finds label for package with just url and copyright', () => {
     expect(getCardLabels(testPropsJustUrlAndCopyright)).toEqual([
       'Test url',
       '(c) Test copyright',
@@ -140,7 +140,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     licenseName: 'Test license name',
   };
 
-  test('adds name and version', () => {
+  it('adds name and version', () => {
     const testPackageLabels: Array<string> = [];
     addFirstLineOfPackageLabelFromAttribute(
       'name',
@@ -149,7 +149,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     );
     expect(testPackageLabels).toEqual(['Test package name, 1.2']);
   });
-  test('adds name without version', () => {
+  it('adds name without version', () => {
     const testPackageLabels: Array<string> = [];
     addFirstLineOfPackageLabelFromAttribute(
       'name',
@@ -158,7 +158,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     );
     expect(testPackageLabels).toEqual(['Test package name']);
   });
-  test('adds copyright', () => {
+  it('adds copyright', () => {
     const testPackageLabels: Array<string> = [];
     addFirstLineOfPackageLabelFromAttribute(
       'copyright',
@@ -167,7 +167,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     );
     expect(testPackageLabels).toEqual(['(c) Test copyright']);
   });
-  test('adds url', () => {
+  it('adds url', () => {
     const testPackageLabels: Array<string> = [];
     addFirstLineOfPackageLabelFromAttribute(
       'url',
@@ -189,7 +189,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     url: 'Test url',
     licenseName: 'Test license name',
   };
-  test('adds copyright', () => {
+  it('adds copyright', () => {
     const testPackageLabels: Array<string> = ['Test package name'];
     addSecondLineOfPackageLabelFromAttribute(
       'copyright',
@@ -201,7 +201,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
       '(c) Test copyright',
     ]);
   });
-  test('does not add url if already in first line', () => {
+  it('does not add url if already in first line', () => {
     const testPackageLabels: Array<string> = ['Test url'];
     addSecondLineOfPackageLabelFromAttribute(
       'url',
@@ -213,12 +213,12 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
 });
 
 describe('Test addPreambleToCopyright', () => {
-  test('adds preamble to copyright', () => {
+  it('adds preamble to copyright', () => {
     expect(addPreambleToCopyright('Test copyright without preamble')).toEqual(
       '(c) Test copyright without preamble'
     );
   });
-  test('does not add preamble to copyright', () => {
+  it('does not add preamble to copyright', () => {
     expect(
       addPreambleToCopyright('(C)Test copyright without preamble')
     ).toEqual('(C)Test copyright without preamble');

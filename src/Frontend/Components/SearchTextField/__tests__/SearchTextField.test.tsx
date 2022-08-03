@@ -9,7 +9,7 @@ import { SearchTextField } from '../SearchTextField';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 
 describe('The SearchTextField', () => {
-  test('has search functionality', () => {
+  it('has search functionality', () => {
     const onInputchange = jest.fn();
     renderComponentWithStore(
       <SearchTextField onInputChange={onInputchange} search={'test-search'} />

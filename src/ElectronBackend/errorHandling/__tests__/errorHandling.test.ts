@@ -36,7 +36,7 @@ jest.mock('../../input/importFromFile', () => ({
 
 describe('error handling', () => {
   describe('createListenerCallbackWithErrorHandling', () => {
-    test('returns a wrapper that calls the input function with the same parameters', async () => {
+    it('returns a wrapper that calls the input function with the same parameters', async () => {
       const testFunction = jest.fn();
       const testArgs = {
         arg1: '1',
@@ -56,7 +56,7 @@ describe('error handling', () => {
       );
     });
 
-    test('shows errors from the input function in a messageBox', async () => {
+    it('shows errors from the input function in a messageBox', async () => {
       function testFunction(): void {
         throw new Error('TEST_ERROR');
       }
@@ -80,7 +80,7 @@ describe('error handling', () => {
   });
 
   describe('getMessageBoxContentForErrors', () => {
-    test('for backend errors', () => {
+    it('for backend errors', () => {
       const testError = new Error('TEST_ERROR');
       const messageBoxContentForBackendErrors =
         getMessageBoxContentForErrorsWrapper(
@@ -95,7 +95,7 @@ describe('error handling', () => {
       );
     });
 
-    test('for frontend errors', () => {
+    it('for frontend errors', () => {
       const testError = new Error('TEST_ERROR');
       const messageBoxContentForBackendErrors =
         getMessageBoxContentForErrorsWrapper(
@@ -112,7 +112,7 @@ describe('error handling', () => {
   });
 
   describe('getMessageBoxForErrors', () => {
-    test('returns a messageBox', async () => {
+    it('returns a messageBox', async () => {
       const sendErrorInformationArgs: SendErrorInformationArgs = {
         error: { message: 'errorMessage', name: 'Error' },
         errorInfo: { componentStack: 'componentStack' },
@@ -144,7 +144,7 @@ describe('error handling', () => {
   });
 
   describe('getMessageBoxContentForParsingErrors', () => {
-    test('display an error message', () => {
+    it('display an error message', () => {
       const testMessage = 'Test error message';
       const messageBoxContentForParsingErrors =
         getMessageBoxContentForParsingError(testMessage);
@@ -158,7 +158,7 @@ describe('error handling', () => {
   });
 
   describe('getMessageBoxForParsingError', () => {
-    test('returns a messageBox', async () => {
+    it('returns a messageBox', async () => {
       const parsingError: JsonParsingError = {
         message: 'parsingErrorMessage',
         type: 'jsonParsingError',

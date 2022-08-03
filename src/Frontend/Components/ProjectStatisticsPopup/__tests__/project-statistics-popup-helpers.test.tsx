@@ -10,7 +10,7 @@ import {
 import { FollowUp, PackageInfo } from '../../../../shared/shared-types';
 
 describe('The ProjectStatisticsPopup helper', () => {
-  test('counts licenses, sources and attribution propertes', () => {
+  it('counts licenses, sources and attribution propertes', () => {
     const testAttributions: Array<PackageInfo> = [
       {
         source: {

@@ -27,12 +27,12 @@ import {
   _exportFileAndOpenFolder,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
+  getKeepFileListener,
   getOpenFileListener,
   getOpenLinkListener,
   getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
-  getKeepFileListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -129,7 +129,7 @@ describe('getOpenFileListener', () => {
   each([
     ['path.json', 'path.json'],
     ['path%20with%2Fencoding.json', 'path with/encoding.json'],
-  ]).test(
+  ]).it(
     'calls loadJsonFromFilePath and handles %s correctly',
     async (filePath: string, expectedTitle: string) => {
       const mainWindow = {
@@ -170,7 +170,7 @@ describe('getOpenFileListener', () => {
     }
   );
 
-  test('handles _attributions.json files correctly if .json present', async () => {
+  it('handles _attributions.json files correctly if .json present', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -206,7 +206,7 @@ describe('getOpenFileListener', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('checks the case with non-matching checksums', async () => {
+  it('checks the case with non-matching checksums', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -279,7 +279,7 @@ describe('getOpenFileListener', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('handles _attributions.json files correctly if .json.gz present', async () => {
+  it('handles _attributions.json files correctly if .json.gz present', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -315,7 +315,7 @@ describe('getOpenFileListener', () => {
     deleteFolder(temporaryPath);
   });
 
-  test('sets title to project title if available', async () => {
+  it('sets title to project title if available', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -363,7 +363,7 @@ describe('getOpenFileListener', () => {
 });
 
 describe('getDeleteAndCreateNewAttributionFileListener', () => {
-  test('deletes attribution file and calls loadJsonFromFilePath', async () => {
+  it('deletes attribution file and calls loadJsonFromFilePath', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -396,7 +396,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
 });
 
 describe('getKeepFileListener', () => {
-  test('calls loadJsonFromFilePath with a correct path', async () => {
+  it('calls loadJsonFromFilePath with a correct path', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -418,7 +418,7 @@ describe('getKeepFileListener', () => {
 });
 
 describe('getSelectBaseURLListener', () => {
-  test('opens base url dialog and sends selected path to frontend', () => {
+  it('opens base url dialog and sends selected path to frontend', () => {
     const mockCallback = jest.fn();
     const webContents = { send: mockCallback as unknown } as WebContents;
     const baseURL = '/Users/path/to/sources';
@@ -445,7 +445,7 @@ describe('getSaveFileListener', () => {
     writeJsonToFile.mockReset();
   });
 
-  test('throws error when attributionFilePath and projectId are not set', async () => {
+  it('throws error when attributionFilePath and projectId are not set', async () => {
     const mockCallback = jest.fn();
     const webContents = { send: mockCallback as unknown } as WebContents;
     setGlobalBackendState({});
@@ -471,7 +471,7 @@ describe('getSaveFileListener', () => {
     expect(writeJsonToFile).not.toBeCalled();
   });
 
-  test(
+  it(
     'calls createListenerCallBackWithErrorHandling when ' +
       'attributionFilePath and projectId are set',
     () => {
@@ -506,8 +506,8 @@ describe('getSaveFileListener', () => {
 });
 
 describe('getExportFollowUpListener', () => {
-  test('throws error when followUpFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+  it('throws error when followUpFilePath is not set', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.FollowUp,
@@ -524,8 +524,8 @@ describe('getExportFollowUpListener', () => {
     expect(writeCsvToFile).not.toBeCalled();
   });
 
-  test('calls getExportFollowUpListener', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+  it('calls getExportFollowUpListener', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
     setGlobalBackendState({
       followUpFilePath: '/somefile.csv',
     });
@@ -567,8 +567,8 @@ describe('getExportFollowUpListener', () => {
 });
 
 describe('getExportBomListener', () => {
-  test('throws error when bomFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+  it('throws error when bomFilePath is not set', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.CompactBom,
@@ -585,8 +585,8 @@ describe('getExportBomListener', () => {
     expect(writeCsvToFile).not.toBeCalled();
   });
 
-  test('calls getExportBomListener for compact bom', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+  it('calls getExportBomListener for compact bom', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
 
     const listener = getExportFileListener(mainWindow);
 
@@ -618,8 +618,8 @@ describe('getExportBomListener', () => {
     );
   });
 
-  test('calls getExportBomListener for detailed bom', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+  it('calls getExportBomListener for detailed bom', async () => {
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
 
     const listener = getExportFileListener(mainWindow);
 
@@ -672,7 +672,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('throws if path is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
 
     await getExportFileListener(mainWindow)(IpcChannel.ExportFile, {
       type: ExportType.SpdxDocumentYaml,
@@ -690,7 +690,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('calls getExportSpdxDocumentListener for yaml', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
     const testArgs: ExportSpdxDocumentYamlArgs = {
       type: ExportType.SpdxDocumentYaml,
       spdxAttributions: {},
@@ -706,7 +706,7 @@ describe('getExportSpdxDocumentListener', () => {
   });
 
   it('calls getExportSpdxDocumentListener for json', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
     const testArgs: ExportSpdxDocumentJsonArgs = {
       type: ExportType.SpdxDocumentJson,
       spdxAttributions: {},
@@ -723,7 +723,7 @@ describe('getExportSpdxDocumentListener', () => {
 });
 
 describe('getOpenLinkListener', () => {
-  test('opens link', async () => {
+  it('opens link', async () => {
     const testLink = 'https://www.test.de/link';
     await getOpenLinkListener()(IpcChannel.OpenLink, {
       link: testLink,
@@ -739,7 +739,7 @@ describe('_exportFileAndOpenFolder', () => {
   });
 
   it('calls the createFile function', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
     const testSpdxDocumentYamlFilePath = '/some/path.json';
     setGlobalBackendState({ spdxYamlFilePath: testSpdxDocumentYamlFilePath });
     const testArgs: ExportSpdxDocumentYamlArgs = {
@@ -758,7 +758,7 @@ describe('_exportFileAndOpenFolder', () => {
   });
 
   it('throws if outputFilePath is not set', async () => {
-    const mainWindow = await prepareBomSPdxAndFollowUpTest();
+    const mainWindow = await prepareBomSPdxAndFollowUpit();
     setGlobalBackendState({ spdxYamlFilePath: undefined });
     const testArgs: ExportSpdxDocumentYamlArgs = {
       type: ExportType.SpdxDocumentYaml,
@@ -773,7 +773,7 @@ describe('_exportFileAndOpenFolder', () => {
   });
 });
 
-async function prepareBomSPdxAndFollowUpTest(): Promise<BrowserWindow> {
+async function prepareBomSPdxAndFollowUpit(): Promise<BrowserWindow> {
   // @ts-ignore
   writeCsvToFile.mockReset();
   setGlobalBackendState({});

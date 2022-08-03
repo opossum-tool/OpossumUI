@@ -31,13 +31,13 @@ import {
 import { getResourcesWithExternalAttributedChildren } from '../../../selectors/all-views-resource-selectors';
 
 describe('The audit view simple actions', () => {
-  test('sets and gets selectedResourceId', () => {
+  it('sets and gets selectedResourceId', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setSelectedResourceId('test'));
     expect(getSelectedResourceId(testStore.getState())).toBe('test');
   });
 
-  test('sets and gets targetSelectedResourceId', () => {
+  it('sets and gets targetSelectedResourceId', () => {
     const testTargetSelectedResourceId = 'test_id';
     const testStore = createTestAppStore();
     testStore.dispatch(
@@ -48,7 +48,7 @@ describe('The audit view simple actions', () => {
     );
   });
 
-  test('sets and gets expandedIds', () => {
+  it('sets and gets expandedIds', () => {
     const testExpandedIds: Array<string> = ['/folder1/', '/folder2/'];
 
     const testStore = createTestAppStore();
@@ -58,7 +58,7 @@ describe('The audit view simple actions', () => {
     expect(getExpandedIds(testStore.getState())).toEqual(testExpandedIds);
   });
 
-  test('sets and gets displayedPackage', () => {
+  it('sets and gets displayedPackage', () => {
     const testSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.AllAttributions,
       attributionId: 'uuid',
@@ -73,7 +73,7 @@ describe('The audit view simple actions', () => {
     );
   });
 
-  test('sets and gets targetDisplayedPackage', () => {
+  it('sets and gets targetDisplayedPackage', () => {
     const testTargetSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.AllAttributions,
       attributionId: 'uuid',
@@ -88,7 +88,7 @@ describe('The audit view simple actions', () => {
     );
   });
 
-  test('add resolved signals to state', () => {
+  it('add resolved signals to state', () => {
     const testStore = createTestAppStore();
     const uuid1 = 'd3a753c0-5100-11eb-ae93-0242ac130002';
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';
@@ -142,7 +142,7 @@ describe('The audit view simple actions', () => {
     ).toMatchObject({});
   });
 
-  test('remove resolved signals from state', () => {
+  it('remove resolved signals from state', () => {
     const testStore = createTestAppStore();
     const uuid1 = 'd3a753c0-5100-11eb-ae93-0242ac130002';
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';

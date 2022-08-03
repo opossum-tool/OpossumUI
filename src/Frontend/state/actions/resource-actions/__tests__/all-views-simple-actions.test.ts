@@ -85,7 +85,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 };
 
 describe('The load and navigation simple actions', () => {
-  test('resets the state', () => {
+  it('resets the state', () => {
     const testStore = createTestAppStore();
     const testTemporaryPackageInfo: PackageInfo = {
       packageVersion: '1.1',
@@ -105,13 +105,13 @@ describe('The load and navigation simple actions', () => {
     );
   });
 
-  test('sets and gets resources', () => {
+  it('sets and gets resources', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setResources(testResources));
     expect(getResources(testStore.getState())).toMatchObject(testResources);
   });
 
-  test('sets and gets manual attribution data', () => {
+  it('sets and gets manual attribution data', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
       uuid2: { packageName: 'Redux' },
@@ -155,7 +155,7 @@ describe('The load and navigation simple actions', () => {
     ).toEqual(expectedResourcesWithAttributedChildren);
   });
 
-  test('sets and gets external attribution data', () => {
+  it('sets and gets external attribution data', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'React' },
       uuid2: { packageName: 'Redux' },
@@ -203,7 +203,7 @@ describe('The load and navigation simple actions', () => {
     ).toEqual(expectedResourcesWithAttributedChildren);
   });
 
-  test('sets and gets frequentLicenses', () => {
+  it('sets and gets frequentLicenses', () => {
     const testFrequentLicenses: FrequentLicences = {
       nameOrder: ['MIT', 'GPL'],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
@@ -218,7 +218,7 @@ describe('The load and navigation simple actions', () => {
     );
   });
 
-  test('sets and gets progressBarData', () => {
+  it('sets and gets progressBarData', () => {
     const testResources: Resources = {
       folder1: { file1: 1, file2: 1 },
       folder2: { file1: 1, file2: 1 },
@@ -285,7 +285,7 @@ describe('The load and navigation simple actions', () => {
     );
   });
 
-  test('sets and gets temporaryPackageInfo', () => {
+  it('sets and gets temporaryPackageInfo', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'test',
       packageVersion: '1.0',
@@ -298,14 +298,14 @@ describe('The load and navigation simple actions', () => {
     );
   });
 
-  test('sets and gets isSavingDisabled', () => {
+  it('sets and gets isSavingDisabled', () => {
     const testStore = createTestAppStore();
     expect(getIsSavingDisabled(testStore.getState())).toBe(false);
     testStore.dispatch(setIsSavingDisabled(true));
     expect(getIsSavingDisabled(testStore.getState())).toBe(true);
   });
 
-  test('sets and gets baseUrlsForSources', () => {
+  it('sets and gets baseUrlsForSources', () => {
     const testStore = createTestAppStore();
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({});
     testStore.dispatch(setBaseUrlsForSources({ '/': 'github.com' }));
@@ -314,7 +314,7 @@ describe('The load and navigation simple actions', () => {
     });
   });
 
-  test('sets and gets externalAttributionSources', () => {
+  it('sets and gets externalAttributionSources', () => {
     const testStore = createTestAppStore();
     expect(getExternalAttributionSources(testStore.getState())).toEqual({});
     testStore.dispatch(

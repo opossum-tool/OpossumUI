@@ -28,7 +28,7 @@ import {
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 
 describe('The AggregatedAttributionsPanel', () => {
-  test('renders', () => {
+  it('renders', () => {
     const testResources: Resources = { file: 1 };
 
     const testManualAttributions: Attributions = {
@@ -93,7 +93,7 @@ describe('The AggregatedAttributionsPanel', () => {
     );
   });
 
-  test('shows correct replace attribution buttons in the context menu', () => {
+  it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,

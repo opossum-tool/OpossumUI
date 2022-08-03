@@ -8,7 +8,7 @@ import { getFileSearch } from '../../../selectors/file-search-selectors';
 import { setFileSearch } from '../file-search-actions';
 
 describe('The fileSearch actions', () => {
-  test('sets and gets fileSearch', () => {
+  it('sets and gets fileSearch', () => {
     const testStore = createTestAppStore();
     expect(getFileSearch(testStore.getState())).toBe('');
 

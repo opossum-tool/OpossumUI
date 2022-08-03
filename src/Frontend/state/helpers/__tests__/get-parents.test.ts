@@ -11,7 +11,7 @@ import {
 describe('Test getParents', () => {
   const testResource = '/first/second/third/fourth';
 
-  test('get parents of test string', () => {
+  it('get parents of test string', () => {
     const result = getParents(testResource);
     expect(result).toEqual([
       '/',
@@ -21,7 +21,7 @@ describe('Test getParents', () => {
     ]);
   });
 
-  test('get parents with breakpoints', () => {
+  it('get parents with breakpoints', () => {
     let result = getParentsUpToNextAttributionBreakpoint(
       testResource,
       (path) => path === '/first/'
@@ -64,7 +64,7 @@ describe('Test getParents', () => {
     ]);
   });
 
-  test('get parents with breakpoints, resource itself is breakpoint', () => {
+  it('get parents with breakpoints, resource itself is breakpoint', () => {
     const result = getParentsUpToNextAttributionBreakpoint(
       '/some/deep/folder/',
       (path) => path === '/some/deep/folder/'

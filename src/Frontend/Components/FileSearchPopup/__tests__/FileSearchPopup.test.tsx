@@ -35,7 +35,7 @@ describe('FileSearch popup ', () => {
 
   jest.useFakeTimers('modern');
 
-  test('renders', () => {
+  it('renders', () => {
     renderComponentWithStore(<FileSearchPopup />);
     expect(
       screen.getByText('Search for Files and Directories', { exact: false })
@@ -47,7 +47,7 @@ describe('FileSearch popup ', () => {
     ['test.js', 2],
     ['non-existing-file', 0],
     ['eagleblu', 4],
-  ]).test(
+  ]).it(
     'search for %s results in %s results',
     (search: string, expected_results: number) => {
       const store = createTestAppStore();
@@ -82,7 +82,7 @@ describe('FileSearch popup ', () => {
     }
   );
 
-  test('has debounced search', () => {
+  it('has debounced search', () => {
     const store = createTestAppStore();
     store.dispatch(
       loadFromFile(
@@ -113,7 +113,7 @@ describe('FileSearch popup ', () => {
     expect(screen.queryByText('/', { exact: false })).not.toBeInTheDocument();
   });
 
-  test('has search with state', () => {
+  it('has search with state', () => {
     const store = createTestAppStore();
     store.dispatch(
       loadFromFile(

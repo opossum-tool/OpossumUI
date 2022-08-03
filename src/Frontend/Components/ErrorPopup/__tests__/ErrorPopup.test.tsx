@@ -9,7 +9,7 @@ import { ErrorPopup } from '../ErrorPopup';
 import { screen } from '@testing-library/react';
 
 describe('Error popup ', () => {
-  test('renders', () => {
+  it('renders', () => {
     renderComponentWithStore(<ErrorPopup content="Invalid link." />);
 
     expect(screen.getByText('Error')).toBeInTheDocument();

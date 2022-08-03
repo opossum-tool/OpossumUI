@@ -7,7 +7,7 @@ import { AttributionInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../is-important-attribution-information-missing';
 
 describe('isImportantAttributionInformationMissing', () => {
-  test('returns true for a github purl without namespace', () => {
+  it('returns true for a github purl without namespace', () => {
     const testAttributionInfo: AttributionInfo = {
       packageType: 'github',
       resources: ['1'],
@@ -20,7 +20,7 @@ describe('isImportantAttributionInformationMissing', () => {
     ).toEqual(true);
   });
 
-  test('returns false if exclude from notice', () => {
+  it('returns false if exclude from notice', () => {
     const testAttributionInfo: AttributionInfo = {
       excludeFromNotice: true,
       resources: ['1'],
@@ -33,7 +33,7 @@ describe('isImportantAttributionInformationMissing', () => {
     ).toEqual(false);
   });
 
-  test('returns true if package name is missing', () => {
+  it('returns true if package name is missing', () => {
     const testAttributionInfo: AttributionInfo = {
       resources: ['1'],
     };
@@ -45,7 +45,7 @@ describe('isImportantAttributionInformationMissing', () => {
     ).toEqual(true);
   });
 
-  test('returns false if copyright is not missing', () => {
+  it('returns false if copyright is not missing', () => {
     const testAttributionInfo: AttributionInfo = {
       copyright: 'test',
       resources: ['1'],

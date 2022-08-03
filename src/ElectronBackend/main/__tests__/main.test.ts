@@ -55,7 +55,7 @@ jest.mock('electron', () => ({
 }));
 
 describe('The App backend', () => {
-  test('calls ipc handler', async () => {
+  it('calls ipc handler', async () => {
     await main();
 
     expect(ipcMain.handle).toHaveBeenCalledTimes(7);

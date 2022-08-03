@@ -46,7 +46,7 @@ const attributions: OpossumOutputFile = {
 };
 
 describe('writeJsonToFile', () => {
-  test('Test writeJsonToFile', () => {
+  it('Test writeJsonToFile', () => {
     const temporaryPath: string = createTempFolder();
     const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
     writeJsonToFile(jsonPath, attributions);

@@ -29,7 +29,7 @@ describe('computeAggregatedAttributionsFromChildren', () => {
     .add('samplepath/subfolder')
     .add('samplepath2/subfolder/subsubfolder');
 
-  test('selects aggregated children and sorts correctly', () => {
+  it('selects aggregated children and sorts correctly', () => {
     const expectedResult: Array<AttributionIdWithCount> = [
       {
         childrenWithAttributionCount: 2,
@@ -54,7 +54,7 @@ describe('computeAggregatedAttributionsFromChildren', () => {
     expect(result).toEqual(expectedResult);
   });
 
-  test('filters resolved attributions correctly', () => {
+  it('filters resolved attributions correctly', () => {
     const expectedResult: Array<AttributionIdWithCount> = [
       {
         childrenWithAttributionCount: 2,
@@ -81,7 +81,7 @@ describe('computeAggregatedAttributionsFromChildren', () => {
 });
 
 describe('sortByCountAndPackageName', () => {
-  test('sorts items correctly', () => {
+  it('sorts items correctly', () => {
     const initialAttributionIdsWithCount: Array<AttributionIdWithCount> = [
       {
         attributionId: 'uuid1',

@@ -62,14 +62,14 @@ import {
 } from '../../../test-helpers/popup-test-helpers';
 
 describe('The App in Audit View', () => {
-  test('renders TopBar and no ResourceBrowser when no resource file has been loaded', () => {
+  it('renders TopBar and no ResourceBrowser when no resource file has been loaded', () => {
     renderComponentWithStore(<App />);
 
     expectResourceBrowserIsNotShown(screen);
     expect(getOpenFileIcon(screen));
   });
 
-  test('allows to modify text in text boxes', () => {
+  it('allows to modify text in text boxes', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: { 'something.js': 1 },
@@ -108,7 +108,7 @@ describe('The App in Audit View', () => {
     );
   });
 
-  test('shows aggregated and parent attributions correctly', () => {
+  it('shows aggregated and parent attributions correctly', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -180,7 +180,7 @@ describe('The App in Audit View', () => {
     expectValueInTextBox(screen, 'Name', 'Angular');
   });
 
-  test('show confidence correctly', () => {
+  it('show confidence correctly', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -245,7 +245,7 @@ describe('The App in Audit View', () => {
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
   });
 
-  test('allows to switch between resources by clicking the progress bar', () => {
+  it('allows to switch between resources by clicking the progress bar', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -311,7 +311,7 @@ describe('The App in Audit View', () => {
     expectPackageInPackagePanel(screen, 'React', 'Signals');
   });
 
-  test('resolve button is shown and works', () => {
+  it('resolve button is shown and works', () => {
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: {
@@ -399,7 +399,7 @@ describe('The App in Audit View', () => {
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
   });
 
-  test('replaces attributions', () => {
+  it('replaces attributions', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {
         uuid_2: {

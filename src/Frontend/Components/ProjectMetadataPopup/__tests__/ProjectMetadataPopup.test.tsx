@@ -14,7 +14,7 @@ import { ProjectMetadata } from '../../../../shared/shared-types';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('The ProjectMetadataPopup', () => {
-  test('displays metadata', () => {
+  it('displays metadata', () => {
     const store = createTestAppStore();
     const testMetadata: ProjectMetadata = {
       projectId: 'test-id',
@@ -27,7 +27,7 @@ describe('The ProjectMetadataPopup', () => {
     expect(screen.getByText('test-id')).toBeInTheDocument();
   });
 
-  test('formats projectId, projectTitle and fileCreationDate', () => {
+  it('formats projectId, projectTitle and fileCreationDate', () => {
     const store = createTestAppStore();
     const testMetadata: ProjectMetadata = {
       projectTitle: 'Title',
@@ -43,7 +43,7 @@ describe('The ProjectMetadataPopup', () => {
     expect(screen.getByText('File Creation Date')).toBeInTheDocument();
   });
 
-  test('displays custom user metadata', () => {
+  it('displays custom user metadata', () => {
     const store = createTestAppStore();
     const testMetadata: ProjectMetadata = {
       projectId: 'test-id',
