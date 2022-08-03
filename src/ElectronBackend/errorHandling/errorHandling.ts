@@ -48,15 +48,13 @@ export function createListenerCallbackWithErrorHandling(
 }
 
 export function getErrorDialog(
-  webContents: Electron.WebContents,
   getMessageBoxContent: (errorMessage: string) => MessageBoxOptions,
-  errorMessage: string
+  errorMessage: string,
+  performButtonActionCallback: (value: MessageBoxReturnValue) => void
 ): Promise<void> {
   return dialog
     .showMessageBox(getMessageBoxContent(errorMessage))
-    .then((value: MessageBoxReturnValue) =>
-      performButtonAction(webContents, value.response)
-    );
+    .then(performButtonActionCallback);
 }
 
 export function getMessageBoxForErrors(
@@ -66,9 +64,10 @@ export function getMessageBoxForErrors(
   isBackendError: boolean
 ): Promise<void> {
   return getErrorDialog(
-    webContents,
     getMessageBoxContentForErrorsWrapper(isBackendError, errorStack),
-    errorMessage
+    errorMessage,
+    (value: MessageBoxReturnValue) =>
+      performButtonAction(webContents, value.response)
   );
 }
 
@@ -91,13 +90,14 @@ export function getMessageBoxContentForErrorsWrapper(
 }
 
 export function getMessageBoxForParsingError(
-  errorMessage: string,
-  webContents: WebContents
+  errorMessage: string
 ): Promise<void> {
   return getErrorDialog(
-    webContents,
     getMessageBoxContentForParsingError,
-    errorMessage
+    errorMessage,
+    () => {
+      app.exit(0);
+    }
   );
 }
 

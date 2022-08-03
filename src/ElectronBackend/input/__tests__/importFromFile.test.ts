@@ -169,7 +169,7 @@ describe('Test of loading function', () => {
     jest.resetAllMocks();
   });
 
-  test('Handles Parsing error correctly', async () => {
+  test('handles Parsing error correctly', async () => {
     const temporaryPath: string = createTempFolder();
     const corruptJsonPath = path.join(
       upath.toUnix(temporaryPath),
@@ -201,7 +201,6 @@ describe('Test of loading function', () => {
 
     expect(getMessageBoxForParsingError).toHaveBeenCalled();
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
-    assertAttributionFilePath();
     deleteFolder(temporaryPath);
   });
 
@@ -223,7 +222,6 @@ describe('Test of loading function', () => {
       );
 
       expect(dialog.showMessageBox).not.toBeCalled();
-      assertAttributionFilePath();
       deleteFolder(temporaryPath);
     });
 
@@ -246,12 +244,11 @@ describe('Test of loading function', () => {
         expectedFileContent
       );
       expect(dialog.showMessageBox).not.toBeCalled();
-      assertAttributionFilePath();
       deleteFolder(temporaryPath);
     });
   });
 
-  test('Load file and parse json successfully, attribution file', async () => {
+  it('loads file and parses json successfully, attribution file', async () => {
     const testUuid = 'test_uuid';
     const temporaryPath: string = createTempFolder();
     const jsonName = 'test.json';
@@ -259,18 +256,6 @@ describe('Test of loading function', () => {
     const attributionJsonPath = path.join(
       upath.toUnix(temporaryPath),
       'test_attributions.json'
-    );
-    const followUpFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_follow_up.csv'
-    );
-    const compactBomFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_compact_component_list.csv'
-    );
-    const detailedBomFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_detailed_component_list.csv'
     );
 
     writeJsonToFile(jsonPath, inputFileContent);
@@ -297,165 +282,146 @@ describe('Test of loading function', () => {
     await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
 
     assertFileLoadedCorrectly(testUuid);
-    assertGlobalBackendState(
-      jsonPath,
-      attributionJsonPath,
-      followUpFilePath,
-      compactBomFilePath,
-      detailedBomFilePath,
+    expect(getGlobalBackendState().projectTitle).toBe(
       inputFileContent.metadata.projectTitle
     );
+    expect(getGlobalBackendState().projectId).toBe(
+      inputFileContent.metadata.projectId
+    );
+    expect(getGlobalBackendState().inputContainsCriticalSignals).toBeTruthy;
     deleteFolder(temporaryPath);
   });
 
-  test('Load file and parse json successfully, attribution file and preSelected attributions', async () => {
-    const inputFileContentWithPreselectedAttribution: ParsedOpossumInputFile = {
-      metadata: EMPTY_PROJECT_METADATA,
-      resources: {
-        a: 1,
-      },
-      externalAttributions: {
-        [externalAttributionUuid]: {
-          source: {
-            name: 'REUSER:HHC',
-            documentConfidence: 13,
-          },
-          packageName: 'my app',
-          packageVersion: '1.2.3',
-          copyright: '(c) first party',
-          preSelected: true,
-          attributionConfidence: 17,
-          comment: 'some comment',
-        },
-      },
-      frequentLicenses: [
+  it(
+    'loads file and parses json successfully, ' +
+      'attribution file and preSelected attributions',
+    async () => {
+      const inputFileContentWithPreselectedAttribution: ParsedOpossumInputFile =
         {
-          shortName: 'MIT',
-          fullName: 'MIT license',
-          defaultText: 'MIT license text',
-        },
-        {
-          shortName: 'GPL',
-          fullName: 'GPL license',
-          defaultText: 'GPL license text',
-        },
-      ],
-      resourcesToAttributions: { '/a': [externalAttributionUuid] },
-      attributionBreakpoints: ['/some/path/', '/another/path/'],
-      filesWithChildren: ['/some/package.json/'],
-      baseUrlsForSources: {
-        '/': 'https://github.com/opossum-tool/opossumUI/',
-      },
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1000 },
-        OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-      },
-    };
-    const temporaryPath: string = createTempFolder();
-    const jsonName = 'test.json';
-    const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
-    const attributionJsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_attributions.json'
-    );
-    const followUpFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_follow_up.csv'
-    );
-    const compactBomFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_compact_component_list.csv'
-    );
-    const detailedBomFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_detailed_component_list.csv'
-    );
-
-    writeJsonToFile(jsonPath, inputFileContentWithPreselectedAttribution);
-
-    Date.now = jest.fn(() => 1);
-
-    const globalBackendState = {
-      resourceFilePath: '/previous/file.json',
-      attributionFilePath: '/previous/file.json',
-    };
-
-    setGlobalBackendState(globalBackendState);
-    await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
-
-    const expectedLoadedFile: ParsedFileContent = {
-      metadata: EMPTY_PROJECT_METADATA,
-      resources: { a: 1 },
-      manualAttributions: {
-        attributions: {
-          [manualAttributionUuid]: {
-            packageName: 'my app',
-            packageVersion: '1.2.3',
-            comment: 'some comment',
-            copyright: '(c) first party',
-            preSelected: true,
-            attributionConfidence: 17,
+          metadata: EMPTY_PROJECT_METADATA,
+          resources: {
+            a: 1,
           },
-        },
-        resourcesToAttributions: {
-          '/a': [manualAttributionUuid],
-        },
-      },
-      externalAttributions: {
-        attributions: {
-          [externalAttributionUuid]: {
-            source: {
-              name: 'REUSER:HHC',
-              documentConfidence: 13,
+          externalAttributions: {
+            [externalAttributionUuid]: {
+              source: {
+                name: 'REUSER:HHC',
+                documentConfidence: 13,
+              },
+              packageName: 'my app',
+              packageVersion: '1.2.3',
+              copyright: '(c) first party',
+              preSelected: true,
+              attributionConfidence: 17,
+              comment: 'some comment',
             },
-            packageName: 'my app',
-            packageVersion: '1.2.3',
-            copyright: '(c) first party',
-            preSelected: true,
-            attributionConfidence: 17,
-            comment: 'some comment',
+          },
+          frequentLicenses: [
+            {
+              shortName: 'MIT',
+              fullName: 'MIT license',
+              defaultText: 'MIT license text',
+            },
+            {
+              shortName: 'GPL',
+              fullName: 'GPL license',
+              defaultText: 'GPL license text',
+            },
+          ],
+          resourcesToAttributions: { '/a': [externalAttributionUuid] },
+          attributionBreakpoints: ['/some/path/', '/another/path/'],
+          filesWithChildren: ['/some/package.json/'],
+          baseUrlsForSources: {
+            '/': 'https://github.com/opossum-tool/opossumUI/',
+          },
+          externalAttributionSources: {
+            SC: { name: 'ScanCode', priority: 1000 },
+            OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
+          },
+        };
+      const temporaryPath: string = createTempFolder();
+      const jsonName = 'test.json';
+      const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
+
+      writeJsonToFile(jsonPath, inputFileContentWithPreselectedAttribution);
+
+      Date.now = jest.fn(() => 1);
+
+      const globalBackendState = {
+        resourceFilePath: '/previous/file.json',
+        attributionFilePath: '/previous/file.json',
+      };
+
+      setGlobalBackendState(globalBackendState);
+
+      await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+      const expectedLoadedFile: ParsedFileContent = {
+        metadata: EMPTY_PROJECT_METADATA,
+        resources: { a: 1 },
+        manualAttributions: {
+          attributions: {
+            [manualAttributionUuid]: {
+              packageName: 'my app',
+              packageVersion: '1.2.3',
+              comment: 'some comment',
+              copyright: '(c) first party',
+              preSelected: true,
+              attributionConfidence: 17,
+            },
+          },
+          resourcesToAttributions: {
+            '/a': [manualAttributionUuid],
           },
         },
-        resourcesToAttributions: {
-          '/a': [externalAttributionUuid],
+        externalAttributions: {
+          attributions: {
+            [externalAttributionUuid]: {
+              source: {
+                name: 'REUSER:HHC',
+                documentConfidence: 13,
+              },
+              packageName: 'my app',
+              packageVersion: '1.2.3',
+              copyright: '(c) first party',
+              preSelected: true,
+              attributionConfidence: 17,
+              comment: 'some comment',
+            },
+          },
+          resourcesToAttributions: {
+            '/a': [externalAttributionUuid],
+          },
         },
-      },
-      frequentLicenses: {
-        nameOrder: ['MIT', 'GPL'],
-        texts: {
-          MIT: 'MIT license text',
-          GPL: 'GPL license text',
+        frequentLicenses: {
+          nameOrder: ['MIT', 'GPL'],
+          texts: {
+            MIT: 'MIT license text',
+            GPL: 'GPL license text',
+          },
         },
-      },
-      resolvedExternalAttributions: new Set(),
-      attributionBreakpoints: new Set(['/some/path/', '/another/path/']),
-      filesWithChildren: new Set(['/some/package.json/']),
-      baseUrlsForSources: {
-        '/': 'https://github.com/opossum-tool/opossumUI/',
-      },
-      externalAttributionSources: {
-        SC: { name: 'ScanCode', priority: 1000 },
-        OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-      },
-    };
+        resolvedExternalAttributions: new Set(),
+        attributionBreakpoints: new Set(['/some/path/', '/another/path/']),
+        filesWithChildren: new Set(['/some/package.json/']),
+        baseUrlsForSources: {
+          '/': 'https://github.com/opossum-tool/opossumUI/',
+        },
+        externalAttributionSources: {
+          SC: { name: 'ScanCode', priority: 1000 },
+          OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
+        },
+      };
 
-    expect(mainWindow.webContents.send).toBeCalledWith(
-      AllowedFrontendChannels.FileLoaded,
-      expectedLoadedFile
-    );
-    expect(dialog.showMessageBox).not.toBeCalled();
+      expect(mainWindow.webContents.send).toBeCalledWith(
+        AllowedFrontendChannels.FileLoaded,
+        expectedLoadedFile
+      );
+      expect(dialog.showMessageBox).not.toBeCalled();
 
-    assertGlobalBackendState(
-      jsonPath,
-      attributionJsonPath,
-      followUpFilePath,
-      compactBomFilePath,
-      detailedBomFilePath
-    );
-    deleteFolder(temporaryPath);
-  });
+      deleteFolder(temporaryPath);
+    }
+  );
 
-  test('Load file and parse json successfully, custom metadata', async () => {
+  test('loads file and parses json successfully, custom metadata', async () => {
     const inputFileContentWithCustomMetadata: ParsedOpossumInputFile = {
       ...inputFileContent,
       metadata: {
@@ -517,29 +483,4 @@ function assertFileLoadedCorrectly(testUuid: string): void {
     expectedLoadedFile
   );
   expect(dialog.showMessageBox).not.toBeCalled();
-}
-
-function assertGlobalBackendState(
-  jsonPath: string,
-  attributionJsonPath: string,
-  followUpFilePath: string,
-  compactBomFilePath: string,
-  detailedBomFilePath: string,
-  projectTitle?: string
-): void {
-  const globalBackendState = getGlobalBackendState();
-  expect(globalBackendState.resourceFilePath).toBe(jsonPath);
-  expect(globalBackendState.attributionFilePath).toBe(attributionJsonPath);
-  expect(globalBackendState.followUpFilePath).toBe(followUpFilePath);
-  expect(globalBackendState.compactBomFilePath).toBe(compactBomFilePath);
-  expect(globalBackendState.detailedBomFilePath).toBe(detailedBomFilePath);
-  expect(globalBackendState.projectTitle).toBe(projectTitle);
-}
-
-function assertAttributionFilePath(): void {
-  const attributionFilePath = getGlobalBackendState().attributionFilePath;
-  expect(attributionFilePath).not.toBeUndefined();
-  if (attributionFilePath) {
-    expect(path.basename(attributionFilePath)).toBe('test_attributions.json');
-  }
 }

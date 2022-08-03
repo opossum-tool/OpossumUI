@@ -219,6 +219,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function showChangedInputFilePopupListener(
+    event: IpcRendererEvent,
+    showChangedInputFilePopup: boolean
+  ): void {
+    if (showChangedInputFilePopup) {
+      dispatch(openPopup(PopupType.ChangedInputFilePopup));
+    }
+  }
+
   function setBaseURLForRootListener(
     event: IpcRendererEvent,
     baseURLForRootArgs: BaseURLForRootArgs
@@ -263,6 +272,11 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(
     AllowedFrontendChannels.ShowProjectMetadataPopup,
     showProjectMetadataPopupListener,
+    [dispatch]
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowChangedInputFilePopup,
+    showChangedInputFilePopupListener,
     [dispatch]
   );
   useIpcRenderer(

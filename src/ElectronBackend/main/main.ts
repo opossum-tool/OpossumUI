@@ -17,8 +17,10 @@ import {
   getExportFileListener,
   getOpenFileListener,
   getOpenLinkListener,
+  getDeleteAndCreateNewAttributionFileListener,
   getSaveFileListener,
   getSendErrorInformationListener,
+  getKeepFileListener,
 } from './listeners';
 import { installExtensionsForDev } from './installExtensionsForDev';
 import os from 'os';
@@ -41,6 +43,11 @@ export async function main(): Promise<void> {
 
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(webContents));
+    ipcMain.handle(
+      IpcChannel.DeleteFile,
+      getDeleteAndCreateNewAttributionFileListener(mainWindow)
+    );
+    ipcMain.handle(IpcChannel.KeepFile, getKeepFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.SendErrorInformation,
       getSendErrorInformationListener(webContents)

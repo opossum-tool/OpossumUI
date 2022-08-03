@@ -25,15 +25,25 @@ import {
 import { loadJsonFromFilePath } from '../input/importFromFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeJsonToFile } from '../output/writeJsonToFile';
-import { KeysOfAttributionInfo, OpossumOutputFile } from '../types/types';
-import { getGlobalBackendState } from './globalBackendState';
+import {
+  GlobalBackendState,
+  KeysOfAttributionInfo,
+  OpossumOutputFile,
+} from '../types/types';
+import {
+  getGlobalBackendState,
+  setGlobalBackendState,
+} from './globalBackendState';
 import { loadApplication } from './createWindow';
 import { openFileDialog, selectBaseURLDialog } from './dialogs';
-
 import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
 import { createMenu } from './menu';
+import { parseOpossumOutputFile } from '../input/parseFile';
+import md5 from 'md5';
+import upath from 'upath';
+import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 
 export function getSaveFileListener(
   webContents: WebContents
@@ -57,6 +67,7 @@ export function getSaveFileListener(
           metadata: {
             projectId: globalBackendState.projectId,
             fileCreationDate: String(Date.now()),
+            inputFileMD5Checksum: globalBackendState.inputFileChecksum,
           },
           manualAttributions: args.manualAttributions,
           resourcesToAttributions: args.resourcesToAttributions,
@@ -92,9 +103,137 @@ export function getOpenFileListener(
         filePath = tryToGetInputFileFromOutputFile(filePath);
       }
 
+      const checksums = getActualAndParsedChecksums(filePath);
+
+      log.info('Initializing global backend state');
+      initializeGlobalBackendState(filePath, checksums.actualInputFileChecksum);
+
+      await openFileOrShowChangedInputFilePopup(
+        checksums,
+        mainWindow,
+        filePath
+      );
+    }
+  );
+}
+
+function getActualAndParsedChecksums(resourceFilePath: string): {
+  actualInputFileChecksum: string;
+  parsedInputFileChecksum: string;
+} {
+  const manualAttributionFilePath = getFilePathWithAppendix(
+    resourceFilePath,
+    '_attributions.json'
+  );
+  const inputFileContent = fs.readFileSync(resourceFilePath, 'utf8');
+  const actualInputFileChecksum = md5(inputFileContent);
+  let parsedInputFileChecksum = '';
+
+  if (fs.existsSync(manualAttributionFilePath)) {
+    const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
+    parsedInputFileChecksum =
+      opossumOutputData.metadata.inputFileMD5Checksum ?? '';
+  }
+  return { actualInputFileChecksum, parsedInputFileChecksum };
+}
+
+function initializeGlobalBackendState(
+  filePath: string,
+  inputFileChecksum: string
+): void {
+  const newGlobalBackendState: GlobalBackendState = {
+    resourceFilePath: filePath,
+    attributionFilePath: getFilePathWithAppendix(
+      filePath,
+      '_attributions.json'
+    ),
+    followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
+    compactBomFilePath: getFilePathWithAppendix(
+      filePath,
+      '_compact_component_list.csv'
+    ),
+    detailedBomFilePath: getFilePathWithAppendix(
+      filePath,
+      '_detailed_component_list.csv'
+    ),
+    spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
+    spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
+    inputFileChecksum,
+  };
+  setGlobalBackendState(newGlobalBackendState);
+}
+
+async function openFileOrShowChangedInputFilePopup(
+  checksums: {
+    actualInputFileChecksum: string;
+    parsedInputFileChecksum: string;
+  },
+  mainWindow: BrowserWindow,
+  filePath: string
+): Promise<void> {
+  log.info('Checking input file checksum');
+  if (
+    checksums.actualInputFileChecksum === checksums.parsedInputFileChecksum ||
+    !checksums.parsedInputFileChecksum
+  ) {
+    log.info('Checksum of the input file has not changed.');
+    await openFile(mainWindow, filePath);
+  } else {
+    log.info('Checksum of the input file has changed.');
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      {
+        showChangedInputFilePopup: true,
+      }
+    );
+  }
+}
+
+export function getKeepFileListener(
+  mainWindow: BrowserWindow
+): () => Promise<void> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow.webContents,
+    async () => {
+      const filePath = getResourceFilePath();
+      log.info('Opening file: ', filePath);
       await openFile(mainWindow, filePath);
     }
   );
+}
+
+export function getDeleteAndCreateNewAttributionFileListener(
+  mainWindow: BrowserWindow
+): () => Promise<void> {
+  return createListenerCallbackWithErrorHandling(
+    mainWindow.webContents,
+    async () => {
+      const filePath = getResourceFilePath();
+      const globalBackendState = getGlobalBackendState();
+
+      log.info('Deleting attribution file and opening input file: ', filePath);
+      if (globalBackendState.attributionFilePath) {
+        fs.unlinkSync(globalBackendState.attributionFilePath);
+      } else {
+        throw new Error(
+          'Failed to delete output file. Attribution file path is incorrect:' +
+            `\n${globalBackendState.attributionFilePath}`
+        );
+      }
+      await openFile(mainWindow, filePath);
+    }
+  );
+}
+
+function getResourceFilePath(): string {
+  let filePath: string;
+  const globalBackendState = getGlobalBackendState();
+  if (globalBackendState.resourceFilePath) {
+    filePath = globalBackendState.resourceFilePath;
+  } else {
+    throw new Error('Resource file path is falsy.');
+  }
+  return filePath;
 }
 
 export function getSelectBaseURLListener(webContents: WebContents): () => void {
@@ -145,9 +284,12 @@ export async function openFile(
 
 function setTitle(mainWindow: BrowserWindow, filePath: string): void {
   const defaultTitle = 'OpossumUI';
+
   mainWindow.setTitle(
     getGlobalBackendState().projectTitle ||
-      decodeURIComponent(filePath.split('/').pop() || defaultTitle)
+      decodeURIComponent(
+        upath.toUnix(filePath).split('/').pop() || defaultTitle
+      )
   );
 }
 

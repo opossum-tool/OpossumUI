@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { dialog, WebContents } from 'electron';
+import { app, dialog, WebContents } from 'electron';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadJsonFromFilePath } from '../../input/importFromFile';
 import {
@@ -25,6 +25,7 @@ jest.mock('electron', () => ({
       });
     }),
   },
+  app: { exit: jest.fn(), getName: jest.fn(), getVersion: jest.fn() },
 }));
 
 jest.mock('electron-log');
@@ -162,10 +163,8 @@ describe('error handling', () => {
         message: 'parsingErrorMessage',
         type: 'jsonParsingError',
       };
-      const mockCallback = jest.fn();
-      const webContents = { send: mockCallback as unknown } as WebContents;
 
-      await getMessageBoxForParsingError(parsingError.message, webContents);
+      await getMessageBoxForParsingError(parsingError.message);
 
       expect(dialog.showMessageBox).toBeCalledWith(
         expect.objectContaining({
@@ -175,11 +174,7 @@ describe('error handling', () => {
           buttons: ['Ok'],
         })
       );
-      expect(mockCallback.mock.calls.length).toBe(1);
-      expect(mockCallback.mock.calls[0][0]).toContain(
-        AllowedFrontendChannels.RestoreFrontend
-      );
-      expect(loadJsonFromFilePath).toBeCalled();
+      expect(app.exit).toBeCalledWith(0);
     });
   });
 });
