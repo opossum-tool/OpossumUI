@@ -15,7 +15,7 @@ import {
 } from '../../../shared/shared-types';
 import {
   cleanNonExistentAttributions,
-  cleanNonExistentResolvedExternalSignals,
+  cleanNonExistentResolvedExternalAttributions,
   getAllResourcePaths,
   parseFrequentLicenses,
   parseRawAttributions,
@@ -60,7 +60,7 @@ describe('cleanNonExistentAttributions', () => {
   });
 });
 
-describe('cleanNonExistentResolvedExternalSignals', () => {
+describe('cleanNonExistentResolvedExternalAttributions', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -70,7 +70,7 @@ describe('cleanNonExistentResolvedExternalSignals', () => {
       .add('attr2')
       .add('invalid');
     const externalAttributions: Attributions = { attr2: {}, attr4: {} };
-    const result = cleanNonExistentResolvedExternalSignals(
+    const result = cleanNonExistentResolvedExternalAttributions(
       webContents,
       resolvedExternalAttributions,
       externalAttributions
@@ -95,11 +95,11 @@ describe('sanitizeRawAttributions', () => {
         followUp: FollowUp,
       },
     };
-    const expectedCriticalSignalsFlag = false;
+    const expectedCriticalExternalAttributionsFlag = false;
 
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
-      expectedCriticalSignalsFlag,
+      expectedCriticalExternalAttributionsFlag,
     ]);
   });
 
@@ -112,10 +112,10 @@ describe('sanitizeRawAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {},
     };
-    const expectedCriticalSignalsFlag = false;
+    const expectedCriticalExternalAttributionsFlag = false;
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
-      expectedCriticalSignalsFlag,
+      expectedCriticalExternalAttributionsFlag,
     ]);
   });
 
@@ -130,11 +130,11 @@ describe('sanitizeRawAttributions', () => {
         comment: 'Test comment',
       },
     };
-    const expectedcriticalSignalsFlag = false;
+    const expectedCriticalExternalAttributionsFlag = false;
 
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
-      expectedcriticalSignalsFlag,
+      expectedCriticalExternalAttributionsFlag,
     ]);
   });
 
@@ -147,11 +147,11 @@ describe('sanitizeRawAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {},
     };
-    const expectedCriticalSignalsFlag = false;
+    const expectedCriticalExternalAttributionsFlag = false;
 
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
-      expectedCriticalSignalsFlag,
+      expectedCriticalExternalAttributionsFlag,
     ]);
   });
 
@@ -166,11 +166,11 @@ describe('sanitizeRawAttributions', () => {
         criticality: Criticality.High,
       },
     };
-    const expectedcriticalSignalsFlag = true;
+    const expectedCriticalExternalAttributionsFlag = true;
 
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
-      expectedcriticalSignalsFlag,
+      expectedCriticalExternalAttributionsFlag,
     ]);
   });
 
@@ -183,11 +183,11 @@ describe('sanitizeRawAttributions', () => {
     const expectedAttributions: Attributions = {
       id: {},
     };
-    const expectedcriticalSignalsFlag = false;
+    const expectedCriticalExternalAttributionsFlag = false;
 
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
-      expectedcriticalSignalsFlag,
+      expectedCriticalExternalAttributionsFlag,
     ]);
   });
 });

@@ -302,7 +302,7 @@ describe('Other popups of the app', () => {
     mockSaveFileRequestChannel();
     insertValueIntoTextBox(screen, 'PURL', testInvalidPurl);
 
-    // Trigger sending signal in IpcChannel without the clicking on save button
+    // Trigger sending external attribution in IpcChannel without the clicking on save button
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
 
     expectErrorPopupIsShown(screen);
@@ -344,7 +344,7 @@ describe('Other popups of the app', () => {
     mockSaveFileRequestChannel();
     insertValueIntoTextBox(screen, 'PURL', testValidPurl);
 
-    // Trigger sending signal in IpcChannel without the clicking on save button
+    // Trigger sending external attribution in IpcChannel without the clicking on save button
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
 
     expectErrorPopupIsNotShown(screen);

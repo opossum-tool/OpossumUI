@@ -14,7 +14,7 @@ import {
 import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   cleanNonExistentAttributions,
-  cleanNonExistentResolvedExternalSignals,
+  cleanNonExistentResolvedExternalAttributions,
   parseFrequentLicenses,
   parseRawAttributions,
   sanitizeRawBaseUrlsForSources,
@@ -59,7 +59,7 @@ export async function loadJsonFromFilePath(
   }
 
   log.info('... Successfully parsed input file.');
-  const [externalAttributions, inputContainsCriticalSignals] =
+  const [externalAttributions, inputContainsCriticalExternalAttributions] =
     parseRawAttributions(parsingResult.externalAttributions);
 
   const manualAttributionFilePath = getFilePathWithAppendix(
@@ -115,7 +115,7 @@ export async function loadJsonFromFilePath(
       resourcesToAttributions: resourcesToExternalAttributions,
     },
     frequentLicenses,
-    resolvedExternalAttributions: cleanNonExistentResolvedExternalSignals(
+    resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
       webContents,
       opossumOutputData.resolvedExternalAttributions,
       externalAttributions
@@ -134,8 +134,8 @@ export async function loadJsonFromFilePath(
 
   getGlobalBackendState().projectTitle = parsingResult.metadata.projectTitle;
   getGlobalBackendState().projectId = projectId;
-  getGlobalBackendState().inputContainsCriticalSignals =
-    inputContainsCriticalSignals;
+  getGlobalBackendState().inputContainsCriticalExternalAttributions =
+    inputContainsCriticalExternalAttributions;
 
   log.info('File import finished successfully');
 }

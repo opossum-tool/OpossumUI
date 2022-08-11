@@ -87,7 +87,11 @@ describe('ProgressBar helpers', () => {
       filesWithManualAttributionCount: 3,
       filesWithOnlyPreSelectedAttributionCount: 3,
       filesWithOnlyExternalAttributionCount: 3,
-      resourcesWithNonInheritedSignalOnly: ['file1', 'file2', 'file3'],
+      resourcesWithNonInheritedExternalAttributionOnly: [
+        'file1',
+        'file2',
+        'file3',
+      ],
     };
     const expectedProgressBarBackground: string =
       'linear-gradient(to right,' +

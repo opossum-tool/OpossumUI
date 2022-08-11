@@ -88,7 +88,7 @@ describe('The audit view simple actions', () => {
     );
   });
 
-  it('add resolved signals to state', () => {
+  it('add resolved external attributions to state', () => {
     const testStore = createTestAppStore();
     const uuid1 = 'd3a753c0-5100-11eb-ae93-0242ac130002';
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';
@@ -132,7 +132,7 @@ describe('The audit view simple actions', () => {
       getResourcesWithExternalAttributedChildren(testStore.getState())
     ).toMatchObject({});
 
-    // Test that signals are deduplicated
+    // Test that external attributions are deduplicated
     testStore.dispatch(addResolvedExternalAttribution(uuid1));
     expect(getResolvedExternalAttributions(testStore.getState())).toMatchObject(
       expectedResolvedExternalAttributions
@@ -142,7 +142,7 @@ describe('The audit view simple actions', () => {
     ).toMatchObject({});
   });
 
-  it('remove resolved signals from state', () => {
+  it('remove resolved external attributions from state', () => {
     const testStore = createTestAppStore();
     const uuid1 = 'd3a753c0-5100-11eb-ae93-0242ac130002';
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';

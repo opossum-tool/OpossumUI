@@ -16,11 +16,11 @@ import { ExportType } from '../../shared/shared-types';
 
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
-  const inputContainsCriticalSignals =
-    getGlobalBackendState().inputContainsCriticalSignals;
-  const isHighlightCriticalSignalMenuItemChecked =
+  const inputContainsCriticalExternalAttributions =
+    getGlobalBackendState().inputContainsCriticalExternalAttributions;
+  const isHighlightCriticalExternalAttributionMenuItemChecked =
     getCheckedStatusAndSyncWithFrontend(
-      inputContainsCriticalSignals,
+      inputContainsCriticalExternalAttributions,
       webContents
     );
 
@@ -168,15 +168,15 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         { label: 'Zoom Out', role: 'zoomOut' },
         {
           label: 'Highlight critical signals',
-          enabled: inputContainsCriticalSignals,
+          enabled: inputContainsCriticalExternalAttributions,
           id: 'highlightCritical',
           type: 'checkbox',
-          checked: isHighlightCriticalSignalMenuItemChecked,
+          checked: isHighlightCriticalExternalAttributionMenuItemChecked,
           click(): void {
             webContents.send(
-              AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
+              AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
               {
-                toggleHighlightForCriticalSignals: true,
+                toggleHighlightForCriticalExternalAttributions: true,
               }
             );
           },
@@ -223,25 +223,25 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
 }
 
 function getCheckedStatusAndSyncWithFrontend(
-  inputContainsCriticalSignals = false,
+  inputContainsCriticalExternalAttributions = false,
   webContents: WebContents
 ): boolean {
-  let isHighlightCriticalSignalMenuItemChecked = Boolean(
+  let isHighlightCriticalExternalAttributionMenuItemChecked = Boolean(
     Menu.getApplicationMenu()?.getMenuItemById('highlightCritical')?.checked
   );
 
   if (
-    isHighlightCriticalSignalMenuItemChecked &&
-    !inputContainsCriticalSignals
+    isHighlightCriticalExternalAttributionMenuItemChecked &&
+    !inputContainsCriticalExternalAttributions
   ) {
     webContents.send(
-      AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
+      AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
       {
-        toggleHighlightForCriticalSignals: true,
+        toggleHighlightForCriticalExternalAttributions: true,
       }
     );
-    isHighlightCriticalSignalMenuItemChecked = false;
+    isHighlightCriticalExternalAttributionMenuItemChecked = false;
   }
 
-  return isHighlightCriticalSignalMenuItemChecked;
+  return isHighlightCriticalExternalAttributionMenuItemChecked;
 }

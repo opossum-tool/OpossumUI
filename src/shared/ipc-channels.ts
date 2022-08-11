@@ -26,5 +26,5 @@ export enum AllowedFrontendChannels {
   ShowSearchPopup = 'show-search-pop-up',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
-  ToggleHighlightForCriticalSignals = 'toggle-highlight-for-critical-signals',
+  ToggleHighlightForCriticalExternalAttributions = 'toggle-highlight-for-critical-external-attributions',
 }

@@ -47,7 +47,7 @@ interface ProgressBarProps {
 
 export function ProgressBar(props: ProgressBarProps): ReactElement {
   const onProgressBarClick = useOnProgressBarClick(
-    props.progressBarData.resourcesWithNonInheritedSignalOnly
+    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly
   );
 
   return (

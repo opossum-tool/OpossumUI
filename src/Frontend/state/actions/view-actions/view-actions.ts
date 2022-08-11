@@ -15,14 +15,14 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
-  ACTION_SET_HIGHLIGHT_FOR_CRITICAL_SIGNALS,
+  ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ACTION_UPDATE_ACTIVE_FILTERS,
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
-  SetHighlightForCriticalSignalsAction,
+  SetHighlightForCriticalExternalAttributionsAction,
   SetTargetView,
   SetView,
   UpdateActiveFilters,
@@ -91,11 +91,11 @@ export function updateActiveFilters(
   };
 }
 
-export function setHighlightForCriticalSignals(
-  showHighlightForCriticalSignals: boolean
-): SetHighlightForCriticalSignalsAction {
+export function setHighlightForCriticalExternalAttributions(
+  showHighlightForCriticalExternalAttributions: boolean
+): SetHighlightForCriticalExternalAttributionsAction {
   return {
-    type: ACTION_SET_HIGHLIGHT_FOR_CRITICAL_SIGNALS,
-    payload: showHighlightForCriticalSignals,
+    type: ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS,
+    payload: showHighlightForCriticalExternalAttributions,
   };
 }
