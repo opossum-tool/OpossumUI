@@ -77,10 +77,9 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.fileCount).toEqual(4);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(2);
-    expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([
-      '/thirdParty/package_1.tr.gz',
-      '/thirdParty/package_2.tr.gz',
-    ]);
+    expect(
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+    ).toEqual(['/thirdParty/package_1.tr.gz', '/thirdParty/package_2.tr.gz']);
   });
 
   it('gets updated progress data without resolved external attributions', () => {
@@ -143,9 +142,9 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.fileCount).toEqual(4);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(1);
-    expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([
-      '/thirdParty/package_1.tr.gz',
-    ]);
+    expect(
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+    ).toEqual(['/thirdParty/package_1.tr.gz']);
   });
 
   it('stops inferring attributions at breakpoints', () => {
@@ -234,7 +233,9 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(5);
-    expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([
+    expect(
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+    ).toEqual([
       '/folder1/breakpoint1/file1',
       '/folder2/',
       '/folder2/breakpoint2/file3',
@@ -290,7 +291,9 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);
-    expect(progressBarData.resourcesWithNonInheritedSignalOnly).toEqual([]);
+    expect(
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+    ).toEqual([]);
   });
 
   it('resourceHasOnlyPreSelectedAttributions with only pre-selected attributions', () => {
@@ -340,7 +343,7 @@ describe('The getUpdatedProgressBarData function', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedExternalAttributionOnly: [],
     };
 
     updateProgressBarDataForResources(
@@ -414,7 +417,9 @@ describe('The getFolderProgressBarData function', () => {
     expect(progressBarData?.fileCount).toEqual(2);
     expect(progressBarData?.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData?.filesWithOnlyExternalAttributionCount).toEqual(0);
-    expect(progressBarData?.resourcesWithNonInheritedSignalOnly).toEqual([]);
+    expect(
+      progressBarData?.resourcesWithNonInheritedExternalAttributionOnly
+    ).toEqual([]);
   });
 });
 

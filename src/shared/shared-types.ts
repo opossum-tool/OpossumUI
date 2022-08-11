@@ -180,8 +180,8 @@ export interface BaseURLForRootArgs {
   baseURLForRoot: string;
 }
 
-export interface ToggleHighlightForCriticalSignalsArgs {
-  toggleHighlightForCriticalSignals: boolean;
+export interface ToggleHighlightForCriticalExternalAttributionsArgs {
+  toggleHighlightForCriticalExternalAttributions: boolean;
 }
 
 export interface ExternalAttributionSources {

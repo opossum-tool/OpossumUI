@@ -111,7 +111,9 @@ export function updateProgressBarDataForResources(
         progressBarData.filesWithManualAttributionCount++;
       } else if (hasNonInheritedExternalAttributions) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
-        progressBarData.resourcesWithNonInheritedSignalOnly.push(path);
+        progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
+          path
+        );
       } else if (hasParentExternalAttribution) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
       }
@@ -123,7 +125,9 @@ export function updateProgressBarDataForResources(
         !hasManualAttribution &&
         hasNonInheritedExternalAttributions
       ) {
-        progressBarData.resourcesWithNonInheritedSignalOnly.push(path);
+        progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
+          path
+        );
       }
 
       const isBreakpoint = isAttributionBreakpoint(path);
@@ -198,7 +202,7 @@ export function getEmptyProgressBarData(): ProgressBarData {
     filesWithManualAttributionCount: 0,
     filesWithOnlyPreSelectedAttributionCount: 0,
     filesWithOnlyExternalAttributionCount: 0,
-    resourcesWithNonInheritedSignalOnly: [],
+    resourcesWithNonInheritedExternalAttributionOnly: [],
   };
 }
 

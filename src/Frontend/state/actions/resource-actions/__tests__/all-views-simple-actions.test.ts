@@ -254,7 +254,10 @@ describe('The load and navigation simple actions', () => {
       filesWithManualAttributionCount: 4,
       filesWithOnlyExternalAttributionCount: 3,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: ['/folder2/file2', '/folder3/'],
+      resourcesWithNonInheritedExternalAttributionOnly: [
+        '/folder2/file2',
+        '/folder3/',
+      ],
     };
 
     const testStore = createTestAppStore();

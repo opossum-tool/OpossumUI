@@ -41,6 +41,8 @@ export function getPopupAttributionId(state: State): string | null {
   return popup.length === 1 ? popup[0].attributionId ?? null : null;
 }
 
-export function getHighlightForCriticalSignals(state: State): boolean {
-  return state.viewState.showHighlightForCriticalSignals;
+export function getHighlightForCriticalExternalAttributions(
+  state: State
+): boolean {
+  return state.viewState.showHighlightForCriticalExternalAttributions;
 }

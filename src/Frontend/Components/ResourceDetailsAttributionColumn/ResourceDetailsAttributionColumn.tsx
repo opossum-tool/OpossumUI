@@ -141,7 +141,7 @@ export function ResourceDetailsAttributionColumn(
     displayedPackage?.panel === PackagePanelTitle.ManualPackages &&
     !props.showParentAttributions;
 
-  function shownDataIsFromSignal(): boolean {
+  function shownDataIsFromExternalAttribution(): boolean {
     const externalPackagePanels: Array<PackagePanelTitle> = [
       PackagePanelTitle.ExternalPackages,
       PackagePanelTitle.ContainedExternalPackages,
@@ -153,7 +153,7 @@ export function ResourceDetailsAttributionColumn(
   }
 
   const showManualAttributionData: boolean =
-    !shownDataIsFromSignal() || isShownDataEditable;
+    !shownDataIsFromExternalAttribution() || isShownDataEditable;
   const hideDeleteButtons =
     attributionIdOfSelectedPackageInManualPanel === '' ||
     props.showParentAttributions;

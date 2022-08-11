@@ -191,7 +191,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 0,
       filesWithOnlyExternalAttributionCount: 2,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [
+      resourcesWithNonInheritedExternalAttributionOnly: [
         '/root/src/something.js',
         '/root/readme.md',
       ],
@@ -201,7 +201,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: ['/root/readme.md'],
+      resourcesWithNonInheritedExternalAttributionOnly: ['/root/readme.md'],
     };
 
     const testStore = createTestAppStore();
@@ -258,7 +258,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedExternalAttributionOnly: [],
     };
 
     testStore.dispatch(
@@ -349,14 +349,16 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 2,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedExternalAttributionOnly: [],
     };
     const expectedFinalProgressBarData: ProgressBarData = {
       fileCount: 2,
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: ['/root/src/something.js'],
+      resourcesWithNonInheritedExternalAttributionOnly: [
+        '/root/src/something.js',
+      ],
     };
     const emptyTestTemporaryPackageInfo: PackageInfo = {};
 
@@ -587,7 +589,7 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 2,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedExternalAttributionOnly: [],
     };
 
     const testStore = createTestAppStore();
@@ -668,14 +670,16 @@ describe('The savePackageInfo action', () => {
       filesWithManualAttributionCount: 1,
       filesWithOnlyExternalAttributionCount: 1,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: ['/folder/somethingElse.js'],
+      resourcesWithNonInheritedExternalAttributionOnly: [
+        '/folder/somethingElse.js',
+      ],
     };
     const expectedFinalProgressBarData: ProgressBarData = {
       fileCount: 2,
       filesWithManualAttributionCount: 2,
       filesWithOnlyExternalAttributionCount: 0,
       filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedSignalOnly: [],
+      resourcesWithNonInheritedExternalAttributionOnly: [],
     };
 
     const testStore = createTestAppStore();
@@ -1188,7 +1192,7 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toEqual('NotSavedPopup');
   });
 
-  it('adds a signal to the selected resource', () => {
+  it('adds an external attribution to the selected resource', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -1239,7 +1243,7 @@ describe('The addToSelectedResource action', () => {
     expect(getOpenPopup(testStore.getState())).toBe(null);
   });
 
-  it('saves resolved external signals', () => {
+  it('saves resolved external attributions', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setResources({}));
     testStore.dispatch(

@@ -57,7 +57,7 @@ describe('TopBar', () => {
       expect.anything()
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
+      AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
       expect.anything()
     );
 

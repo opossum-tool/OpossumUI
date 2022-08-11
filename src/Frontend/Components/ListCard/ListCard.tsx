@@ -9,7 +9,7 @@ import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { Criticality } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
-import { getHighlightForCriticalSignals } from '../../state/selectors/view-selector';
+import { getHighlightForCriticalExternalAttributions } from '../../state/selectors/view-selector';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
 import { merge } from 'lodash';
@@ -205,8 +205,8 @@ interface ListCardProps {
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
-  const showHighlightForCriticalSignals = useAppSelector(
-    getHighlightForCriticalSignals
+  const showHighlightForCriticalExternalAttributions = useAppSelector(
+    getHighlightForCriticalExternalAttributions
   );
 
   function getDisplayedCount(): string {
@@ -280,7 +280,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           <MuiBox sx={classes.iconColumn}>{props.rightIcons}</MuiBox>
         ) : null}
       </MuiBox>
-      {showHighlightForCriticalSignals ? (
+      {showHighlightForCriticalExternalAttributions ? (
         <MuiBox
           sx={{
             ...(props.cardConfig.criticality === Criticality.High

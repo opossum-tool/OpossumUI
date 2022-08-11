@@ -268,7 +268,7 @@ export function expectValuesInTopProgressbarTooltip(
   numberOfFiles: number,
   filesWithAttribution: number,
   filesWithOnlyPreSelectedAttributions: number,
-  filesWithOnlySignals: number
+  filesWithOnlyExternalAttributions: number
 ): void {
   jest.useFakeTimers();
   const progressBar = screen.getByLabelText('TopProgressBar');
@@ -289,7 +289,9 @@ export function expectValuesInTopProgressbarTooltip(
         )
       ) &&
       screen.getByText(
-        new RegExp(`Files with only signals: ${filesWithOnlySignals}`)
+        new RegExp(
+          `Files with only signals: ${filesWithOnlyExternalAttributions}`
+        )
       )
   ).toBeDefined();
 }

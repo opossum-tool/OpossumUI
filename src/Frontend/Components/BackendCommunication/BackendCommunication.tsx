@@ -16,7 +16,7 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   ParsedFileContent,
-  ToggleHighlightForCriticalSignalsArgs,
+  ToggleHighlightForCriticalExternalAttributionsArgs,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import {
@@ -32,7 +32,7 @@ import {
   getManualData,
   getResources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getHighlightForCriticalSignals } from '../../state/selectors/view-selector';
+import { getHighlightForCriticalExternalAttributions } from '../../state/selectors/view-selector';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
   getAttributionsWithResources,
@@ -43,7 +43,7 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import {
   openPopup,
-  setHighlightForCriticalSignals,
+  setHighlightForCriticalExternalAttributions,
 } from '../../state/actions/view-actions/view-actions';
 
 export function BackendCommunication(): ReactElement | null {
@@ -53,8 +53,8 @@ export function BackendCommunication(): ReactElement | null {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
-  const showHighlightForCriticalSignals = useAppSelector(
-    getHighlightForCriticalSignals
+  const showHighlightForCriticalExternalAttributions = useAppSelector(
+    getHighlightForCriticalExternalAttributions
   );
   const dispatch = useAppDispatch();
 
@@ -242,15 +242,17 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function setToggleHighlightForCriticalSignalsListener(
+  function setToggleHighlightForCriticalExternalAttributionsListener(
     event: IpcRendererEvent,
-    toggleHighlightForCriticalSignalsArgs: ToggleHighlightForCriticalSignalsArgs
+    toggleHighlightForCriticalExternalAttributionsArgs: ToggleHighlightForCriticalExternalAttributionsArgs
   ): void {
     if (
-      toggleHighlightForCriticalSignalsArgs?.toggleHighlightForCriticalSignals
+      toggleHighlightForCriticalExternalAttributionsArgs?.toggleHighlightForCriticalExternalAttributions
     ) {
       dispatch(
-        setHighlightForCriticalSignals(!showHighlightForCriticalSignals)
+        setHighlightForCriticalExternalAttributions(
+          !showHighlightForCriticalExternalAttributions
+        )
       );
     }
   }
@@ -300,9 +302,9 @@ export function BackendCommunication(): ReactElement | null {
     ]
   );
   useIpcRenderer(
-    AllowedFrontendChannels.ToggleHighlightForCriticalSignals,
-    setToggleHighlightForCriticalSignalsListener,
-    [dispatch, showHighlightForCriticalSignals]
+    AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
+    setToggleHighlightForCriticalExternalAttributionsListener,
+    [dispatch, showHighlightForCriticalExternalAttributions]
   );
 
   return null;

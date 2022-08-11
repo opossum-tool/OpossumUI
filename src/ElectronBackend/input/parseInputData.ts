@@ -105,7 +105,7 @@ export function cleanNonExistentAttributions(
   );
 }
 
-export function cleanNonExistentResolvedExternalSignals(
+export function cleanNonExistentResolvedExternalAttributions(
   webContents: WebContents,
   resolvedExternalAttributions: Set<string>,
   externalAttributions: Attributions
@@ -129,7 +129,7 @@ export function cleanNonExistentResolvedExternalSignals(
 export function parseRawAttributions(
   rawAttributions: RawAttributions
 ): [Attributions, boolean] {
-  let inputContainsCriticalSignals = false;
+  let inputContainsCriticalExternalAttributions = false;
 
   for (const attributionId of Object.keys(rawAttributions)) {
     if (rawAttributions[attributionId]?.followUp !== FollowUp) {
@@ -144,11 +144,14 @@ export function parseRawAttributions(
     }
 
     if (rawAttributions[attributionId]?.criticality) {
-      inputContainsCriticalSignals = true;
+      inputContainsCriticalExternalAttributions = true;
     }
   }
 
-  return [rawAttributions as Attributions, inputContainsCriticalSignals];
+  return [
+    rawAttributions as Attributions,
+    inputContainsCriticalExternalAttributions,
+  ];
 }
 
 export function parseFrequentLicenses(
