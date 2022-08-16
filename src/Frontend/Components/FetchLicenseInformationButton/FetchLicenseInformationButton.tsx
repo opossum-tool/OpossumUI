@@ -126,7 +126,7 @@ function DisabledFetchLicenseInformationButton(): ReactElement {
   return (
     <IconButton
       tooltipTitle={FETCH_DATA_TOOLTIP}
-      placement="right"
+      tooltipPlacement="right"
       disabled={false}
       onClick={doNothing}
       icon={<CachedIcon sx={classes.disabledIcon} />}
@@ -174,7 +174,7 @@ function EnabledFetchLicenseInformationButton(
   return (
     <IconButton
       tooltipTitle={getTooltip()}
-      placement="right"
+      tooltipPlacement="right"
       onClick={fetchData}
       icon={getIcon()}
     />

@@ -12,7 +12,11 @@ describe('The SearchTextField', () => {
   it('has search functionality', () => {
     const onInputchange = jest.fn();
     renderComponentWithStore(
-      <SearchTextField onInputChange={onInputchange} search={'test-search'} />
+      <SearchTextField
+        onInputChange={onInputchange}
+        search={'test-search'}
+        showIcon={true}
+      />
     );
     screen.getAllByText('Search');
 

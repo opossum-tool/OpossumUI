@@ -53,6 +53,8 @@ import {
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
+  ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
+  ACTION_SET_PACKAGE_SEARCH_TERM,
   ResourceAction,
 } from '../actions/resource-actions/types';
 import {
@@ -96,6 +98,10 @@ export const initialResourceState: ResourceState = {
     displayedPanelPackage: null,
     targetDisplayedPanelPackage: null,
     resolvedExternalAttributions: new Set(),
+    accordionSearchField: {
+      isSearchFieldDisplayed: false,
+      searchTerm: '',
+    },
   },
   attributionView: {
     selectedAttributionId: '',
@@ -130,6 +136,10 @@ export type ResourceState = {
     displayedPanelPackage: PanelPackage | null;
     targetDisplayedPanelPackage: PanelPackage | null;
     resolvedExternalAttributions: Set<string>;
+    accordionSearchField: {
+      isSearchFieldDisplayed: boolean;
+      searchTerm: string;
+    };
   };
   attributionView: {
     selectedAttributionId: string;
@@ -664,6 +674,29 @@ export const resourceState = (
         fileSearchPopup: {
           ...state.fileSearchPopup,
           fileSearch: action.payload,
+        },
+      };
+    case ACTION_TOGGLE_ACCORDION_SEARCH_FIELD:
+      return {
+        ...state,
+        auditView: {
+          ...state.auditView,
+          accordionSearchField: {
+            ...state.auditView.accordionSearchField,
+            isSearchFieldDisplayed:
+              !state.auditView.accordionSearchField.isSearchFieldDisplayed,
+          },
+        },
+      };
+    case ACTION_SET_PACKAGE_SEARCH_TERM:
+      return {
+        ...state,
+        auditView: {
+          ...state.auditView,
+          accordionSearchField: {
+            ...state.auditView.accordionSearchField,
+            searchTerm: action.payload,
+          },
         },
       };
     default:

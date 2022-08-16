@@ -9,18 +9,22 @@ import {
   ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_EXPANDED_IDS,
+  ACTION_SET_PACKAGE_SEARCH_TERM,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
+  ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
   AddResolvedExternalAttribution,
   RemoveResolvedExternalAttribution,
   SetDisplayedPanelPackageAction,
   SetExpandedIdsAction,
+  SetPackageSearchTerm,
   SetResolvedExternalAttributions,
   SetSelectedResourceIdAction,
   SetTargetDisplayedPanelPackageAction,
   SetTargetSelectedResourceId,
+  ToggleAccordionSearchField,
 } from './types';
 
 export function setSelectedResourceId(
@@ -86,5 +90,16 @@ export function removeResolvedExternalAttribution(
   return {
     type: ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
     payload: resolvedExternalAttribution,
+  };
+}
+
+export function toggleAccordionSearchField(): ToggleAccordionSearchField {
+  return { type: ACTION_TOGGLE_ACCORDION_SEARCH_FIELD };
+}
+
+export function setPackageSearchTerm(searchTerm: string): SetPackageSearchTerm {
+  return {
+    type: ACTION_SET_PACKAGE_SEARCH_TERM,
+    payload: searchTerm,
   };
 }

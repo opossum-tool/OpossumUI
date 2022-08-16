@@ -62,6 +62,7 @@ export function FileSearchTextField(
       onInputChange={handleChange}
       search={search}
       autoFocus={true}
+      showIcon={true}
     />
   );
 }

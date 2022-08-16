@@ -93,7 +93,7 @@ export function GoToLinkButton(): ReactElement {
           ? 'open file'
           : 'open resource in browser'
       }
-      placement="right"
+      tooltipPlacement="right"
       onClick={onClick}
       sx={!openLinkArgs.link ? classes.hidden : {}}
       icon={

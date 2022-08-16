@@ -107,6 +107,7 @@ export function PackageSearchPopup(): ReactElement {
         onInputChange={handleChange}
         search={currentSearchTerm}
         autoFocus={false}
+        showIcon={true}
       />
       {isLoading && Boolean(currentSearchTerm) ? (
         <Spinner />

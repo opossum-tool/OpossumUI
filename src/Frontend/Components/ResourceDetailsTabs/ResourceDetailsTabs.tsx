@@ -13,10 +13,20 @@ import { isEqual, remove } from 'lodash';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
+  getIsAccordionSearchFieldDisplayed,
+  getPackageSearchTerm,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
+import { IconButton } from '../IconButton/IconButton';
+import { SearchPackagesIcon } from '../Icons/Icons';
+import {
+  setPackageSearchTerm,
+  toggleAccordionSearchField,
+} from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
   tabsRoot: {
@@ -35,8 +45,26 @@ const classes = {
       color: OpossumColors.black,
     },
   },
+  searchToggle: {
+    position: 'absolute',
+    right: '0px',
+    top: '0px',
+  },
   indicator: {
     backgroundColor: OpossumColors.darkBlue,
+  },
+  largeClickableIcon: {
+    width: '26px',
+    height: '26px',
+    padding: '2px',
+    margin: '0 2px',
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
+  },
+  searchBox: {
+    marginTop: '10px',
   },
 };
 
@@ -56,6 +84,12 @@ export function ResourceDetailsTabs(
     getAttributionIdsOfSelectedResource,
     isEqual
   );
+  const isAccordionSearchFieldDisplayed = useAppSelector(
+    getIsAccordionSearchFieldDisplayed
+  );
+  const searchTerm = useAppSelector(getPackageSearchTerm);
+
+  const dispatch = useAppDispatch();
 
   enum Tabs {
     Local = 0,
@@ -88,8 +122,17 @@ export function ResourceDetailsTabs(
     [Tabs.Global]: 'Global',
   };
 
+  function onSearchToggleClick(): void {
+    dispatch(toggleAccordionSearchField());
+    dispatch(setPackageSearchTerm(''));
+  }
+
+  function onSearchInputChange(input: string): void {
+    dispatch(setPackageSearchTerm(input));
+  }
+
   return (
-    <React.Fragment>
+    <div style={{ position: 'relative' }}>
       <MuiTabs
         value={selectedTab}
         onChange={(event: React.SyntheticEvent, newTab: Tabs): void => {
@@ -114,6 +157,22 @@ export function ResourceDetailsTabs(
           sx={classes.tab}
         />
       </MuiTabs>
+      <IconButton
+        tooltipTitle="Search signals by name, license name, copyright text and version"
+        tooltipPlacement="right"
+        onClick={onSearchToggleClick}
+        icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
+        sx={classes.searchToggle}
+      />
+      {isAccordionSearchFieldDisplayed ? (
+        <SearchTextField
+          onInputChange={onSearchInputChange}
+          search={searchTerm}
+          autoFocus={true}
+          showIcon={false}
+          sx={classes.searchBox}
+        />
+      ) : null}
       {selectedTab === Tabs.Local ? (
         aggregatedAttributionsPanel
       ) : (
@@ -128,6 +187,6 @@ export function ResourceDetailsTabs(
           }
         />
       )}
-    </React.Fragment>
+    </div>
   );
 }

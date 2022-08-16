@@ -4,17 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiPaper from '@mui/material/Paper';
-import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
-import { FilteredList } from '../FilteredList/FilteredList';
 import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
+import { PackageList } from '../PackageList/PackageList';
 
 const classes = {
   root: {
@@ -84,13 +83,12 @@ export function AllAttributionsPanel(
 
   return (
     <MuiPaper sx={classes.root} elevation={0} square={true}>
-      <MuiTypography>{PackagePanelTitle.AllAttributions}</MuiTypography>
-      <FilteredList
+      <PackageList
         attributions={props.attributions}
         attributionIds={props.attributionIds}
         getAttributionCard={getPackagePanelCard}
-        max={{ numberOfDisplayedItems: 20 }}
-        cardVerticalDistance={41}
+        maxNumberOfDisplayedItems={20}
+        listTitle={PackagePanelTitle.AllAttributions}
       />
     </MuiPaper>
   );

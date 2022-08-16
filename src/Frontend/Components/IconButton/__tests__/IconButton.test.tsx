@@ -13,7 +13,7 @@ describe('Button', () => {
     render(
       <IconButton
         tooltipTitle={'Test'}
-        placement="left"
+        tooltipPlacement="left"
         disabled={false}
         onClick={doNothing}
         icon={<div>Test Icon</div>}

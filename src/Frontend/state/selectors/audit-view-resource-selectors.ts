@@ -118,3 +118,12 @@ export function getAttributionOfDisplayedPackageInManualPanel(
 
   return {};
 }
+
+export function getIsAccordionSearchFieldDisplayed(state: State): boolean {
+  return state.resourceState.auditView.accordionSearchField
+    .isSearchFieldDisplayed;
+}
+
+export function getPackageSearchTerm(state: State): string {
+  return state.resourceState.auditView.accordionSearchField.searchTerm;
+}

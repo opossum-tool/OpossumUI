@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -111,47 +111,6 @@ describe('The AllAttributionsPanel', () => {
     expect(screen.queryByText('Typescript, 1.0')).not.toBeInTheDocument();
     expect(screen.getByText('React, 2.0')).toBeInTheDocument();
     expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
-  });
-
-  it('has search functionality', () => {
-    const testAttributions: Attributions = {
-      uuid1: {
-        packageName: 'name 1',
-        licenseText: 'text',
-        licenseName: 'license name 2',
-      },
-      uuid2: { packageName: 'name 2', copyright: '(c)' },
-    };
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testAttributions,
-        })
-      )
-    );
-    renderComponentWithStore(
-      <AllAttributionsPanel
-        attributions={testAttributions}
-        selectedAttributionId={null}
-        attributionIds={['uuid1', 'uuid2']}
-        isAddToPackageEnabled={true}
-      />,
-      { store: testStore }
-    );
-    screen.getByText('name 1');
-    screen.getByText('name 2');
-
-    fireEvent.change(screen.getByRole('searchbox'), {
-      target: { value: 'name 1' },
-    });
-    screen.getByText('name 1');
-
-    fireEvent.change(screen.getByRole('searchbox'), {
-      target: { value: 'name' },
-    });
-    screen.getByText('name 1');
-    screen.getByText('name 2');
   });
 
   it('shows correct replace attribution buttons in the context menu', () => {

@@ -11,7 +11,7 @@ import { SxProps } from '@mui/material';
 
 interface IconButtonProps {
   tooltipTitle: string;
-  placement: 'left' | 'right';
+  tooltipPlacement: 'left' | 'right';
   sx?: SxProps;
   onClick(): void;
   icon: ReactElement;
@@ -26,7 +26,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
       <MuiTooltip
         sx={tooltipStyle}
         title={props.tooltipTitle}
-        placement={props.placement}
+        placement={props.tooltipPlacement}
       >
         {children}
       </MuiTooltip>
