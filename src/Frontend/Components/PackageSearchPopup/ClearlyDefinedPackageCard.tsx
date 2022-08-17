@@ -111,7 +111,7 @@ export function ClearlyDefinedPackageCard(
             )}
             <IconButton
               tooltipTitle={'Add'}
-              placement={'right'}
+              tooltipPlacement={'right'}
               disabled={!Boolean(data)}
               onClick={(): void => {
                 dispatch(setTemporaryPackageInfo(data ?? {}));

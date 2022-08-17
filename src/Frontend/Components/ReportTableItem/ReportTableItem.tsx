@@ -279,7 +279,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         <>
           <IconButton
             tooltipTitle="edit"
-            placement="left"
+            tooltipPlacement="left"
             sx={classes.iconButton}
             onClick={(): void => {
               props.onIconClick(attributionId);

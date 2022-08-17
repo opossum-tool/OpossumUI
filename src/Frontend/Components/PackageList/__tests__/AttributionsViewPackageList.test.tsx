@@ -7,9 +7,9 @@ import { fireEvent, screen } from '@testing-library/react';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { FilteredList } from '../FilteredList';
+import { AttributionsViewPackageList } from '../AttributionsViewPackageList';
 
-describe('The FilteredList', () => {
+describe('The AttributionsViewPackageList', () => {
   it('has search functionality', () => {
     const testAttributions: Attributions = {
       uuid1: {
@@ -30,7 +30,7 @@ describe('The FilteredList', () => {
       },
     };
     renderComponentWithStore(
-      <FilteredList
+      <AttributionsViewPackageList
         attributions={testAttributions}
         attributionIds={['uuid1', 'uuid2', 'uuid3']}
         getAttributionCard={(attributionId): ReactElement => (

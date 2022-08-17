@@ -12,7 +12,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { act, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
@@ -89,5 +89,96 @@ describe('The ResourceDetailsTabs', () => {
 
     clickOnTab(screen, 'Global Tab');
     expect(screen.getByText('Signals'));
+  });
+
+  it('has search functionality', () => {
+    const resourcesToManualAttributions: ResourcesToAttributions = {
+      '/fileWithAttribution': ['uuid_1', 'uuid_2', 'uuid_3'],
+    };
+    const testResources: Resources = {
+      root: {
+        fileWithoutAttribution: 1,
+        fileWithAttribution: 1,
+      },
+    };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'package name 1',
+        licenseText: 'text',
+        licenseName: 'license name 2',
+        comment: 'comment bla',
+        packageVersion: '1.1.1',
+      },
+      uuid_2: {
+        packageName: 'package name 2',
+        copyright: '(c)',
+        comment: 'comment blub',
+        url: 'www.url.de',
+      },
+      uuid_3: {
+        packageName: 'package name 3',
+        packageVersion: 'packageVersion',
+      },
+    };
+
+    const { store } = renderComponentWithStore(
+      <ResourceDetailsTabs
+        isGlobalTabEnabled={true}
+        isAddToPackageEnabled={true}
+      />
+    );
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions,
+        })
+      )
+    );
+    console.log(store.getState().resourceState.allViews.manualData);
+    act(() => {
+      store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
+    });
+
+    clickOnTab(screen, 'Global Tab');
+
+    screen.getByText(/package name 1/);
+    screen.getByText(/package name 2/);
+    screen.getByText(/package name 3/);
+
+    fireEvent.click(
+      screen.getByLabelText(
+        'Search signals by name, license name, copyright text and version'
+      )
+    );
+
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'name 1' },
+    });
+    screen.getByText(/package name 1/);
+    expect(screen.queryByText(/package name 2/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/package name 3/)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: '(C)' },
+    });
+    expect(screen.queryByText(/package name 1/)).not.toBeInTheDocument();
+    screen.getByText(/package name 2/);
+    expect(screen.queryByText(/package name 3/)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'NAME 2' },
+    });
+    screen.getByText(/package name 1/);
+    screen.getByText(/package name 2/);
+    expect(screen.queryByText(/package name 3/)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'comment' },
+    });
+    expect(screen.queryByText(/package name 1/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/package name 2/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/package name 3/)).not.toBeInTheDocument();
   });
 });

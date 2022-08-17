@@ -7,12 +7,12 @@ import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
-import { FilteredList } from '../FilteredList/FilteredList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { ListCardConfig } from '../../types/types';
 import { checkboxClass } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
 
 const classes = {
   ...checkboxClass,
@@ -101,12 +101,11 @@ export function AttributionList(props: AttributionListProps): ReactElement {
         {props.topRightElement}
       </MuiBox>
       {props.filterElement}
-      <FilteredList
+      <AttributionsViewPackageList
         attributions={props.attributions}
         attributionIds={attributionIds}
         getAttributionCard={getAttributionCard}
         max={{ height: props.maxHeight }}
-        cardVerticalDistance={41}
       />
     </MuiBox>
   );

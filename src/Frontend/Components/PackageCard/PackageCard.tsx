@@ -359,7 +359,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const leftIcon = props.onIconClick ? (
     <IconButton
       tooltipTitle="add"
-      placement="left"
+      tooltipPlacement="left"
       onClick={props.onIconClick}
       key={getKey('add-icon', props.cardContent)}
       icon={
@@ -377,7 +377,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const openResourcesIcon = props.showOpenResourcesIcon ? (
     <IconButton
       tooltipTitle="show resources"
-      placement="right"
+      tooltipPlacement="right"
       onClick={(): void => {
         setShowAssociatedResourcesPopup(true);
       }}

@@ -74,7 +74,7 @@ export function TopBar(): ReactElement {
       <BackendCommunication />
       <IconButton
         tooltipTitle="open file"
-        placement="right"
+        tooltipPlacement="right"
         onClick={(): void => {
           window.electronAPI.openFile();
         }}

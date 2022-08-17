@@ -87,7 +87,7 @@ export function AttributionView(): ReactElement {
         topRightElement={
           <IconButton
             tooltipTitle="Filters"
-            placement="right"
+            tooltipPlacement="right"
             onClick={(): void => setShowMultiselect(!showMultiSelect)}
             disabled={activeFilters.length !== 0}
             icon={

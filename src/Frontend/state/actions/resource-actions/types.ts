@@ -70,6 +70,9 @@ export const ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES =
   'ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES';
 export const ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS =
   'ACTION_SET_ATTRIBUTION_IDS_MARKED_FOR_MULTISELECT';
+export const ACTION_TOGGLE_ACCORDION_SEARCH_FIELD =
+  'ACTION_TOGGLE_ACCORDION_SEARCH_FIELD';
+export const ACTION_SET_PACKAGE_SEARCH_TERM = 'ACTION_SET_PACKAGE_SEARCH_TERM';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -103,7 +106,9 @@ export type ResourceAction =
   | SetBaseUrlsForSources
   | SetAttributionIdMarkedForReplacement
   | SetExternalAttributionSources
-  | SetMultiSelectSelectedAttributionIds;
+  | SetMultiSelectSelectedAttributionIds
+  | ToggleAccordionSearchField
+  | SetPackageSearchTerm;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -283,4 +288,13 @@ export interface SetAttributionIdMarkedForReplacement {
 export interface SetMultiSelectSelectedAttributionIds {
   type: typeof ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS;
   payload: Array<string>;
+}
+
+export interface ToggleAccordionSearchField {
+  type: typeof ACTION_TOGGLE_ACCORDION_SEARCH_FIELD;
+}
+
+export interface SetPackageSearchTerm {
+  type: typeof ACTION_SET_PACKAGE_SEARCH_TERM;
+  payload: string;
 }

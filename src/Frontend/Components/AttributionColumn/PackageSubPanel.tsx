@@ -59,7 +59,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           endIcon={
             <IconButton
               tooltipTitle="Search for package information"
-              placement="right"
+              tooltipPlacement="right"
               onClick={props.openPackageSearchPopup}
               disabled={!props.isEditable}
               icon={
@@ -135,7 +135,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             />
             <IconButton
               tooltipTitle="open link in browser"
-              placement="right"
+              tooltipPlacement="right"
               onClick={openUrl}
               disabled={!props.displayPackageInfo.url}
               icon={
