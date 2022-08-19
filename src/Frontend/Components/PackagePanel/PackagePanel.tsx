@@ -153,6 +153,7 @@ export function PackagePanel(
           comment: packageInfo.comment,
           url: packageInfo.url,
           licenseName: packageInfo.licenseName,
+          firstParty: packageInfo.firstParty,
         }}
         attributionId={attributionId}
         cardConfig={cardConfig}

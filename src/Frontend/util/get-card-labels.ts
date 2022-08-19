@@ -5,19 +5,21 @@
 
 import { ListCardContent } from '../types/types';
 
-const prioritizedPackageInfoAttributes: Array<
+const PRIORITIZED_PACKAGE_INFO_ATTRIBUTES: Array<
   'name' | 'copyright' | 'licenseName' | 'licenseText' | 'comment' | 'url'
 > = ['name', 'copyright', 'licenseName', 'licenseText', 'comment', 'url'];
+const FIRST_PARTY_TEXT = 'First party';
 
 export function getCardLabels(props: ListCardContent): Array<string> {
   const packageLabels: Array<string> = [];
-  for (const attribute of prioritizedPackageInfoAttributes) {
+  for (const attribute of PRIORITIZED_PACKAGE_INFO_ATTRIBUTES) {
     addPackageLabelsFromAttribute(props, attribute, packageLabels);
     if (packageLabels.length > 1) {
       break;
     }
   }
-  return packageLabels || [];
+  addFirstPartyTextIfNoOtherTextPresent(packageLabels, props);
+  return packageLabels;
 }
 
 function addPackageLabelsFromAttribute(
@@ -105,4 +107,13 @@ export function addPreambleToCopyright(originalCopyright: string): string {
     copyright = `(c) ${originalCopyright}`;
   }
   return copyright;
+}
+
+function addFirstPartyTextIfNoOtherTextPresent(
+  packageLabels: Array<string>,
+  props: ListCardContent
+): void {
+  if (packageLabels.length === 0 && props.firstParty) {
+    packageLabels.push(FIRST_PARTY_TEXT);
+  }
 }
