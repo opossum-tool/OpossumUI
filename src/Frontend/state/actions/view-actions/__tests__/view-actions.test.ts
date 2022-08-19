@@ -228,4 +228,17 @@ describe('popup actions', () => {
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
+
+  it('opens each popup only once', () => {
+    const testStore = createTestAppStore();
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    // open file search popup twice
+    testStore.dispatch(openPopup(PopupType.FileSearchPopup));
+    testStore.dispatch(openPopup(PopupType.FileSearchPopup));
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.FileSearchPopup);
+
+    // there should be only one search popup open
+    testStore.dispatch(closePopup());
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+  });
 });
