@@ -22,7 +22,6 @@ export function FileSearchTextField(
 ): ReactElement {
   const dispatch = useAppDispatch();
   const search = useAppSelector(getFileSearch);
-
   const resources = useAppSelector(getResources);
   const debounceWaitTimeInMs = 200;
 
@@ -43,13 +42,13 @@ export function FileSearchTextField(
 
   function getSearchTermFilter(search: string): PathPredicate {
     return function (path: string): boolean {
-      return path.toLowerCase().indexOf(search) !== -1;
+      return path.toLowerCase().includes(search);
     };
   }
 
   function filterPaths(search: string): void {
     const searchTermFilter = getSearchTermFilter(search.toLowerCase());
-    const filteredPaths = paths.filter(searchTermFilter);
+    const filteredPaths = search ? paths.filter(searchTermFilter) : paths;
     props.setFilteredPaths(filteredPaths);
   }
 
