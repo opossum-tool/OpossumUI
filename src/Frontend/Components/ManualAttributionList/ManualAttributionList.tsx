@@ -78,6 +78,7 @@ export function ManualAttributionList(
           comment: attribution.comment,
           url: attribution.url,
           licenseName: attribution.licenseName,
+          firstParty: attribution.firstParty,
         }}
         showOpenResourcesIcon={!isButton}
       />

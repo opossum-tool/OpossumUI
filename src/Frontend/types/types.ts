@@ -53,6 +53,7 @@ export interface ListCardContent {
   comment?: string;
   url?: string;
   licenseName?: string;
+  firstParty?: boolean;
 }
 
 export interface ListCardConfig {

@@ -68,6 +68,10 @@ describe('Test getPackageLabel', () => {
     copyright: 'Test copyright',
     url: 'Test url',
   };
+  const testPropsJustFirstParty: ListCardContent = {
+    id: '9',
+    firstParty: true,
+  };
 
   it('finds label for package', () => {
     expect(getCardLabels(testProps)).toEqual([
@@ -116,6 +120,9 @@ describe('Test getPackageLabel', () => {
       'Test url',
       '(c) Test copyright',
     ]);
+  });
+  it('finds label for package with just first party', () => {
+    expect(getCardLabels(testPropsJustFirstParty)).toEqual(['First party']);
   });
 });
 
