@@ -11,13 +11,7 @@ export function convertResourcesListBatchesToResourcesListItems(
 ): Array<ResourcesListItem> {
   const resourcesListItems: Array<ResourcesListItem> = [];
 
-  resourcesListBatches.forEach((resourcesListBatch) => {
-    resourcesListBatch.resourceIds.sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: 'base' })
-    );
-  });
-
-  resourcesListBatches.forEach((resourcesListBatch) => {
+  resourcesListBatches.sort().forEach((resourcesListBatch) => {
     if (resourcesListBatch.header) {
       if (resourcesListItems.length > 0) {
         resourcesListItems.push({ text: '', isHeader: true });

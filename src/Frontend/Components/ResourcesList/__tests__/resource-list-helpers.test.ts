@@ -41,12 +41,12 @@ describe('convertResourceListBatchesToResourceListItems', () => {
     ];
 
     const expectedResourcesListItems: Array<ResourcesListItem> = [
-      { text: 'package.json' },
       { text: 'README.md' },
+      { text: 'package.json' },
       { text: '', isHeader: true },
       { text: 'Resources in Other Folders', isHeader: true },
-      { text: 'resource_2' },
       { text: 'resource_3' },
+      { text: 'resource_2' },
     ];
 
     const resourcesListItems =
