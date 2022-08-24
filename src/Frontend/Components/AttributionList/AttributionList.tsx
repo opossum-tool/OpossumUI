@@ -34,7 +34,7 @@ interface AttributionListProps {
   onCardClick(attributionId: string, isButton?: boolean): void;
   sx?: SxProps;
   maxHeight: number;
-  title: string;
+  title: string | JSX.Element;
   topRightElement?: JSX.Element;
   filterElement?: JSX.Element;
 }

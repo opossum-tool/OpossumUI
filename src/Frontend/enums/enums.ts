@@ -40,6 +40,7 @@ export enum PackagePanelTitle {
   ContainedManualPackages = 'Attributions in Folder Content',
   ExternalPackages = 'Signals',
   ManualPackages = 'Attributions',
+  Attributions = 'Attributions',
 }
 
 export enum DiscreteConfidence {

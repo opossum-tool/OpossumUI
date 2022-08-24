@@ -65,7 +65,8 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByRole('cell', { name: 'Attributions (2 total,' }));
+    // expect(screen.getByText('All Attributions (2)'));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
@@ -90,7 +91,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByRole('cell', { name: 'Attributions (2 total, ' }));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
@@ -116,7 +117,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByRole('cell', { name: 'Attributions (2 total,' }));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
@@ -144,7 +145,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText('All Attributions (2)'));
+    expect(screen.getByRole('cell', { name: 'Attributions (2 total,' }));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 

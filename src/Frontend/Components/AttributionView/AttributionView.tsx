@@ -6,7 +6,7 @@
 import MuiBox from '@mui/material/Box';
 import React, { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { Attributions } from '../../../shared/shared-types';
+import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
@@ -28,6 +28,8 @@ import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
+import { FollowUpIcon } from '../Icons/Icons';
+import pickBy from 'lodash/pickBy';
 
 const classes = {
   root: {
@@ -38,6 +40,11 @@ const classes = {
   attributionList: {
     width: '30%',
     margin: '5px',
+  },
+  titleFollowUp: {
+    marginBottom: '-4.5px',
+    marginLeft: '-2.5px',
+    marginRight: '-2.5px',
   },
   disabledIcon,
   clickableIcon,
@@ -58,9 +65,24 @@ export function AttributionView(): ReactElement {
   }
 
   const filteredAttributions = useFilters(attributions);
-  const title = `${PackagePanelTitle.AllAttributions} (${
-    Object.keys(attributions).length
-  })`;
+  const title = (
+    <>
+      <td>
+        {PackagePanelTitle.Attributions} ({Object.keys(attributions).length}{' '}
+        total,
+      </td>
+      <td>
+        {
+          Object.keys(
+            pickBy(attributions, (value: PackageInfo) => value.followUp)
+          ).length
+        }
+      </td>
+      <td>
+        <FollowUpIcon sx={classes.titleFollowUp} />)
+      </td>
+    </>
+  );
 
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
 
