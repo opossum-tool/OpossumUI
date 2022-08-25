@@ -1210,10 +1210,21 @@
     source-map "^0.5.7"
     stylis "4.0.13"
 
-"@emotion/cache@^11.10.0", "@emotion/cache@^11.9.3":
+"@emotion/cache@^11.10.0":
   version "11.10.0"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-11.10.0.tgz#9eb9d3245c2c25ae31028d5ff0929987824c77da"
   integrity sha512-3FoUWnDbHWg/pXGCvL46jvpOSJP0xvRZLY8khUcUHGOBcp0S/MCIk+osp84/dby2Ctahw/Ev4KTHWkY3i0g39g==
+  dependencies:
+    "@emotion/memoize" "^0.8.0"
+    "@emotion/sheet" "^1.2.0"
+    "@emotion/utils" "^1.2.0"
+    "@emotion/weak-memoize" "^0.3.0"
+    stylis "4.0.13"
+
+"@emotion/cache@^11.10.1":
+  version "11.10.3"
+  resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-11.10.3.tgz#c4f67904fad10c945fea5165c3a5a0583c164b87"
+  integrity sha512-Psmp/7ovAa8appWh3g51goxu/z3iVms7JXOreq136D8Bbn6dYraPnmL6mdM8GThEx9vwSn92Fz+mGSjBzN8UPQ==
   dependencies:
     "@emotion/memoize" "^0.8.0"
     "@emotion/sheet" "^1.2.0"
@@ -1686,24 +1697,24 @@
     "@mui/utils" "^5.9.3"
     prop-types "^15.8.1"
 
-"@mui/styled-engine@^5.10.1":
-  version "5.10.1"
-  resolved "https://registry.yarnpkg.com/@mui/styled-engine/-/styled-engine-5.10.1.tgz#2f04fb95d73c2cb417b60d86539ddbfbab3a82e9"
-  integrity sha512-xiQp6wvSLpMcRCOExbRSvkHf6gIQ/eeK7mx/Re6BtPPYIx6OerPwia+23uVIop/k4Bs5D+w7Rv2yXYJxo5rMSQ==
+"@mui/styled-engine@^5.10.2":
+  version "5.10.2"
+  resolved "https://registry.yarnpkg.com/@mui/styled-engine/-/styled-engine-5.10.2.tgz#47257f02f0db0905d35f3a1d31bb8d2b63d0c228"
+  integrity sha512-YqnptNQ2E0cWwOTmLCEvrddiiR/neUfn2AD/4TDUXZu8B2n7NfDb9d3bAUfWZV+KmulQdAedoaZDqyXBFGLdbQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
-    "@emotion/cache" "^11.9.3"
+    "@emotion/cache" "^11.10.1"
     csstype "^3.1.0"
     prop-types "^15.8.1"
 
-"@mui/system@^5.10.1":
-  version "5.10.1"
-  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.10.1.tgz#737cc9c703083ff14b4434ba72227522be4659bf"
-  integrity sha512-Ix8LVAMtVrNtmncK0yc5llHWlZKCm9okbw8QMnWbI5UH+nI9qhtf+Aure4p5ei6dGKdil++lukar/GxCjfzRSg==
+"@mui/system@^5.10.1", "@mui/system@^5.10.2":
+  version "5.10.2"
+  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.10.2.tgz#9393284304fcfb3882148eefc808f50d95878a27"
+  integrity sha512-YudwJhLcEoQiwCAmzeMr9P3ISiVGNsxBIIPzFxaGwJ8+mMrx3qoPVOV2sfm0ZuNiQuABshEw4KqHa5ftNC+pOQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@mui/private-theming" "^5.9.3"
-    "@mui/styled-engine" "^5.10.1"
+    "@mui/styled-engine" "^5.10.2"
     "@mui/types" "^7.1.5"
     "@mui/utils" "^5.9.3"
     clsx "^1.2.1"
