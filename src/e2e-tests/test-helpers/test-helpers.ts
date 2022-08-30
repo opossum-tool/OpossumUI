@@ -3,11 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { _electron, ElectronApplication } from 'playwright';
+import { _electron, ElectronApplication, Page } from 'playwright';
+import { expect, Locator } from '@playwright/test';
 
 const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
 export const E2E_TEST_TIMEOUT = 100000;
 export const E2E_LARGE_TEST_TIMEOUT = 600000;
+const EXPECT_TIMEOUT = 15000;
 
 export async function getApp(
   commandLineArg?: string
@@ -27,4 +29,24 @@ export async function getApp(
 
 export function conditionalIt(condition: boolean): jest.It {
   return condition ? it : it.skip;
+}
+
+export async function getElementWithText(
+  window: Page,
+  text: string
+): Promise<Locator> {
+  const element = window.locator(`text=${text}`);
+  await expect(element).toHaveCount(1, { timeout: EXPECT_TIMEOUT });
+
+  return element;
+}
+
+export async function getElementWithAriaLabel(
+  window: Page,
+  ariaLabel: string
+): Promise<Locator> {
+  const element = window.locator(`[aria-label="${ariaLabel}"]`);
+  await expect(element).toHaveCount(1, { timeout: EXPECT_TIMEOUT });
+
+  return element;
 }

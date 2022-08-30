@@ -8,8 +8,11 @@ import {
   conditionalIt,
   E2E_TEST_TIMEOUT,
   getApp,
+  getElementWithAriaLabel,
+  getElementWithText,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
+import { expect } from '@playwright/test';
 
 jest.setTimeout(E2E_TEST_TIMEOUT);
 
@@ -34,9 +37,9 @@ describe('The OpossumUI', () => {
   });
 
   it('should find view buttons', async () => {
-    await window.$$('text=Audit');
-    await window.$$('text=Attribution');
-    await window.$$('text=Report');
+    await getElementWithText(window, 'Audit');
+    await getElementWithText(window, 'Attribution');
+    await getElementWithText(window, 'Report');
   });
 });
 
@@ -57,27 +60,47 @@ describe('Open file via command line', () => {
   });
 
   it('should open file when provided as command line arg', async () => {
-    await window.$$('text=Frontend');
-    await window.click('text=ElectronBackend');
+    await getElementWithText(window, 'Frontend');
 
-    await window.click('text=main.ts');
+    const electronBackendEntry = await getElementWithText(
+      window,
+      'ElectronBackend'
+    );
+    await electronBackendEntry.click();
 
-    expect(await window.$$('text=jQuery, 16.13.1')).toBeTruthy();
+    const mainTsEntry = await getElementWithText(window, 'main.ts');
+    await mainTsEntry.click();
+
+    await getElementWithText(window, 'jQuery, 16.13.1');
   });
 
   // getOpenLinkListener does not work properly on Linux
   conditionalIt(os.platform() !== 'linux')(
     'should open an error popup if the base url is invalid',
     async () => {
-      await window.click('text=ElectronBackend');
-      await window.click("[aria-label='link to open']");
+      const electronBackendEntry = await getElementWithText(
+        window,
+        'ElectronBackend'
+      );
+      await electronBackendEntry.click();
+      const openLinkIcon = await getElementWithAriaLabel(
+        window,
+        'link to open'
+      );
+      await openLinkIcon.click();
 
-      expect(await window.$$('text=Cannot open link.')).toBeTruthy();
+      await getElementWithText(window, 'Cannot open link.');
 
-      await window.click('text=Types');
-      await window.click("[aria-label='link to open']");
+      const typesEntry = await getElementWithText(window, 'Types');
+      await typesEntry.click();
 
-      expect(await window.$$('text=Cannot open link.')).toBeTruthy();
+      const anotherOpenLinkIcon = await getElementWithAriaLabel(
+        window,
+        'link to open'
+      );
+      await anotherOpenLinkIcon.click();
+
+      await getElementWithText(window, 'Cannot open link.');
     }
   );
 });
