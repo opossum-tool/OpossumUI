@@ -10,5 +10,4 @@
 
 <!-- optional -->
 
-Note: Please review the [guidelines for contributing](../CONTRIBUTING.md) to this repository.
-
+Note: Please review the [guidelines for contributing](https://github.com/opossum-tool/OpossumUI/blob/main/CONTRIBUTING.md) to this repository.
