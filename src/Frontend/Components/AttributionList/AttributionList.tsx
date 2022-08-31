@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
@@ -22,9 +21,6 @@ const classes = {
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  title: {
-    marginLeft: '5px',
-  },
 };
 
 interface AttributionListProps {
@@ -34,7 +30,7 @@ interface AttributionListProps {
   onCardClick(attributionId: string, isButton?: boolean): void;
   sx?: SxProps;
   maxHeight: number;
-  title: string;
+  title: string | JSX.Element;
   topRightElement?: JSX.Element;
   filterElement?: JSX.Element;
 }
@@ -97,7 +93,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   return (
     <MuiBox sx={props.sx}>
       <MuiBox sx={classes.topElements}>
-        <MuiTypography sx={classes.title}>{props.title}</MuiTypography>
+        {props.title}
         {props.topRightElement}
       </MuiBox>
       {props.filterElement}

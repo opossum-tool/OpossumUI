@@ -6,8 +6,7 @@
 import MuiBox from '@mui/material/Box';
 import React, { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { Attributions } from '../../../shared/shared-types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   getAttributionIdMarkedForReplacement,
@@ -28,6 +27,9 @@ import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
+import { FollowUpIcon } from '../Icons/Icons';
+import pickBy from 'lodash/pickBy';
+import MuiTypography from '@mui/material/Typography';
 
 const classes = {
   root: {
@@ -38,6 +40,12 @@ const classes = {
   attributionList: {
     width: '30%',
     margin: '5px',
+  },
+  titleFollowUpIcon: {
+    color: OpossumColors.orange,
+    marginBottom: '-4.5px',
+    marginLeft: '-3px',
+    marginRight: '-2.5px',
   },
   disabledIcon,
   clickableIcon,
@@ -58,9 +66,29 @@ export function AttributionView(): ReactElement {
   }
 
   const filteredAttributions = useFilters(attributions);
-  const title = `${PackagePanelTitle.AllAttributions} (${
-    Object.keys(attributions).length
-  })`;
+
+  function getAttributionPanelTitle(): JSX.Element {
+    const numberOfAttributions = Object.keys(attributions).length;
+    const titleWithFollowUp = (
+      <MuiTypography variant={'subtitle1'}>
+        {`Attributions (${numberOfAttributions} total, ${
+          Object.keys(
+            pickBy(attributions, (value: PackageInfo) => value.followUp)
+          ).length
+        }
+      `}
+        <FollowUpIcon sx={classes.titleFollowUpIcon} />)
+      </MuiTypography>
+    );
+
+    const titleWithoutFollowUp = (
+      <MuiTypography
+        variant={'subtitle1'}
+      >{`Attributions (${numberOfAttributions})`}</MuiTypography>
+    );
+
+    return numberOfAttributions ? titleWithFollowUp : titleWithoutFollowUp;
+  }
 
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
 
@@ -83,7 +111,7 @@ export function AttributionView(): ReactElement {
         maxHeight={
           useWindowHeight() - topBarHeight - countAndSearchAndFilterOffset
         }
-        title={title}
+        title={getAttributionPanelTitle()}
         topRightElement={
           <IconButton
             tooltipTitle="Filters"
