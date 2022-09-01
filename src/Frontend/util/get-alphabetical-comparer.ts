@@ -14,8 +14,7 @@ export function getAlphabeticalComparer(attributions: Attributions) {
     const defaultName = '\u10FFFF'; // largest unicode character
 
     const elementCardLabels = getCardLabels({
-      id: element,
-      name: attributions[element].packageName,
+      packageName: attributions[element].packageName,
       ...attributions[element],
     });
     const elementTitle = getElementTitle(elementCardLabels, defaultName);
@@ -25,8 +24,7 @@ export function getAlphabeticalComparer(attributions: Attributions) {
     );
 
     const otherElementCardLabels = getCardLabels({
-      id: otherElement,
-      name: attributions[otherElement].packageName,
+      packageName: attributions[otherElement].packageName,
       ...attributions[otherElement],
     });
     const otherElementTitle = getElementTitle(

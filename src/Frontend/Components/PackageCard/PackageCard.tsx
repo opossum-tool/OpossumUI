@@ -6,7 +6,7 @@
 import React, { ReactElement, useState } from 'react';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from '../../util/get-card-labels';
-import { ListCardConfig, ListCardContent } from '../../types/types';
+import { ListCardConfig, PackageCardConfig } from '../../types/types';
 import { clickableIcon } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@mui/icons-material/Add';
@@ -74,10 +74,11 @@ const classes = {
 };
 
 interface PackageCardProps {
-  cardContent: ListCardContent;
+  cardId: string;
+  packageInfo: PackageInfo;
   attributionId: string;
   packageCount?: number;
-  cardConfig: ListCardConfig;
+  cardConfig: PackageCardConfig;
   onClick(): void;
   onIconClick?(): void;
   showOpenResourcesIcon?: boolean;
@@ -116,25 +117,29 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     useState<boolean>(false);
 
   const isPreselected = Boolean(props.cardConfig.isPreSelected);
-  const packageLabels = getCardLabels(props.cardContent);
+  const packageLabels = getCardLabels(props.packageInfo);
   const attributionId = props.attributionId;
   const selectedAttributionId =
     selectedView === View.Attribution
       ? selectedAttributionIdAttributionView
       : selectedAttributionIdAuditView;
 
-  function getCardConfig(): ListCardConfig {
-    return {
-      ...props.cardConfig,
-      isContextMenuOpen,
-      isMarkedForReplacement:
-        Boolean(attributionId) &&
-        attributionId === attributionIdMarkedForReplacement,
-
-      isMultiSelected:
-        multiSelectSelectedAttributionIds.includes(attributionId),
-    };
-  }
+  const listCardConfig: ListCardConfig = {
+    ...props.cardConfig,
+    firstParty: props.packageInfo.firstParty,
+    excludeFromNotice: props.packageInfo.excludeFromNotice,
+    followUp: Boolean(props.packageInfo.followUp),
+    isContextMenuOpen,
+    isMarkedForReplacement:
+      Boolean(attributionId) &&
+      attributionId === attributionIdMarkedForReplacement,
+    isMultiSelected: multiSelectSelectedAttributionIds.includes(attributionId),
+    criticality: props.cardConfig.isExternalAttribution
+      ? props.packageInfo.criticality
+      : props.packageInfo.preSelected
+      ? props.packageInfo.criticality
+      : undefined,
+  };
 
   function getPackageInfo(currentAttributionId: string): PackageInfo {
     return currentAttributionId === selectedAttributionId
@@ -361,7 +366,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       tooltipTitle="add"
       tooltipPlacement="left"
       onClick={props.onIconClick}
-      key={getKey('add-icon', props.cardContent)}
+      key={getKey('add-icon', props.cardId)}
       icon={
         <PlusIcon
           sx={{
@@ -381,7 +386,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       onClick={(): void => {
         setShowAssociatedResourcesPopup(true);
       }}
-      key={`open-resources-icon-${props.cardContent.name}-${props.cardContent.packageVersion}`}
+      key={`open-resources-icon-${props.packageInfo.packageName}-${props.packageInfo.packageVersion}`}
       icon={
         <OpenInBrowserIcon
           sx={classes.clickableIcon}
@@ -401,7 +406,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           isExternalAttribution={Boolean(
             props.cardConfig.isExternalAttribution
           )}
-          displayedAttributionName={getCardLabels(props.cardContent)[0] || ''}
+          displayedAttributionName={packageLabels[0] || ''}
         />
       )}
       <ContextMenu
@@ -413,13 +418,13 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         <ListCard
           text={packageLabels[0] || ''}
           secondLineText={packageLabels[1] || undefined}
-          cardConfig={getCardConfig()}
+          cardConfig={listCardConfig}
           count={props.packageCount}
           onClick={props.onClick}
           leftIcon={leftIcon}
           rightIcons={getRightIcons(
-            props.cardContent,
-            props.cardConfig,
+            listCardConfig,
+            props.cardId,
             openResourcesIcon
           )}
           leftElement={leftElement}

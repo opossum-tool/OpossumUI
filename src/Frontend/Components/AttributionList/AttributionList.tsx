@@ -7,7 +7,7 @@ import React, { ReactElement } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { PackageCard } from '../PackageCard/PackageCard';
-import { ListCardConfig } from '../../types/types';
+import { PackageCardConfig } from '../../types/types';
 import { checkboxClass } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
@@ -26,7 +26,6 @@ const classes = {
 interface AttributionListProps {
   attributions: Attributions;
   selectedAttributionId: string | null;
-  attributionIdMarkedForReplacement: string;
   onCardClick(attributionId: string, isButton?: boolean): void;
   sx?: SxProps;
   maxHeight: number;
@@ -42,48 +41,29 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   }).sort(getAlphabeticalComparer(attributions));
 
   function getAttributionCard(attributionId: string): ReactElement {
-    const attribution = attributions[attributionId];
+    const packageInfo = attributions[attributionId];
 
     function isSelected(): boolean {
       return attributionId === props.selectedAttributionId;
-    }
-
-    function isMarkedForReplacement(): boolean {
-      return attributionId === props.attributionIdMarkedForReplacement;
     }
 
     function onClick(): void {
       props.onCardClick(attributionId);
     }
 
-    const cardConfig: ListCardConfig = {
+    const cardConfig: PackageCardConfig = {
       isSelected: isSelected(),
-      isMarkedForReplacement: isMarkedForReplacement(),
-      isPreSelected: Boolean(attribution.preSelected),
-      firstParty: attribution.firstParty,
-      excludeFromNotice: attribution.excludeFromNotice,
-      followUp: Boolean(attribution.followUp),
-      criticality: attribution.preSelected
-        ? attribution.criticality
-        : undefined,
+      isPreSelected: Boolean(packageInfo.preSelected),
     };
 
     return (
       <PackageCard
+        cardId={`attribution-list-${attributionId}`}
         attributionId={attributionId}
         onClick={onClick}
         cardConfig={cardConfig}
-        key={`AttributionCard-${attribution.packageName}-${attributionId}`}
-        cardContent={{
-          id: `attribution-list-${attributionId}`,
-          name: attribution.packageName,
-          packageVersion: attribution.packageVersion,
-          copyright: attribution.copyright,
-          licenseText: attribution.licenseText,
-          comment: attribution.comment,
-          url: attribution.url,
-          licenseName: attribution.licenseName,
-        }}
+        key={`AttributionCard-${packageInfo.packageName}-${attributionId}`}
+        packageInfo={packageInfo}
         hideResourceSpecificButtons={true}
         showCheckBox={true}
       />

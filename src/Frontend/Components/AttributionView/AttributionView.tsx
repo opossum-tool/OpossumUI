@@ -8,10 +8,7 @@ import React, { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import {
-  getAttributionIdMarkedForReplacement,
-  getManualAttributions,
-} from '../../state/selectors/all-views-resource-selectors';
+import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
 import { useFilters } from '../../util/use-filters';
 import { useWindowHeight } from '../../util/use-window-height';
@@ -57,10 +54,6 @@ export function AttributionView(): ReactElement {
   const selectedAttributionId: string = useAppSelector(
     getSelectedAttributionId
   );
-  const attributionIdMarkedForReplacement: string = useAppSelector(
-    getAttributionIdMarkedForReplacement
-  );
-
   function onCardClick(attributionId: string): void {
     dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
   }
@@ -105,7 +98,6 @@ export function AttributionView(): ReactElement {
       <AttributionList
         attributions={filteredAttributions}
         selectedAttributionId={selectedAttributionId}
-        attributionIdMarkedForReplacement={attributionIdMarkedForReplacement}
         onCardClick={onCardClick}
         sx={classes.attributionList}
         maxHeight={

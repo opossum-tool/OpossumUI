@@ -9,12 +9,11 @@ import {
   addSecondLineOfPackageLabelFromAttribute,
   getCardLabels,
 } from '../get-card-labels';
-import { ListCardContent } from '../../types/types';
+import { PackageInfo } from '../../../shared/shared-types';
 
 describe('Test getPackageLabel', () => {
-  const testProps: ListCardContent = {
-    id: '1',
-    name: 'Test package name',
+  const testProps: PackageInfo = {
+    packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: '(c) Test copyright',
     licenseText: 'Test license text',
@@ -22,54 +21,46 @@ describe('Test getPackageLabel', () => {
     url: 'Test url',
     licenseName: 'Test license name',
   };
-  const testPropsWithoutVersion: ListCardContent = {
-    id: '2',
-    name: 'Test package name',
+  const testPropsWithoutVersion: PackageInfo = {
+    packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
   };
-  const testPropsWithUndefinedName: ListCardContent = {
-    id: '3',
-    name: undefined,
+  const testPropsWithUndefinedName: PackageInfo = {
+    packageName: undefined,
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
   };
-  const testPropsWithoutName: ListCardContent = {
-    id: '4',
+  const testPropsWithoutName: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comment: 'Test comment',
     url: 'Test url',
     licenseName: 'Test license name',
   };
-  const testPropsCopyrightLicenseTextAndComment: ListCardContent = {
-    id: '5',
+  const testPropsCopyrightLicenseTextAndComment: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comment: 'Test comment',
   };
-  const testPropsWithLicenseTextAndComment: ListCardContent = {
-    id: '6',
+  const testPropsWithLicenseTextAndComment: PackageInfo = {
     licenseText: 'Test license text',
     comment: 'Test comment',
   };
-  const testPropsJustComment: ListCardContent = {
-    id: '7',
+  const testPropsJustComment: PackageInfo = {
     comment: 'Test comment',
   };
-  const testPropsJustUrlAndCopyright: ListCardContent = {
-    id: '8',
+  const testPropsJustUrlAndCopyright: PackageInfo = {
     copyright: 'Test copyright',
     url: 'Test url',
   };
-  const testPropsJustFirstParty: ListCardContent = {
-    id: '9',
+  const testPropsJustFirstParty: PackageInfo = {
     firstParty: true,
   };
 
@@ -113,7 +104,7 @@ describe('Test getPackageLabel', () => {
     expect(getCardLabels(testPropsJustComment)).toEqual(['Test comment']);
   });
   it('finds label for empty package', () => {
-    expect(getCardLabels({ id: '9' })).toEqual([]);
+    expect(getCardLabels({})).toEqual([]);
   });
   it('finds label for package with just url and copyright', () => {
     expect(getCardLabels(testPropsJustUrlAndCopyright)).toEqual([
@@ -127,9 +118,8 @@ describe('Test getPackageLabel', () => {
 });
 
 describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
-  const testProps: ListCardContent = {
-    id: '10',
-    name: 'Test package name',
+  const testProps: PackageInfo = {
+    packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
@@ -137,9 +127,8 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     url: 'Test url',
     licenseName: 'Test license name',
   };
-  const testPropsWithoutVersion: ListCardContent = {
-    id: '11',
-    name: 'Test package name',
+  const testPropsWithoutVersion: PackageInfo = {
+    packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comment: 'Test comment',
@@ -150,7 +139,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
   it('adds name and version', () => {
     const testPackageLabels: Array<string> = [];
     addFirstLineOfPackageLabelFromAttribute(
-      'name',
+      'packageName',
       testProps,
       testPackageLabels
     );
@@ -159,7 +148,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
   it('adds name without version', () => {
     const testPackageLabels: Array<string> = [];
     addFirstLineOfPackageLabelFromAttribute(
-      'name',
+      'packageName',
       testPropsWithoutVersion,
       testPackageLabels
     );
@@ -186,9 +175,8 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
 });
 
 describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
-  const testProps: ListCardContent = {
-    id: '12',
-    name: 'Test package name',
+  const testProps: PackageInfo = {
+    packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: 'Test copyright',
     licenseText: 'Test license text',

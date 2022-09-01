@@ -58,8 +58,8 @@ export function ReplaceAttributionPopup(): ReactElement {
     dispatch(closePopup());
   }
 
-  function getAttributionCard(attributionId: string): ReactElement {
-    const attribution = attributions[attributionId];
+  function getPackageCard(attributionId: string): ReactElement {
+    const packageInfo = attributions[attributionId];
 
     return (
       <PackageCard
@@ -67,16 +67,8 @@ export function ReplaceAttributionPopup(): ReactElement {
         onClick={doNothing}
         cardConfig={{}}
         hideContextMenuAndMultiSelect={true}
-        cardContent={{
-          id: `attribution-list-${attributionId}`,
-          name: attribution?.packageName,
-          packageVersion: attribution?.packageVersion,
-          copyright: attribution?.copyright,
-          licenseText: attribution?.licenseText,
-          comment: attribution?.comment,
-          url: attribution?.url,
-          licenseName: attribution?.licenseName,
-        }}
+        cardId={`attribution-list-${attributionId}`}
+        packageInfo={packageInfo}
       />
     );
   }
@@ -86,11 +78,11 @@ export function ReplaceAttributionPopup(): ReactElement {
       <MuiTypography sx={classes.typography}>
         This removes the following attribution
       </MuiTypography>
-      {getAttributionCard(markedAttributionId)}
+      {markedAttributionId && getPackageCard(markedAttributionId)}
       <MuiTypography sx={classes.typography}>
         and links its resources to the attribution
       </MuiTypography>
-      {targetAttributionId && getAttributionCard(targetAttributionId)}
+      {targetAttributionId && getPackageCard(targetAttributionId)}
     </MuiBox>
   );
 
