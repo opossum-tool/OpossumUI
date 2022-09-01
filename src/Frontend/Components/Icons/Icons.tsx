@@ -23,6 +23,7 @@ import {
   tooltipStyle,
 } from '../../shared-styles';
 import { SxProps } from '@mui/material';
+import RectangleIcon from '@mui/icons-material/Rectangle';
 
 const classes = {
   clickableIcon,
@@ -170,5 +171,16 @@ export function SearchPackagesIcon(props: IconProps): ReactElement {
       sx={{ ...classes.nonClickableIcon, ...props.sx }}
       aria-label={'Search packages icon'}
     />
+  );
+}
+
+export function IncompletePackagesIcon(props: IconProps): ReactElement {
+  return (
+    <MuiTooltip sx={classes.tooltip} title="contains incomplete information">
+      <RectangleIcon
+        aria-label={'Incomplete icon'}
+        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+      />
+    </MuiTooltip>
   );
 }

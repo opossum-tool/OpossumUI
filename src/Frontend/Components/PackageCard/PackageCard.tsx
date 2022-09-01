@@ -54,8 +54,7 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { getKey, getRightIcons } from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { PackageInfo } from '../../../shared/shared-types';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import { getPackageInfoKeys } from '../../../shared/shared-util';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
 
 const classes = {
@@ -140,13 +139,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     return currentAttributionId === selectedAttributionId
       ? temporaryPackageInfo
       : manualAttributions[currentAttributionId];
-  }
-
-  function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
-    if (!packageInfo) return false;
-    return getPackageInfoKeys().some((attributionProperty) =>
-      isImportantAttributionInformationMissing(attributionProperty, packageInfo)
-    );
   }
 
   const highlightedAttribution =

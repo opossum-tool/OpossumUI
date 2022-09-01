@@ -20,8 +20,10 @@ import { reportTableClasses } from '../ReportTableHeader/ReportTableHeader';
 import { AttributionInfo } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
 import EditorIcon from '@mui/icons-material/Edit';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import { getPackageInfoKeys } from '../../../shared/shared-util';
+import {
+  isImportantAttributionInformationMissing,
+  isPackageInfoIncomplete,
+} from '../../util/is-important-attribution-information-missing';
 import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
 import { useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
@@ -132,15 +134,6 @@ interface ReportTableItemProps {
 export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   const reportTableItemClasses = { ...reportTableClasses, ...classes };
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
-
-  function isPackageInfoIncomplete(attributionInfo: AttributionInfo): boolean {
-    return getPackageInfoKeys().some((attributionProperty) =>
-      isImportantAttributionInformationMissing(
-        attributionProperty,
-        attributionInfo
-      )
-    );
-  }
 
   function getTableRow(
     attributionInfo: AttributionInfo,
