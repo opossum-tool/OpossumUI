@@ -30,8 +30,8 @@ import {
   getSortedSources,
 } from './package-panel-helpers';
 import { prettifySource } from '../../util/prettify-source';
-import { ListCardConfig } from '../../types/types';
-import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
+import { PackageCardConfig } from '../../types/types';
+import { PackageCard } from '../PackageCard/PackageCard';
 
 const classes = {
   root: {
@@ -96,7 +96,7 @@ export function PackagePanel(
     }
   }
 
-  function getPackagePanelCard(attributionId: string): ReactElement {
+  function getPackageCard(attributionId: string): ReactElement {
     const packageInfo: PackageInfo = props.attributions[attributionId];
     const packageCount = props.attributionIdsWithCount.filter(
       (attributionIdWithCount) =>
@@ -118,19 +118,11 @@ export function PackagePanel(
         ? selectedPackage.attributionId
         : null;
 
-    const cardConfig: ListCardConfig = {
+    const cardConfig: PackageCardConfig = {
       isSelected: attributionId === selectedAttributionId,
       isPreSelected: isPreselected,
       isResolved: resolvedExternalAttributionIds.has(attributionId),
       isExternalAttribution,
-      firstParty: packageInfo.firstParty,
-      excludeFromNotice: packageInfo.excludeFromNotice,
-      followUp: Boolean(packageInfo.followUp),
-      criticality: isExternalAttribution
-        ? packageInfo.criticality
-        : packageInfo.preSelected
-        ? packageInfo.criticality
-        : undefined,
     };
 
     function onIconClick(): void {
@@ -138,25 +130,17 @@ export function PackagePanel(
     }
 
     return (
-      <PackagePanelCard
+      <PackageCard
         onClick={(): void => onCardClick(attributionId)}
         onIconClick={props.isAddToPackageEnabled ? onIconClick : undefined}
         key={`PackageCard-${packageInfo.packageName}-${attributionId}`}
         packageCount={packageCount}
         hideResourceSpecificButtons={true}
-        cardContent={{
-          id: `package-${selectedResourceId}-${attributionId}`,
-          name: packageInfo.packageName,
-          packageVersion: packageInfo.packageVersion,
-          copyright: packageInfo.copyright,
-          licenseText: packageInfo.licenseText,
-          comment: packageInfo.comment,
-          url: packageInfo.url,
-          licenseName: packageInfo.licenseName,
-          firstParty: packageInfo.firstParty,
-        }}
+        cardId={`package-${selectedResourceId}-${attributionId}`}
+        packageInfo={packageInfo}
         attributionId={attributionId}
         cardConfig={cardConfig}
+        showOpenResourcesIcon={true}
       />
     );
   }
@@ -166,7 +150,6 @@ export function PackagePanel(
     props.attributionIdsWithCount,
     attributionSources
   );
-  //prettifySource(sourceName, attributionSources)
 
   return (
     <MuiBox sx={classes.root}>
@@ -181,7 +164,7 @@ export function PackagePanel(
             ).map(
               (attributionIdWithCount) => attributionIdWithCount.attributionId
             )}
-            getAttributionCard={getPackagePanelCard}
+            getAttributionCard={getPackageCard}
             maxNumberOfDisplayedItems={15}
             listTitle={prettifySource(sourceName, attributionSources)}
           />

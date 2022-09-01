@@ -3,97 +3,90 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ListCardContent } from '../types/types';
+import { PackageInfo } from '../../shared/shared-types';
 
-const PRIORITIZED_PACKAGE_INFO_ATTRIBUTES: Array<
-  'name' | 'copyright' | 'licenseName' | 'licenseText' | 'comment' | 'url'
-> = ['name', 'copyright', 'licenseName', 'licenseText', 'comment', 'url'];
+type RelevantPackageInfoAttributes =
+  | 'packageName'
+  | 'copyright'
+  | 'licenseName'
+  | 'licenseText'
+  | 'comment'
+  | 'url';
+
+const PRIORITIZED_PACKAGE_INFO_ATTRIBUTES: Array<RelevantPackageInfoAttributes> =
+  ['packageName', 'copyright', 'licenseName', 'licenseText', 'comment', 'url'];
 const FIRST_PARTY_TEXT = 'First party';
 
-export function getCardLabels(props: ListCardContent): Array<string> {
+export function getCardLabels(packageInfo: PackageInfo): Array<string> {
   const packageLabels: Array<string> = [];
   for (const attribute of PRIORITIZED_PACKAGE_INFO_ATTRIBUTES) {
-    addPackageLabelsFromAttribute(props, attribute, packageLabels);
+    addPackageLabelsFromAttribute(packageInfo, attribute, packageLabels);
     if (packageLabels.length > 1) {
       break;
     }
   }
-  addFirstPartyTextIfNoOtherTextPresent(packageLabels, props);
+  addFirstPartyTextIfNoOtherTextPresent(packageLabels, packageInfo);
   return packageLabels;
 }
 
 function addPackageLabelsFromAttribute(
-  props: ListCardContent,
-  attribute:
-    | 'name'
-    | 'copyright'
-    | 'licenseName'
-    | 'licenseText'
-    | 'comment'
-    | 'url',
+  packageInfo: PackageInfo,
+  attribute: RelevantPackageInfoAttributes,
   packageLabels: Array<string>
 ): void {
-  if (props[attribute]) {
+  if (packageInfo[attribute]) {
     if (packageLabels.length === 0) {
-      addFirstLineOfPackageLabelFromAttribute(attribute, props, packageLabels);
+      addFirstLineOfPackageLabelFromAttribute(
+        attribute,
+        packageInfo,
+        packageLabels
+      );
     } else {
-      addSecondLineOfPackageLabelFromAttribute(attribute, props, packageLabels);
+      addSecondLineOfPackageLabelFromAttribute(
+        attribute,
+        packageInfo,
+        packageLabels
+      );
     }
-  } else if (attribute === 'name' && !props['name'] && props['url']) {
-    addFirstLineOfPackageLabelFromAttribute('url', props, packageLabels);
+  } else if (
+    attribute === 'packageName' &&
+    !packageInfo['packageName'] &&
+    packageInfo['url']
+  ) {
+    addFirstLineOfPackageLabelFromAttribute('url', packageInfo, packageLabels);
   }
 }
 
 export function addFirstLineOfPackageLabelFromAttribute(
-  attribute:
-    | 'name'
-    | 'licenseName'
-    | 'copyright'
-    | 'licenseText'
-    | 'comment'
-    | 'url',
-  packageCardContent: ListCardContent,
+  attribute: RelevantPackageInfoAttributes,
+  packageInfo: PackageInfo,
   packageLabels: Array<string>
 ): void {
   let firstLinePackageLabel;
-  if (attribute === 'name') {
-    firstLinePackageLabel = packageCardContent.packageVersion
-      ? `${packageCardContent.name}, ${packageCardContent.packageVersion}`
-      : `${packageCardContent.name}`;
+  if (attribute === 'packageName') {
+    firstLinePackageLabel = packageInfo.packageVersion
+      ? `${packageInfo.packageName}, ${packageInfo.packageVersion}`
+      : `${packageInfo.packageName}`;
   } else if (attribute === 'copyright') {
-    firstLinePackageLabel = addPreambleToCopyright(
-      `${packageCardContent.copyright}`
-    );
+    firstLinePackageLabel = addPreambleToCopyright(`${packageInfo.copyright}`);
   } else {
-    firstLinePackageLabel = `${packageCardContent[attribute]}`;
+    firstLinePackageLabel = `${packageInfo[attribute]}`;
   }
   packageLabels.push(firstLinePackageLabel);
 }
 
 export function addSecondLineOfPackageLabelFromAttribute(
-  attribute:
-    | 'name'
-    | 'url'
-    | 'licenseName'
-    | 'copyright'
-    | 'licenseText'
-    | 'comment',
-  packageCardContent: ListCardContent,
+  attribute: RelevantPackageInfoAttributes,
+  packageInfo: PackageInfo,
   packageLabels: Array<string>
 ): void {
   let secondLinePackageLabel;
   if (attribute === 'copyright') {
-    secondLinePackageLabel = addPreambleToCopyright(
-      `${packageCardContent.copyright}`
-    );
+    secondLinePackageLabel = addPreambleToCopyright(`${packageInfo.copyright}`);
   } else {
-    secondLinePackageLabel = `${packageCardContent[attribute]}`;
+    secondLinePackageLabel = `${packageInfo[attribute]}`;
   }
-  if (
-    !(
-      attribute === 'url' && packageLabels[0] === `${packageCardContent['url']}`
-    )
-  ) {
+  if (!(attribute === 'url' && packageLabels[0] === `${packageInfo['url']}`)) {
     packageLabels.push(secondLinePackageLabel);
   }
 }
@@ -111,9 +104,9 @@ export function addPreambleToCopyright(originalCopyright: string): string {
 
 function addFirstPartyTextIfNoOtherTextPresent(
   packageLabels: Array<string>,
-  props: ListCardContent
+  packageInfo: PackageInfo
 ): void {
-  if (packageLabels.length === 0 && props.firstParty) {
+  if (packageLabels.length === 0 && packageInfo.firstParty) {
     packageLabels.push(FIRST_PARTY_TEXT);
   }
 }

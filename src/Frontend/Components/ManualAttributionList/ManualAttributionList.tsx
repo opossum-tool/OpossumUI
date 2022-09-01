@@ -8,7 +8,7 @@ import { Attributions } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { List } from '../List/List';
 import { PackageCard } from '../PackageCard/PackageCard';
-import { ListCardConfig } from '../../types/types';
+import { PackageCardConfig } from '../../types/types';
 
 const addNewAttributionButtonText = 'Add new attribution';
 const addNewAttributionButtonId = 'ADD_NEW_ATTRIBUTION_ID';
@@ -37,7 +37,7 @@ export function ManualAttributionList(
   }
 
   function getAttributionCard(attributionId: string): ReactElement {
-    const attribution = attributions[attributionId];
+    const packageInfo = attributions[attributionId];
     const isButton = attributionId === addNewAttributionButtonId;
 
     function isSelected(): boolean {
@@ -51,15 +51,9 @@ export function ManualAttributionList(
       props.onCardClick(attributionId, isButton);
     }
 
-    const cardConfig: ListCardConfig = {
+    const cardConfig: PackageCardConfig = {
       isSelected: isSelected(),
-      isPreSelected: Boolean(attribution.preSelected),
-      firstParty: attribution.firstParty,
-      excludeFromNotice: attribution.excludeFromNotice,
-      followUp: Boolean(attribution.followUp),
-      criticality: attribution.preSelected
-        ? attribution.criticality
-        : undefined,
+      isPreSelected: Boolean(packageInfo.preSelected),
     };
 
     return (
@@ -68,18 +62,9 @@ export function ManualAttributionList(
         onClick={onClick}
         hideContextMenuAndMultiSelect={isButton}
         cardConfig={cardConfig}
-        key={`AttributionCard-${attribution.packageName}-${attributionId}`}
-        cardContent={{
-          id: `manual-${props.selectedResourceId}-${attributionId}`,
-          name: attribution.packageName,
-          packageVersion: attribution.packageVersion,
-          copyright: attribution.copyright,
-          licenseText: attribution.licenseText,
-          comment: attribution.comment,
-          url: attribution.url,
-          licenseName: attribution.licenseName,
-          firstParty: attribution.firstParty,
-        }}
+        key={`AttributionCard-${packageInfo.packageName}-${attributionId}`}
+        cardId={`manual-${props.selectedResourceId}-${attributionId}`}
+        packageInfo={packageInfo}
         showOpenResourcesIcon={!isButton}
       />
     );

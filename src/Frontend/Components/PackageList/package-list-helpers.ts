@@ -6,6 +6,16 @@
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 
+export function getSortedFilteredPackageIds(
+  attributions: Attributions,
+  attributionIds: Array<string>,
+  searchTerm: string
+): Array<string> {
+  return attributionIds
+    .filter((id) => attributionContainsSearchTerm(attributions[id], searchTerm))
+    .sort(getAlphabeticalComparer(attributions));
+}
+
 function attributionContainsSearchTerm(
   attribution: PackageInfo,
   searchTerm: string
@@ -30,14 +40,4 @@ function attributionContainsSearchTerm(
             .toLowerCase()
             .includes(searchTerm.toLowerCase())))
   );
-}
-
-export function getSortedFilteredPackageIds(
-  attributions: Attributions,
-  attributionIds: Array<string>,
-  searchTerm: string
-): Array<string> {
-  return attributionIds
-    .filter((id) => attributionContainsSearchTerm(attributions[id], searchTerm))
-    .sort(getAlphabeticalComparer(attributions));
 }

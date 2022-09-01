@@ -44,16 +44,11 @@ export interface Height {
 
 export type KeysOfPackageInfo = keyof PackageInfo;
 
-export interface ListCardContent {
-  id: string;
-  name?: string;
-  packageVersion?: string;
-  copyright?: string;
-  licenseText?: string;
-  comment?: string;
-  url?: string;
-  licenseName?: string;
-  firstParty?: boolean;
+export interface PackageCardConfig {
+  isExternalAttribution?: boolean;
+  isSelected?: boolean;
+  isResolved?: boolean;
+  isPreSelected?: boolean;
 }
 
 export interface ListCardConfig {

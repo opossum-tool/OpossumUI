@@ -9,11 +9,11 @@ import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
-import { PackagePanelCard } from '../PackagePanelCard/PackagePanelCard';
 import { OpossumColors } from '../../shared-styles';
-import { ListCardConfig } from '../../types/types';
+import { PackageCardConfig } from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
 import { PackageList } from '../PackageList/PackageList';
+import { PackageCard } from '../PackageCard/PackageCard';
 
 const classes = {
   root: {
@@ -34,7 +34,7 @@ export function AllAttributionsPanel(
 ): ReactElement {
   const dispatch = useAppDispatch();
 
-  function getPackagePanelCard(attributionId: string): ReactElement | null {
+  function getPackageCard(attributionId: string): ReactElement | null {
     const packageInfo = props.attributions && props.attributions[attributionId];
 
     function onCardClick(): void {
@@ -50,34 +50,22 @@ export function AllAttributionsPanel(
       dispatch(addToSelectedResource(packageInfo));
     }
 
-    const cardConfig: ListCardConfig = {
+    const cardConfig: PackageCardConfig = {
       isSelected: attributionId === props.selectedAttributionId,
       isPreSelected: Boolean(packageInfo.preSelected),
-      firstParty: packageInfo.firstParty,
-      excludeFromNotice: packageInfo.excludeFromNotice,
-      followUp: Boolean(packageInfo.followUp),
-      criticality: packageInfo.criticality,
     };
 
     return (
-      <PackagePanelCard
+      <PackageCard
+        cardId={`all-attributions-${attributionId}`}
         onClick={onCardClick}
         onIconClick={props.isAddToPackageEnabled ? onAddClick : undefined}
         cardConfig={cardConfig}
         key={`PackageCard-${packageInfo.packageName}-${attributionId}`}
-        cardContent={{
-          id: `all-attributions-${attributionId}`,
-          name: packageInfo.packageName,
-          packageVersion: packageInfo.packageVersion,
-          copyright: packageInfo.copyright,
-          licenseText: packageInfo.licenseText,
-          comment: packageInfo.comment,
-          url: packageInfo.url,
-          licenseName: packageInfo.licenseName,
-          firstParty: packageInfo.firstParty,
-        }}
+        packageInfo={packageInfo}
         hideResourceSpecificButtons={true}
         attributionId={attributionId}
+        showOpenResourcesIcon={true}
       />
     );
   }
@@ -87,7 +75,7 @@ export function AllAttributionsPanel(
       <PackageList
         attributions={props.attributions}
         attributionIds={props.attributionIds}
-        getAttributionCard={getPackagePanelCard}
+        getAttributionCard={getPackageCard}
         maxNumberOfDisplayedItems={20}
         listTitle={PackagePanelTitle.AllAttributions}
       />

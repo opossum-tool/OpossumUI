@@ -57,9 +57,9 @@ describe('The PackageCard', () => {
       <PackageCard
         attributionId={testAttributionId}
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardContent={{
-          id: 'some_id',
-          name: 'packageName',
+        cardId={'some_id'}
+        packageInfo={{
+          packageName: 'packageName',
         }}
         onClick={doNothing}
       />,
@@ -109,9 +109,9 @@ describe('The PackageCard', () => {
       <PackageCard
         attributionId={testAttributionId}
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardContent={{
-          id: 'some_id',
-          name: 'packageName',
+        cardId={'some_id'}
+        packageInfo={{
+          packageName: 'packageName',
         }}
         onClick={doNothing}
       />,
@@ -161,9 +161,9 @@ describe('The PackageCard', () => {
       <PackageCard
         attributionId={testAttributionId}
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardContent={{
-          id: 'some_id',
-          name: 'packageName',
+        cardId={'some_id'}
+        packageInfo={{
+          packageName: 'packageName',
         }}
         onClick={doNothing}
         showCheckBox={true}
@@ -212,9 +212,9 @@ describe('The PackageCard', () => {
         <PackageCard
           attributionId={testAttributionId}
           cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-          cardContent={{
-            id: 'some_id',
-            name: 'packageName',
+          cardId={'some_id'}
+          packageInfo={{
+            packageName: 'packageName',
           }}
           onClick={doNothing}
           showCheckBox={true}
@@ -223,9 +223,9 @@ describe('The PackageCard', () => {
         <PackageCard
           attributionId={anotherAttributionId}
           cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-          cardContent={{
-            id: 'some_id_2',
-            name: 'packageName2',
+          cardId={'some_id_2'}
+          packageInfo={{
+            packageName: 'packageName2',
           }}
           onClick={doNothing}
           showCheckBox={true}
