@@ -7,6 +7,7 @@ import { ElectronApplication, Page } from 'playwright';
 import {
   conditionalIt,
   E2E_TEST_TIMEOUT,
+  EXPECT_TIMEOUT,
   getApp,
   getElementWithAriaLabel,
   getElementWithText,
@@ -67,11 +68,29 @@ describe('Open file via command line', () => {
       'ElectronBackend'
     );
     await electronBackendEntry.click();
+  });
 
-    const mainTsEntry = await getElementWithText(window, 'main.ts');
-    await mainTsEntry.click();
+  it('should show signals and attributions in accordions', async () => {
+    const electronBackendEntry = await getElementWithText(
+      window,
+      'ElectronBackend'
+    );
+    await electronBackendEntry.click();
 
-    await getElementWithText(window, 'jQuery, 16.13.1');
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeVisible();
+
+    // Apache appears in both 'signals in folder content' and 'attributions in folder content' accordions
+    await expect(window.locator(`text=${'Apache'}`)).toHaveCount(2, {
+      timeout: EXPECT_TIMEOUT,
+    });
+
+    const signalsInFolderContentEntry = await getElementWithText(
+      window,
+      'Signals in Folder Content'
+    );
+    await signalsInFolderContentEntry.click();
+
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeHidden();
   });
 
   // getOpenLinkListener does not work properly on Linux

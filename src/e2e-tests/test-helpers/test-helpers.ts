@@ -7,9 +7,9 @@ import { _electron, ElectronApplication, Page } from 'playwright';
 import { expect, Locator } from '@playwright/test';
 
 const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
-export const E2E_TEST_TIMEOUT = 100000;
+export const E2E_TEST_TIMEOUT = 120000;
 export const E2E_LARGE_TEST_TIMEOUT = 600000;
-const EXPECT_TIMEOUT = 15000;
+export const EXPECT_TIMEOUT = 15000;
 
 export async function getApp(
   commandLineArg?: string

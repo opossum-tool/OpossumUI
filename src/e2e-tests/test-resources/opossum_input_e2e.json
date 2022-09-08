@@ -123,7 +123,7 @@
       "attributionConfidence": 100.0,
       "comment": "",
       "originId": "1eb75f3b-fc84-e781-ad9d-d46d6d61a667",
-      "packageName": "Test component",
+      "packageName": "Apache",
       "packageNamespace": "org.apache.xmlgraphics",
       "packagePURLAppendix": "?repository_url=repo.spring.io/release#everybody/loves/dogs",
       "packageType": "maven",
