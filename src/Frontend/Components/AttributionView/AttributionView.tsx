@@ -24,9 +24,14 @@ import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
-import { FollowUpIcon } from '../Icons/Icons';
+import {
+  FollowUpIcon,
+  IncompletePackagesIcon,
+  PreSelectedIcon,
+} from '../Icons/Icons';
 import pickBy from 'lodash/pickBy';
 import MuiTypography from '@mui/material/Typography';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 const classes = {
   root: {
@@ -38,11 +43,19 @@ const classes = {
     width: '30%',
     margin: '5px',
   },
-  titleFollowUpIcon: {
-    color: OpossumColors.orange,
-    marginBottom: '-4.5px',
+  icons: {
+    marginBottom: '-3.5px',
     marginLeft: '-3px',
     marginRight: '-2.5px',
+  },
+  titleFollowUpIcon: {
+    color: OpossumColors.orange,
+  },
+  preselectedAttributionIcon: {
+    color: OpossumColors.darkBlue,
+  },
+  incompleteAttributionIcon: {
+    color: OpossumColors.lightOrange,
   },
   disabledIcon,
   clickableIcon,
@@ -60,27 +73,47 @@ export function AttributionView(): ReactElement {
 
   const filteredAttributions = useFilters(attributions);
 
-  function getAttributionPanelTitle(): JSX.Element {
+  function getAttributionPanelTitle(): ReactElement {
     const numberOfAttributions = Object.keys(attributions).length;
-    const titleWithFollowUp = (
+    const numberOfFollowUps = Object.keys(
+      pickBy(attributions, (value: PackageInfo) => value.followUp)
+    ).length;
+    const numberOfPreselectedAttributions = Object.keys(
+      pickBy(attributions, (value: PackageInfo) => value.preSelected)
+    ).length;
+
+    const numberOfIncompleteAttributions = Object.keys(
+      pickBy(attributions, (value: PackageInfo) =>
+        isPackageInfoIncomplete(value)
+      )
+    ).length;
+
+    return (
       <MuiTypography variant={'subtitle1'}>
-        {`Attributions (${numberOfAttributions} total, ${
-          Object.keys(
-            pickBy(attributions, (value: PackageInfo) => value.followUp)
-          ).length
-        }
-      `}
-        <FollowUpIcon sx={classes.titleFollowUpIcon} />)
+        {`Attributions (${numberOfAttributions} total, ${numberOfFollowUps}`}
+        <FollowUpIcon
+          sx={{
+            ...classes.titleFollowUpIcon,
+            ...classes.icons,
+          }}
+        />
+        {`, ${numberOfPreselectedAttributions}`}
+        <PreSelectedIcon
+          sx={{
+            ...classes.preselectedAttributionIcon,
+            ...classes.icons,
+          }}
+        />
+        {`, ${numberOfIncompleteAttributions}`}
+        <IncompletePackagesIcon
+          sx={{
+            ...classes.incompleteAttributionIcon,
+            ...classes.icons,
+          }}
+        />
+        )
       </MuiTypography>
     );
-
-    const titleWithoutFollowUp = (
-      <MuiTypography
-        variant={'subtitle1'}
-      >{`Attributions (${numberOfAttributions})`}</MuiTypography>
-    );
-
-    return numberOfAttributions ? titleWithFollowUp : titleWithoutFollowUp;
   }
 
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
