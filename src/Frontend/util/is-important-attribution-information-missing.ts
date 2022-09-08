@@ -3,7 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionInfo } from '../../shared/shared-types';
+import { AttributionInfo, PackageInfo } from '../../shared/shared-types';
+import { getPackageInfoKeys } from '../../shared/shared-util';
 
 const TYPES_REQUIRING_NAMESPACE = [
   'bitbucket',
@@ -16,6 +17,14 @@ const TYPES_REQUIRING_NAMESPACE = [
 interface ExtendedAttributionInfo extends AttributionInfo {
   icons: unknown;
 }
+
+export function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
+  if (!packageInfo) return false;
+  return getPackageInfoKeys().some((attributionProperty) =>
+    isImportantAttributionInformationMissing(attributionProperty, packageInfo)
+  );
+}
+
 export function isImportantAttributionInformationMissing(
   attributionProperty: keyof AttributionInfo | 'icons',
   extendedAttributionInfo: Partial<ExtendedAttributionInfo>

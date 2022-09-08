@@ -65,7 +65,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 1/));
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 1/));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
@@ -90,7 +90,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 1/));
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 1/));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
@@ -116,7 +116,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 1/));
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 1/));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
@@ -144,7 +144,7 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 1/));
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 1/));
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
