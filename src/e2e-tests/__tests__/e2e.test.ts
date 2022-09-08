@@ -13,9 +13,6 @@ import {
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
 import { expect } from '@playwright/test';
-import { screen } from '@testing-library/react';
-
-// use playwright to work with
 
 jest.setTimeout(E2E_TEST_TIMEOUT);
 
@@ -71,52 +68,93 @@ describe('Open file via command line', () => {
     );
     await electronBackendEntry.click();
 
-    const AttributionsInFolderContentEntry = await getElementWithText(
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeVisible();
+    await expect(
+      window.locator(`text=${'Test Component'}`).first()
+    ).toBeVisible();
+    await expect(
+      window.locator(`text=${'Test Component'}`).last()
+    ).toBeVisible();
+
+    const signalsInFolderContentEntry = await getElementWithText(
+      window,
+      'Signals in Folder Content'
+    );
+    await signalsInFolderContentEntry.click();
+
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeHidden();
+    await expect(
+      window.locator(`text=${'Test Component'}`).first()
+    ).toBeHidden();
+    await expect(
+      window.locator(`text=${'Test Component'}`).last()
+    ).toBeVisible();
+
+    const attributionsInFolderContentEntry = await getElementWithText(
       window,
       'Attributions in Folder Content'
     );
-    await AttributionsInFolderContentEntry.click();
 
-    // await getElementWithText(window, 'Test component');
-    //
-    // const mainTsEntry = await getElementWithText(window, 'main.ts');
-    // await mainTsEntry.click();
-    //
-    // await getElementWithText(window, 'jQuery, 16.13.1');
-    //
-    // const SignalsEntry = await getElementWithText(window, 'Signals');
-    // await SignalsEntry.click();
-    //
-    // await getElementWithText(window, 'jQuery, 16.13.1');
+    await attributionsInFolderContentEntry.click();
+
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeHidden();
+    await expect(
+      window.locator(`text=${'Test Component'}`).first()
+    ).toBeHidden();
+    await expect(
+      window.locator(`text=${'Test Component'}`).last()
+    ).toBeHidden();
+
+    const mainTsEntry = await getElementWithText(window, 'main.ts');
+    await mainTsEntry.click();
+
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeVisible();
+    await expect(
+      window.locator(`text=${'Test Component'}`).first()
+    ).toBeVisible();
+    await expect(
+      window.locator(`text=${'Test Component'}`).last()
+    ).toBeVisible();
+
+    const signalsEntry = await getElementWithText(window, 'Signals');
+    await signalsEntry.click();
+
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeHidden();
+    await expect(
+      window.locator(`text=${'Test Component'}`).first()
+    ).toBeVisible();
+    await expect(
+      window.locator(`text=${'Test Component'}`).last()
+    ).toBeHidden();
   });
 
-  // // getOpenLinkListener does not work properly on Linux
-  // conditionalIt(os.platform() !== 'linux')(
-  //   'should open an error popup if the base url is invalid',
-  //   async () => {
-  //     const electronBackendEntry = await getElementWithText(
-  //       window,
-  //       'ElectronBackend'
-  //     );
-  //     await electronBackendEntry.click();
-  //     const openLinkIcon = await getElementWithAriaLabel(
-  //       window,
-  //       'link to open'
-  //     );
-  //     await openLinkIcon.click();
-  //
-  //     await getElementWithText(window, 'Cannot open link.');
-  //
-  //     const typesEntry = await getElementWithText(window, 'Types');
-  //     await typesEntry.click();
-  //
-  //     const anotherOpenLinkIcon = await getElementWithAriaLabel(
-  //       window,
-  //       'link to open'
-  //     );
-  //     await anotherOpenLinkIcon.click();
-  //
-  //     await getElementWithText(window, 'Cannot open link.');
-  //   }
-  // );
+  // getOpenLinkListener does not work properly on Linux
+  conditionalIt(os.platform() !== 'linux')(
+    'should open an error popup if the base url is invalid',
+    async () => {
+      const electronBackendEntry = await getElementWithText(
+        window,
+        'ElectronBackend'
+      );
+      await electronBackendEntry.click();
+      const openLinkIcon = await getElementWithAriaLabel(
+        window,
+        'link to open'
+      );
+      await openLinkIcon.click();
+
+      await getElementWithText(window, 'Cannot open link.');
+
+      const typesEntry = await getElementWithText(window, 'Types');
+      await typesEntry.click();
+
+      const anotherOpenLinkIcon = await getElementWithAriaLabel(
+        window,
+        'link to open'
+      );
+      await anotherOpenLinkIcon.click();
+
+      await getElementWithText(window, 'Cannot open link.');
+    }
+  );
 });
