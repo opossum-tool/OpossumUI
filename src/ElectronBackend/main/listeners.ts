@@ -41,7 +41,7 @@ import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
 import { createMenu } from './menu';
 import { parseOpossumOutputFile } from '../input/parseFile';
-import md5 from 'md5';
+import hash from 'object-hash';
 import upath from 'upath';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 
@@ -126,7 +126,7 @@ function getActualAndParsedChecksums(resourceFilePath: string): {
     '_attributions.json'
   );
   const inputFileContent = fs.readFileSync(resourceFilePath, 'utf8');
-  const actualInputFileChecksum = md5(inputFileContent);
+  const actualInputFileChecksum = hash.MD5(inputFileContent);
   let parsedInputFileChecksum = '';
 
   if (fs.existsSync(manualAttributionFilePath)) {
