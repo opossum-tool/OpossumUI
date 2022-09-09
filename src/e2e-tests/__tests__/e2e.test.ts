@@ -66,6 +66,7 @@ describe('Open file via command line', () => {
       window,
       'ElectronBackend'
     );
+
     await electronBackendEntry.click();
 
     await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeVisible();
