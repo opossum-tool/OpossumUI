@@ -103,17 +103,27 @@ export function getOpenFileListener(
         filePath = tryToGetInputFileFromOutputFile(filePath);
       }
 
-      const checksums = getActualAndParsedChecksums(filePath);
-
-      log.info('Initializing global backend state');
-      initializeGlobalBackendState(filePath, checksums.actualInputFileChecksum);
-
-      await openFileOrShowChangedInputFilePopup(
-        checksums,
-        mainWindow,
-        filePath
-      );
+      await handleOpeningFile(mainWindow, filePath);
     }
+  );
+}
+
+export async function handleOpeningFile(
+  mainWindow: BrowserWindow,
+  resourceFilePath: string
+): Promise<void> {
+  const checksums = getActualAndParsedChecksums(resourceFilePath);
+
+  log.info('Initializing global backend state');
+  initializeGlobalBackendState(
+    resourceFilePath,
+    checksums.actualInputFileChecksum
+  );
+
+  await openFileOrShowChangedInputFilePopup(
+    checksums,
+    mainWindow,
+    resourceFilePath
   );
 }
 

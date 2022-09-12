@@ -6,9 +6,9 @@
 import { openFileFromCliIfProvided } from '../openFileFromCliIfProvided';
 import { BrowserWindow } from 'electron';
 
-const mockOpenFile = jest.fn();
+const mockHandleOpeningFile = jest.fn();
 jest.mock('../listeners', () => ({
-  openFile: (...args: never): void => mockOpenFile(args),
+  handleOpeningFile: (...args: never): void => mockHandleOpeningFile(args),
 }));
 
 describe('openFileFromCli', () => {
@@ -42,7 +42,7 @@ describe('openFileFromCli', () => {
       await openFileFromCliIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow
       );
-      expect(mockOpenFile).toHaveBeenCalledWith([
+      expect(mockHandleOpeningFile).toHaveBeenCalledWith([
         'mockBrowserWindow',
         inputFileName,
       ]);
@@ -67,7 +67,7 @@ describe('openFileFromCli', () => {
       await openFileFromCliIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow
       );
-      expect(mockOpenFile).not.toHaveBeenCalled();
+      expect(mockHandleOpeningFile).not.toHaveBeenCalled();
 
       process.argv = oldProcessArgv;
     }
