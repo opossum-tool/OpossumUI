@@ -21,7 +21,7 @@
     "jsonschema": "^1.4.1",
     "lodash": "^4.17.21",
     "object-hash": "^3.0.0",
-    "packageurl-js": "^0.0.7",
+    "packageurl-js": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
