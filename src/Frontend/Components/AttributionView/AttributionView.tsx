@@ -6,7 +6,7 @@
 import MuiBox from '@mui/material/Box';
 import React, { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { Attributions, PackageInfo } from '../../../shared/shared-types';
+import { Attributions } from '../../../shared/shared-types';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
@@ -24,14 +24,7 @@ import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
-import {
-  FollowUpIcon,
-  IncompletePackagesIcon,
-  PreSelectedIcon,
-} from '../Icons/Icons';
-import pickBy from 'lodash/pickBy';
-import MuiTypography from '@mui/material/Typography';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
+import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
 
 const classes = {
   root: {
@@ -42,20 +35,6 @@ const classes = {
   attributionList: {
     width: '30%',
     margin: '5px',
-  },
-  icons: {
-    marginBottom: '-3.5px',
-    marginLeft: '-3px',
-    marginRight: '-2.5px',
-  },
-  titleFollowUpIcon: {
-    color: OpossumColors.orange,
-  },
-  preselectedAttributionIcon: {
-    color: OpossumColors.darkBlue,
-  },
-  incompleteAttributionIcon: {
-    color: OpossumColors.lightOrange,
   },
   disabledIcon,
   clickableIcon,
@@ -72,52 +51,7 @@ export function AttributionView(): ReactElement {
   }
 
   const filteredAttributions = useFilters(attributions);
-
-  function getAttributionPanelTitle(): ReactElement {
-    const numberOfAttributions = Object.keys(attributions).length;
-    const numberOfFollowUps = Object.keys(
-      pickBy(attributions, (value: PackageInfo) => value.followUp)
-    ).length;
-    const numberOfPreselectedAttributions = Object.keys(
-      pickBy(attributions, (value: PackageInfo) => value.preSelected)
-    ).length;
-
-    const numberOfIncompleteAttributions = Object.keys(
-      pickBy(attributions, (value: PackageInfo) =>
-        isPackageInfoIncomplete(value)
-      )
-    ).length;
-
-    return (
-      <MuiTypography variant={'subtitle1'}>
-        {`Attributions (${numberOfAttributions} total, ${numberOfFollowUps}`}
-        <FollowUpIcon
-          sx={{
-            ...classes.titleFollowUpIcon,
-            ...classes.icons,
-          }}
-        />
-        {`, ${numberOfPreselectedAttributions}`}
-        <PreSelectedIcon
-          sx={{
-            ...classes.preselectedAttributionIcon,
-            ...classes.icons,
-          }}
-        />
-        {`, ${numberOfIncompleteAttributions}`}
-        <IncompletePackagesIcon
-          sx={{
-            ...classes.incompleteAttributionIcon,
-            ...classes.icons,
-          }}
-        />
-        )
-      </MuiTypography>
-    );
-  }
-
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
-
   const [showMultiSelect, setShowMultiselect] = useState<boolean>(false);
 
   if (activeFilters.length !== 0 && !showMultiSelect) {
@@ -136,7 +70,7 @@ export function AttributionView(): ReactElement {
         maxHeight={
           useWindowHeight() - topBarHeight - countAndSearchAndFilterOffset
         }
-        title={getAttributionPanelTitle()}
+        title={<AttributionCountsPanel />}
         topRightElement={
           <IconButton
             tooltipTitle="Filters"
