@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { openFile } from './listeners';
+import { handleOpeningFile } from './listeners';
 import { BrowserWindow } from 'electron';
 
 export async function openFileFromCliIfProvided(
@@ -18,6 +18,6 @@ export async function openFileFromCliIfProvided(
   }
 
   if (inputFileName) {
-    await openFile(mainWindow, inputFileName);
+    await handleOpeningFile(mainWindow, inputFileName);
   }
 }
