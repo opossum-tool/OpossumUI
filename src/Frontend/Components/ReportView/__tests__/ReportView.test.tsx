@@ -71,6 +71,7 @@ describe('The ReportView', () => {
       );
       store.dispatch(setFrequentLicences(testFrequentLicenses));
     });
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 0/));
     expect(screen.getByText('Test package'));
     expect(screen.getByText('MIT text'));
     expect(screen.getByText('Test other package'));
@@ -90,6 +91,7 @@ describe('The ReportView', () => {
         )
       );
     });
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 0/));
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 
@@ -113,6 +115,7 @@ describe('The ReportView', () => {
         )
       );
     });
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 0/));
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 
@@ -140,6 +143,7 @@ describe('The ReportView', () => {
         )
       );
     });
+    expect(screen.getByText(/Attributions \(2 total, 1, 0, 0/));
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
 

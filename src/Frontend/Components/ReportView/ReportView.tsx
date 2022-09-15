@@ -24,6 +24,7 @@ import { OpossumColors } from '../../shared-styles';
 import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import MuiBox from '@mui/material/Box';
+import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
 
 const classes = {
   root: {
@@ -60,7 +61,14 @@ export function ReportView(): ReactElement {
         attributionsWithResources={useFilters(attributionsWithResources)}
         isFileWithChildren={isFileWithChildren}
         onIconClick={getOnIconClick()}
-        topElement={<FilterMultiSelect sx={{ maxWidth: '300px' }} />}
+        topElement={
+          <>
+            <FilterMultiSelect sx={{ maxWidth: '300px' }} />
+            <AttributionCountsPanel
+              sx={{ display: 'inline-block', margin: '20px' }}
+            />
+          </>
+        }
       />
     </MuiBox>
   );
