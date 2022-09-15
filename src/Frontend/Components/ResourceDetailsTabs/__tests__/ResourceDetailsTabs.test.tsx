@@ -136,7 +136,6 @@ describe('The ResourceDetailsTabs', () => {
         })
       )
     );
-    console.log(store.getState().resourceState.allViews.manualData);
     act(() => {
       store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
     });
