@@ -21,6 +21,10 @@ const EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID = {
   attributionIdsWithCount: [],
 };
 
+type ContainedAttributionsAccordionWorkerArgs =
+  | ContainedExternalAttributionsAccordionWorkerArgs
+  | ContainedManualAttributionsAccordionWorkerArgs;
+
 interface ContainedExternalAttributionsAccordionWorkerArgs {
   selectedResourceId: string;
   externalData?: AttributionData;
@@ -36,16 +40,10 @@ interface WorkerAccordionPanelProps {
   title:
     | PackagePanelTitle.ContainedExternalPackages
     | PackagePanelTitle.ContainedManualPackages;
-  workerArgs:
-    | ContainedExternalAttributionsAccordionWorkerArgs
-    | ContainedManualAttributionsAccordionWorkerArgs;
-  syncFallbackArgs?:
-    | ContainedExternalAttributionsAccordionWorkerArgs
-    | ContainedManualAttributionsAccordionWorkerArgs;
+  workerArgs: ContainedAttributionsAccordionWorkerArgs;
+  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
   getAttributionIdsWithCount(
-    workerArgs:
-      | ContainedExternalAttributionsAccordionWorkerArgs
-      | ContainedManualAttributionsAccordionWorkerArgs
+    workerArgs: ContainedAttributionsAccordionWorkerArgs
   ): Array<AttributionIdWithCount>;
   attributions: Attributions;
   isAddToPackageEnabled: boolean;
@@ -115,22 +113,16 @@ export function WorkerAccordionPanel(
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function loadAttributionIdsWithCount(
-  workerArgs:
-    | ContainedExternalAttributionsAccordionWorkerArgs
-    | ContainedManualAttributionsAccordionWorkerArgs,
+  workerArgs: ContainedAttributionsAccordionWorkerArgs,
   worker: Worker,
   panelTitle: string,
   setAttributionIdsWithCountAndResourceId: (
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
   getAttributionIdsWithCount: (
-    workerArgs:
-      | ContainedExternalAttributionsAccordionWorkerArgs
-      | ContainedManualAttributionsAccordionWorkerArgs
+    workerArgs: ContainedAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
-  syncFallbackArgs?:
-    | ContainedExternalAttributionsAccordionWorkerArgs
-    | ContainedManualAttributionsAccordionWorkerArgs
+  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): Promise<void> {
   setAttributionIdsWithCountAndResourceId(
     EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
@@ -176,16 +168,10 @@ function logErrorAndComputeInMainProcess(
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
   getAttributionIdsWithCount: (
-    workerArgs:
-      | ContainedExternalAttributionsAccordionWorkerArgs
-      | ContainedManualAttributionsAccordionWorkerArgs
+    workerArgs: ContainedAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
-  workerArgs:
-    | ContainedExternalAttributionsAccordionWorkerArgs
-    | ContainedManualAttributionsAccordionWorkerArgs,
-  syncFallbackArgs?:
-    | ContainedExternalAttributionsAccordionWorkerArgs
-    | ContainedManualAttributionsAccordionWorkerArgs
+  workerArgs: ContainedAttributionsAccordionWorkerArgs,
+  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): void {
   console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
 
