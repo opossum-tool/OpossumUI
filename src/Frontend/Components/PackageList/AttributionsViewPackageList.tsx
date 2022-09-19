@@ -8,14 +8,16 @@ import { Attributions } from '../../../shared/shared-types';
 import { Height, NumberOfDisplayedItems } from '../../types/types';
 import { List } from '../List/List';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getSortedFilteredPackageIds } from './package-list-helpers';
+import { getFilteredPackageIds } from './package-list-helpers';
 
 const CARD_VERTICAL_DISTANCE = 41;
 
 interface AttributionsViewPackageListProps {
   attributions: Attributions;
   attributionIds: Array<string>;
+
   getAttributionCard(attributionId: string): ReactElement | null;
+
   max: NumberOfDisplayedItems | Height;
 }
 
@@ -24,13 +26,9 @@ export function AttributionsViewPackageList(
 ): ReactElement {
   const [search, setSearch] = useState('');
 
-  const sortedFilteredPackageIds: Array<string> = useMemo(
+  const filteredPackageIds: Array<string> = useMemo(
     () =>
-      getSortedFilteredPackageIds(
-        props.attributions,
-        props.attributionIds,
-        search
-      ),
+      getFilteredPackageIds(props.attributions, props.attributionIds, search),
     [props.attributions, props.attributionIds, search]
   );
 
@@ -43,10 +41,10 @@ export function AttributionsViewPackageList(
       />
       <List
         getListItem={(index: number): ReactElement | null =>
-          props.getAttributionCard(sortedFilteredPackageIds[index])
+          props.getAttributionCard(filteredPackageIds[index])
         }
         max={props.max}
-        length={sortedFilteredPackageIds.length}
+        length={filteredPackageIds.length}
         cardVerticalDistance={CARD_VERTICAL_DISTANCE}
       />
     </div>

@@ -4,16 +4,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
-import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 
-export function getSortedFilteredPackageIds(
+export function getFilteredPackageIds(
   attributions: Attributions,
   attributionIds: Array<string>,
   searchTerm: string
 ): Array<string> {
-  return attributionIds
-    .filter((id) => attributionContainsSearchTerm(attributions[id], searchTerm))
-    .sort(getAlphabeticalComparer(attributions));
+  return attributionIds.filter((id) =>
+    attributionContainsSearchTerm(attributions[id], searchTerm)
+  );
 }
 
 function attributionContainsSearchTerm(
