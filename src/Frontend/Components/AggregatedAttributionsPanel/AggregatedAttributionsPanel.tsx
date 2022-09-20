@@ -19,6 +19,7 @@ import { isIdOfResourceWithChildren } from '../../util/can-resource-have-childre
 import { AttributionIdWithCount } from '../../../shared/shared-types';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
 import {
+  PanelAttributionData,
   getContainedExternalPackages,
   getContainedManualPackages,
   getExternalAttributionIdsWithCount,
@@ -55,21 +56,26 @@ export function AggregatedAttributionsPanel(
     [selectedResourceId, externalData, resolvedExternalAttributions]
   );
 
+  const manualPanelData: PanelAttributionData = {
+    attributions: manualData.attributions,
+    resourcesToAttributions: manualData.resourcesToAttributions,
+    resourcesWithAttributedChildren: manualData.resourcesWithAttributedChildren,
+  };
   const containedManualPackagesWorkerArgs = useMemo(
     () => ({
       selectedResourceId,
-      manualData,
+      manualData: manualPanelData,
     }),
 
     //  manualData is excluded from dependencies on purpose to avoid recalculation
     //  when it changes. Usually this is not an issue as the displayed data
     //  remains correct. Therefore the panelData is eventually consistent.
-    //  We still need manualData.attributionsToResources in the dependencies to
+    //  We still need manualData.resourcesToAttributions in the dependencies to
     //  update panelData, when replaceAttributionPopup was called. This is
     //  relevant for manual attributions in the attributions in folder content panel.
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedResourceId, manualData.attributionsToResources]
+    [selectedResourceId, manualData.resourcesToAttributions]
   );
 
   return (

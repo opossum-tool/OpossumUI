@@ -14,6 +14,7 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { getNewAccordionWorkers } from '../../web-workers/get-new-accordion-workers';
 import { getNewFolderProgressBarWorker } from '../../web-workers/get-new-folder-progress-bar-worker';
+import { PanelAttributionData } from '../../util/get-contained-packages';
 
 const resourceDetailsTabsWorkers = getNewAccordionWorkers();
 
@@ -24,7 +25,18 @@ export const AccordionWorkersContext = React.createContext(
 export const AccordionWorkersContextProvider: FC<{
   children: ReactNode | null;
 }> = ({ children }) => {
-  const externalData = useAppSelector(getExternalData);
+  const externalAttributionData = useAppSelector(getExternalData);
+
+  const externalData: PanelAttributionData = useMemo(
+    () => ({
+      attributions: externalAttributionData.attributions,
+      resourcesToAttributions: externalAttributionData.resourcesToAttributions,
+      resourcesWithAttributedChildren:
+        externalAttributionData.resourcesWithAttributedChildren,
+    }),
+    [externalAttributionData]
+  );
+
   useMemo(() => {
     try {
       // remove data from previous file or empty data from app just opened
@@ -38,6 +50,7 @@ export const AccordionWorkersContextProvider: FC<{
       console.info('Web worker error in workers context provider: ', error);
     }
   }, [externalData]);
+
   return (
     <AccordionWorkersContext.Provider value={resourceDetailsTabsWorkers}>
       {children}
