@@ -67,9 +67,12 @@ export interface ResourcesWithAttributedChildren {
   [path: string]: Set<string>;
 }
 
-export interface AttributionData {
+export interface InputFileAttributionData {
   attributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
+}
+
+export interface AttributionData extends InputFileAttributionData {
   attributionsToResources: AttributionsToResources;
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren;
 }
@@ -101,14 +104,8 @@ export interface ProjectMetadata {
 export interface ParsedFileContent {
   metadata: ProjectMetadata;
   resources: Resources;
-  manualAttributions: {
-    attributions: Attributions;
-    resourcesToAttributions: ResourcesToAttributions;
-  };
-  externalAttributions: {
-    attributions: Attributions;
-    resourcesToAttributions: ResourcesToAttributions;
-  };
+  manualAttributions: InputFileAttributionData;
+  externalAttributions: InputFileAttributionData;
   frequentLicenses: FrequentLicences;
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;

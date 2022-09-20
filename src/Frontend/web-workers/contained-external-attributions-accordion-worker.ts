@@ -2,11 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionData } from '../../shared/shared-types';
-import { getContainedExternalPackages } from '../util/get-contained-packages';
+import {
+  PanelAttributionData,
+  getContainedExternalPackages,
+} from '../util/get-contained-packages';
 import { AttributionIdsWithCountAndResourceId } from '../types/types';
 
-let cachedExternalData: AttributionData | null = null;
+let cachedExternalData: PanelAttributionData | null = null;
 
 self.onmessage = ({
   data: { selectedResourceId, externalData, resolvedExternalAttributions },

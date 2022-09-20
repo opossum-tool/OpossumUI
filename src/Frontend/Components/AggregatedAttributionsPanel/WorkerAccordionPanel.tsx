@@ -4,7 +4,6 @@
 
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
-  AttributionData,
   AttributionIdWithCount,
   Attributions,
 } from '../../../shared/shared-types';
@@ -15,6 +14,7 @@ import {
   PanelData,
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
+import { PanelAttributionData } from '../../util/get-contained-packages';
 
 const EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID = {
   resourceId: '',
@@ -27,13 +27,13 @@ type ContainedAttributionsAccordionWorkerArgs =
 
 interface ContainedExternalAttributionsAccordionWorkerArgs {
   selectedResourceId: string;
-  externalData?: AttributionData;
+  externalData?: PanelAttributionData;
   resolvedExternalAttributions: Set<string>;
 }
 
 interface ContainedManualAttributionsAccordionWorkerArgs {
   selectedResourceId: string;
-  manualData: AttributionData;
+  manualData: PanelAttributionData;
 }
 
 interface WorkerAccordionPanelProps {

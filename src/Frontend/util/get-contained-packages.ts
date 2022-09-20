@@ -11,6 +11,11 @@ import {
 } from '../../shared/shared-types';
 import { getAttributedChildren } from './get-attributed-children';
 
+export type PanelAttributionData = Pick<
+  AttributionData,
+  'attributions' | 'resourcesToAttributions' | 'resourcesWithAttributedChildren'
+>;
+
 export function getExternalAttributionIdsWithCount(
   attributionIds: Array<string>
 ): Array<AttributionIdWithCount> {
@@ -21,8 +26,8 @@ export function getExternalAttributionIdsWithCount(
 
 export function getContainedExternalPackages(args: {
   selectedResourceId: string;
-  externalData: AttributionData;
-  resolvedExternalAttributions: Set<string>;
+  externalData: Readonly<PanelAttributionData>;
+  resolvedExternalAttributions: Readonly<Set<string>>;
 }): Array<AttributionIdWithCount> {
   const externalAttributedChildren = getAttributedChildren(
     args.externalData.resourcesWithAttributedChildren,
@@ -39,7 +44,7 @@ export function getContainedExternalPackages(args: {
 
 export function getContainedManualPackages(args: {
   selectedResourceId: string;
-  manualData: AttributionData;
+  manualData: Readonly<PanelAttributionData>;
 }): Array<AttributionIdWithCount> {
   const manualAttributedChildren = getAttributedChildren(
     args.manualData.resourcesWithAttributedChildren,
@@ -55,10 +60,10 @@ export function getContainedManualPackages(args: {
 
 // exported for testing
 export function computeAggregatedAttributionsFromChildren(
-  attributions: Attributions,
-  resourcesToAttributions: ResourcesToAttributions,
-  attributedChildren: Set<string>,
-  resolvedExternalAttributions?: Set<string>
+  attributions: Readonly<Attributions>,
+  resourcesToAttributions: Readonly<ResourcesToAttributions>,
+  attributedChildren: Readonly<Set<string>>,
+  resolvedExternalAttributions?: Readonly<Set<string>>
 ): Array<AttributionIdWithCount> {
   const attributionCount: { [attributionId: string]: number } = {};
   attributedChildren.forEach((child: string) => {
@@ -81,7 +86,9 @@ export function computeAggregatedAttributionsFromChildren(
     .sort(sortByCountAndPackageName(attributions));
 }
 
-export function sortByCountAndPackageName(attributions: Attributions) {
+export function sortByCountAndPackageName(
+  attributions: Readonly<Attributions>
+) {
   return function (
     a1: AttributionIdWithCount,
     a2: AttributionIdWithCount
