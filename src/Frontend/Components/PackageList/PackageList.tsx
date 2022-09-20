@@ -9,7 +9,7 @@ import MuiTypography from '@mui/material/Typography';
 import { List } from '../List/List';
 import { useAppSelector } from '../../state/hooks';
 import { getPackageSearchTerm } from '../../state/selectors/audit-view-resource-selectors';
-import { getSortedFilteredPackageIds } from './package-list-helpers';
+import { getFilteredPackageIds } from './package-list-helpers';
 
 const CARD_VERTICAL_DISTANCE = 41;
 const TYPICAL_SCROLLBAR_WIDTH = 13;
@@ -23,7 +23,9 @@ const classes = {
 interface PackageListProps {
   attributions: Attributions;
   attributionIds: Array<string>;
+
   getAttributionCard(attributionId: string): ReactElement | null;
+
   maxNumberOfDisplayedItems: number;
   listTitle: string;
 }
@@ -31,9 +33,9 @@ interface PackageListProps {
 export function PackageList(props: PackageListProps): ReactElement {
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
-  const sortedFilteredPackageIds: Array<string> = useMemo(
+  const filteredPackageIds: Array<string> = useMemo(
     () =>
-      getSortedFilteredPackageIds(
+      getFilteredPackageIds(
         props.attributions,
         props.attributionIds,
         searchTerm
@@ -46,17 +48,17 @@ export function PackageList(props: PackageListProps): ReactElement {
 
   return (
     <>
-      {sortedFilteredPackageIds.length === 0 ? null : (
+      {filteredPackageIds.length === 0 ? null : (
         <>
           {props.listTitle ? (
             <MuiTypography variant={'body2'}>{props.listTitle}</MuiTypography>
           ) : null}
           <List
             getListItem={(index: number): ReactElement | null =>
-              props.getAttributionCard(sortedFilteredPackageIds[index])
+              props.getAttributionCard(filteredPackageIds[index])
             }
             max={{ numberOfDisplayedItems: props.maxNumberOfDisplayedItems }}
-            length={sortedFilteredPackageIds.length}
+            length={filteredPackageIds.length}
             cardVerticalDistance={CARD_VERTICAL_DISTANCE}
             sx={currentHeight < maxHeight ? classes.paddingRight : {}}
           />

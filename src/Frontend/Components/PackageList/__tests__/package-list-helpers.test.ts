@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Attributions } from '../../../../shared/shared-types';
-import { getSortedFilteredPackageIds } from '../package-list-helpers';
+import { getFilteredPackageIds } from '../package-list-helpers';
 
 describe('The PackageListHelper', () => {
   it('filters Attributions', () => {
@@ -30,17 +30,17 @@ describe('The PackageListHelper', () => {
     const testAttributionIds = Object.entries(testAttributions).map(
       ([attributionId]) => attributionId
     );
-    const sortedFilteredTestAttributions = getSortedFilteredPackageIds(
+    const filteredTestAttributions = getFilteredPackageIds(
       testAttributions,
       testAttributionIds,
       'SeArCh_TeRm'
     );
 
-    expect(sortedFilteredTestAttributions).toContain('uuid1');
-    expect(sortedFilteredTestAttributions).toContain('uuid2');
-    expect(sortedFilteredTestAttributions).toContain('uuid3');
-    expect(sortedFilteredTestAttributions).toContain('uuid4');
-    expect(sortedFilteredTestAttributions).not.toContain('uuid5');
+    expect(filteredTestAttributions).toContain('uuid1');
+    expect(filteredTestAttributions).toContain('uuid2');
+    expect(filteredTestAttributions).toContain('uuid3');
+    expect(filteredTestAttributions).toContain('uuid4');
+    expect(filteredTestAttributions).not.toContain('uuid5');
   });
 
   it('sorts Attributions', () => {
@@ -58,11 +58,11 @@ describe('The PackageListHelper', () => {
     const testAttributionIds = Object.entries(testAttributions).map(
       ([attributionId]) => attributionId
     );
-    const sortedFilteredTestAttributions = getSortedFilteredPackageIds(
+    const filteredTestAttributions = getFilteredPackageIds(
       testAttributions,
       testAttributionIds,
       ''
     );
-    expect(sortedFilteredTestAttributions).toEqual(['uuid2', 'uuid3', 'uuid1']);
+    expect(filteredTestAttributions).toEqual(['uuid1', 'uuid2', 'uuid3']);
   });
 });
