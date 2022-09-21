@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { _electron, ElectronApplication, Page } from 'playwright';
-import { expect, Locator } from '@playwright/test';
+import { _electron, ElectronApplication, Page, Locator } from 'playwright';
+import { expect } from '@playwright/test';
 
 const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
 export const E2E_TEST_TIMEOUT = 120000;
