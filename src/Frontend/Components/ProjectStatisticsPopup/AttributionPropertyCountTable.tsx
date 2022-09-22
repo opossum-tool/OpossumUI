@@ -25,11 +25,7 @@ export function AttributionPropertyCountTable(
   return (
     <MuiBox>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
-      <MuiTableContainer
-        style={{
-          width: '40vw',
-        }}
-      >
+      <MuiTableContainer sx={projectStatisticsPopupClasses.smallTable}>
         <MuiTable size="small">
           <MuiTableBody>
             {props.attributionPropertyCountsEntries.map(
