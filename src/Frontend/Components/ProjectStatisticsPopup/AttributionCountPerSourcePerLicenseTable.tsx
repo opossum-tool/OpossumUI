@@ -54,9 +54,13 @@ export function AttributionCountPerSourcePerLicenseTable(
     .sort();
 
   return (
-    <MuiBox sx={projectStatisticsPopupClasses.marginTop}>
+    <MuiBox>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
-      <MuiTableContainer sx={projectStatisticsPopupClasses.bigTable}>
+      <MuiTableContainer
+        sx={
+          projectStatisticsPopupClasses.attributionCountPerSourcePerLicenseTable
+        }
+      >
         <MuiTable size="small" stickyHeader>
           <MuiTableHead>
             <MuiTableRow>
@@ -64,7 +68,7 @@ export function AttributionCountPerSourcePerLicenseTable(
                 <MuiTableCell
                   sx={projectStatisticsPopupClasses.head}
                   key={index}
-                  align="center"
+                  align={index === 0 ? 'left' : 'center'}
                 >
                   {sourceName.toUpperCase()}
                 </MuiTableCell>
@@ -90,7 +94,7 @@ export function AttributionCountPerSourcePerLicenseTable(
                         : {}),
                     }}
                     key={index}
-                    align="center"
+                    align={index === 0 ? 'left' : 'center'}
                   >
                     {index === 0
                       ? licenseName
@@ -103,13 +107,13 @@ export function AttributionCountPerSourcePerLicenseTable(
             ))}
           </MuiTableBody>
 
-          <MuiTableFooter sx={projectStatisticsPopupClasses.footer}>
+          <MuiTableFooter sx={projectStatisticsPopupClasses.tableFooter}>
             <MuiTableRow>
               {totalsRow.map((total, index) => (
                 <MuiTableCell
                   sx={projectStatisticsPopupClasses.footer}
                   key={index}
-                  align="center"
+                  align={index === 0 ? 'left' : 'center'}
                 >
                   {total}
                 </MuiTableCell>

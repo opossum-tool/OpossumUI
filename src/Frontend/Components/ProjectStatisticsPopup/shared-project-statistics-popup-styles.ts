@@ -3,31 +3,34 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { OpossumColors } from '../../shared-styles';
+
 export const projectStatisticsPopupClasses = {
   head: {
-    fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 13,
+    background: OpossumColors.darkBlue,
+    color: OpossumColors.white,
   },
   footer: {
     fontWeight: 'bold',
-    fontSize: 14,
-    color: 'black',
-    background: 'white',
-    borderBottom: 0,
-    position: 'sticky',
-    bottom: 0,
+    fontSize: 12,
+    background: OpossumColors.lightBlue,
   },
   body: {
-    fontSize: 14,
+    fontSize: 11,
+    background: OpossumColors.lightestBlue,
   },
-  smallTable: {
-    width: '300px',
+  attributionCountPerSourcePerLicenseTable: {
+    maxHeight: '400px',
+    marginBottom: 3,
   },
-  bigTable: {
-    maxHeight: '54vh',
-    minWidth: '300px',
+  attributionPropertyCountTable: {
+    maxHeight: '100px',
+    maxWidth: '400px',
+    marginBottom: 3,
   },
-  marginTop: {
-    marginTop: '30px',
+  tableFooter: {
+    position: 'sticky',
+    bottom: 0,
   },
 };
