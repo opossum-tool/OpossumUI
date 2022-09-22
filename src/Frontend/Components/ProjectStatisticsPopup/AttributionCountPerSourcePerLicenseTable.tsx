@@ -6,6 +6,7 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
+  LicenseNamesWithCriticality,
   LICENSE_TOTAL_HEADER,
   SOURCE_TOTAL_HEADER,
 } from './project-statistics-popup-helpers';
@@ -19,12 +20,13 @@ import MuiTableHead from '@mui/material/TableHead';
 import MuiTableFooter from '@mui/material/TableFooter';
 import MuiTableRow from '@mui/material/TableRow';
 import { projectStatisticsPopupClasses } from './shared-project-statistics-popup-styles';
+import { OpossumColors } from '../../shared-styles';
 
 const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
 
 interface AttributionCountPerSourcePerLicenseTableProps {
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
-  licenseNames: Array<string>;
+  licenseNamesWithCriticality: LicenseNamesWithCriticality;
   title: string;
 }
 
@@ -47,18 +49,15 @@ export function AttributionCountPerSourcePerLicenseTable(
   const totalsRow: Array<string> = [SOURCE_TOTAL_HEADER].concat(
     valuesSourceTotals
   );
-
-  const sortedLicenseNames = props.licenseNames.slice().sort();
+  const sortedLicenseNames = Object.keys(props.licenseNamesWithCriticality)
+    .slice()
+    .sort();
 
   return (
-    <MuiBox>
+    <MuiBox sx={projectStatisticsPopupClasses.marginTop}>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
-      <MuiTableContainer
-        style={{
-          height: '55vh',
-        }}
-      >
-        <MuiTable sx={{ minWidth: 300 }} size="small" stickyHeader>
+      <MuiTableContainer sx={projectStatisticsPopupClasses.bigTable}>
+        <MuiTable size="small" stickyHeader>
           <MuiTableHead>
             <MuiTableRow>
               {sourceNamesRow.map((sourceName, index) => (
@@ -78,7 +77,18 @@ export function AttributionCountPerSourcePerLicenseTable(
               <MuiTableRow key={rowIndex}>
                 {sourceNamesRow.map((sourceName, index) => (
                   <MuiTableCell
-                    sx={projectStatisticsPopupClasses.body}
+                    sx={{
+                      ...projectStatisticsPopupClasses.body,
+                      ...(index === 0
+                        ? props.licenseNamesWithCriticality[licenseName] ===
+                          'high'
+                          ? { color: OpossumColors.orange }
+                          : props.licenseNamesWithCriticality[licenseName] ===
+                            'medium'
+                          ? { color: OpossumColors.mediumOrange }
+                          : {}
+                        : {}),
+                    }}
                     key={index}
                     align="center"
                   >
@@ -93,7 +103,7 @@ export function AttributionCountPerSourcePerLicenseTable(
             ))}
           </MuiTableBody>
 
-          <MuiTableFooter style={{ position: 'sticky', bottom: 0 }}>
+          <MuiTableFooter sx={projectStatisticsPopupClasses.footer}>
             <MuiTableRow>
               {totalsRow.map((total, index) => (
                 <MuiTableCell

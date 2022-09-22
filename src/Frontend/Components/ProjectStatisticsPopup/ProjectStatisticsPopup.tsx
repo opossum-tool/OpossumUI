@@ -17,6 +17,7 @@ import {
   aggregateLicensesAndSourcesFromAttributions,
   aggregateAttributionPropertiesFromAttributions,
   sortAttributionPropertiesEntries,
+  getUniqueLicenseNameToAttribution,
 } from './project-statistics-popup-helpers';
 import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
@@ -28,19 +29,21 @@ const attributionPropertyCountTableTitle =
 export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  const externalAttributionValues = Object.values(
-    useAppSelector(getExternalAttributions)
-  );
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const manualAttributionValues = Object.values(
     useAppSelector(getManualAttributions)
   );
   const attributionSources = useAppSelector(getExternalAttributionSources);
+  const strippedLicenseNameToAttribution =
+    getUniqueLicenseNameToAttribution(externalAttributions);
 
-  const [externalAttributionCountPerSourcePerLicense, licenseNames] =
+  const { attributionCountPerSourcePerLicense, licenseNamesWithCriticalities } =
     aggregateLicensesAndSourcesFromAttributions(
-      externalAttributionValues,
+      externalAttributions,
+      strippedLicenseNameToAttribution,
       attributionSources
     );
+
   const manualAttributionPropertyCounts =
     aggregateAttributionPropertiesFromAttributions(manualAttributionValues);
   const sortedManualAttributionPropertyCountsEntries =
@@ -56,18 +59,18 @@ export function ProjectStatisticsPopup(): ReactElement {
     <NotificationPopup
       content={
         <>
-          <AttributionCountPerSourcePerLicenseTable
-            attributionCountPerSourcePerLicense={
-              externalAttributionCountPerSourcePerLicense
-            }
-            licenseNames={licenseNames}
-            title={attributionCountPerSourcePerLicenseTableTitle}
-          />
           <AttributionPropertyCountTable
             attributionPropertyCountsEntries={
               sortedManualAttributionPropertyCountsEntries
             }
             title={attributionPropertyCountTableTitle}
+          />
+          <AttributionCountPerSourcePerLicenseTable
+            attributionCountPerSourcePerLicense={
+              attributionCountPerSourcePerLicense
+            }
+            licenseNamesWithCriticality={licenseNamesWithCriticalities}
+            title={attributionCountPerSourcePerLicenseTableTitle}
           />
         </>
       }

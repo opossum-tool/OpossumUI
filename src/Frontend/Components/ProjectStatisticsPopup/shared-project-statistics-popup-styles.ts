@@ -11,10 +11,23 @@ export const projectStatisticsPopupClasses = {
   footer: {
     fontWeight: 'bold',
     fontSize: 14,
+    color: 'black',
     background: 'white',
     borderBottom: 0,
+    position: 'sticky',
+    bottom: 0,
   },
   body: {
     fontSize: 14,
+  },
+  smallTable: {
+    width: '300px',
+  },
+  bigTable: {
+    maxHeight: '54vh',
+    minWidth: '300px',
+  },
+  marginTop: {
+    marginTop: '30px',
   },
 };
