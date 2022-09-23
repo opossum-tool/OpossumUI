@@ -53,7 +53,7 @@ export function AttributionPropertyCountTable(
               )}
             </MuiTableRow>
           </MuiTableHead>
-          <MuiTableFooter sx={projectStatisticsPopupClasses.tableFooter}>
+          <MuiTableFooter>
             <MuiTableRow>
               {attributionPropertyCounts.map(
                 (attributionPropertyCount, index) => (

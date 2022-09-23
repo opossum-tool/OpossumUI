@@ -6,8 +6,9 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
-  LicenseNamesWithCriticality,
   LICENSE_TOTAL_HEADER,
+  LicenseNamesWithCriticality,
+  PLACEHOLDER_ATTRIBUTION_COUNT,
   SOURCE_TOTAL_HEADER,
 } from './project-statistics-popup-helpers';
 import MuiTypography from '@mui/material/Typography';
@@ -21,8 +22,7 @@ import MuiTableFooter from '@mui/material/TableFooter';
 import MuiTableRow from '@mui/material/TableRow';
 import { projectStatisticsPopupClasses } from './shared-project-statistics-popup-styles';
 import { OpossumColors } from '../../shared-styles';
-
-const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
+import { Criticality } from '../../../shared/shared-types';
 
 interface AttributionCountPerSourcePerLicenseTableProps {
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
@@ -85,10 +85,10 @@ export function AttributionCountPerSourcePerLicenseTable(
                       ...projectStatisticsPopupClasses.body,
                       ...(index === 0
                         ? props.licenseNamesWithCriticality[licenseName] ===
-                          'high'
+                          Criticality.High
                           ? { color: OpossumColors.orange }
                           : props.licenseNamesWithCriticality[licenseName] ===
-                            'medium'
+                            Criticality.Medium
                           ? { color: OpossumColors.mediumOrange }
                           : {}
                         : {}),
@@ -107,7 +107,7 @@ export function AttributionCountPerSourcePerLicenseTable(
             ))}
           </MuiTableBody>
 
-          <MuiTableFooter sx={projectStatisticsPopupClasses.tableFooter}>
+          <MuiTableFooter>
             <MuiTableRow>
               {totalsRow.map((total, index) => (
                 <MuiTableCell
