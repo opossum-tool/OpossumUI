@@ -15,10 +15,14 @@ export const projectStatisticsPopupClasses = {
     fontWeight: 'bold',
     fontSize: 12,
     background: OpossumColors.lightBlue,
+    position: 'sticky',
+    bottom: 0,
   },
   body: {
     fontSize: 11,
     background: OpossumColors.lightestBlue,
+    maxWidth: '100px',
+    overflow: 'auto',
   },
   attributionCountPerSourcePerLicenseTable: {
     maxHeight: '400px',
@@ -29,8 +33,9 @@ export const projectStatisticsPopupClasses = {
     maxWidth: '400px',
     marginBottom: 3,
   },
-  tableFooter: {
-    position: 'sticky',
-    bottom: 0,
+  criticalLicensesTable: {
+    maxHeight: '400px',
+    maxWidth: '400px',
+    marginBottom: 3,
   },
 };

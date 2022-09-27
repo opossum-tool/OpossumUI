@@ -30,6 +30,10 @@ const ATTRIBUTION_PROPERTIES_TO_DISPLAY: Array<keyof PackageInfo> = [
 export const SOURCE_TOTAL_HEADER = 'Total';
 export const LICENSE_TOTAL_HEADER = 'Total';
 export const ATTRIBUTION_TOTAL_HEADER = 'Total Attributions';
+export const LICENSE_COLUMN_NAME_IN_TABLE_HEADER = 'License';
+export const TOTAL_COLUMN_NAME_IN_TABLE_HEADER = 'Total';
+export const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
+
 const UNKNOWN_SOURCE_PLACEHOLDER = '-';
 const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {
   [attributionProperty: string]: string;
