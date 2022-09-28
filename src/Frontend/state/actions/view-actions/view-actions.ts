@@ -15,14 +15,12 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
-  ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ACTION_UPDATE_ACTIVE_FILTERS,
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
-  SetHighlightForCriticalExternalAttributionsAction,
   SetTargetView,
   SetView,
   UpdateActiveFilters,
@@ -88,14 +86,5 @@ export function updateActiveFilters(
   return {
     type: ACTION_UPDATE_ACTIVE_FILTERS,
     payload: filterType,
-  };
-}
-
-export function setHighlightForCriticalExternalAttributions(
-  showHighlightForCriticalExternalAttributions: boolean
-): SetHighlightForCriticalExternalAttributionsAction {
-  return {
-    type: ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS,
-    payload: showHighlightForCriticalExternalAttributions,
   };
 }

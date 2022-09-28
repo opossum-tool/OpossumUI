@@ -16,7 +16,6 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   ParsedFileContent,
-  ToggleHighlightForCriticalExternalAttributionsArgs,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import {
@@ -32,7 +31,6 @@ import {
   getManualData,
   getResources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getHighlightForCriticalExternalAttributions } from '../../state/selectors/view-selector';
 import {
   getAttributionsWithAllChildResourcesWithoutFolders,
   getAttributionsWithResources,
@@ -41,10 +39,7 @@ import {
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import {
-  openPopup,
-  setHighlightForCriticalExternalAttributions,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 
 export function BackendCommunication(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -53,9 +48,6 @@ export function BackendCommunication(): ReactElement | null {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
-  const showHighlightForCriticalExternalAttributions = useAppSelector(
-    getHighlightForCriticalExternalAttributions
-  );
   const dispatch = useAppDispatch();
 
   function fileLoadedListener(
@@ -242,21 +234,6 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function setToggleHighlightForCriticalExternalAttributionsListener(
-    event: IpcRendererEvent,
-    toggleHighlightForCriticalExternalAttributionsArgs: ToggleHighlightForCriticalExternalAttributionsArgs
-  ): void {
-    if (
-      toggleHighlightForCriticalExternalAttributionsArgs?.toggleHighlightForCriticalExternalAttributions
-    ) {
-      dispatch(
-        setHighlightForCriticalExternalAttributions(
-          !showHighlightForCriticalExternalAttributions
-        )
-      );
-    }
-  }
-
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -300,11 +277,6 @@ export function BackendCommunication(): ReactElement | null {
       frequentLicenseTexts,
       filesWithChildren,
     ]
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
-    setToggleHighlightForCriticalExternalAttributionsListener,
-    [dispatch, showHighlightForCriticalExternalAttributions]
   );
 
   return null;

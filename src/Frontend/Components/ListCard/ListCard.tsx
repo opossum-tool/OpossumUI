@@ -8,8 +8,6 @@ import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { Criticality } from '../../../shared/shared-types';
-import { useAppSelector } from '../../state/hooks';
-import { getHighlightForCriticalExternalAttributions } from '../../state/selectors/view-selector';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
 import { merge } from 'lodash';
@@ -205,10 +203,6 @@ interface ListCardProps {
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
-  const showHighlightForCriticalExternalAttributions = useAppSelector(
-    getHighlightForCriticalExternalAttributions
-  );
-
   function getDisplayedCount(): string {
     const count = props.count ? props.count.toString() : '';
 
@@ -280,17 +274,15 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           <MuiBox sx={classes.iconColumn}>{props.rightIcons}</MuiBox>
         ) : null}
       </MuiBox>
-      {showHighlightForCriticalExternalAttributions ? (
-        <MuiBox
-          sx={{
-            ...(props.cardConfig.criticality === Criticality.High
-              ? classes.highCriticality
-              : props.cardConfig.criticality === Criticality.Medium
-              ? classes.mediumCriticality
-              : {}),
-          }}
-        />
-      ) : null}
+      <MuiBox
+        sx={{
+          ...(props.cardConfig.criticality === Criticality.High
+            ? classes.highCriticality
+            : props.cardConfig.criticality === Criticality.Medium
+            ? classes.mediumCriticality
+            : {}),
+        }}
+      />
     </MuiBox>
   );
 }

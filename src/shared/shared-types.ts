@@ -177,10 +177,6 @@ export interface BaseURLForRootArgs {
   baseURLForRoot: string;
 }
 
-export interface ToggleHighlightForCriticalExternalAttributionsArgs {
-  toggleHighlightForCriticalExternalAttributions: boolean;
-}
-
 export interface ExternalAttributionSources {
   [source: string]: {
     name: string;
