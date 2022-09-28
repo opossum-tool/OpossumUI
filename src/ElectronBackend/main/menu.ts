@@ -6,7 +6,11 @@
 
 import { app, BrowserWindow, Menu, shell } from 'electron';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { getOpenFileListener, getSelectBaseURLListener } from './listeners';
+import {
+  getOpenFileListener,
+  getSelectBaseURLListener,
+  setLoadingState,
+} from './listeners';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   getPathOfChromiumNoticeDocument,
@@ -43,6 +47,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             {
               label: 'Follow-Up',
               click(): void {
+                setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.FollowUp
@@ -52,6 +57,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             {
               label: 'Compact component list',
               click(): void {
+                setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.CompactBom
@@ -61,6 +67,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             {
               label: 'Detailed component list',
               click(): void {
+                setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.DetailedBom
@@ -70,6 +77,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             {
               label: 'SPDX (yaml)',
               click(): void {
+                setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentYaml
@@ -79,6 +87,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             {
               label: 'SPDX (json)',
               click(): void {
+                setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentJson

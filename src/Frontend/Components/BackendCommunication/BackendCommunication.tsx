@@ -15,6 +15,7 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  IsLoadingArgs,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
@@ -39,7 +40,10 @@ import {
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  setIsLoading,
+} from '../../state/actions/view-actions/view-actions';
 
 export function BackendCommunication(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -234,6 +238,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function setFileLoadingListener(
+    event: IpcRendererEvent,
+    isLoadingArgs: IsLoadingArgs
+  ): void {
+    if (isLoadingArgs) {
+      dispatch(setIsLoading(isLoadingArgs.isLoading));
+    }
+  }
+
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -278,6 +291,9 @@ export function BackendCommunication(): ReactElement | null {
       filesWithChildren,
     ]
   );
+  useIpcRenderer(AllowedFrontendChannels.FileLoading, setFileLoadingListener, [
+    dispatch,
+  ]);
 
   return null;
 }

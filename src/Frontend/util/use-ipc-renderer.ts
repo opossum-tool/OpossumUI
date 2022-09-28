@@ -10,6 +10,7 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,
   ExportType,
+  IsLoadingArgs,
   ParsedFileContent,
 } from '../../shared/shared-types';
 
@@ -35,12 +36,18 @@ type SetBaseURLForRootListener = (
   baseURLForRootArgs: BaseURLForRootArgs
 ) => void;
 
+type IsLoadingListener = (
+  event: IpcRendererEvent,
+  isLoadingArgs: IsLoadingArgs
+) => void;
+
 type Listener =
   | ResetStateListener
   | SetStateListener
   | LoggingListener
   | ExportFileRequestListener
-  | SetBaseURLForRootListener;
+  | SetBaseURLForRootListener
+  | IsLoadingListener;
 
 export function useIpcRenderer(
   channel: AllowedFrontendChannels,

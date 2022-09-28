@@ -6,7 +6,10 @@
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import React, { ReactElement } from 'react';
 import { View } from '../../enums/enums';
-import { getSelectedView } from '../../state/selectors/view-selector';
+import {
+  getIsLoading,
+  getSelectedView,
+} from '../../state/selectors/view-selector';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
 import { ReportView } from '../ReportView/ReportView';
 import { AttributionView } from '../AttributionView/AttributionView';
@@ -16,6 +19,7 @@ import { TopBar } from '../TopBar/TopBar';
 import { createTheme } from '@mui/material';
 import { useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
+import { Spinner } from '../Spinner/Spinner';
 
 const classes = {
   root: {
@@ -27,6 +31,9 @@ const classes = {
     height: 'calc(100vh - 36px)',
     width: '100%',
     overflow: 'hidden',
+  },
+  spinner: {
+    margin: 'auto',
   },
 };
 
@@ -61,8 +68,13 @@ const theme = createTheme({
 
 export function App(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
+  const isLoading = useAppSelector(getIsLoading);
 
   function getSelectedViewContainer(): ReactElement {
+    if (isLoading) {
+      return <Spinner sx={classes.spinner} />;
+    }
+
     switch (selectedView) {
       case View.Audit:
         return <AuditView />;
