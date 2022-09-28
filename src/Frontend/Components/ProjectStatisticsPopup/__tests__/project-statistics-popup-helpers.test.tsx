@@ -142,63 +142,59 @@ describe('The ProjectStatisticsPopup helper', () => {
     );
   });
 
-  it('counts sources for licenses, criticalities - testAttributions_1', () => {
+  it('counts sources for licenses, criticality - testAttributions_1', () => {
     const expectedAttributionCountPerSourcePerLicense = {
       'Apache License Version 2.0': { ScanCode: 1, reuser: 2, Total: 3 },
       'The MIT License (MIT)': { ScanCode: 2, reuser: 1, Total: 3 },
       Total: { ScanCode: 3, reuser: 3, Total: 6 },
     };
-    const expectedLicenseNamesWithCriticalities = {
+    const expectedLicenseNamesWithCriticality = {
       'Apache License Version 2.0': Criticality.High,
       'The MIT License (MIT)': undefined,
     };
 
     const strippedLicenseNameToAttribution =
       getUniqueLicenseNameToAttribution(testAttributions_1);
-    const {
-      attributionCountPerSourcePerLicense,
-      licenseNamesWithCriticalities,
-    } = aggregateLicensesAndSourcesFromAttributions(
-      testAttributions_1,
-      strippedLicenseNameToAttribution,
-      attributionSources
-    );
+    const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_1,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
 
     expect(attributionCountPerSourcePerLicense).toEqual(
       expectedAttributionCountPerSourcePerLicense
     );
-    expect(licenseNamesWithCriticalities).toEqual(
-      expectedLicenseNamesWithCriticalities
+    expect(licenseNamesWithCriticality).toEqual(
+      expectedLicenseNamesWithCriticality
     );
   });
 
-  it('counts sources for licenses, criticalities - testAttributions_2', () => {
+  it('counts sources for licenses, criticality - testAttributions_2', () => {
     const expectedAttributionCountPerSourcePerLicense = {
       'Apache License Version 2.0': { ScanCode: 1, reuser: 1, HC: 1, Total: 3 },
       'The MIT License (MIT)': { ScanCode: 1, reuser: 1, Total: 2 },
       Total: { ScanCode: 2, reuser: 2, HC: 1, Total: 5 },
     };
-    const expectedLicenseNamesWithCriticalities = {
+    const expectedLicenseNamesWithCriticality = {
       'Apache License Version 2.0': Criticality.Medium,
-      'The MIT License (MIT)': Criticality.Medium,
+      'The MIT License (MIT)': undefined,
     };
 
     const strippedLicenseNameToAttribution =
       getUniqueLicenseNameToAttribution(testAttributions_2);
-    const {
-      attributionCountPerSourcePerLicense,
-      licenseNamesWithCriticalities,
-    } = aggregateLicensesAndSourcesFromAttributions(
-      testAttributions_2,
-      strippedLicenseNameToAttribution,
-      attributionSources
-    );
+    const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_2,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
 
     expect(attributionCountPerSourcePerLicense).toEqual(
       expectedAttributionCountPerSourcePerLicense
     );
-    expect(licenseNamesWithCriticalities).toEqual(
-      expectedLicenseNamesWithCriticalities
+    expect(licenseNamesWithCriticality).toEqual(
+      expectedLicenseNamesWithCriticality
     );
   });
 

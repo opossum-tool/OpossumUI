@@ -48,9 +48,9 @@ export function aggregateLicensesAndSourcesFromAttributions(
   attributionSources: ExternalAttributionSources
 ): {
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
-  licenseNamesWithCriticalities: LicenseNamesWithCriticality;
+  licenseNamesWithCriticality: LicenseNamesWithCriticality;
 } {
-  const { attributionCountPerSourcePerLicense, licenseNamesWithCriticalities } =
+  const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
     getLicenseDataFromAttributionsAndSources(
       strippedLicenseNameToAttribution,
       attributions,
@@ -71,12 +71,12 @@ export function aggregateLicensesAndSourcesFromAttributions(
       }
     }
   }
-  if (isEmpty(licenseNamesWithCriticalities)) {
+  if (isEmpty(licenseNamesWithCriticality)) {
     attributionCountPerSourcePerLicense[LICENSE_TOTAL_HEADER][
       SOURCE_TOTAL_HEADER
     ] = 0;
   }
-  return { attributionCountPerSourcePerLicense, licenseNamesWithCriticalities };
+  return { attributionCountPerSourcePerLicense, licenseNamesWithCriticality };
 }
 
 function getLicenseDataFromAttributionsAndSources(
@@ -85,9 +85,9 @@ function getLicenseDataFromAttributionsAndSources(
   attributionSources: ExternalAttributionSources
 ): {
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
-  licenseNamesWithCriticalities: LicenseNamesWithCriticality;
+  licenseNamesWithCriticality: LicenseNamesWithCriticality;
 } {
-  const licenseNamesWithCriticalities: LicenseNamesWithCriticality = {};
+  const licenseNamesWithCriticality: LicenseNamesWithCriticality = {};
   const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
     {};
 
@@ -104,7 +104,7 @@ function getLicenseDataFromAttributionsAndSources(
       attributionSources
     );
 
-    licenseNamesWithCriticalities[mostFrequentLicenseName] = licenseCriticality;
+    licenseNamesWithCriticality[mostFrequentLicenseName] = licenseCriticality;
     attributionCountPerSourcePerLicense[mostFrequentLicenseName] =
       sourcesCountForLicense;
     attributionCountPerSourcePerLicense[mostFrequentLicenseName][
@@ -115,7 +115,7 @@ function getLicenseDataFromAttributionsAndSources(
       return total + value;
     });
   }
-  return { attributionCountPerSourcePerLicense, licenseNamesWithCriticalities };
+  return { attributionCountPerSourcePerLicense, licenseNamesWithCriticality };
 }
 
 function getLicenseDataFromVariants(
@@ -135,7 +135,7 @@ function getLicenseDataFromVariants(
   const sourcesCountForLicense: {
     [sourceNameOrTotal: string]: number;
   } = {};
-  let licenseCriticality: Criticality | undefined;
+  const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
 
   for (const attributionId of attributionIds) {
     const licenseName = attributions[attributionId].licenseName;
@@ -145,12 +145,12 @@ function getLicenseDataFromVariants(
 
       const variantCriticality = attributions[attributionId].criticality;
 
-      if (
-        variantCriticality === Criticality.High ||
-        (variantCriticality === Criticality.Medium &&
-          licenseCriticality === undefined)
-      ) {
-        licenseCriticality = variantCriticality;
+      if (variantCriticality === Criticality.High) {
+        licenseCriticalityCounts['high']++;
+      } else if (variantCriticality === Criticality.Medium) {
+        licenseCriticalityCounts['medium']++;
+      } else {
+        licenseCriticalityCounts['none']++;
       }
 
       const sourceName = getSourceDisplayNameFromId(
@@ -162,7 +162,7 @@ function getLicenseDataFromVariants(
         (sourcesCountForLicense[sourceName] || 0) + 1;
     }
   }
-
+  const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
   const mostFrequentLicenseName = Object.keys(licenseNameVariantsCount).reduce(
     (a, b) =>
       licenseNameVariantsCount[a] > licenseNameVariantsCount[b] ? a : b
@@ -172,6 +172,19 @@ function getLicenseDataFromVariants(
     licenseCriticality,
     sourcesCountForLicense,
   };
+}
+
+function getLicenseCriticality(licenseCriticalityCounts: {
+  high: number;
+  medium: number;
+  none: number;
+}): Criticality | undefined {
+  return licenseCriticalityCounts['medium'] + licenseCriticalityCounts['high'] >
+    licenseCriticalityCounts['none']
+    ? licenseCriticalityCounts['high']
+      ? Criticality.High
+      : Criticality.Medium
+    : undefined;
 }
 
 function getSourceDisplayNameFromId(
