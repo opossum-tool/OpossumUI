@@ -14,10 +14,10 @@ import {
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  aggregateLicensesAndSourcesFromAttributions,
   aggregateAttributionPropertiesFromAttributions,
-  sortAttributionPropertiesEntries,
+  aggregateLicensesAndSourcesFromAttributions,
   getUniqueLicenseNameToAttribution,
+  sortAttributionPropertiesEntries,
 } from './project-statistics-popup-helpers';
 import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
@@ -39,7 +39,7 @@ export function ProjectStatisticsPopup(): ReactElement {
   const strippedLicenseNameToAttribution =
     getUniqueLicenseNameToAttribution(externalAttributions);
 
-  const { attributionCountPerSourcePerLicense, licenseNamesWithCriticalities } =
+  const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
     aggregateLicensesAndSourcesFromAttributions(
       externalAttributions,
       strippedLicenseNameToAttribution,
@@ -71,14 +71,14 @@ export function ProjectStatisticsPopup(): ReactElement {
             attributionCountPerSourcePerLicense={
               attributionCountPerSourcePerLicense
             }
-            licenseNamesWithCriticality={licenseNamesWithCriticalities}
+            licenseNamesWithCriticality={licenseNamesWithCriticality}
             title={criticalLicensesTableTitle}
           />
           <AttributionCountPerSourcePerLicenseTable
             attributionCountPerSourcePerLicense={
               attributionCountPerSourcePerLicense
             }
-            licenseNamesWithCriticality={licenseNamesWithCriticalities}
+            licenseNamesWithCriticality={licenseNamesWithCriticality}
             title={attributionCountPerSourcePerLicenseTableTitle}
           />
         </>
