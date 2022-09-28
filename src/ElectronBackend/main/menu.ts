@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { app, BrowserWindow, Menu, shell, WebContents } from 'electron';
+import { app, BrowserWindow, Menu, shell } from 'electron';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { getOpenFileListener, getSelectBaseURLListener } from './listeners';
 import { getGlobalBackendState } from './globalBackendState';
@@ -16,13 +16,6 @@ import { ExportType } from '../../shared/shared-types';
 
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
-  const inputContainsCriticalExternalAttributions =
-    getGlobalBackendState().inputContainsCriticalExternalAttributions;
-  const isHighlightCriticalExternalAttributionMenuItemChecked =
-    getCheckedStatusAndSyncWithFrontend(
-      inputContainsCriticalExternalAttributions,
-      webContents
-    );
 
   return Menu.buildFromTemplate([
     {
@@ -166,21 +159,6 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         { label: 'Full Screen', role: 'togglefullscreen' },
         { label: 'Zoom In', role: 'zoomIn' },
         { label: 'Zoom Out', role: 'zoomOut' },
-        {
-          label: 'Highlight critical signals',
-          enabled: inputContainsCriticalExternalAttributions,
-          id: 'highlightCritical',
-          type: 'checkbox',
-          checked: isHighlightCriticalExternalAttributionMenuItemChecked,
-          click(): void {
-            webContents.send(
-              AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
-              {
-                toggleHighlightForCriticalExternalAttributions: true,
-              }
-            );
-          },
-        },
       ],
     },
     {
@@ -220,28 +198,4 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       ],
     },
   ]);
-}
-
-function getCheckedStatusAndSyncWithFrontend(
-  inputContainsCriticalExternalAttributions = false,
-  webContents: WebContents
-): boolean {
-  let isHighlightCriticalExternalAttributionMenuItemChecked = Boolean(
-    Menu.getApplicationMenu()?.getMenuItemById('highlightCritical')?.checked
-  );
-
-  if (
-    isHighlightCriticalExternalAttributionMenuItemChecked &&
-    !inputContainsCriticalExternalAttributions
-  ) {
-    webContents.send(
-      AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
-      {
-        toggleHighlightForCriticalExternalAttributions: true,
-      }
-    );
-    isHighlightCriticalExternalAttributionMenuItemChecked = false;
-  }
-
-  return isHighlightCriticalExternalAttributionMenuItemChecked;
 }

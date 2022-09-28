@@ -10,7 +10,6 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
-  ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ACTION_UPDATE_ACTIVE_FILTERS,
@@ -23,7 +22,6 @@ export interface ViewState {
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
   activeFilters: Set<FilterType>;
-  showHighlightForCriticalExternalAttributions: boolean;
 }
 
 export const initialViewState: ViewState = {
@@ -31,7 +29,6 @@ export const initialViewState: ViewState = {
   targetView: null,
   popupInfo: [],
   activeFilters: new Set<FilterType>(),
-  showHighlightForCriticalExternalAttributions: false,
 };
 
 export function viewState(
@@ -69,11 +66,6 @@ export function viewState(
       return {
         ...state,
         activeFilters: getUpdatedFilters(state.activeFilters, action.payload),
-      };
-    case ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS:
-      return {
-        ...state,
-        showHighlightForCriticalExternalAttributions: action.payload,
       };
     default:
       return state;

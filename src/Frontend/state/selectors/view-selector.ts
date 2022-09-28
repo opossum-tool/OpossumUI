@@ -40,9 +40,3 @@ export function getPopupAttributionId(state: State): string | null {
   const popup = state.viewState.popupInfo.slice(-1);
   return popup.length === 1 ? popup[0].attributionId ?? null : null;
 }
-
-export function getHighlightForCriticalExternalAttributions(
-  state: State
-): boolean {
-  return state.viewState.showHighlightForCriticalExternalAttributions;
-}

@@ -16,7 +16,7 @@ import { Attributions, ExportType } from '../../../../shared/shared-types';
 describe('BackendCommunication', () => {
   it('renders an Open file icon', () => {
     renderComponentWithStore(<BackendCommunication />);
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(10);
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(9);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expect.anything()
@@ -51,10 +51,6 @@ describe('BackendCommunication', () => {
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
-      expect.anything()
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ToggleHighlightForCriticalExternalAttributions,
       expect.anything()
     );
   });

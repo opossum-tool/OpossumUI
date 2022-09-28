@@ -8,7 +8,6 @@ import { FilterType, PopupType, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   getActiveFilters,
-  getHighlightForCriticalExternalAttributions,
   getOpenPopup,
   getPopupAttributionId,
   getSelectedView,
@@ -22,7 +21,6 @@ import {
   navigateToView,
   openPopup,
   resetViewState,
-  setHighlightForCriticalExternalAttributions,
   setTargetView,
   updateActiveFilters,
 } from '../view-actions';
@@ -148,18 +146,6 @@ describe('view actions', () => {
     ).toBe(true);
     expect(
       getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
-    ).toBe(true);
-  });
-
-  it('sets showHighlightForCriticalExternalAttributions', () => {
-    const testStore = createTestAppStore();
-
-    expect(
-      getHighlightForCriticalExternalAttributions(testStore.getState())
-    ).toBe(false);
-    testStore.dispatch(setHighlightForCriticalExternalAttributions(true));
-    expect(
-      getHighlightForCriticalExternalAttributions(testStore.getState())
     ).toBe(true);
   });
 });

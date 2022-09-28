@@ -12,8 +12,6 @@ export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_UPDATE_ACTIVE_FILTERS = 'ACTION_UPDATE_ACTIVE_FILTERS';
-export const ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS =
-  'ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS';
 
 export type ViewAction =
   | SetView
@@ -21,8 +19,7 @@ export type ViewAction =
   | ClosePopupAction
   | ResetViewStateAction
   | OpenPopupAction
-  | UpdateActiveFilters
-  | SetHighlightForCriticalExternalAttributionsAction;
+  | UpdateActiveFilters;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -50,9 +47,4 @@ export interface OpenPopupAction {
 export interface UpdateActiveFilters {
   type: typeof ACTION_UPDATE_ACTIVE_FILTERS;
   payload: FilterType;
-}
-
-export interface SetHighlightForCriticalExternalAttributionsAction {
-  type: typeof ACTION_SET_HIGHLIGHT_FOR_CRITICAL_EXTERNAL_ATTRIBUTIONS;
-  payload: boolean;
 }
