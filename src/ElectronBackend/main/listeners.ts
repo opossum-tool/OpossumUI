@@ -34,7 +34,6 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
-import { loadApplication } from './createWindow';
 import { openFileDialog, selectBaseURLDialog } from './dialogs';
 import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
@@ -280,7 +279,7 @@ export async function openFile(
   mainWindow: BrowserWindow,
   filePath: string
 ): Promise<void> {
-  const loadingWindow = await openLoadingWindow(mainWindow);
+  setLoadingState(mainWindow.webContents, true);
 
   try {
     await loadJsonFromFilePath(mainWindow.webContents, filePath);
@@ -288,7 +287,7 @@ export async function openFile(
     mainWindow.removeMenu();
     Menu.setApplicationMenu(createMenu(mainWindow));
   } finally {
-    loadingWindow.close();
+    setLoadingState(mainWindow.webContents, false);
   }
 }
 
@@ -404,7 +403,7 @@ export function _exportFileAndOpenFolder(mainWindow: BrowserWindow) {
     const { exportedFilePath, fileExporter } =
       getExportedFilePathAndFileExporter(exportArgs.type);
 
-    const loadingWindow = await openLoadingWindow(mainWindow);
+    setLoadingState(mainWindow.webContents, true);
 
     try {
       if (exportedFilePath) {
@@ -417,7 +416,7 @@ export function _exportFileAndOpenFolder(mainWindow: BrowserWindow) {
         throw new Error(`Failed to create ${exportArgs.type} export.`);
       }
     } finally {
-      loadingWindow.close();
+      setLoadingState(mainWindow.webContents, false);
 
       if (exportedFilePath) {
         log.info(`... Successfully created ${exportArgs.type} export`);
@@ -500,23 +499,11 @@ async function createDetailedBom(
   );
 }
 
-async function openLoadingWindow(
-  mainWindow: BrowserWindow
-): Promise<BrowserWindow> {
-  const loadingWindow = new BrowserWindow({
-    width: 150,
-    height: 150,
-    parent: mainWindow,
-    modal: true,
-    frame: false,
-    autoHideMenuBar: true,
+export function setLoadingState(
+  webContents: WebContents,
+  isLoading: boolean
+): void {
+  webContents.send(AllowedFrontendChannels.FileLoading, {
+    isLoading,
   });
-  await loadApplication(
-    loadingWindow,
-    '/loading.html',
-    '../../loading.html',
-    false
-  );
-
-  return loadingWindow;
 }

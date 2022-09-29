@@ -12,6 +12,7 @@ export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_UPDATE_ACTIVE_FILTERS = 'ACTION_UPDATE_ACTIVE_FILTERS';
+export const ACTION_SET_IS_LOADING = 'ACTION_SET_IS_LOADING';
 
 export type ViewAction =
   | SetView
@@ -19,7 +20,8 @@ export type ViewAction =
   | ClosePopupAction
   | ResetViewStateAction
   | OpenPopupAction
-  | UpdateActiveFilters;
+  | UpdateActiveFilters
+  | SetIsLoadingAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -47,4 +49,9 @@ export interface OpenPopupAction {
 export interface UpdateActiveFilters {
   type: typeof ACTION_UPDATE_ACTIVE_FILTERS;
   payload: FilterType;
+}
+
+export interface SetIsLoadingAction {
+  type: typeof ACTION_SET_IS_LOADING;
+  payload: boolean;
 }

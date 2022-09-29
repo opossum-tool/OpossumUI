@@ -288,8 +288,9 @@ describe('Test of loading function', () => {
     expect(getGlobalBackendState().projectId).toBe(
       inputFileContent.metadata.projectId
     );
-    expect(getGlobalBackendState().inputContainsCriticalExternalAttributions)
-      .toBeTruthy;
+    expect(
+      getGlobalBackendState().inputContainsCriticalExternalAttributions
+    ).toBeTruthy();
     deleteFolder(temporaryPath);
   });
 

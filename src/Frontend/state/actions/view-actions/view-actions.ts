@@ -15,12 +15,14 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
+  ACTION_SET_IS_LOADING,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
   ACTION_UPDATE_ACTIVE_FILTERS,
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
+  SetIsLoadingAction,
   SetTargetView,
   SetView,
   UpdateActiveFilters,
@@ -87,4 +89,8 @@ export function updateActiveFilters(
     type: ACTION_UPDATE_ACTIVE_FILTERS,
     payload: filterType,
   };
+}
+
+export function setIsLoading(isLoading: boolean): SetIsLoadingAction {
+  return { type: ACTION_SET_IS_LOADING, payload: isLoading };
 }

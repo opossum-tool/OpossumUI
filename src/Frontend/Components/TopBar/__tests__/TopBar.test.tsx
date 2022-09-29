@@ -19,7 +19,7 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(9);
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(10);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expect.anything()
@@ -54,6 +54,10 @@ describe('TopBar', () => {
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
+      expect.anything()
+    );
+    expect(window.electronAPI.on).toHaveBeenCalledWith(
+      AllowedFrontendChannels.FileLoading,
       expect.anything()
     );
 

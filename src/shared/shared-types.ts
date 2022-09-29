@@ -177,6 +177,10 @@ export interface BaseURLForRootArgs {
   baseURLForRoot: string;
 }
 
+export interface IsLoadingArgs {
+  isLoading: boolean;
+}
+
 export interface ExternalAttributionSources {
   [source: string]: {
     name: string;

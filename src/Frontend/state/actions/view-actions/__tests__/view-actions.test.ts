@@ -8,6 +8,7 @@ import { FilterType, PopupType, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   getActiveFilters,
+  getIsLoading,
   getOpenPopup,
   getPopupAttributionId,
   getSelectedView,
@@ -21,6 +22,7 @@ import {
   navigateToView,
   openPopup,
   resetViewState,
+  setIsLoading,
   setTargetView,
   updateActiveFilters,
 } from '../view-actions';
@@ -147,6 +149,15 @@ describe('view actions', () => {
     expect(
       getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
     ).toBe(true);
+  });
+
+  it('sets and gets loading state', () => {
+    const testStore = createTestAppStore();
+    expect(getIsLoading(testStore.getState())).toBe(false);
+    testStore.dispatch(setIsLoading(true));
+    expect(getIsLoading(testStore.getState())).toBe(true);
+    testStore.dispatch(setIsLoading(false));
+    expect(getIsLoading(testStore.getState())).toBe(false);
   });
 });
 
