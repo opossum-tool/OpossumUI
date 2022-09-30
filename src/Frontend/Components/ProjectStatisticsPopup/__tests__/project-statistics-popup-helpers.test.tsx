@@ -6,6 +6,7 @@
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
 } from '../project-statistics-popup-helpers';
 import {
@@ -106,6 +107,84 @@ const testAttributions_2: Attributions = {
   },
 };
 
+const testAttributions_3: Attributions = {
+  uuid1: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    criticality: Criticality.Medium,
+    licenseName: 'Apache License Version 2.0',
+    firstParty: true,
+  },
+  uuid2: {
+    source: {
+      name: 'reuser',
+      documentConfidence: 90,
+    },
+    criticality: Criticality.High,
+    licenseName: 'Apache License Version 2.0',
+  },
+  uuid3: {
+    source: {
+      name: 'reuser',
+      documentConfidence: 90,
+    },
+    licenseName: ' Apache license version-2.0 ',
+    followUp: FollowUp,
+  },
+  uuid4: {
+    source: {
+      name: 'reuser',
+      documentConfidence: 90,
+    },
+    licenseName: ' The-MIT-License (MIT) ',
+  },
+  uuid5: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    licenseName: 'The MIT License (MIT)',
+  },
+  uuid6: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    criticality: Criticality.Medium,
+    licenseName: 'Apache License Version 1.0',
+    firstParty: true,
+  },
+  uuid7: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    criticality: Criticality.Medium,
+    licenseName: 'Apache License Version 1.0.1',
+    firstParty: true,
+  },
+  uuid8: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    criticality: Criticality.Medium,
+    licenseName: 'Apache License Version 1.0.0.1',
+    firstParty: true,
+  },
+  uuid9: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    criticality: Criticality.Medium,
+    licenseName: 'Apache License Version 1.0.0.0.1',
+    firstParty: true,
+  },
+};
+
 const attributionSources = {
   SC: {
     name: 'ScanCode',
@@ -114,6 +193,109 @@ const attributionSources = {
 };
 
 describe('The ProjectStatisticsPopup helper', () => {
+  it('counts most frequent licenses - testAttributions_1', () => {
+    const expectedSortedMostFrequentLicenses = [
+      {
+        licenseName: 'Apache License Version 2.0',
+        count: 3,
+      },
+      {
+        licenseName: 'The MIT License (MIT)',
+        count: 3,
+      },
+    ];
+
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_1);
+    const { attributionCountPerSourcePerLicense } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_1,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(
+      attributionCountPerSourcePerLicense
+    );
+
+    expect(sortedMostFrequentLicenses).toEqual(
+      expectedSortedMostFrequentLicenses
+    );
+  });
+
+  it('counts most frequent licenses - testAttributions_2', () => {
+    const expectedSortedMostFrequentLicenses = [
+      {
+        licenseName: 'Apache License Version 2.0',
+        count: 3,
+      },
+      {
+        licenseName: 'The MIT License (MIT)',
+        count: 2,
+      },
+    ];
+
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_2);
+    const { attributionCountPerSourcePerLicense } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_2,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(
+      attributionCountPerSourcePerLicense
+    );
+
+    expect(sortedMostFrequentLicenses).toEqual(
+      expectedSortedMostFrequentLicenses
+    );
+  });
+
+  it('counts most frequent licenses - testAttributions_3', () => {
+    const expectedSortedMostFrequentLicenses = [
+      {
+        licenseName: 'Apache License Version 2.0',
+        count: 3,
+      },
+      {
+        licenseName: 'The MIT License (MIT)',
+        count: 2,
+      },
+      {
+        licenseName: 'Apache License Version 1.0',
+        count: 1,
+      },
+      {
+        licenseName: 'Apache License Version 1.0.1',
+        count: 1,
+      },
+      {
+        licenseName: 'Apache License Version 1.0.0.1',
+        count: 1,
+      },
+      {
+        licenseName: 'Other',
+        count: 1,
+      },
+    ];
+
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_3);
+    const { attributionCountPerSourcePerLicense } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_3,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(
+      attributionCountPerSourcePerLicense
+    );
+
+    expect(sortedMostFrequentLicenses).toEqual(
+      expectedSortedMostFrequentLicenses
+    );
+  });
+
   it('aggregates attributions by stripped license names - testAttributions_1', () => {
     const expectedStrippedLicenseNameToAttribution = {
       'apachelicenseversion2.0': ['uuid1', 'uuid2', 'uuid3'],
@@ -195,6 +377,62 @@ describe('The ProjectStatisticsPopup helper', () => {
     );
     expect(licenseNamesWithCriticality).toEqual(
       expectedLicenseNamesWithCriticality
+    );
+  });
+
+  it('counts sources for licenses, criticalities - testAttributions_1', () => {
+    const expectedSortedMostFrequentLicenses = [
+      {
+        licenseName: 'Apache License Version 2.0',
+        count: 3,
+      },
+      {
+        licenseName: 'The MIT License (MIT)',
+        count: 3,
+      },
+    ];
+
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_1);
+    const { attributionCountPerSourcePerLicense } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_1,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(
+      attributionCountPerSourcePerLicense
+    );
+    expect(sortedMostFrequentLicenses).toEqual(
+      expectedSortedMostFrequentLicenses
+    );
+  });
+
+  it('counts sources for licenses, criticalities - testAttributions_1', () => {
+    const expectedSortedMostFrequentLicenses = [
+      {
+        licenseName: 'Apache License Version 2.0',
+        count: 3,
+      },
+      {
+        licenseName: 'The MIT License (MIT)',
+        count: 3,
+      },
+    ];
+
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_1);
+    const { attributionCountPerSourcePerLicense } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_1,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(
+      attributionCountPerSourcePerLicense
+    );
+    expect(sortedMostFrequentLicenses).toEqual(
+      expectedSortedMostFrequentLicenses
     );
   });
 

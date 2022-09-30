@@ -21,11 +21,14 @@ import {
 } from './project-statistics-popup-helpers';
 import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
+import { MostFrequentLicensesPieChart } from './PieCharts';
 import { CriticalLicensesTable } from './CriticalLicensesTable';
 
 const attributionCountPerSourcePerLicenseTableTitle = 'Signals per Sources';
 const attributionPropertyCountTableTitle =
   'First Party and Follow Up Attributions';
+const mostFrequentLicenseCountPerSourcePerLicenseTableTitle =
+  'Most Frequent Licenses';
 const criticalLicensesTableTitle = 'Critical Licenses';
 
 export function ProjectStatisticsPopup(): ReactElement {
@@ -61,6 +64,12 @@ export function ProjectStatisticsPopup(): ReactElement {
     <NotificationPopup
       content={
         <>
+          <MostFrequentLicensesPieChart
+            attributionCountPerSourcePerLicense={
+              attributionCountPerSourcePerLicense
+            }
+            title={mostFrequentLicenseCountPerSourcePerLicenseTableTitle}
+          />
           <AttributionPropertyCountTable
             attributionPropertyCountsEntries={
               sortedManualAttributionPropertyCountsEntries

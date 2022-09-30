@@ -6,10 +6,10 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
-  LICENSE_TOTAL_HEADER,
+  LICENSE_TOTAL_Key,
   LicenseNamesWithCriticality,
   PLACEHOLDER_ATTRIBUTION_COUNT,
-  SOURCE_TOTAL_HEADER,
+  SOURCE_TOTAL_Key,
 } from './project-statistics-popup-helpers';
 import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
@@ -24,9 +24,14 @@ import { projectStatisticsPopupClasses } from './shared-project-statistics-popup
 import { OpossumColors } from '../../shared-styles';
 import { Criticality } from '../../../shared/shared-types';
 
-interface AttributionCountPerSourcePerLicenseTableProps {
+export interface AttributionCountPerSourcePerLicenseTableProps {
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
+  title: string;
+}
+
+export interface PieChartProps {
+  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
   title: string;
 }
 
@@ -34,19 +39,19 @@ export function AttributionCountPerSourcePerLicenseTable(
   props: AttributionCountPerSourcePerLicenseTableProps
 ): ReactElement {
   const sourceNamesOrTotal = Object.keys(
-    props.attributionCountPerSourcePerLicense[LICENSE_TOTAL_HEADER]
+    props.attributionCountPerSourcePerLicense[LICENSE_TOTAL_Key]
   );
-  sourceNamesOrTotal.splice(sourceNamesOrTotal.indexOf(SOURCE_TOTAL_HEADER), 1);
-  sourceNamesOrTotal.push(SOURCE_TOTAL_HEADER);
+  sourceNamesOrTotal.splice(sourceNamesOrTotal.indexOf(SOURCE_TOTAL_Key), 1);
+  sourceNamesOrTotal.push(SOURCE_TOTAL_Key);
   const sourceNamesRow = ['LICENSE'].concat(sourceNamesOrTotal);
 
   const valuesSourceTotals: Array<string> = sourceNamesOrTotal.map(
     (sourceName) =>
-      props.attributionCountPerSourcePerLicense[LICENSE_TOTAL_HEADER][
+      props.attributionCountPerSourcePerLicense[LICENSE_TOTAL_Key][
         sourceName
       ].toString()
   );
-  const totalsRow: Array<string> = [SOURCE_TOTAL_HEADER].concat(
+  const totalsRow: Array<string> = [SOURCE_TOTAL_Key].concat(
     valuesSourceTotals
   );
   const sortedLicenseNames = Object.keys(props.licenseNamesWithCriticality)

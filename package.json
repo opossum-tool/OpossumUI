@@ -9,6 +9,7 @@
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@mui/icons-material": "^5.10.6",
+    "@types/recharts": "^1.8.23",
     "@mui/material": "^5.10.7",
     "@mui/system": "^5.10.7",
     "@tanstack/react-query": "^4.7.2",
@@ -26,6 +27,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.4",
     "react-window": "^1.8.7",
+    "recharts": "^2.1.14",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1",
     "spdx-license-ids": "^3.0.12",
@@ -159,9 +161,6 @@
       "./run_precommit.sh"
     ]
   },
-  "jest": {
-    "resetMocks": false
-  },
   "resolutions": {
     "nth-check": "^2.0.1",
     "async": "^2.6.4",
@@ -169,5 +168,14 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "jest": {
+    "resetMocks": false,
+    "transformIgnorePatterns": [
+      "/node_modules/(?!d3-*|internmap)"
+    ],
+    "transform": {
+      "/node_modules/(?!d3-*|internmap)": "babel-jest"
+    }
   }
 }

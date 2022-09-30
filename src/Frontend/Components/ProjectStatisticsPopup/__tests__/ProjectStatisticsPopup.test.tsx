@@ -13,6 +13,9 @@ import { Attributions } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
+import { mockResizeObserver } from '../../../test-helpers/popup-test-helpers';
+
+mockResizeObserver();
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {
@@ -23,14 +26,14 @@ describe('The ProjectStatisticsPopup', () => {
           name: 'scancode',
           documentConfidence: 10,
         },
-        licenseName: 'test-license-name',
+        licenseName: 'Apache License Version 2.0',
       },
       uuid_2: {
         source: {
           name: 'reuser',
           documentConfidence: 90,
         },
-        licenseName: 'test-license-name_1',
+        licenseName: 'The MIT License (MIT)',
       },
     };
     store.dispatch(
@@ -42,10 +45,57 @@ describe('The ProjectStatisticsPopup', () => {
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
-    expect(screen.getByText('test-license-name')).toBeInTheDocument();
-    expect(screen.getByText('test-license-name_1')).toBeInTheDocument();
+    expect(screen.getByText('Apache License Version 2.0')).toBeInTheDocument();
+    expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
     expect(screen.getByText('scancode'.toUpperCase())).toBeInTheDocument();
     expect(screen.getByText('reuser'.toUpperCase())).toBeInTheDocument();
+  });
+
+  it('renders the Most Frequent Licenses pie chart when there are attributions', () => {
+    const store = createTestAppStore();
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        source: {
+          name: 'scancode',
+          documentConfidence: 10,
+        },
+        licenseName: 'Apache License Version 2.0',
+      },
+      uuid_2: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        licenseName: 'The MIT License (MIT)',
+      },
+    };
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+        })
+      )
+    );
+
+    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    expect(screen.getByText('Most Frequent Licenses')).toBeInTheDocument();
+  });
+
+  it('does not render the Most Frequent Licenses pie chart when there is no attribution', () => {
+    const store = createTestAppStore();
+    const testExternalAttributions: Attributions = {};
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+        })
+      )
+    );
+
+    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    expect(
+      screen.queryByText('Most Frequent Licenses')
+    ).not.toBeInTheDocument();
   });
 
   it('renders when there are no attributions', () => {
