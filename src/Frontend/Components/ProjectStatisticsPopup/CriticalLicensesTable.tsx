@@ -6,11 +6,11 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
-  LICENSE_COLUMN_NAME_IN_TABLE_HEADER,
+  LICENSE_COLUMN_NAME_IN_TABLE_Key,
   LicenseNamesWithCriticality,
   PLACEHOLDER_ATTRIBUTION_COUNT,
-  SOURCE_TOTAL_HEADER,
-  TOTAL_COLUMN_NAME_IN_TABLE_HEADER,
+  SOURCE_TOTAL_Key,
+  TOTAL_COLUMN_NAME_IN_TABLE_Key,
 } from './project-statistics-popup-helpers';
 import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
@@ -51,7 +51,7 @@ function getCriticalLicenseNamesWithTheirTotalAttributions(
         licenseName: criticalLicenseName,
         totalNumberOfAttributions:
           attributionCountPerSourcePerLicense[criticalLicenseName][
-            SOURCE_TOTAL_HEADER
+            SOURCE_TOTAL_Key
           ],
       };
     }
@@ -113,10 +113,10 @@ export function CriticalLicensesTable(
       mediumCriticalityLicensesTotalAttributions
     );
   const tableColumnNames = [
-    LICENSE_COLUMN_NAME_IN_TABLE_HEADER,
-    TOTAL_COLUMN_NAME_IN_TABLE_HEADER,
+    LICENSE_COLUMN_NAME_IN_TABLE_Key,
+    TOTAL_COLUMN_NAME_IN_TABLE_Key,
   ];
-  const tableFooter = [SOURCE_TOTAL_HEADER].concat(
+  const tableFooter = [SOURCE_TOTAL_Key].concat(
     getTotalNumberOfAttributions(criticalLicensesTotalAttributions).toString()
   );
 
