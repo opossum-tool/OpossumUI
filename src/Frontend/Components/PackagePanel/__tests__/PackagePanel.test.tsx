@@ -16,7 +16,7 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { PackagePanel } from '../PackagePanel';
-import { getByText } from '@testing-library/dom';
+import { getByText } from '@testing-library/react';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
