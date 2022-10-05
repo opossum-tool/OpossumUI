@@ -8,6 +8,7 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText } from '../../enums/enums';
+import MuiBox from '@mui/material/Box';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
@@ -30,6 +31,12 @@ const attributionPropertyCountTableTitle =
 const mostFrequentLicenseCountPerSourcePerLicenseTableTitle =
   'Most Frequent Licenses';
 const criticalLicensesTableTitle = 'Critical Licenses';
+
+const classes = {
+  panels: { display: 'flex' },
+  leftPanel: { width: 'fit-content' },
+  rightPanel: { flexGrow: 1, marginLeft: '2vw' },
+};
 
 export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
@@ -64,25 +71,31 @@ export function ProjectStatisticsPopup(): ReactElement {
     <NotificationPopup
       content={
         <>
-          <MostFrequentLicensesPieChart
-            attributionCountPerSourcePerLicense={
-              attributionCountPerSourcePerLicense
-            }
-            title={mostFrequentLicenseCountPerSourcePerLicenseTableTitle}
-          />
-          <AttributionPropertyCountTable
-            attributionPropertyCountsEntries={
-              sortedManualAttributionPropertyCountsEntries
-            }
-            title={attributionPropertyCountTableTitle}
-          />
-          <CriticalLicensesTable
-            attributionCountPerSourcePerLicense={
-              attributionCountPerSourcePerLicense
-            }
-            licenseNamesWithCriticality={licenseNamesWithCriticality}
-            title={criticalLicensesTableTitle}
-          />
+          <MuiBox style={classes.panels}>
+            <MuiBox style={classes.leftPanel}>
+              <AttributionPropertyCountTable
+                attributionPropertyCountsEntries={
+                  sortedManualAttributionPropertyCountsEntries
+                }
+                title={attributionPropertyCountTableTitle}
+              />
+              <CriticalLicensesTable
+                attributionCountPerSourcePerLicense={
+                  attributionCountPerSourcePerLicense
+                }
+                licenseNamesWithCriticality={licenseNamesWithCriticality}
+                title={criticalLicensesTableTitle}
+              />
+            </MuiBox>
+            <MuiBox style={classes.rightPanel}>
+              <MostFrequentLicensesPieChart
+                attributionCountPerSourcePerLicense={
+                  attributionCountPerSourcePerLicense
+                }
+                title={mostFrequentLicenseCountPerSourcePerLicenseTableTitle}
+              />
+            </MuiBox>
+          </MuiBox>
           <AttributionCountPerSourcePerLicenseTable
             attributionCountPerSourcePerLicense={
               attributionCountPerSourcePerLicense
