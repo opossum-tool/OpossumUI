@@ -80,3 +80,11 @@ export enum CheckboxLabel {
   FollowUp = 'Follow-up',
   ExcludeFromNotice = 'Exclude From Notice',
 }
+
+export enum ProjectStatisticsPopupTitles {
+  AttributionCountPerSourcePerLicenseTable = 'Signals per Sources',
+  AttributionPropertyCountTable = 'First Party and Follow Up Attributions',
+  CriticalLicensesTable = 'Critical Licenses',
+  MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
+  AttributionCountByCriticalityPieChart = 'Attributions per Criticality',
+}

@@ -6,6 +6,7 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
+  LICENSE_COLUMN_NAME_IN_TABLE_Key,
   LICENSE_TOTAL_Key,
   LicenseNamesWithCriticality,
   PLACEHOLDER_ATTRIBUTION_COUNT,
@@ -30,11 +31,6 @@ export interface AttributionCountPerSourcePerLicenseTableProps {
   title: string;
 }
 
-export interface PieChartProps {
-  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
-  title: string;
-}
-
 export function AttributionCountPerSourcePerLicenseTable(
   props: AttributionCountPerSourcePerLicenseTableProps
 ): ReactElement {
@@ -43,7 +39,9 @@ export function AttributionCountPerSourcePerLicenseTable(
   );
   sourceNamesOrTotal.splice(sourceNamesOrTotal.indexOf(SOURCE_TOTAL_Key), 1);
   sourceNamesOrTotal.push(SOURCE_TOTAL_Key);
-  const sourceNamesRow = ['LICENSE'].concat(sourceNamesOrTotal);
+  const sourceNamesRow = [LICENSE_COLUMN_NAME_IN_TABLE_Key].concat(
+    sourceNamesOrTotal
+  );
 
   const valuesSourceTotals: Array<string> = sourceNamesOrTotal.map(
     (sourceName) =>
@@ -75,7 +73,7 @@ export function AttributionCountPerSourcePerLicenseTable(
                   key={index}
                   align={index === 0 ? 'left' : 'center'}
                 >
-                  {sourceName.toUpperCase()}
+                  {sourceName}
                 </MuiTableCell>
               ))}
             </MuiTableRow>

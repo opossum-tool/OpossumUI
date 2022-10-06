@@ -23,7 +23,7 @@ interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
 }
 export interface PieChartData {
-  licenseName: string;
+  name: string;
   count: number;
 }
 
@@ -34,8 +34,8 @@ const ATTRIBUTION_PROPERTIES_TO_DISPLAY: Array<keyof PackageInfo> = [
 export const SOURCE_TOTAL_Key = 'Total';
 export const LICENSE_TOTAL_Key = 'Total';
 export const ATTRIBUTION_TOTAL_Key = 'Total Attributions';
-export const LICENSE_COLUMN_NAME_IN_TABLE_Key = 'License';
-export const TOTAL_COLUMN_NAME_IN_TABLE_Key = 'Total';
+export const LICENSE_COLUMN_NAME_IN_TABLE_Key = 'License name';
+export const TOTAL_COLUMN_NAME_IN_TABLE_Key = 'Amount';
 export const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
 
 const UNKNOWN_SOURCE_PLACEHOLDER = '-';
@@ -276,7 +276,7 @@ export function getMostFrequentLicenses(
   for (const license of Object.keys(attributionCountPerSourcePerLicense)) {
     if (license !== LICENSE_TOTAL_Key) {
       mostFrequentLicenses.push({
-        licenseName: license,
+        name: license,
         count: attributionCountPerSourcePerLicense[license][SOURCE_TOTAL_Key],
       });
     }
@@ -300,7 +300,7 @@ export function getMostFrequentLicenses(
     const other = total - sumTopFiveFrequentLicensesCount;
 
     sortedTopFiveFrequentLicensesAndOther.push({
-      licenseName: 'Other',
+      name: 'Other',
       count: other,
     });
     return sortedTopFiveFrequentLicensesAndOther;

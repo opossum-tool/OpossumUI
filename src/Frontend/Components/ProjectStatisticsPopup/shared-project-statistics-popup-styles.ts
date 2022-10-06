@@ -17,12 +17,14 @@ export const projectStatisticsPopupClasses = {
     background: OpossumColors.lightBlue,
     position: 'sticky',
     bottom: 0,
+    color: OpossumColors.black,
   },
   body: {
     fontSize: 11,
     background: OpossumColors.lightestBlue,
-    maxWidth: '100px',
+    maxWidth: '200px',
     overflow: 'auto',
+    color: OpossumColors.black,
   },
   attributionCountPerSourcePerLicenseTable: {
     maxHeight: '400px',
@@ -30,12 +32,13 @@ export const projectStatisticsPopupClasses = {
   },
   attributionPropertyCountTable: {
     maxHeight: '100px',
-    maxWidth: '400px',
+    maxWidth: '500px',
+    width: '35vw',
     marginBottom: 3,
   },
   criticalLicensesTable: {
     maxHeight: '400px',
-    maxWidth: '400px',
+    maxWidth: '500px',
     marginBottom: 3,
   },
 };

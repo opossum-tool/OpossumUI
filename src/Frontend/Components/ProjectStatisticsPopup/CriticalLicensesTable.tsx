@@ -135,7 +135,7 @@ export function CriticalLicensesTable(
                   key={index}
                   align={index === 0 ? 'left' : 'center'}
                 >
-                  {columnName.toUpperCase()}
+                  {columnName}
                 </MuiTableCell>
               ))}
             </MuiTableRow>

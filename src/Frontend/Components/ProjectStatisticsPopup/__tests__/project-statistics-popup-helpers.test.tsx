@@ -196,11 +196,11 @@ describe('The ProjectStatisticsPopup helper', () => {
   it('counts most frequent licenses - testAttributions_1', () => {
     const expectedSortedMostFrequentLicenses = [
       {
-        licenseName: 'Apache License Version 2.0',
+        name: 'Apache License Version 2.0',
         count: 3,
       },
       {
-        licenseName: 'The MIT License (MIT)',
+        name: 'The MIT License (MIT)',
         count: 3,
       },
     ];
@@ -225,11 +225,11 @@ describe('The ProjectStatisticsPopup helper', () => {
   it('counts most frequent licenses - testAttributions_2', () => {
     const expectedSortedMostFrequentLicenses = [
       {
-        licenseName: 'Apache License Version 2.0',
+        name: 'Apache License Version 2.0',
         count: 3,
       },
       {
-        licenseName: 'The MIT License (MIT)',
+        name: 'The MIT License (MIT)',
         count: 2,
       },
     ];
@@ -254,27 +254,27 @@ describe('The ProjectStatisticsPopup helper', () => {
   it('counts most frequent licenses - testAttributions_3', () => {
     const expectedSortedMostFrequentLicenses = [
       {
-        licenseName: 'Apache License Version 2.0',
+        name: 'Apache License Version 2.0',
         count: 3,
       },
       {
-        licenseName: 'The MIT License (MIT)',
+        name: 'The MIT License (MIT)',
         count: 2,
       },
       {
-        licenseName: 'Apache License Version 1.0',
+        name: 'Apache License Version 1.0',
         count: 1,
       },
       {
-        licenseName: 'Apache License Version 1.0.1',
+        name: 'Apache License Version 1.0.1',
         count: 1,
       },
       {
-        licenseName: 'Apache License Version 1.0.0.1',
+        name: 'Apache License Version 1.0.0.1',
         count: 1,
       },
       {
-        licenseName: 'Other',
+        name: 'Other',
         count: 1,
       },
     ];
@@ -383,11 +383,11 @@ describe('The ProjectStatisticsPopup helper', () => {
   it('counts sources for licenses, criticalities - testAttributions_1', () => {
     const expectedSortedMostFrequentLicenses = [
       {
-        licenseName: 'Apache License Version 2.0',
+        name: 'Apache License Version 2.0',
         count: 3,
       },
       {
-        licenseName: 'The MIT License (MIT)',
+        name: 'The MIT License (MIT)',
         count: 3,
       },
     ];
@@ -411,11 +411,11 @@ describe('The ProjectStatisticsPopup helper', () => {
   it('counts sources for licenses, criticalities - testAttributions_1', () => {
     const expectedSortedMostFrequentLicenses = [
       {
-        licenseName: 'Apache License Version 2.0',
+        name: 'Apache License Version 2.0',
         count: 3,
       },
       {
-        licenseName: 'The MIT License (MIT)',
+        name: 'The MIT License (MIT)',
         count: 3,
       },
     ];
