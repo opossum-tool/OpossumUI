@@ -24,6 +24,7 @@ import {
 } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import RectangleIcon from '@mui/icons-material/Rectangle';
+import { Criticality } from '../../../shared/shared-types';
 
 const classes = {
   clickableIcon,
@@ -51,6 +52,10 @@ const classes = {
 
 interface IconProps {
   sx?: SxProps;
+}
+
+interface SignalIconProps {
+  criticality?: string;
 }
 
 interface LabelDetailIconProps extends IconProps {
@@ -102,12 +107,26 @@ export function FollowUpIcon(props: IconProps): ReactElement {
   );
 }
 
-export function SignalIcon(): ReactElement {
+export function SignalIcon(props: SignalIconProps): ReactElement {
+  const tooltipText =
+    props.criticality === Criticality.High
+      ? 'has highly critical signals'
+      : props.criticality === Criticality.Medium
+      ? 'has medium critical signals'
+      : 'has signals';
   return (
-    <MuiTooltip sx={classes.tooltip} title="has signals">
+    <MuiTooltip sx={classes.tooltip} title={tooltipText}>
       <AnnouncementIcon
         aria-label={'Signal icon'}
-        sx={classes.nonClickableIcon}
+        sx={{
+          ...baseIcon,
+          color:
+            props.criticality === Criticality.High
+              ? OpossumColors.red
+              : props.criticality === Criticality.Medium
+              ? OpossumColors.orange
+              : OpossumColors.darkBlue,
+        }}
       />
     </MuiTooltip>
   );

@@ -94,6 +94,7 @@ function hasExternalAttribution(
   nodeId: string,
   resourcesToExternalAttributions: ResourcesToAttributions
 ): boolean {
+  console.log(resourcesToExternalAttributions);
   return nodeId in resourcesToExternalAttributions;
 }
 

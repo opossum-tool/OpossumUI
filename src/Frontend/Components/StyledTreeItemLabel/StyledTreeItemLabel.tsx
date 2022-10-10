@@ -145,7 +145,9 @@ export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
       >
         {props.labelText}
       </MuiTypography>
-      {props.hasExternalAttribution ? <SignalIcon /> : null}
+      {props.hasExternalAttribution ? (
+        <SignalIcon criticality={'high'} />
+      ) : null}
     </MuiBox>
   );
 }
