@@ -7,7 +7,7 @@ import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText, ProjectStatisticsPopupTitles } from '../../enums/enums';
+import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
 import MuiBox from '@mui/material/Box';
 import {
   getExternalAttributions,
@@ -76,7 +76,7 @@ export function ProjectStatisticsPopup(): ReactElement {
                   sortedManualAttributionPropertyCountsEntries
                 }
                 title={
-                  ProjectStatisticsPopupTitles.AttributionPropertyCountTable
+                  ProjectStatisticsPopupTitle.AttributionPropertyCountTable
                 }
               />
               <CriticalLicensesTable
@@ -84,14 +84,14 @@ export function ProjectStatisticsPopup(): ReactElement {
                   attributionCountPerSourcePerLicense
                 }
                 licenseNamesWithCriticality={licenseNamesWithCriticality}
-                title={ProjectStatisticsPopupTitles.CriticalLicensesTable}
+                title={ProjectStatisticsPopupTitle.CriticalLicensesTable}
               />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>
               <CustomizedPieChart
                 data={mostFrequentLicenseCountData}
                 title={
-                  ProjectStatisticsPopupTitles.MostFrequentLicenseCountPieChart
+                  ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
                 }
               />
             </MuiBox>
@@ -102,7 +102,7 @@ export function ProjectStatisticsPopup(): ReactElement {
             }
             licenseNamesWithCriticality={licenseNamesWithCriticality}
             title={
-              ProjectStatisticsPopupTitles.AttributionCountPerSourcePerLicenseTable
+              ProjectStatisticsPopupTitle.AttributionCountPerSourcePerLicenseTable
             }
           />
         </>

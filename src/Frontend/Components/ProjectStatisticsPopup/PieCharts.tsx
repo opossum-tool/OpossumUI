@@ -31,15 +31,21 @@ const COLORS = [
   OpossumColors.lightBlue,
 ];
 
+const classes = {
+  root: {
+    maxWidth: '500px',
+  },
+};
+
 export function CustomizedPieChart(props: PieChartProps): ReactElement | null {
   if (props.data.length === 0) {
     return null;
   }
 
   return (
-    <MuiBox>
+    <MuiBox sx={classes.root}>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
-      <ResponsiveContainer width="70%" maxHeight={200} aspect={2}>
+      <ResponsiveContainer maxHeight={200} aspect={2}>
         <PieChart>
           <Pie
             data={props.data}
@@ -49,10 +55,10 @@ export function CustomizedPieChart(props: PieChartProps): ReactElement | null {
             cy="50%"
             paddingAngle={1}
             minAngle={5}
-            outerRadius="70"
+            outerRadius={70}
             isAnimationActive={true}
           >
-            {props.data.map((entry, index) => (
+            {props.data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index]} />
             ))}
           </Pie>
