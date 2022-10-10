@@ -47,8 +47,8 @@ describe('The ProjectStatisticsPopup', () => {
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(screen.getByText('Apache License Version 2.0')).toBeInTheDocument();
     expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
-    expect(screen.getByText('scancode')).toBeInTheDocument();
-    expect(screen.getByText('reuser')).toBeInTheDocument();
+    expect(screen.getByText('Scancode')).toBeInTheDocument();
+    expect(screen.getByText('Reuser')).toBeInTheDocument();
   });
 
   it('renders the Most Frequent Licenses pie chart when there are attributions', () => {
