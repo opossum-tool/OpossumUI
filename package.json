@@ -38,7 +38,7 @@
     "write-file-atomic": "^4.0.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.26.1",
+    "@playwright/test": "^1.27.0",
     "@testing-library/dom": "^8.18.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
