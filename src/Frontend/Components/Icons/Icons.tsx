@@ -122,9 +122,9 @@ export function SignalIcon(props: SignalIconProps): ReactElement {
           ...baseIcon,
           color:
             props.criticality === Criticality.High
-              ? OpossumColors.red
-              : props.criticality === Criticality.Medium
               ? OpossumColors.orange
+              : props.criticality === Criticality.Medium
+              ? OpossumColors.mediumOrange
               : OpossumColors.darkBlue,
         }}
       />

@@ -83,6 +83,7 @@ interface StyledTreeItemProps {
   isAttributionBreakpoint: boolean;
   showFolderIcon: boolean;
   containsResourcesWithOnlyExternalAttribution: boolean;
+  criticality?: string;
 }
 
 export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
@@ -146,7 +147,7 @@ export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
         {props.labelText}
       </MuiTypography>
       {props.hasExternalAttribution ? (
-        <SignalIcon criticality={'high'} />
+        <SignalIcon criticality={props.criticality} />
       ) : null}
     </MuiBox>
   );

@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  AttributionData,
   Attributions,
+  Criticality,
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
@@ -25,7 +27,8 @@ export function getTreeItemLabel(
   resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren,
   resolvedExternalAttributions: Set<string>,
   isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
+  externalData: AttributionData
 ): ReactElement {
   const canHaveChildren = resource !== 1;
 
@@ -60,6 +63,11 @@ export function getTreeItemLabel(
         nodeId,
         resourcesWithManualAttributedChildren
       )}
+      criticality={getCriticality(
+        nodeId,
+        resourcesToExternalAttributions,
+        externalData.attributions
+      )}
       isAttributionBreakpoint={isAttributionBreakpoint(nodeId)}
       showFolderIcon={canHaveChildren && !isFileWithChildren(nodeId)}
       containsResourcesWithOnlyExternalAttribution={
@@ -73,6 +81,27 @@ export function getTreeItemLabel(
       }
     />
   );
+}
+
+function getCriticality(
+  nodeId: string,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions
+): string | undefined {
+  if (hasExternalAttribution(nodeId, resourcesToExternalAttributions)) {
+    let criticality;
+    const attributionsForResource = resourcesToExternalAttributions[nodeId];
+    for (const attribution of attributionsForResource) {
+      if (
+        externalAttributions[attribution].criticality === Criticality.High ||
+        (externalAttributions[attribution].criticality === Criticality.Medium &&
+          criticality === undefined)
+      ) {
+        criticality = externalAttributions[attribution].criticality;
+      }
+    }
+    return criticality;
+  }
 }
 
 function isRootResource(resourceName: string): boolean {
@@ -94,7 +123,6 @@ function hasExternalAttribution(
   nodeId: string,
   resourcesToExternalAttributions: ResourcesToAttributions
 ): boolean {
-  console.log(resourcesToExternalAttributions);
   return nodeId in resourcesToExternalAttributions;
 }
 
