@@ -47,8 +47,8 @@ describe('The ProjectStatisticsPopup', () => {
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(screen.getByText('Apache License Version 2.0')).toBeInTheDocument();
     expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
-    expect(screen.getByText('scancode'.toUpperCase())).toBeInTheDocument();
-    expect(screen.getByText('reuser'.toUpperCase())).toBeInTheDocument();
+    expect(screen.getByText('Scancode')).toBeInTheDocument();
+    expect(screen.getByText('Reuser')).toBeInTheDocument();
   });
 
   it('renders the Most Frequent Licenses pie chart when there are attributions', () => {
@@ -110,8 +110,8 @@ describe('The ProjectStatisticsPopup', () => {
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
-    expect(screen.getAllByText('LICENSE')).toHaveLength(2);
-    expect(screen.getAllByText('TOTAL')).toHaveLength(2);
+    expect(screen.getAllByText('License name')).toHaveLength(2);
+    expect(screen.getAllByText('Total')).toHaveLength(3);
     expect(screen.getByText('Follow up')).toBeInTheDocument();
     expect(screen.getByText('First party')).toBeInTheDocument();
   });

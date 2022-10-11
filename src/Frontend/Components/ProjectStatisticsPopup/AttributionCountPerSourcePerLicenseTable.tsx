@@ -6,10 +6,11 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
-  LICENSE_TOTAL_Key,
+  LICENSE_COLUMN_NAME_IN_TABLE,
+  LICENSE_TOTAL,
   LicenseNamesWithCriticality,
   PLACEHOLDER_ATTRIBUTION_COUNT,
-  SOURCE_TOTAL_Key,
+  SOURCE_TOTAL,
 } from './project-statistics-popup-helpers';
 import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
@@ -30,30 +31,25 @@ export interface AttributionCountPerSourcePerLicenseTableProps {
   title: string;
 }
 
-export interface PieChartProps {
-  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
-  title: string;
-}
-
 export function AttributionCountPerSourcePerLicenseTable(
   props: AttributionCountPerSourcePerLicenseTableProps
 ): ReactElement {
   const sourceNamesOrTotal = Object.keys(
-    props.attributionCountPerSourcePerLicense[LICENSE_TOTAL_Key]
+    props.attributionCountPerSourcePerLicense[LICENSE_TOTAL]
   );
-  sourceNamesOrTotal.splice(sourceNamesOrTotal.indexOf(SOURCE_TOTAL_Key), 1);
-  sourceNamesOrTotal.push(SOURCE_TOTAL_Key);
-  const sourceNamesRow = ['LICENSE'].concat(sourceNamesOrTotal);
+  sourceNamesOrTotal.splice(sourceNamesOrTotal.indexOf(SOURCE_TOTAL), 1);
+  sourceNamesOrTotal.push(SOURCE_TOTAL);
+  const sourceNamesRow = [LICENSE_COLUMN_NAME_IN_TABLE].concat(
+    sourceNamesOrTotal
+  );
 
   const valuesSourceTotals: Array<string> = sourceNamesOrTotal.map(
     (sourceName) =>
-      props.attributionCountPerSourcePerLicense[LICENSE_TOTAL_Key][
+      props.attributionCountPerSourcePerLicense[LICENSE_TOTAL][
         sourceName
       ].toString()
   );
-  const totalsRow: Array<string> = [SOURCE_TOTAL_Key].concat(
-    valuesSourceTotals
-  );
+  const totalsRow: Array<string> = [SOURCE_TOTAL].concat(valuesSourceTotals);
   const sortedLicenseNames = Object.keys(props.licenseNamesWithCriticality)
     .slice()
     .sort();
@@ -75,7 +71,7 @@ export function AttributionCountPerSourcePerLicenseTable(
                   key={index}
                   align={index === 0 ? 'left' : 'center'}
                 >
-                  {sourceName.toUpperCase()}
+                  {sourceName.charAt(0).toUpperCase() + sourceName.slice(1)}
                 </MuiTableCell>
               ))}
             </MuiTableRow>

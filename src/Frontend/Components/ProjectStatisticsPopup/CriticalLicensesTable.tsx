@@ -6,11 +6,11 @@
 import React, { ReactElement } from 'react';
 import {
   AttributionCountPerSourcePerLicense,
-  LICENSE_COLUMN_NAME_IN_TABLE_Key,
+  LICENSE_COLUMN_NAME_IN_TABLE,
   LicenseNamesWithCriticality,
   PLACEHOLDER_ATTRIBUTION_COUNT,
-  SOURCE_TOTAL_Key,
-  TOTAL_COLUMN_NAME_IN_TABLE_Key,
+  SOURCE_TOTAL,
+  AMOUNT_COLUMN_NAME_IN_TABLE,
 } from './project-statistics-popup-helpers';
 import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
@@ -51,7 +51,7 @@ function getCriticalLicenseNamesWithTheirTotalAttributions(
         licenseName: criticalLicenseName,
         totalNumberOfAttributions:
           attributionCountPerSourcePerLicense[criticalLicenseName][
-            SOURCE_TOTAL_Key
+            SOURCE_TOTAL
           ],
       };
     }
@@ -113,10 +113,10 @@ export function CriticalLicensesTable(
       mediumCriticalityLicensesTotalAttributions
     );
   const tableColumnNames = [
-    LICENSE_COLUMN_NAME_IN_TABLE_Key,
-    TOTAL_COLUMN_NAME_IN_TABLE_Key,
+    LICENSE_COLUMN_NAME_IN_TABLE,
+    AMOUNT_COLUMN_NAME_IN_TABLE,
   ];
-  const tableFooter = [SOURCE_TOTAL_Key].concat(
+  const tableFooter = [SOURCE_TOTAL].concat(
     getTotalNumberOfAttributions(criticalLicensesTotalAttributions).toString()
   );
 
@@ -135,7 +135,7 @@ export function CriticalLicensesTable(
                   key={index}
                   align={index === 0 ? 'left' : 'center'}
                 >
-                  {columnName.toUpperCase()}
+                  {columnName}
                 </MuiTableCell>
               ))}
             </MuiTableRow>
@@ -145,7 +145,7 @@ export function CriticalLicensesTable(
             {criticalLicensesTotalAttributions.map(
               ({ licenseName, totalNumberOfAttributions }, rowIndex) => (
                 <MuiTableRow key={rowIndex}>
-                  {tableColumnNames.map((columnName, index) => (
+                  {tableColumnNames.map((_, index) => (
                     <MuiTableCell
                       sx={{
                         ...projectStatisticsPopupClasses.body,

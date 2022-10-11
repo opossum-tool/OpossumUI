@@ -7,7 +7,7 @@ import React, { ReactElement } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText } from '../../enums/enums';
+import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
 import MuiBox from '@mui/material/Box';
 import {
   getExternalAttributions,
@@ -17,20 +17,14 @@ import {
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
   sortAttributionPropertiesEntries,
 } from './project-statistics-popup-helpers';
 import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
-import { MostFrequentLicensesPieChart } from './PieCharts';
+import { CustomizedPieChart } from './PieCharts';
 import { CriticalLicensesTable } from './CriticalLicensesTable';
-
-const attributionCountPerSourcePerLicenseTableTitle = 'Signals per Sources';
-const attributionPropertyCountTableTitle =
-  'First Party and Follow Up Attributions';
-const mostFrequentLicenseCountPerSourcePerLicenseTableTitle =
-  'Most Frequent Licenses';
-const criticalLicensesTableTitle = 'Critical Licenses';
 
 const classes = {
   panels: { display: 'flex' },
@@ -63,6 +57,10 @@ export function ProjectStatisticsPopup(): ReactElement {
       Object.entries(manualAttributionPropertyCounts)
     );
 
+  const mostFrequentLicenseCountData = getMostFrequentLicenses(
+    attributionCountPerSourcePerLicense
+  );
+
   function close(): void {
     dispatch(closePopup());
   }
@@ -77,22 +75,24 @@ export function ProjectStatisticsPopup(): ReactElement {
                 attributionPropertyCountsEntries={
                   sortedManualAttributionPropertyCountsEntries
                 }
-                title={attributionPropertyCountTableTitle}
+                title={
+                  ProjectStatisticsPopupTitle.AttributionPropertyCountTable
+                }
               />
               <CriticalLicensesTable
                 attributionCountPerSourcePerLicense={
                   attributionCountPerSourcePerLicense
                 }
                 licenseNamesWithCriticality={licenseNamesWithCriticality}
-                title={criticalLicensesTableTitle}
+                title={ProjectStatisticsPopupTitle.CriticalLicensesTable}
               />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>
-              <MostFrequentLicensesPieChart
-                attributionCountPerSourcePerLicense={
-                  attributionCountPerSourcePerLicense
+              <CustomizedPieChart
+                data={mostFrequentLicenseCountData}
+                title={
+                  ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
                 }
-                title={mostFrequentLicenseCountPerSourcePerLicenseTableTitle}
               />
             </MuiBox>
           </MuiBox>
@@ -101,7 +101,9 @@ export function ProjectStatisticsPopup(): ReactElement {
               attributionCountPerSourcePerLicense
             }
             licenseNamesWithCriticality={licenseNamesWithCriticality}
-            title={attributionCountPerSourcePerLicenseTableTitle}
+            title={
+              ProjectStatisticsPopupTitle.AttributionCountPerSourcePerLicenseTable
+            }
           />
         </>
       }
