@@ -98,6 +98,51 @@ describe('The ProjectStatisticsPopup', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('renders the Critical Signals pie chart when there are attributions', () => {
+    const store = createTestAppStore();
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        source: {
+          name: 'scancode',
+          documentConfidence: 10,
+        },
+        licenseName: 'Apache License Version 2.0',
+      },
+      uuid_2: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        licenseName: 'The MIT License (MIT)',
+      },
+    };
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+        })
+      )
+    );
+
+    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    expect(screen.getByText('Critical Signals')).toBeInTheDocument();
+  });
+
+  it('does not render the Critical Signals pie chart when there are no attributions', () => {
+    const store = createTestAppStore();
+    const testExternalAttributions: Attributions = {};
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+        })
+      )
+    );
+
+    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    expect(screen.queryByText('Critical Signals')).not.toBeInTheDocument();
+  });
+
   it('renders when there are no attributions', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};

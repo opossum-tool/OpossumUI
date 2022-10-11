@@ -6,6 +6,7 @@
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  getCriticalSignalsCount,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
 } from '../project-statistics-popup-helpers';
@@ -434,6 +435,37 @@ describe('The ProjectStatisticsPopup helper', () => {
     expect(sortedMostFrequentLicenses).toEqual(
       expectedSortedMostFrequentLicenses
     );
+  });
+
+  it('counts number of critical signals across all licenses - testAttributions_3', () => {
+    const expectedCriticalSignalCount = [
+      {
+        name: 'High',
+        count: 3,
+      },
+      {
+        name: 'Medium',
+        count: 4,
+      },
+      {
+        name: 'Not critical',
+        count: 2,
+      },
+    ];
+
+    const strippedLicenseNameToAttribution =
+      getUniqueLicenseNameToAttribution(testAttributions_3);
+    const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
+      aggregateLicensesAndSourcesFromAttributions(
+        testAttributions_3,
+        strippedLicenseNameToAttribution,
+        attributionSources
+      );
+    const criticalSignalsCount = getCriticalSignalsCount(
+      attributionCountPerSourcePerLicense,
+      licenseNamesWithCriticality
+    );
+    expect(criticalSignalsCount).toEqual(expectedCriticalSignalCount);
   });
 
   it('counts attribution properties - testAttributions_1', () => {

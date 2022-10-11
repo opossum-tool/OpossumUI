@@ -41,4 +41,18 @@ export const projectStatisticsPopupClasses = {
     maxWidth: '500px',
     marginBottom: 3,
   },
+  accordion: {
+    marginBottom: 1,
+    maxWidth: '600px',
+  },
+  accordionSummary: {
+    background: OpossumColors.darkBlue,
+  },
+  accordionTitle: {
+    color: OpossumColors.white,
+  },
+  accordionDetails: {
+    padding: 0,
+    background: OpossumColors.lightBlue,
+  },
 };
