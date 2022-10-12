@@ -50,12 +50,24 @@ const classes = {
   },
 };
 
+const criticalityTooltipText = {
+  high: 'has high criticality signals',
+  medium: 'has medium criticality signals',
+  undefined: 'has signals',
+};
+
+const criticalityColor = {
+  high: OpossumColors.orange,
+  medium: OpossumColors.mediumOrange,
+  undefined: OpossumColors.darkBlue,
+};
+
 interface IconProps {
   sx?: SxProps;
 }
 
 interface SignalIconProps {
-  criticality?: string;
+  criticality?: Criticality;
 }
 
 interface LabelDetailIconProps extends IconProps {
@@ -108,24 +120,16 @@ export function FollowUpIcon(props: IconProps): ReactElement {
 }
 
 export function SignalIcon(props: SignalIconProps): ReactElement {
-  const tooltipText =
-    props.criticality === Criticality.High
-      ? 'has highly critical signals'
-      : props.criticality === Criticality.Medium
-      ? 'has medium critical signals'
-      : 'has signals';
   return (
-    <MuiTooltip sx={classes.tooltip} title={tooltipText}>
+    <MuiTooltip
+      sx={classes.tooltip}
+      title={criticalityTooltipText[props.criticality ?? 'undefined']}
+    >
       <AnnouncementIcon
         aria-label={'Signal icon'}
         sx={{
           ...baseIcon,
-          color:
-            props.criticality === Criticality.High
-              ? OpossumColors.orange
-              : props.criticality === Criticality.Medium
-              ? OpossumColors.mediumOrange
-              : OpossumColors.darkBlue,
+          color: criticalityColor[props.criticality ?? 'undefined'],
         }}
       />
     </MuiTooltip>

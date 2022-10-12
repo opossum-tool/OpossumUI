@@ -83,24 +83,29 @@ export function getTreeItemLabel(
   );
 }
 
-function getCriticality(
+export function getCriticality(
   nodeId: string,
   resourcesToExternalAttributions: ResourcesToAttributions,
   externalAttributions: Attributions
-): string | undefined {
+): Criticality | undefined {
   if (hasExternalAttribution(nodeId, resourcesToExternalAttributions)) {
-    let criticality;
     const attributionsForResource = resourcesToExternalAttributions[nodeId];
+
     for (const attribution of attributionsForResource) {
-      if (
-        externalAttributions[attribution].criticality === Criticality.High ||
-        (externalAttributions[attribution].criticality === Criticality.Medium &&
-          criticality === undefined)
-      ) {
-        criticality = externalAttributions[attribution].criticality;
+      if (externalAttributions[attribution].criticality === Criticality.High) {
+        return Criticality.High;
       }
     }
-    return criticality;
+
+    for (const attribution of attributionsForResource) {
+      if (
+        externalAttributions[attribution].criticality === Criticality.Medium
+      ) {
+        return Criticality.Medium;
+      }
+    }
+
+    return undefined;
   }
 }
 

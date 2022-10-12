@@ -14,6 +14,7 @@ import {
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import { Criticality } from '../../../shared/shared-types';
 
 const classes = {
   manualIcon: {
@@ -83,7 +84,7 @@ interface StyledTreeItemProps {
   isAttributionBreakpoint: boolean;
   showFolderIcon: boolean;
   containsResourcesWithOnlyExternalAttribution: boolean;
-  criticality?: string;
+  criticality?: Criticality;
 }
 
 export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
