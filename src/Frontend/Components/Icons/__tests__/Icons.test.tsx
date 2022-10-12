@@ -3,15 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
+import { Criticality } from '../../../../shared/shared-types';
 import {
+  BreakpointIcon,
   CommentIcon,
   DirectoryIcon,
   ExcludeFromNoticeIcon,
   FileIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  IncompletePackagesIcon,
+  PreSelectedIcon,
+  SearchPackagesIcon,
+  SignalIcon,
 } from '../Icons';
 
 describe('The Icons', () => {
@@ -49,5 +55,71 @@ describe('The Icons', () => {
     render(<FileIcon />);
 
     expect(screen.getByLabelText('File icon'));
+  });
+
+  it('renders SignalIcon', () => {
+    render(<SignalIcon />);
+
+    expect(screen.getByLabelText('Signal icon'));
+  });
+
+  it('renders BreakpointIcon', () => {
+    render(<BreakpointIcon />);
+
+    expect(screen.getByLabelText('Breakpoint icon'));
+  });
+
+  it('renders IncompletePackagesIcon', () => {
+    render(<IncompletePackagesIcon />);
+
+    expect(screen.getByLabelText('Incomplete icon'));
+  });
+
+  it('renders PreSelectedIcon', () => {
+    render(<PreSelectedIcon />);
+
+    expect(screen.getByLabelText('Pre-selected icon'));
+  });
+
+  it('renders SearchPackagesIcon', () => {
+    render(<SearchPackagesIcon />);
+
+    expect(screen.getByLabelText('Search packages icon'));
+  });
+});
+
+describe('The SignalIcon', () => {
+  jest.useFakeTimers();
+  it('renders high criticality SignalIcon', () => {
+    render(<SignalIcon criticality={Criticality.High} />);
+
+    const icon = screen.getByLabelText('Signal icon');
+    fireEvent.mouseOver(icon);
+    act(() => {
+      jest.runAllTimers();
+    });
+    screen.getByText('has high criticality signals');
+  });
+
+  it('renders medium criticality SignalIcon', () => {
+    render(<SignalIcon criticality={Criticality.Medium} />);
+
+    const icon = screen.getByLabelText('Signal icon');
+    fireEvent.mouseOver(icon);
+    act(() => {
+      jest.runAllTimers();
+    });
+    screen.getByText('has medium criticality signals');
+  });
+
+  it('renders no criticality SignalIcon', () => {
+    render(<SignalIcon criticality={undefined} />);
+
+    const icon = screen.getByLabelText('Signal icon');
+    fireEvent.mouseOver(icon);
+    act(() => {
+      jest.runAllTimers();
+    });
+    screen.getByText('has signals');
   });
 });

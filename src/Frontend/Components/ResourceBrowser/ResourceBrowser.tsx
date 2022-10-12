@@ -8,6 +8,7 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
+  getExternalData,
   getFilesWithChildren,
   getManualAttributions,
   getResources,
@@ -101,7 +102,7 @@ export function ResourceBrowser(): ReactElement | null {
 
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
-
+  const externalData = useAppSelector(getExternalData);
   const dispatch = useAppDispatch();
 
   function handleToggle(nodeIdsToExpand: Array<string>): void {
@@ -140,7 +141,8 @@ export function ResourceBrowser(): ReactElement | null {
         resourcesWithManualAttributedChildren,
         resolvedExternalAttributions,
         getAttributionBreakpointCheck(attributionBreakpoints),
-        getFileWithChildrenCheck(filesWithChildren)
+        getFileWithChildrenCheck(filesWithChildren),
+        externalData
       );
   }
 

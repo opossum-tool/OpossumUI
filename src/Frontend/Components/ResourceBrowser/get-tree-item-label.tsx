@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  AttributionData,
   Attributions,
+  Criticality,
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
@@ -25,7 +27,8 @@ export function getTreeItemLabel(
   resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren,
   resolvedExternalAttributions: Set<string>,
   isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
+  externalData: AttributionData
 ): ReactElement {
   const canHaveChildren = resource !== 1;
 
@@ -60,6 +63,11 @@ export function getTreeItemLabel(
         nodeId,
         resourcesWithManualAttributedChildren
       )}
+      criticality={getCriticality(
+        nodeId,
+        resourcesToExternalAttributions,
+        externalData.attributions
+      )}
       isAttributionBreakpoint={isAttributionBreakpoint(nodeId)}
       showFolderIcon={canHaveChildren && !isFileWithChildren(nodeId)}
       containsResourcesWithOnlyExternalAttribution={
@@ -73,6 +81,32 @@ export function getTreeItemLabel(
       }
     />
   );
+}
+
+export function getCriticality(
+  nodeId: string,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions
+): Criticality | undefined {
+  if (hasExternalAttribution(nodeId, resourcesToExternalAttributions)) {
+    const attributionsForResource = resourcesToExternalAttributions[nodeId];
+
+    for (const attribution of attributionsForResource) {
+      if (externalAttributions[attribution].criticality === Criticality.High) {
+        return Criticality.High;
+      }
+    }
+
+    for (const attribution of attributionsForResource) {
+      if (
+        externalAttributions[attribution].criticality === Criticality.Medium
+      ) {
+        return Criticality.Medium;
+      }
+    }
+
+    return undefined;
+  }
 }
 
 function isRootResource(resourceName: string): boolean {
