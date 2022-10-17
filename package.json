@@ -35,7 +35,7 @@
     "upath": "^2.0.1",
     "url": "^0.11.0",
     "uuid": "^9.0.0",
-    "write-file-atomic": "^4.0.2"
+    "write-file-atomic": "^5.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.27.1",
