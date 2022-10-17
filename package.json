@@ -164,7 +164,8 @@
   "resolutions": {
     "nth-check": "^2.0.1",
     "async": "^2.6.4",
-    "got": "^11.8.5"
+    "got": "^11.8.5",
+    "d3-color": "^3.1.0"
   },
   "engines": {
     "node": ">=18.0.0"
