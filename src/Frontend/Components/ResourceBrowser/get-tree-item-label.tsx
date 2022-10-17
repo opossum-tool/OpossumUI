@@ -90,16 +90,17 @@ export function getCriticality(
 ): Criticality | undefined {
   if (hasExternalAttribution(nodeId, resourcesToExternalAttributions)) {
     const attributionsForResource = resourcesToExternalAttributions[nodeId];
-
-    for (const attribution of attributionsForResource) {
-      if (externalAttributions[attribution].criticality === Criticality.High) {
+    for (const attributionId of attributionsForResource) {
+      if (
+        externalAttributions[attributionId].criticality === Criticality.High
+      ) {
         return Criticality.High;
       }
     }
 
-    for (const attribution of attributionsForResource) {
+    for (const attributionId of attributionsForResource) {
       if (
-        externalAttributions[attribution].criticality === Criticality.Medium
+        externalAttributions[attributionId].criticality === Criticality.Medium
       ) {
         return Criticality.Medium;
       }
