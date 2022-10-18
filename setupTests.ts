@@ -5,9 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '@testing-library/jest-dom/extend-expect';
-import {mockResizeObserver} from "./src/Frontend/test-helpers/popup-test-helpers";
-
-mockResizeObserver();
 
 const TEST_TIMEOUT = 15000;
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
