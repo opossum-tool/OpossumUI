@@ -13,23 +13,29 @@ import {
   Tooltip,
 } from 'recharts';
 import MuiBox from '@mui/material/Box';
-import MuiTypography from '@mui/material/Typography';
 import { PieChartData } from './project-statistics-popup-helpers';
 import { OpossumColors } from '../../shared-styles';
+import { ProjectStatisticsPopupTitle } from '../../enums/enums';
 
 interface PieChartProps {
   data: Array<PieChartData>;
   title: string;
 }
 
-const COLORS = [
-  OpossumColors.orange,
-  OpossumColors.mediumOrange,
-  OpossumColors.darkBlue,
+const defaultPieChartColors = [
+  OpossumColors.purple,
   OpossumColors.brown,
   OpossumColors.green,
-  OpossumColors.lightBlue,
+  OpossumColors.darkBlue,
+  OpossumColors.pastelRed,
+  OpossumColors.disabledGrey,
 ];
+
+const criticalColors: { [criticality: string]: string } = {
+  High: OpossumColors.orange,
+  Medium: OpossumColors.mediumOrange,
+  'Not critical': OpossumColors.darkBlue,
+};
 
 const classes = {
   root: {
@@ -37,14 +43,9 @@ const classes = {
   },
 };
 
-export function CustomizedPieChart(props: PieChartProps): ReactElement | null {
-  if (props.data.length === 0) {
-    return null;
-  }
-
+export function CustomizedPieChart(props: PieChartProps): ReactElement {
   return (
     <MuiBox sx={classes.root}>
-      <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
       <ResponsiveContainer maxHeight={200} aspect={2}>
         <PieChart>
           <Pie
@@ -56,14 +57,26 @@ export function CustomizedPieChart(props: PieChartProps): ReactElement | null {
             paddingAngle={1}
             minAngle={5}
             outerRadius={70}
-            isAnimationActive={true}
           >
-            {props.data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index]} />
+            {props.data.map((record, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={
+                  props.title ===
+                  ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
+                    ? criticalColors[record.name]
+                    : defaultPieChartColors[index]
+                }
+              />
             ))}
           </Pie>
           <Tooltip />
-          <Legend verticalAlign="middle" align="right" layout="vertical" />
+          <Legend
+            verticalAlign="middle"
+            align="right"
+            layout="vertical"
+            width={250}
+          />
         </PieChart>
       </ResponsiveContainer>
     </MuiBox>

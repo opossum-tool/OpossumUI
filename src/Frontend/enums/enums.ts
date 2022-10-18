@@ -86,4 +86,6 @@ export enum ProjectStatisticsPopupTitle {
   AttributionPropertyCountTable = 'First Party and Follow Up Attributions',
   CriticalLicensesTable = 'Critical Licenses',
   MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
+  CriticalSignalsCountPieChart = 'Critical Signals',
+  PieChartsSectionHeader = 'View Pie Charts',
 }

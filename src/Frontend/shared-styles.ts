@@ -33,6 +33,7 @@ export const OpossumColors = {
   red: 'hsl(0, 100%, 45%)',
   green: 'hsl(146, 50%, 45%)',
   brown: 'hsl(25, 76%, 31%)',
+  purple: 'hsl(270, 50%, 40%)',
 };
 
 export const resourceBrowserWidthInPixels = 420;

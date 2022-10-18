@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
 import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
@@ -17,14 +18,15 @@ import {
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  getCriticalSignalsCount,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
   sortAttributionPropertiesEntries,
 } from './project-statistics-popup-helpers';
 import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
-import { CustomizedPieChart } from './PieCharts';
 import { CriticalLicensesTable } from './CriticalLicensesTable';
+import { AccordionWithPieChart } from './AccordionWithPieChart';
 
 const classes = {
   panels: { display: 'flex' },
@@ -61,6 +63,15 @@ export function ProjectStatisticsPopup(): ReactElement {
     attributionCountPerSourcePerLicense
   );
 
+  const criticalSignalsCountData = getCriticalSignalsCount(
+    attributionCountPerSourcePerLicense,
+    licenseNamesWithCriticality
+  );
+
+  const isThereAnyPieChartData =
+    mostFrequentLicenseCountData.length > 0 ||
+    criticalSignalsCountData.length > 0;
+
   function close(): void {
     dispatch(closePopup());
   }
@@ -88,11 +99,20 @@ export function ProjectStatisticsPopup(): ReactElement {
               />
             </MuiBox>
             <MuiBox style={classes.rightPanel}>
-              <CustomizedPieChart
+              <MuiTypography variant="subtitle1">
+                {isThereAnyPieChartData
+                  ? ProjectStatisticsPopupTitle.PieChartsSectionHeader
+                  : null}
+              </MuiTypography>
+              <AccordionWithPieChart
                 data={mostFrequentLicenseCountData}
                 title={
                   ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
                 }
+              />
+              <AccordionWithPieChart
+                data={criticalSignalsCountData}
+                title={ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart}
               />
             </MuiBox>
           </MuiBox>

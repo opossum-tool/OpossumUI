@@ -22,6 +22,7 @@ export interface LicenseNamesWithCriticality {
 interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
 }
+
 export interface PieChartData {
   name: string;
   count: number;
@@ -144,13 +145,7 @@ function getLicenseDataFromVariants(
 
       const variantCriticality = attributions[attributionId].criticality;
 
-      if (variantCriticality === Criticality.High) {
-        licenseCriticalityCounts['high']++;
-      } else if (variantCriticality === Criticality.Medium) {
-        licenseCriticalityCounts['medium']++;
-      } else {
-        licenseCriticalityCounts['none']++;
-      }
+      licenseCriticalityCounts[variantCriticality || 'none']++;
 
       const sourceName = getSourceDisplayNameFromId(
         attributions[attributionId].source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER,
@@ -303,4 +298,33 @@ export function getMostFrequentLicenses(
     return sortedTopFiveFrequentLicensesAndOther;
   }
   return sortedMostFrequentLicenses;
+}
+
+export function getCriticalSignalsCount(
+  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense,
+  licenseNamesWithCriticality: LicenseNamesWithCriticality
+): Array<PieChartData> {
+  const licenseCriticalityCounts = { high: 0, medium: 0, none: 0 };
+
+  for (const license of Object.keys(attributionCountPerSourcePerLicense)) {
+    if (license !== LICENSE_TOTAL) {
+      licenseCriticalityCounts[
+        licenseNamesWithCriticality[license] || 'none'
+      ] += attributionCountPerSourcePerLicense[license][SOURCE_TOTAL];
+    }
+  }
+
+  const criticalityData = [
+    { name: 'High', count: licenseCriticalityCounts['high'] },
+    { name: 'Medium', count: licenseCriticalityCounts['medium'] },
+    { name: 'Not critical', count: licenseCriticalityCounts['none'] },
+  ];
+
+  const filteredCriticalityData: Array<PieChartData> = [];
+  for (const criticalityNameAndCount of criticalityData) {
+    if (criticalityNameAndCount['count'] !== 0) {
+      filteredCriticalityData.push(criticalityNameAndCount);
+    }
+  }
+  return filteredCriticalityData;
 }
