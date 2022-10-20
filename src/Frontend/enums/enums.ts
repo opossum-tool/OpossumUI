@@ -90,3 +90,9 @@ export enum ProjectStatisticsPopupTitle {
   CriticalSignalsCountPieChart = 'Critical Signals',
   IncompleteLicensesPieChart = 'Incomplete Attributions',
 }
+
+export enum CriticalityTypes {
+  HighCriticality = 'High',
+  MediumCriticality = 'Medium',
+  NoCriticality = 'Not critical',
+}
