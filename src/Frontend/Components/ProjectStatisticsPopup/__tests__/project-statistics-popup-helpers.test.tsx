@@ -7,6 +7,7 @@ import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
   getCriticalSignalsCount,
+  getIncompleteAttributions,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
 } from '../project-statistics-popup-helpers';
@@ -466,6 +467,38 @@ describe('The ProjectStatisticsPopup helper', () => {
       licenseNamesWithCriticality
     );
     expect(criticalSignalsCount).toEqual(expectedCriticalSignalCount);
+  });
+
+  it('counts complete and incomplete attributions', () => {
+    const expectedIncompleteAttributionCount = [
+      {
+        name: 'Complete attributions',
+        count: 2,
+      },
+      {
+        name: 'Incomplete attributions',
+        count: 3,
+      },
+    ];
+
+    const incompleteAttributionCount = getIncompleteAttributions(5, 3);
+    expect(incompleteAttributionCount).toEqual(
+      expectedIncompleteAttributionCount
+    );
+  });
+
+  it('counts only incomplete attributions', () => {
+    const expectedIncompleteAttributionCount = [
+      {
+        name: 'Incomplete attributions',
+        count: 3,
+      },
+    ];
+
+    const incompleteAttributionCount = getIncompleteAttributions(3, 3);
+    expect(incompleteAttributionCount).toEqual(
+      expectedIncompleteAttributionCount
+    );
   });
 
   it('counts attribution properties - testAttributions_1', () => {

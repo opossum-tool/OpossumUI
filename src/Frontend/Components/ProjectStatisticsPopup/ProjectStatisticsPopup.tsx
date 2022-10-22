@@ -19,6 +19,7 @@ import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
   getCriticalSignalsCount,
+  getIncompleteAttributions,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
   sortAttributionPropertiesEntries,
@@ -27,6 +28,9 @@ import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerS
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
 import { CriticalLicensesTable } from './CriticalLicensesTable';
 import { AccordionWithPieChart } from './AccordionWithPieChart';
+import { Attributions, PackageInfo } from '../../../shared/shared-types';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
+import pickBy from 'lodash/pickBy';
 
 const classes = {
   panels: { display: 'flex' },
@@ -37,10 +41,19 @@ const classes = {
 export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  const externalAttributions = useAppSelector(getExternalAttributions);
-  const manualAttributionValues = Object.values(
-    useAppSelector(getManualAttributions)
+  const attributions: Attributions = useAppSelector(getManualAttributions);
+  const manualAttributionValues = Object.values(attributions);
+
+  const numberOfAttributions = Object.keys(attributions).length;
+  const numberOfIncompleteAttributions = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
+  ).length;
+  const incompleteAttributionsData = getIncompleteAttributions(
+    numberOfAttributions,
+    numberOfIncompleteAttributions
   );
+
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const strippedLicenseNameToAttribution =
     getUniqueLicenseNameToAttribution(externalAttributions);
@@ -113,6 +126,10 @@ export function ProjectStatisticsPopup(): ReactElement {
               <AccordionWithPieChart
                 data={criticalSignalsCountData}
                 title={ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart}
+              />
+              <AccordionWithPieChart
+                data={incompleteAttributionsData}
+                title={ProjectStatisticsPopupTitle.IncompleteLicensesPieChart}
               />
             </MuiBox>
           </MuiBox>

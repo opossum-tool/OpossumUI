@@ -328,3 +328,23 @@ export function getCriticalSignalsCount(
   }
   return filteredCriticalityData;
 }
+
+export function getIncompleteAttributions(
+  numberOfAttributions: number,
+  numberOfIncompleteAttributions: number
+): Array<PieChartData> {
+  const incompleteAttributionsData: Array<PieChartData> = [];
+  if (numberOfAttributions - numberOfIncompleteAttributions !== 0) {
+    incompleteAttributionsData.push({
+      name: 'Complete attributions',
+      count: numberOfAttributions - numberOfIncompleteAttributions,
+    });
+  }
+  if (numberOfIncompleteAttributions !== 0) {
+    incompleteAttributionsData.push({
+      name: 'Incomplete attributions',
+      count: numberOfIncompleteAttributions,
+    });
+  }
+  return incompleteAttributionsData;
+}
