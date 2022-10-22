@@ -53,7 +53,7 @@ describe('The ProjectStatisticsPopup', () => {
 
   it('renders pie charts when there are attributions', () => {
     const store = createTestAppStore();
-    const testExternalAttributions: Attributions = {
+    const testAttributions: Attributions = {
       uuid_1: {
         source: {
           name: 'scancode',
@@ -72,7 +72,8 @@ describe('The ProjectStatisticsPopup', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
+          manualAttributions: testAttributions,
+          externalAttributions: testAttributions,
         })
       )
     );
