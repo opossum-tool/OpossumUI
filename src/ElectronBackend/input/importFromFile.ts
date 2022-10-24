@@ -20,7 +20,11 @@ import {
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
 } from './parseInputData';
-import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
+import {
+  parseOpossumInputFile,
+  parseOpossumOutputFile,
+  readZip,
+} from './parseFile';
 import {
   JsonParsingError,
   OpossumOutputFile,
@@ -57,6 +61,8 @@ export async function loadJsonFromFilePath(
 
     return;
   }
+  //log.info(parsingResult, parsingResult.toString());
+  //writeZip(JSON.stringify(parsingResult));
 
   log.info('... Successfully parsed input file.');
   const [externalAttributions, inputContainsCriticalExternalAttributions] =
@@ -137,6 +143,7 @@ export async function loadJsonFromFilePath(
   getGlobalBackendState().inputContainsCriticalExternalAttributions =
     inputContainsCriticalExternalAttributions;
 
+  readZip();
   log.info('File import finished successfully');
 }
 

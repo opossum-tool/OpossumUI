@@ -15,6 +15,8 @@ import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import Asm from 'stream-json/Assembler';
 import { Parser, parser } from 'stream-json';
+import JSZip from 'jszip';
+import log from 'electron-log';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
@@ -46,6 +48,43 @@ export function parseOpossumOutputFile(
       ? new Set(resolvedExternalAttributions as Array<string>)
       : new Set(),
   } as ParsedOpossumOutputFile;
+}
+
+export function writeZip(fileData: string): void {
+  const filePath =
+    'C:\\Users\\Vasily\\Repositories\\OpossumUI_fork\\example-files\\out.zip';
+  const writeStream = fs.createWriteStream(filePath);
+  const zip = new JSZip();
+  zip.file('input.json', fileData);
+  zip.file('output.json', fileData);
+
+  log.info('Testing JSZip');
+
+  zip
+    .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+    .pipe(writeStream)
+    .on('end', () => {
+      log.info('zip file created!');
+      process.exit();
+    });
+  log.info('end of zip function');
+}
+
+export function readZip(): void {
+  const filePath =
+    'C:\\Users\\Vasily\\Repositories\\OpossumUI_fork\\example-files\\out.zip';
+  log.info('reading zip');
+  fs.readFile(filePath, function (err, data) {
+    if (err) throw err;
+    JSZip.loadAsync(data).then(function (zip) {
+      log.info(zip);
+      //zip.files['input.json'].async("text").then(function (content) {
+      //log.info(content);
+      //});
+    });
+  });
+
+  log.info('succesfully finished reading zip');
 }
 
 export function parseOpossumInputFile(
