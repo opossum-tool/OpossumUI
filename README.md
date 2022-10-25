@@ -67,6 +67,10 @@ opening an input file for the first time, an accompanying output file with the n
 
 ## Generating input files
 
+Result files from _ScanCode_ and _SCANOSS_ can be converted into OpossumUI input files using 
+[opossum-tool/opossum.lib.hs](https://github.com/opossum-tool/opossum.lib.hs). This tool can also generate
+OpossumUI input files from spdx and merge several OpossumUI input files.
+
 Result files (yaml / json) from the _OSS Review Toolkit_ can be converted into OpossumUI input files via a
 reporter. It uses metadata from the analyzer as well as scan results from the scanner. The implementation is in
 [oss-review-toolkit/ort](https://github.com/oss-review-toolkit/ort) and the new reporter output
