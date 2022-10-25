@@ -19,7 +19,7 @@ import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
   getCriticalSignalsCount,
-  getIncompleteAttributions,
+  getIncompleteAttributionsCount,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
   sortAttributionPropertiesEntries,
@@ -28,9 +28,6 @@ import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerS
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
 import { CriticalLicensesTable } from './CriticalLicensesTable';
 import { AccordionWithPieChart } from './AccordionWithPieChart';
-import { Attributions, PackageInfo } from '../../../shared/shared-types';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
-import pickBy from 'lodash/pickBy';
 
 const classes = {
   panels: { display: 'flex' },
@@ -41,18 +38,7 @@ const classes = {
 export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  const attributions: Attributions = useAppSelector(getManualAttributions);
-  const manualAttributionValues = Object.values(attributions);
-
-  const numberOfAttributions = Object.keys(attributions).length;
-  const numberOfIncompleteAttributions = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
-  ).length;
-  const incompleteAttributionsData = getIncompleteAttributions(
-    numberOfAttributions,
-    numberOfIncompleteAttributions
-  );
-
+  const attributions = useAppSelector(getManualAttributions);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const strippedLicenseNameToAttribution =
@@ -66,7 +52,7 @@ export function ProjectStatisticsPopup(): ReactElement {
     );
 
   const manualAttributionPropertyCounts =
-    aggregateAttributionPropertiesFromAttributions(manualAttributionValues);
+    aggregateAttributionPropertiesFromAttributions(attributions);
   const sortedManualAttributionPropertyCountsEntries =
     sortAttributionPropertiesEntries(
       Object.entries(manualAttributionPropertyCounts)
@@ -81,9 +67,13 @@ export function ProjectStatisticsPopup(): ReactElement {
     licenseNamesWithCriticality
   );
 
+  const incompleteAttributionsData =
+    getIncompleteAttributionsCount(attributions);
+
   const isThereAnyPieChartData =
     mostFrequentLicenseCountData.length > 0 ||
-    criticalSignalsCountData.length > 0;
+    criticalSignalsCountData.length > 0 ||
+    incompleteAttributionsData.length > 0;
 
   function close(): void {
     dispatch(closePopup());

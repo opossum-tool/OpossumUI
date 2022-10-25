@@ -85,8 +85,8 @@ export enum ProjectStatisticsPopupTitle {
   AttributionCountPerSourcePerLicenseTable = 'Signals per Sources',
   AttributionPropertyCountTable = 'First Party and Follow Up Attributions',
   CriticalLicensesTable = 'Critical Licenses',
-  PieChartsSectionHeader = 'View Pie Charts',
+  PieChartsSectionHeader = 'Pie Charts',
   MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
   CriticalSignalsCountPieChart = 'Critical Signals',
-  IncompleteLicensesPieChart = 'Incomplete attributions',
+  IncompleteLicensesPieChart = 'Incomplete Attributions',
 }
