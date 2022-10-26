@@ -9,7 +9,8 @@ import {
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { isEmpty } from 'lodash';
+import { isEmpty, pickBy } from 'lodash';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 export interface AttributionCountPerSourcePerLicense {
   [licenseNameOrTotal: string]: { [sourceNameOrTotal: string]: number };
@@ -214,10 +215,11 @@ export function getUniqueLicenseNameToAttribution(
 }
 
 export function aggregateAttributionPropertiesFromAttributions(
-  attributionValues: Array<PackageInfo>
+  attributions: Attributions
 ): {
   [attributionPropertyOrTotal: string]: number;
 } {
+  const attributionValues = Object.values(attributions);
   const attributionPropertyCounts: {
     [attributionPropertyOrTotal: string]: number;
   } = {};
@@ -327,4 +329,28 @@ export function getCriticalSignalsCount(
     }
   }
   return filteredCriticalityData;
+}
+
+export function getIncompleteAttributionsCount(
+  attributions: Attributions
+): Array<PieChartData> {
+  const incompleteAttributionsData: Array<PieChartData> = [];
+  const numberOfAttributions = Object.keys(attributions).length;
+  const numberOfIncompleteAttributions = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
+  ).length;
+
+  if (numberOfAttributions - numberOfIncompleteAttributions !== 0) {
+    incompleteAttributionsData.push({
+      name: 'Complete attributions',
+      count: numberOfAttributions - numberOfIncompleteAttributions,
+    });
+  }
+  if (numberOfIncompleteAttributions !== 0) {
+    incompleteAttributionsData.push({
+      name: 'Incomplete attributions',
+      count: numberOfIncompleteAttributions,
+    });
+  }
+  return incompleteAttributionsData;
 }

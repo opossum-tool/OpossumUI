@@ -51,9 +51,9 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('Reuser')).toBeInTheDocument();
   });
 
-  it('renders the Most Frequent Licenses pie chart when there are attributions', () => {
+  it('renders pie charts when there are attributions', () => {
     const store = createTestAppStore();
-    const testExternalAttributions: Attributions = {
+    const testManualAttributions: Attributions = {
       uuid_1: {
         source: {
           name: 'scancode',
@@ -69,9 +69,27 @@ describe('The ProjectStatisticsPopup', () => {
         licenseName: 'The MIT License (MIT)',
       },
     };
+    const testExternalAttributions: Attributions = {
+      uuid_3: {
+        source: {
+          name: 'scancode',
+          documentConfidence: 90,
+        },
+        licenseName: 'Apache License Version 3.0',
+      },
+      uuid_2: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        licenseName: 'The MIT License (MIT)',
+      },
+    };
+
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
           externalAttributions: testExternalAttributions,
         })
       )
@@ -79,9 +97,11 @@ describe('The ProjectStatisticsPopup', () => {
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(screen.getByText('Most Frequent Licenses')).toBeInTheDocument();
+    expect(screen.getByText('Critical Signals')).toBeInTheDocument();
+    expect(screen.getByText('Incomplete Attributions')).toBeInTheDocument();
   });
 
-  it('does not render the Most Frequent Licenses pie chart when there is no attribution', () => {
+  it('does not render pie charts when there are no attributions', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};
     store.dispatch(
@@ -96,10 +116,15 @@ describe('The ProjectStatisticsPopup', () => {
     expect(
       screen.queryByText('Most Frequent Licenses')
     ).not.toBeInTheDocument();
+    expect(screen.queryByText('Critical Signals')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Incomplete Attributions')
+    ).not.toBeInTheDocument();
   });
 
-  it('renders the Critical Signals pie chart when there are attributions', () => {
+  it('renders pie charts pie charts related to signals even if there are no attributions', () => {
     const store = createTestAppStore();
+    const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -119,31 +144,21 @@ describe('The ProjectStatisticsPopup', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
           externalAttributions: testExternalAttributions,
         })
       )
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    expect(screen.getByText('Most Frequent Licenses')).toBeInTheDocument();
     expect(screen.getByText('Critical Signals')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Incomplete Attributions')
+    ).not.toBeInTheDocument();
   });
 
-  it('does not render the Critical Signals pie chart when there are no attributions', () => {
-    const store = createTestAppStore();
-    const testExternalAttributions: Attributions = {};
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
-        })
-      )
-    );
-
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
-    expect(screen.queryByText('Critical Signals')).not.toBeInTheDocument();
-  });
-
-  it('renders when there are no attributions', () => {
+  it('renders tables when there are no attributions', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};
     store.dispatch(

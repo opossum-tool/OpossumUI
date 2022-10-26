@@ -7,6 +7,7 @@ import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
   getCriticalSignalsCount,
+  getIncompleteAttributionsCount,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
 } from '../project-statistics-popup-helpers';
@@ -74,7 +75,6 @@ const testAttributions_2: Attributions = {
     },
     criticality: Criticality.Medium,
     licenseName: 'Apache License Version 2.0',
-    firstParty: true,
   },
   uuid2: {
     source: {
@@ -468,6 +468,40 @@ describe('The ProjectStatisticsPopup helper', () => {
     expect(criticalSignalsCount).toEqual(expectedCriticalSignalCount);
   });
 
+  it('counts complete and incomplete attributions', () => {
+    const expectedIncompleteAttributionCount = [
+      {
+        name: 'Complete attributions',
+        count: 2,
+      },
+      {
+        name: 'Incomplete attributions',
+        count: 4,
+      },
+    ];
+
+    const incompleteAttributionCount =
+      getIncompleteAttributionsCount(testAttributions_1);
+    expect(incompleteAttributionCount).toEqual(
+      expectedIncompleteAttributionCount
+    );
+  });
+
+  it('counts only incomplete attributions', () => {
+    const expectedIncompleteAttributionCount = [
+      {
+        name: 'Incomplete attributions',
+        count: 5,
+      },
+    ];
+
+    const incompleteAttributionCount =
+      getIncompleteAttributionsCount(testAttributions_2);
+    expect(incompleteAttributionCount).toEqual(
+      expectedIncompleteAttributionCount
+    );
+  });
+
   it('counts attribution properties - testAttributions_1', () => {
     const expectedAttributionPropertyCounts = {
       followUp: 1,
@@ -476,26 +510,22 @@ describe('The ProjectStatisticsPopup helper', () => {
     };
 
     const attributionPropertyCounts =
-      aggregateAttributionPropertiesFromAttributions(
-        Object.values(testAttributions_1)
-      );
+      aggregateAttributionPropertiesFromAttributions(testAttributions_1);
 
     expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts
     );
   });
 
-  it('counts attribution properties - testAttributions_2', () => {
+  it('finds no follow up and first party attributions - testAttributions_2', () => {
     const expectedAttributionPropertyCounts = {
       followUp: 0,
-      firstParty: 1,
+      firstParty: 0,
       'Total Attributions': 5,
     };
 
     const attributionPropertyCounts =
-      aggregateAttributionPropertiesFromAttributions(
-        Object.values(testAttributions_2)
-      );
+      aggregateAttributionPropertiesFromAttributions(testAttributions_2);
 
     expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts
