@@ -38,7 +38,7 @@ const classes = {
 export function ProjectStatisticsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  const attributions = useAppSelector(getManualAttributions);
+  const manualAttributions = useAppSelector(getManualAttributions);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const strippedLicenseNameToAttribution =
@@ -52,7 +52,7 @@ export function ProjectStatisticsPopup(): ReactElement {
     );
 
   const manualAttributionPropertyCounts =
-    aggregateAttributionPropertiesFromAttributions(attributions);
+    aggregateAttributionPropertiesFromAttributions(manualAttributions);
   const sortedManualAttributionPropertyCountsEntries =
     sortAttributionPropertiesEntries(
       Object.entries(manualAttributionPropertyCounts)
@@ -68,7 +68,7 @@ export function ProjectStatisticsPopup(): ReactElement {
   );
 
   const incompleteAttributionsData =
-    getIncompleteAttributionsCount(attributions);
+    getIncompleteAttributionsCount(manualAttributions);
 
   const isThereAnyPieChartData =
     mostFrequentLicenseCountData.length > 0 ||
