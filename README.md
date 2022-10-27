@@ -81,7 +81,7 @@ For details of the file format, see [Contributing](CONTRIBUTING.md#file_formats)
 ## How to get & run OpossumUI
 
 Check out your short getting started video:
-[![video](docs/readme_screenshots/opossum_youtube.png)](docs/readme_screenshots/opossum_youtube.png)
+[![video](docs/readme_screenshots/opossum_youtube.png)](docs/readme_screenshots/opossum_youtube.png "video")
 
 
 ### Get the latest release
