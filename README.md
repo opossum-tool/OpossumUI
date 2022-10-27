@@ -80,6 +80,10 @@ For details of the file format, see [Contributing](CONTRIBUTING.md#file_formats)
 
 ## How to get & run OpossumUI
 
+Check out your short getting started video:
+[![video](docs/readme_screenshots/opossum_youtube.png)](docs/readme_screenshots/opossum_youtube.png)
+
+
 ### Get the latest release
 
 Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
