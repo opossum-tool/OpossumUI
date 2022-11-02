@@ -6,6 +6,7 @@
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
+  getColorsForPieChart,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
@@ -16,6 +17,8 @@ import {
   Criticality,
   FollowUp,
 } from '../../../../shared/shared-types';
+import { OpossumColors } from '../../../shared-styles';
+import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
 
 const testAttributions_1: Attributions = {
   uuid1: {
@@ -530,5 +533,55 @@ describe('The ProjectStatisticsPopup helper', () => {
     expect(attributionPropertyCounts).toEqual(
       expectedAttributionPropertyCounts
     );
+  });
+
+  it('obtains pie chart colors for critical signals pie chart', () => {
+    const criticalSignalsCount = [
+      {
+        name: 'High',
+        count: 3,
+      },
+      {
+        name: 'Medium',
+        count: 4,
+      },
+      {
+        name: 'Not critical',
+        count: 2,
+      },
+    ];
+
+    const expectedPieChartColors = [
+      OpossumColors.orange,
+      OpossumColors.mediumOrange,
+      OpossumColors.darkBlue,
+    ];
+
+    const pieChartColors = getColorsForPieChart(
+      criticalSignalsCount,
+      ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
+    );
+    expect(pieChartColors).toEqual(expectedPieChartColors);
+  });
+
+  it('obtains undefined pie chart colors for default case', () => {
+    const sortedMostFrequentLicenses = [
+      {
+        name: 'Apache License Version 2.0',
+        count: 3,
+      },
+      {
+        name: 'The MIT License (MIT)',
+        count: 3,
+      },
+    ];
+
+    const expectedPieChartColors = undefined;
+
+    const pieChartColors = getColorsForPieChart(
+      sortedMostFrequentLicenses,
+      ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
+    );
+    expect(pieChartColors).toEqual(expectedPieChartColors);
   });
 });

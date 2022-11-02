@@ -9,9 +9,9 @@ import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import { CustomizedPieChart } from './CustomizedPieChart';
-import { PieChartData } from './project-statistics-popup-helpers';
+import { PieChart, PieChartData } from '../PieChart/PieChart';
 import { projectStatisticsPopupClasses } from './shared-project-statistics-popup-styles';
+import { getColorsForPieChart } from './project-statistics-popup-helpers';
 
 interface AccordionProps {
   data: Array<PieChartData>;
@@ -38,7 +38,10 @@ export function AccordionWithPieChart(
         </MuiTypography>
       </MuiAccordionSummary>
       <MuiAccordionDetails sx={projectStatisticsPopupClasses.accordionDetails}>
-        <CustomizedPieChart data={props.data} title={props.title} />
+        <PieChart
+          segments={props.data}
+          colors={getColorsForPieChart(props.data, props.title)}
+        />
       </MuiAccordionDetails>
     </MuiAccordion>
   );

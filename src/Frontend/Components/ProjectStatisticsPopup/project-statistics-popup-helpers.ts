@@ -10,6 +10,12 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { isEmpty, pickBy } from 'lodash';
+import { PieChartData } from '../PieChart/PieChart';
+import { OpossumColors } from '../../shared-styles';
+import {
+  CriticalityTypes,
+  ProjectStatisticsPopupTitle,
+} from '../../enums/enums';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 export interface AttributionCountPerSourcePerLicense {
@@ -22,11 +28,6 @@ export interface LicenseNamesWithCriticality {
 
 interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
-}
-
-export interface PieChartData {
-  name: string;
-  count: number;
 }
 
 const ATTRIBUTION_PROPERTIES_TO_DISPLAY: Array<keyof PackageInfo> = [
@@ -317,18 +318,51 @@ export function getCriticalSignalsCount(
   }
 
   const criticalityData = [
-    { name: 'High', count: licenseCriticalityCounts['high'] },
-    { name: 'Medium', count: licenseCriticalityCounts['medium'] },
-    { name: 'Not critical', count: licenseCriticalityCounts['none'] },
+    {
+      name: CriticalityTypes.HighCriticality,
+      count: licenseCriticalityCounts['high'],
+    },
+    {
+      name: CriticalityTypes.MediumCriticality,
+      count: licenseCriticalityCounts['medium'],
+    },
+    {
+      name: CriticalityTypes.NoCriticality,
+      count: licenseCriticalityCounts['none'],
+    },
   ];
 
-  const filteredCriticalityData: Array<PieChartData> = [];
-  for (const criticalityNameAndCount of criticalityData) {
-    if (criticalityNameAndCount['count'] !== 0) {
-      filteredCriticalityData.push(criticalityNameAndCount);
+  return criticalityData.filter(
+    (criticalityDataWithCount) => criticalityDataWithCount['count'] !== 0
+  );
+}
+
+export function getColorsForPieChart(
+  pieChartData: Array<PieChartData>,
+  pieChartTitle: string
+): Array<string> | undefined {
+  const pieChartColors = [];
+
+  if (
+    pieChartTitle === ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
+  ) {
+    for (const pieChartSegment of pieChartData) {
+      switch (pieChartSegment.name) {
+        case CriticalityTypes.HighCriticality:
+          pieChartColors.push(OpossumColors.orange);
+          break;
+        case CriticalityTypes.MediumCriticality:
+          pieChartColors.push(OpossumColors.mediumOrange);
+          break;
+        default:
+          pieChartColors.push(OpossumColors.darkBlue);
+          break;
+      }
     }
+  } else {
+    return;
   }
-  return filteredCriticalityData;
+  return pieChartColors;
 }
 
 export function getIncompleteAttributionsCount(
