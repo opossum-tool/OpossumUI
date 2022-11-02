@@ -16,12 +16,12 @@ import MuiBox from '@mui/material/Box';
 import { OpossumColors } from '../../shared-styles';
 
 const defaultPieChartColors = [
-  OpossumColors.purple,
-  OpossumColors.brown,
-  OpossumColors.green,
+  OpossumColors.algaeGreen,
+  OpossumColors.pink,
+  OpossumColors.dirtyYellow,
+  OpossumColors.darkGreen,
+  OpossumColors.brightPurple,
   OpossumColors.darkBlue,
-  OpossumColors.pastelRed,
-  OpossumColors.disabledGrey,
 ];
 
 export interface PieChartData {
@@ -37,6 +37,17 @@ interface PieChartProps {
 const classes = {
   root: {
     maxWidth: '500px',
+  },
+  tooltipContentStyle: {
+    fontSize: '12px',
+    background: OpossumColors.grey,
+    padding: 3,
+    border: 0,
+    borderRadius: '4px',
+  },
+  tooltipItemStyle: {
+    color: OpossumColors.white,
+    fontFamily: 'sans-serif',
   },
 };
 
@@ -55,21 +66,26 @@ export function PieChart(props: PieChartProps): ReactElement {
             nameKey="name"
             cx="50%"
             cy="50%"
-            paddingAngle={1}
-            minAngle={5}
+            minAngle={15}
             outerRadius={70}
             isAnimationActive={false}
+            blendStroke={true}
           >
             {pieChartColors.map((record, index) => (
               <RcCell key={`cell-${index}`} fill={record} />
             ))}
           </RcPie>
-          <RcTooltip />
+          <RcTooltip
+            contentStyle={classes.tooltipContentStyle}
+            itemStyle={classes.tooltipItemStyle}
+          />
           <RcLegend
             verticalAlign="middle"
             align="right"
             layout="vertical"
             width={250}
+            iconSize={5}
+            wrapperStyle={{ fontFamily: 'sans-serif' }}
           />
         </RcPieChart>
       </RcResponsiveContainer>
