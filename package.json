@@ -27,7 +27,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.4",
     "react-window": "^1.8.8",
-    "recharts": "^2.1.15",
+    "recharts": "^2.1.16",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1",
     "spdx-license-ids": "^3.0.12",
