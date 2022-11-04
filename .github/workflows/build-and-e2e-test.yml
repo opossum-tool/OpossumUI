@@ -7,9 +7,6 @@ name: Build and E2E Test
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     types: [opened, reopened, synchronize]
 
 jobs:
