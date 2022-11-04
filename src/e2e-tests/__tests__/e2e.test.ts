@@ -5,7 +5,7 @@
 
 import { ElectronApplication, Page } from 'playwright';
 import {
-  conditionalIt,
+  conditionalTest,
   E2E_TEST_TIMEOUT,
   EXPECT_TIMEOUT,
   getApp,
@@ -13,54 +13,54 @@ import {
   getElementWithText,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-jest.setTimeout(E2E_TEST_TIMEOUT);
+test.setTimeout(E2E_TEST_TIMEOUT);
 
-describe('The OpossumUI', () => {
+test.describe('The OpossumUI', () => {
   let app: ElectronApplication;
   let window: Page;
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     app = await getApp();
     window = await app.firstWindow();
     await window.waitForLoadState();
   });
 
-  afterEach(async () => {
+  test.afterEach(async () => {
     if (app) {
       await app.close();
     }
   });
 
-  it('should launch app', async () => {
+  test('should launch app', async () => {
     expect(await window.title()).toBe('OpossumUI');
   });
 
-  it('should find view buttons', async () => {
+  test('should find view buttons', async () => {
     await getElementWithText(window, 'Audit');
     await getElementWithText(window, 'Attribution');
     await getElementWithText(window, 'Report');
   });
 });
 
-describe('Open file via command line', () => {
+test.describe('Open file via command line', () => {
   let app: ElectronApplication;
   let window: Page;
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     app = await getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
     window = await app.firstWindow();
     await window.waitForLoadState();
   });
 
-  afterEach(async () => {
+  test.afterEach(async () => {
     if (app) {
       await app.close();
     }
   });
 
-  it('should open file when provided as command line arg', async () => {
+  test('should open file when provided as command line arg', async () => {
     await getElementWithText(window, 'Frontend');
 
     const electronBackendEntry = await getElementWithText(
@@ -70,7 +70,7 @@ describe('Open file via command line', () => {
     await electronBackendEntry.click();
   });
 
-  it('should show signals and attributions in accordions', async () => {
+  test('should show signals and attributions in accordions', async () => {
     const electronBackendEntry = await getElementWithText(
       window,
       'ElectronBackend'
@@ -94,7 +94,7 @@ describe('Open file via command line', () => {
   });
 
   // getOpenLinkListener does not work properly on Linux
-  conditionalIt(os.platform() !== 'linux')(
+  conditionalTest(os.platform() !== 'linux')(
     'should open an error popup if the base url is invalid',
     async () => {
       const electronBackendEntry = await getElementWithText(
