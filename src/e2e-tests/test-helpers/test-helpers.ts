@@ -3,12 +3,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { _electron, ElectronApplication, Page, Locator } from 'playwright';
-import { expect } from '@playwright/test';
+import { _electron, ElectronApplication, Locator, Page } from 'playwright';
+import {
+  expect,
+  PlaywrightTestArgs,
+  PlaywrightTestOptions,
+  PlaywrightWorkerArgs,
+  PlaywrightWorkerOptions,
+  test,
+  TestType,
+} from '@playwright/test';
 
 const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
 export const E2E_TEST_TIMEOUT = 120000;
-export const E2E_LARGE_TEST_TIMEOUT = 600000;
 export const EXPECT_TIMEOUT = 15000;
 
 export async function getApp(
@@ -27,8 +34,15 @@ export async function getApp(
   });
 }
 
-export function conditionalIt(condition: boolean): jest.It {
-  return condition ? it : it.skip;
+export function conditionalTest(condition: boolean):
+  | TestType<
+      PlaywrightTestArgs & PlaywrightTestOptions,
+      PlaywrightWorkerArgs & PlaywrightWorkerOptions
+    >
+  | {
+      (): void;
+    } {
+  return condition ? test : test.skip;
 }
 
 export async function getElementWithText(
