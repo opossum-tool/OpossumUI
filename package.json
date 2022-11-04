@@ -11,7 +11,7 @@
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.12",
     "@mui/system": "^5.10.10",
-    "@tanstack/react-query": "^4.13.0",
+    "@tanstack/react-query": "^4.14.1",
     "@types/recharts": "^1.8.23",
     "axios": "^0.27.2",
     "electron-devtools-installer": "^3.2.0",
