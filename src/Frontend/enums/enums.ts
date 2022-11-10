@@ -83,7 +83,7 @@ export enum CheckboxLabel {
 
 export enum ProjectStatisticsPopupTitle {
   AttributionCountPerSourcePerLicenseTable = 'Signals per Sources',
-  AttributionPropertyCountTable = 'First Party and Follow Up Attributions',
+  AttributionPropertyCountTable = 'Attributions Overview',
   CriticalLicensesTable = 'Critical Licenses',
   PieChartsSectionHeader = 'Pie Charts',
   MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
