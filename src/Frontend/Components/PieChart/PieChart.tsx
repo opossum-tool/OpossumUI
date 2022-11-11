@@ -49,6 +49,10 @@ const classes = {
     color: OpossumColors.white,
     fontFamily: 'sans-serif',
   },
+  legendWrapperStyle: {
+    fontFamily: 'sans-serif',
+    fontSize: '12px',
+  },
 };
 
 export function PieChart(props: PieChartProps): ReactElement {
@@ -85,7 +89,7 @@ export function PieChart(props: PieChartProps): ReactElement {
             layout="vertical"
             width={250}
             iconSize={5}
-            wrapperStyle={{ fontFamily: 'sans-serif' }}
+            wrapperStyle={classes.legendWrapperStyle}
           />
         </RcPieChart>
       </RcResponsiveContainer>

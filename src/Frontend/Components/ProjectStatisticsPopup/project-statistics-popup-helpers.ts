@@ -30,13 +30,12 @@ interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
 }
 
-const ATTRIBUTION_PROPERTIES_TO_DISPLAY: Array<keyof PackageInfo> = [
-  'followUp',
-  'firstParty',
-];
 export const SOURCE_TOTAL = 'Total';
 export const LICENSE_TOTAL = 'Total';
 export const ATTRIBUTION_TOTAL = 'Total Attributions';
+export const ATTRIBUTION_PROPERTY_FOLLOW_UP = 'followUp';
+export const ATTRIBUTION_PROPERTY_FIRST_PARTY = 'firstParty';
+export const ATTRIBUTION_PROPERTY_INCOMPLETE = 'incomplete';
 export const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 export const AMOUNT_COLUMN_NAME_IN_TABLE = 'Amount';
 export const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
@@ -47,6 +46,7 @@ const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {
 } = {
   followUp: 'Follow up',
   firstParty: 'First party',
+  incomplete: 'Incomplete Attributions',
 };
 
 export function aggregateLicensesAndSourcesFromAttributions(
@@ -220,23 +220,20 @@ export function aggregateAttributionPropertiesFromAttributions(
 ): {
   [attributionPropertyOrTotal: string]: number;
 } {
-  const attributionValues = Object.values(attributions);
   const attributionPropertyCounts: {
     [attributionPropertyOrTotal: string]: number;
   } = {};
-  for (const attributionProperty of ATTRIBUTION_PROPERTIES_TO_DISPLAY) {
-    attributionPropertyCounts[attributionProperty] = 0;
-  }
-
-  for (const attribution of attributionValues) {
-    for (const attributionProperty of ATTRIBUTION_PROPERTIES_TO_DISPLAY) {
-      if (attribution[attributionProperty]) {
-        attributionPropertyCounts[attributionProperty]++;
-      }
-    }
-  }
-
-  attributionPropertyCounts[ATTRIBUTION_TOTAL] = attributionValues.length;
+  attributionPropertyCounts[ATTRIBUTION_PROPERTY_FOLLOW_UP] = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => value.followUp)
+  ).length;
+  attributionPropertyCounts[ATTRIBUTION_PROPERTY_FIRST_PARTY] = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => value.firstParty)
+  ).length;
+  attributionPropertyCounts[ATTRIBUTION_PROPERTY_INCOMPLETE] = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
+  ).length;
+  attributionPropertyCounts[ATTRIBUTION_TOTAL] =
+    Object.values(attributions).length;
 
   return attributionPropertyCounts;
 }

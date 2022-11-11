@@ -509,6 +509,7 @@ describe('The ProjectStatisticsPopup helper', () => {
     const expectedAttributionPropertyCounts = {
       followUp: 1,
       firstParty: 2,
+      incomplete: 4,
       'Total Attributions': 6,
     };
 
@@ -524,6 +525,7 @@ describe('The ProjectStatisticsPopup helper', () => {
     const expectedAttributionPropertyCounts = {
       followUp: 0,
       firstParty: 0,
+      incomplete: 5,
       'Total Attributions': 5,
     };
 
