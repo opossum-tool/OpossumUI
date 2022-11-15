@@ -13,6 +13,7 @@ import {
   getElementWithText,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
+import fs from 'fs';
 import { expect, test } from '@playwright/test';
 
 test.setTimeout(E2E_TEST_TIMEOUT);
@@ -57,6 +58,9 @@ test.describe('Open file via command line', () => {
   test.afterEach(async () => {
     if (app) {
       await app.close();
+      fs.unlinkSync(
+        'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+      );
     }
   });
 
