@@ -56,9 +56,8 @@ To view project metadata, open the `File` menu and select `Project Metadata`.
 
 ### Project Statistics
 
-To view project statistics, open the `File` menu and select `Project Statistics`. This opens a new window that shows a
-table that summarizes the license signals of the project by source, and a table that summarizes the number of 1st party
-and follow-up attributions.
+To view project statistics, open the `File` menu and select `Project Statistics`. This opens a popup that shows various
+tables and pie charts summarizing the state of the project.
 
 ### Exporting Formats
 
