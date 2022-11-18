@@ -53,6 +53,6 @@ export const projectStatisticsPopupClasses = {
   },
   accordionDetails: {
     padding: 0,
-    background: OpossumColors.lightBlue,
+    background: OpossumColors.lightestBlue,
   },
 };

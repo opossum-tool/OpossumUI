@@ -16,11 +16,11 @@ import MuiBox from '@mui/material/Box';
 import { OpossumColors } from '../../shared-styles';
 
 const defaultPieChartColors = [
-  OpossumColors.algaeGreen,
-  OpossumColors.pink,
-  OpossumColors.dirtyYellow,
-  OpossumColors.darkGreen,
-  OpossumColors.brightPurple,
+  'hsl(220, 41%, 76%)',
+  'hsl(220, 41%, 68%)',
+  'hsl(220, 41%, 62%)',
+  'hsl(220, 41%, 56%)',
+  'hsl(220, 41%, 50%)',
   OpossumColors.darkBlue,
 ];
 
