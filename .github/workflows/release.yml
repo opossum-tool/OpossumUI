@@ -12,7 +12,6 @@ on:
 jobs:
   publish_artifact:
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -31,11 +30,25 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@v3
 
-      - name: Install Node.js, NPM and Yarn
+      - name: Install Node.js and yarn
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: yarn install --network-timeout 560000
+
+      - name: Get yarn cache
+        id: get-yarn-cache
+        run: echo "cache_dir=$(yarn cache dir)" >> $GITHUB_ENV
+        if: matrix.os != 'windows-latest'
+
+      - name: Use yarn cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.cache_dir }}
+          key: ${{ matrix.os }}-${{ hashFiles('**/yarn.lock') }}
+        if: matrix.os != 'windows-latest'
+
+      - run: yarn install --frozen-lockfile --prefer-offline --network-timeout 560000
+
       - run: yarn ${{ matrix.SHIP }}
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
