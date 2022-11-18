@@ -81,7 +81,9 @@ test.describe('Open file via command line', () => {
     );
     await electronBackendEntry.click();
 
-    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeVisible();
+    await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeVisible({
+      timeout: EXPECT_TIMEOUT,
+    });
 
     // Apache appears in both 'signals in folder content' and 'attributions in folder content' accordions
     await expect(window.locator(`text=${'Apache'}`)).toHaveCount(2, {
