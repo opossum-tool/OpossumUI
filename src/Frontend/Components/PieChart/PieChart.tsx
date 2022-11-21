@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -16,12 +16,12 @@ import MuiBox from '@mui/material/Box';
 import { OpossumColors } from '../../shared-styles';
 
 const defaultPieChartColors = [
-  OpossumColors.algaeGreen,
-  OpossumColors.pink,
-  OpossumColors.dirtyYellow,
-  OpossumColors.darkGreen,
-  OpossumColors.brightPurple,
   OpossumColors.darkBlue,
+  'hsl(220, 41%, 60%)',
+  'hsl(220, 41%, 78%)',
+  'hsl(33, 55%, 81%)',
+  'hsl(33, 55%, 65%)',
+  OpossumColors.brown,
 ];
 
 export interface PieChartData {
@@ -49,17 +49,40 @@ const classes = {
     color: OpossumColors.white,
     fontFamily: 'sans-serif',
   },
-  legendWrapperStyle: {
+  legendElement: {
+    display: 'flex',
     fontFamily: 'sans-serif',
     fontSize: '12px',
+  },
+  legendIcon: (backgroundColor: string): React.CSSProperties => {
+    return {
+      backgroundColor,
+      borderRadius: '6px',
+      height: '12px',
+      width: '12px',
+      marginRight: '4px',
+    };
   },
 };
 
 export function PieChart(props: PieChartProps): ReactElement {
-  let pieChartColors = props.colors;
-  if (pieChartColors === undefined) {
-    pieChartColors = defaultPieChartColors;
+  const pieChartColors = props.colors || defaultPieChartColors;
+
+  function renderLegend(props: {
+    payload?: Array<{ value: string }>;
+  }): ReactNode {
+    return (
+      <div>
+        {props.payload?.map((entry: { value: string }, index: number) => (
+          <div style={classes.legendElement} key={`item-${index}`}>
+            <div style={classes.legendIcon(pieChartColors[index])} />
+            <div>{entry.value}</div>
+          </div>
+        ))}
+      </div>
+    );
   }
+
   return (
     <MuiBox sx={classes.root}>
       <RcResponsiveContainer maxHeight={200} aspect={2}>
@@ -84,12 +107,11 @@ export function PieChart(props: PieChartProps): ReactElement {
             itemStyle={classes.tooltipItemStyle}
           />
           <RcLegend
+            content={renderLegend}
             verticalAlign="middle"
             align="right"
             layout="vertical"
             width={250}
-            iconSize={5}
-            wrapperStyle={classes.legendWrapperStyle}
           />
         </RcPieChart>
       </RcResponsiveContainer>
