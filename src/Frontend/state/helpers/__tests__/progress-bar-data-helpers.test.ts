@@ -11,13 +11,9 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import {
-  getEmptyProgressBarData,
-  getFolderProgressBarData,
   getUpdatedProgressBarData,
   resourceHasOnlyPreSelectedAttributions,
-  updateProgressBarDataForResources,
 } from '../progress-bar-data-helpers';
-import { ProgressBarData } from '../../../types/types';
 
 describe('The getUpdatedProgressBarData function', () => {
   it('gets updated progress data', () => {
@@ -63,17 +59,17 @@ describe('The getUpdatedProgressBarData function', () => {
       '/thirdParty/package_1.tr.gz': ['testExternalAttributionUuid_1'],
       '/thirdParty/package_2.tr.gz': ['resolved_id'],
     };
-    const testResolvedExternalAttributions: Set<string> = new Set<string>();
 
-    const progressBarData = getUpdatedProgressBarData(
-      testResources,
-      testManualAttributions,
-      testResourcesToManualAttributions,
-      testResourcesToExternalAttributions,
-      testResolvedExternalAttributions,
-      () => false,
-      () => false
-    );
+    const progressBarData = getUpdatedProgressBarData({
+      resources: testResources,
+      resourceId: '/',
+      manualAttributions: testManualAttributions,
+      resourcesToManualAttributions: testResourcesToManualAttributions,
+      resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      resolvedExternalAttributions: new Set<string>(),
+      attributionBreakpoints: new Set<string>(),
+      filesWithChildren: new Set<string>(),
+    });
     expect(progressBarData.fileCount).toEqual(4);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(2);
@@ -126,19 +122,20 @@ describe('The getUpdatedProgressBarData function', () => {
       '/thirdParty/package_1.tr.gz': ['testExternalAttributionUuid_1'],
       '/thirdParty/package_2.tr.gz': ['resolved_id'],
     };
-    const testResolvedExternalAttributions: Set<string> = new Set<string>().add(
-      'resolved_id'
-    );
+    const testResolvedExternalAttributions: Set<string> = new Set<string>([
+      'resolved_id',
+    ]);
 
-    const progressBarData = getUpdatedProgressBarData(
-      testResources,
-      testManualAttributions,
-      testResourcesToManualAttributions,
-      testResourcesToExternalAttributions,
-      testResolvedExternalAttributions,
-      () => false,
-      () => false
-    );
+    const progressBarData = getUpdatedProgressBarData({
+      resources: testResources,
+      resourceId: '/',
+      manualAttributions: testManualAttributions,
+      resourcesToManualAttributions: testResourcesToManualAttributions,
+      resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      resolvedExternalAttributions: testResolvedExternalAttributions,
+      attributionBreakpoints: new Set<string>(),
+      filesWithChildren: new Set<string>(),
+    });
     expect(progressBarData.fileCount).toEqual(4);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(1);
@@ -212,23 +209,22 @@ describe('The getUpdatedProgressBarData function', () => {
       '/folder6/file11': [testAttributionUuid7],
     };
     const testResolvedExternalAttributions = new Set<string>();
-    const testIsAttributionBreakpoint = (path: string): boolean =>
-      [
-        '/folder1/breakpoint1/',
-        '/folder2/breakpoint2/',
-        '/folder3/breakpoint3/',
-      ].includes(path);
-    const testIsFileWithChildren = (): boolean => false;
+    const testAttributionBreakpoints: Set<string> = new Set<string>([
+      '/folder1/breakpoint1/',
+      '/folder2/breakpoint2/',
+      '/folder3/breakpoint3/',
+    ]);
 
-    const progressBarData = getUpdatedProgressBarData(
-      testResources,
-      testManualAttributions,
-      testResourcesToManualAttributions,
-      testResourcesToExternalAttributions,
-      testResolvedExternalAttributions,
-      testIsAttributionBreakpoint,
-      testIsFileWithChildren
-    );
+    const progressBarData = getUpdatedProgressBarData({
+      resources: testResources,
+      resourceId: '/',
+      manualAttributions: testManualAttributions,
+      resourcesToManualAttributions: testResourcesToManualAttributions,
+      resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      resolvedExternalAttributions: testResolvedExternalAttributions,
+      attributionBreakpoints: testAttributionBreakpoints,
+      filesWithChildren: new Set<string>(),
+    });
     expect(progressBarData.fileCount).toEqual(12);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(2);
@@ -245,7 +241,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ]);
   });
 
-  it('infers fileWithChildren correctly', () => {
+  it('infers filesWithChildren correctly', () => {
     const testResources: Resources = {
       'package.json': {
         file1: 1,
@@ -274,19 +270,20 @@ describe('The getUpdatedProgressBarData function', () => {
       '/package.json/file1': [testAttributionUuid2],
     };
     const testResolvedExternalAttributions = new Set<string>();
-    const testIsAttributionBreakpoint = (): boolean => false;
-    const testIsFileWithChildren = (path: string): boolean =>
-      ['/package.json/'].includes(path);
+    const testFilesWithChildren: Set<string> = new Set<string>([
+      '/package.json/',
+    ]);
 
-    const progressBarData = getUpdatedProgressBarData(
-      testResources,
-      testManualAttributions,
-      testResourcesToManualAttributions,
-      testResourcesToExternalAttributions,
-      testResolvedExternalAttributions,
-      testIsAttributionBreakpoint,
-      testIsFileWithChildren
-    );
+    const progressBarData = getUpdatedProgressBarData({
+      resources: testResources,
+      resourceId: '/',
+      manualAttributions: testManualAttributions,
+      resourcesToManualAttributions: testResourcesToManualAttributions,
+      resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      resolvedExternalAttributions: testResolvedExternalAttributions,
+      attributionBreakpoints: new Set<string>(),
+      filesWithChildren: testFilesWithChildren,
+    });
     expect(progressBarData.fileCount).toEqual(3);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(1);
@@ -296,70 +293,6 @@ describe('The getUpdatedProgressBarData function', () => {
     ).toEqual([]);
   });
 
-  it('resourceHasOnlyPreSelectedAttributions with only pre-selected attributions', () => {
-    const { testResourcesToManualAttributions, testManualAttributions } =
-      getTestObjectsForResourcesWithPreSelectedAttributions();
-    expect(
-      resourceHasOnlyPreSelectedAttributions(
-        '/fileWithOnlyPreSelectedAttributions',
-        testResourcesToManualAttributions,
-        testManualAttributions
-      )
-    ).toBeTruthy();
-  });
-
-  it('resourceHasOnlyPreSelectedAttributions with mixed attributions', () => {
-    const { testResourcesToManualAttributions, testManualAttributions } =
-      getTestObjectsForResourcesWithPreSelectedAttributions();
-    expect(
-      resourceHasOnlyPreSelectedAttributions(
-        '/fileWithPreselectedAndManualAttributions',
-        testResourcesToManualAttributions,
-        testManualAttributions
-      )
-    ).toBeFalsy();
-  });
-
-  it('updateProgressBarDataForResources', () => {
-    const progressBarData = getEmptyProgressBarData();
-    const resources: Resources = {
-      dir1: { subdir1: { file1: 1 } },
-      dir2: { subdir2: { file2: 1 } },
-    };
-    const manualAttributions: Attributions = {
-      uuid1: { packageName: 'React', preSelected: true },
-      uuid2: { packageName: 'Vue', preSelected: true },
-      uuid3: { packageName: 'Angular' },
-    };
-    const resourcesToManualAttributions: ResourcesToAttributions = {
-      'dir1/': ['uuid1', 'uuid2'],
-      'dir2/': ['uuid1', 'uuid3'],
-    };
-    const resourcesToExternalAttributions: ResourcesToAttributions = {
-      'dir2/subdir2/file2': ['uuid4'],
-    };
-    const expectedProgressBarData: ProgressBarData = {
-      fileCount: 2,
-      filesWithManualAttributionCount: 1,
-      filesWithOnlyPreSelectedAttributionCount: 1,
-      filesWithOnlyExternalAttributionCount: 0,
-      resourcesWithNonInheritedExternalAttributionOnly: [],
-    };
-
-    updateProgressBarDataForResources(
-      progressBarData,
-      resources,
-      manualAttributions,
-      resourcesToManualAttributions,
-      resourcesToExternalAttributions,
-      () => false,
-      () => false
-    );
-    expect(progressBarData).toMatchObject(expectedProgressBarData);
-  });
-});
-
-describe('The getFolderProgressBarData function', () => {
   it('gets updated progress data for current folder', () => {
     const testResources: Resources = {
       thirdParty: {
@@ -404,7 +337,7 @@ describe('The getFolderProgressBarData function', () => {
       '/thirdParty/package_2.tr.gz': ['resolved_id'],
     };
 
-    const progressBarData = getFolderProgressBarData({
+    const progressBarData = getUpdatedProgressBarData({
       resources: testResources,
       resourceId: '/root/',
       manualAttributions: testManualAttributions,
@@ -420,6 +353,32 @@ describe('The getFolderProgressBarData function', () => {
     expect(
       progressBarData?.resourcesWithNonInheritedExternalAttributionOnly
     ).toEqual([]);
+  });
+});
+
+describe('The resourceHasOnlyPreSelectedAttributions function', () => {
+  it('returns true on only preselected attributions', () => {
+    const { testResourcesToManualAttributions, testManualAttributions } =
+      getTestObjectsForResourcesWithPreSelectedAttributions();
+    expect(
+      resourceHasOnlyPreSelectedAttributions(
+        '/fileWithOnlyPreSelectedAttributions',
+        testResourcesToManualAttributions,
+        testManualAttributions
+      )
+    ).toBeTruthy();
+  });
+
+  it('returns false on mixed attributions', () => {
+    const { testResourcesToManualAttributions, testManualAttributions } =
+      getTestObjectsForResourcesWithPreSelectedAttributions();
+    expect(
+      resourceHasOnlyPreSelectedAttributions(
+        '/fileWithPreselectedAndManualAttributions',
+        testResourcesToManualAttributions,
+        testManualAttributions
+      )
+    ).toBeFalsy();
   });
 });
 

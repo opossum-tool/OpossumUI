@@ -18,6 +18,7 @@ import { IconButton } from '../IconButton/IconButton';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import MuiBox from '@mui/material/Box';
+import { getResources } from '../../state/selectors/all-views-resource-selectors';
 
 export const topBarHeight = 36;
 
@@ -60,6 +61,7 @@ const classes = {
 
 export function TopBar(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
+  const showTopProgressBar = useAppSelector(getResources) !== null;
   const dispatch = useAppDispatch();
 
   function handleClick(
@@ -85,7 +87,7 @@ export function TopBar(): ReactElement {
           />
         }
       />
-      <TopProgressBar />
+      {showTopProgressBar ? <TopProgressBar /> : <MuiBox flex={1} />}
       <MuiToggleButtonGroup
         size="small"
         value={selectedView}

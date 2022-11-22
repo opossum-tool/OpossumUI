@@ -15,8 +15,6 @@ import {
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import { ProgressBarData } from '../../../../types/types';
-import { getUpdatedProgressBarData } from '../../../helpers/progress-bar-data-helpers';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getAttributionBreakpoints,
@@ -27,7 +25,6 @@ import {
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
   getManualData,
-  getProgressBarData,
   getResources,
 } from '../../../selectors/all-views-resource-selectors';
 import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
@@ -140,15 +137,6 @@ describe('loadFromFile', () => {
         '/root/src/': new Set<string>().add('/root/src/something.js'),
       },
     };
-    const expectedProgressBarData: ProgressBarData = getUpdatedProgressBarData(
-      testResources,
-      testManualAttributions,
-      testResourcesToManualAttributions,
-      testResourcesToExternalAttributions,
-      new Set<string>().add('test_id'),
-      () => false,
-      () => false
-    );
 
     const testStore = createTestAppStore();
     expect(testStore.getState().resourceState).toMatchObject(
@@ -164,9 +152,6 @@ describe('loadFromFile', () => {
     );
     expect(getFrequentLicensesTexts(testStore.getState())).toEqual(
       testFrequentLicenses.texts
-    );
-    expect(getProgressBarData(testStore.getState())).toEqual(
-      expectedProgressBarData
     );
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
       new Set(['test_id'])

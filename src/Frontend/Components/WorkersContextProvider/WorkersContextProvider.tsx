@@ -13,7 +13,7 @@ import {
   getResourcesToExternalAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getNewAccordionWorkers } from '../../web-workers/get-new-accordion-workers';
-import { getNewFolderProgressBarWorker } from '../../web-workers/get-new-folder-progress-bar-worker';
+import { getNewProgressBarWorkers } from '../../web-workers/get-new-progress-bar-workers';
 import { PanelAttributionData } from '../../util/get-contained-packages';
 
 const resourceDetailsTabsWorkers = getNewAccordionWorkers();
@@ -58,13 +58,11 @@ export const AccordionWorkersContextProvider: FC<{
   );
 };
 
-const folderProgressBarWorker = getNewFolderProgressBarWorker();
+const progressBarWorkers = getNewProgressBarWorkers();
+export const ProgressBarWorkersContext =
+  React.createContext(progressBarWorkers);
 
-export const ProgressBarWorkerContext = React.createContext(
-  folderProgressBarWorker
-);
-
-export const ProgressBarWorkerContextProvider: FC<{
+export const ProgressBarWorkersContextProvider: FC<{
   children: ReactNode | null;
 }> = ({ children }) => {
   const resources = useAppSelector(getResources);
@@ -73,13 +71,16 @@ export const ProgressBarWorkerContextProvider: FC<{
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
+
   useMemo(() => {
     try {
-      folderProgressBarWorker.postMessage({
-        resources,
-        resourcesToExternalAttributions,
-        attributionBreakpoints,
-        filesWithChildren,
+      Object.values(progressBarWorkers).forEach((worker) => {
+        worker.postMessage({
+          resources,
+          resourcesToExternalAttributions,
+          attributionBreakpoints,
+          filesWithChildren,
+        });
       });
     } catch (error) {
       console.info('Web worker error in workers context provider: ', error);
@@ -90,9 +91,10 @@ export const ProgressBarWorkerContextProvider: FC<{
     attributionBreakpoints,
     filesWithChildren,
   ]);
+
   return (
-    <ProgressBarWorkerContext.Provider value={folderProgressBarWorker}>
+    <ProgressBarWorkersContext.Provider value={progressBarWorkers}>
       {children}
-    </ProgressBarWorkerContext.Provider>
+    </ProgressBarWorkersContext.Provider>
   );
 };

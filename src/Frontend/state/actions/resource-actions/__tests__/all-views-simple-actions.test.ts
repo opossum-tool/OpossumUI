@@ -14,8 +14,6 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import { ProgressBarData } from '../../../../types/types';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
@@ -27,7 +25,6 @@ import {
   getIsSavingDisabled,
   getManualAttributions,
   getManualAttributionsToResources,
-  getProgressBarData,
   getResources,
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
@@ -42,12 +39,10 @@ import {
   setExternalData,
   setFrequentLicenses,
   setManualData,
-  setProgressBarData,
   setResources,
   setTemporaryPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
-import { loadFromFile } from '../load-actions';
 import { setIsSavingDisabled } from '../save-actions';
 
 const testResources: Resources = {
@@ -215,76 +210,6 @@ describe('The load and navigation simple actions', () => {
     );
     expect(getFrequentLicensesTexts(testStore.getState())).toMatchObject(
       testFrequentLicenses.texts
-    );
-  });
-
-  it('sets and gets progressBarData', () => {
-    const testResources: Resources = {
-      folder1: { file1: 1, file2: 1 },
-      folder2: { file1: 1, file2: 1 },
-      folder3: { file1: 1, file2: 1 },
-      file1: 1,
-      file2: 1,
-    };
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      '/folder1/': ['uuid1'],
-      '/folder2/file1': ['uuid1'],
-      '/file1': ['uuid1'],
-    };
-    const testResourcesToExternalAttributions: ResourcesToAttributions = {
-      '/folder1/file2': ['uuid2'],
-      '/folder2/file2': ['uuid2'],
-      '/folder3/': ['uuid3'],
-    };
-    const testManualAttributions: Attributions = {
-      uuid1: {
-        packageName: 'React',
-      },
-    };
-    const testExternalAttributions: Attributions = {
-      uuid2: {
-        comment: 'This could be React.',
-      },
-      uuid3: {
-        url: 'https://reactjs.org/',
-      },
-    };
-    const expectedProgressBarData: ProgressBarData = {
-      fileCount: 8,
-      filesWithManualAttributionCount: 4,
-      filesWithOnlyExternalAttributionCount: 3,
-      filesWithOnlyPreSelectedAttributionCount: 0,
-      resourcesWithNonInheritedExternalAttributionOnly: [
-        '/folder2/file2',
-        '/folder3/',
-      ],
-    };
-
-    const testStore = createTestAppStore();
-    expect(getProgressBarData(testStore.getState())).toBeNull();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
-    );
-
-    testStore.dispatch(
-      setProgressBarData(
-        testResources,
-        testManualAttributions,
-        testResourcesToManualAttributions,
-        testResourcesToExternalAttributions,
-        new Set<string>().add('resolved')
-      )
-    );
-    expect(getProgressBarData(testStore.getState())).toEqual(
-      expectedProgressBarData
     );
   });
 

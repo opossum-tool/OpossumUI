@@ -23,7 +23,6 @@ import {
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
-  ACTION_SET_PROGRESS_BAR_DATA,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOURCES,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
@@ -35,7 +34,6 @@ import {
   SetFilesWithChildren,
   SetFrequentLicensesAction,
   SetManualDataAction,
-  SetProgressBarData,
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryPackageInfoAction,
@@ -79,25 +77,6 @@ export function setFrequentLicenses(
   licenses: FrequentLicenses
 ): SetFrequentLicensesAction {
   return { type: ACTION_SET_FREQUENT_LICENSES, payload: licenses };
-}
-
-export function setProgressBarData(
-  resources: Resources,
-  manualAttributions: Attributions,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  resolvedExternalAttributions: Set<string>
-): SetProgressBarData {
-  return {
-    type: ACTION_SET_PROGRESS_BAR_DATA,
-    payload: {
-      resources,
-      manualAttributions,
-      resourcesToManualAttributions,
-      resourcesToExternalAttributions,
-      resolvedExternalAttributions,
-    },
-  };
 }
 
 export function setTemporaryPackageInfo(

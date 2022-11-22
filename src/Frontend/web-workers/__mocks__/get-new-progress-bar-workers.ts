@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-export function getNewFolderProgressBarWorker(): Worker {
+export function getNewProgressBarWorkers(): Worker {
   return {
     postMessage: () => {
-      throw new Error('JEST-MOCK-GET-NEW-FOLDER-PROGRESS-BAR-WORKER');
+      throw new Error('JEST-MOCK-GET-NEW-PROGRESS-BAR-WORKER');
     },
   } as unknown as Worker;
 }

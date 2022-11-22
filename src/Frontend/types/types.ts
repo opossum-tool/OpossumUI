@@ -98,8 +98,8 @@ export interface AttributionIdsWithCountAndResourceId {
   attributionIdsWithCount: Array<AttributionIdWithCount>;
 }
 
-export interface FolderProgressBarDataAndResourceId {
-  folderProgressBarData: ProgressBarData | null;
+export interface ProgressBarDataAndResourceId {
+  progressBarData: ProgressBarData | null;
   resourceId: string;
 }
 
@@ -126,3 +126,4 @@ export interface AttributionCountPerSourcePerLicense {
 export interface LicenseNamesWithCriticality {
   [licenseName: string]: Criticality | undefined;
 }
+export type ProgressBarType = 'FolderProgressBar' | 'TopProgressBar';

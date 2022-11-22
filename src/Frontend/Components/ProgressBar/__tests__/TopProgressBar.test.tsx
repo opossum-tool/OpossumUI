@@ -12,9 +12,19 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { TopProgressBar } from '../TopProgressBar';
-import { setProgressBarData } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  setResources,
+  setManualData,
+  setExternalData,
+  setAttributionBreakpoints,
+  setFilesWithChildren,
+} from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setResolvedExternalAttributions } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 
 describe('TopProgressBar', () => {
   jest.useFakeTimers();
@@ -46,6 +56,13 @@ describe('TopProgressBar', () => {
       [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
     };
 
+    const testExternalAttributions: Attributions = {
+      [testExternalAttributionUuid]: {
+        packageName: 'React',
+        packageVersion: '17.0.0',
+      },
+    };
+
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/folder1/': [testManualAttributionUuid_1],
       '/folder2/file1': [testManualAttributionUuid_1],
@@ -56,17 +73,24 @@ describe('TopProgressBar', () => {
       '/folder2/file2': [testExternalAttributionUuid],
     };
 
-    const { store } = renderComponentWithStore(<TopProgressBar />);
-    act(() => {
-      store.dispatch(
-        setProgressBarData(
-          testResources,
-          testManualAttributions,
-          testResourcesToManualAttributions,
-          testResourcesToExternalAttributions,
-          new Set<string>().add('resolved')
-        )
-      );
+    const testStore = createTestAppStore();
+
+    testStore.dispatch(setResources(testResources));
+    testStore.dispatch(
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
+    );
+    testStore.dispatch(
+      setExternalData(
+        testExternalAttributions,
+        testResourcesToExternalAttributions
+      )
+    );
+    testStore.dispatch(setResolvedExternalAttributions(new Set()));
+    testStore.dispatch(setAttributionBreakpoints(new Set()));
+    testStore.dispatch(setFilesWithChildren(new Set()));
+
+    renderComponentWithStore(<TopProgressBar />, {
+      store: testStore,
     });
 
     const progressBar = screen.getByLabelText('TopProgressBar');
@@ -80,10 +104,5 @@ describe('TopProgressBar', () => {
         screen.getByText(/Files with only pre-selected attributions: 1/) &&
         screen.getByText(/Files with only signals: 1/)
     ).toBeDefined();
-  });
-
-  it('TopProgressBar renders without progress data', () => {
-    renderComponentWithStore(<TopProgressBar />);
-    expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
   });
 });

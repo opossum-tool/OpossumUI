@@ -13,8 +13,7 @@ import {
   Resources,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { PanelPackage, ProgressBarData } from '../../types/types';
-import { getUpdatedProgressBarData } from '../helpers/progress-bar-data-helpers';
+import { PanelPackage } from '../../types/types';
 import {
   EMPTY_ATTRIBUTION_DATA,
   EMPTY_FREQUENT_LICENSES,
@@ -41,7 +40,6 @@ import {
   ACTION_SET_IS_SAVING_DISABLED,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
-  ACTION_SET_PROGRESS_BAR_DATA,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_RESOURCES,
@@ -73,7 +71,6 @@ import {
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
-import { getFileWithChildrenCheckForResourceState } from '../../util/is-file-with-children';
 
 export const initialResourceState: ResourceState = {
   allViews: {
@@ -81,7 +78,6 @@ export const initialResourceState: ResourceState = {
     manualData: EMPTY_ATTRIBUTION_DATA,
     externalData: EMPTY_ATTRIBUTION_DATA,
     frequentLicenses: EMPTY_FREQUENT_LICENSES,
-    progressBarData: null,
     temporaryPackageInfo: {},
     attributionBreakpoints: new Set(),
     filesWithChildren: new Set(),
@@ -119,7 +115,6 @@ export type ResourceState = {
     manualData: AttributionData;
     externalData: AttributionData;
     frequentLicenses: FrequentLicenses;
-    progressBarData: ProgressBarData | null;
     temporaryPackageInfo: PackageInfo;
     attributionBreakpoints: Set<string>;
     filesWithChildren: Set<string>;
@@ -197,22 +192,6 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           temporaryPackageInfo: { ...action.payload },
-        },
-      };
-    case ACTION_SET_PROGRESS_BAR_DATA:
-      return {
-        ...state,
-        allViews: {
-          ...state.allViews,
-          progressBarData: getUpdatedProgressBarData(
-            action.payload.resources,
-            action.payload.manualAttributions,
-            action.payload.resourcesToManualAttributions,
-            action.payload.resourcesToExternalAttributions,
-            action.payload.resolvedExternalAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
         },
       };
     case ACTION_SET_SELECTED_RESOURCE_ID:
@@ -358,15 +337,6 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           manualData: newManualData,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            newManualData.attributions,
-            newManualData.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            state.auditView.resolvedExternalAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
         },
         auditView: {
           ...state.auditView,
@@ -389,15 +359,6 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           manualData: updatedManualData,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            updatedManualData.attributions,
-            updatedManualData.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            state.auditView.resolvedExternalAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
           ...(action.payload.jumpToUpdatedAttribution && {
             temporaryPackageInfo: action.payload.strippedPackageInfo,
           }),
@@ -435,15 +396,6 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           manualData: manualDataAfterDeletion,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            manualDataAfterDeletion.attributions,
-            manualDataAfterDeletion.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            state.auditView.resolvedExternalAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
           attributionIdMarkedForReplacement:
             newAttributionIdMarkedForReplacement,
         },
@@ -475,15 +427,6 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           manualData: manualDataForReplace,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            manualDataForReplace.attributions,
-            manualDataForReplace.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            state.auditView.resolvedExternalAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
         },
         auditView: {
           ...state.auditView,
@@ -520,15 +463,6 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           manualData: manualDataAfterForLinking,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            manualDataAfterForLinking.attributions,
-            manualDataAfterForLinking.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            state.auditView.resolvedExternalAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
         },
         auditView: {
           ...state.auditView,
@@ -546,22 +480,11 @@ export const resourceState = (
           action.payload.attributionId
         );
 
-      const updatedProgressBarData = getUpdatedProgressBarData(
-        state.allViews.resources as Resources,
-        manualDataAfterUnlinking.attributions,
-        manualDataAfterUnlinking.resourcesToAttributions,
-        state.allViews.externalData.resourcesToAttributions,
-        state.auditView.resolvedExternalAttributions,
-        getAttributionBreakpointCheckForResourceState(state),
-        getFileWithChildrenCheckForResourceState(state)
-      );
-
       return {
         ...state,
         allViews: {
           ...state.allViews,
           manualData: manualDataAfterUnlinking,
-          progressBarData: updatedProgressBarData,
         },
       };
     case ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS:
@@ -608,15 +531,6 @@ export const resourceState = (
         ...state,
         allViews: {
           ...state.allViews,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            state.allViews.manualData.attributions,
-            state.allViews.manualData.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            resolvedExternalAttributionsWithAddedAttribution,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
           externalData: {
             ...state.allViews.externalData,
             resourcesWithAttributedChildren,
@@ -639,15 +553,6 @@ export const resourceState = (
         ...state,
         allViews: {
           ...state.allViews,
-          progressBarData: getUpdatedProgressBarData(
-            state.allViews.resources as Resources,
-            state.allViews.manualData.attributions,
-            state.allViews.manualData.resourcesToAttributions,
-            state.allViews.externalData.resourcesToAttributions,
-            resolvedExternalAttributionsWithRemovedAttributions,
-            getAttributionBreakpointCheckForResourceState(state),
-            getFileWithChildrenCheckForResourceState(state)
-          ),
           externalData: {
             ...state.allViews.externalData,
             resourcesWithAttributedChildren:

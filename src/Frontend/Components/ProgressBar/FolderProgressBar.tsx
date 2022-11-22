@@ -14,14 +14,14 @@ import {
   getResourcesToManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  FolderProgressBarDataAndResourceId,
+  ProgressBarDataAndResourceId,
   ProgressBarData,
   ProgressBarWorkerArgs,
 } from '../../types/types';
 import { useAppSelector } from '../../state/hooks';
 import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
-import { ProgressBarWorkerContext } from '../WorkersContextProvider/WorkersContextProvider';
-import { getFolderProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
+import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
+import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBar } from './ProgressBar';
 
 const classes = {
@@ -31,7 +31,7 @@ const classes = {
 };
 
 const EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID = {
-  folderProgressBarData: null,
+  progressBarData: null,
   resourceId: '',
 };
 
@@ -59,11 +59,13 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
   const [
     folderProgressBarDataAndResourceId,
     setFolderProgressBarDataAndResourceId,
-  ] = useState<FolderProgressBarDataAndResourceId>(
+  ] = useState<ProgressBarDataAndResourceId>(
     EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID
   );
 
-  const folderProgressBarWorker = useContext(ProgressBarWorkerContext);
+  const folderProgressBarWorker = useContext(
+    ProgressBarWorkersContext
+  ).FolderProgressBarWorker;
 
   const folderProgressBarWorkerArgs = useMemo(
     () => ({
@@ -119,7 +121,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
     folderProgressBarDataAndResourceId.resourceId
   ) {
     displayedProgressBarData =
-      folderProgressBarDataAndResourceId.folderProgressBarData;
+      folderProgressBarDataAndResourceId.progressBarData;
   } else {
     displayedProgressBarData = null;
   }
@@ -127,9 +129,8 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
   return displayedProgressBarData ? (
     <ProgressBar
       sx={classes.root}
+      progressBarType={'FolderProgressBar'}
       progressBarData={displayedProgressBarData}
-      label={'FolderProgressBar'}
-      isFolderProgressBar
     />
   ) : (
     <MuiSkeleton height={20} />
@@ -141,7 +142,7 @@ async function loadProgressBarData(
   worker: Worker,
   workerArgs: Partial<ProgressBarWorkerArgs>,
   setFolderProgressBarDataAndResourceId: (
-    folderProgressBarDataAndResourceId: FolderProgressBarDataAndResourceId
+    folderProgressBarDataAndResourceId: ProgressBarDataAndResourceId
   ) => void,
   syncFallbackArgs: ProgressBarWorkerArgs
 ): Promise<void> {
@@ -175,14 +176,14 @@ async function loadProgressBarData(
 function logErrorAndComputeInMainProcess(
   error: unknown,
   setFolderProgressBarDataAndResourceId: (
-    folderProgressBarDataAndResourceId: FolderProgressBarDataAndResourceId
+    folderProgressBarDataAndResourceId: ProgressBarDataAndResourceId
   ) => void,
   syncFallbackArgs: ProgressBarWorkerArgs
 ): void {
   console.info('Error in rendering folder progress bar: ', error);
-  const folderProgressBarData = getFolderProgressBarData(syncFallbackArgs);
+  const progressBarData = getUpdatedProgressBarData(syncFallbackArgs);
   setFolderProgressBarDataAndResourceId({
-    folderProgressBarData,
+    progressBarData,
     resourceId: syncFallbackArgs.resourceId,
   });
 }

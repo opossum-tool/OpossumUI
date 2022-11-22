@@ -11,7 +11,7 @@ import { App } from '../App/App';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   AccordionWorkersContextProvider,
-  ProgressBarWorkerContextProvider,
+  ProgressBarWorkersContextProvider,
 } from '../WorkersContextProvider/WorkersContextProvider';
 
 const store = createAppStore();
@@ -22,11 +22,11 @@ export function AppContainer(): ReactElement {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <AccordionWorkersContextProvider>
-          <ProgressBarWorkerContextProvider>
+          <ProgressBarWorkersContextProvider>
             <React.StrictMode>
               <App />
             </React.StrictMode>
-          </ProgressBarWorkerContextProvider>
+          </ProgressBarWorkersContextProvider>
         </AccordionWorkersContextProvider>
       </QueryClientProvider>
     </Provider>

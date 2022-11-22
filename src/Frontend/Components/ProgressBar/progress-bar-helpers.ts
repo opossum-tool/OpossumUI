@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { ProgressBarData } from '../../types/types';
+import { ProgressBarData, ProgressBarType } from '../../types/types';
 import { doNothing } from '../../util/do-nothing';
 import { OpossumColors } from '../../shared-styles';
 import { sum } from 'lodash';
@@ -43,7 +43,7 @@ export function getProgressBarTooltipText(
 
 export function getProgressBarBackground(
   progressBarData: ProgressBarData,
-  isFolderProgressBar?: boolean
+  progressBarType: ProgressBarType
 ): string {
   let filesWithManualAttributions: number =
     (progressBarData.filesWithManualAttributionCount /
@@ -88,7 +88,7 @@ export function getProgressBarBackground(
     ` ${OpossumColors.pastelMiddleGreen} ${filesWithPreselectedOrManualAttributions}%,` +
     ` ${OpossumColors.pastelRed} ${filesWithPreselectedOrManualAttributions}% ${allFilesWithAttributions}%,` +
     ` ${
-      isFolderProgressBar
+      progressBarType == 'FolderProgressBar'
         ? OpossumColors.almostWhiteBlue
         : OpossumColors.lightestBlue
     } ${allFilesWithAttributions}%)`
