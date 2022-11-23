@@ -98,7 +98,7 @@ The following software is required for working on the repository:
 - [git](https://git-scm.com/),
 - [node.js](https://nodejs.org/) 18,
 - [yarn](https://yarnpkg.com/en/),
-- [reuse.software](https://reuse.software/) (to check that copyright information is provided),
+- [reuse/tool](https://git.fsfe.org/reuse/tool#install) (to check that copyright information is provided, for more context see https://reuse.software/),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
 
 ### Building the app
