@@ -8,7 +8,7 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import {
   FollowUp,
-  FrequentLicences,
+  FrequentLicenses,
   PackageInfo,
   SaveFileArgs,
   Source,
@@ -20,7 +20,7 @@ import {
   PackagePanelTitle,
 } from '../../../enums/enums';
 import {
-  setFrequentLicences,
+  setFrequentLicenses,
   setResources,
   setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -464,12 +464,12 @@ describe('The AttributionColumn', () => {
           onDeleteGloballyButtonClick={doNothing}
         />
       );
-      const testFrequentLicenses: FrequentLicences = {
+      const testFrequentLicenses: FrequentLicenses = {
         nameOrder: ['MIT'],
         texts: { MIT: 'text' },
       };
       act(() => {
-        store.dispatch(setFrequentLicences(testFrequentLicenses));
+        store.dispatch(setFrequentLicenses(testFrequentLicenses));
       });
 
       expect(screen.getByLabelText('Standard license text implied.'));
@@ -494,12 +494,12 @@ describe('The AttributionColumn', () => {
           onDeleteGloballyButtonClick={doNothing}
         />
       );
-      const testFrequentLicenses: FrequentLicences = {
+      const testFrequentLicenses: FrequentLicenses = {
         nameOrder: ['MIT'],
         texts: { MIT: 'text' },
       };
       act(() => {
-        store.dispatch(setFrequentLicences(testFrequentLicenses));
+        store.dispatch(setFrequentLicenses(testFrequentLicenses));
       });
 
       expect(

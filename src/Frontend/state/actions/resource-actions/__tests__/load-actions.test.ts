@@ -7,7 +7,7 @@ import {
   AttributionData,
   Attributions,
   BaseUrlsForSources,
-  FrequentLicences,
+  FrequentLicenses,
   PackageInfo,
   ParsedFileContent,
   Resources,
@@ -85,7 +85,7 @@ describe('loadFromFile', () => {
       '/root/src/something.js': ['uuid'],
       '/thirdParty/package_1.tr.gz': ['test_id'],
     };
-    const testFrequentLicenses: FrequentLicences = {
+    const testFrequentLicenses: FrequentLicenses = {
       nameOrder: ['MIT', 'MIT license'],
       texts: {
         MIT: 'MIT license text',

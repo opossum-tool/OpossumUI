@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import MuiBox from '@mui/material/Box';
 import { OpossumColors } from '../../shared-styles';
+import { PieChartData } from '../../types/types';
 
 const defaultPieChartColors = [
   OpossumColors.darkBlue,
@@ -23,11 +24,6 @@ const defaultPieChartColors = [
   'hsl(33, 55%, 65%)',
   OpossumColors.brown,
 ];
-
-export interface PieChartData {
-  name: string;
-  count: number;
-}
 
 interface PieChartProps {
   segments: Array<PieChartData>;

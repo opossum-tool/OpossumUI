@@ -10,21 +10,13 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { isEmpty, pickBy } from 'lodash';
-import { PieChartData } from '../PieChart/PieChart';
-import { OpossumColors } from '../../shared-styles';
-import {
-  CriticalityTypes,
-  ProjectStatisticsPopupTitle,
-} from '../../enums/enums';
+import { CriticalityTypes } from '../../enums/enums';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
-
-export interface AttributionCountPerSourcePerLicense {
-  [licenseNameOrTotal: string]: { [sourceNameOrTotal: string]: number };
-}
-
-export interface LicenseNamesWithCriticality {
-  [licenseName: string]: Criticality | undefined;
-}
+import {
+  AttributionCountPerSourcePerLicense,
+  LicenseNamesWithCriticality,
+  PieChartData,
+} from '../../types/types';
 
 interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
@@ -32,22 +24,14 @@ interface UniqueLicenseNameToAttributions {
 
 export const SOURCE_TOTAL = 'Total';
 export const LICENSE_TOTAL = 'Total';
-export const ATTRIBUTION_TOTAL = 'Total Attributions';
-export const ATTRIBUTION_PROPERTY_FOLLOW_UP = 'followUp';
-export const ATTRIBUTION_PROPERTY_FIRST_PARTY = 'firstParty';
-export const ATTRIBUTION_PROPERTY_INCOMPLETE = 'incomplete';
-export const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
-export const AMOUNT_COLUMN_NAME_IN_TABLE = 'Amount';
-export const PLACEHOLDER_ATTRIBUTION_COUNT = '-';
 
+const ATTRIBUTION_PROPERTY_FOLLOW_UP = 'followUp';
+const ATTRIBUTION_PROPERTY_FIRST_PARTY = 'firstParty';
+const ATTRIBUTION_PROPERTY_INCOMPLETE = 'incomplete';
 const UNKNOWN_SOURCE_PLACEHOLDER = '-';
-const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {
-  [attributionProperty: string]: string;
-} = {
-  followUp: 'Follow up',
-  firstParty: 'First party',
-  incomplete: 'Incomplete Attributions',
-};
+
+// exported only for tests
+export const ATTRIBUTION_TOTAL = 'Total Attributions';
 
 export function aggregateLicensesAndSourcesFromAttributions(
   attributions: Attributions,
@@ -230,15 +214,6 @@ export function aggregateAttributionPropertiesFromAttributions(
   return attributionPropertyCounts;
 }
 
-export function getAttributionPropertyDisplayNameFromId(
-  attributionProperty: string
-): string {
-  if (attributionProperty in ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME) {
-    return ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME[attributionProperty];
-  }
-  return attributionProperty;
-}
-
 export function getMostFrequentLicenses(
   attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense
 ): Array<PieChartData> {
@@ -311,34 +286,6 @@ export function getCriticalSignalsCount(
   return criticalityData.filter(
     (criticalityDataWithCount) => criticalityDataWithCount['count'] !== 0
   );
-}
-
-export function getColorsForPieChart(
-  pieChartData: Array<PieChartData>,
-  pieChartTitle: string
-): Array<string> | undefined {
-  const pieChartColors = [];
-
-  if (
-    pieChartTitle === ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
-  ) {
-    for (const pieChartSegment of pieChartData) {
-      switch (pieChartSegment.name) {
-        case CriticalityTypes.HighCriticality:
-          pieChartColors.push(OpossumColors.orange);
-          break;
-        case CriticalityTypes.MediumCriticality:
-          pieChartColors.push(OpossumColors.mediumOrange);
-          break;
-        default:
-          pieChartColors.push(OpossumColors.darkBlue);
-          break;
-      }
-    }
-  } else {
-    return;
-  }
-  return pieChartColors;
 }
 
 export function getIncompleteAttributionsCount(

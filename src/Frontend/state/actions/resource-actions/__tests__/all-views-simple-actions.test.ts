@@ -6,7 +6,7 @@
 import {
   Attributions,
   AttributionsToResources,
-  FrequentLicences,
+  FrequentLicenses,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -39,7 +39,7 @@ import {
   setBaseUrlsForSources,
   setExternalAttributionSources,
   setExternalData,
-  setFrequentLicences,
+  setFrequentLicenses,
   setManualData,
   setProgressBarData,
   setResources,
@@ -204,12 +204,12 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets frequentLicenses', () => {
-    const testFrequentLicenses: FrequentLicences = {
+    const testFrequentLicenses: FrequentLicenses = {
       nameOrder: ['MIT', 'GPL'],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
     const testStore = createTestAppStore();
-    testStore.dispatch(setFrequentLicences(testFrequentLicenses));
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
     expect(getFrequentLicensesNameOrder(testStore.getState())).toMatchObject(
       testFrequentLicenses.nameOrder
     );

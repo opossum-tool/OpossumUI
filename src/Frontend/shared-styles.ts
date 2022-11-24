@@ -70,3 +70,26 @@ export const checkboxClass = {
     marginLeft: '-2px',
   },
 };
+
+export const tableClasses = {
+  head: {
+    fontSize: 13,
+    background: OpossumColors.darkBlue,
+    color: OpossumColors.white,
+  },
+  body: {
+    fontSize: 11,
+    background: OpossumColors.lightestBlue,
+    maxWidth: '200px',
+    overflow: 'auto',
+    color: OpossumColors.black,
+  },
+  footer: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    background: OpossumColors.lightBlue,
+    position: 'sticky',
+    bottom: 0,
+    color: OpossumColors.black,
+  },
+};

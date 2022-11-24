@@ -87,11 +87,11 @@ export function getResourcesWithExternalAttributedChildren(
 }
 
 export function getFrequentLicensesNameOrder(state: State): Array<string> {
-  return state.resourceState.allViews.frequentLicences.nameOrder;
+  return state.resourceState.allViews.frequentLicenses.nameOrder;
 }
 
 export function getFrequentLicensesTexts(state: State): LicenseTexts {
-  return state.resourceState.allViews.frequentLicences.texts;
+  return state.resourceState.allViews.frequentLicenses.texts;
 }
 
 export function getProgressBarData(state: State): ProgressBarData | null {

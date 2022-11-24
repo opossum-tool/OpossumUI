@@ -113,3 +113,16 @@ export interface ProgressBarWorkerArgs {
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;
 }
+
+export interface PieChartData {
+  name: string;
+  count: number;
+}
+
+export interface AttributionCountPerSourcePerLicense {
+  [licenseNameOrTotal: string]: { [sourceNameOrTotal: string]: number };
+}
+
+export interface LicenseNamesWithCriticality {
+  [licenseName: string]: Criticality | undefined;
+}

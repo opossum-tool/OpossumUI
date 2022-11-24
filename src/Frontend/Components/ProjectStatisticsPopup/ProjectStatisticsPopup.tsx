@@ -23,10 +23,10 @@ import {
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
 } from './project-statistics-popup-helpers';
-import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
-import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
-import { CriticalLicensesTable } from './CriticalLicensesTable';
-import { AccordionWithPieChart } from './AccordionWithPieChart';
+import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
+import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
+import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
+import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
 
 const classes = {
   panels: { display: 'flex' },

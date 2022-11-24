@@ -10,10 +10,26 @@ import MuiTable from '@mui/material/Table';
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTableRow from '@mui/material/TableRow';
-import { getAttributionPropertyDisplayNameFromId } from './project-statistics-popup-helpers';
-import { projectStatisticsPopupClasses } from './shared-project-statistics-popup-styles';
 import MuiTableHead from '@mui/material/TableHead';
-import MuiTableFooter from '@mui/material/TableFooter';
+import MuiTableBody from '@mui/material/TableBody';
+import { tableClasses } from '../../shared-styles';
+
+const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {
+  [attributionProperty: string]: string;
+} = {
+  followUp: 'Follow up',
+  firstParty: 'First party',
+  incomplete: 'Incomplete Attributions',
+};
+
+const classes = {
+  container: {
+    maxHeight: '100px',
+    maxWidth: '500px',
+    width: '35vw',
+    marginBottom: '3px',
+  },
+};
 
 interface AttributionPropertyCountTableProps {
   attributionPropertyCountsEntries: Array<Array<string | number>>;
@@ -25,7 +41,7 @@ export function AttributionPropertyCountTable(
 ): ReactElement {
   const attributionPropertyDisplayNames =
     props.attributionPropertyCountsEntries.map((entry) =>
-      getAttributionPropertyDisplayNameFromId(entry[0].toString())
+      _getAttributionPropertyDisplayNameFromId(entry[0].toString())
     );
   const attributionPropertyCounts = props.attributionPropertyCountsEntries.map(
     (entry) => entry[1].toString()
@@ -34,16 +50,14 @@ export function AttributionPropertyCountTable(
   return (
     <MuiBox>
       <MuiTypography variant="subtitle1">{props.title}</MuiTypography>
-      <MuiTableContainer
-        sx={projectStatisticsPopupClasses.attributionPropertyCountTable}
-      >
+      <MuiTableContainer sx={classes.container}>
         <MuiTable size="small" stickyHeader>
           <MuiTableHead>
             <MuiTableRow>
               {attributionPropertyDisplayNames.map(
                 (attributionPropertyDisplayName, index) => (
                   <MuiTableCell
-                    sx={projectStatisticsPopupClasses.head}
+                    sx={tableClasses.head}
                     key={index}
                     align="center"
                   >
@@ -53,12 +67,12 @@ export function AttributionPropertyCountTable(
               )}
             </MuiTableRow>
           </MuiTableHead>
-          <MuiTableFooter>
+          <MuiTableBody>
             <MuiTableRow>
               {attributionPropertyCounts.map(
                 (attributionPropertyCount, index) => (
                   <MuiTableCell
-                    sx={projectStatisticsPopupClasses.body}
+                    sx={tableClasses.body}
                     key={index}
                     align="center"
                   >
@@ -67,9 +81,19 @@ export function AttributionPropertyCountTable(
                 )
               )}
             </MuiTableRow>
-          </MuiTableFooter>
+          </MuiTableBody>
         </MuiTable>
       </MuiTableContainer>
     </MuiBox>
   );
+}
+
+//exported only for testing
+export function _getAttributionPropertyDisplayNameFromId(
+  attributionProperty: string
+): string {
+  if (attributionProperty in ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME) {
+    return ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME[attributionProperty];
+  }
+  return attributionProperty;
 }

@@ -85,7 +85,7 @@ export interface AttributionsWithResources {
   [uuid: string]: AttributionInfo;
 }
 
-export interface FrequentLicences {
+export interface FrequentLicenses {
   nameOrder: Array<string>;
   texts: LicenseTexts;
 }
@@ -106,7 +106,7 @@ export interface ParsedFileContent {
   resources: Resources;
   manualAttributions: InputFileAttributionData;
   externalAttributions: InputFileAttributionData;
-  frequentLicenses: FrequentLicences;
+  frequentLicenses: FrequentLicenses;
   resolvedExternalAttributions: Set<string>;
   attributionBreakpoints: Set<string>;
   filesWithChildren: Set<string>;

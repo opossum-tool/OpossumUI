@@ -11,7 +11,7 @@ import {
   BaseUrlsForSources,
   Criticality,
   FollowUp,
-  FrequentLicences,
+  FrequentLicenses,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -156,8 +156,8 @@ export function parseRawAttributions(
 
 export function parseFrequentLicenses(
   rawFrequentLicenses: Array<RawFrequentLicense> | undefined
-): FrequentLicences {
-  const parsedFrequentLicenses: FrequentLicences = { nameOrder: [], texts: {} };
+): FrequentLicenses {
+  const parsedFrequentLicenses: FrequentLicenses = { nameOrder: [], texts: {} };
   if (!rawFrequentLicenses) {
     return parsedFrequentLicenses;
   }
