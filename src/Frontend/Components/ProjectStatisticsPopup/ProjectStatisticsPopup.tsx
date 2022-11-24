@@ -22,7 +22,6 @@ import {
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
-  sortAttributionPropertiesEntries,
 } from './project-statistics-popup-helpers';
 import { AttributionCountPerSourcePerLicenseTable } from './AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from './AttributionPropertyCountTable';
@@ -53,10 +52,6 @@ export function ProjectStatisticsPopup(): ReactElement {
 
   const manualAttributionPropertyCounts =
     aggregateAttributionPropertiesFromAttributions(manualAttributions);
-  const sortedManualAttributionPropertyCountsEntries =
-    sortAttributionPropertiesEntries(
-      Object.entries(manualAttributionPropertyCounts)
-    );
 
   const mostFrequentLicenseCountData = getMostFrequentLicenses(
     attributionCountPerSourcePerLicense
@@ -86,9 +81,9 @@ export function ProjectStatisticsPopup(): ReactElement {
           <MuiBox style={classes.panels}>
             <MuiBox style={classes.leftPanel}>
               <AttributionPropertyCountTable
-                attributionPropertyCountsEntries={
-                  sortedManualAttributionPropertyCountsEntries
-                }
+                attributionPropertyCountsEntries={Object.entries(
+                  manualAttributionPropertyCounts
+                )}
                 title={
                   ProjectStatisticsPopupTitle.AttributionPropertyCountTable
                 }

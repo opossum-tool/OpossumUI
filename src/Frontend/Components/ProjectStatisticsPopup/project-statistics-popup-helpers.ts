@@ -149,10 +149,13 @@ function getLicenseDataFromVariants(
 
       licenseCriticalityCounts[variantCriticality || 'none']++;
 
-      const sourceName = getSourceDisplayNameFromId(
-        attributions[attributionId].source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER,
-        attributionSources
-      );
+      const sourceId =
+        attributions[attributionId].source?.name ?? UNKNOWN_SOURCE_PLACEHOLDER;
+      const sourceName =
+        Object.keys(attributionSources).includes(sourceId) &&
+        sourceId !== UNKNOWN_SOURCE_PLACEHOLDER
+          ? attributionSources[sourceId]['name']
+          : sourceId;
 
       sourcesCountForLicense[sourceName] =
         (sourcesCountForLicense[sourceName] || 0) + 1;
@@ -170,7 +173,8 @@ function getLicenseDataFromVariants(
   };
 }
 
-function getLicenseCriticality(licenseCriticalityCounts: {
+// right now getLicenseCriticality is being exported only to be tested
+export function getLicenseCriticality(licenseCriticalityCounts: {
   high: number;
   medium: number;
   none: number;
@@ -181,19 +185,6 @@ function getLicenseCriticality(licenseCriticalityCounts: {
       ? Criticality.High
       : Criticality.Medium
     : undefined;
-}
-
-function getSourceDisplayNameFromId(
-  sourceId: string,
-  externalAttributionSources: ExternalAttributionSources
-): string {
-  if (
-    Object.keys(externalAttributionSources).includes(sourceId) &&
-    sourceId !== UNKNOWN_SOURCE_PLACEHOLDER
-  ) {
-    return externalAttributionSources[sourceId]['name'];
-  }
-  return sourceId;
 }
 
 export function getUniqueLicenseNameToAttribution(
@@ -232,6 +223,7 @@ export function aggregateAttributionPropertiesFromAttributions(
   attributionPropertyCounts[ATTRIBUTION_PROPERTY_INCOMPLETE] = Object.keys(
     pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
   ).length;
+  // We expect Total Attributions to always be the last entry in the returned value
   attributionPropertyCounts[ATTRIBUTION_TOTAL] =
     Object.values(attributions).length;
 
@@ -245,19 +237,6 @@ export function getAttributionPropertyDisplayNameFromId(
     return ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME[attributionProperty];
   }
   return attributionProperty;
-}
-
-export function sortAttributionPropertiesEntries(
-  attributionPropertiesOrTotalEntries: Array<Array<string | number>>
-): Array<Array<string | number>> {
-  // Move ATTRIBUTION_TOTAL to the end of the list
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  return attributionPropertiesOrTotalEntries
-    .slice()
-    .sort(([property1, _count1], [_property2, _count2]) =>
-      property1 === ATTRIBUTION_TOTAL ? 1 : 0
-    );
-  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
 
 export function getMostFrequentLicenses(
