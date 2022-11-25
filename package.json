@@ -45,7 +45,7 @@
     "@testing-library/react-hooks": "^8.0.1",
     "@types/electron-devtools-installer": "^2.2.2",
     "@types/js-yaml": "^4.0.5",
-    "@types/lodash": "^4.14.189",
+    "@types/lodash": "^4.14.190",
     "@types/object-hash": "^2.2.1",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
