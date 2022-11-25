@@ -27,7 +27,8 @@ Short summary of changes (72 characters or less)
 More detailed explanatory text, if necessary. This text can have 
 several lines.
 
-Issue: #123  (this line is optional)
+Issue: #123  (optional; if there is a related issue)
+Fix: #123  (optional; if the commit resolves the issue)
 ```
 
 Furthermore, commits should be signed off according to the [DCO](DCO.md).
