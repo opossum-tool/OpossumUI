@@ -16,7 +16,7 @@ import MuiTypography from '@mui/material/Typography';
 
 import { OpossumColors } from '../../shared-styles';
 
-export const projectMetadataPopupClasses = {
+export const projectMetadataTableClasses = {
   firstColumn: {
     fontSize: 13,
     background: OpossumColors.darkBlue,
@@ -30,7 +30,7 @@ export const projectMetadataPopupClasses = {
     overflow: 'auto',
     color: OpossumColors.black,
   },
-  projectMetadataTableContainer: {
+  container: {
     maxHeight: '500px',
     width: 'max-content',
     marginBottom: 3,
@@ -53,10 +53,10 @@ export function ProjectMetadataTable(): ReactElement {
   function getTableRow(key: string): ReactElement {
     return (
       <MuiTableRow key={key}>
-        <MuiTableCell sx={projectMetadataPopupClasses.firstColumn}>
+        <MuiTableCell sx={projectMetadataTableClasses.firstColumn}>
           {mapKeyToDisplayName(key)}
         </MuiTableCell>
-        <MuiTableCell sx={projectMetadataPopupClasses.secondColumn}>
+        <MuiTableCell sx={projectMetadataTableClasses.secondColumn}>
           <pre>
             <MuiTypography fontFamily="default">
               {typeof projectMetadata[key] === 'string'
@@ -71,9 +71,7 @@ export function ProjectMetadataTable(): ReactElement {
 
   return (
     <MuiBox>
-      <MuiTableContainer
-        sx={projectMetadataPopupClasses.projectMetadataTableContainer}
-      >
+      <MuiTableContainer sx={projectMetadataTableClasses.container}>
         <MuiTable>
           <MuiTableBody>
             {Object.keys(projectMetadata).map((key) => getTableRow(key))}
