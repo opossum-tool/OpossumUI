@@ -13,10 +13,10 @@ import {
 } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
 import React, { ReactElement } from 'react';
-import { StyledTreeItemLabel } from '../StyledTreeItemLabel/StyledTreeItemLabel';
+import { ResourceBrowserTreeItemLabel } from '../ResourceBrowserTreeItemLabel/ResourceBrowserTreeItemLabel';
 import { getClosestParentAttributions } from '../../util/get-closest-parent-attributions';
 
-export function getTreeItemLabel(
+export function getResourceBrowserTreeItemLabel(
   resourceName: string,
   resource: Resources | 1,
   nodeId: string,
@@ -33,7 +33,7 @@ export function getTreeItemLabel(
   const canHaveChildren = resource !== 1;
 
   return (
-    <StyledTreeItemLabel
+    <ResourceBrowserTreeItemLabel
       labelText={getDisplayName(resourceName)}
       canHaveChildren={canHaveChildren}
       hasManualAttribution={hasManualAttribution(

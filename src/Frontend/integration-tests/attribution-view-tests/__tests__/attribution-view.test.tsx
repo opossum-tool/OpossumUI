@@ -454,13 +454,13 @@ describe('The App in attribution view', () => {
 
     fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
     expectValueInTextBox(screen, 'Name', 'jQuery');
-    screen.getByText('/root/src/file_1');
+    screen.getByText('file_1');
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
 
     fireEvent.click(screen.getByText('React, 16.0.0') as Element);
     expectValueInTextBox(screen, 'Name', 'React');
-    screen.getByText('/root/src/file_2');
+    screen.getByText('file_2');
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
@@ -474,8 +474,8 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(screen, 'Name', 'React');
     expectReplaceAttributionPopupIsNotShown(screen);
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
-    screen.getByText('/root/src/file_1');
-    screen.getByText('/root/src/file_2');
+    screen.getByText('file_1');
+    screen.getByText('file_2');
 
     // make sure resources are now linked to React attribution
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);

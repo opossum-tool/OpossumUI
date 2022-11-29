@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Criticality } from '../../../../shared/shared-types';
-import { getCriticality } from '../get-tree-item-label';
+import { getCriticality } from '../get-resource-browser-tree-item-label';
 
 describe('Tree item labels', () => {
   it('checks resource getCriticality', () => {

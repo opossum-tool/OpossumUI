@@ -28,13 +28,14 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import { Resources } from '../../../shared/shared-types';
-import { getTreeItemLabel } from './get-tree-item-label';
+import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-item-label';
 import { useWindowHeight } from '../../util/use-window-height';
 import { topBarHeight } from '../TopBar/TopBar';
-import { treeClasses } from '../../shared-styles';
-
-const TREE_ROW_HEIGHT = 20;
-const ROOT_FOLDER_LABEL = '';
+import {
+  treeClasses,
+  TREE_ROOT_FOLDER_LABEL,
+  TREE_ROW_HEIGHT,
+} from '../../shared-styles';
 
 export function ResourceBrowser(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -89,7 +90,7 @@ export function ResourceBrowser(): ReactElement | null {
       resource: Resources | 1,
       nodeId: string
     ): ReactElement =>
-      getTreeItemLabel(
+      getResourceBrowserTreeItemLabel(
         resourceName,
         resource,
         nodeId,
@@ -113,7 +114,7 @@ export function ResourceBrowser(): ReactElement | null {
       isFakeNonExpandableNode={getFileWithChildrenCheck(filesWithChildren)}
       onSelect={handleSelect}
       onToggle={handleToggle}
-      nodes={{ [ROOT_FOLDER_LABEL]: resources }}
+      nodes={{ [TREE_ROOT_FOLDER_LABEL]: resources }}
       selectedNodeId={selectedResourceId}
       ariaLabel={'resource browser'}
       getTreeNodeLabel={getTreeItemLabelGetter()}

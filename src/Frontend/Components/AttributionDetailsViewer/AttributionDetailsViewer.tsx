@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackageInfo } from '../../../shared/shared-types';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
-import { ResourcesList } from '../ResourcesList/ResourcesList';
 import {
   deleteAttributionGloballyAndSave,
   savePackageInfo,
@@ -20,12 +19,16 @@ import {
   getResourceIdsOfSelectedAttribution,
   getSelectedAttributionId,
 } from '../../state/selectors/attribution-view-resource-selectors';
-import { OpossumColors } from '../../shared-styles';
+import { OpossumColors, treeClasses } from '../../shared-styles';
 import { useWindowHeight } from '../../util/use-window-height';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
 import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import MuiBox from '@mui/material/Box';
+import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
+
+const VERTICAL_RESOURCE_COLUMN_PADDING = 24;
+const VERTICAL_RESOURCE_HEADER_AND_FOOTER_SIZE = 72;
 
 const classes = {
   root: {
@@ -39,7 +42,7 @@ const classes = {
     display: 'flex',
     flexDirection: 'column',
     width: '30%',
-    height: '100%',
+    height: `calc(100% - ${VERTICAL_RESOURCE_COLUMN_PADDING}px)`,
     paddingRight: '8px',
     overflowY: 'auto',
     minWidth: '240px',
@@ -54,8 +57,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
   const resourceIdsOfSelectedAttributionId: Array<string> =
     useAppSelector(getResourceIdsOfSelectedAttribution) || [];
-
-  const resourceListMaxHeight = useWindowHeight() - 112;
 
   const dispatch = useAppDispatch();
 
@@ -88,17 +89,22 @@ export function AttributionDetailsViewer(): ReactElement | null {
     }
   }
 
+  const maxTreeHeight: number =
+    useWindowHeight() -
+    VERTICAL_RESOURCE_COLUMN_PADDING -
+    VERTICAL_RESOURCE_HEADER_AND_FOOTER_SIZE;
+
   return selectedAttributionId ? (
     <MuiBox sx={classes.root}>
       <MuiBox sx={classes.resourceColumn}>
         <MuiTypography sx={classes.typography} variant={'subtitle1'}>
           Linked Resources
         </MuiTypography>
-        <ResourcesList
-          resourcesListBatches={[
-            { resourceIds: resourceIdsOfSelectedAttributionId },
-          ]}
-          maxHeight={resourceListMaxHeight}
+        <ResourcesTree
+          resourcePaths={resourceIdsOfSelectedAttributionId}
+          highlightSelectedResources={false}
+          maxHeight={maxTreeHeight}
+          sx={treeClasses.tree('attributionView')}
         />
       </MuiBox>
       <AttributionColumn

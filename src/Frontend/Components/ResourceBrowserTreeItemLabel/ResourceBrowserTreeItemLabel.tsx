@@ -11,68 +11,12 @@ import {
   FileIcon,
   SignalIcon,
 } from '../Icons/Icons';
-import { OpossumColors, tooltipStyle } from '../../shared-styles';
+import { treeItemClasses } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import { Criticality } from '../../../shared/shared-types';
 
-const classes = {
-  manualIcon: {
-    color: OpossumColors.darkBlue,
-    height: '20px',
-    width: '20px',
-  },
-  externalIcon: {
-    color: OpossumColors.black,
-    height: '20px',
-    width: '20px',
-  },
-  labelRoot: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  spacer: {
-    flex: 1,
-  },
-  arrowPlaceholder: {
-    height: '20px',
-    width: '20px',
-  },
-  text: {
-    paddingRight: '5px',
-  },
-  breakpoint: {
-    fontWeight: 'bold',
-    color: OpossumColors.grey,
-  },
-  hasSignal: {
-    color: OpossumColors.orange,
-  },
-  hasAttribution: {
-    color: OpossumColors.green,
-  },
-  hasParentWithManualAttribution: {
-    color: OpossumColors.pastelMiddleGreen,
-  },
-  containsExternalAttribution: {
-    color: OpossumColors.pastelRed,
-  },
-  containsManualAttribution: {
-    color: OpossumColors.pastelMiddleGreen,
-  },
-  containsManualAndExternalAttribution: {
-    color: OpossumColors.middleBlue,
-  },
-  resourceWithoutInformation: {
-    color: OpossumColors.disabledGrey,
-  },
-  notContainsResourcesWithOnlyExternalAttribution: {
-    color: OpossumColors.pastelMiddleGreen,
-  },
-  tooltip: tooltipStyle,
-};
-
-interface StyledTreeItemProps {
+interface ResourceBrowserTreeItemLabelProps {
   labelText: string;
   hasManualAttribution: boolean;
   hasExternalAttribution: boolean;
@@ -87,49 +31,51 @@ interface StyledTreeItemProps {
   criticality?: Criticality;
 }
 
-export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
+export function ResourceBrowserTreeItemLabel(
+  props: ResourceBrowserTreeItemLabelProps
+): ReactElement {
   let iconSx: SxProps | undefined;
   let labelDetail: string | undefined;
   if (props.hasManualAttribution) {
-    iconSx = classes.hasAttribution;
+    iconSx = treeItemClasses.hasAttribution;
     labelDetail = 'with attribution';
   } else if (props.hasParentWithManualAttribution) {
-    iconSx = classes.hasParentWithManualAttribution;
+    iconSx = treeItemClasses.hasParentWithManualAttribution;
     labelDetail = 'with parent attribution';
   } else if (props.hasUnresolvedExternalAttribution) {
-    iconSx = classes.hasSignal;
+    iconSx = treeItemClasses.hasSignal;
     labelDetail = 'with signal';
   } else if (
     props.containsExternalAttribution &&
     !props.containsResourcesWithOnlyExternalAttribution
   ) {
-    iconSx = classes.notContainsResourcesWithOnlyExternalAttribution;
+    iconSx = treeItemClasses.notContainsResourcesWithOnlyExternalAttribution;
     labelDetail =
       'with all children containing signal also containing attributions';
   } else if (
     props.containsExternalAttribution &&
     props.containsManualAttribution
   ) {
-    iconSx = classes.containsManualAndExternalAttribution;
+    iconSx = treeItemClasses.containsManualAndExternalAttribution;
   } else if (
     props.containsExternalAttribution &&
     !props.containsManualAttribution
   ) {
-    iconSx = classes.containsExternalAttribution;
+    iconSx = treeItemClasses.containsExternalAttribution;
     labelDetail = 'containing signals';
   } else if (
     !props.containsExternalAttribution &&
     props.containsManualAttribution
   ) {
-    iconSx = classes.containsManualAttribution;
+    iconSx = treeItemClasses.containsManualAttribution;
     labelDetail = 'containing attributions';
   } else {
-    iconSx = classes.resourceWithoutInformation;
+    iconSx = treeItemClasses.resourceWithoutInformation;
     labelDetail = 'without information';
   }
 
   return (
-    <MuiBox sx={classes.labelRoot}>
+    <MuiBox sx={treeItemClasses.labelRoot}>
       {props.showFolderIcon ? (
         props.isAttributionBreakpoint ? (
           <BreakpointIcon />
@@ -141,8 +87,8 @@ export function StyledTreeItemLabel(props: StyledTreeItemProps): ReactElement {
       )}
       <MuiTypography
         sx={{
-          ...classes.text,
-          ...(props.isAttributionBreakpoint ? classes.breakpoint : {}),
+          ...treeItemClasses.text,
+          ...(props.isAttributionBreakpoint ? treeItemClasses.breakpoint : {}),
         }}
       >
         {props.labelText}

@@ -13,7 +13,7 @@ import { Button } from '../Button/Button';
 import { doNothing } from '../../util/do-nothing';
 import { ButtonConfig } from '../../types/types';
 import { SxProps } from '@mui/material';
-import { POPUP_MAX_WIDTH_BREAKPOINT } from '../../shared-constants';
+import { POPUP_MAX_WIDTH_BREAKPOINT } from '../../shared-styles';
 
 interface NotificationPopupProps {
   header: string;

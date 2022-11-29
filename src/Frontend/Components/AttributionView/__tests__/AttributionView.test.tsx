@@ -36,7 +36,7 @@ describe('The Attribution View', () => {
     licenseText: 'Some license text',
     firstParty: true,
   };
-  testResourcesToManualAttributions['test resource'] = [testManualUuid];
+  testResourcesToManualAttributions['/test resource'] = [testManualUuid];
   testManualAttributions[testOtherManualUuid] = {
     attributionConfidence: 0,
     comment: 'Some other comment',
@@ -46,7 +46,7 @@ describe('The Attribution View', () => {
     licenseText: 'Some other license text',
     followUp: FollowUp,
   };
-  testResourcesToManualAttributions['test other resource'] = [
+  testResourcesToManualAttributions['/test other resource'] = [
     testOtherManualUuid,
   ];
 
