@@ -9,13 +9,13 @@ export function expectShowResourcesPopupVisible(screen: Screen): void {
   expect(getPopupWithResources(screen)).toBeTruthy();
 }
 
-export function clickOnPathInPopupWithResources(
+export function clickOnNodeInPopupWithResources(
   screen: Screen,
-  path: string
+  nodeLabel: string
 ): void {
   const popupWithResources = getPopupWithResources(screen);
   // eslint-disable-next-line testing-library/prefer-screen-queries
-  fireEvent.click(getByText(popupWithResources, path));
+  fireEvent.click(getByText(popupWithResources, nodeLabel));
 }
 
 function getPopupWithResources(screen: Screen): HTMLElement {

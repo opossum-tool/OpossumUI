@@ -3,7 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { splitResourceIdsToCurrentAndOtherFolder } from '../resource-path-popup-helpers';
+import { Resources } from '../../../../shared/shared-types';
+import {
+  getResourcesFromResourcePaths,
+  splitResourceIdsToCurrentAndOtherFolder,
+} from '../resource-path-popup-helpers';
 
 describe('splitResourceItToCurrentAndOtherFolder', () => {
   it('splits resource ids correctly', () => {
@@ -28,6 +32,36 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     );
     expect(otherFolderResourceIds).toStrictEqual(
       expectedOtherFolderResourceIds
+    );
+  });
+
+  const testResourcesList: string[] = [
+    '/OpossumUI/DCO.md',
+    '/OpossumUI/src/Frontend/test.txt',
+    '/OpossumUI/src/Frontend/Components/file.tsx',
+    '/OpossumUI/src/abc.test.tsx',
+    '/OpossumUI/.idea/',
+  ];
+
+  const expectedResources: Resources = {
+    OpossumUI: {
+      ['.idea']: {},
+      src: {
+        Frontend: {
+          ['test.txt']: 1,
+          Components: {
+            ['file.tsx']: 1,
+          },
+        },
+        ['abc.test.tsx']: 1,
+      },
+      ['DCO.md']: 1,
+    },
+  };
+
+  it('correctly converts a list of resource ids (paths) into a Resources object', () => {
+    expect(getResourcesFromResourcePaths(testResourcesList)).toEqual(
+      expectedResources
     );
   });
 });
