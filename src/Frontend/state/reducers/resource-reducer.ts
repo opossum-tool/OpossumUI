@@ -7,7 +7,7 @@ import {
   AttributionData,
   BaseUrlsForSources,
   ExternalAttributionSources,
-  FrequentLicences,
+  FrequentLicenses,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -80,7 +80,7 @@ export const initialResourceState: ResourceState = {
     resources: null,
     manualData: EMPTY_ATTRIBUTION_DATA,
     externalData: EMPTY_ATTRIBUTION_DATA,
-    frequentLicences: EMPTY_FREQUENT_LICENSES,
+    frequentLicenses: EMPTY_FREQUENT_LICENSES,
     progressBarData: null,
     temporaryPackageInfo: {},
     attributionBreakpoints: new Set(),
@@ -118,7 +118,7 @@ export type ResourceState = {
     resources: Resources | null;
     manualData: AttributionData;
     externalData: AttributionData;
-    frequentLicences: FrequentLicences;
+    frequentLicenses: FrequentLicenses;
     progressBarData: ProgressBarData | null;
     temporaryPackageInfo: PackageInfo;
     attributionBreakpoints: Set<string>;
@@ -176,7 +176,7 @@ export const resourceState = (
     case ACTION_SET_FREQUENT_LICENSES:
       return {
         ...state,
-        allViews: { ...state.allViews, frequentLicences: action.payload },
+        allViews: { ...state.allViews, frequentLicenses: action.payload },
       };
     case ACTION_SET_BASE_URLS_FOR_SOURCES:
       return {

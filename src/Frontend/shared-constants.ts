@@ -5,7 +5,7 @@
 
 import {
   AttributionData,
-  FrequentLicences,
+  FrequentLicenses,
   ProjectMetadata,
 } from '../shared/shared-types';
 
@@ -16,7 +16,7 @@ export const EMPTY_ATTRIBUTION_DATA: AttributionData = {
   resourcesWithAttributedChildren: {},
 };
 
-export const EMPTY_FREQUENT_LICENSES: FrequentLicences = {
+export const EMPTY_FREQUENT_LICENSES: FrequentLicenses = {
   nameOrder: [],
   texts: {},
 };

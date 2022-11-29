@@ -7,7 +7,7 @@ import {
   Attributions,
   BaseUrlsForSources,
   ExternalAttributionSources,
-  FrequentLicences,
+  FrequentLicenses,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -33,7 +33,7 @@ import {
   SetExternalAttributionSources,
   SetExternalDataAction,
   SetFilesWithChildren,
-  SetFrequentLicencesAction,
+  SetFrequentLicensesAction,
   SetManualDataAction,
   SetProgressBarData,
   SetProjectMetadata,
@@ -75,9 +75,9 @@ export function setExternalData(
   };
 }
 
-export function setFrequentLicences(
-  licenses: FrequentLicences
-): SetFrequentLicencesAction {
+export function setFrequentLicenses(
+  licenses: FrequentLicenses
+): SetFrequentLicensesAction {
   return { type: ACTION_SET_FREQUENT_LICENSES, payload: licenses };
 }
 

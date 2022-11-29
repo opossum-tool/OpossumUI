@@ -7,15 +7,11 @@ import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
   ATTRIBUTION_TOTAL,
-  AttributionCountPerSourcePerLicense,
-  getAttributionPropertyDisplayNameFromId,
-  getColorsForPieChart,
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getLicenseCriticality,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
-  LicenseNamesWithCriticality,
 } from '../project-statistics-popup-helpers';
 import {
   Attributions,
@@ -23,9 +19,11 @@ import {
   ExternalAttributionSources,
   FollowUp,
 } from '../../../../shared/shared-types';
-import { OpossumColors } from '../../../shared-styles';
-import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
-import { PieChartData } from '../../PieChart/PieChart';
+import {
+  AttributionCountPerSourcePerLicense,
+  LicenseNamesWithCriticality,
+  PieChartData,
+} from '../../../types/types';
 
 const testAttributions_1: Attributions = {
   uuid1: {
@@ -239,28 +237,6 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
   });
 });
 
-describe('getAttributionPropertyDisplayNameFromId', () => {
-  it('gets valid property display name from property id', () => {
-    const expectedDisplayName = 'First party';
-    const propertyID = 'firstParty';
-
-    const attributionPropertyDisplayName =
-      getAttributionPropertyDisplayNameFromId(propertyID);
-
-    expect(attributionPropertyDisplayName).toEqual(expectedDisplayName);
-  });
-
-  it('gets invalid display name as it is', () => {
-    const expectedDisplayName = 'random';
-    const propertyID = 'random';
-
-    const attributionPropertyDisplayName =
-      getAttributionPropertyDisplayNameFromId(propertyID);
-
-    expect(attributionPropertyDisplayName).toEqual(expectedDisplayName);
-  });
-});
-
 describe('getMostFrequentLicenses', () => {
   it('obtains most frequent licenses without other accumulation', () => {
     const expectedSortedMostFrequentLicenses: Array<PieChartData> = [
@@ -383,58 +359,6 @@ describe('getCriticalSignalsCount', () => {
     );
 
     expect(criticalSignalsCount).toEqual(expectedCriticalSignalCount);
-  });
-});
-
-describe('getColorsForPieChart', () => {
-  it('obtains pie chart colors for critical signals pie chart', () => {
-    const expectedPieChartColors = [
-      OpossumColors.orange,
-      OpossumColors.mediumOrange,
-      OpossumColors.darkBlue,
-    ];
-    const criticalSignalsCount: Array<PieChartData> = [
-      {
-        name: 'High',
-        count: 3,
-      },
-      {
-        name: 'Medium',
-        count: 4,
-      },
-      {
-        name: 'Not critical',
-        count: 2,
-      },
-    ];
-
-    const pieChartColors = getColorsForPieChart(
-      criticalSignalsCount,
-      ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
-    );
-
-    expect(pieChartColors).toEqual(expectedPieChartColors);
-  });
-
-  it('obtains undefined pie chart colors for default case', () => {
-    const expectedPieChartColors = undefined;
-    const sortedMostFrequentLicenses: Array<PieChartData> = [
-      {
-        name: 'Apache License Version 2.0',
-        count: 3,
-      },
-      {
-        name: 'The MIT License (MIT)',
-        count: 3,
-      },
-    ];
-
-    const pieChartColors = getColorsForPieChart(
-      sortedMostFrequentLicenses,
-      ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
-    );
-
-    expect(pieChartColors).toEqual(expectedPieChartColors);
   });
 });
 

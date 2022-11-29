@@ -11,7 +11,7 @@ import {
   setExternalAttributionSources,
   setExternalData,
   setFilesWithChildren,
-  setFrequentLicences,
+  setFrequentLicenses,
   setManualData,
   setProgressBarData,
   setProjectMetadata,
@@ -39,7 +39,7 @@ export function loadFromFile(
       )
     );
 
-    dispatch(setFrequentLicences(parsedFileContent.frequentLicenses));
+    dispatch(setFrequentLicenses(parsedFileContent.frequentLicenses));
 
     dispatch(
       setAttributionBreakpoints(parsedFileContent.attributionBreakpoints)

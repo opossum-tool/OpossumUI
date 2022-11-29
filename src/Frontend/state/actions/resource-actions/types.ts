@@ -8,7 +8,7 @@ import {
   Attributions,
   BaseUrlsForSources,
   ExternalAttributionSources,
-  FrequentLicences,
+  FrequentLicenses,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -79,7 +79,7 @@ export type ResourceAction =
   | SetResourcesAction
   | SetManualDataAction
   | SetExternalDataAction
-  | SetFrequentLicencesAction
+  | SetFrequentLicensesAction
   | SetProgressBarData
   | SetTemporaryPackageInfoAction
   | SetSelectedResourceIdAction
@@ -129,9 +129,9 @@ export interface SetExternalDataAction {
   payload: AttributionData;
 }
 
-export interface SetFrequentLicencesAction {
+export interface SetFrequentLicensesAction {
   type: typeof ACTION_SET_FREQUENT_LICENSES;
-  payload: FrequentLicences;
+  payload: FrequentLicenses;
 }
 
 export interface SetProgressBarDataPayload {

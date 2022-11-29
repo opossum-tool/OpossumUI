@@ -8,7 +8,7 @@ import React from 'react';
 import {
   Attributions,
   FollowUp,
-  FrequentLicences,
+  FrequentLicenses,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -20,7 +20,7 @@ import {
 } from '../../../test-helpers/general-test-helpers';
 import { ReportView } from '../ReportView';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { setFrequentLicences } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { FilterType } from '../../../enums/enums';
 
 describe('The ReportView', () => {
@@ -54,7 +54,7 @@ describe('The ReportView', () => {
   ];
 
   it('renders', () => {
-    const testFrequentLicenses: FrequentLicences = {
+    const testFrequentLicenses: FrequentLicenses = {
       nameOrder: ['MIT', 'GPL'],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
@@ -69,7 +69,7 @@ describe('The ReportView', () => {
           })
         )
       );
-      store.dispatch(setFrequentLicences(testFrequentLicenses));
+      store.dispatch(setFrequentLicenses(testFrequentLicenses));
     });
     expect(screen.getByText(/Attributions \(2 total, 1, 0, 0/));
     expect(screen.getByText('Test package'));

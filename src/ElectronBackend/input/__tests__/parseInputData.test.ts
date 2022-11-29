@@ -9,7 +9,7 @@ import {
   AttributionsToResources,
   Criticality,
   FollowUp,
-  FrequentLicences,
+  FrequentLicenses,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
@@ -214,7 +214,7 @@ describe('sanitizeRawBaseUrlsForSources', () => {
 describe('parseFrequentLicenses', () => {
   it('handles undefined', () => {
     const rawFrequentLicenses = undefined;
-    const expectedFrequentLicenses: FrequentLicences = {
+    const expectedFrequentLicenses: FrequentLicenses = {
       nameOrder: [],
       texts: {},
     };
@@ -226,7 +226,7 @@ describe('parseFrequentLicenses', () => {
 
   it('handles empty array', () => {
     const rawFrequentLicenses: Array<RawFrequentLicense> = [];
-    const expectedFrequentLicenses: FrequentLicences = {
+    const expectedFrequentLicenses: FrequentLicenses = {
       nameOrder: [],
       texts: {},
     };
@@ -249,7 +249,7 @@ describe('parseFrequentLicenses', () => {
         defaultText: 'GPL license text',
       },
     ];
-    const expectedFrequentLicenses: FrequentLicences = {
+    const expectedFrequentLicenses: FrequentLicenses = {
       nameOrder: ['MIT', 'GPL'],
       texts: {
         MIT: 'MIT license text',
