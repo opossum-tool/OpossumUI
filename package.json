@@ -104,7 +104,7 @@
     "copyright-lint-check": "reuse lint",
     "update-commit-hash": "run-script-os",
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\";\n",
-    "update-commit-hash:win32": "echo {\"commitInfo\" : \"unknown-version\" } > \"src\\commitInfo.json\"",
+    "update-commit-hash:win32": "get_app_version_for_windows.bat",
     "generate-notice": "run-script-os",
     "generate-notice:darwin:linux": "mkdir -p notices && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
     "generate-notice:win32": "(if not exist notices (mkdir notices)) && yarn licenses generate-disclaimer --ignore-platform --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
