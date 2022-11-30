@@ -35,7 +35,7 @@ const classes = {
     background: OpossumColors.lightestBlue,
     flex: 1,
     padding: '8px',
-    width: `calc(100% - ${resourceBrowserWidthInPixels}px)`,
+    width: `calc(95% - ${resourceBrowserWidthInPixels}px)`,
   },
   columnDiv: {
     display: 'flex',
