@@ -43,7 +43,6 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
   dispatch(setManualData(attributions, resourcesToManualAttributions));
   return (
     <ResourcePathPopup
-      isOpen={true}
       closePopup={doNothing}
       attributionId={'uuid_1'}
       isExternalAttribution={props.isExternalAttribution}

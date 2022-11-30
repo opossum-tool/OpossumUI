@@ -30,7 +30,6 @@ const classes = {
 };
 
 interface ResourcePathPopupProps {
-  isOpen: boolean;
   closePopup(): void;
   attributionId: string;
   isExternalAttribution: boolean;
@@ -90,7 +89,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
           />
         </MuiBox>
       }
-      isOpen={props.isOpen}
+      isOpen={true}
       fullWidth={true}
     />
   );
