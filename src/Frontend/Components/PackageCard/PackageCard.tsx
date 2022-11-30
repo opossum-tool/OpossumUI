@@ -17,7 +17,6 @@ import {
   getAttributionIdMarkedForReplacement,
   getManualAttributions,
   getManualAttributionsToResources,
-  getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
@@ -88,7 +87,6 @@ interface PackageCardProps {
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
   const dispatch = useAppDispatch();
-  const temporaryPackageInfo = useSelector(getTemporaryPackageInfo);
   const selectedView = useSelector(getSelectedView);
   const selectedAttributionIdAttributionView = useSelector(
     getSelectedAttributionId
@@ -140,15 +138,9 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       : undefined,
   };
 
-  function getPackageInfo(currentAttributionId: string): PackageInfo {
-    return currentAttributionId === selectedAttributionId
-      ? temporaryPackageInfo
-      : manualAttributions[currentAttributionId];
-  }
-
   const highlightedAttribution =
     selectedView === View.Attribution &&
-    isPackageInfoIncomplete(getPackageInfo(attributionId));
+    isPackageInfoIncomplete(manualAttributions[attributionId]);
 
   function getContextMenuItems(): Array<ContextMenuItem> {
     function openConfirmDeletionPopup(): void {
@@ -178,7 +170,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     }
 
     function confirmAttribution(): void {
-      const packageInfo = getPackageInfo(attributionId);
+      const packageInfo = manualAttributions[attributionId];
       if (attributionsToResources[attributionId].length === 1) {
         confirmAttributionGlobally(attributionId);
       } else {
@@ -194,12 +186,11 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     }
 
     function confirmAttributionGlobally(currentAttributionId: string): void {
-      const packageInfo = getPackageInfo(currentAttributionId);
       dispatch(
         savePackageInfo(
           null,
           currentAttributionId,
-          packageInfo,
+          manualAttributions[currentAttributionId],
           currentAttributionId !== selectedAttributionId
         )
       );
@@ -207,7 +198,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
 
     function confirmSelectedAttributionsGlobally(): void {
       multiSelectSelectedAttributionIds.forEach((currentAttributionId) => {
-        if (getPackageInfo(currentAttributionId).preSelected) {
+        if (manualAttributions[currentAttributionId].preSelected) {
           confirmAttributionGlobally(currentAttributionId);
         }
       });
