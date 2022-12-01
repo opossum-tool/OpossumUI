@@ -6,6 +6,7 @@
 import {
   Attributions,
   AttributionsToResources,
+  DiscreteConfidence,
   FrequentLicenses,
   PackageInfo,
   Resources,
@@ -48,7 +49,6 @@ import {
 import { setSelectedResourceId } from '../audit-view-simple-actions';
 import { loadFromFile } from '../load-actions';
 import { setIsSavingDisabled } from '../save-actions';
-import { DiscreteConfidence } from '../../../../enums/enums';
 
 const testResources: Resources = {
   thirdParty: {

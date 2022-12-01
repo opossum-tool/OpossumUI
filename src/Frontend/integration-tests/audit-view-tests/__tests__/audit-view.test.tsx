@@ -17,17 +17,14 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
+  DiscreteConfidence,
   ParsedFileContent,
   Resources,
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  ButtonText,
-  DiscreteConfidence,
-  PackagePanelTitle,
-} from '../../../enums/enums';
+import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
 import {
   clickAddIconOnCardInAttributionList,
   clickOnPackageInPackagePanel,

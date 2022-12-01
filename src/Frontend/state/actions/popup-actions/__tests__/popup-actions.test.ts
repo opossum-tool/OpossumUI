@@ -4,12 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  DiscreteConfidence,
-  PackagePanelTitle,
-  PopupType,
-  View,
-} from '../../../../enums/enums';
+import { PackagePanelTitle, PopupType, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   getManualAttributions,
@@ -42,6 +37,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import {
   AttributionData,
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,

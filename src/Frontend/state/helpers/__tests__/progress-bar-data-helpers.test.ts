@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -17,7 +18,6 @@ import {
   updateProgressBarDataForResources,
 } from '../progress-bar-data-helpers';
 import { ProgressBarData } from '../../../types/types';
-import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The getUpdatedProgressBarData function', () => {
   it('gets updated progress data', () => {

@@ -9,6 +9,7 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
   AttributionsToResources,
+  DiscreteConfidence,
   ParsedFileContent,
 } from '../../shared/shared-types';
 import { getGlobalBackendState } from '../main/globalBackendState';
@@ -188,6 +189,17 @@ function createOutputFile(
       ]
     )
   );
+
+  for (const attributionId of Object.keys(preselectedAttributions)) {
+    const attributionConfidence =
+      preselectedAttributions[attributionId].attributionConfidence;
+    if (attributionConfidence !== undefined) {
+      preselectedAttributions[attributionId].attributionConfidence =
+        attributionConfidence >= DiscreteConfidence.High
+          ? DiscreteConfidence.High
+          : DiscreteConfidence.Low;
+    }
+  }
 
   const attributionJSON: OpossumOutputFile = {
     metadata: {

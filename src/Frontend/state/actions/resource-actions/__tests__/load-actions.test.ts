@@ -7,6 +7,7 @@ import {
   AttributionData,
   Attributions,
   BaseUrlsForSources,
+  DiscreteConfidence,
   FrequentLicenses,
   PackageInfo,
   ParsedFileContent,
@@ -32,7 +33,6 @@ import {
 import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
 import { loadFromFile } from '../load-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
-import { DiscreteConfidence } from '../../../../enums/enums';
 
 const testResources: Resources = {
   thirdParty: {

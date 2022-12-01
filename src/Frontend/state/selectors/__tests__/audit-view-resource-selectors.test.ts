@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -25,7 +26,7 @@ import {
   getAttributionsOfSelectedResourceOrClosestParent,
   getResolvedExternalAttributions,
 } from '../audit-view-resource-selectors';
-import { DiscreteConfidence, PackagePanelTitle } from '../../../enums/enums';
+import { PackagePanelTitle } from '../../../enums/enums';
 
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';

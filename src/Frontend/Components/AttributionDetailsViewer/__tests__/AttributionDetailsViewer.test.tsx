@@ -5,8 +5,12 @@
 
 import { act, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import { Attributions, PackageInfo } from '../../../../shared/shared-types';
-import { DiscreteConfidence, View } from '../../../enums/enums';
+import {
+  Attributions,
+  DiscreteConfidence,
+  PackageInfo,
+} from '../../../../shared/shared-types';
+import { View } from '../../../enums/enums';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';

@@ -7,6 +7,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -14,7 +15,6 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { TopProgressBar } from '../TopProgressBar';
 import { setProgressBarData } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('TopProgressBar', () => {
   jest.useFakeTimers();

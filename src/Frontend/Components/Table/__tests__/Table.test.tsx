@@ -4,12 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { AttributionsWithResources } from '../../../../shared/shared-types';
+import {
+  AttributionsWithResources,
+  DiscreteConfidence,
+} from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { doNothing } from '../../../util/do-nothing';
 import { Table } from '../Table';
 import { screen } from '@testing-library/react';
-import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The Table', () => {
   it('renders', () => {

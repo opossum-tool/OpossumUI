@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -12,7 +13,7 @@ import {
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { wereTemporaryPackageInfoModified } from '../all-views-resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { DiscreteConfidence, PackagePanelTitle } from '../../../enums/enums';
+import { PackagePanelTitle } from '../../../enums/enums';
 import {
   setDisplayedPackage,
   setSelectedResourceId,

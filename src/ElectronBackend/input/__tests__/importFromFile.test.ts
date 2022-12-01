@@ -9,6 +9,7 @@ import path from 'path';
 import upath from 'upath';
 import {
   Criticality,
+  DiscreteConfidence,
   FollowUp,
   PackageInfo,
   ParsedFileContent,
@@ -368,7 +369,7 @@ describe('Test of loading function', () => {
               comment: 'some comment',
               copyright: '(c) first party',
               preSelected: true,
-              attributionConfidence: 17,
+              attributionConfidence: DiscreteConfidence.Low,
             },
           },
           resourcesToAttributions: {

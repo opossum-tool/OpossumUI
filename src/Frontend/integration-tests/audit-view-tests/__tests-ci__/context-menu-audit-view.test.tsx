@@ -6,6 +6,7 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
   SaveFileArgs,
@@ -32,7 +33,7 @@ import {
 } from '../../../test-helpers/context-menu-test-helpers';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 import { screen } from '@testing-library/react';
 import React from 'react';
 import {

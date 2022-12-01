@@ -7,15 +7,12 @@
 import {
   Attributions,
   AttributionsToResources,
+  DiscreteConfidence,
   PackageInfo,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
-import {
-  DiscreteConfidence,
-  PopupType,
-  SavePackageInfoOperation,
-} from '../../../enums/enums';
+import { PopupType, SavePackageInfoOperation } from '../../../enums/enums';
 import { packageInfoHasNoSignificantFields } from '../../../util/package-info-has-no-significant-fields';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {

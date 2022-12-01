@@ -9,6 +9,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
+  DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
   SaveFileArgs,
@@ -23,7 +24,7 @@ import {
   handleReplaceMarkedAttributionViaContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
+import { ButtonText, View } from '../../../enums/enums';
 import {
   expectValueInConfidenceField,
   expectValueInTextBox,

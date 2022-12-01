@@ -15,10 +15,11 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   Attributions,
+  DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';

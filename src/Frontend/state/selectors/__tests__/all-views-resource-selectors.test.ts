@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   ProjectMetadata,
   ResourcesToAttributions,
@@ -24,7 +25,6 @@ import {
 } from '../../actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
-import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('getPackageInfoOfSelectedAttribution', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
