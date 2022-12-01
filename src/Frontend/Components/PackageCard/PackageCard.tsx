@@ -381,17 +381,17 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
 
   return (
     <MuiBox sx={!props.showCheckBox ? classes.multiSelectPackageCard : {}}>
-      {!Boolean(props.hideContextMenuAndMultiSelect) && (
-        <ResourcePathPopup
-          isOpen={showAssociatedResourcesPopup}
-          closePopup={(): void => setShowAssociatedResourcesPopup(false)}
-          attributionId={props.attributionId}
-          isExternalAttribution={Boolean(
-            props.cardConfig.isExternalAttribution
-          )}
-          displayedAttributionName={packageLabels[0] || ''}
-        />
-      )}
+      {showAssociatedResourcesPopup &&
+        !Boolean(props.hideContextMenuAndMultiSelect) && (
+          <ResourcePathPopup
+            closePopup={(): void => setShowAssociatedResourcesPopup(false)}
+            attributionId={props.attributionId}
+            isExternalAttribution={Boolean(
+              props.cardConfig.isExternalAttribution
+            )}
+            displayedAttributionName={packageLabels[0] || ''}
+          />
+        )}
       <ContextMenu
         menuItems={getContextMenuItems()}
         activation={'onRightClick'}
