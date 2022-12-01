@@ -7,6 +7,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -22,7 +23,6 @@ import {
   setManualData,
   setResources,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { DiscreteConfidence } from '../../../enums/enums';
 import { setResolvedExternalAttributions } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { FolderProgressBar } from '../FolderProgressBar';
 

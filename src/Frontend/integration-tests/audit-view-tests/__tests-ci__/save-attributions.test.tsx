@@ -17,10 +17,11 @@ import {
 import { screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
+  DiscreteConfidence,
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 import React from 'react';
 import {
   clickAddNewAttributionButton,

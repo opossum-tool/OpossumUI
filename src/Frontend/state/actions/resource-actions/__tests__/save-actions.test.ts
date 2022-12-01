@@ -7,17 +7,14 @@
 import {
   AttributionData,
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
   SaveFileArgs,
 } from '../../../../../shared/shared-types';
-import {
-  DiscreteConfidence,
-  PackagePanelTitle,
-  PopupType,
-} from '../../../../enums/enums';
+import { PackagePanelTitle, PopupType } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { ProgressBarData } from '../../../../types/types';

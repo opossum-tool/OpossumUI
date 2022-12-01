@@ -6,11 +6,7 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import {
-  ButtonText,
-  DiscreteConfidence,
-  PopupType,
-} from '../../../enums/enums';
+import { ButtonText, PopupType } from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import {
   createTestAppStore,
@@ -27,7 +23,11 @@ import {
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
-import { Attributions, Resources } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  DiscreteConfidence,
+  Resources,
+} from '../../../../shared/shared-types';
 
 function setupTestState(store: EnhancedTestStore): void {
   const testResources: Resources = {

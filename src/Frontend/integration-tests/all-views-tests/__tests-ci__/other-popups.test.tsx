@@ -16,12 +16,13 @@ import {
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
+  DiscreteConfidence,
   PackageInfo,
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { act, fireEvent, screen } from '@testing-library/react';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
 import React from 'react';
 import {

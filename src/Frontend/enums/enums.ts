@@ -42,11 +42,6 @@ export enum PackagePanelTitle {
   ManualPackages = 'Attributions',
 }
 
-export enum DiscreteConfidence {
-  High = 80,
-  Low = 20,
-}
-
 export enum ButtonText {
   Close = 'Close',
   Cancel = 'Cancel',

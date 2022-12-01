@@ -20,6 +20,11 @@ export enum Criticality {
   Medium = 'medium',
 }
 
+export enum DiscreteConfidence {
+  High = 80,
+  Low = 20,
+}
+
 export interface PackageInfo {
   attributionConfidence?: number;
   comment?: string;

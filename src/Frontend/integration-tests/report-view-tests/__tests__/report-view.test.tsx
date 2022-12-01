@@ -12,8 +12,11 @@ import {
   goToView,
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
-import { ButtonText, DiscreteConfidence, View } from '../../../enums/enums';
-import { ParsedFileContent } from '../../../../shared/shared-types';
+import { ButtonText, View } from '../../../enums/enums';
+import {
+  DiscreteConfidence,
+  ParsedFileContent,
+} from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';

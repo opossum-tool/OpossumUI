@@ -5,8 +5,8 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { PackageInfo } from '../../../shared/shared-types';
-import { CheckboxLabel, DiscreteConfidence } from '../../enums/enums';
+import { DiscreteConfidence, PackageInfo } from '../../../shared/shared-types';
+import { CheckboxLabel } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
 import { prettifySource } from '../../util/prettify-source';
 import { Checkbox } from '../Checkbox/Checkbox';

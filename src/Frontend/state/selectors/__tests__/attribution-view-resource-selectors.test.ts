@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -16,7 +17,6 @@ import {
 } from '../../actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
 import { getResourceIdsOfSelectedAttribution } from '../attribution-view-resource-selectors';
-import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The resource actions', () => {
   const testResources: Resources = {

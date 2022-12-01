@@ -7,7 +7,7 @@ import React, { ChangeEvent } from 'react';
 import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { Dropdown } from '../Dropdown';
-import { DiscreteConfidence } from '../../../enums/enums';
+import { DiscreteConfidence } from '../../../../shared/shared-types';
 
 describe('The Dropdown', () => {
   it('renders value ', () => {

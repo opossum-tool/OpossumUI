@@ -7,6 +7,7 @@
 import { screen } from '@testing-library/react';
 import React from 'react';
 import {
+  DiscreteConfidence,
   FollowUp,
   FrequentLicenses,
   PackageInfo,
@@ -16,7 +17,6 @@ import {
 import {
   ButtonText,
   CheckboxLabel,
-  DiscreteConfidence,
   PackagePanelTitle,
 } from '../../../enums/enums';
 import {

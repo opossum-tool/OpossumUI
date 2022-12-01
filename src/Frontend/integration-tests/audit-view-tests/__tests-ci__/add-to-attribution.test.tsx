@@ -11,12 +11,13 @@ import {
 import { App } from '../../../Components/App/App';
 import {
   Attributions,
+  DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, DiscreteConfidence } from '../../../enums/enums';
+import { ButtonText } from '../../../enums/enums';
 import React from 'react';
 import {
   clickAddIconOnCardInAttributionList,

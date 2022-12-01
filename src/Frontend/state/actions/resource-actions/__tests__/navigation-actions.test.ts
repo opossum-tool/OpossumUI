@@ -5,15 +5,12 @@
 
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
-import {
-  DiscreteConfidence,
-  PackagePanelTitle,
-  View,
-} from '../../../../enums/enums';
+import { PackagePanelTitle, View } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../../types/types';

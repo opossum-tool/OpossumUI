@@ -6,10 +6,10 @@
 import React from 'react';
 import {
   Attributions,
+  DiscreteConfidence,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { DiscreteConfidence } from '../../../enums/enums';
 import {
   EnhancedTestStore,
   renderComponentWithStore,

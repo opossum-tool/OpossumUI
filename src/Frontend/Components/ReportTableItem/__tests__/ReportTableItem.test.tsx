@@ -3,13 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionsWithResources } from '../../../../shared/shared-types';
+import {
+  AttributionsWithResources,
+  DiscreteConfidence,
+} from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { doNothing } from '../../../util/do-nothing';
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { ReportTableItem } from '../ReportTableItem';
-import { DiscreteConfidence } from '../../../enums/enums';
 
 describe('The ReportTableItem', () => {
   it('renders', () => {
