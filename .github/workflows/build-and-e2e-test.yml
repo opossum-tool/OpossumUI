@@ -39,16 +39,19 @@ jobs:
         with:
           node-version: 18
 
-      - name: Get path to yarn cache
-        run: echo "cache_dir=$(yarn cache dir)" >> $GITHUB_ENV
-        if: matrix.os != 'windows-latest'
-
-      - name: Use yarn cache
+      - name: Use yarn cache (linux, mac)
         uses: actions/cache@v3
         with:
-          path: ${{ env.cache_dir }}
-          key: ${{ matrix.os }}-${{ hashFiles('**/yarn.lock') }}
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
         if: matrix.os != 'windows-latest'
+
+      - name: Use yarn cache (win)
+        uses: actions/cache@v3
+        with:
+          path: '**\node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**\yarn.lock') }}
+        if: matrix.os == 'windows-latest'
 
       - run: yarn install --frozen-lockfile --prefer-offline --network-timeout 560000
 
