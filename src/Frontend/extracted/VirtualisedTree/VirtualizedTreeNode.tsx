@@ -10,6 +10,11 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import {
+  isBreakpointOrChildOfBreakpoint,
+  isChildOfSelected,
+  isSelected,
+} from './utils/get-tree-node-props';
 
 const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_NODE_EXTRA_INDENT = 28;
@@ -48,6 +53,7 @@ export interface VirtualizedTreeNodeData {
   nonExpandedNodeIcon?: ReactElement;
   treeNodeStyle?: TreeNodeStyle;
   nodeHeight: number;
+  breakpoints: Set<string>;
 }
 
 export function VirtualizedTreeNode(
@@ -78,7 +84,13 @@ export function VirtualizedTreeNode(
             ...((isSelected(props.nodeId, props.selected)
               ? props.treeNodeStyle?.selected
               : isChildOfSelected(props.nodeId, props.selected)
-              ? props.treeNodeStyle?.childrenOfSelected
+              ? !isBreakpointOrChildOfBreakpoint(
+                  props.nodeId,
+                  props.selected,
+                  props.breakpoints
+                )
+                ? props.treeNodeStyle?.childrenOfSelected
+                : null
               : null) || {}),
           } as SxProps
         }
@@ -109,17 +121,5 @@ function getExpandableNodeIcon(
       ariaLabel={ariaLabel}
       icon={icon}
     />
-  );
-}
-
-function isSelected(nodeId: string, selected: string): boolean {
-  return nodeId === selected;
-}
-
-function isChildOfSelected(nodeId: string, selected: string): boolean {
-  return (
-    nodeId.startsWith(selected) &&
-    !isSelected(nodeId, selected) &&
-    selected.slice(-1) === '/'
   );
 }

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
+import { getParents } from '../../../state/helpers/get-parents';
 import { NodeIdPredicateForTree, NodesForTree } from '../types';
 import { VirtualizedTreeNodeData } from '../VirtualizedTreeNode';
 
@@ -20,7 +21,8 @@ export function getTreeNodeProps(
     node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement,
-  cardHeight: number
+  cardHeight: number,
+  breakpoints: Set<string>
 ): Array<VirtualizedTreeNodeData> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
     getSortFunction(nodes, isFileWithChildren, parentPath)
@@ -60,6 +62,7 @@ export function getTreeNodeProps(
       nodeName,
       selected,
       nodeHeight,
+      breakpoints,
     });
 
     if (isExpandedNode) {
@@ -73,7 +76,8 @@ export function getTreeNodeProps(
           onSelect,
           onToggle,
           getTreeNodeLabel,
-          nodeHeight
+          nodeHeight,
+          breakpoints
         )
       );
     }
@@ -144,7 +148,7 @@ function isExpanded(nodeId: string, expandedNodes: Array<string>): boolean {
   return false;
 }
 
-function isSelected(nodeId: string, selected: string): boolean {
+export function isSelected(nodeId: string, selected: string): boolean {
   return nodeId === selected;
 }
 
@@ -154,6 +158,21 @@ export function isChildOfSelected(nodeId: string, selected: string): boolean {
     !isSelected(nodeId, selected) &&
     selected.slice(-1) === '/'
   );
+}
+
+export function isBreakpointOrChildOfBreakpoint(
+  nodeId: string,
+  selected: string,
+  breakpoints: Set<string>
+): boolean {
+  const relativePathToNodeFromSelected = nodeId.replace(selected, '');
+  const parents = getParents(relativePathToNodeFromSelected);
+  const isChildOfBreakpoint =
+    parents.filter((item) => breakpoints.has(selected + item)).length > 0
+      ? true
+      : false;
+
+  return breakpoints.has(nodeId) || isChildOfBreakpoint;
 }
 
 function getSortFunction(

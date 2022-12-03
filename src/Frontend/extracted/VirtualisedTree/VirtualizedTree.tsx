@@ -36,6 +36,7 @@ interface VirtualizedTreeProps {
     node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement;
+  breakpoints: Set<string>;
   expandedIds: Array<string>;
   selectedNodeId: string;
   isFakeNonExpandableNode: NodeIdPredicateForTree;
@@ -64,7 +65,8 @@ export function VirtualizedTree(
     props.onSelect,
     props.onToggle,
     props.getTreeNodeLabel,
-    props.cardHeight
+    props.cardHeight,
+    props.breakpoints
   );
 
   const maxListLength: NumberOfDisplayedNodesForTree | HeightForTree =
