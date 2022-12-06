@@ -53,7 +53,7 @@ export interface VirtualizedTreeNodeData {
   nonExpandedNodeIcon?: ReactElement;
   treeNodeStyle?: TreeNodeStyle;
   nodeHeight: number;
-  breakpoints: Set<string>;
+  breakpoints?: Set<string>;
 }
 
 export function VirtualizedTreeNode(

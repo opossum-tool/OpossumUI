@@ -36,7 +36,6 @@ interface VirtualizedTreeProps {
     node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement;
-  breakpoints: Set<string>;
   expandedIds: Array<string>;
   selectedNodeId: string;
   isFakeNonExpandableNode: NodeIdPredicateForTree;
@@ -50,6 +49,7 @@ interface VirtualizedTreeProps {
   sx?: SxProps;
   treeNodeStyle?: TreeNodeStyle;
   alwaysShowHorizontalScrollBar?: boolean;
+  breakpoints?: Set<string>;
 }
 
 export function VirtualizedTree(
