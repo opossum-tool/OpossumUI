@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { isEmpty } from 'lodash';
 import React, { ReactElement } from 'react';
 import { getParents } from '../../../state/helpers/get-parents';
 import { NodeIdPredicateForTree, NodesForTree } from '../types';
@@ -165,15 +166,13 @@ export function isBreakpointOrChildOfBreakpoint(
   selectedId: string,
   breakpoints?: Set<string>
 ): boolean {
-  if (!breakpoints) {
+  if (!breakpoints || isEmpty(breakpoints)) {
     return false;
   }
   const relativePathToNodeFromSelected = nodeId.replace(selectedId, '');
   const parents = getParents(relativePathToNodeFromSelected);
   const isChildOfBreakpoint =
-    parents.filter((item) => breakpoints.has(selectedId + item)).length > 0
-      ? true
-      : false;
+    parents.filter((item) => breakpoints.has(selectedId + item)).length > 0;
 
   return breakpoints.has(nodeId) || isChildOfBreakpoint;
 }
