@@ -3,7 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { isEmpty } from 'lodash';
 import React, { ReactElement } from 'react';
+import { getParents } from '../../../state/helpers/get-parents';
 import { NodeIdPredicateForTree, NodesForTree } from '../types';
 import { VirtualizedTreeNodeData } from '../VirtualizedTreeNode';
 
@@ -20,7 +22,8 @@ export function getTreeNodeProps(
     node: NodesForTree | 1,
     nodeId: string
   ) => ReactElement,
-  cardHeight: number
+  cardHeight: number,
+  breakpoints?: Set<string>
 ): Array<VirtualizedTreeNodeData> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
     getSortFunction(nodes, isFileWithChildren, parentPath)
@@ -60,6 +63,7 @@ export function getTreeNodeProps(
       nodeName,
       selected,
       nodeHeight,
+      breakpoints,
     });
 
     if (isExpandedNode) {
@@ -73,7 +77,8 @@ export function getTreeNodeProps(
           onSelect,
           onToggle,
           getTreeNodeLabel,
-          nodeHeight
+          nodeHeight,
+          breakpoints
         )
       );
     }
@@ -144,16 +149,32 @@ function isExpanded(nodeId: string, expandedNodes: Array<string>): boolean {
   return false;
 }
 
-function isSelected(nodeId: string, selected: string): boolean {
-  return nodeId === selected;
+export function isSelected(nodeId: string, selectedId: string): boolean {
+  return nodeId === selectedId;
 }
 
-export function isChildOfSelected(nodeId: string, selected: string): boolean {
+export function isChildOfSelected(nodeId: string, selectedId: string): boolean {
   return (
-    nodeId.startsWith(selected) &&
-    !isSelected(nodeId, selected) &&
-    selected.slice(-1) === '/'
+    nodeId.startsWith(selectedId) &&
+    !isSelected(nodeId, selectedId) &&
+    selectedId.slice(-1) === '/'
   );
+}
+
+export function isBreakpointOrChildOfBreakpoint(
+  nodeId: string,
+  selectedId: string,
+  breakpoints?: Set<string>
+): boolean {
+  if (!breakpoints || isEmpty(breakpoints)) {
+    return false;
+  }
+  const relativePathToNodeFromSelected = nodeId.replace(selectedId, '');
+  const parents = getParents(relativePathToNodeFromSelected);
+  const isChildOfBreakpoint =
+    parents.filter((item) => breakpoints.has(selectedId + item)).length > 0;
+
+  return breakpoints.has(nodeId) || isChildOfBreakpoint;
 }
 
 function getSortFunction(

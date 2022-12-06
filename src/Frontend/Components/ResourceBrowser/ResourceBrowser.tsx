@@ -158,6 +158,7 @@ export function ResourceBrowser(): ReactElement | null {
       selectedNodeId={selectedResourceId}
       ariaLabel={'resource browser'}
       getTreeNodeLabel={getTreeItemLabelGetter()}
+      breakpoints={attributionBreakpoints}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
       sx={classes.tree}

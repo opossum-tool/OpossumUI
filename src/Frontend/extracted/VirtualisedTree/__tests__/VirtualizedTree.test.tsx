@@ -38,6 +38,7 @@ describe('The VirtualizedTree', () => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           (nodeName, node, nodeId): ReactElement => <div>{nodeName || '/'}</div>
         }
+        breakpoints={new Set()}
         cardHeight={20}
         maxHeight={5000}
       />

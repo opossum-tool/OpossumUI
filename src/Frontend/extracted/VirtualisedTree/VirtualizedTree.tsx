@@ -49,6 +49,7 @@ interface VirtualizedTreeProps {
   sx?: SxProps;
   treeNodeStyle?: TreeNodeStyle;
   alwaysShowHorizontalScrollBar?: boolean;
+  breakpoints?: Set<string>;
 }
 
 export function VirtualizedTree(
@@ -64,7 +65,8 @@ export function VirtualizedTree(
     props.onSelect,
     props.onToggle,
     props.getTreeNodeLabel,
-    props.cardHeight
+    props.cardHeight,
+    props.breakpoints
   );
 
   const maxListLength: NumberOfDisplayedNodesForTree | HeightForTree =
