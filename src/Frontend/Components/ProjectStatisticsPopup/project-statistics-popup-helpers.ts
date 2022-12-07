@@ -17,13 +17,11 @@ import {
   LicenseNamesWithCriticality,
   PieChartData,
 } from '../../types/types';
+import { SOURCE_TOTAL, LICENSE_TOTAL } from '../../shared-constants';
 
 interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
 }
-
-export const SOURCE_TOTAL = 'Total';
-export const LICENSE_TOTAL = 'Total';
 
 const ATTRIBUTION_PROPERTY_FOLLOW_UP = 'followUp';
 const ATTRIBUTION_PROPERTY_FIRST_PARTY = 'firstParty';

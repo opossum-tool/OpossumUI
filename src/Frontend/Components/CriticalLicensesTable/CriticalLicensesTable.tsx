@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { SOURCE_TOTAL } from '../ProjectStatisticsPopup/project-statistics-popup-helpers';
 import { Criticality } from '../../../shared/shared-types';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseNamesWithCriticality,
 } from '../../types/types';
+import { SOURCE_TOTAL } from '../../shared-constants';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const AMOUNT_COLUMN_NAME_IN_TABLE = 'Amount';
