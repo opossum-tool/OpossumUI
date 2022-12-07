@@ -39,14 +39,14 @@ jobs:
         with:
           node-version: 18
 
-      - name: Use yarn cache (linux, mac)
+      - name: Use cached node modules (linux, mac)
         uses: actions/cache@v3
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
         if: matrix.os != 'windows-latest'
 
-      - name: Use yarn cache (win)
+      - name: Use cached node modules (win)
         uses: actions/cache@v3
         with:
           path: '**\node_modules'

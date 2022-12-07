@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: Use yarn cache
+      - name: Use cached node modules
         uses: actions/cache@v3
         with:
           path: '**/node_modules'
