@@ -3,11 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React, { ReactElement, ReactNode } from 'react';
 import {
   FetchLicenseInformationButton,
   FetchStatus,
+  FETCH_DATA_BUTTON_DISABLED_TOOLTIP,
+  FETCH_DATA_TOOLTIP,
   useFetchPackageInfo,
 } from '../FetchLicenseInformationButton';
 import {
@@ -23,20 +25,102 @@ import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { convertGithubPayload } from '../github-fetching-helpers';
 
+const axiosMock = new MockAdapter(axios);
+
 describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
     render(<FetchLicenseInformationButton isDisabled={true} url={''} />);
-    expect(screen.getByLabelText('Fetch data')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(FETCH_DATA_BUTTON_DISABLED_TOOLTIP)
+    ).toBeInTheDocument();
   });
 
   it('renders enabled button', () => {
     renderComponentWithStore(
       <FetchLicenseInformationButton
-        url={'https://pypi.org/pypi/test'}
+        url={'https://pypi.org/pypi/pip'}
         isDisabled={false}
       />
     );
     expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  describe('Tooltip', () => {
+    it("shows fetching error 'Network error'", () => {
+      const MOCK_URL = 'https://pypi.org/pypi/test';
+
+      axiosMock.onGet(MOCK_URL).networkErrorOnce();
+
+      renderComponentWithStore(
+        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(
+        waitFor(() => {
+          screen.getByLabelText('Network Error');
+        })
+      ).resolves.toBeInTheDocument();
+    });
+
+    it("shows fetching error 'Buffer is not defined'", () => {
+      const MOCK_URL = 'https://github.com/opossum-tool/OpossumUI/';
+
+      axiosMock.onGet(MOCK_URL).replyOnce(200, {});
+
+      renderComponentWithStore(
+        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(
+        waitFor(() => {
+          screen.getByLabelText('Buffer is not defined');
+        })
+      ).resolves.toBeInTheDocument();
+    });
+
+    it("shows fetching error 'Request failed with status code 404'", () => {
+      const MOCK_URL = 'https://github.com/opossum-tool/Oposs';
+
+      axiosMock.onGet(MOCK_URL).replyOnce(404, {});
+
+      renderComponentWithStore(
+        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(
+        waitFor(() => {
+          screen.getByLabelText('Request failed with status code 404');
+        })
+      ).resolves.toBeInTheDocument();
+    });
+
+    it('shows fetch data tooltip after successful fetch', () => {
+      const MOCK_URL = 'https://pypi.org/project/pip';
+
+      axiosMock.onGet(MOCK_URL).replyOnce(200, {
+        license: { spdx_id: 'Apache-2.0' },
+        content: 'TGljZW5zZSBUZXh0', // "License Text" in base64
+        html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
+      });
+
+      renderComponentWithStore(
+        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(
+        waitFor(() => {
+          screen.getByLabelText(FETCH_DATA_TOOLTIP);
+        })
+      ).resolves.toBeInTheDocument();
+    });
   });
 });
 
@@ -59,8 +143,6 @@ function getWrapper(store: Store, children: ReactNode): ReactElement {
 const GITHUB_URL = 'https://github.com/opossum-tool/OpossumUI';
 
 describe('useFetchPackageInfo', () => {
-  const axiosMock = new MockAdapter(axios);
-
   it('returns idle', () => {
     const store = createTestAppStore();
     const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
