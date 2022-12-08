@@ -20,7 +20,7 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
 jest.setTimeout(TEST_TIMEOUT);
 
 jest.mock('./src/Frontend/web-workers/get-new-accordion-workers');
-jest.mock('./src/Frontend/web-workers/get-new-folder-progress-bar-worker');
+jest.mock('./src/Frontend/web-workers/get-new-progress-bar-workers');
 
 const originalConsoleError = console.error;
 const originalConsoleInfo = console.info;

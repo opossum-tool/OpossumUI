@@ -13,7 +13,6 @@ import {
   setFilesWithChildren,
   setFrequentLicenses,
   setManualData,
-  setProgressBarData,
   setProjectMetadata,
   setResources,
 } from './all-views-simple-actions';
@@ -59,16 +58,6 @@ export function loadFromFile(
 
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
       dispatch(addResolvedExternalAttribution(attribution))
-    );
-
-    dispatch(
-      setProgressBarData(
-        parsedFileContent.resources,
-        parsedFileContent.manualAttributions.attributions,
-        parsedFileContent.manualAttributions.resourcesToAttributions,
-        parsedFileContent.externalAttributions.resourcesToAttributions,
-        parsedFileContent.resolvedExternalAttributions
-      )
     );
   };
 }

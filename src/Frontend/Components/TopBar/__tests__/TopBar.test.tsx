@@ -15,6 +15,7 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { TopBar } from '../TopBar';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
@@ -83,5 +84,16 @@ describe('TopBar', () => {
     expect(isAuditViewSelected(store.getState())).toBe(false);
     expect(isAttributionViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(true);
+  });
+
+  it('does not display the TopProgressBar when no file has been opened', () => {
+    renderComponentWithStore(<TopBar />);
+    expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
+  });
+
+  it('displays the TopProgressBar after a file has been opened', () => {
+    renderComponentWithStore(<TopBar />);
+    setResources({ '': 1 });
+    expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
   });
 });

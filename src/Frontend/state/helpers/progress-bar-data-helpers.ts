@@ -17,33 +17,6 @@ import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 
-export function getUpdatedProgressBarData(
-  resources: Resources,
-  manualAttributions: Attributions,
-  resourcesToManualAttributions: ResourcesToAttributions,
-  resourcesToExternalAttributions: ResourcesToAttributions,
-  resolvedExternalAttributions: Set<string>,
-  isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
-): ProgressBarData {
-  const progressBarData = getEmptyProgressBarData();
-
-  updateProgressBarDataForResources(
-    progressBarData,
-    { '': resources },
-    manualAttributions,
-    resourcesToManualAttributions,
-    filterResourcesToAttributions(
-      resourcesToExternalAttributions,
-      resolvedExternalAttributions
-    ),
-    isAttributionBreakpoint,
-    isFileWithChildren
-  );
-
-  return progressBarData;
-}
-
 export function filterResourcesToAttributions(
   resourcesToAttributions: ResourcesToAttributions,
   attributionIdsToRemove: Set<string>
@@ -62,7 +35,7 @@ export function filterResourcesToAttributions(
   );
 }
 
-export function updateProgressBarDataForResources(
+function updateProgressBarDataForResources(
   progressBarData: ProgressBarData,
   resources: Resources,
   manualAttributions: Attributions,
@@ -166,19 +139,22 @@ export function resourceHasOnlyPreSelectedAttributions(
   );
 }
 
-export function getFolderProgressBarData(
+export function getUpdatedProgressBarData(
   args: ProgressBarWorkerArgs
-): ProgressBarData | null {
+): ProgressBarData {
   const isAttributionBreakpoint = getAttributionBreakpointCheck(
     args.attributionBreakpoints
   );
   const isFileWithChildren = getFileWithChildrenCheck(args.filesWithChildren);
   const progressBarData = getEmptyProgressBarData();
 
-  const parentAndCurrentResources = args.resourceId.slice(1, -1).split('/');
-  const resources = {
-    '': getCurrentSubTree(parentAndCurrentResources, args.resources || {}),
-  };
+  let resources = args.resources || {};
+  if (args.resourceId) {
+    const parentAndCurrentResources = args.resourceId.slice(1, -1).split('/');
+    resources = {
+      '': getCurrentSubTree(parentAndCurrentResources, resources),
+    };
+  }
 
   updateProgressBarDataForResources(
     progressBarData,

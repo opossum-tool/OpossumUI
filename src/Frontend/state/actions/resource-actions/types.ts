@@ -25,7 +25,6 @@ export const ACTION_SET_MANUAL_ATTRIBUTION_DATA =
 export const ACTION_SET_EXTERNAL_ATTRIBUTION_DATA =
   'ACTION_SET_EXTERNAL_ATTRIBUTION_DATA';
 export const ACTION_SET_FREQUENT_LICENSES = 'ACTION_SET_FREQUENT_LICENSES';
-export const ACTION_SET_PROGRESS_BAR_DATA = 'ACTION_SET_PROGRESS_BAR_DATA';
 export const ACTION_SET_TEMPORARY_PACKAGE_INFO =
   'ACTION_SET_TEMPORARY_PACKAGE_INFO';
 export const ACTION_SET_SELECTED_RESOURCE_ID =
@@ -80,7 +79,6 @@ export type ResourceAction =
   | SetManualDataAction
   | SetExternalDataAction
   | SetFrequentLicensesAction
-  | SetProgressBarData
   | SetTemporaryPackageInfoAction
   | SetSelectedResourceIdAction
   | SetExpandedIdsAction
@@ -145,11 +143,6 @@ export interface SetProgressBarDataPayload {
 export interface SetTemporaryPackageInfoAction {
   type: typeof ACTION_SET_TEMPORARY_PACKAGE_INFO;
   payload: PackageInfo;
-}
-
-export interface SetProgressBarData {
-  type: typeof ACTION_SET_PROGRESS_BAR_DATA;
-  payload: SetProgressBarDataPayload;
 }
 
 export interface SetSelectedResourceIdAction {

@@ -18,7 +18,7 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
-import { ProgressBarData, State } from '../../types/types';
+import { State } from '../../types/types';
 import { getSelectedView } from './view-selector';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import {
@@ -92,10 +92,6 @@ export function getFrequentLicensesNameOrder(state: State): Array<string> {
 
 export function getFrequentLicensesTexts(state: State): LicenseTexts {
   return state.resourceState.allViews.frequentLicenses.texts;
-}
-
-export function getProgressBarData(state: State): ProgressBarData | null {
-  return state.resourceState.allViews.progressBarData;
 }
 
 export function getTemporaryPackageInfo(state: State): PackageInfo {
