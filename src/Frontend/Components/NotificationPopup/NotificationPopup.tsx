@@ -13,6 +13,7 @@ import { Button } from '../Button/Button';
 import { doNothing } from '../../util/do-nothing';
 import { ButtonConfig } from '../../types/types';
 import { SxProps } from '@mui/material';
+import { POPUP_MAX_WIDTH_BREAKPOINT } from '../../shared-constants';
 
 interface NotificationPopupProps {
   header: string;
@@ -56,7 +57,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
   return (
     <MuiDialog
       fullWidth={props.fullWidth}
-      maxWidth={'xl'}
+      maxWidth={POPUP_MAX_WIDTH_BREAKPOINT}
       open={props.isOpen}
       disableEscapeKeyDown={true}
       onClose={handleOnClose}

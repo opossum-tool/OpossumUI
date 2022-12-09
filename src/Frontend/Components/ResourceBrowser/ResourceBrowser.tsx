@@ -31,48 +31,7 @@ import { Resources } from '../../../shared/shared-types';
 import { getTreeItemLabel } from './get-tree-item-label';
 import { useWindowHeight } from '../../util/use-window-height';
 import { topBarHeight } from '../TopBar/TopBar';
-import {
-  OpossumColors,
-  resourceBrowserWidthInPixels,
-} from '../../shared-styles';
-
-const classes = {
-  tree: {
-    width: resourceBrowserWidthInPixels,
-    padding: '4px 0',
-    background: OpossumColors.white,
-    height: '100%',
-  },
-  treeItemLabel: {
-    height: '19px',
-    whiteSpace: 'nowrap',
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover}`,
-      cursor: 'pointer',
-    },
-  },
-  treeItemLabelChildrenOfSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue}`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-  },
-  treeItemLabelSelected: {
-    backgroundColor: `${OpossumColors.lightestBlue} !important`,
-    borderBottom: `1px ${OpossumColors.lightestBlue} solid`,
-    '&:hover': {
-      backgroundColor: `${OpossumColors.lightBlueOnHover} !important`,
-    },
-  },
-  treeExpandIcon: {
-    width: '16px',
-    height: '20px',
-    padding: '0px',
-    margin: '0px',
-    color: OpossumColors.darkBlue,
-    '&:hover': {
-      background: OpossumColors.middleBlue,
-    },
-  },
-};
+import { treeClasses } from '../../shared-styles';
 
 const TREE_ROW_HEIGHT = 20;
 const ROOT_FOLDER_LABEL = '';
@@ -161,13 +120,13 @@ export function ResourceBrowser(): ReactElement | null {
       breakpoints={attributionBreakpoints}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
-      sx={classes.tree}
+      sx={treeClasses.tree('browser')}
       alwaysShowHorizontalScrollBar={true}
       treeNodeStyle={{
-        root: classes.treeItemLabel,
-        childrenOfSelected: classes.treeItemLabelChildrenOfSelected,
-        selected: classes.treeItemLabelSelected,
-        treeExpandIcon: classes.treeExpandIcon,
+        root: treeClasses.treeItemLabel,
+        childrenOfSelected: treeClasses.treeItemLabelChildrenOfSelected,
+        selected: treeClasses.treeItemLabelSelected,
+        treeExpandIcon: treeClasses.treeExpandIcon,
       }}
     />
   ) : null;

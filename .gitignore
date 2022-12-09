@@ -34,3 +34,5 @@ yarn-error.log*
 .idea
 /opossumUI.iml
 /notices
+
+/.vscode

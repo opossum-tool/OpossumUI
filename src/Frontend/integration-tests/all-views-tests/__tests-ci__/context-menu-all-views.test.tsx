@@ -44,7 +44,7 @@ import {
   expectResourceBrowserIsNotShown,
 } from '../../../test-helpers/resource-browser-test-helpers';
 import {
-  clickOnPathInPopupWithResources,
+  clickOnNodeInPopupWithResources,
   expectConfirmDeletionPopupNotVisible,
   expectConfirmDeletionPopupVisible,
   expectShowResourcesPopupVisible,
@@ -280,7 +280,7 @@ describe('The ContextMenu', () => {
     });
   });
 
-  it('show resource button opens working popup with file list when clicking on show resources icon', () => {
+  it('show resource button opens working popup with resources tree when clicking on show resources icon', () => {
     const testResources: Resources = {
       folder1: { 'firstResource.js': 1 },
       'secondResource.js': 1,
@@ -353,7 +353,8 @@ describe('The ContextMenu', () => {
       ButtonText.ShowResources
     );
     expectShowResourcesPopupVisible(screen);
-    clickOnPathInPopupWithResources(screen, '/folder1/');
+    clickOnNodeInPopupWithResources(screen, 'folder1');
+
     expectPackageInPackagePanel(screen, 'JQuery, 16.5.0', 'Signals');
 
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
@@ -366,7 +367,8 @@ describe('The ContextMenu', () => {
       ButtonText.ShowResources
     );
     expectShowResourcesPopupVisible(screen);
-    clickOnPathInPopupWithResources(screen, '/thirdResource.js');
+    clickOnNodeInPopupWithResources(screen, 'thirdResource.js');
+
     expectValueInTextBox(screen, 'Name', 'React');
 
     clickOnTab(screen, 'Global Tab');
@@ -380,7 +382,8 @@ describe('The ContextMenu', () => {
       ButtonText.ShowResources
     );
     expectShowResourcesPopupVisible(screen);
-    clickOnPathInPopupWithResources(screen, '/secondResource.js');
+    clickOnNodeInPopupWithResources(screen, 'secondResource.js');
+
     expectValueInTextBox(screen, 'Name', 'Vue');
 
     goToView(screen, View.Attribution);
@@ -396,7 +399,8 @@ describe('The ContextMenu', () => {
       ButtonText.ShowResources
     );
     expectShowResourcesPopupVisible(screen);
-    clickOnPathInPopupWithResources(screen, '/secondResource.js');
+    clickOnNodeInPopupWithResources(screen, 'secondResource.js');
+
     expectValueInTextBox(screen, 'Name', 'Vue');
   });
 });

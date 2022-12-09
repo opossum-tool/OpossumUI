@@ -4,10 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { doNothing } from '../../../util/do-nothing';
 import { ResourcePathPopup } from '../ResourcePathPopup';
 import {
@@ -18,7 +15,6 @@ import {
   setExternalData,
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { screen } from '@testing-library/react';
 import { useAppDispatch } from '../../../state/hooks';
 
@@ -52,15 +48,13 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
 }
 
 describe('ResourcePathPopup', () => {
-  const resourcesInOtherFoldersHeader = 'Resources in Other Folders';
-
   it('renders resources for manual Attributions', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
     expect(
       screen.getByText('Resources for selected attribution')
     ).toBeInTheDocument();
-    expect(screen.getByText('/thirdParty')).toBeInTheDocument();
+    expect(screen.getByText('thirdParty')).toBeInTheDocument();
   });
 
   it('renders resources for external Attributions', () => {
@@ -69,31 +63,6 @@ describe('ResourcePathPopup', () => {
     expect(
       screen.getByText('Resources for selected signal')
     ).toBeInTheDocument();
-    expect(screen.getByText('/firstParty')).toBeInTheDocument();
-  });
-
-  it('renders subheader, if resources in other folders exist', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId('/folder/anotherFirstParty'));
-    renderComponentWithStore(<HelperComponent isExternalAttribution={true} />, {
-      store: testStore,
-    });
-
-    expect(screen.getByText(resourcesInOtherFoldersHeader)).toBeInTheDocument();
-    expect(screen.getByText('/firstParty')).toBeInTheDocument();
-    expect(screen.getByText('/folder/anotherFirstParty')).toBeInTheDocument();
-  });
-
-  it('renders no subheader, if no resources in other folders exist', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId('/thirdParty'));
-    renderComponentWithStore(
-      <HelperComponent isExternalAttribution={false} />,
-      { store: testStore }
-    );
-    expect(
-      screen.queryByText(resourcesInOtherFoldersHeader)
-    ).not.toBeInTheDocument();
-    expect(screen.getByText('/thirdParty')).toBeInTheDocument();
+    expect(screen.getByText('firstParty')).toBeInTheDocument();
   });
 });

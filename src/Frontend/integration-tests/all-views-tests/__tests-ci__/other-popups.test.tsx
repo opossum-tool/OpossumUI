@@ -33,7 +33,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 import {
-  clickOnPathInPopupWithResources,
+  clickOnNodeInPopupWithResources,
   expectErrorPopupIsNotShown,
   expectErrorPopupIsShown,
   expectUnsavedChangesPopupIsNotShown,
@@ -275,7 +275,7 @@ describe('Other popups of the app', () => {
     expectPackageInPackagePanel(screen, 'JQuery', 'Signals in Folder Content');
 
     fireEvent.click(getOpenResourcesButtonForPackagePanel(screen, 'JQuery'));
-    clickOnPathInPopupWithResources(screen, '/root/src/');
+    clickOnNodeInPopupWithResources(screen, 'src');
     expectPackageInPackagePanel(screen, 'JQuery', 'High Compute');
   });
 
