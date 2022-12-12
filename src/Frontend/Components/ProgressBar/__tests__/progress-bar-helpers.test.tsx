@@ -10,6 +10,7 @@ import { navigateToView } from '../../../state/actions/view-actions/view-actions
 import { getSelectedView } from '../../../state/selectors/view-selector';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
+  getCriticalityBarBackground,
   getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
   useOnProgressBarClick,
@@ -20,7 +21,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { ProgressBarData } from '../../../types/types';
-import { OpossumColors } from '../../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../../shared-styles';
 import each from 'jest-each';
 
 let useOnProgressBarClickHook: () => void;
@@ -92,6 +93,10 @@ describe('ProgressBar helpers', () => {
         'file2',
         'file3',
       ],
+      filesWithHighlyCriticalExternalAttributionsCount: 1,
+      filesWithMediumCriticalExternalAttributionsCount: 2,
+      resourcesWithHighlyCriticalExternalAttributions: ['file1'],
+      resourcesWithMediumCriticalExternalAttributions: ['file2', 'file3'],
     };
     const expectedProgressBarBackground: string =
       'linear-gradient(to right,' +
@@ -105,6 +110,34 @@ describe('ProgressBar helpers', () => {
       'TopProgressBar'
     );
     expect(actualProgressBarBackground).toEqual(expectedProgressBarBackground);
+  });
+
+  it('getCriticalityBarBackground returns correct distribution', () => {
+    const testProgressBarData: ProgressBarData = {
+      fileCount: 9,
+      filesWithManualAttributionCount: 3,
+      filesWithOnlyPreSelectedAttributionCount: 3,
+      filesWithOnlyExternalAttributionCount: 3,
+      resourcesWithNonInheritedExternalAttributionOnly: [
+        'file1',
+        'file2',
+        'file3',
+      ],
+      filesWithHighlyCriticalExternalAttributionsCount: 1,
+      filesWithMediumCriticalExternalAttributionsCount: 1,
+      resourcesWithHighlyCriticalExternalAttributions: ['file1'],
+      resourcesWithMediumCriticalExternalAttributions: ['file2'],
+    };
+    const expectedCriticalityBarBackground: string =
+      'linear-gradient(to right,' +
+      ` ${criticalityColor.high} 34%,` +
+      ` ${criticalityColor.medium} 34% 67%,` +
+      ` ${OpossumColors.lightestBlue} 67%)`;
+    const actualCriticalityBarBackground =
+      getCriticalityBarBackground(testProgressBarData);
+    expect(actualCriticalityBarBackground).toEqual(
+      expectedCriticalityBarBackground
+    );
   });
 
   each([

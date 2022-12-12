@@ -10,6 +10,7 @@ const TEST_TIMEOUT = 15000;
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
   'Web worker error in workers context',
   'Error in rendering folder progress bar',
+  'Error in rendering top progress bar',
   'Error in ResourceDetailsTab',
 ];
 // this is a quick fix for #938

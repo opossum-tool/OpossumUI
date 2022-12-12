@@ -16,6 +16,7 @@ import {
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { Criticality } from '../../../shared/shared-types';
 
 export function filterResourcesToAttributions(
   resourcesToAttributions: ResourcesToAttributions,
@@ -39,6 +40,7 @@ function updateProgressBarDataForResources(
   progressBarData: ProgressBarData,
   resources: Resources,
   manualAttributions: Attributions,
+  externalAttributions: Attributions,
   resourcesToManualAttributions: ResourcesToAttributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   isAttributionBreakpoint: PathPredicate,
@@ -76,6 +78,12 @@ function updateProgressBarDataForResources(
     );
     const resourceCanHaveChildren = canResourceHaveChildren(resource);
 
+    const highestCriticality = getHighestCriticalityOfExternalAttributions(
+      path,
+      resourcesToExternalAttributions,
+      externalAttributions
+    );
+
     if (!resourceCanHaveChildren || isFileWithChildren(path)) {
       progressBarData.fileCount++;
       if (hasOnlyPreselectedAttribution) {
@@ -87,8 +95,24 @@ function updateProgressBarDataForResources(
         progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
           path
         );
+        if (highestCriticality === Criticality.High) {
+          progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
+          progressBarData.resourcesWithHighlyCriticalExternalAttributions.push(
+            path
+          );
+        } else if (highestCriticality === Criticality.Medium) {
+          progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
+          progressBarData.resourcesWithMediumCriticalExternalAttributions.push(
+            path
+          );
+        }
       } else if (hasParentExternalAttribution) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
+        if (highestCriticality === Criticality.High) {
+          progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
+        } else if (highestCriticality === Criticality.Medium) {
+          progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
+        }
       }
     }
 
@@ -101,6 +125,15 @@ function updateProgressBarDataForResources(
         progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
           path
         );
+        if (highestCriticality === Criticality.High) {
+          progressBarData.resourcesWithHighlyCriticalExternalAttributions.push(
+            path
+          );
+        } else if (highestCriticality === Criticality.Medium) {
+          progressBarData.resourcesWithMediumCriticalExternalAttributions.push(
+            path
+          );
+        }
       }
 
       const isBreakpoint = isAttributionBreakpoint(path);
@@ -108,6 +141,7 @@ function updateProgressBarDataForResources(
         progressBarData,
         resource,
         manualAttributions,
+        externalAttributions,
         resourcesToManualAttributions,
         resourcesToExternalAttributions,
         isAttributionBreakpoint,
@@ -119,6 +153,29 @@ function updateProgressBarDataForResources(
       );
     }
   }
+}
+
+export function getHighestCriticalityOfExternalAttributions(
+  path: string,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  externalAttributions: Attributions
+): Criticality | null {
+  let hasMediumCriticality = false;
+  const externalAttributionsOfCurrentResource =
+    resourcesToExternalAttributions[path];
+  if (externalAttributionsOfCurrentResource) {
+    for (const attributionId of externalAttributionsOfCurrentResource) {
+      const criticality = externalAttributions[attributionId]
+        ? externalAttributions[attributionId].criticality
+        : null;
+      if (criticality === Criticality.High) {
+        return Criticality.High;
+      } else if (criticality === Criticality.Medium) {
+        hasMediumCriticality = true;
+      }
+    }
+  }
+  return hasMediumCriticality ? Criticality.Medium : null;
 }
 
 export function resourceHasOnlyPreSelectedAttributions(
@@ -160,6 +217,7 @@ export function getUpdatedProgressBarData(
     progressBarData,
     resources,
     args.manualAttributions,
+    args.externalAttributions,
     args.resourcesToManualAttributions,
     filterResourcesToAttributions(
       args.resourcesToExternalAttributions,
@@ -179,6 +237,10 @@ export function getEmptyProgressBarData(): ProgressBarData {
     filesWithOnlyPreSelectedAttributionCount: 0,
     filesWithOnlyExternalAttributionCount: 0,
     resourcesWithNonInheritedExternalAttributionOnly: [],
+    filesWithHighlyCriticalExternalAttributionsCount: 0,
+    filesWithMediumCriticalExternalAttributionsCount: 0,
+    resourcesWithHighlyCriticalExternalAttributions: [],
+    resourcesWithMediumCriticalExternalAttributions: [],
   };
 }
 

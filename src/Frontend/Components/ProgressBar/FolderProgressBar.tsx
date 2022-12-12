@@ -23,6 +23,7 @@ import { getResolvedExternalAttributions } from '../../state/selectors/audit-vie
 import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBar } from './ProgressBar';
+import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
 
 const classes = {
   root: {
@@ -44,6 +45,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
 
   const resources = useAppSelector(getResources);
   const manualAttributions = useAppSelector(getManualAttributions);
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const resourcesToManualAttributions = useAppSelector(
     getResourcesToManualAttributions
   );
@@ -71,12 +73,14 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
     () => ({
       resourceId,
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resolvedExternalAttributions,
     }),
     [
       resourceId,
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resolvedExternalAttributions,
     ]
@@ -87,6 +91,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
       resources,
       resourceId,
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resourcesToExternalAttributions,
       resolvedExternalAttributions,
@@ -97,6 +102,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
       resources,
       resourceId,
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resourcesToExternalAttributions,
       resolvedExternalAttributions,
