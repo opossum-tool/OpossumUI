@@ -74,8 +74,16 @@ export const ProgressBarWorkersContextProvider: FC<{
 
   useMemo(() => {
     try {
+      progressBarWorkers.TopProgressBarWorker.postMessage({
+        isCacheInitializationMessage: true,
+        resources: null,
+        resourcesToExternalAttributions: null,
+        attributionBreakpoints: null,
+        filesWithChildren: null,
+      });
       Object.values(progressBarWorkers).forEach((worker) => {
         worker.postMessage({
+          isCacheInitializationMessage: true,
           resources,
           resourcesToExternalAttributions,
           attributionBreakpoints,
