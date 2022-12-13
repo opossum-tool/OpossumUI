@@ -14,6 +14,7 @@ let cachedFilesWithChildren: Set<string> | null = null;
 
 self.onmessage = ({
   data: {
+    isCacheInitializationMessage,
     resources,
     resourceId,
     manualAttributions,
@@ -24,7 +25,12 @@ self.onmessage = ({
     filesWithChildren,
   },
 }): void => {
-  if (
+  if (isCacheInitializationMessage) {
+    cachedResources = resources;
+    cachedResourcesToExternalAttributions = resourcesToExternalAttributions;
+    cachedAttributionBreakpoints = attributionBreakpoints;
+    cachedFilesWithChildren = filesWithChildren;
+  } else if (
     cachedResources &&
     cachedResourcesToExternalAttributions &&
     cachedAttributionBreakpoints &&
@@ -49,12 +55,5 @@ self.onmessage = ({
     self.postMessage({
       output,
     });
-  } else {
-    if (resources) cachedResources = resources;
-    if (resourcesToExternalAttributions)
-      cachedResourcesToExternalAttributions = resourcesToExternalAttributions;
-    if (attributionBreakpoints)
-      cachedAttributionBreakpoints = attributionBreakpoints;
-    if (filesWithChildren) cachedFilesWithChildren = filesWithChildren;
   }
 };
