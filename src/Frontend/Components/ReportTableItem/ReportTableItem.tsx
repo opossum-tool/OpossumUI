@@ -80,7 +80,8 @@ const classes = {
   },
   editIcon: {
     backgroundColor: OpossumColors.white,
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: `2px ${OpossumColors.brown} solid`,
+    color: OpossumColors.brown,
   },
   firstPartyIcon: {
     border: `2px ${OpossumColors.darkBlue} solid`,
@@ -99,8 +100,8 @@ const classes = {
     color: OpossumColors.grey,
   },
   preSelectedIcon: {
-    border: `2px ${OpossumColors.brown} solid`,
-    color: OpossumColors.brown,
+    border: `2px ${OpossumColors.darkBlue} solid`,
+    color: OpossumColors.darkBlue,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,
@@ -280,9 +281,9 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
             icon={
               <EditorIcon
                 sx={{
-                  ...reportTableItemClasses.editIcon,
                   ...reportTableItemClasses.icon,
                   ...reportTableItemClasses.clickableIcon,
+                  ...reportTableItemClasses.editIcon,
                 }}
                 aria-label={`edit ${attributionInfo['packageName'] || ''}`}
               />
