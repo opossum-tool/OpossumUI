@@ -9,6 +9,9 @@ import {
   ProjectMetadata,
 } from '../shared/shared-types';
 
+export const SOURCE_TOTAL = 'Total';
+export const LICENSE_TOTAL = 'Total';
+
 export const EMPTY_ATTRIBUTION_DATA: AttributionData = {
   attributions: {},
   resourcesToAttributions: {},
