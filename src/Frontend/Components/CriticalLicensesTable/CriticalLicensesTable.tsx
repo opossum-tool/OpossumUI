@@ -6,11 +6,7 @@
 import React, { ReactElement } from 'react';
 import { Criticality } from '../../../shared/shared-types';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
-import {
-  AttributionCountPerSourcePerLicense,
-  LicenseNamesWithCriticality,
-} from '../../types/types';
-import { SOURCE_TOTAL } from '../../shared-constants';
+import { LicenseNamesWithCriticality } from '../../types/types';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const AMOUNT_COLUMN_NAME_IN_TABLE = 'Amount';
@@ -29,7 +25,7 @@ const classes = {
 };
 
 interface CriticalLicensesTableProps {
-  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
+  totalAttributionsPerLicense: { [licenseName: string]: number };
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   title: string;
 }
@@ -55,12 +51,12 @@ export function CriticalLicensesTable(
   );
   const highCriticalityLicensesTotalAttributions =
     getCriticalLicenseNamesWithTheirTotalAttributions(
-      props.attributionCountPerSourcePerLicense,
+      props.totalAttributionsPerLicense,
       highCriticalityLicenseNames
     );
   const mediumCriticalityLicensesTotalAttributions =
     getCriticalLicenseNamesWithTheirTotalAttributions(
-      props.attributionCountPerSourcePerLicense,
+      props.totalAttributionsPerLicense,
       mediumCriticalityLicenseNames
     );
   const criticalLicensesTotalAttributions =
@@ -112,7 +108,7 @@ function getLicenseNamesByCriticality(
 }
 
 function getCriticalLicenseNamesWithTheirTotalAttributions(
-  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense,
+  totalAttributionsPerLicense: { [licenseName: string]: number },
   criticalLicenseNames: Array<string>
 ): Array<{ licenseName: string; totalNumberOfAttributions: number }> {
   const licenseNamesAndTheirTotalAttributions = criticalLicenseNames.map(
@@ -120,9 +116,7 @@ function getCriticalLicenseNamesWithTheirTotalAttributions(
       return {
         licenseName: criticalLicenseName,
         totalNumberOfAttributions:
-          attributionCountPerSourcePerLicense[criticalLicenseName][
-            SOURCE_TOTAL
-          ],
+          totalAttributionsPerLicense[criticalLicenseName],
       };
     }
   );

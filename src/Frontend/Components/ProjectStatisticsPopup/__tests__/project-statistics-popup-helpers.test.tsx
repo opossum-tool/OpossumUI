@@ -20,7 +20,7 @@ import {
   FollowUp,
 } from '../../../../shared/shared-types';
 import {
-  AttributionCountPerSourcePerLicense,
+  LicenseCounts,
   LicenseNamesWithCriticality,
   PieChartData,
 } from '../../../types/types';
@@ -125,12 +125,18 @@ const attributionSources: ExternalAttributionSources = {
 
 describe('aggregateLicensesAndSourcesFromAttributions', () => {
   it('counts sources for licenses, criticality', () => {
-    const expectedAttributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
-      {
-        'Apache License Version 2.0': { ScanCode: 1, reuser: 2, Total: 3 },
-        'The MIT License (MIT)': { ScanCode: 2, reuser: 1, Total: 3 },
-        Total: { ScanCode: 3, reuser: 3, Total: 6 },
-      };
+    const expectedAttributionCountPerSourcePerLicense = {
+      'Apache License Version 2.0': { ScanCode: 1, reuser: 2 },
+      'The MIT License (MIT)': { ScanCode: 2, reuser: 1 },
+    };
+    const expectedTotalAttributionsPerSource = {
+      ScanCode: 3,
+      reuser: 3,
+    };
+    const expectedTotalAttributionsPerLicense = {
+      'Apache License Version 2.0': 3,
+      'The MIT License (MIT)': 3,
+    };
     const expectedLicenseNamesWithCriticality: LicenseNamesWithCriticality = {
       'Apache License Version 2.0': Criticality.High,
       'The MIT License (MIT)': undefined,
@@ -138,15 +144,21 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
 
     const strippedLicenseNameToAttribution =
       getUniqueLicenseNameToAttribution(testAttributions_1);
-    const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
+    const { licenseCounts, licenseNamesWithCriticality } =
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
         strippedLicenseNameToAttribution,
         attributionSources
       );
 
-    expect(attributionCountPerSourcePerLicense).toEqual(
+    expect(licenseCounts.attributionCountPerSourcePerLicense).toEqual(
       expectedAttributionCountPerSourcePerLicense
+    );
+    expect(licenseCounts.totalAttributionsPerSource).toEqual(
+      expectedTotalAttributionsPerSource
+    );
+    expect(licenseCounts.totalAttributionsPerLicense).toEqual(
+      expectedTotalAttributionsPerLicense
     );
     expect(licenseNamesWithCriticality).toEqual(
       expectedLicenseNamesWithCriticality
@@ -249,21 +261,23 @@ describe('getMostFrequentLicenses', () => {
         count: 2,
       },
     ];
-    const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
-      {
+    const licenseCounts: LicenseCounts = {
+      totalAttributionsPerLicense: {
+        'Apache License Version 2.0': 3,
+        'The MIT License (MIT)': 2,
+      },
+      totalAttributionsPerSource: { ScanCode: 2, HC: 1, reuser: 2 },
+      attributionCountPerSourcePerLicense: {
         'Apache License Version 2.0': {
           ScanCode: 1,
           HC: 1,
           reuser: 1,
-          Total: 3,
         },
-        'The MIT License (MIT)': { reuser: 1, ScanCode: 1, Total: 2 },
-        Total: { ScanCode: 2, HC: 1, reuser: 2, Total: 5 },
-      };
+        'The MIT License (MIT)': { reuser: 1, ScanCode: 1 },
+      },
+    };
 
-    const sortedMostFrequentLicenses = getMostFrequentLicenses(
-      attributionCountPerSourcePerLicense
-    );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(licenseCounts);
 
     expect(sortedMostFrequentLicenses).toEqual(
       expectedSortedMostFrequentLicenses
@@ -297,20 +311,27 @@ describe('getMostFrequentLicenses', () => {
         count: 1,
       },
     ];
-    const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
-      {
-        'Apache License Version 2.0': { ScanCode: 1, reuser: 2, Total: 3 },
-        'The MIT License (MIT)': { reuser: 1, ScanCode: 1, Total: 2 },
-        'Apache License Version 1.0': { ScanCode: 1, Total: 1 },
-        'Apache License Version 1.0.1': { ScanCode: 1, Total: 1 },
-        'Apache License Version 1.0.0.1': { ScanCode: 1, Total: 1 },
-        'Apache License Version 1.0.0.0.1': { ScanCode: 1, Total: 1 },
-        Total: { ScanCode: 6, reuser: 3, Total: 9 },
-      };
+    const licenseCounts: LicenseCounts = {
+      totalAttributionsPerLicense: {
+        'Apache License Version 2.0': 3,
+        'The MIT License (MIT)': 2,
+        'Apache License Version 1.0': 1,
+        'Apache License Version 1.0.1': 1,
+        'Apache License Version 1.0.0.1': 1,
+        'Apache License Version 1.0.0.0.1': 1,
+      },
+      totalAttributionsPerSource: { ScanCode: 6, reuser: 3 },
+      attributionCountPerSourcePerLicense: {
+        'Apache License Version 2.0': { ScanCode: 1, reuser: 2 },
+        'The MIT License (MIT)': { reuser: 1, ScanCode: 1 },
+        'Apache License Version 1.0': { ScanCode: 1 },
+        'Apache License Version 1.0.1': { ScanCode: 1 },
+        'Apache License Version 1.0.0.1': { ScanCode: 1 },
+        'Apache License Version 1.0.0.0.1': { ScanCode: 1 },
+      },
+    };
 
-    const sortedMostFrequentLicenses = getMostFrequentLicenses(
-      attributionCountPerSourcePerLicense
-    );
+    const sortedMostFrequentLicenses = getMostFrequentLicenses(licenseCounts);
 
     expect(sortedMostFrequentLicenses).toEqual(
       expectedSortedMostFrequentLicenses
@@ -334,16 +355,25 @@ describe('getCriticalSignalsCount', () => {
         count: 2,
       },
     ];
-    const attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense =
-      {
-        'Apache License Version 2.0': { ScanCode: 1, reuser: 2, Total: 3 },
-        'The MIT License (MIT)': { reuser: 1, ScanCode: 1, Total: 2 },
-        'Apache License Version 1.0': { ScanCode: 1, Total: 1 },
-        'Apache License Version 1.0.1': { ScanCode: 1, Total: 1 },
-        'Apache License Version 1.0.0.1': { ScanCode: 1, Total: 1 },
-        'Apache License Version 1.0.0.0.1': { ScanCode: 1, Total: 1 },
-        Total: { ScanCode: 6, reuser: 3, Total: 9 },
-      };
+    const licenseCounts: LicenseCounts = {
+      totalAttributionsPerLicense: {
+        'Apache License Version 2.0': 3,
+        'The MIT License (MIT)': 2,
+        'Apache License Version 1.0': 1,
+        'Apache License Version 1.0.1': 1,
+        'Apache License Version 1.0.0.1': 1,
+        'Apache License Version 1.0.0.0.1': 1,
+      },
+      totalAttributionsPerSource: { ScanCode: 6, reuser: 3 },
+      attributionCountPerSourcePerLicense: {
+        'Apache License Version 2.0': { ScanCode: 1, reuser: 2 },
+        'The MIT License (MIT)': { reuser: 1, ScanCode: 1 },
+        'Apache License Version 1.0': { ScanCode: 1 },
+        'Apache License Version 1.0.1': { ScanCode: 1 },
+        'Apache License Version 1.0.0.1': { ScanCode: 1 },
+        'Apache License Version 1.0.0.0.1': { ScanCode: 1 },
+      },
+    };
     const licenseNamesWithCriticality: LicenseNamesWithCriticality = {
       'Apache License Version 2.0': Criticality.High,
       'The MIT License (MIT)': undefined,
@@ -354,7 +384,7 @@ describe('getCriticalSignalsCount', () => {
     };
 
     const criticalSignalsCount = getCriticalSignalsCount(
-      attributionCountPerSourcePerLicense,
+      licenseCounts,
       licenseNamesWithCriticality
     );
 

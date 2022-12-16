@@ -5,11 +5,7 @@
 
 import React, { ReactElement } from 'react';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
-import {
-  AttributionCountPerSourcePerLicense,
-  LicenseNamesWithCriticality,
-} from '../../types/types';
-import { SOURCE_TOTAL, LICENSE_TOTAL } from '../../shared-constants';
+import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
 
 const classes = {
   container: {
@@ -20,9 +16,10 @@ const classes = {
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const FOOTER_TITLE = 'Total';
+const TOTAL_SOURCES_TITLE = 'Total';
 
 interface AttributionCountPerSourcePerLicenseTableProps {
-  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
+  licenseCounts: LicenseCounts;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
   title: string;
 }
@@ -30,33 +27,38 @@ interface AttributionCountPerSourcePerLicenseTableProps {
 export function AttributionCountPerSourcePerLicenseTable(
   props: AttributionCountPerSourcePerLicenseTableProps
 ): ReactElement {
-  const sourceNamesOrTotal = Object.keys(
-    props.attributionCountPerSourcePerLicense[LICENSE_TOTAL]
-  );
-  sourceNamesOrTotal.splice(sourceNamesOrTotal.indexOf(SOURCE_TOTAL), 1);
-  sourceNamesOrTotal.push(SOURCE_TOTAL);
-  const sourceNamesRow = [LICENSE_COLUMN_NAME_IN_TABLE].concat(
-    sourceNamesOrTotal
+  const sourceNames = Object.keys(
+    props.licenseCounts.totalAttributionsPerSource
   );
 
-  const valuesSourceTotals: Array<string> = sourceNamesOrTotal.map(
-    (sourceName) =>
-      props.attributionCountPerSourcePerLicense[LICENSE_TOTAL][
-        sourceName
-      ].toString()
+  const totalNumberOfAttributionsPerSource = sourceNames.map((sourceName) =>
+    props.licenseCounts.totalAttributionsPerSource[sourceName].toString()
   );
+  const totalNumberOfAttributions = Object.values(
+    props.licenseCounts.totalAttributionsPerSource
+  )
+    .reduce((partialSum, num) => partialSum + num, 0)
+    .toString();
+
+  const footerRow = [FOOTER_TITLE]
+    .concat(totalNumberOfAttributionsPerSource)
+    .concat(totalNumberOfAttributions);
+  const headerRow = [LICENSE_COLUMN_NAME_IN_TABLE]
+    .concat(sourceNames)
+    .concat(TOTAL_SOURCES_TITLE)
+    .map(
+      (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1)
+    );
 
   return (
     <ProjectLicensesTable
       title={props.title}
       containerStyle={classes.container}
-      columnHeaders={sourceNamesRow.map(
-        (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1)
-      )}
-      columnNames={sourceNamesRow}
+      columnHeaders={headerRow}
+      columnNames={headerRow}
       rowNames={Object.keys(props.licenseNamesWithCriticality).sort()}
-      tableContent={props.attributionCountPerSourcePerLicense}
-      tableFooter={[FOOTER_TITLE].concat(valuesSourceTotals)}
+      tableContent={props.licenseCounts.attributionCountPerSourcePerLicense}
+      tableFooter={footerRow}
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}
     />
   );
