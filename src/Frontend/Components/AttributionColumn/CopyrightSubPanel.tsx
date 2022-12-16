@@ -5,7 +5,6 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { PackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -13,7 +12,7 @@ import MuiBox from '@mui/material/Box';
 
 interface CopyrightSubPanelProps {
   isEditable: boolean;
-  displayPackageInfo: PackageInfo;
+  copyright?: string;
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -29,17 +28,16 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
           isEditable={props.isEditable}
           sx={attributionColumnClasses.textBox}
           title={'Copyright'}
-          text={props.displayPackageInfo.copyright}
+          text={props.copyright}
           minRows={props.copyrightRows}
           maxRows={props.copyrightRows}
           multiline={true}
           handleChange={props.setUpdateTemporaryPackageInfoFor('copyright')}
           isHighlighted={
             props.showHighlight &&
-            isImportantAttributionInformationMissing(
-              'copyright',
-              props.displayPackageInfo
-            )
+            isImportantAttributionInformationMissing('copyright', {
+              copyright: props.copyright,
+            })
           }
         />
       </MuiBox>

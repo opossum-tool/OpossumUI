@@ -79,7 +79,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
   }, [dispatch, selectedAttributionId, temporaryPackageInfo]);
 
   const setUpdateTemporaryPackageInfoFor =
-    setUpdateTemporaryPackageInfoForCreator(dispatch, temporaryPackageInfo);
+    setUpdateTemporaryPackageInfoForCreator(dispatch);
 
   function deleteAttribution(): void {
     if (temporaryPackageInfo.preSelected) {

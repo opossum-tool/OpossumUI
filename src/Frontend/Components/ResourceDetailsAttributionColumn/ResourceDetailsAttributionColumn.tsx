@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
@@ -162,6 +162,11 @@ export function ResourceDetailsAttributionColumn(
     displayedPackage?.panel === PackagePanelTitle.ManualPackages &&
     selectedResourceIsAttributionBreakpoint;
 
+  const setUpdateTemporaryPackageInfoFor = useMemo(
+    () => setUpdateTemporaryPackageInfoForCreator(dispatch),
+    [dispatch]
+  );
+
   return selectedResourceId &&
     displayedPackage &&
     !manualAttributionsOfBreakpointSelected ? (
@@ -176,10 +181,7 @@ export function ResourceDetailsAttributionColumn(
       showParentAttributions={props.showParentAttributions}
       showSaveGloballyButton={showSaveGloballyButton}
       hideDeleteButtons={hideDeleteButtons}
-      setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoForCreator(
-        dispatch,
-        temporaryPackageInfo
-      )}
+      setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
       onSaveButtonClick={
         showSaveGloballyButton
           ? dispatchUnlinkAttributionAndSavePackageInfo

@@ -57,6 +57,7 @@ import {
   savePackageInfoIfSavingIsNotDisabled,
   setIsSavingDisabled,
   unlinkAttributionAndSavePackageInfo,
+  updateTemporaryPackageInfo,
 } from '../save-actions';
 import { getOpenPopup } from '../../../selectors/view-selector';
 
@@ -100,6 +101,33 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
   '/root/src/something.js': ['uuid_1'],
   '/root/readme.md': ['uuid_1'],
 };
+
+describe('The updateTemporaryPackageInfo action', () => {
+  it('updates the existing package infos', () => {
+    const startingTemporaryPackageInfo: PackageInfo = {
+      packageVersion: '1.1',
+      packageName: 'test Package',
+    };
+    const newPackageName = 'New Package Name';
+    const expectedFinalTemporaryPackageInfo: PackageInfo = {
+      ...startingTemporaryPackageInfo,
+      packageName: newPackageName,
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(setTemporaryPackageInfo(startingTemporaryPackageInfo));
+    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      startingTemporaryPackageInfo
+    );
+
+    testStore.dispatch(
+      updateTemporaryPackageInfo({ packageName: newPackageName })
+    );
+    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      expectedFinalTemporaryPackageInfo
+    );
+  });
+});
 
 describe('The savePackageInfo action', () => {
   it('does not save if saving is disabled', () => {

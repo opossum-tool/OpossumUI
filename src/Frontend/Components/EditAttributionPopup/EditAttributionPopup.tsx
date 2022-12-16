@@ -28,7 +28,7 @@ export function EditAttributionPopup(): ReactElement {
   const popupAttributionId = useAppSelector(getPopupAttributionId);
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
   const setUpdateTemporaryPackageInfoFor =
-    setUpdateTemporaryPackageInfoForCreator(dispatch, temporaryPackageInfo);
+    setUpdateTemporaryPackageInfoForCreator(dispatch);
 
   const saveFileRequestListener = useCallback(() => {
     dispatch(

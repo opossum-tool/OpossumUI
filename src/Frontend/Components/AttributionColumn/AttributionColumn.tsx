@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ChangeEvent, ReactElement } from 'react';
+import React, { ChangeEvent, ReactElement, useMemo } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -246,6 +246,27 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     !props.displayPackageInfo.firstParty &&
     !props.displayPackageInfo.excludeFromNotice;
 
+  const copyrightSubPanel = useMemo(
+    () => (
+      <CopyrightSubPanel
+        setUpdateTemporaryPackageInfoFor={
+          props.setUpdateTemporaryPackageInfoFor
+        }
+        isEditable={props.isEditable}
+        copyright={props.displayPackageInfo.copyright}
+        copyrightRows={copyrightRows}
+        showHighlight={showHighlight}
+      />
+    ),
+    [
+      props.setUpdateTemporaryPackageInfoFor,
+      props.isEditable,
+      props.displayPackageInfo.copyright,
+      copyrightRows,
+      showHighlight,
+    ]
+  );
+
   return (
     <MuiBox sx={classes.root}>
       <PackageSubPanel
@@ -263,15 +284,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         }}
         showHighlight={showHighlight}
       />
-      <CopyrightSubPanel
-        setUpdateTemporaryPackageInfoFor={
-          props.setUpdateTemporaryPackageInfoFor
-        }
-        isEditable={props.isEditable}
-        displayPackageInfo={props.displayPackageInfo}
-        copyrightRows={copyrightRows}
-        showHighlight={showHighlight}
-      />
+      {copyrightSubPanel}
       <LicenseSubPanel
         isLicenseTextShown={isLicenseTextShown}
         displayPackageInfo={props.displayPackageInfo}

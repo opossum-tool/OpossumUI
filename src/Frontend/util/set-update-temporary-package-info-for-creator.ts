@@ -4,13 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ChangeEvent } from 'react';
-import { PackageInfo } from '../../shared/shared-types';
 import { AppThunkDispatch } from '../state/types';
-import { setTemporaryPackageInfo } from '../state/actions/resource-actions/all-views-simple-actions';
+import { updateTemporaryPackageInfo } from '../state/actions/resource-actions/save-actions';
 
 export function setUpdateTemporaryPackageInfoForCreator(
-  dispatch: AppThunkDispatch,
-  temporaryPackageInfo: PackageInfo
+  dispatch: AppThunkDispatch
 ) {
   return (propertyToUpdate: string) => {
     return (
@@ -21,8 +19,7 @@ export function setUpdateTemporaryPackageInfoForCreator(
           ? parseInt(event.target.value)
           : event.target.value;
       dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
+        updateTemporaryPackageInfo({
           [propertyToUpdate]: newValue,
         })
       );

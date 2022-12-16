@@ -20,6 +20,7 @@ import {
   getManualAttributions,
   getManualAttributionsToResources,
   getResourcesToManualAttributions,
+  getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
@@ -56,6 +57,7 @@ import { getAttributionBreakpointCheckForState } from '../../../util/is-attribut
 import { openPopup } from '../view-actions/view-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
 import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
+import { setTemporaryPackageInfo } from './all-views-simple-actions';
 
 export function setIsSavingDisabled(
   isSavingDisabled: boolean
@@ -63,6 +65,19 @@ export function setIsSavingDisabled(
   return {
     type: ACTION_SET_IS_SAVING_DISABLED,
     payload: isSavingDisabled,
+  };
+}
+
+export function updateTemporaryPackageInfo(
+  packageInfo: PackageInfo
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    dispatch(
+      setTemporaryPackageInfo({
+        ...getTemporaryPackageInfo(getState()),
+        ...packageInfo,
+      })
+    );
   };
 }
 
