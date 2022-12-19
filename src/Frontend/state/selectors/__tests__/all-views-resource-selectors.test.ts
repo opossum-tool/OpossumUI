@@ -58,9 +58,9 @@ describe('getPackageInfoOfSelectedAttribution', () => {
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
 
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toEqual(
-      {}
-    );
+    expect(
+      getPackageInfoOfSelectedAttribution(testStore.getState())
+    ).toBeNull();
   });
 });
 

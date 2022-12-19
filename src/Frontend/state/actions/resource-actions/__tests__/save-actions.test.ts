@@ -333,7 +333,7 @@ describe('The savePackageInfo action', () => {
         emptyTestTemporaryPackageInfo
       )
     );
-    expect(getManualAttributions(testStore.getState())[testUuidA]).toBe(
+    expect(getManualAttributions(testStore.getState())?.[testUuidA]).toBe(
       undefined
     );
     expect(

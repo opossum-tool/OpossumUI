@@ -14,8 +14,8 @@ import {
   getResourcesToManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  ProgressBarDataAndResourceId,
   ProgressBarData,
+  ProgressBarDataAndResourceId,
   ProgressBarWorkerArgs,
 } from '../../types/types';
 import { useAppSelector } from '../../state/hooks';

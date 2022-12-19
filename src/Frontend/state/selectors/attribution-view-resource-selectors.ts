@@ -16,14 +16,15 @@ export function getTargetSelectedAttributionId(state: State): string | null {
 
 export function getResourceIdsOfSelectedAttribution(
   state: State
-): Array<string> {
+): Array<string> | null {
   const attributionId = getSelectedAttributionId(state);
   const manualAttributionsToResources = getManualAttributionsToResources(state);
 
   if (attributionId in manualAttributionsToResources) {
     return manualAttributionsToResources[attributionId];
   }
-  return [];
+
+  return null;
 }
 
 export function getMultiSelectSelectedAttributionIds(

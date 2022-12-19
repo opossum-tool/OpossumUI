@@ -66,9 +66,8 @@ export function ResourceDetailsViewer(): ReactElement | null {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResourceClosestParent: Array<string> =
     useAppSelector(getAttributionIdsOfSelectedResourceClosestParent, isEqual);
-  const attributionIdsOfSelectedResource: Array<string> = useAppSelector(
-    getAttributionIdsOfSelectedResource,
-    isEqual
+  const attributionIdsOfSelectedResource: Array<string> | null = useAppSelector(
+    getAttributionIdsOfSelectedResource
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const resourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
@@ -84,7 +83,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
     attributionIdsOfSelectedResourceClosestParent.length
   );
   const selectedResourceHasAttributions = Boolean(
-    attributionIdsOfSelectedResource.length
+    attributionIdsOfSelectedResource?.length
   );
 
   const showParentAttributions: boolean =

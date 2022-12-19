@@ -58,7 +58,7 @@ describe('The audit view resource selectors', () => {
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    expect(getPackageInfoOfSelected(testStore.getState())).toMatchObject({});
+    expect(getPackageInfoOfSelected(testStore.getState())).toBeNull();
 
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)

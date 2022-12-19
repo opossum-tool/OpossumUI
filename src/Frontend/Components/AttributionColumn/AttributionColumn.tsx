@@ -79,7 +79,8 @@ interface AttributionColumnProps {
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const dispatch = useAppDispatch();
-  const initialPackageInfo = useAppSelector(getPackageInfoOfSelected);
+  const initialPackageInfo: PackageInfo =
+    useAppSelector(getPackageInfoOfSelected) || {};
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions

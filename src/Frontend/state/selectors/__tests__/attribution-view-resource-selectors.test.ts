@@ -66,8 +66,8 @@ describe('The resource actions', () => {
     ]);
 
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_2));
-    expect(getResourceIdsOfSelectedAttribution(testStore.getState())).toEqual(
-      []
-    );
+    expect(
+      getResourceIdsOfSelectedAttribution(testStore.getState())
+    ).toBeNull();
   });
 });

@@ -44,9 +44,9 @@ export function navigateToView(view: View): AppThunkAction {
     dispatch(setMultiSelectSelectedAttributionIds([]));
 
     const updatedTemporaryPackageInfo: PackageInfo =
-      view === View.Audit
+      (view === View.Audit
         ? getAttributionOfDisplayedPackageInManualPanel(getState())
-        : getPackageInfoOfSelectedAttribution(getState());
+        : getPackageInfoOfSelectedAttribution(getState())) || {};
     dispatch(setTemporaryPackageInfo(updatedTemporaryPackageInfo));
   };
 }
