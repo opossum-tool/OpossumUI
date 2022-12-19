@@ -66,19 +66,19 @@ function getAttributionsOfSelectedResourceClosestParent(
 
 export function getAttributionIdsOfSelectedResource(
   state: State
-): Array<string> {
+): Array<string> | null {
   const selectedResourceId = getSelectedResourceId(state);
   const resourcesToManualAttributions = getResourcesToManualAttributions(state);
   if (selectedResourceId in resourcesToManualAttributions) {
     return resourcesToManualAttributions[selectedResourceId];
   }
 
-  return [];
+  return null;
 }
 
 export function getAttributionsOfSelectedResource(state: State): Attributions {
   const attributionIdsOfSelectedResource: Array<string> =
-    getAttributionIdsOfSelectedResource(state);
+    getAttributionIdsOfSelectedResource(state) || [];
   const manualAttributions: Attributions = getManualAttributions(state);
 
   return getFilteredAttributionsById(
@@ -108,15 +108,15 @@ export function getAttributionIdOfDisplayedPackageInManualPanel(
 
 export function getAttributionOfDisplayedPackageInManualPanel(
   state: State
-): PackageInfo {
+): PackageInfo | null {
   const attributionId: string | null =
     getAttributionIdOfDisplayedPackageInManualPanel(state);
   if (attributionId) {
-    const manualAttributions: Attributions = getManualAttributions(state);
+    const manualAttributions: Attributions = getManualAttributions(state) || {};
     return manualAttributions[attributionId];
   }
 
-  return {};
+  return null;
 }
 
 export function getIsAccordionSearchFieldDisplayed(state: State): boolean {

@@ -96,7 +96,7 @@ describe('The AttributionDetailsViewer', () => {
     expect(screen.getByDisplayValue('React'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }) as Element);
-    expect(getManualAttributions(store.getState()).uuid_1).toEqual(
+    expect(getManualAttributions(store.getState())?.uuid_1).toEqual(
       expectedPackageInfo
     );
   });

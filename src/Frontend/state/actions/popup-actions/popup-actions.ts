@@ -182,7 +182,9 @@ export function navigateToTargetResourceOrAttribution(): AppThunkAction {
     if (targetView) {
       dispatch(navigateToView(targetView));
     }
-    dispatch(setTemporaryPackageInfo(getPackageInfoOfSelected(getState())));
+    dispatch(
+      setTemporaryPackageInfo(getPackageInfoOfSelected(getState()) || {})
+    );
 
     dispatch(closePopup());
   };

@@ -26,7 +26,7 @@ import {
   getAttributionOfDisplayedPackageInManualPanel,
 } from './audit-view-resource-selectors';
 import { getSelectedAttributionId } from './attribution-view-resource-selectors';
-import { getPopupAttributionId } from '../../state/selectors/view-selector';
+import { getPopupAttributionId } from './view-selector';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.allViews.resources;
@@ -37,7 +37,7 @@ export function getManualData(state: State): AttributionData {
 }
 
 export function getManualAttributions(state: State): Attributions {
-  return state.resourceState.allViews.manualData.attributions || {};
+  return state.resourceState.allViews.manualData.attributions;
 }
 
 export function getResourcesToManualAttributions(
@@ -121,18 +121,20 @@ export function getCurrentAttributionId(state: State): string | null {
   }
 }
 
-export function getPackageInfoOfSelectedAttribution(state: State): PackageInfo {
+export function getPackageInfoOfSelectedAttribution(
+  state: State
+): PackageInfo | null {
   const selectedAttributionId = getSelectedAttributionId(state);
 
   if (!selectedAttributionId) {
-    return {};
+    return null;
   }
   const attributions = getManualAttributions(state);
 
   return attributions[selectedAttributionId];
 }
 
-export function getPackageInfoOfSelected(state: State): PackageInfo {
+export function getPackageInfoOfSelected(state: State): PackageInfo | null {
   return getSelectedView(state) === View.Audit
     ? getAttributionOfDisplayedPackageInManualPanel(state)
     : getPackageInfoOfSelectedAttribution(state);
@@ -140,7 +142,8 @@ export function getPackageInfoOfSelected(state: State): PackageInfo {
 
 export function wereTemporaryPackageInfoModified(state: State): boolean {
   const temporaryPackageInfo: PackageInfo = getTemporaryPackageInfo(state);
-  const packageInfoOfSelected: PackageInfo = getPackageInfoOfSelected(state);
+  const packageInfoOfSelected: PackageInfo =
+    getPackageInfoOfSelected(state) || {};
 
   function hasPackageInfoChanged(): boolean {
     const temporaryPackageInfoWithoutConfidence = getStrippedPackageInfo(

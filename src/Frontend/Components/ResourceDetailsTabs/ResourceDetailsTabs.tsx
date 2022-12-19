@@ -9,7 +9,7 @@ import MuiTab from '@mui/material/Tab';
 import { getManualData } from '../../state/selectors/all-views-resource-selectors';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
-import { isEqual, remove } from 'lodash';
+import { remove } from 'lodash';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
@@ -80,10 +80,8 @@ export function ResourceDetailsTabs(
 
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const attributionIdsOfSelectedResource: Array<string> = useAppSelector(
-    getAttributionIdsOfSelectedResource,
-    isEqual
-  );
+  const attributionIdsOfSelectedResource: Array<string> =
+    useAppSelector(getAttributionIdsOfSelectedResource) || [];
   const isAccordionSearchFieldDisplayed = useAppSelector(
     getIsAccordionSearchFieldDisplayed
   );

@@ -10,7 +10,6 @@ import { PackageInfo } from '../../../shared/shared-types';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import { ResourcesList } from '../ResourcesList/ResourcesList';
-import { isEqual } from 'lodash';
 import {
   deleteAttributionGloballyAndSave,
   savePackageInfo,
@@ -53,10 +52,8 @@ const classes = {
 export function AttributionDetailsViewer(): ReactElement | null {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
-  const resourceIdsOfSelectedAttributionId: Array<string> = useAppSelector(
-    getResourceIdsOfSelectedAttribution,
-    isEqual
-  );
+  const resourceIdsOfSelectedAttributionId: Array<string> =
+    useAppSelector(getResourceIdsOfSelectedAttribution) || [];
 
   const resourceListMaxHeight = useWindowHeight() - 112;
 

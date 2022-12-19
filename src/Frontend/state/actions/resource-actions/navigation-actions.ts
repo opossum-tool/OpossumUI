@@ -44,14 +44,14 @@ export function resetTemporaryPackageInfo(): AppThunkAction {
       case View.Audit:
         dispatch(
           setTemporaryPackageInfo(
-            getAttributionOfDisplayedPackageInManualPanel(getState())
+            getAttributionOfDisplayedPackageInManualPanel(getState()) || {}
           )
         );
         break;
       case View.Attribution:
         dispatch(
           setTemporaryPackageInfo(
-            getPackageInfoOfSelectedAttribution(getState())
+            getPackageInfoOfSelectedAttribution(getState()) || {}
           )
         );
         break;
