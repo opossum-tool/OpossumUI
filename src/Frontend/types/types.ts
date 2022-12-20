@@ -119,8 +119,14 @@ export interface PieChartData {
   count: number;
 }
 
+export interface LicenseCounts {
+  attributionCountPerSourcePerLicense: AttributionCountPerSourcePerLicense;
+  totalAttributionsPerLicense: { [licenseName: string]: number };
+  totalAttributionsPerSource: { [sourceName: string]: number };
+}
+
 export interface AttributionCountPerSourcePerLicense {
-  [licenseNameOrTotal: string]: { [sourceNameOrTotal: string]: number };
+  [licenseName: string]: { [sourceName: string]: number };
 }
 
 export interface LicenseNamesWithCriticality {

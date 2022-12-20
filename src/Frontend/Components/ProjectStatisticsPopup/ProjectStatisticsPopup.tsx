@@ -43,7 +43,7 @@ export function ProjectStatisticsPopup(): ReactElement {
   const strippedLicenseNameToAttribution =
     getUniqueLicenseNameToAttribution(externalAttributions);
 
-  const { attributionCountPerSourcePerLicense, licenseNamesWithCriticality } =
+  const { licenseCounts, licenseNamesWithCriticality } =
     aggregateLicensesAndSourcesFromAttributions(
       externalAttributions,
       strippedLicenseNameToAttribution,
@@ -53,12 +53,10 @@ export function ProjectStatisticsPopup(): ReactElement {
   const manualAttributionPropertyCounts =
     aggregateAttributionPropertiesFromAttributions(manualAttributions);
 
-  const mostFrequentLicenseCountData = getMostFrequentLicenses(
-    attributionCountPerSourcePerLicense
-  );
+  const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
 
   const criticalSignalsCountData = getCriticalSignalsCount(
-    attributionCountPerSourcePerLicense,
+    licenseCounts,
     licenseNamesWithCriticality
   );
 
@@ -89,8 +87,8 @@ export function ProjectStatisticsPopup(): ReactElement {
                 }
               />
               <CriticalLicensesTable
-                attributionCountPerSourcePerLicense={
-                  attributionCountPerSourcePerLicense
+                totalAttributionsPerLicense={
+                  licenseCounts.totalAttributionsPerLicense
                 }
                 licenseNamesWithCriticality={licenseNamesWithCriticality}
                 title={ProjectStatisticsPopupTitle.CriticalLicensesTable}
@@ -119,13 +117,9 @@ export function ProjectStatisticsPopup(): ReactElement {
             </MuiBox>
           </MuiBox>
           <AttributionCountPerSourcePerLicenseTable
-            attributionCountPerSourcePerLicense={
-              attributionCountPerSourcePerLicense
-            }
+            licenseCounts={licenseCounts}
             licenseNamesWithCriticality={licenseNamesWithCriticality}
-            title={
-              ProjectStatisticsPopupTitle.AttributionCountPerSourcePerLicenseTable
-            }
+            title={ProjectStatisticsPopupTitle.LicenseCountsTable}
           />
         </>
       }
