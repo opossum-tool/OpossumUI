@@ -52,7 +52,9 @@ const classes = {
   },
 };
 
-const FETCH_DATA_TOOLTIP = 'Fetch data';
+export const FETCH_DATA_TOOLTIP = 'Fetch data';
+export const FETCH_DATA_BUTTON_DISABLED_TOOLTIP =
+  'Fetching data is not possible. Please enter a URL with one of the following domains: pypi.org, npmjs.com, github.com.';
 
 export enum FetchStatus {
   Idle = 'Idle',
@@ -125,16 +127,16 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
 function DisabledFetchLicenseInformationButton(): ReactElement {
   return (
     <IconButton
-      tooltipTitle={FETCH_DATA_TOOLTIP}
+      tooltipTitle={FETCH_DATA_BUTTON_DISABLED_TOOLTIP}
       tooltipPlacement="right"
-      disabled={false}
+      disabled={true}
       onClick={doNothing}
       icon={<CachedIcon sx={classes.disabledIcon} />}
     />
   );
 }
 
-function EnabledFetchLicenseInformationButton(
+export function EnabledFetchLicenseInformationButton(
   props: LicenseFetchingInformation
 ): ReactElement {
   const { fetchStatus, errorMessage, fetchData } = useFetchPackageInfo(props);

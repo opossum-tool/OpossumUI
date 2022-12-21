@@ -47,6 +47,10 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
     }
   }
 
+  const openLinkButtonTooltip = props.displayPackageInfo.url
+    ? 'Open link in browser'
+    : 'No link to open. Please enter a URL.';
+
   return (
     <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
       <MuiBox sx={attributionColumnClasses.displayRow}>
@@ -134,7 +138,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               isDisabled={!props.isEditable}
             />
             <IconButton
-              tooltipTitle="open link in browser"
+              tooltipTitle={openLinkButtonTooltip}
               tooltipPlacement="right"
               onClick={openUrl}
               disabled={!props.displayPackageInfo.url}

@@ -19,29 +19,29 @@ interface IconButtonProps {
 }
 
 export function IconButton(props: IconButtonProps): ReactElement {
-  function wrapInTooltip(children: ReactElement): ReactElement {
-    return props.disabled ? (
-      <span>{children}</span>
-    ) : (
-      <MuiTooltip
-        sx={tooltipStyle}
-        title={props.tooltipTitle}
-        placement={props.tooltipPlacement}
-      >
-        {children}
-      </MuiTooltip>
-    );
-  }
-  return wrapInTooltip(
-    <MuiButtonBase
-      sx={props.sx}
-      onClick={(event): void => {
-        event.stopPropagation();
-        props.onClick();
-      }}
-      disabled={props.disabled}
+  return (
+    <MuiTooltip
+      describeChild={true}
+      sx={tooltipStyle}
+      title={props.tooltipTitle}
+      placement={props.tooltipPlacement}
     >
-      {props.icon}
-    </MuiButtonBase>
+      <span>
+        {
+          // span is needed to enable tooltips for disabled buttons
+        }
+        <MuiButtonBase
+          aria-label={props.tooltipTitle}
+          sx={props.sx}
+          onClick={(event): void => {
+            event.stopPropagation();
+            props.onClick();
+          }}
+          disabled={props.disabled}
+        >
+          {props.icon}
+        </MuiButtonBase>
+      </span>
+    </MuiTooltip>
   );
 }
