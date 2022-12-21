@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, ReactText } from 'react';
+import React, { ReactElement } from 'react';
 import { getFormattedCellData } from './report-table-item-helpers';
 import MuiTypography from '@mui/material/Typography';
 import {
@@ -27,6 +27,8 @@ import {
 import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
 import { useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
+import MuiLink from '@mui/material/Link';
+import { openUrl } from '../../util/open-url';
 
 export const reportTableRowHeight = 190;
 const padding = 10;
@@ -238,7 +240,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   }
 
   function getCellData(
-    cellData: ReactText,
+    cellData: string | number,
     attributionProperty: keyof AttributionInfo
   ): ReactElement {
     if (attributionProperty === 'resources' && typeof cellData === 'string') {
@@ -257,7 +259,12 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     } else if (attributionProperty === 'url') {
       return (
         <MuiBox sx={reportTableItemClasses.containerWithoutLineBreak}>
-          {cellData}
+          <MuiLink
+            component="button"
+            onClick={(): void => openUrl(cellData.toString())}
+          >
+            {cellData}
+          </MuiLink>
         </MuiBox>
       );
     }
