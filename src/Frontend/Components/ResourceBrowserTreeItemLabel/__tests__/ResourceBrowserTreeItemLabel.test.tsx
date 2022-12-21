@@ -6,12 +6,12 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { StyledTreeItemLabel } from '../StyledTreeItemLabel';
+import { ResourceBrowserTreeItemLabel } from '../ResourceBrowserTreeItemLabel';
 
 describe('StyledTreeItemLabel', () => {
   it('renders a file without information', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}
@@ -35,7 +35,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder with attribution', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={true}
         hasExternalAttribution={false}
@@ -58,7 +58,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder with signal and icon', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={true}
@@ -82,7 +82,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder with resolved signal and icon', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={true}
@@ -106,7 +106,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a file with resolved signal and icon', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={true}
         hasExternalAttribution={true}
@@ -130,7 +130,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder with contained signals', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}
@@ -153,7 +153,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder with contained attributions', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}
@@ -176,7 +176,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a file with parent attribution', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}
@@ -199,7 +199,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder without information', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}
@@ -222,7 +222,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a folder with all children containing signal also containing attributions', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}
@@ -247,7 +247,7 @@ describe('StyledTreeItemLabel', () => {
 
   it('renders a breakpoint', () => {
     render(
-      <StyledTreeItemLabel
+      <ResourceBrowserTreeItemLabel
         labelText={'Test label'}
         hasManualAttribution={false}
         hasExternalAttribution={false}

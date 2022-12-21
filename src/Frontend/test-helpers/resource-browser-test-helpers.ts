@@ -9,7 +9,7 @@ export function collapseFolderByClickingOnIcon(
   screen: Screen,
   resourceId: string
 ): void {
-  fireEvent.click(screen.getByLabelText(`expand ${resourceId}`) as Element);
+  fireEvent.click(screen.getByLabelText(`collapse ${resourceId}`) as Element);
 }
 
 export function getElementInResourceBrowser(

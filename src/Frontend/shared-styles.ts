@@ -4,10 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SxProps } from '@mui/material';
-import {
-  MUI_BREAKPOINTS_TO_PIXELS_MAPPING,
-  POPUP_MAX_WIDTH_BREAKPOINT,
-} from './shared-constants';
 
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -100,6 +96,17 @@ export const tableClasses = {
   },
 };
 
+export const TREE_ROW_HEIGHT = 20;
+export const TREE_ROOT_FOLDER_LABEL = '';
+export const POPUP_MAX_WIDTH_BREAKPOINT = 'xl';
+export const MUI_BREAKPOINTS_TO_PIXELS_MAPPING = {
+  xs: 0,
+  sm: 600,
+  md: 900,
+  lg: 1200,
+  xl: 1536,
+};
+
 export const treeClasses = {
   header: (popupContentPadding: number): SxProps => {
     return {
@@ -116,16 +123,22 @@ export const treeClasses = {
     };
   },
   tree: (
-    treeLocation: 'popup' | 'browser',
+    treeLocation: 'attributionView' | 'popup' | 'browser',
     horizontalSpaceBetweenTreeAndViewportEdges?: number,
     popupContentPadding?: number
   ): SxProps => {
     function shouldNotBeCalled(treeLocation: never): never {
       throw Error(
-        `Unknown treeLocation: ${treeLocation}. Possible values are 'browser' and 'popup'.`
+        `Unknown treeLocation: ${treeLocation}. Possible values are 'attributionView', 'browser' and 'popup'.`
       );
     }
     switch (treeLocation) {
+      case 'attributionView': {
+        return {
+          background: OpossumColors.white,
+          height: '100%',
+        };
+      }
       case 'browser': {
         return {
           width: resourceBrowserWidthInPixels,
@@ -186,4 +199,60 @@ export const treeClasses = {
       background: OpossumColors.middleBlue,
     },
   },
+};
+
+export const treeItemClasses = {
+  manualIcon: {
+    color: OpossumColors.darkBlue,
+    height: '20px',
+    width: '20px',
+  },
+  externalIcon: {
+    color: OpossumColors.black,
+    height: '20px',
+    width: '20px',
+  },
+  labelRoot: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  spacer: {
+    flex: 1,
+  },
+  arrowPlaceholder: {
+    height: '20px',
+    width: '20px',
+  },
+  text: {
+    paddingRight: '5px',
+  },
+  breakpoint: {
+    fontWeight: 'bold',
+    color: OpossumColors.grey,
+  },
+  hasSignal: {
+    color: OpossumColors.orange,
+  },
+  hasAttribution: {
+    color: OpossumColors.green,
+  },
+  hasParentWithManualAttribution: {
+    color: OpossumColors.pastelMiddleGreen,
+  },
+  containsExternalAttribution: {
+    color: OpossumColors.pastelRed,
+  },
+  containsManualAttribution: {
+    color: OpossumColors.pastelMiddleGreen,
+  },
+  containsManualAndExternalAttribution: {
+    color: OpossumColors.middleBlue,
+  },
+  resourceWithoutInformation: {
+    color: OpossumColors.disabledGrey,
+  },
+  notContainsResourcesWithOnlyExternalAttribution: {
+    color: OpossumColors.pastelMiddleGreen,
+  },
+  tooltip: tooltipStyle,
 };

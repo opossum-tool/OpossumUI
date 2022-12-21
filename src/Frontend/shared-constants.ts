@@ -25,13 +25,3 @@ export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
   projectId: '',
   fileCreationDate: '',
 };
-
-export const POPUP_MAX_WIDTH_BREAKPOINT = 'xl';
-
-export const MUI_BREAKPOINTS_TO_PIXELS_MAPPING = {
-  xs: 0,
-  sm: 600,
-  md: 900,
-  lg: 1200,
-  xl: 1536,
-};

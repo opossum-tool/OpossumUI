@@ -189,7 +189,7 @@ describe('In Attribution View the ContextMenu', () => {
 
     fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
     expectValueInTextBox(screen, 'Name', 'jQuery');
-    screen.getByText('/root/src/file_1');
+    screen.getByText('file_1');
 
     clickOnButtonInPackageContextMenu(
       screen,
@@ -219,8 +219,8 @@ describe('In Attribution View the ContextMenu', () => {
     );
 
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
-    screen.getByText('/root/src/file_1');
-    screen.getByText('/root/src/file_2');
+    screen.getByText('file_1');
+    screen.getByText('file_2');
 
     // make sure resources are now linked to React attribution
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
