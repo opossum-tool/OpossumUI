@@ -5,6 +5,7 @@
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { Schema, Validator } from 'jsonschema';
+import { Buffer } from 'buffer';
 
 const jsonSchemaValidator = new Validator();
 
@@ -59,9 +60,11 @@ export function convertGithubPayload(payload: unknown): PackageInfo {
 
   const { namespace, packageName } =
     getPackageNamespaceAndPackageNameFromGithubURL(validatedPayload.html_url);
+
   const licenseText = validatedPayload.content
     ? Buffer.from(validatedPayload.content, 'base64').toString()
     : undefined;
+
   return {
     licenseName: validatedPayload.license.spdx_id,
     licenseText,
