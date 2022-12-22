@@ -105,6 +105,7 @@ export function ProjectStatisticsPopup(): ReactElement {
                 title={
                   ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
                 }
+                defaultExpanded={true}
               />
               <AccordionWithPieChart
                 data={criticalSignalsCountData}

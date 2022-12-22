@@ -37,6 +37,7 @@ const classes = {
 interface AccordionProps {
   data: Array<PieChartData>;
   title: string;
+  defaultExpanded?: boolean;
 }
 
 export function getColorsForPieChart(
@@ -75,7 +76,11 @@ export function AccordionWithPieChart(
   }
 
   return (
-    <MuiAccordion sx={classes.accordion} disableGutters>
+    <MuiAccordion
+      sx={classes.accordion}
+      disableGutters
+      defaultExpanded={props.defaultExpanded}
+    >
       <MuiAccordionSummary
         sx={classes.accordionSummary}
         expandIcon={<ExpandMoreIcon sx={classes.accordionTitle} />}
