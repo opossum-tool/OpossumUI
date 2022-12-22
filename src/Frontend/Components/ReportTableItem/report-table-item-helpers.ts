@@ -7,14 +7,13 @@ import { AttributionInfo } from '../../../shared/shared-types';
 import { TableConfig } from '../Table/Table';
 import { PathPredicate } from '../../types/types';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
-import { ReactText } from 'react';
 
 export function getFormattedCellData(
   config: TableConfig,
   attributionInfo: AttributionInfo,
   isFileWithChildren: PathPredicate
-): ReactText {
-  let cellData: ReactText;
+): string | number {
+  let cellData: string | number;
   switch (config.attributionProperty) {
     case 'resources':
       cellData = attributionInfo[config.attributionProperty]

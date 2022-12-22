@@ -16,6 +16,7 @@ import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/
 import { SearchPackagesIcon } from '../Icons/Icons';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
+import { openUrl } from '../../util/open-url';
 
 const iconClasses = { clickableIcon, disabledIcon };
 
@@ -34,19 +35,6 @@ interface PackageSubPanelProps {
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
-  function openUrl(): void {
-    let urlString = props.displayPackageInfo.url;
-    if (urlString) {
-      if (
-        !urlString.startsWith('https://') &&
-        !urlString.startsWith('http://')
-      ) {
-        urlString = 'https://' + urlString;
-      }
-      window.electronAPI.openLink(urlString);
-    }
-  }
-
   const openLinkButtonTooltip = props.displayPackageInfo.url
     ? 'Open link in browser'
     : 'No link to open. Please enter a URL.';
@@ -140,7 +128,10 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             <IconButton
               tooltipTitle={openLinkButtonTooltip}
               tooltipPlacement="right"
-              onClick={openUrl}
+              onClick={(): void => {
+                props.displayPackageInfo.url &&
+                  openUrl(props.displayPackageInfo.url);
+              }}
               disabled={!props.displayPackageInfo.url}
               icon={
                 <OpenInNewIcon
