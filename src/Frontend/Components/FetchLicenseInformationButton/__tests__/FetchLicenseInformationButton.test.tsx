@@ -64,24 +64,6 @@ describe('FetchLicenseInformationButton', () => {
       ).resolves.toBeInTheDocument();
     });
 
-    it("shows fetching error 'Buffer is not defined'", () => {
-      const MOCK_URL = 'https://github.com/opossum-tool/OpossumUI/';
-
-      axiosMock.onGet(MOCK_URL).replyOnce(200, {});
-
-      renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
-      );
-
-      fireEvent.click(screen.getByRole('button'));
-
-      expect(
-        waitFor(() => {
-          screen.getByLabelText('Buffer is not defined');
-        })
-      ).resolves.toBeInTheDocument();
-    });
-
     it("shows fetching error 'Request failed with status code 404'", () => {
       const MOCK_URL = 'https://github.com/opossum-tool/Oposs';
 
