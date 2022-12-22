@@ -9,11 +9,11 @@ import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTab
 import { LicenseNamesWithCriticality } from '../../types/types';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
-const AMOUNT_COLUMN_NAME_IN_TABLE = 'Amount';
+const COUNT_COLUMN_NAME_IN_TABLE = 'Count';
 const FOOTER_TITLE = 'Total';
 const TABLE_COLUMN_NAMES = [
   LICENSE_COLUMN_NAME_IN_TABLE,
-  AMOUNT_COLUMN_NAME_IN_TABLE,
+  COUNT_COLUMN_NAME_IN_TABLE,
 ];
 
 const classes = {
@@ -77,7 +77,7 @@ export function CriticalLicensesTable(
         criticalLicensesTotalAttributions.map(
           ({ licenseName, totalNumberOfAttributions }) => [
             licenseName,
-            { [AMOUNT_COLUMN_NAME_IN_TABLE]: totalNumberOfAttributions },
+            { [COUNT_COLUMN_NAME_IN_TABLE]: totalNumberOfAttributions },
           ]
         )
       )}
