@@ -316,6 +316,16 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             },
             hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
           },
+          {
+            buttonText: ButtonText.OpenAttributionWizardPopup,
+            disabled: true,
+            hidden: isExternalAttribution || hideResourceSpecificButtons,
+            onClick: (): void => {
+              dispatch(
+                openPopup(PopupType.AttributionWizardPopup, attributionId)
+              );
+            },
+          },
         ];
   }
 
@@ -389,7 +399,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             isExternalAttribution={Boolean(
               props.cardConfig.isExternalAttribution
             )}
-            displayedAttributionName={packageLabels[0] || ''}
           />
         )}
       <ContextMenu

@@ -138,4 +138,14 @@ describe('The GlobalPopUp', () => {
       )
     ).toBeInTheDocument();
   });
+
+  it('opens the AttributionWizardPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    act(() => {
+      store.dispatch(
+        openPopup(PopupType.AttributionWizardPopup, 'test_attribution_id')
+      );
+    });
+    expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
+  });
 });

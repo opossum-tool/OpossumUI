@@ -19,10 +19,13 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { ButtonText } from '../../../enums/enums';
+import { ButtonText, PopupType } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
+import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
 
 const testResources: Resources = {
   thirdParty: {
@@ -258,5 +261,43 @@ describe('The PackageCard', () => {
       testStore.getState().resourceState.allViews.manualData.attributions;
     expect(updatedAttributions[testAttributionId].preSelected).toBeFalsy();
     expect(updatedAttributions[anotherAttributionId].preSelected).toBeFalsy();
+  });
+
+  it('opens AttributionWizardPopup via context menu', () => {
+    const testStore = createTestAppStore();
+
+    const attributions: Attributions = {
+      uuid_1: { packageName: 'testPackage' },
+    };
+    const resourcesToManualAttributions: ResourcesToAttributions = {
+      '/thirdParty': ['uuid_1'],
+    };
+    testStore.dispatch(
+      setManualData(attributions, resourcesToManualAttributions)
+    );
+    testStore.dispatch(setSelectedResourceId('/thirdParty'));
+
+    renderComponentWithStore(
+      <PackageCard
+        cardId={'testCardId'}
+        packageInfo={{ packageName: 'testPackage' }}
+        attributionId={'uuid_1'}
+        cardConfig={{ isExternalAttribution: false, isSelected: true }}
+        onClick={doNothing}
+        hideContextMenuAndMultiSelect={false}
+        showCheckBox={false}
+      />,
+      { store: testStore }
+    );
+
+    clickOnButtonInPackageContextMenu(
+      screen,
+      'testPackage',
+      ButtonText.OpenAttributionWizardPopup
+    );
+
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.AttributionWizardPopup
+    );
   });
 });

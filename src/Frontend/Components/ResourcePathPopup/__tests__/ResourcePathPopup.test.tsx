@@ -42,7 +42,6 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
       closePopup={doNothing}
       attributionId={'uuid_1'}
       isExternalAttribution={props.isExternalAttribution}
-      displayedAttributionName={'test name'}
     />
   );
 }

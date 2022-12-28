@@ -24,6 +24,7 @@ export enum PopupType {
   EditAttributionPopup = 'EditAttributionPopup',
   PackageSearchPopup = 'PackageSearchPopup',
   ChangedInputFilePopup = 'ChangedInputFilePopup',
+  AttributionWizardPopup = 'AttributionWizardPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -54,6 +55,8 @@ export enum ButtonText {
   Hide = 'Hide',
   Keep = 'Keep',
   MarkForReplacement = 'Mark for replacement',
+  Next = 'Next',
+  OpenAttributionWizardPopup = 'Open attribution wizard',
   Replace = 'Replace',
   ReplaceMarked = 'Replace marked',
   Save = 'Save',

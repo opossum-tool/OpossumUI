@@ -20,6 +20,7 @@ import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPo
 import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPopup';
 import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
 import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
+import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWizardPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -49,6 +50,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <PackageSearchPopup />;
     case PopupType.ChangedInputFilePopup:
       return <ChangedInputFilePopup />;
+    case PopupType.AttributionWizardPopup:
+      return <AttributionWizardPopup />;
     default:
       return null;
   }
