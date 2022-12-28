@@ -30,10 +30,6 @@ export const reportTableClasses = {
     padding: '10px',
     flex: '1 1 auto',
   },
-  emptyTableCell: {
-    paddingTop: '10px',
-    flex: '1 1 auto',
-  },
   emptyTableCellNoFlexGrow: {
     flex: '0 1 auto',
   },
@@ -85,9 +81,7 @@ export function ReportTableHeader(): ReactElement {
           {tableConfigs.map((config) => (
             <MuiBox
               sx={{
-                ...(config.attributionProperty === 'icons'
-                  ? reportTableClasses.emptyTableCell
-                  : reportTableClasses.tableCell),
+                ...reportTableClasses.tableCell,
                 ...(config.width === 'small'
                   ? reportTableClasses.smallTableCell
                   : config.width === 'wide'
