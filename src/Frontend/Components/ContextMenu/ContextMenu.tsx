@@ -24,6 +24,7 @@ import { OpossumColors } from '../../shared-styles';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 
 const classes = {
   icon: {
@@ -54,6 +55,7 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   [ButtonText.ShowResources]: <OpenInBrowserIcon fontSize="small" />,
   [ButtonText.Hide]: <VisibilityOffIcon fontSize="small" />,
   [ButtonText.Unhide]: <VisibilityIcon fontSize="small" />,
+  [ButtonText.OpenAttributionWizardPopup]: <AutoFixHighIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {

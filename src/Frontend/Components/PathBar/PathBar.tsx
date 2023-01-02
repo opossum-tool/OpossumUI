@@ -14,6 +14,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/system';
 
 const classes = {
   root: {
@@ -33,13 +34,16 @@ const classes = {
   tooltip: tooltipStyle,
 };
 
-export function PathBar(): ReactElement | null {
+interface PathBarProps {
+  sx?: SxProps;
+}
+export function PathBar(props: PathBarProps): ReactElement | null {
   const path = useAppSelector(getSelectedResourceId);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
 
   return path ? (
-    <MuiBox sx={classes.root}>
+    <MuiBox sx={{ ...classes.root, ...props.sx }}>
       <MuiTooltip sx={classes.tooltip} title={path}>
         <MuiTypography sx={classes.leftEllipsis} variant={'subtitle1'}>
           <bdi>

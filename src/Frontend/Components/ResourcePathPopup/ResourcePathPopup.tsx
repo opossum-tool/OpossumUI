@@ -24,7 +24,6 @@ interface ResourcePathPopupProps {
   closePopup(): void;
   attributionId: string;
   isExternalAttribution: boolean;
-  displayedAttributionName: string;
 }
 
 export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
