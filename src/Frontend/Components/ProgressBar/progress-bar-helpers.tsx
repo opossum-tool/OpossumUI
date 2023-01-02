@@ -3,13 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { ProgressBarData, ProgressBarType } from '../../types/types';
 import { doNothing } from '../../util/do-nothing';
-import { OpossumColors } from '../../shared-styles';
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { sum } from 'lodash';
 import { useAppDispatch } from '../../state/hooks';
+import MuiBox from '@mui/material/Box';
 
 export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
   const [numberOfClicks, setNumberOfClicks] = useState(-1);
@@ -32,12 +33,43 @@ export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
 
 export function getProgressBarTooltipText(
   progressBarData: ProgressBarData
-): string {
+): React.ReactNode {
   return (
-    `Number of files: ${progressBarData.fileCount}\n` +
-    `Files with attributions: ${progressBarData.filesWithManualAttributionCount}\n` +
-    `Files with only pre-selected attributions: ${progressBarData.filesWithOnlyPreSelectedAttributionCount}\n` +
-    `Files with only signals: ${progressBarData.filesWithOnlyExternalAttributionCount}`
+    <MuiBox>
+      Number of files: {progressBarData.fileCount}
+      <br />
+      Files with attributions: {progressBarData.filesWithManualAttributionCount}
+      <br />
+      Files with only pre-selected attributions:{' '}
+      {progressBarData.filesWithOnlyPreSelectedAttributionCount}
+      <br />
+      Files with only signals:{' '}
+      {progressBarData.filesWithOnlyExternalAttributionCount}
+    </MuiBox>
+  );
+}
+
+export function getCriticalityBarTooltipText(
+  progressBarData: ProgressBarData
+): React.ReactNode {
+  const filesWithNonCriticalExternalAttributions =
+    progressBarData.filesWithOnlyExternalAttributionCount -
+    progressBarData.filesWithHighlyCriticalExternalAttributionsCount -
+    progressBarData.filesWithMediumCriticalExternalAttributionsCount;
+  return (
+    <MuiBox>
+      Files with only signals:{' '}
+      {progressBarData.filesWithOnlyExternalAttributionCount}
+      <br />
+      Files with only highly critical signals:{' '}
+      {progressBarData.filesWithHighlyCriticalExternalAttributionsCount}
+      <br />
+      Files with only medium critical signals:{' '}
+      {progressBarData.filesWithMediumCriticalExternalAttributionsCount}
+      <br />
+      Files with only non-critical signals:{' '}
+      {filesWithNonCriticalExternalAttributions}
+    </MuiBox>
   );
 }
 
@@ -92,6 +124,48 @@ export function getProgressBarBackground(
         ? OpossumColors.almostWhiteBlue
         : OpossumColors.lightestBlue
     } ${allFilesWithAttributions}%)`
+  );
+}
+
+export function getCriticalityBarBackground(
+  progressBarData: ProgressBarData
+): string {
+  if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
+    return (
+      'linear-gradient(to right,' + ` ${OpossumColors.pastelDarkGreen} 0% 100%)`
+    );
+  }
+  let filesWithHighlyCriticalExternalAttributions =
+    (progressBarData.filesWithHighlyCriticalExternalAttributionsCount /
+      progressBarData.filesWithOnlyExternalAttributionCount) *
+    100;
+  let filesWithMediumCriticalExternalAttributions =
+    (progressBarData.filesWithMediumCriticalExternalAttributionsCount /
+      progressBarData.filesWithOnlyExternalAttributionCount) *
+    100;
+  let filesWithNonCriticalAttributions =
+    100 -
+    filesWithHighlyCriticalExternalAttributions -
+    filesWithMediumCriticalExternalAttributions;
+
+  [
+    filesWithHighlyCriticalExternalAttributions,
+    filesWithMediumCriticalExternalAttributions,
+    filesWithNonCriticalAttributions,
+  ] = roundToAtLeastOnePercentAndNormalize([
+    filesWithHighlyCriticalExternalAttributions,
+    filesWithMediumCriticalExternalAttributions,
+    filesWithNonCriticalAttributions,
+  ]);
+  const filesWithHighOrMediumCriticalExternalAttributions: number =
+    filesWithHighlyCriticalExternalAttributions +
+    filesWithMediumCriticalExternalAttributions;
+
+  return (
+    'linear-gradient(to right,' +
+    ` ${criticalityColor.high} ${filesWithHighlyCriticalExternalAttributions}%,` +
+    ` ${criticalityColor.medium} ${filesWithHighlyCriticalExternalAttributions}% ${filesWithHighOrMediumCriticalExternalAttributions}%,` +
+    ` ${OpossumColors.lightestBlue} ${filesWithHighOrMediumCriticalExternalAttributions}%)`
   );
 }
 

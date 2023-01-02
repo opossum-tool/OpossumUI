@@ -35,6 +35,12 @@ export const OpossumColors = {
   brown: 'hsl(33, 55%, 44%)',
 };
 
+export const criticalityColor = {
+  high: OpossumColors.orange,
+  medium: OpossumColors.mediumOrange,
+  undefined: OpossumColors.darkBlue,
+};
+
 export const resourceBrowserWidthInPixels = 420;
 
 export const tooltipStyle = {

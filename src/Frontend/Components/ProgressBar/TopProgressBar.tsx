@@ -19,18 +19,25 @@ import { ProgressBar } from './ProgressBar';
 import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
+import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
+import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
 
 const classes = {
   root: {
     flex: 1,
+    display: 'flex',
     marginLeft: '12px',
     marginRight: '12px',
+  },
+  switch: {
+    margin: 'auto',
   },
 };
 
 export function TopProgressBar(): ReactElement {
   const resources = useAppSelector(getResources);
   const manualAttributions = useAppSelector(getManualAttributions);
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const resourcesToManualAttributions = useAppSelector(
     getResourcesToManualAttributions
   );
@@ -54,11 +61,13 @@ export function TopProgressBar(): ReactElement {
     () => ({
       resourceId: '/',
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resolvedExternalAttributions,
     }),
     [
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resolvedExternalAttributions,
     ]
@@ -69,6 +78,7 @@ export function TopProgressBar(): ReactElement {
       resources,
       resourceId: '/',
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resourcesToExternalAttributions,
       resolvedExternalAttributions,
@@ -78,6 +88,7 @@ export function TopProgressBar(): ReactElement {
     [
       resources,
       manualAttributions,
+      externalAttributions,
       resourcesToManualAttributions,
       resourcesToExternalAttributions,
       resolvedExternalAttributions,
@@ -85,6 +96,16 @@ export function TopProgressBar(): ReactElement {
       filesWithChildren,
     ]
   );
+
+  const [progressBarCriticalityState, setProgressBarCriticalityState] =
+    useState<boolean>(false);
+
+  const handleSwitchClick = (): void => {
+    setProgressBarCriticalityState(!progressBarCriticalityState);
+  };
+  const switchToolTipText = progressBarCriticalityState
+    ? 'Critical signals progress bar selected'
+    : 'Progress bar selected';
 
   useMemo(() => {
     loadProgressBarData(
@@ -95,13 +116,22 @@ export function TopProgressBar(): ReactElement {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topProgressBarWorker, topProgressBarWorkerArgs]);
-
   return topProgressBarData ? (
-    <ProgressBar
-      sx={classes.root}
-      progressBarType={'TopProgressBar'}
-      progressBarData={topProgressBarData}
-    />
+    <MuiBox sx={classes.root}>
+      <ProgressBar
+        sx={classes.root}
+        progressBarType={'TopProgressBar'}
+        progressBarData={topProgressBarData}
+        progressBarCriticalityState={progressBarCriticalityState}
+      />
+      <SwitchWithTooltip
+        sx={classes.switch}
+        switchToolTipText={switchToolTipText}
+        isChecked={progressBarCriticalityState}
+        handleSwitchClick={handleSwitchClick}
+        ariaLabel="CriticalityStateSwitch"
+      />
+    </MuiBox>
   ) : (
     <MuiBox sx={classes.root} />
   );

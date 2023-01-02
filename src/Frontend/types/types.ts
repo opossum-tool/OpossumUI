@@ -27,6 +27,10 @@ export interface ProgressBarData {
   filesWithOnlyPreSelectedAttributionCount: number;
   filesWithOnlyExternalAttributionCount: number;
   resourcesWithNonInheritedExternalAttributionOnly: Array<string>;
+  filesWithHighlyCriticalExternalAttributionsCount: number;
+  filesWithMediumCriticalExternalAttributionsCount: number;
+  resourcesWithHighlyCriticalExternalAttributions: Array<string>;
+  resourcesWithMediumCriticalExternalAttributions: Array<string>;
 }
 
 export interface PanelPackage {
@@ -107,6 +111,7 @@ export interface ProgressBarWorkerArgs {
   resources: Resources | null;
   resourceId: string;
   manualAttributions: Attributions;
+  externalAttributions: Attributions;
   resourcesToManualAttributions: ResourcesToAttributions;
   resourcesToExternalAttributions: ResourcesToAttributions;
   resolvedExternalAttributions: Set<string>;

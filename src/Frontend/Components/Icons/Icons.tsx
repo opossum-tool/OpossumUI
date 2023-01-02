@@ -19,6 +19,7 @@ import React, { ReactElement } from 'react';
 import {
   baseIcon,
   clickableIcon,
+  criticalityColor,
   OpossumColors,
   tooltipStyle,
 } from '../../shared-styles';
@@ -54,12 +55,6 @@ const criticalityTooltipText = {
   high: 'has high criticality signals',
   medium: 'has medium criticality signals',
   undefined: 'has signals',
-};
-
-const criticalityColor = {
-  high: OpossumColors.orange,
-  medium: OpossumColors.mediumOrange,
-  undefined: OpossumColors.darkBlue,
 };
 
 interface IconProps {

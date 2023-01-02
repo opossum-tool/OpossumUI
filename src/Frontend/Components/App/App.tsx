@@ -20,6 +20,7 @@ import { createTheme } from '@mui/material';
 import { useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
 import { Spinner } from '../Spinner/Spinner';
+import { OpossumColors } from '../../shared-styles';
 
 const classes = {
   root: {
@@ -60,6 +61,26 @@ const theme = createTheme({
         root: {
           fontSize: '0.85rem',
           letterSpacing: '0.01071em',
+        },
+      },
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          color: OpossumColors.lightestBlue,
+        },
+        colorPrimary: {
+          '&.Mui-checked': {
+            color: OpossumColors.middleBlue,
+          },
+        },
+        track: {
+          opacity: 0.7,
+          backgroundColor: OpossumColors.lightestBlue,
+          '.Mui-checked.Mui-checked + &': {
+            opacity: 0.7,
+            backgroundColor: OpossumColors.middleBlue,
+          },
         },
       },
     },
