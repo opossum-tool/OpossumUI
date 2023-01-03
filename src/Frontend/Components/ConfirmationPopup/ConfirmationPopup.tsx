@@ -34,6 +34,7 @@ export function ConfirmationPopup(props: ConfirmationPopupProps): ReactElement {
       leftButtonConfig={{
         onClick: handleDeletionClick,
         buttonText: ButtonText.Confirm,
+        isDark: true,
       }}
       rightButtonConfig={{
         onClick: handleCancelClick,

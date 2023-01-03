@@ -123,7 +123,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             <FetchLicenseInformationButton
               url={props.displayPackageInfo.url}
               version={props.displayPackageInfo.packageVersion}
-              isDisabled={!props.isEditable}
+              disabled={!props.isEditable}
             />
             <IconButton
               tooltipTitle={openLinkButtonTooltip}

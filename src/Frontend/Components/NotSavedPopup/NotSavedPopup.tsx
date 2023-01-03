@@ -81,14 +81,15 @@ export function NotSavedPopup(): ReactElement {
           ? handleSaveClick
           : handleSaveGloballyClick,
         buttonText: ButtonText.Save,
-        isDisabled: isSavingDisabled,
+        disabled: isSavingDisabled,
+        isDark: true,
       }}
       centerLeftButtonConfig={
         showSaveGloballyButton
           ? {
               onClick: handleSaveGloballyClick,
               buttonText: ButtonText.SaveGlobally,
-              isDisabled: isSavingDisabled,
+              disabled: isSavingDisabled,
             }
           : undefined
       }

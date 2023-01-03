@@ -44,6 +44,7 @@ export enum PackagePanelTitle {
 }
 
 export enum ButtonText {
+  Back = 'Back',
   Close = 'Close',
   Cancel = 'Cancel',
   Confirm = 'Confirm',

@@ -11,7 +11,7 @@ import { ListWithAttributesItem } from '../../../types/types';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('ListWithAttributes', () => {
-  it('renders with items containing name and attributes', () => {
+  it('renders with title and items containing name and attributes', () => {
     const testItems: Array<ListWithAttributesItem> = [
       {
         text: 'package_0',
@@ -32,6 +32,7 @@ describe('ListWithAttributes', () => {
     ];
     const testSelectedItemId = '';
     const testHighlightedAttributeIds = [''];
+    const testListTitle = 'Packages';
     render(
       <ListWithAttributes
         listItems={testItems}
@@ -39,8 +40,11 @@ describe('ListWithAttributes', () => {
         highlightedAttributeIds={testHighlightedAttributeIds}
         handleListItemClick={doNothing}
         showAddNewInput={false}
+        title={testListTitle}
       />
     );
+
+    expect(screen.getByText(testListTitle)).toBeInTheDocument();
 
     const listItemElement1 = within(screen.getAllByRole('listitem')[0]);
     expect(listItemElement1.getByText('package_0')).toBeInTheDocument();

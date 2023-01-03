@@ -186,13 +186,13 @@ export function EnabledFetchLicenseInformationButton(
 export function FetchLicenseInformationButton(props: {
   url?: string;
   version?: string;
-  isDisabled: boolean;
+  disabled: boolean;
 }): ReactElement {
   const licenseFetchingInformation = getLicenseFetchingInformation(
     props.url,
     props.version
   );
-  return !props.isDisabled && licenseFetchingInformation ? (
+  return !props.disabled && licenseFetchingInformation ? (
     <EnabledFetchLicenseInformationButton
       url={licenseFetchingInformation.url}
       convertPayload={licenseFetchingInformation.convertPayload}

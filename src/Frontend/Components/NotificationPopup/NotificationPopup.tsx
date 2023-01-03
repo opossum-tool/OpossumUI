@@ -79,32 +79,40 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
           <Button
             buttonText={props.leftButtonConfig.buttonText}
             onClick={props.leftButtonConfig.onClick}
-            isDark={true}
-            disabled={props.leftButtonConfig.isDisabled}
+            isDark={Boolean(props.leftButtonConfig?.isDark)}
+            disabled={props.leftButtonConfig.disabled}
+            tooltipText={props.leftButtonConfig?.tooltipText ?? ''}
+            tooltipPlacement={props.leftButtonConfig?.tooltipPlacement}
           />
         ) : null}
         {props.centerLeftButtonConfig ? (
           <Button
             buttonText={props.centerLeftButtonConfig.buttonText}
             onClick={props.centerLeftButtonConfig.onClick}
-            isDark={false}
-            disabled={props.centerLeftButtonConfig.isDisabled}
+            isDark={Boolean(props.centerLeftButtonConfig?.isDark)}
+            disabled={props.centerLeftButtonConfig.disabled}
+            tooltipText={props.centerLeftButtonConfig?.tooltipText ?? ''}
+            tooltipPlacement={props.centerLeftButtonConfig?.tooltipPlacement}
           />
         ) : null}
         {props.centerRightButtonConfig ? (
           <Button
             buttonText={props.centerRightButtonConfig.buttonText}
             onClick={props.centerRightButtonConfig.onClick}
-            isDark={false}
-            disabled={props.centerRightButtonConfig.isDisabled}
+            isDark={Boolean(props.centerRightButtonConfig?.isDark)}
+            disabled={props.centerRightButtonConfig.disabled}
+            tooltipText={props.centerRightButtonConfig?.tooltipText ?? ''}
+            tooltipPlacement={props.centerRightButtonConfig?.tooltipPlacement}
           />
         ) : null}
         {props.rightButtonConfig ? (
           <Button
             buttonText={props.rightButtonConfig.buttonText}
             onClick={props.rightButtonConfig.onClick}
-            isDark={false}
-            disabled={props.rightButtonConfig.isDisabled}
+            isDark={Boolean(props.rightButtonConfig?.isDark)}
+            disabled={props.rightButtonConfig.disabled}
+            tooltipText={props.rightButtonConfig?.tooltipText ?? ''}
+            tooltipPlacement={props.rightButtonConfig?.tooltipPlacement}
           />
         ) : null}
       </MuiDialogActions>

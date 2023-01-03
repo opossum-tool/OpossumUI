@@ -4,25 +4,32 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiButton from '@mui/material/Button';
+import MuiTooltip from '@mui/material/Tooltip';
 import React, { ReactElement } from 'react';
+import { tooltipStyle } from '../../shared-styles';
+import { ButtonConfig } from '../../types/types';
 import { buttonStyles } from './button-styles';
 
-interface ButtonProps {
-  buttonText: string;
-  disabled?: boolean;
-  isDark: boolean;
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-}
+type ButtonProps = ButtonConfig;
 
 export function Button(props: ButtonProps): ReactElement {
   return (
-    <MuiButton
-      sx={props.isDark ? buttonStyles.dark : buttonStyles.light}
-      variant="contained"
-      disabled={props.disabled}
-      onClick={props.onClick}
+    <MuiTooltip
+      sx={tooltipStyle}
+      title={props.tooltipText}
+      placement={props.tooltipPlacement}
+      describeChild={true}
     >
-      {props.buttonText}
-    </MuiButton>
+      <span>
+        <MuiButton
+          sx={props.isDark ? buttonStyles.dark : buttonStyles.light}
+          variant="contained"
+          disabled={props.disabled}
+          onClick={props.onClick}
+        >
+          {props.buttonText}
+        </MuiButton>
+      </span>
+    </MuiTooltip>
   );
 }

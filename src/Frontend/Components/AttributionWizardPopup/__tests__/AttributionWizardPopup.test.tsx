@@ -34,8 +34,22 @@ describe('Attribution Wizard Popup', () => {
 
     renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
     testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_1'));
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.AttributionWizardPopup
+    );
 
     fireEvent.click(screen.getByText(ButtonText.Cancel));
     expect(getOpenPopup(testStore.getState())).toBe(null);
   });
+
+  it('renders breadcrumbs in first wizard step', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId('/thirdParty'));
+
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
+
+    expect(screen.getByText('package')).toBeInTheDocument();
+    expect(screen.getByText('version')).toBeInTheDocument();
+  });
+  // TODO: More logic required to test for navigation as it requires item selection of dispatched data
 });

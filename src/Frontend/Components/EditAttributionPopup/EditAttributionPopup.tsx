@@ -76,7 +76,8 @@ export function EditAttributionPopup(): ReactElement {
       leftButtonConfig={{
         onClick: savePackageInfoBeforeClosing,
         buttonText: ButtonText.Save,
-        isDisabled: isSavingDisabled,
+        disabled: isSavingDisabled,
+        isDark: true,
       }}
       rightButtonConfig={{
         onClick: checkForModifiedPackageInfoBeforeClosing,

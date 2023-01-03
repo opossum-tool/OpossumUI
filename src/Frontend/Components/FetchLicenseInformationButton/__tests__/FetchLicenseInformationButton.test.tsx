@@ -29,7 +29,7 @@ const axiosMock = new MockAdapter(axios);
 
 describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
-    render(<FetchLicenseInformationButton isDisabled={true} url={''} />);
+    render(<FetchLicenseInformationButton disabled={true} url={''} />);
     expect(
       screen.getByLabelText(FETCH_DATA_BUTTON_DISABLED_TOOLTIP)
     ).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('FetchLicenseInformationButton', () => {
     renderComponentWithStore(
       <FetchLicenseInformationButton
         url={'https://pypi.org/pypi/pip'}
-        isDisabled={false}
+        disabled={false}
       />
     );
     expect(screen.getByRole('button')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('FetchLicenseInformationButton', () => {
       axiosMock.onGet(MOCK_URL).networkErrorOnce();
 
       renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
       );
 
       fireEvent.click(screen.getByRole('button'));
@@ -70,7 +70,7 @@ describe('FetchLicenseInformationButton', () => {
       axiosMock.onGet(MOCK_URL).replyOnce(404, {});
 
       renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
       );
 
       fireEvent.click(screen.getByRole('button'));
@@ -92,7 +92,7 @@ describe('FetchLicenseInformationButton', () => {
       });
 
       renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} isDisabled={false} />
+        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
       );
 
       fireEvent.click(screen.getByRole('button'));
