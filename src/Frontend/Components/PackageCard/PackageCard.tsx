@@ -318,8 +318,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           },
           {
             buttonText: ButtonText.OpenAttributionWizardPopup,
-            disabled: true,
-            hidden: isExternalAttribution || hideResourceSpecificButtons,
+            disabled: false,
+            hidden: true, // isExternalAttribution || hideResourceSpecificButtons,
             onClick: (): void => {
               dispatch(
                 openPopup(PopupType.AttributionWizardPopup, attributionId)

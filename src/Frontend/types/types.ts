@@ -138,3 +138,14 @@ export interface LicenseNamesWithCriticality {
   [licenseName: string]: Criticality | undefined;
 }
 export type ProgressBarType = 'FolderProgressBar' | 'TopProgressBar';
+
+export interface ListWithAttributesItemAttribute {
+  text: string;
+  id: string;
+}
+
+export interface ListWithAttributesItem {
+  text: string;
+  id: string;
+  attributes: Array<ListWithAttributesItemAttribute>;
+}
