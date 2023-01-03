@@ -112,7 +112,7 @@ export function getAttributionOfDisplayedPackageInManualPanel(
   const attributionId: string | null =
     getAttributionIdOfDisplayedPackageInManualPanel(state);
   if (attributionId) {
-    const manualAttributions: Attributions = getManualAttributions(state) || {};
+    const manualAttributions: Attributions = getManualAttributions(state);
     return manualAttributions[attributionId];
   }
 
