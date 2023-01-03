@@ -104,7 +104,7 @@ export function PackagePanel(
     const packageCount = props.attributionIdsWithCount.filter(
       (attributionIdWithCount) =>
         attributionIdWithCount.attributionId === attributionId
-    )[0].childrenWithAttributionCount;
+    )[0].count;
 
     const isExternalAttribution =
       props.title === PackagePanelTitle.ExternalPackages ||

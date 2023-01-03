@@ -30,12 +30,12 @@ const testAttributionSources: ExternalAttributionSources = {
 describe('PackagePanel helpers', () => {
   const testAttributionIds: Array<AttributionIdWithCount> = [
     { attributionId: 'jquery' },
-    { attributionId: 'b_unknown', childrenWithAttributionCount: 5 },
-    { attributionId: 'react', childrenWithAttributionCount: 5 },
-    { attributionId: 'vue', childrenWithAttributionCount: 500 },
-    { attributionId: 'a_unknown', childrenWithAttributionCount: 3 },
-    { attributionId: 'reuser', childrenWithAttributionCount: 3 },
-    { attributionId: 'blub', childrenWithAttributionCount: 1 },
+    { attributionId: 'b_unknown', count: 5 },
+    { attributionId: 'react', count: 5 },
+    { attributionId: 'vue', count: 500 },
+    { attributionId: 'a_unknown', count: 3 },
+    { attributionId: 'reuser', count: 3 },
+    { attributionId: 'blub', count: 1 },
   ];
   const testAttributions: Attributions = {
     react: {
@@ -93,7 +93,7 @@ describe('PackagePanel helpers', () => {
       [
         {
           attributionId: 'react',
-          childrenWithAttributionCount: 5,
+          count: 5,
         },
       ];
     expect(

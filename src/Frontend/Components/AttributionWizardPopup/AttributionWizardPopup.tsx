@@ -15,13 +15,25 @@ import { PathBar } from '../PathBar/PathBar';
 import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
 import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
 import { ButtonConfig } from '../../types/types';
-import { getExternalData } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getExternalData,
+  getManualAttributions,
+  getManualData,
+} from '../../state/selectors/all-views-resource-selectors';
 import {
   getSelectedResourceId,
   getResolvedExternalAttributions,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { getContainedExternalPackages } from '../../util/get-contained-packages';
-import { getAttributionWizardPackageListsItems } from './attribution-wizard-popup-helpers';
+import {
+  getAttributionWizardPackageListsItems,
+  getAttributionWizardPackageVersionListItems,
+  getAllAttributionIdsWithCountsFromResourceAndChildren,
+  getHighlightedPackageNameIds,
+  getPreSelectedPackageAttributeIds,
+  filterForPackageAttributeId,
+} from './attribution-wizard-popup-helpers';
+import { getPopupAttributionId } from '../../state/selectors/view-selector';
+import { PackageInfo } from '../../../shared/shared-types';
 
 const attributionWizardPopupHeader = 'Attribution Wizard';
 
@@ -58,15 +70,26 @@ const classes = {
 export function AttributionWizardPopup(): ReactElement {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const externalData = useAppSelector(getExternalData);
+  const manualData = useAppSelector(getManualData);
+
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
   );
-  // const popupAttributionId = useAppSelector(getPopupAttributionId);  // TODO: required later
+  const popupAttributionId = useAppSelector(getPopupAttributionId);
+  const manualAttributions = useAppSelector(getManualAttributions);
 
   const dispatch = useAppDispatch();
   function closeAttributionWizardPopup(): void {
     dispatch(closePopup());
   }
+
+  const popupAttribution =
+    popupAttributionId !== null ? manualAttributions[popupAttributionId] : {};
+  const {
+    preSelectedPackageNamespaceId,
+    preSelectedPackageNameId,
+    preSelectedPackageVersionId,
+  } = getPreSelectedPackageAttributeIds(popupAttribution);
 
   const wizardStepIdsToDisplayValues: Array<[string, string]> = [
     ['packageNamespaceAndName', 'package'],
@@ -77,11 +100,12 @@ export function AttributionWizardPopup(): ReactElement {
   );
 
   const [selectedPackageNamespaceId, setSelectedPackageNamespaceId] =
-    useState<string>('');
-  const [selectedPackageNameId, setSelectedPackageNameId] =
-    useState<string>('');
+    useState<string>(preSelectedPackageNamespaceId);
+  const [selectedPackageNameId, setSelectedPackageNameId] = useState<string>(
+    preSelectedPackageNameId
+  );
   const [selectedPackageVersionId, setSelectedPackageVersionId] =
-    useState<string>('');
+    useState<string>(preSelectedPackageVersionId);
   const [selectedWizardStepId, setSelectedWizardStepId] = useState<string>(
     wizardStepIds[0]
   );
@@ -89,17 +113,71 @@ export function AttributionWizardPopup(): ReactElement {
   const packageNamespaceAndNameSelected =
     selectedPackageNamespaceId !== '' && selectedPackageNameId !== '';
 
-  const containedExternalPackages = getContainedExternalPackages({
-    selectedResourceId,
-    externalData,
-    resolvedExternalAttributions,
-  });
-
-  const { attributedPackageNamespaces, attributedPackageNames } =
-    getAttributionWizardPackageListsItems(
-      containedExternalPackages,
-      externalData.attributions
+  const allAttributionIdsOfResourceAndChildrenWithCounts =
+    getAllAttributionIdsWithCountsFromResourceAndChildren(
+      selectedResourceId,
+      externalData,
+      manualData,
+      resolvedExternalAttributions
     );
+
+  const {
+    attributedPackageNamespaces,
+    attributedPackageNames,
+    packageNamesToVersions,
+  } = getAttributionWizardPackageListsItems(
+    allAttributionIdsOfResourceAndChildrenWithCounts,
+    {
+      ...externalData.attributions,
+      ...manualData.attributions,
+    }
+  );
+
+  const selectedPackageNamespace = filterForPackageAttributeId(
+    selectedPackageNamespaceId,
+    attributedPackageNamespaces
+  );
+
+  const selectedPackageName = filterForPackageAttributeId(
+    selectedPackageNameId,
+    attributedPackageNames
+  );
+
+  const attributedPackageVersions =
+    selectedPackageName !== ''
+      ? getAttributionWizardPackageVersionListItems(
+          selectedPackageName,
+          packageNamesToVersions
+        )
+      : [];
+
+  let selectedPackageVersion = '';
+  if (selectedPackageVersionId !== '') {
+    const attributedPackageVersion = attributedPackageVersions.filter(
+      (item) => item.id === selectedPackageVersionId
+    )[0];
+
+    if (attributedPackageVersion === undefined) {
+      setSelectedPackageVersionId('');
+    } else {
+      selectedPackageVersion = attributedPackageVersion.text;
+    }
+  }
+
+  const highlightedPackageNameIds =
+    selectedPackageName !== ''
+      ? getHighlightedPackageNameIds(
+          selectedPackageName,
+          packageNamesToVersions
+        )
+      : [''];
+
+  const temporaryPackageInfo: PackageInfo = {
+    packageType: popupAttribution.packageType,
+    packageName: selectedPackageName,
+    packageNamespace: selectedPackageNamespace,
+    packageVersion: selectedPackageVersion,
+  };
 
   const handleBreadcrumbsClick = function (wizardStepId: string): void {
     setSelectedWizardStepId(wizardStepId);
@@ -153,36 +231,6 @@ export function AttributionWizardPopup(): ReactElement {
     isDark: false,
   };
 
-  // create dummy version data
-  const N = 15;
-  const dummyPackageVersionListItems = [];
-  const dummyHighlightedPackageIds = [];
-  for (let i = 0; i < N; i++) {
-    dummyPackageVersionListItems.push({
-      text: `version${i}`,
-      id: `versionId-${i}`,
-      attributes: [
-        {
-          text: `package${4 * i}`,
-          id: `packageId-${4 * i}`,
-        },
-        {
-          text: `package${4 * i + 1}`,
-          id: `packageId-${4 * i + 1}`,
-        },
-        {
-          text: `package${4 * i + 2}`,
-          id: `packageId-${4 * i + 2}`,
-        },
-        {
-          text: `package${4 * i + 3}`,
-          id: `packageId-${4 * i + 3}`,
-        },
-      ],
-    });
-    dummyHighlightedPackageIds.push(`packageId-${4 * i + (i % 4)}`);
-  }
-
   return (
     <NotificationPopup
       header={attributionWizardPopupHeader}
@@ -217,6 +265,7 @@ export function AttributionWizardPopup(): ReactElement {
               <AttributionWizardPackageStep
                 attributedPackageNamespaces={attributedPackageNamespaces}
                 attributedPackageNames={attributedPackageNames}
+                temporaryPackageInfo={temporaryPackageInfo}
                 selectedPackageNamespaceId={selectedPackageNamespaceId}
                 selectedPackageNameId={selectedPackageNameId}
                 handlePackageNamespaceListItemClick={
@@ -226,10 +275,9 @@ export function AttributionWizardPopup(): ReactElement {
               />
             ) : selectedWizardStepId === wizardStepIds[1] ? (
               <AttributionWizardVersionStep
-                packageVersionListItems={dummyPackageVersionListItems}
-                highlightedPackageNameIds={dummyHighlightedPackageIds}
-                selectedPackageNamespaceId={selectedPackageNamespaceId}
-                selectedPackageNameId={selectedPackageNameId}
+                attributedPackageVersions={attributedPackageVersions}
+                temporaryPackageInfo={temporaryPackageInfo}
+                highlightedPackageNameIds={highlightedPackageNameIds}
                 selectedPackageVersionId={selectedPackageVersionId}
                 handlePackageVersionListItemClick={
                   handlePackageVersionListItemClick

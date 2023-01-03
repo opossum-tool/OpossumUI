@@ -81,7 +81,7 @@ export function computeAggregatedAttributionsFromChildren(
   return Object.keys(attributionCount)
     .map((attributionId: string) => ({
       attributionId,
-      childrenWithAttributionCount: attributionCount[attributionId],
+      count: attributionCount[attributionId],
     }))
     .sort(sortByCountAndPackageName(attributions));
 }
@@ -93,12 +93,8 @@ export function sortByCountAndPackageName(
     a1: AttributionIdWithCount,
     a2: AttributionIdWithCount
   ): number {
-    if (
-      a1.childrenWithAttributionCount &&
-      a2.childrenWithAttributionCount &&
-      a1.childrenWithAttributionCount !== a2.childrenWithAttributionCount
-    ) {
-      return a2.childrenWithAttributionCount - a1.childrenWithAttributionCount;
+    if (a1.count && a2.count && a1.count !== a2.count) {
+      return a2.count - a1.count;
     }
 
     const p1: PackageInfo = attributions[a1.attributionId];

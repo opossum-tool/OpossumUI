@@ -32,15 +32,15 @@ describe('computeAggregatedAttributionsFromChildren', () => {
   it('selects aggregated children and sorts correctly', () => {
     const expectedResult: Array<AttributionIdWithCount> = [
       {
-        childrenWithAttributionCount: 2,
+        count: 2,
         attributionId: 'uuid_2',
       },
       {
-        childrenWithAttributionCount: 1,
+        count: 1,
         attributionId: 'uuid_1',
       },
       {
-        childrenWithAttributionCount: 1,
+        count: 1,
         attributionId: 'uuid_3',
       },
     ];
@@ -57,11 +57,11 @@ describe('computeAggregatedAttributionsFromChildren', () => {
   it('filters resolved attributions correctly', () => {
     const expectedResult: Array<AttributionIdWithCount> = [
       {
-        childrenWithAttributionCount: 2,
+        count: 2,
         attributionId: 'uuid_2',
       },
       {
-        childrenWithAttributionCount: 1,
+        count: 1,
         attributionId: 'uuid_3',
       },
     ];
@@ -85,27 +85,27 @@ describe('sortByCountAndPackageName', () => {
     const initialAttributionIdsWithCount: Array<AttributionIdWithCount> = [
       {
         attributionId: 'uuid1',
-        childrenWithAttributionCount: 10,
+        count: 10,
       },
       {
         attributionId: 'uuid2',
-        childrenWithAttributionCount: 11,
+        count: 11,
       },
       {
         attributionId: 'uuid3',
-        childrenWithAttributionCount: 10,
+        count: 10,
       },
       {
         attributionId: 'uuid4',
-        childrenWithAttributionCount: 1,
+        count: 1,
       },
       {
         attributionId: 'uuid5',
-        childrenWithAttributionCount: 10,
+        count: 10,
       },
       {
         attributionId: 'uuid6',
-        childrenWithAttributionCount: 1,
+        count: 1,
       },
     ];
     const testAttributions: Attributions = {
@@ -129,27 +129,27 @@ describe('sortByCountAndPackageName', () => {
     const expectedAttributionIdsWithCount: Array<AttributionIdWithCount> = [
       {
         attributionId: 'uuid2',
-        childrenWithAttributionCount: 11,
+        count: 11,
       },
       {
         attributionId: 'uuid5',
-        childrenWithAttributionCount: 10,
+        count: 10,
       },
       {
         attributionId: 'uuid3',
-        childrenWithAttributionCount: 10,
+        count: 10,
       },
       {
         attributionId: 'uuid1',
-        childrenWithAttributionCount: 10,
+        count: 10,
       },
       {
         attributionId: 'uuid6',
-        childrenWithAttributionCount: 1,
+        count: 1,
       },
       {
         attributionId: 'uuid4',
-        childrenWithAttributionCount: 1,
+        count: 1,
       },
     ];
 

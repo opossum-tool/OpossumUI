@@ -4,32 +4,63 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
+import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
 import { ListWithAttributesItem } from '../../types/types';
 import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
+import { PackageInfo } from '../../../shared/shared-types';
+import { generatePurlFromPackageInfo } from '../../util/handle-purl';
 
+const PURL_HEIGHT = 45;
+
+const classes = {
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+  },
+  purl: {
+    border: 1,
+    padding: '0px 3px',
+    marginTop: '5px',
+    marginBottom: '10px',
+  },
+  listBox: {
+    display: 'flex',
+    maxHeight: `calc(100% - ${PURL_HEIGHT}px)`,
+  },
+};
 interface AttributionWizardVersionStepProps {
-  packageVersionListItems: Array<ListWithAttributesItem>;
+  attributedPackageVersions: Array<ListWithAttributesItem>;
   highlightedPackageNameIds: Array<string>;
-  selectedPackageNamespaceId: string;
-  selectedPackageNameId: string;
+  temporaryPackageInfo: PackageInfo;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
 }
 
-// TODO: selectedPackageNamespaceId and selectedPackageNameId already in props for upcoming ticket
-
 export function AttributionWizardVersionStep(
   props: AttributionWizardVersionStepProps
 ): ReactElement {
+  const temporaryPackagePurl = generatePurlFromPackageInfo(
+    props.temporaryPackageInfo
+  );
+
   return (
-    <ListWithAttributes
-      listItems={props.packageVersionListItems}
-      selectedListItemId={props.selectedPackageVersionId}
-      highlightedAttributeIds={props.highlightedPackageNameIds}
-      handleListItemClick={props.handlePackageVersionListItemClick}
-      showAddNewInput={false}
-      title={'Package version'}
-      listItemSx={{ maxWidth: '400px' }}
-    />
+    <MuiBox sx={classes.root}>
+      <MuiTypography variant={'subtitle1'} sx={classes.purl}>
+        {temporaryPackagePurl}
+      </MuiTypography>
+      <MuiBox sx={classes.listBox}>
+        <ListWithAttributes
+          listItems={props.attributedPackageVersions}
+          selectedListItemId={props.selectedPackageVersionId}
+          highlightedAttributeIds={props.highlightedPackageNameIds}
+          handleListItemClick={props.handlePackageVersionListItemClick}
+          showAddNewInput={false}
+          title={'Package version'}
+          listItemSx={{ maxWidth: '400px' }}
+        />
+      </MuiBox>
+    </MuiBox>
   );
 }
