@@ -8,21 +8,26 @@ import MuiBox from '@mui/material/Box';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ButtonText } from '../../enums/enums';
 import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
-import { useAppDispatch } from '../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { OpossumColors } from '../../shared-styles';
 import { PathBar } from '../PathBar/PathBar';
 import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
 import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
 import { ButtonConfig } from '../../types/types';
+import { getExternalData } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getSelectedResourceId,
+  getResolvedExternalAttributions,
+} from '../../state/selectors/audit-view-resource-selectors';
+import { getContainedExternalPackages } from '../../util/get-contained-packages';
+import { getAttributionWizardPackageListsItems } from './attribution-wizard-popup-helpers';
 
-// const POPUP_CONTENT_PADDING = 48; // TODO: monitored in upcoming tickets
 const attributionWizardPopupHeader = 'Attribution Wizard';
 
 const classes = {
   dialogHeader: {
     whiteSpace: 'nowrap',
-    // width: `calc(100% - ${POPUP_CONTENT_PADDING}px)`, // TODO: monitored in upcoming tickets
   },
   pathFieldAndBreadcrumbsBox: {
     display: 'flex',
@@ -38,6 +43,7 @@ const classes = {
     heigth: 'fit-content',
     marginTop: '12px',
     maxHeight: '70vh',
+    minHeight: '50vh',
     minWidth: '60vw',
   },
   pathBar: {
@@ -50,6 +56,18 @@ const classes = {
 };
 
 export function AttributionWizardPopup(): ReactElement {
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const externalData = useAppSelector(getExternalData);
+  const resolvedExternalAttributions = useAppSelector(
+    getResolvedExternalAttributions
+  );
+  // const popupAttributionId = useAppSelector(getPopupAttributionId);  // TODO: required later
+
+  const dispatch = useAppDispatch();
+  function closeAttributionWizardPopup(): void {
+    dispatch(closePopup());
+  }
+
   const wizardStepIdsToDisplayValues: Array<[string, string]> = [
     ['packageNamespaceAndName', 'package'],
     ['packageVersion', 'version'],
@@ -58,7 +76,6 @@ export function AttributionWizardPopup(): ReactElement {
     (idAndDisplayValue) => idAndDisplayValue[0]
   );
 
-  // TODO: streamline and integrate this logic later
   const [selectedPackageNamespaceId, setSelectedPackageNamespaceId] =
     useState<string>('');
   const [selectedPackageNameId, setSelectedPackageNameId] =
@@ -69,13 +86,20 @@ export function AttributionWizardPopup(): ReactElement {
     wizardStepIds[0]
   );
 
-  const packageNamespaceAndNameSelected: boolean =
+  const packageNamespaceAndNameSelected =
     selectedPackageNamespaceId !== '' && selectedPackageNameId !== '';
 
-  const dispatch = useAppDispatch();
-  function closeAttributionWizardPopup(): void {
-    dispatch(closePopup());
-  }
+  const containedExternalPackages = getContainedExternalPackages({
+    selectedResourceId,
+    externalData,
+    resolvedExternalAttributions,
+  });
+
+  const { attributedPackageNamespaces, attributedPackageNames } =
+    getAttributionWizardPackageListsItems(
+      containedExternalPackages,
+      externalData.attributions
+    );
 
   const handleBreadcrumbsClick = function (wizardStepId: string): void {
     setSelectedWizardStepId(wizardStepId);
@@ -129,6 +153,36 @@ export function AttributionWizardPopup(): ReactElement {
     isDark: false,
   };
 
+  // create dummy version data
+  const N = 15;
+  const dummyPackageVersionListItems = [];
+  const dummyHighlightedPackageIds = [];
+  for (let i = 0; i < N; i++) {
+    dummyPackageVersionListItems.push({
+      text: `version${i}`,
+      id: `versionId-${i}`,
+      attributes: [
+        {
+          text: `package${4 * i}`,
+          id: `packageId-${4 * i}`,
+        },
+        {
+          text: `package${4 * i + 1}`,
+          id: `packageId-${4 * i + 1}`,
+        },
+        {
+          text: `package${4 * i + 2}`,
+          id: `packageId-${4 * i + 2}`,
+        },
+        {
+          text: `package${4 * i + 3}`,
+          id: `packageId-${4 * i + 3}`,
+        },
+      ],
+    });
+    dummyHighlightedPackageIds.push(`packageId-${4 * i + (i % 4)}`);
+  }
+
   return (
     <NotificationPopup
       header={attributionWizardPopupHeader}
@@ -161,6 +215,8 @@ export function AttributionWizardPopup(): ReactElement {
           <MuiBox sx={classes.mainContentBox}>
             {selectedWizardStepId === wizardStepIds[0] ? (
               <AttributionWizardPackageStep
+                attributedPackageNamespaces={attributedPackageNamespaces}
+                attributedPackageNames={attributedPackageNames}
                 selectedPackageNamespaceId={selectedPackageNamespaceId}
                 selectedPackageNameId={selectedPackageNameId}
                 handlePackageNamespaceListItemClick={
@@ -170,6 +226,10 @@ export function AttributionWizardPopup(): ReactElement {
               />
             ) : selectedWizardStepId === wizardStepIds[1] ? (
               <AttributionWizardVersionStep
+                packageVersionListItems={dummyPackageVersionListItems}
+                highlightedPackageNameIds={dummyHighlightedPackageIds}
+                selectedPackageNamespaceId={selectedPackageNamespaceId}
+                selectedPackageNameId={selectedPackageNameId}
                 selectedPackageVersionId={selectedPackageVersionId}
                 handlePackageVersionListItemClick={
                   handlePackageVersionListItemClick

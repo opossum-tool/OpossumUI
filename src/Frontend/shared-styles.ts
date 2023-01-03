@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SxProps } from '@mui/material';
+import { shouldNotBeCalled } from './util/should-not-be-called';
 
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -133,11 +134,6 @@ export const treeClasses = {
     horizontalSpaceBetweenTreeAndViewportEdges?: number,
     popupContentPadding?: number
   ): SxProps => {
-    function shouldNotBeCalled(treeLocation: never): never {
-      throw Error(
-        `Unknown treeLocation: ${treeLocation}. Possible values are 'attributionView', 'browser' and 'popup'.`
-      );
-    }
     switch (treeLocation) {
       case 'attributionView': {
         return {

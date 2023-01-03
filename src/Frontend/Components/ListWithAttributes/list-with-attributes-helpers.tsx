@@ -9,7 +9,7 @@ import { ListWithAttributesItemAttribute } from '../../types/types';
 
 export function getAttributesWithHighlighting(
   attributes: Array<ListWithAttributesItemAttribute>,
-  highlightedAttributeIds: Array<string>
+  highlightedAttributeIds: Array<string> = ['']
 ): Array<ReactElement> {
   const styleBasic = {
     padding: '0px 1px 0px 2px',
