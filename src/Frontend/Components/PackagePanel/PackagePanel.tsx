@@ -63,16 +63,19 @@ export function PackagePanel(
   const dispatch = useAppDispatch();
 
   function getPreSelectedExternalAttributionIdsForSelectedResource(): Array<string> {
-    const externalAttributionsForSelectedResource =
+    const externalAttributionIdsForSelectedResource =
       resourcesToExternalAttributions[selectedResourceId] || [];
 
-    return Object.entries(externalAttributions)
-      .filter(
-        ([attributionId, attribution]) =>
-          externalAttributionsForSelectedResource.includes(attributionId) &&
-          attribution?.preSelected
-      )
-      .map(([attributionId]) => attributionId);
+    const externalPreselectedAttributionIds: Array<string> = [];
+    externalAttributionIdsForSelectedResource.forEach((attributionId) => {
+      const externalAttribution = externalAttributions[attributionId];
+
+      if (externalAttribution?.preSelected) {
+        externalPreselectedAttributionIds.push(attributionId);
+      }
+    });
+
+    return externalPreselectedAttributionIds;
   }
 
   function onCardClick(attributionId: string): void {
