@@ -92,16 +92,23 @@ In the opossumUI, a distinction between **signals** and **attributions** is made
 In the `Top Bar`, the following elements are present. From left to right:
 
 - the _Open File_ button (read _Open File_ section to learn more about opening a file),
-- the `Progress Bar` (shown only if a file is open),
+- the `Progress Bar` (shown only if a file is currently opened),
+- the `Progress Bar Toggle`,
 - the `View Switch`,
 - the app version.
 
 The `Progress Bar` indicates how many files have manually received an attribution (dark green), how many have an
-automatically **pre-selected** attribution (lighter green with gradient) and how many files have a signal, but have not
+automatically **pre-selected** attribution (lighter green with gradient), and how many files have a signal, but have not
 yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip
 containing all 4 numbers. Clicking on the bar navigates to a file that has a signal, but no attribution.
 
 ![integration](./docs/user_guide_screenshots/top_bar.png)
+
+Clicking the `Progress Bar Toggle` replaces the `Progress Bar` by the `Critical Signals Progress Bar`. The
+`Critical Signals Progress Bar` indicates how many files have a highly critical signal but no attribution (red),
+a medium critical signal but no attribution (orange) with respect to the total number of files not having an attribution.
+Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal, 
+but no attribution.
 
 The `View Switch` allows to change between the `Audit View`, the `Attribution View`, and the `Report View` (the views
 are described in more detail in the respective sections).
