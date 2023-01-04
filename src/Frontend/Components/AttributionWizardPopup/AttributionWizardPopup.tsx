@@ -3,9 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import MuiBox from '@mui/material/Box';
-import MuiTypography from '@mui/material/Typography';
 import { doNothing } from '../../util/do-nothing';
 import { OpossumColors } from '../../shared-styles';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -13,8 +12,9 @@ import { ButtonText } from '../../enums/enums';
 import { useAppDispatch } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { PathBar } from '../PathBar/PathBar';
+import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 
-// TODO: const POPUP_CONTENT_PADDING = 48; monitored in upcoming tickets
+// const POPUP_CONTENT_PADDING = 48; // TODO: monitored in upcoming tickets
 const attributionWizardPopupHeader = 'Attribution Wizard';
 
 const classes = {
@@ -23,19 +23,21 @@ const classes = {
   },
   dialogHeader: {
     whiteSpace: 'nowrap',
-    // TODO: width: `calc(100% - ${POPUP_CONTENT_PADDING}px)`,  monitored in upcoming tickets
+    // width: `calc(100% - ${POPUP_CONTENT_PADDING}px)`, // TODO: monitored in upcoming tickets
   },
-
   mainContent: {
     borderRadius: 2,
     paddingTop: '0px',
     background: OpossumColors.white,
   },
   mainContentBox: {
-    padding: '4px',
-    borderRadius: 2,
+    key: 'mainContent',
+    display: 'flex',
+    gap: '30px',
+    width: 'fit-content',
     marginTop: '8px',
-    background: OpossumColors.lightBlue,
+    maxHeight: '70vh',
+    minWidth: '60vh',
   },
   pathBar: {
     paddingLeft: '5px',
@@ -69,26 +71,46 @@ export function AttributionWizardPopup(): ReactElement {
     isDisabled: false,
   };
 
-  const testContent = (
-    <MuiBox style={classes.dialogContent}>
-      <MuiBox sx={classes.pathBarBox}>
-        <PathBar sx={classes.pathBar} />
-      </MuiBox>
-      <MuiBox sx={classes.mainContentBox}>
-        <MuiBox sx={classes.mainContent}>
-          <MuiTypography
-            sx={{
-              textAlign: 'center',
-              width: '300px',
-              height: '300px',
-            }}
-          >
-            Content dummy
-          </MuiTypography>
-        </MuiBox>
-      </MuiBox>
-    </MuiBox>
-  );
+  // TODO: streamline and integrate this logic later
+  const [selectedIdList1, setSelectedIdList1] = useState<string>('');
+  const [selectedIdList2, setSelectedIdList2] = useState<string>('');
+  const handleListItemClickList1 = (id: string): void => {
+    setSelectedIdList1(id);
+  };
+  const handleListItemClickList2 = (id: string): void => {
+    setSelectedIdList2(id);
+  };
+
+  // create dummy data
+  const N = 15;
+  const items = [];
+  const highlightedAttributeIds = [];
+  for (let i = 0; i < N; i++) {
+    items.push({
+      text: `package${i}`,
+      id: `testItemId${i}`,
+      attributes: [
+        {
+          text: `attrib${4 * i}`,
+          id: `testAttributeId${4 * i}`,
+        },
+        {
+          text: `attrib${4 * i + 1}`,
+          id: `testAttributeId${4 * i + 1}`,
+        },
+        {
+          text: `attrib${4 * i + 2}`,
+          id: `testAttributeId${4 * i + 2}`,
+        },
+        {
+          text: `attrib${4 * i + 3}`,
+          id: `testAttributeId${4 * i + 3}`,
+        },
+      ],
+    });
+    highlightedAttributeIds.push(`testAttributeId${4 * i + (i % 4)}`);
+  }
+
   return (
     <NotificationPopup
       header={attributionWizardPopupHeader}
@@ -99,7 +121,29 @@ export function AttributionWizardPopup(): ReactElement {
       isOpen={true}
       fullWidth={false}
       headerSx={classes.dialogHeader}
-      content={testContent}
+      content={
+        <>
+          <MuiBox sx={classes.pathBarBox}>
+            <PathBar sx={classes.pathBar} />
+          </MuiBox>
+          <MuiBox sx={classes.mainContentBox}>
+            <ListWithAttributes
+              listItems={items}
+              selectedListItemId={selectedIdList1}
+              highlightedAttributeIds={highlightedAttributeIds}
+              handleListItemClick={handleListItemClickList1}
+              showAddNewInput={false}
+            />
+            <ListWithAttributes
+              listItems={items}
+              selectedListItemId={selectedIdList2}
+              highlightedAttributeIds={highlightedAttributeIds}
+              handleListItemClick={handleListItemClickList2}
+              showAddNewInput={false}
+            />
+          </MuiBox>
+        </>
+      }
     />
   );
 }
