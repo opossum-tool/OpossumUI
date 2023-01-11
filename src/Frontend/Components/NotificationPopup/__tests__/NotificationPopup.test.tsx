@@ -5,8 +5,8 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { NotificationPopup } from '../NotificationPopup';
 import { ButtonConfig } from '../../../types/types';
+import { NotificationPopup } from '../NotificationPopup';
 
 describe('NotificationPopup', () => {
   it('renders open popup with text', () => {

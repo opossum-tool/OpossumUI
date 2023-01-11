@@ -9,16 +9,22 @@ import MuiList from '@mui/material/List';
 import MuiListItem from '@mui/material/ListItem';
 import MuiListItemText from '@mui/material/ListItemText';
 import MuiListItemButton from '@mui/material/ListItemButton';
+import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 import { getAttributesWithHighlighting } from './list-with-attributes-helpers';
 import { ListWithAttributesItem } from '../../types/types';
 
 const LIST_WITH_ATTRIBUTES_VERTICAL_BORDER_AND_MARGIN = 10; // 10px = margin + border
+const LIST_TITLE_HEIGHT = 28;
 
 const classes = {
+  titleAndListBox: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
   listBox: {
     width: 'fit-content',
-    maxHeight: '100%',
+    maxHeight: `calc(100% - ${LIST_TITLE_HEIGHT}px)`,
     background: OpossumColors.lightBlue,
   },
   list: {
@@ -66,37 +72,41 @@ interface ListWithAttributesProps {
   highlightedAttributeIds: Array<string>;
   handleListItemClick: (id: string) => void;
   showAddNewInput: boolean; // TODO: required later
+  title?: string;
 }
 
 export function ListWithAttributes(
   props: ListWithAttributesProps
 ): ReactElement {
   return (
-    <MuiBox sx={classes.listBox}>
-      <MuiList sx={classes.list}>
-        {props.listItems.map((item) => (
-          <MuiListItem key={`itemId-${item.id}`} sx={classes.listItem}>
-            <MuiListItemButton
-              sx={classes.listItemButton}
-              selected={item.id === props.selectedListItemId}
-              onClick={(): void => props.handleListItemClick(item.id)}
-            >
-              <MuiListItemText
-                primary={item.text}
-                secondary={
-                  <MuiBox sx={classes.listItemTextAttributesBox}>
-                    {getAttributesWithHighlighting(
-                      item.attributes,
-                      props.highlightedAttributeIds
-                    )}
-                  </MuiBox>
-                }
-                secondaryTypographyProps={{ component: 'span' }}
-              />
-            </MuiListItemButton>
-          </MuiListItem>
-        ))}
-      </MuiList>
+    <MuiBox sx={classes.titleAndListBox}>
+      <MuiTypography variant={'subtitle1'}>{props.title}</MuiTypography>
+      <MuiBox sx={classes.listBox}>
+        <MuiList sx={classes.list}>
+          {props.listItems.map((item) => (
+            <MuiListItem key={`itemId-${item.id}`} sx={classes.listItem}>
+              <MuiListItemButton
+                sx={classes.listItemButton}
+                selected={item.id === props.selectedListItemId}
+                onClick={(): void => props.handleListItemClick(item.id)}
+              >
+                <MuiListItemText
+                  primary={item.text}
+                  secondary={
+                    <MuiBox sx={classes.listItemTextAttributesBox}>
+                      {getAttributesWithHighlighting(
+                        item.attributes,
+                        props.highlightedAttributeIds
+                      )}
+                    </MuiBox>
+                  }
+                  secondaryTypographyProps={{ component: 'span' }}
+                />
+              </MuiListItemButton>
+            </MuiListItem>
+          ))}
+        </MuiList>
+      </MuiBox>
     </MuiBox>
   );
 }

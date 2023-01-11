@@ -5,45 +5,43 @@
 
 import React, { ReactElement, useState } from 'react';
 import MuiBox from '@mui/material/Box';
-import { doNothing } from '../../util/do-nothing';
-import { OpossumColors } from '../../shared-styles';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ButtonText } from '../../enums/enums';
+import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { useAppDispatch } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { OpossumColors } from '../../shared-styles';
 import { PathBar } from '../PathBar/PathBar';
-import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
+import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
+import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
+import { ButtonConfig } from '../../types/types';
 
 // const POPUP_CONTENT_PADDING = 48; // TODO: monitored in upcoming tickets
 const attributionWizardPopupHeader = 'Attribution Wizard';
 
 const classes = {
-  dialogContent: {
-    // TODO: required later
-  },
   dialogHeader: {
     whiteSpace: 'nowrap',
     // width: `calc(100% - ${POPUP_CONTENT_PADDING}px)`, // TODO: monitored in upcoming tickets
   },
-  mainContent: {
-    borderRadius: 2,
-    paddingTop: '0px',
-    background: OpossumColors.white,
+  pathFieldAndBreadcrumbsBox: {
+    display: 'flex',
+    gap: '30px',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   mainContentBox: {
     key: 'mainContent',
     display: 'flex',
     gap: '30px',
     width: 'fit-content',
-    marginTop: '8px',
+    heigth: 'fit-content',
+    marginTop: '12px',
     maxHeight: '70vh',
-    minWidth: '60vh',
+    minWidth: '60vw',
   },
   pathBar: {
-    paddingLeft: '5px',
-    paddingRight: '5px',
-    paddingTop: '1px',
-    paddingBottom: '1px',
+    padding: '1px 5px',
   },
   pathBarBox: {
     padding: '4px',
@@ -52,70 +50,97 @@ const classes = {
 };
 
 export function AttributionWizardPopup(): ReactElement {
-  const dispatch = useAppDispatch();
+  const wizardStepIdsToDisplayValues: Array<[string, string]> = [
+    ['packageNamespaceAndName', 'package'],
+    ['packageVersion', 'version'],
+  ];
+  const wizardStepIds = wizardStepIdsToDisplayValues.map(
+    (idAndDisplayValue) => idAndDisplayValue[0]
+  );
 
+  // TODO: streamline and integrate this logic later
+  const [selectedPackageNamespaceId, setSelectedPackageNamespaceId] =
+    useState<string>('');
+  const [selectedPackageNameId, setSelectedPackageNameId] =
+    useState<string>('');
+  const [selectedPackageVersionId, setSelectedPackageVersionId] =
+    useState<string>('');
+  const [selectedWizardStepId, setSelectedWizardStepId] = useState<string>(
+    wizardStepIds[0]
+  );
+
+  const packageNamespaceAndNameSelected: boolean =
+    selectedPackageNamespaceId !== '' && selectedPackageNameId !== '';
+
+  const dispatch = useAppDispatch();
   function closeAttributionWizardPopup(): void {
     dispatch(closePopup());
   }
 
-  // TODO: const selectedAttributionId = useAppSelector(getPopupAttributionId);  for later
-  // TODO: const selectedResourceId = useSelector(getSelectedResourceId);  for later
-  const nextButtonConfig = {
-    buttonText: ButtonText.Next,
-    onClick: doNothing,
-    isDisabled: true,
+  const handleBreadcrumbsClick = function (wizardStepId: string): void {
+    setSelectedWizardStepId(wizardStepId);
   };
-  const closeButtonConfig = {
+
+  function handleNextClick(): void {
+    if (selectedWizardStepId !== wizardStepIds[wizardStepIds.length - 1]) {
+      setSelectedWizardStepId(
+        wizardStepIds[wizardStepIds.indexOf(selectedWizardStepId) + 1]
+      );
+    }
+  }
+  function handleBackClick(): void {
+    if (selectedWizardStepId !== wizardStepIds[0]) {
+      setSelectedWizardStepId(
+        wizardStepIds[wizardStepIds.indexOf(selectedWizardStepId) - 1]
+      );
+    }
+  }
+
+  function handlePackageNamespaceListItemClick(id: string): void {
+    setSelectedPackageNamespaceId(id);
+  }
+  function handlePackageNameListItemClick(id: string): void {
+    setSelectedPackageNameId(id);
+  }
+  function handlePackageVersionListItemClick(id: string): void {
+    setSelectedPackageVersionId(id);
+  }
+
+  const nextButtonConfig: ButtonConfig = {
+    buttonText: ButtonText.Next,
+    onClick: handleNextClick,
+    disabled: !packageNamespaceAndNameSelected,
+    isDark: true,
+    tooltipText: !packageNamespaceAndNameSelected
+      ? 'Please select package namespace and name to continue'
+      : '',
+    tooltipPlacement: 'left',
+  };
+  const backButtonConfig: ButtonConfig = {
+    buttonText: ButtonText.Back,
+    onClick: handleBackClick,
+    disabled: false,
+    isDark: false,
+  };
+  const cancelButtonConfig: ButtonConfig = {
     buttonText: ButtonText.Cancel,
     onClick: closeAttributionWizardPopup,
-    isDisabled: false,
+    disabled: false,
+    isDark: false,
   };
-
-  // TODO: streamline and integrate this logic later
-  const [selectedIdList1, setSelectedIdList1] = useState<string>('');
-  const [selectedIdList2, setSelectedIdList2] = useState<string>('');
-  const handleListItemClickList1 = (id: string): void => {
-    setSelectedIdList1(id);
-  };
-  const handleListItemClickList2 = (id: string): void => {
-    setSelectedIdList2(id);
-  };
-
-  // create dummy data
-  const N = 15;
-  const items = [];
-  const highlightedAttributeIds = [];
-  for (let i = 0; i < N; i++) {
-    items.push({
-      text: `package${i}`,
-      id: `testItemId${i}`,
-      attributes: [
-        {
-          text: `attrib${4 * i}`,
-          id: `testAttributeId${4 * i}`,
-        },
-        {
-          text: `attrib${4 * i + 1}`,
-          id: `testAttributeId${4 * i + 1}`,
-        },
-        {
-          text: `attrib${4 * i + 2}`,
-          id: `testAttributeId${4 * i + 2}`,
-        },
-        {
-          text: `attrib${4 * i + 3}`,
-          id: `testAttributeId${4 * i + 3}`,
-        },
-      ],
-    });
-    highlightedAttributeIds.push(`testAttributeId${4 * i + (i % 4)}`);
-  }
 
   return (
     <NotificationPopup
       header={attributionWizardPopupHeader}
-      leftButtonConfig={nextButtonConfig}
-      rightButtonConfig={closeButtonConfig}
+      centerLeftButtonConfig={
+        selectedWizardStepId !== wizardStepIds[0] ? backButtonConfig : undefined
+      }
+      centerRightButtonConfig={
+        selectedWizardStepId !== wizardStepIds[wizardStepIds.length - 1]
+          ? nextButtonConfig
+          : undefined
+      }
+      rightButtonConfig={cancelButtonConfig}
       onBackdropClick={closeAttributionWizardPopup}
       onEscapeKeyDown={closeAttributionWizardPopup}
       isOpen={true}
@@ -123,24 +148,34 @@ export function AttributionWizardPopup(): ReactElement {
       headerSx={classes.dialogHeader}
       content={
         <>
-          <MuiBox sx={classes.pathBarBox}>
-            <PathBar sx={classes.pathBar} />
+          <MuiBox sx={classes.pathFieldAndBreadcrumbsBox}>
+            <MuiBox sx={classes.pathBarBox}>
+              <PathBar sx={classes.pathBar} />
+            </MuiBox>
+            <Breadcrumbs
+              selectedId={selectedWizardStepId}
+              onClick={handleBreadcrumbsClick}
+              idsToDisplayValues={wizardStepIdsToDisplayValues}
+            />
           </MuiBox>
           <MuiBox sx={classes.mainContentBox}>
-            <ListWithAttributes
-              listItems={items}
-              selectedListItemId={selectedIdList1}
-              highlightedAttributeIds={highlightedAttributeIds}
-              handleListItemClick={handleListItemClickList1}
-              showAddNewInput={false}
-            />
-            <ListWithAttributes
-              listItems={items}
-              selectedListItemId={selectedIdList2}
-              highlightedAttributeIds={highlightedAttributeIds}
-              handleListItemClick={handleListItemClickList2}
-              showAddNewInput={false}
-            />
+            {selectedWizardStepId === wizardStepIds[0] ? (
+              <AttributionWizardPackageStep
+                selectedPackageNamespaceId={selectedPackageNamespaceId}
+                selectedPackageNameId={selectedPackageNameId}
+                handlePackageNamespaceListItemClick={
+                  handlePackageNamespaceListItemClick
+                }
+                handlePackageNameListItemClick={handlePackageNameListItemClick}
+              />
+            ) : selectedWizardStepId === wizardStepIds[1] ? (
+              <AttributionWizardVersionStep
+                selectedPackageVersionId={selectedPackageVersionId}
+                handlePackageVersionListItemClick={
+                  handlePackageVersionListItemClick
+                }
+              />
+            ) : null}
           </MuiBox>
         </>
       }

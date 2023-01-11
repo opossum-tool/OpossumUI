@@ -86,9 +86,12 @@ export interface PopupInfo {
 }
 
 export interface ButtonConfig {
-  onClick(): void;
+  onClick(event: React.MouseEvent<HTMLButtonElement>): void;
   buttonText: string;
-  isDisabled?: boolean;
+  disabled?: boolean;
+  isDark?: boolean;
+  tooltipText?: string;
+  tooltipPlacement?: 'left' | 'right' | 'top' | 'bottom';
 }
 
 export interface PanelData {

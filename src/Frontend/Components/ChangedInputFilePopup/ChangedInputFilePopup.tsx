@@ -33,6 +33,7 @@ export function ChangedInputFilePopup(): ReactElement {
       leftButtonConfig={{
         onClick: handleKeepClick,
         buttonText: ButtonText.Keep,
+        isDark: true,
       }}
       centerRightButtonConfig={{
         onClick: handleOverwriteClick,
