@@ -20,13 +20,6 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
 
-const classes = {
-  hidden: {
-    visibility: 'hidden',
-  },
-  clickableIcon,
-};
-
 export function GoToLinkButton(): ReactElement {
   const path = useAppSelector(getSelectedResourceId);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
@@ -95,10 +88,8 @@ export function GoToLinkButton(): ReactElement {
       }
       tooltipPlacement="right"
       onClick={onClick}
-      sx={!openLinkArgs.link ? classes.hidden : {}}
-      icon={
-        <OpenInNewIcon sx={classes.clickableIcon} aria-label={'link to open'} />
-      }
+      hidden={!openLinkArgs.link}
+      icon={<OpenInNewIcon sx={clickableIcon} aria-label={'link to open'} />}
     />
   );
 }

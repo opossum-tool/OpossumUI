@@ -8,6 +8,13 @@ import MuiButtonBase from '@mui/material/ButtonBase';
 import MuiTooltip from '@mui/material/Tooltip';
 import { tooltipStyle } from '../../shared-styles';
 import { SxProps } from '@mui/material';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+
+const classes = {
+  hidden: {
+    visibility: 'hidden',
+  },
+};
 
 interface IconButtonProps {
   tooltipTitle: string;
@@ -16,6 +23,7 @@ interface IconButtonProps {
   onClick(): void;
   icon: ReactElement;
   disabled?: boolean;
+  hidden?: boolean;
 }
 
 export function IconButton(props: IconButtonProps): ReactElement {
@@ -23,7 +31,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
     <MuiTooltip
       describeChild={true}
       sx={tooltipStyle}
-      title={props.tooltipTitle}
+      title={props.hidden ? '' : props.tooltipTitle}
       placement={props.tooltipPlacement}
     >
       <span>
@@ -32,7 +40,14 @@ export function IconButton(props: IconButtonProps): ReactElement {
         }
         <MuiButtonBase
           aria-label={props.tooltipTitle}
-          sx={props.sx}
+          sx={
+            props.hidden
+              ? getSxFromPropsAndClasses({
+                  styleClass: classes.hidden,
+                  sxProps: props.sx,
+                })
+              : props.sx
+          }
           onClick={(event): void => {
             event.stopPropagation();
             props.onClick();
