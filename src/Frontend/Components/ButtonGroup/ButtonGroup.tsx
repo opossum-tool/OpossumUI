@@ -11,6 +11,7 @@ import MuiBox from '@mui/material/Box';
 
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { SxProps } from '@mui/material';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
   root: {
@@ -36,7 +37,12 @@ interface ButtonGroupProps {
 
 export function ButtonGroup(props: ButtonGroupProps): ReactElement | null {
   return props.isHidden ? null : (
-    <MuiBox sx={{ ...classes.root, ...props.sx }}>
+    <MuiBox
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.root,
+        sxProps: props.sx,
+      })}
+    >
       <MuiButtonGroup disableElevation variant="contained">
         {props.mainButtonConfigs
           .filter((buttonConfig) => !buttonConfig.hidden)
