@@ -10,7 +10,7 @@ import { FileSearchTextField } from '../FileSearchTextField';
 import { act } from 'react-dom/test-utils';
 
 describe('The FileSearchTextField', () => {
-  jest.useFakeTimers('modern');
+  jest.useFakeTimers();
   const debounceDelayInMs = 200;
 
   it('renders', () => {
