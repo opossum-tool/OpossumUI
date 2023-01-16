@@ -8,6 +8,7 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import React, { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
   button: {
@@ -39,7 +40,10 @@ export function ToggleButton(props: ToggleButtonProps): ReactElement {
       value="check"
       selected={props.selected}
       onChange={props.handleChange}
-      sx={{ ...classes.button, ...props.sx }}
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.button,
+        sxProps: props.sx,
+      })}
       aria-label={props.ariaLabel}
     >
       {props.buttonText}

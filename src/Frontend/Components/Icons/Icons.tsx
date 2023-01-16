@@ -26,6 +26,7 @@ import {
 import { SxProps } from '@mui/material';
 import RectangleIcon from '@mui/icons-material/Rectangle';
 import { Criticality } from '../../../shared/shared-types';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
   clickableIcon,
@@ -75,7 +76,10 @@ export function FirstPartyIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="is first party">
       <Filter1Icon
         aria-label={'First party icon'}
-        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
       />
     </MuiTooltip>
   );
@@ -86,7 +90,10 @@ export function CommentIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="has comment">
       <InsertCommentIcon
         aria-label={'Comment icon'}
-        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
       />
     </MuiTooltip>
   );
@@ -97,7 +104,10 @@ export function ExcludeFromNoticeIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="excluded from notice">
       <IndeterminateCheckBoxIcon
         aria-label={'Exclude from notice icon'}
-        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
       />
     </MuiTooltip>
   );
@@ -108,7 +118,10 @@ export function FollowUpIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="has follow-up">
       <ReplayIcon
         aria-label={'Follow-up icon'}
-        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
       />
     </MuiTooltip>
   );
@@ -135,15 +148,22 @@ export function DirectoryIcon({
   sx,
   labelDetail,
 }: LabelDetailIconProps): ReactElement {
+  const sxProps = sx
+    ? getSxFromPropsAndClasses({
+        styleClass: classes.resourceIcon,
+        sxProps: sx,
+      })
+    : {
+        ...classes.resourceIcon,
+        ...classes.resourceDefaultColor,
+      };
+
   return (
     <FolderOutlinedIcon
       aria-label={
         labelDetail ? `Directory icon ${labelDetail}` : 'Directory icon'
       }
-      sx={{
-        ...classes.resourceIcon,
-        ...(sx ?? classes.resourceDefaultColor),
-      }}
+      sx={sxProps}
     />
   );
 }
@@ -161,13 +181,20 @@ export function FileIcon({
   sx,
   labelDetail,
 }: LabelDetailIconProps): ReactElement {
+  const sxProps = sx
+    ? getSxFromPropsAndClasses({
+        styleClass: classes.resourceIcon,
+        sxProps: sx,
+      })
+    : {
+        ...classes.resourceIcon,
+        ...classes.resourceDefaultColor,
+      };
+
   return (
     <DescriptionIcon
       aria-label={labelDetail ? `File icon ${labelDetail}` : 'File icon'}
-      sx={{
-        ...classes.resourceIcon,
-        ...(sx ?? classes.resourceDefaultColor),
-      }}
+      sx={sxProps}
     />
   );
 }
@@ -177,7 +204,10 @@ export function PreSelectedIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="was pre-selected">
       <LocalParkingIcon
         aria-label={'Pre-selected icon'}
-        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
       />
     </MuiTooltip>
   );
@@ -186,7 +216,10 @@ export function PreSelectedIcon(props: IconProps): ReactElement {
 export function SearchPackagesIcon(props: IconProps): ReactElement {
   return (
     <SearchIcon
-      sx={{ ...classes.nonClickableIcon, ...props.sx }}
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.nonClickableIcon,
+        sxProps: props.sx,
+      })}
       aria-label={'Search packages icon'}
     />
   );
@@ -197,7 +230,10 @@ export function IncompletePackagesIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="contains incomplete information">
       <RectangleIcon
         aria-label={'Incomplete icon'}
-        sx={{ ...classes.nonClickableIcon, ...props.sx }}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
       />
     </MuiTooltip>
   );

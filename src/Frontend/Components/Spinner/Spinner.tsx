@@ -6,6 +6,7 @@ import React, { ReactElement } from 'react';
 import MuiSpinner from '@mui/material/CircularProgress';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
   root: {
@@ -21,7 +22,12 @@ interface SpinnerProps {
 
 export function Spinner(props: SpinnerProps): ReactElement {
   return (
-    <MuiBox sx={{ ...classes.root, ...props.sx }}>
+    <MuiBox
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.root,
+        sxProps: props.sx,
+      })}
+    >
       <MuiSpinner />
     </MuiBox>
   );

@@ -15,6 +15,7 @@ import { getFilesWithChildren } from '../../state/selectors/all-views-resource-s
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/system';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
   root: {
@@ -43,7 +44,12 @@ export function PathBar(props: PathBarProps): ReactElement | null {
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
 
   return path ? (
-    <MuiBox sx={{ ...classes.root, ...props.sx }}>
+    <MuiBox
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.root,
+        sxProps: props.sx,
+      })}
+    >
       <MuiTooltip sx={classes.tooltip} title={path}>
         <MuiTypography sx={classes.leftEllipsis} variant={'subtitle1'}>
           <bdi>
