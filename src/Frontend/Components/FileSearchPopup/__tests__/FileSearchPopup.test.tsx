@@ -33,7 +33,7 @@ describe('FileSearch popup ', () => {
 
   const debounceWaitTimeInMs = 200;
 
-  jest.useFakeTimers('modern');
+  jest.useFakeTimers();
 
   it('renders', () => {
     renderComponentWithStore(<FileSearchPopup />);
