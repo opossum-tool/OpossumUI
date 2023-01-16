@@ -90,8 +90,13 @@ export interface AttributionsWithResources {
   [uuid: string]: AttributionInfo;
 }
 
+export interface FrequentLicenseName {
+  shortName: string;
+  fullName: string;
+}
+
 export interface FrequentLicenses {
-  nameOrder: Array<string>;
+  nameOrder: Array<FrequentLicenseName>;
   texts: LicenseTexts;
 }
 
@@ -209,6 +214,7 @@ export interface IElectronAPI {
   on: (channel: AllowedFrontendChannels, listener: Listener) => void;
   removeListener: (channel: AllowedFrontendChannels) => void;
 }
+
 declare global {
   interface Window {
     electronAPI: IElectronAPI;

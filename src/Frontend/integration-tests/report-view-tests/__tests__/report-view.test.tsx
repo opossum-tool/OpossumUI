@@ -98,10 +98,16 @@ describe('The report view', () => {
         },
       },
       frequentLicenses: {
-        nameOrder: ['GPL-2.0', 'Apache'],
+        nameOrder: [
+          { shortName: 'GPL-2.0', fullName: 'General Public License 2.0' },
+          {
+            shortName: 'Apache',
+            fullName: 'Apache license',
+          },
+        ],
         texts: {
           'GPL-2.0': 'frequent license',
-          Apache: 'Apache license',
+          Apache: 'Apache license text',
         },
       },
     };
@@ -127,10 +133,10 @@ describe('The report view', () => {
 
     goToView(screen, View.Audit);
     insertValueIntoTextBox(screen, 'License Name', 'Apac');
-    fireEvent.click(screen.getByText('Apache'));
+    fireEvent.click(screen.getByText('Apache - Apache license'));
     clickOnButton(screen, ButtonText.Save);
     goToView(screen, View.Report);
     screen.getByText('Apache');
-    screen.getByText('Apache license');
+    screen.getByText('Apache license text');
   });
 });

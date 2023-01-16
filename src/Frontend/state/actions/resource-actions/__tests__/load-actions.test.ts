@@ -83,7 +83,7 @@ describe('loadFromFile', () => {
       '/thirdParty/package_1.tr.gz': ['test_id'],
     };
     const testFrequentLicenses: FrequentLicenses = {
-      nameOrder: ['MIT', 'MIT license'],
+      nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
       texts: {
         MIT: 'MIT license text',
         'MIT license': 'MIT license text',

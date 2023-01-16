@@ -245,15 +245,23 @@ describe('parseFrequentLicenses', () => {
       },
       {
         shortName: 'GPL',
-        fullName: 'GPL license',
+        fullName: 'General Public License',
         defaultText: 'GPL license text',
       },
     ];
     const expectedFrequentLicenses: FrequentLicenses = {
-      nameOrder: ['MIT', 'GPL'],
+      nameOrder: [
+        { shortName: 'MIT', fullName: 'MIT license' },
+        {
+          shortName: 'GPL',
+          fullName: 'General Public License',
+        },
+      ],
       texts: {
         MIT: 'MIT license text',
+        'MIT license': 'MIT license text',
         GPL: 'GPL license text',
+        'General Public License': 'GPL license text',
       },
     };
 

@@ -163,8 +163,13 @@ export function parseFrequentLicenses(
   }
 
   rawFrequentLicenses.forEach((rawFrequentLicense) => {
-    parsedFrequentLicenses.nameOrder.push(rawFrequentLicense.shortName);
+    parsedFrequentLicenses.nameOrder.push({
+      shortName: rawFrequentLicense.shortName,
+      fullName: rawFrequentLicense.fullName,
+    });
     parsedFrequentLicenses.texts[rawFrequentLicense.shortName] =
+      rawFrequentLicense.defaultText;
+    parsedFrequentLicenses.texts[rawFrequentLicense.fullName] =
       rawFrequentLicense.defaultText;
   });
 

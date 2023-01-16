@@ -6,7 +6,11 @@
 
 import { View } from '../../enums/enums';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FollowUp, PackageInfo } from '../../../shared/shared-types';
+import {
+  FollowUp,
+  FrequentLicenseName,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { AppThunkDispatch } from '../../state/types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -139,11 +143,15 @@ export function selectedPackageIsResolved(
 export function getLicenseTextLabelText(
   licenseName: string | undefined,
   isEditable: boolean,
-  frequentLicensesNameOrder: Array<string>
+  frequentLicensesNameOrder: Array<FrequentLicenseName>
 ): string {
   return licenseName &&
     frequentLicensesNameOrder
-      .map((name) => name.toLowerCase())
+      .map((licenseNames) => [
+        licenseNames.shortName.toLowerCase(),
+        licenseNames.fullName.toLowerCase(),
+      ])
+      .flat()
       .includes(licenseName.toLowerCase())
     ? `Standard license text implied. ${
         isEditable ? 'Insert notice text if necessary.' : ''

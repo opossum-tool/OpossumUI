@@ -10,7 +10,6 @@ import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-re
 import { doNothing } from '../../util/do-nothing';
 import { TextBox } from '../InputElements/TextBox';
 import { OpossumColors } from '../../shared-styles';
-import { AutoComplete } from '../InputElements/AutoComplete';
 import { getLicenseTextLabelText } from './attribution-column-helpers';
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
@@ -20,6 +19,7 @@ import { attributionColumnClasses } from './shared-attribution-column-styles';
 import { useAppSelector } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
+import { LicenseField } from './LicenseField';
 
 const classes = {
   expansionPanel: {
@@ -59,13 +59,13 @@ const classes = {
 interface LicenseSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: PackageInfo;
+  isLicenseTextShown: boolean;
+  licenseTextRows: number;
+  showHighlight?: boolean;
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  isLicenseTextShown: boolean;
-  licenseTextRows: number;
   setIsLicenseTextShown(isLicenseTextShown: boolean): void;
-  showHighlight?: boolean;
 }
 
 export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
@@ -104,12 +104,12 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             </MuiBox>
           }
         >
-          <AutoComplete
+          <LicenseField
             isEditable={props.isEditable}
             sx={licenseSubPanelClasses.licenseTextBox}
             title={'License Name'}
             text={props.displayPackageInfo.licenseName}
-            options={frequentLicensesNameOrder}
+            frequentLicenseNames={frequentLicensesNameOrder}
             handleChange={props.setUpdateTemporaryPackageInfoFor('licenseName')}
             endAdornmentText={
               props.displayPackageInfo.licenseText
