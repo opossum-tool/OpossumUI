@@ -13,6 +13,8 @@ import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 import { getAttributesWithHighlighting } from './list-with-attributes-helpers';
 import { ListWithAttributesItem } from '../../types/types';
+import { SxProps } from '@mui/system';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const LIST_WITH_ATTRIBUTES_VERTICAL_BORDER_AND_MARGIN = 10; // 10px = margin + border
 const LIST_TITLE_HEIGHT = 28;
@@ -40,6 +42,13 @@ const classes = {
     padding: '0px',
     borderBottom: 2,
     borderColor: OpossumColors.lightBlue,
+    // TODO: Now: Single scroll bar for each list item.
+    // Remove 'overflowX' property to get single scroll bar
+    // for the whole list (also if only a single
+    // list item exceeds maxWidth)
+    overflowX: 'auto',
+    maxWidth: '300px',
+    minWidth: '200px',
   },
   listItemButton: {
     padding: '0px 0px 0px 4px',
@@ -55,12 +64,6 @@ const classes = {
   },
   listItemTextAttributesBox: {
     display: 'flex',
-    // TODO: Now: Single scroll bar for each list item.
-    // Remove 'overflowX' property to get single scroll bar
-    // for the whole list (also if only a single
-    // list item exceeds maxWidth)
-    overflowX: 'auto',
-    maxWidth: '50vw',
     marginLeft: '20px',
     paddingTop: '1px',
   },
@@ -69,10 +72,11 @@ const classes = {
 interface ListWithAttributesProps {
   listItems: Array<ListWithAttributesItem>;
   selectedListItemId: string;
-  highlightedAttributeIds: Array<string>;
+  highlightedAttributeIds?: Array<string>;
   handleListItemClick: (id: string) => void;
   showAddNewInput: boolean; // TODO: required later
   title?: string;
+  listItemSx?: SxProps;
 }
 
 export function ListWithAttributes(
@@ -84,7 +88,13 @@ export function ListWithAttributes(
       <MuiBox sx={classes.listBox}>
         <MuiList sx={classes.list}>
           {props.listItems.map((item) => (
-            <MuiListItem key={`itemId-${item.id}`} sx={classes.listItem}>
+            <MuiListItem
+              key={`itemId-${item.id}`}
+              sx={getSxFromPropsAndClasses({
+                styleClass: classes.listItem,
+                sxProps: props.listItemSx,
+              })}
+            >
               <MuiListItemButton
                 sx={classes.listItemButton}
                 selected={item.id === props.selectedListItemId}

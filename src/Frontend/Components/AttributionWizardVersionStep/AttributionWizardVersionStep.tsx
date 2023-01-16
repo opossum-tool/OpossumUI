@@ -4,57 +4,32 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
+import { ListWithAttributesItem } from '../../types/types';
 import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 
 interface AttributionWizardVersionStepProps {
+  packageVersionListItems: Array<ListWithAttributesItem>;
+  highlightedPackageNameIds: Array<string>;
+  selectedPackageNamespaceId: string;
+  selectedPackageNameId: string;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
 }
 
-// TODO: Add Text with selected package namespace and name to the second step
-// TODO: Provide selected Ids (or names) from both lists of the first step to the second step
+// TODO: selectedPackageNamespaceId and selectedPackageNameId already in props for upcoming ticket
 
 export function AttributionWizardVersionStep(
   props: AttributionWizardVersionStepProps
 ): ReactElement {
-  // create dummy data
-  const N = 15;
-  const items = [];
-  const highlightedAttributeIds = [];
-  for (let i = 0; i < N; i++) {
-    items.push({
-      text: `package${i}`,
-      id: `testItemId${i}`,
-      attributes: [
-        {
-          text: `attrib${4 * i}`,
-          id: `testAttributeId${4 * i}`,
-        },
-        {
-          text: `attrib${4 * i + 1}`,
-          id: `testAttributeId${4 * i + 1}`,
-        },
-        {
-          text: `attrib${4 * i + 2}`,
-          id: `testAttributeId${4 * i + 2}`,
-        },
-        {
-          text: `attrib${4 * i + 3}`,
-          id: `testAttributeId${4 * i + 3}`,
-        },
-      ],
-    });
-    highlightedAttributeIds.push(`testAttributeId${4 * i + (i % 4)}`);
-  }
-
   return (
     <ListWithAttributes
-      listItems={items}
+      listItems={props.packageVersionListItems}
       selectedListItemId={props.selectedPackageVersionId}
-      highlightedAttributeIds={highlightedAttributeIds}
+      highlightedAttributeIds={props.highlightedPackageNameIds}
       handleListItemClick={props.handlePackageVersionListItemClick}
       showAddNewInput={false}
       title={'Package version'}
+      listItemSx={{ maxWidth: '400px' }}
     />
   );
 }
