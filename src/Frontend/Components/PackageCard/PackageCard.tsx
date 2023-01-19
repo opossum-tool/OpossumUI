@@ -83,6 +83,7 @@ interface PackageCardProps {
   hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
   showCheckBox?: boolean;
+  hideAttributionWizardContextMenuItem?: boolean;
 }
 
 export function PackageCard(props: PackageCardProps): ReactElement | null {
@@ -319,7 +320,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           {
             buttonText: ButtonText.OpenAttributionWizardPopup,
             disabled: false,
-            hidden: true, // isExternalAttribution || hideResourceSpecificButtons,
+            hidden: true,
+            // isExternalAttribution ||
+            // hideResourceSpecificButtons ||
+            // props.hideAttributionWizardContextMenuItem,
             onClick: (): void => {
               dispatch(
                 openPopup(PopupType.AttributionWizardPopup, attributionId)

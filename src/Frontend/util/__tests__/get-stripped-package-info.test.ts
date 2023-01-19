@@ -57,7 +57,7 @@ describe('The getStrippedPackageInfo function', () => {
   it('strips excess values', () => {
     const testPackageInfo = {
       packageName: 'React',
-      childrenWithAttributionCount: 0,
+      count: 0,
     };
 
     expect(getStrippedPackageInfo(testPackageInfo)).toEqual({

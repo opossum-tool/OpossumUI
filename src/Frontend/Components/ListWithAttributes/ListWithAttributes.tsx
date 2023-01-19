@@ -64,6 +64,7 @@ const classes = {
   },
   listItemTextAttributesBox: {
     display: 'flex',
+    flexWrap: 'wrap',
     marginLeft: '20px',
     paddingTop: '1px',
   },

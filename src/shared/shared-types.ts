@@ -53,7 +53,7 @@ export interface Source {
 
 export interface AttributionIdWithCount {
   attributionId: string;
-  childrenWithAttributionCount?: number;
+  count?: number;
 }
 
 export interface Attributions {
