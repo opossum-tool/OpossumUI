@@ -71,7 +71,7 @@ It is possible to directly export data to files. The following formats are avail
 
 To generate a document, open the `File` menu and select `Export`.
 
-![integration](./docs/user_guide_screenshots/exports.png)
+<img src="./docs/user_guide_screenshots/exports.png" width="550"/>
 
 ### Attributions
 
@@ -107,7 +107,7 @@ containing all 4 numbers. Clicking on the bar navigates to a file that has a sig
 Clicking the `Progress Bar Toggle` replaces the `Progress Bar` by the `Critical Signals Progress Bar`. The
 `Critical Signals Progress Bar` indicates how many files have a highly critical signal but no attribution (red),
 a medium critical signal but no attribution (orange) with respect to the total number of files not having an attribution.
-Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal, 
+Hovering on the bar shows a tooltip containing all 4 numbers. Clicking on the bar navigates to a file that has a critical signal,
 but no attribution.
 
 The `View Switch` allows to change between the `Audit View`, the `Attribution View`, and the `Report View` (the views
@@ -141,11 +141,11 @@ structure:
 - a **file icon** ![integration](./docs/user_guide_screenshots/file_icon.png) indicates that the resource is a file,
 - a **folder icon** ![integration](./docs/user_guide_screenshots/directory_icon.png) indicates that the resource is a folder,
 - a **icon consisting of four squares** ![integration](./docs/user_guide_screenshots/breakpoint_icon.png) indicates that the resource is a breakpoint (**breakpoints** are special folders
-that are included to visually collect a set of dependencies. These folders cannot have any signal or attribution.
-Furthermore, no attribution is inferred beyond such a breakpoint),
+  that are included to visually collect a set of dependencies. These folders cannot have any signal or attribution.
+  Furthermore, no attribution is inferred beyond such a breakpoint),
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
-![integration](./docs/user_guide_screenshots/filetree.png)
+<img src="./docs/user_guide_screenshots/filetree.png" width="550"/>
 
 The coloring scheme reads as follows:
 
@@ -193,13 +193,36 @@ of the signals of the selected resource and the attributions and signals of the 
 folder. Clicking on the one of the listed items, shows the details of the respective attribution/signal in the
 `Attribution Details Column`. By clicking the **+ icon** of an item, the respective attribution/signal can be added to
 the attributions of the selected resource. In the `Signals Sub-Panel` signals that were used to create the pre-selected
-attributions are shown with an `P` icon, even if the relative attributions have been deleted. The cards in the
+attributions are shown with a `P` icon, even if the relative attributions have been deleted. The cards in the
 ` ... in folder content` sub-panels also show the number of resources in the folder that are linked to the shown
 attribution.
 
 The `Add to Attribution Sub-Panel` allows to add an existing attribution to the attributions of the selected resource.
 As in the other panels, the details of the attributions can be shown by clicking on the respective list item, while the
 attribution can be added by clicking on the corresponding **+ icon**.
+
+##### Attribution Wizard
+
+The `Attribution Wizard` can be opened via the context menu of a manual attribution. It aggregates information from attributions and signals of the current resource and its descendents and provides a structured overview. By clicking through the wizard, package namespace, name, and version can be selected and saved to the `Attribution Details Column` of the attribution from which the wizard has been opened.
+
+The `Attribution Wizard` has the following structure (compare image):
+
+- Path of the selected resource (1).
+- Breadcrumbs for navigation (2). Each breadcrumb corresponds to a step of the wizard.
+- Package URL (3) that describes the currently selected package.
+- Lists of aggregated package attributes (4), e.g., package namespace, name, and version (depending on wizard step).
+
+<img src="./docs/user_guide_screenshots/attribution_wizard_doc_overview.png" width="550"/>
+
+In the first step, package namespace and name can be selected. The list items are sorted by count, i.e., the number of occurrences in the attributions and signals of the current resource and its descendents. New list items can be added manually via the textboxes below the lists (5). Manually added items are marked with a star-icon and are displayed at the top of the list (6).
+
+<img src="./docs/user_guide_screenshots/attribution_wizard_doc_add_new.png" width="450"/>
+
+In the second step, a single list with package versions is shown (7). Additionally, each list item displays corresponding package names. The selected package name (from the first wizard step) is highlighted. Also the version list allows adding new items via the textbox below. The selections that have been made can now be saved to the `Attribution Details Column` by clicking `Apply` (8).
+
+<img src="./docs/user_guide_screenshots/attribution_wizard_doc_version.png" width="550"/>
+
+Note that the information in the `Attribution Details Column` is only saved temporarily. To update the attribution, one has to click `Save` or `Confirm` in the bottom right corner of the `Attribution Details Column`.
 
 #### Attribution Details Column
 
