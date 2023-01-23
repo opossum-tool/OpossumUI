@@ -15,6 +15,7 @@ import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox
 import ReplayIcon from '@mui/icons-material/Replay';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import React, { ReactElement } from 'react';
 import {
   baseIcon,
@@ -237,4 +238,8 @@ export function IncompletePackagesIcon(props: IconProps): ReactElement {
       />
     </MuiTooltip>
   );
+}
+
+export function ManuallyAddedListItemIcon(props: IconProps): ReactElement {
+  return <AutoAwesomeIcon sx={props.sx} />;
 }

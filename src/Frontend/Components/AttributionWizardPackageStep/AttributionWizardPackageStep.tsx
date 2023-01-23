@@ -32,6 +32,10 @@ interface AttributionWizardPackageStepProps {
   selectedPackageNameId: string;
   handlePackageNamespaceListItemClick: (id: string) => void;
   handlePackageNameListItemClick: (id: string) => void;
+  manuallyAddedNamespaces: Array<string>;
+  setManuallyAddedNamespaces(items: Array<string>): void;
+  manuallyAddedNames: Array<string>;
+  setManuallyAddedNames(items: Array<string>): void;
   listBoxSx?: SxProps;
   listSx?: SxProps;
 }
@@ -64,7 +68,9 @@ export function AttributionWizardPackageStep(
           selectedListItemId={props.selectedPackageNamespaceId}
           handleListItemClick={props.handlePackageNamespaceListItemClick}
           showChipsForAttributes={false}
-          showAddNewInput={false}
+          showAddNewListItem={true}
+          manuallyAddedListItems={props.manuallyAddedNamespaces}
+          setManuallyAddedListItems={props.setManuallyAddedNamespaces}
           title={'Package namespace'}
           listSx={props.listSx}
         />
@@ -73,7 +79,9 @@ export function AttributionWizardPackageStep(
           selectedListItemId={props.selectedPackageNameId}
           handleListItemClick={props.handlePackageNameListItemClick}
           showChipsForAttributes={false}
-          showAddNewInput={false}
+          showAddNewListItem={true}
+          manuallyAddedListItems={props.manuallyAddedNames}
+          setManuallyAddedListItems={props.setManuallyAddedNames}
           title={'Package name'}
           listSx={props.listSx}
         />

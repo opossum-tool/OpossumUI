@@ -8,7 +8,7 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { ButtonText, PopupType } from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
@@ -262,5 +262,67 @@ describe('AttributionWizardPopup', () => {
     expect(changedTemporaryPackageInfo).toEqual(
       expectedChangedTemporaryPackageInfo
     );
+  });
+
+  it('displays manually added list entries', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId(selectedResourceId));
+    testStore.dispatch(
+      setExternalData(
+        testExternalAttributions,
+        testExternalResourcesToAttributions
+      )
+    );
+    testStore.dispatch(
+      setManualData(testManualAttributions, testManualResourcesToAttributions)
+    );
+    renderComponentWithStore(<GlobalPopup />, { store: testStore });
+    act(() => {
+      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+    });
+
+    const namespaceTable = screen.getByText('Package namespace')
+      .parentElement as HTMLElement;
+    const namespaceTextBox = within(namespaceTable).getByRole('textbox');
+    const namespaceIconButton = within(namespaceTable).getByRole('button', {
+      name: 'Enter text to add a new item to the list',
+    });
+    expect(namespaceIconButton).toBeDisabled();
+    fireEvent.change(namespaceTextBox, { target: { value: 'new_namespace' } });
+    expect(namespaceIconButton).toBeEnabled();
+    fireEvent.click(namespaceIconButton);
+    expect(namespaceTextBox).toHaveValue('');
+    expect(namespaceIconButton).toBeDisabled();
+    expect(screen.getByText('new_namespace')).toBeInTheDocument();
+
+    const nameTable = screen.getByText('Package name')
+      .parentElement as HTMLElement;
+    const nameTextBox = within(nameTable).getByRole('textbox');
+    const nameIconButton = within(nameTable).getByRole('button', {
+      name: 'Enter text to add a new item to the list',
+    });
+    expect(nameIconButton).toBeDisabled();
+    fireEvent.change(nameTextBox, { target: { value: 'new_name' } });
+    expect(nameIconButton).toBeEnabled();
+    fireEvent.click(nameIconButton);
+    expect(nameTextBox).toHaveValue('');
+    expect(nameIconButton).toBeDisabled();
+    expect(screen.getByText('new_name')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
+
+    const versionTable = screen.getByText('Package version')
+      .parentElement as HTMLElement;
+    const versionTextBox = within(versionTable).getByRole('textbox');
+    const versionIconButton = within(versionTable).getByRole('button', {
+      name: 'Enter text to add a new item to the list',
+    });
+    expect(versionIconButton).toBeDisabled();
+    fireEvent.change(versionTextBox, { target: { value: 'new_version' } });
+    expect(versionIconButton).toBeEnabled();
+    fireEvent.click(versionIconButton);
+    expect(versionTextBox).toHaveValue('');
+    expect(versionIconButton).toBeDisabled();
+    expect(screen.getByText('new_version')).toBeInTheDocument();
   });
 });

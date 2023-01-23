@@ -17,6 +17,8 @@ import {
   getAllAttributionIdsWithCountsFromResourceAndChildren,
   getHighlightedPackageNameIds,
   getPreSelectedPackageAttributeIds,
+  convertManuallyAddedListEntriesToListItems,
+  getManuallyAddedPackageNamesToVersions,
 } from '../attribution-wizard-popup-helpers';
 
 describe('getExternalAndManualAttributionIdsWithCountsFromResourceAndChildren', () => {
@@ -149,6 +151,8 @@ describe('getAttributionWizardPackageListsItems', () => {
         packageVersion: '6.0',
       },
     };
+    const testManuallyAddedNamespaces: Array<string> = [];
+    const testManuallyAddedNames: Array<string> = [];
     const expectedAttributedPackageNamespaces: Array<ListWithAttributesItem> = [
       {
         text: 'pip',
@@ -208,7 +212,9 @@ describe('getAttributionWizardPackageListsItems', () => {
       packageNamesToVersions,
     } = getAttributionWizardPackageListsItems(
       testContainedExternalPackages,
-      testExternalAttributions
+      testExternalAttributions,
+      testManuallyAddedNamespaces,
+      testManuallyAddedNames
     );
 
     expect(attributedPackageNamespaces).toEqual(
@@ -228,6 +234,7 @@ describe('getAttributionWizardPackageVersionListItems', () => {
       [testPackageName2]: new Set<string>(['6.0.3']),
       numpy: new Set<string>(['1.24.0']),
     };
+    const testManuallyAddedVersions: Array<string> = [];
 
     const expectedPackageVersionListItems = [
       {
@@ -259,7 +266,8 @@ describe('getAttributionWizardPackageVersionListItems', () => {
     const testPackageVersionListItems =
       getAttributionWizardPackageVersionListItems(
         testPackageName,
-        testPackageNamesToVersions
+        testPackageNamesToVersions,
+        testManuallyAddedVersions
       );
 
     expect(testPackageVersionListItems).toEqual(
@@ -287,6 +295,48 @@ describe('getHighlightedPackeNameIds', () => {
 
     expect(testHighlightedPackageNameIds).toEqual(
       expectedHighlightedPackeNameIds
+    );
+  });
+});
+
+describe('convertManuallyAddedListEntriesToListItems', () => {
+  it('yields correct output', () => {
+    const testManuallyAddedListEntries = ['new_package_0', 'new_package_1'];
+    const testPackageAttributeId = 'name';
+    const expectedNewListItems: Array<ListWithAttributesItem> = [
+      {
+        text: 'new_package_0',
+        manuallyAdded: true,
+        id: 'name-new_package_0',
+      },
+      {
+        text: 'new_package_1',
+        manuallyAdded: true,
+        id: 'name-new_package_1',
+      },
+    ];
+
+    const testNewListItems = convertManuallyAddedListEntriesToListItems(
+      testManuallyAddedListEntries,
+      testPackageAttributeId
+    );
+
+    expect(testNewListItems).toEqual(expectedNewListItems);
+  });
+});
+
+describe('getManuallyAddedPackageNamesToVersions', () => {
+  it('yields correct output', () => {
+    const testManuallyAddedPackageNames = ['new_package_0', 'new_package_1'];
+    const expectedNewPackageNamesToVersions = {
+      ['new_package_0']: new Set<string>([emptyAttribute]),
+      ['new_package_1']: new Set<string>([emptyAttribute]),
+    };
+    const testNewPackageNamesToVersions =
+      getManuallyAddedPackageNamesToVersions(testManuallyAddedPackageNames);
+
+    expect(testNewPackageNamesToVersions).toEqual(
+      expectedNewPackageNamesToVersions
     );
   });
 });

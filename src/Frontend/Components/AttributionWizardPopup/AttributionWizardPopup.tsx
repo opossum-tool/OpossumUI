@@ -86,6 +86,16 @@ export function AttributionWizardPopup(): ReactElement {
   const popupAttributionId = useAppSelector(getPopupAttributionId);
   const manualAttributions = useAppSelector(getManualAttributions);
 
+  const [manuallyAddedNamespaces, setManuallyAddedNamespaces] = useState<
+    Array<string>
+  >([]);
+  const [manuallyAddedNames, setManuallyAddedNames] = useState<Array<string>>(
+    []
+  );
+  const [manuallyAddedVersions, setManuallyAddedVersions] = useState<
+    Array<string>
+  >([]);
+
   const dispatch = useAppDispatch();
   function closeAttributionWizardPopup(): void {
     dispatch(closePopup());
@@ -139,7 +149,9 @@ export function AttributionWizardPopup(): ReactElement {
     {
       ...externalData.attributions,
       ...manualData.attributions,
-    }
+    },
+    manuallyAddedNamespaces,
+    manuallyAddedNames
   );
 
   const selectedPackageNamespace = filterForPackageAttributeId(
@@ -156,7 +168,8 @@ export function AttributionWizardPopup(): ReactElement {
     selectedPackageName !== ''
       ? getAttributionWizardPackageVersionListItems(
           selectedPackageName,
-          packageNamesToVersions
+          packageNamesToVersions,
+          manuallyAddedVersions
         )
       : [];
 
@@ -198,7 +211,6 @@ export function AttributionWizardPopup(): ReactElement {
   const handleBreadcrumbsClick = function (wizardStepId: string): void {
     setSelectedWizardStepId(wizardStepId);
   };
-
   function handleNextClick(): void {
     if (selectedWizardStepId !== wizardStepIds[wizardStepIds.length - 1]) {
       setSelectedWizardStepId(
@@ -213,7 +225,6 @@ export function AttributionWizardPopup(): ReactElement {
       );
     }
   }
-
   function handlePackageNamespaceListItemClick(id: string): void {
     setSelectedPackageNamespaceId(id);
   }
@@ -223,7 +234,6 @@ export function AttributionWizardPopup(): ReactElement {
   function handlePackageVersionListItemClick(id: string): void {
     setSelectedPackageVersionId(id);
   }
-
   function handleApplyClick(): void {
     dispatch(
       setTemporaryPackageInfo({
@@ -305,6 +315,10 @@ export function AttributionWizardPopup(): ReactElement {
                   handlePackageNamespaceListItemClick
                 }
                 handlePackageNameListItemClick={handlePackageNameListItemClick}
+                manuallyAddedNamespaces={manuallyAddedNamespaces}
+                setManuallyAddedNamespaces={setManuallyAddedNamespaces}
+                manuallyAddedNames={manuallyAddedNames}
+                setManuallyAddedNames={setManuallyAddedNames}
                 listBoxSx={classes.listBox}
                 listSx={classes.list}
               />
@@ -317,6 +331,8 @@ export function AttributionWizardPopup(): ReactElement {
                 handlePackageVersionListItemClick={
                   handlePackageVersionListItemClick
                 }
+                manuallyAddedVersions={manuallyAddedVersions}
+                setManuallyAddedVersions={setManuallyAddedVersions}
                 listSx={classes.list}
               />
             ) : null}

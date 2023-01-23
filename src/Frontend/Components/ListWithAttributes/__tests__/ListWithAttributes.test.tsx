@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { render, within } from '@testing-library/react';
+import { fireEvent, render, within } from '@testing-library/react';
 import { ListWithAttributes } from '../ListWithAttributes';
 import { screen } from '@testing-library/react';
 import { ListWithAttributesItem } from '../../../types/types';
@@ -40,7 +40,7 @@ describe('ListWithAttributes', () => {
         highlightedAttributeIds={testHighlightedAttributeIds}
         handleListItemClick={doNothing}
         showChipsForAttributes={true}
-        showAddNewInput={false}
+        showAddNewListItem={false}
         title={testListTitle}
       />
     );
@@ -56,5 +56,39 @@ describe('ListWithAttributes', () => {
     expect(listItemElement2.getByText('package_1')).toBeInTheDocument();
     expect(listItemElement2.getByText('attrib_10')).toBeInTheDocument();
     expect(listItemElement2.getByText('attrib_11')).toBeInTheDocument();
+  });
+
+  it('renders a text field for adding new list items', () => {
+    const testItems: Array<ListWithAttributesItem> = [
+      {
+        text: '',
+        id: '',
+        attributes: [{ text: '', id: '' }],
+      },
+    ];
+    const testSelectedItemId = '';
+    const testHighlightedAttributeIds = [''];
+    const testListTitle = '';
+
+    render(
+      <ListWithAttributes
+        listItems={testItems}
+        selectedListItemId={testSelectedItemId}
+        highlightedAttributeIds={testHighlightedAttributeIds}
+        handleListItemClick={doNothing}
+        showChipsForAttributes={false}
+        showAddNewListItem={true}
+        title={testListTitle}
+      />
+    );
+
+    expect(screen.queryAllByText('Add new item')).toHaveLength(2);
+    const textBox = screen.getByRole('textbox');
+    const iconButton = screen.getByRole('button', {
+      name: 'Enter text to add a new item to the list',
+    });
+    expect(iconButton).toBeDisabled();
+    fireEvent.change(textBox, { target: { value: 'abc' } });
+    expect(iconButton).toBeEnabled();
   });
 });
