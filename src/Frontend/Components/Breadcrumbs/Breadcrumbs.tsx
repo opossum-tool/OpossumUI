@@ -9,6 +9,7 @@ import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiTypography from '@mui/material/Typography';
 import MuiNavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { OpossumColors } from '../../shared-styles';
+import { SxProps } from '@mui/system';
 
 const classes = {
   breadcrumbs: {
@@ -19,18 +20,18 @@ const classes = {
   },
   breadcrumbsButton: {
     padding: '1px 4px',
-    backgroundColor: OpossumColors.white,
+    backgroundColor: OpossumColors.lightestBlue,
     '&:hover': {
-      backgroundColor: OpossumColors.white,
+      backgroundColor: OpossumColors.lightestBlue,
     },
     '&:loading': {
-      backgroundColor: OpossumColors.white,
+      backgroundColor: OpossumColors.lightestBlue,
     },
     '&.Mui-selected': {
       '&:hover': {
-        backgroundColor: OpossumColors.white,
+        backgroundColor: OpossumColors.lightestBlue,
       },
-      backgroundColor: OpossumColors.white,
+      backgroundColor: OpossumColors.lightestBlue,
     },
     '&.Mui-disabled': {
       opacity: 1,
@@ -45,6 +46,7 @@ interface BreadcrumbsProps {
   selectedId: string;
   onClick: (id: string) => void;
   idsToDisplayValues: Array<[string, string]>;
+  sx?: SxProps;
 }
 
 export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
@@ -54,7 +56,7 @@ export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
 
   return (
     <MuiBreadcrumbs
-      sx={classes.breadcrumbs}
+      sx={{ ...classes.breadcrumbs, ...props.sx }}
       separator={<MuiNavigateNextIcon fontSize="inherit" />}
     >
       {ids.map((id, index) => (

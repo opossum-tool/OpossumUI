@@ -14,9 +14,11 @@ describe('getAttributesWithHighlighting', () => {
       { text: 'attrib_01', id: 'test_id_1' },
     ];
     const testHighlightedAttributeIds = ['test_id_1'];
+    const testShowChipsForAttributes = true;
 
     const resultingComponents = getAttributesWithHighlighting(
       testAttributes,
+      testShowChipsForAttributes,
       testHighlightedAttributeIds
     );
 

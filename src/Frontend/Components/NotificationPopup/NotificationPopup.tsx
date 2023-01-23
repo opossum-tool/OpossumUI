@@ -14,7 +14,13 @@ import { doNothing } from '../../util/do-nothing';
 import { ButtonConfig } from '../../types/types';
 import { SxProps } from '@mui/material';
 import { POPUP_MAX_WIDTH_BREAKPOINT } from '../../shared-styles';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
+const classes = {
+  dialogContent: {
+    paddingTop: '5px',
+  },
+};
 interface NotificationPopupProps {
   header: string;
   content: ReactElement | string;
@@ -27,6 +33,7 @@ interface NotificationPopupProps {
   isOpen: boolean;
   fullWidth?: boolean;
   headerSx?: SxProps;
+  contentSx?: SxProps;
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
@@ -67,7 +74,12 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       >
         {props.header}
       </MuiDialogTitle>
-      <MuiDialogContent style={{ paddingTop: '5px' }}>
+      <MuiDialogContent
+        sx={getSxFromPropsAndClasses({
+          sxProps: props.contentSx,
+          styleClass: classes.dialogContent,
+        })}
+      >
         {typeof props.content === 'string' ? (
           <MuiDialogContentText>{props.content}</MuiDialogContentText>
         ) : (
