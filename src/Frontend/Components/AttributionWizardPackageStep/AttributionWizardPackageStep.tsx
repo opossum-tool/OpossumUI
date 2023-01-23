@@ -34,7 +34,7 @@ const classes = {
 interface AttributionWizardPackageStepProps {
   attributedPackageNamespaces: Array<ListWithAttributesItem>;
   attributedPackageNames: Array<ListWithAttributesItem>;
-  temporaryPackageInfo: PackageInfo;
+  selectedPackageInfo: PackageInfo;
   selectedPackageNamespaceId: string;
   selectedPackageNameId: string;
   handlePackageNamespaceListItemClick: (id: string) => void;
@@ -44,9 +44,15 @@ interface AttributionWizardPackageStepProps {
 export function AttributionWizardPackageStep(
   props: AttributionWizardPackageStepProps
 ): ReactElement {
+  const selectedPackageInfoWithoutVersion = {
+    ...props.selectedPackageInfo,
+    packageVersion: undefined,
+  };
+
   const temporaryPackagePurl = generatePurlFromPackageInfo(
-    props.temporaryPackageInfo
+    selectedPackageInfoWithoutVersion
   );
+
   return (
     <MuiBox sx={classes.root}>
       <MuiTypography variant={'subtitle1'} sx={classes.purl}>

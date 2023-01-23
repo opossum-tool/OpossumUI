@@ -33,7 +33,7 @@ const classes = {
 interface AttributionWizardVersionStepProps {
   attributedPackageVersions: Array<ListWithAttributesItem>;
   highlightedPackageNameIds: Array<string>;
-  temporaryPackageInfo: PackageInfo;
+  selectedPackageInfo: PackageInfo;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
 }
@@ -42,7 +42,7 @@ export function AttributionWizardVersionStep(
   props: AttributionWizardVersionStepProps
 ): ReactElement {
   const temporaryPackagePurl = generatePurlFromPackageInfo(
-    props.temporaryPackageInfo
+    props.selectedPackageInfo
   );
 
   return (

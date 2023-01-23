@@ -31,9 +31,11 @@ import {
   getHighlightedPackageNameIds,
   getPreSelectedPackageAttributeIds,
   filterForPackageAttributeId,
+  emptyAttribute,
 } from './attribution-wizard-popup-helpers';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { PackageInfo } from '../../../shared/shared-types';
+import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 
 const attributionWizardPopupHeader = 'Attribution Wizard';
 
@@ -110,8 +112,9 @@ export function AttributionWizardPopup(): ReactElement {
     wizardStepIds[0]
   );
 
-  const packageNamespaceAndNameSelected =
+  const isPackageNamespaceAndNameSelected =
     selectedPackageNamespaceId !== '' && selectedPackageNameId !== '';
+  const isPackageVersionSelected = selectedPackageVersionId !== '';
 
   const allAttributionIdsOfResourceAndChildrenWithCounts =
     getAllAttributionIdsWithCountsFromResourceAndChildren(
@@ -172,11 +175,18 @@ export function AttributionWizardPopup(): ReactElement {
         )
       : [''];
 
-  const temporaryPackageInfo: PackageInfo = {
-    packageType: popupAttribution.packageType,
-    packageName: selectedPackageName,
-    packageNamespace: selectedPackageNamespace,
-    packageVersion: selectedPackageVersion,
+  const selectedPackageInfo: PackageInfo = {
+    packageType: popupAttribution.packageType ?? 'generic',
+    packageName:
+      selectedPackageName !== emptyAttribute ? selectedPackageName : undefined,
+    packageNamespace:
+      selectedPackageNamespace !== emptyAttribute
+        ? selectedPackageNamespace
+        : undefined,
+    packageVersion:
+      selectedPackageVersion !== emptyAttribute
+        ? selectedPackageVersion
+        : undefined,
   };
 
   const handleBreadcrumbsClick = function (wizardStepId: string): void {
@@ -208,14 +218,24 @@ export function AttributionWizardPopup(): ReactElement {
     setSelectedPackageVersionId(id);
   }
 
+  function handleApplyClick(): void {
+    dispatch(
+      setTemporaryPackageInfo({
+        ...popupAttribution,
+        ...selectedPackageInfo,
+      })
+    );
+    closeAttributionWizardPopup();
+  }
+
   const nextButtonConfig: ButtonConfig = {
     buttonText: ButtonText.Next,
     onClick: handleNextClick,
-    disabled: !packageNamespaceAndNameSelected,
+    disabled: !isPackageNamespaceAndNameSelected,
     isDark: true,
-    tooltipText: !packageNamespaceAndNameSelected
-      ? 'Please select package namespace and name to continue'
-      : '',
+    tooltipText: isPackageNamespaceAndNameSelected
+      ? ''
+      : 'Please select package namespace and name to continue',
     tooltipPlacement: 'left',
   };
   const backButtonConfig: ButtonConfig = {
@@ -230,6 +250,16 @@ export function AttributionWizardPopup(): ReactElement {
     disabled: false,
     isDark: false,
   };
+  const applyButtonConfig: ButtonConfig = {
+    buttonText: ButtonText.Apply,
+    onClick: handleApplyClick,
+    disabled: !isPackageVersionSelected,
+    isDark: true,
+    tooltipText: !isPackageVersionSelected
+      ? 'Please select package version to apply changes'
+      : '',
+    tooltipPlacement: 'left',
+  };
 
   return (
     <NotificationPopup
@@ -240,7 +270,7 @@ export function AttributionWizardPopup(): ReactElement {
       centerRightButtonConfig={
         selectedWizardStepId !== wizardStepIds[wizardStepIds.length - 1]
           ? nextButtonConfig
-          : undefined
+          : applyButtonConfig
       }
       rightButtonConfig={cancelButtonConfig}
       onBackdropClick={closeAttributionWizardPopup}
@@ -265,7 +295,7 @@ export function AttributionWizardPopup(): ReactElement {
               <AttributionWizardPackageStep
                 attributedPackageNamespaces={attributedPackageNamespaces}
                 attributedPackageNames={attributedPackageNames}
-                temporaryPackageInfo={temporaryPackageInfo}
+                selectedPackageInfo={selectedPackageInfo}
                 selectedPackageNamespaceId={selectedPackageNamespaceId}
                 selectedPackageNameId={selectedPackageNameId}
                 handlePackageNamespaceListItemClick={
@@ -276,7 +306,7 @@ export function AttributionWizardPopup(): ReactElement {
             ) : selectedWizardStepId === wizardStepIds[1] ? (
               <AttributionWizardVersionStep
                 attributedPackageVersions={attributedPackageVersions}
-                temporaryPackageInfo={temporaryPackageInfo}
+                selectedPackageInfo={selectedPackageInfo}
                 highlightedPackageNameIds={highlightedPackageNameIds}
                 selectedPackageVersionId={selectedPackageVersionId}
                 handlePackageVersionListItemClick={

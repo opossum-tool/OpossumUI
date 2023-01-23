@@ -78,6 +78,7 @@ interface ListWithAttributesProps {
   showAddNewInput: boolean; // TODO: required later
   title?: string;
   listItemSx?: SxProps;
+  emptyTextFallback?: string;
 }
 
 export function ListWithAttributes(
@@ -102,7 +103,7 @@ export function ListWithAttributes(
                 onClick={(): void => props.handleListItemClick(item.id)}
               >
                 <MuiListItemText
-                  primary={item.text}
+                  primary={item.text || (props.emptyTextFallback ?? '-')}
                   secondary={
                     <MuiBox sx={classes.listItemTextAttributesBox}>
                       {getAttributesWithHighlighting(
