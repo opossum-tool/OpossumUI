@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { max } from 'lodash';
 import {
   AttributionData,
   AttributionIdWithCount,
@@ -108,11 +109,17 @@ export function getAttributionWizardPackageListsItems(
   externalAndManualAttributionIdsWithCounts: Array<AttributionIdWithCount>,
   externalAndManualAttributions: Attributions,
   manuallyAddedNamespaces: Array<string>,
-  manuallyAddedNames: Array<string>
+  manuallyAddedNames: Array<string>,
+  manuallyAddedVersions: Array<string>,
+  selectedPackageNamespaceId: string,
+  selectedPackageNameId: string
 ): {
-  attributedPackageNamespaces: Array<ListWithAttributesItem>;
-  attributedPackageNames: Array<ListWithAttributesItem>;
-  packageNamesToVersions: { [packageName: string]: Set<string> };
+  sortedAttributedPackageNamespacesWithManuallyAddedOnes: Array<ListWithAttributesItem>;
+  sortedAttributedPackageNamesWithManuallyAddedOnes: Array<ListWithAttributesItem>;
+  sortedAttributedPackageVersionsWithManuallyAddedOnes: Array<ListWithAttributesItem>;
+  selectedPackageNamespace: string;
+  selectedPackageName: string;
+  highlightedPackageNameIds: Array<string>;
 } {
   const totalAttributionCount = externalAndManualAttributionIdsWithCounts
     .map((attributionIdWithCount) => attributionIdWithCount.count ?? 0)
@@ -132,51 +139,76 @@ export function getAttributionWizardPackageListsItems(
     'name'
   );
 
-  let packageNamesToVersions = getPackageNamesToVersions(
-    externalAndManualAttributionIdsWithCounts,
-    externalAndManualAttributions
-  );
-
-  const packageNamespacesWithCounts = sortPackageAttributesAndCounts(
+  const sortedPackageNamespacesAndCounts = sortPackageAttributesAndCounts(
     packageNamespacesAndCounts
   );
-  const packageNamesWithCounts = sortPackageAttributesAndCounts(
+  const sortedPackageNamesAndCounts = sortPackageAttributesAndCounts(
     packageNamesAndCounts
   );
 
-  let attributedPackageNamespaces = getWizardListItems(
-    packageNamespacesWithCounts,
+  const sortedAttributedPackageNamespaces = getWizardListItems(
+    sortedPackageNamespacesAndCounts,
     totalAttributionCount,
     'namespace'
   );
-  let attributedPackageNames = getWizardListItems(
-    packageNamesWithCounts,
+  const sortedAttributedPackageNames = getWizardListItems(
+    sortedPackageNamesAndCounts,
     totalAttributionCount,
     'name'
   );
 
-  attributedPackageNamespaces =
+  const sortedAttributedPackageNamespacesWithManuallyAddedOnes =
     concatenatePackageAttributesWithManuallyAddedOnes(
       manuallyAddedNamespaces,
-      attributedPackageNamespaces,
+      sortedAttributedPackageNamespaces,
       'namespace'
     );
+  const sortedAttributedPackageNamesWithManuallyAddedOnes =
+    concatenatePackageAttributesWithManuallyAddedOnes(
+      manuallyAddedNames,
+      sortedAttributedPackageNames,
+      'name'
+    );
 
-  attributedPackageNames = concatenatePackageAttributesWithManuallyAddedOnes(
-    manuallyAddedNames,
-    attributedPackageNames,
-    'name'
+  const selectedPackageNamespace = filterForPackageAttributeId(
+    selectedPackageNamespaceId,
+    sortedAttributedPackageNamespacesWithManuallyAddedOnes
+  );
+  const selectedPackageName = filterForPackageAttributeId(
+    selectedPackageNameId,
+    sortedAttributedPackageNamesWithManuallyAddedOnes
   );
 
-  packageNamesToVersions = {
-    ...packageNamesToVersions,
-    ...getManuallyAddedPackageNamesToVersions(manuallyAddedNames),
-  };
+  const packageNamesToVersions = getPackageNamesToVersions(
+    externalAndManualAttributionIdsWithCounts,
+    externalAndManualAttributions
+  );
+  const attributedPackageVersions = getAttributionWizardPackageVersionListItems(
+    packageNamesToVersions
+  );
+  const packageNameWasManuallyAdded =
+    selectedPackageName in packageNamesToVersions;
+  const highlightedPackageNameIds = packageNameWasManuallyAdded
+    ? getHighlightedPackageNameIds(selectedPackageName, packageNamesToVersions)
+    : [];
+  const sortedAttributedPackageVersions = sortAttributedPackageVersions(
+    attributedPackageVersions,
+    highlightedPackageNameIds
+  );
+  const sortedAttributedPackageVersionsWithManuallyAddedOnes =
+    concatenatePackageAttributesWithManuallyAddedOnes(
+      manuallyAddedVersions,
+      sortedAttributedPackageVersions,
+      'version'
+    );
 
   return {
-    attributedPackageNamespaces,
-    attributedPackageNames,
-    packageNamesToVersions,
+    sortedAttributedPackageNamespacesWithManuallyAddedOnes,
+    sortedAttributedPackageNamesWithManuallyAddedOnes,
+    sortedAttributedPackageVersionsWithManuallyAddedOnes,
+    selectedPackageNamespace,
+    selectedPackageName,
+    highlightedPackageNameIds,
   };
 }
 
@@ -288,11 +320,9 @@ function getCountText(count: number, totalAttributeCount: number): string {
     : `${count} (${percentage.toFixed(0)}%)`;
 }
 
-export function getAttributionWizardPackageVersionListItems(
-  packageName: string,
-  packageNamesToVersions: { [name: string]: Set<string> },
-  manuallyAddedVersions: Array<string>
-): Array<ListWithAttributesItem> {
+export function getAttributionWizardPackageVersionListItems(packageNamesToVersions: {
+  [name: string]: Set<string>;
+}): Array<ListWithAttributesItem> {
   const packageVersionsToNames: { [version: string]: Set<string> } = {};
   for (const [name, versions] of Object.entries(packageNamesToVersions)) {
     for (const version of versions) {
@@ -302,8 +332,8 @@ export function getAttributionWizardPackageVersionListItems(
     }
   }
 
-  const versions = Array.from(packageNamesToVersions[packageName]).sort();
-  let attributedPackageVersions: Array<ListWithAttributesItem> = [];
+  const versions = Object.keys(packageVersionsToNames).sort();
+  const attributedPackageVersions: Array<ListWithAttributesItem> = [];
   for (const version of versions) {
     attributedPackageVersions.push({
       text: version,
@@ -316,12 +346,6 @@ export function getAttributionWizardPackageVersionListItems(
         })),
     });
   }
-
-  attributedPackageVersions = concatenatePackageAttributesWithManuallyAddedOnes(
-    manuallyAddedVersions,
-    attributedPackageVersions,
-    'version'
-  );
 
   return attributedPackageVersions;
 }
@@ -344,20 +368,6 @@ export function filterForPackageAttributeId(
         (item) => item.id === selectedPackageAttributeId
       )[0].text
     : '';
-}
-
-export function getManuallyAddedPackageNamesToVersions(
-  manuallyAddedPackageNames: Array<string>
-): { [name: string]: Set<string> } {
-  const manuallyAddedPackageNamesToVersions: {
-    [packageName: string]: Set<string>;
-  } = {};
-  manuallyAddedPackageNames.forEach(
-    (manuallyAddedPackageName) =>
-      (manuallyAddedPackageNamesToVersions[manuallyAddedPackageName] =
-        new Set<string>([emptyAttribute]))
-  );
-  return manuallyAddedPackageNamesToVersions;
 }
 
 export function concatenatePackageAttributesWithManuallyAddedOnes(
@@ -384,4 +394,73 @@ export function convertManuallyAddedListEntriesToListItems(
     manuallyAdded: true,
     attributes: undefined,
   }));
+}
+
+export function sortAttributedPackageVersions(
+  attributedPackageVersions: Array<ListWithAttributesItem>,
+  highlightedPackageNameIds: Array<string>
+): Array<ListWithAttributesItem> {
+  return attributedPackageVersions.sort(
+    (attributedPackageVersionA, attributedPackageVersionB) =>
+      compareVersionAttributeHighlighting(
+        attributedPackageVersionA,
+        attributedPackageVersionB,
+        highlightedPackageNameIds
+      )
+  );
+}
+
+function compareVersionAttributeHighlighting(
+  attributedPackageVersionA: ListWithAttributesItem,
+  attributedPackageVersionB: ListWithAttributesItem,
+  highlightedPackageNameIds: Array<string>
+): number {
+  const attributeIdsA = attributedPackageVersionA.attributes?.map(
+    (attribute) => attribute.id
+  );
+
+  const attributeIdsB = attributedPackageVersionB.attributes?.map(
+    (attribute) => attribute.id
+  );
+
+  let matchCounterA = 0;
+  let matchCounterB = 0;
+  for (const highlightedPackageNameId of highlightedPackageNameIds) {
+    const highlightedPackageName = highlightedPackageNameId.split('-').at(-1);
+
+    const numberOfMatchesA = attributeIdsA?.filter((attributeIdA) =>
+      attributeIdA.match(new RegExp(`${highlightedPackageName}`, 'i'))
+    ).length;
+    matchCounterA += numberOfMatchesA ?? 0;
+
+    const numberOfMatchesB = attributeIdsB?.filter((attributeIdB) =>
+      attributeIdB.match(new RegExp(`${highlightedPackageName}`, 'i'))
+    ).length;
+    matchCounterB += numberOfMatchesB ?? 0;
+  }
+
+  return matchCounterB - matchCounterA !== 0
+    ? matchCounterB - matchCounterA
+    : compareSemanticVersion(
+        attributedPackageVersionA.text,
+        attributedPackageVersionB.text
+      );
+}
+
+function compareSemanticVersion(versionA: string, versionB: string): number {
+  const versionASplit = versionA.split('.');
+  const versionBSplit = versionB.split('.');
+  const maxLength = max([versionASplit.length, versionBSplit.length]) ?? 0;
+  for (
+    let versionPartIndex = 0;
+    versionPartIndex < maxLength;
+    versionPartIndex++
+  ) {
+    const versionAPart = parseInt(versionASplit[versionPartIndex]);
+    const versionBPart = parseInt(versionBSplit[versionPartIndex]);
+    if (versionAPart - versionBPart !== 0) {
+      return versionAPart - versionBPart;
+    }
+  }
+  return 0;
 }

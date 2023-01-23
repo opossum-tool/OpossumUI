@@ -26,11 +26,8 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getAttributionWizardPackageListsItems,
-  getAttributionWizardPackageVersionListItems,
   getAllAttributionIdsWithCountsFromResourceAndChildren,
-  getHighlightedPackageNameIds,
   getPreSelectedPackageAttributeIds,
-  filterForPackageAttributeId,
   emptyAttribute,
 } from './attribution-wizard-popup-helpers';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
@@ -141,9 +138,12 @@ export function AttributionWizardPopup(): ReactElement {
     );
 
   const {
-    attributedPackageNamespaces,
-    attributedPackageNames,
-    packageNamesToVersions,
+    sortedAttributedPackageNamespacesWithManuallyAddedOnes,
+    sortedAttributedPackageNamesWithManuallyAddedOnes,
+    sortedAttributedPackageVersionsWithManuallyAddedOnes,
+    selectedPackageNamespace,
+    selectedPackageName,
+    highlightedPackageNameIds,
   } = getAttributionWizardPackageListsItems(
     allAttributionIdsOfResourceAndChildrenWithCounts,
     {
@@ -151,33 +151,18 @@ export function AttributionWizardPopup(): ReactElement {
       ...manualData.attributions,
     },
     manuallyAddedNamespaces,
-    manuallyAddedNames
-  );
-
-  const selectedPackageNamespace = filterForPackageAttributeId(
+    manuallyAddedNames,
+    manuallyAddedVersions,
     selectedPackageNamespaceId,
-    attributedPackageNamespaces
+    selectedPackageNameId
   );
-
-  const selectedPackageName = filterForPackageAttributeId(
-    selectedPackageNameId,
-    attributedPackageNames
-  );
-
-  const attributedPackageVersions =
-    selectedPackageName !== ''
-      ? getAttributionWizardPackageVersionListItems(
-          selectedPackageName,
-          packageNamesToVersions,
-          manuallyAddedVersions
-        )
-      : [];
 
   let selectedPackageVersion = '';
   if (selectedPackageVersionId !== '') {
-    const attributedPackageVersion = attributedPackageVersions.filter(
-      (item) => item.id === selectedPackageVersionId
-    )[0];
+    const attributedPackageVersion =
+      sortedAttributedPackageVersionsWithManuallyAddedOnes.filter(
+        (item) => item.id === selectedPackageVersionId
+      )[0];
 
     if (attributedPackageVersion === undefined) {
       setSelectedPackageVersionId('');
@@ -185,14 +170,6 @@ export function AttributionWizardPopup(): ReactElement {
       selectedPackageVersion = attributedPackageVersion.text;
     }
   }
-
-  const highlightedPackageNameIds =
-    selectedPackageName !== ''
-      ? getHighlightedPackageNameIds(
-          selectedPackageName,
-          packageNamesToVersions
-        )
-      : [''];
 
   const selectedPackageInfo: PackageInfo = {
     packageType: popupAttribution.packageType ?? 'generic',
@@ -306,8 +283,12 @@ export function AttributionWizardPopup(): ReactElement {
           <MuiBox sx={classes.mainContentBox}>
             {selectedWizardStepId === wizardStepIds[0] ? (
               <AttributionWizardPackageStep
-                attributedPackageNamespaces={attributedPackageNamespaces}
-                attributedPackageNames={attributedPackageNames}
+                attributedPackageNamespaces={
+                  sortedAttributedPackageNamespacesWithManuallyAddedOnes
+                }
+                attributedPackageNames={
+                  sortedAttributedPackageNamesWithManuallyAddedOnes
+                }
                 selectedPackageInfo={selectedPackageInfo}
                 selectedPackageNamespaceId={selectedPackageNamespaceId}
                 selectedPackageNameId={selectedPackageNameId}
@@ -324,7 +305,9 @@ export function AttributionWizardPopup(): ReactElement {
               />
             ) : selectedWizardStepId === wizardStepIds[1] ? (
               <AttributionWizardVersionStep
-                attributedPackageVersions={attributedPackageVersions}
+                attributedPackageVersions={
+                  sortedAttributedPackageVersionsWithManuallyAddedOnes
+                }
                 selectedPackageInfo={selectedPackageInfo}
                 highlightedPackageNameIds={highlightedPackageNameIds}
                 selectedPackageVersionId={selectedPackageVersionId}
