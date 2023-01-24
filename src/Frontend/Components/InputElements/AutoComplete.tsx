@@ -23,7 +23,7 @@ const classes = {
 };
 
 function enterWasPressed(event: KeyboardEvent): boolean {
-  return event.which == 13 || event.keyCode == 13;
+  return event.key === 'Enter';
 }
 
 export function AutoComplete(props: AutoCompleteProps): ReactElement {
