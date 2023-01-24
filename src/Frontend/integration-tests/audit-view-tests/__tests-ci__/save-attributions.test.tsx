@@ -43,7 +43,13 @@ import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-
 describe('The App in Audit View', () => {
   it('saves new attributions to file in AuditView', () => {
     const testPackageName = 'React';
-    const testLicenseNames = ['MIT', 'MIT License'];
+    const testLicenseNames = [
+      { shortName: 'MIT', fullName: 'MIT License' },
+      {
+        shortName: 'HaskellReport',
+        fullName: 'Haskell Language Report License',
+      },
+    ];
     const mockChannelReturn: ParsedFileContent = {
       ...EMPTY_PARSED_FILE_CONTENT,
       resources: { 'something.js': 1 },
@@ -62,7 +68,10 @@ describe('The App in Audit View', () => {
 
       frequentLicenses: {
         nameOrder: testLicenseNames,
-        texts: { MIT: 'MIT License Text', 'MIT License': 'MIT License Text' },
+        texts: {
+          MIT: 'MIT License Text',
+          HaskellReport: 'Haskell License Text',
+        },
       },
     };
 
@@ -91,7 +100,10 @@ describe('The App in Audit View', () => {
     expect(screen.queryAllByText(`Low (${DiscreteConfidence.Low})`).length);
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
-    expectElementsInAutoCompleteAndSelectFirst(screen, testLicenseNames);
+    expectElementsInAutoCompleteAndSelectFirst(screen, [
+      'MIT - MIT License',
+      'HaskellReport - Haskell Language Report License',
+    ]);
 
     clickOnButton(screen, ButtonText.Save);
 

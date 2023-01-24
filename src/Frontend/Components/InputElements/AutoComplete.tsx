@@ -13,6 +13,9 @@ import MuiBox from '@mui/material/Box';
 interface AutoCompleteProps extends InputElementProps {
   options: Array<string>;
   endAdornmentText?: string;
+  inputValue: string;
+  showTextBold?: boolean;
+  formatOptionForDisplay?(value: string): string;
 }
 
 const classes = {
@@ -36,15 +39,15 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
       event &&
       (event.type === 'click' || enterWasPressed(event as KeyboardEvent))
     ) {
-      props.handleChange({ target: { value } } as unknown as ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement
-      >);
+      props.handleChange({
+        target: {
+          value: props.formatOptionForDisplay
+            ? props.formatOptionForDisplay(value)
+            : value,
+        },
+      } as unknown as ChangeEvent<HTMLInputElement | HTMLTextAreaElement>);
     }
   }
-
-  const inputValue = props.text || '';
-  const inputValueIndexInOptions: number = props.options.indexOf(inputValue);
-  const isInputValueInOptions: boolean = inputValueIndexInOptions > -1;
 
   return (
     <MuiBox sx={props.sx}>
@@ -59,7 +62,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
         options={props.options}
         disableClearable={true}
         disabled={!props.isEditable}
-        inputValue={inputValue}
+        inputValue={props.inputValue}
         onInputChange={onInputChange}
         renderInput={(params): ReactElement => {
           const paramsWithAdornment = props.endAdornmentText
@@ -82,7 +85,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
               label={props.title}
               sx={{
                 ...classes.textField,
-                ...(isInputValueInOptions ? classes.textFieldBoldText : {}),
+                ...(props.showTextBold ? classes.textFieldBoldText : {}),
               }}
               variant="outlined"
               size="small"

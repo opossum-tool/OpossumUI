@@ -138,9 +138,10 @@ const expectedFileContent: ParsedFileContent = {
     },
   },
   frequentLicenses: {
-    nameOrder: ['MIT'],
+    nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
     texts: {
       MIT: 'MIT license text',
+      'MIT license': 'MIT license text',
     },
   },
   resolvedExternalAttributions: new Set(),
@@ -327,7 +328,7 @@ describe('Test of loading function', () => {
             },
             {
               shortName: 'GPL',
-              fullName: 'GPL license',
+              fullName: 'General Public License',
               defaultText: 'GPL license text',
             },
           ],
@@ -396,10 +397,18 @@ describe('Test of loading function', () => {
           },
         },
         frequentLicenses: {
-          nameOrder: ['MIT', 'GPL'],
+          nameOrder: [
+            { shortName: 'MIT', fullName: 'MIT license' },
+            {
+              shortName: 'GPL',
+              fullName: 'General Public License',
+            },
+          ],
           texts: {
             MIT: 'MIT license text',
+            'MIT license': 'MIT license text',
             GPL: 'GPL license text',
+            'General Public License': 'GPL license text',
           },
         },
         resolvedExternalAttributions: new Set(),

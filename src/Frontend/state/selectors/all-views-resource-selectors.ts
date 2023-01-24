@@ -10,6 +10,7 @@ import {
   AttributionsToResources,
   BaseUrlsForSources,
   ExternalAttributionSources,
+  FrequentLicenseName,
   LicenseTexts,
   PackageInfo,
   ProjectMetadata,
@@ -86,7 +87,9 @@ export function getResourcesWithExternalAttributedChildren(
     .resourcesWithAttributedChildren;
 }
 
-export function getFrequentLicensesNameOrder(state: State): Array<string> {
+export function getFrequentLicensesNameOrder(
+  state: State
+): Array<FrequentLicenseName> {
   return state.resourceState.allViews.frequentLicenses.nameOrder;
 }
 

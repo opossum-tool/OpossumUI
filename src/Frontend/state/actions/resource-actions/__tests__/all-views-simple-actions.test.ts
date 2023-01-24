@@ -200,7 +200,13 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets frequentLicenses', () => {
     const testFrequentLicenses: FrequentLicenses = {
-      nameOrder: ['MIT', 'GPL'],
+      nameOrder: [
+        { shortName: 'MIT', fullName: 'MIT license' },
+        {
+          shortName: 'GPL',
+          fullName: 'General Public License',
+        },
+      ],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
     const testStore = createTestAppStore();

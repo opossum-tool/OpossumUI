@@ -465,7 +465,7 @@ describe('The AttributionColumn', () => {
         />
       );
       const testFrequentLicenses: FrequentLicenses = {
-        nameOrder: ['MIT'],
+        nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
         texts: { MIT: 'text' },
       };
       act(() => {
@@ -495,7 +495,7 @@ describe('The AttributionColumn', () => {
         />
       );
       const testFrequentLicenses: FrequentLicenses = {
-        nameOrder: ['MIT'],
+        nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
         texts: { MIT: 'text' },
       };
       act(() => {

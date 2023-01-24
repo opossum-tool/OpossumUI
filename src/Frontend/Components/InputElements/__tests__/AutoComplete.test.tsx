@@ -16,6 +16,8 @@ describe('The AutoComplete', () => {
       <AutoComplete
         title={'Test Title'}
         options={testLicenseNames}
+        inputValue={''}
+        showTextBold={false}
         handleChange={
           doNothing as unknown as (
             event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,12 +37,14 @@ describe('The AutoComplete', () => {
       <AutoComplete
         title={'Test Title'}
         options={testLicenseNames}
-        endAdornmentText={'Adornment Text'}
+        inputValue={''}
+        showTextBold={false}
         handleChange={
           doNothing as unknown as (
             event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
           ) => void
         }
+        endAdornmentText={'Adornment Text'}
       />
     );
 
