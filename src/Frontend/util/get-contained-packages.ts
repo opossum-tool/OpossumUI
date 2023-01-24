@@ -100,9 +100,9 @@ export function sortByCountAndPackageName(
     const p1: PackageInfo = attributions[a1.attributionId];
     const p2: PackageInfo = attributions[a2.attributionId];
     if (p1?.packageName && p2?.packageName) {
-      return p1.packageName.localeCompare(p2.packageName, undefined, {
-        sensitivity: 'base',
-      });
+      return p1.packageName.toLowerCase() < p2.packageName.toLowerCase()
+        ? -1
+        : 1;
     } else if (p1?.packageName) {
       return -1;
     } else if (p2?.packageName) {

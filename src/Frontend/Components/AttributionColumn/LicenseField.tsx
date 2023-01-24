@@ -44,7 +44,9 @@ export function LicenseField(props: LicenseFieldProps): ReactElement {
     getFormattedLicenseNamesToShortNameMapping(props.frequentLicenseNames);
   const sortedLicenses = Object.keys(
     formattedLicenseNamesToShortNameMapping
-  ).sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : 1));
+  ).sort((license, otherLicense) =>
+    license.toLowerCase() < otherLicense.toLowerCase() ? -1 : 1
+  );
 
   function formatOptionForDisplay(option: string): string {
     return formattedLicenseNamesToShortNameMapping[option]

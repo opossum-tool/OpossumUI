@@ -120,7 +120,7 @@ describe('sortByCountAndPackageName', () => {
         packageName: 'e',
       },
       uuid5: {
-        packageName: 'Ä',
+        packageName: 'z',
       },
       uuid6: {
         packageName: 'd',
@@ -132,11 +132,11 @@ describe('sortByCountAndPackageName', () => {
         count: 11,
       },
       {
-        attributionId: 'uuid5',
+        attributionId: 'uuid3',
         count: 10,
       },
       {
-        attributionId: 'uuid3',
+        attributionId: 'uuid5',
         count: 10,
       },
       {

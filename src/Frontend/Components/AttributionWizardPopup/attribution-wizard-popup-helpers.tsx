@@ -218,11 +218,17 @@ function sortPackageAttributesAndCounts(packageAttributesAndCounts: {
     .sort(compareTextAndCount);
 }
 
-function compareTextAndCount(a: TextAndCount, b: TextAndCount): number {
-  if (a.count !== b.count) {
-    return b.count - a.count;
+function compareTextAndCount(
+  textAndCount: TextAndCount,
+  otherTextAndCount: TextAndCount
+): number {
+  if (textAndCount.count !== otherTextAndCount.count) {
+    return otherTextAndCount.count - textAndCount.count;
   } else {
-    return a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 1;
+    return textAndCount.text.toLowerCase() <
+      otherTextAndCount.text.toLowerCase()
+      ? -1
+      : 1;
   }
 }
 

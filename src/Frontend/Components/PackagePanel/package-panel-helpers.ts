@@ -61,9 +61,10 @@ function sortSources(
         attributionSources[sourceA]?.priority -
         attributionSources[sourceB]?.priority
       ) ||
-      attributionSources[sourceA]?.name.localeCompare(
-        attributionSources[sourceB]?.name
-      )
+      (attributionSources[sourceA]?.name.toLowerCase() <
+      attributionSources[sourceB]?.name.toLowerCase()
+        ? -1
+        : 1)
     );
   });
 
