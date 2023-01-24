@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ChangeEvent } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 import { LicenseField } from '../LicenseField';
@@ -57,5 +57,37 @@ describe('The LicenseField', () => {
     expectElementsInAutoCompleteAndSelectFirst(screen, [
       'GPL - General Public License',
     ]);
+  });
+
+  it('sorts entries', () => {
+    const testLicenseNames: Array<FrequentLicenseName> = [
+      { shortName: 'MIT', fullName: 'MIT license' },
+      { shortName: 'GPL', fullName: 'General Public License' },
+    ];
+    render(
+      <LicenseField
+        title={'Test Title'}
+        frequentLicenseNames={testLicenseNames}
+        text={''}
+        endAdornmentText={'Test Adornment Text'}
+        handleChange={
+          doNothing as unknown as (
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => void
+        }
+      />
+    );
+
+    const autoComplete = screen.getByRole('combobox');
+    autoComplete.focus();
+    fireEvent.keyDown(autoComplete, { key: 'ArrowDown' });
+
+    const licenseDropdownList = screen.getByRole('listbox');
+    expect(licenseDropdownList.children[0]).toHaveTextContent(
+      'GPL - General Public License'
+    );
+    expect(licenseDropdownList.children[1]).toHaveTextContent(
+      'MIT - MIT license'
+    );
   });
 });
