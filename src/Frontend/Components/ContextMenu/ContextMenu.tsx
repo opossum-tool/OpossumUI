@@ -145,7 +145,7 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
           }
         }}
       >
-        {props.children}{' '}
+        {props.children}
       </div>
       <MuiMenu
         open={isContextMenuOpen}

@@ -41,9 +41,9 @@ export function getAlphabeticalComparer(attributions: Attributions) {
     if (elementTitleIsAlphabetical && !otherElementTitleIsAlphabetical)
       return -1;
 
-    return elementTitle.localeCompare(otherElementTitle, undefined, {
-      sensitivity: 'base',
-    });
+    return elementTitle.toLowerCase() < otherElementTitle.toLowerCase()
+      ? -1
+      : 1;
   };
 }
 
@@ -58,5 +58,5 @@ function isElementTitleAlphabetical(
   elementTitle: string,
   defaultName: string
 ): boolean {
-  return elementTitle.localeCompare('a') >= 0 && elementTitle !== defaultName;
+  return elementTitle.toLowerCase() > 'a' && elementTitle !== defaultName;
 }

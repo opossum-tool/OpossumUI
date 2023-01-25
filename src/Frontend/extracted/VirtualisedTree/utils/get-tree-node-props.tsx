@@ -200,7 +200,7 @@ function getSortFunction(
     } else if (!leftNodeIsFolder && rightNodeIsFolder) {
       return 1;
     }
-    return left.toLowerCase().localeCompare(right.toLowerCase());
+    return left.toLowerCase() < right.toLowerCase() ? -1 : 1;
   };
 }
 

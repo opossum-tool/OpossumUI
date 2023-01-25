@@ -17,18 +17,18 @@ function isPresentInOptions(
   return frequentLicenseNames.some(matchesValue);
 }
 
-function combineLicenseNames(licenseName: FrequentLicenseName): string {
-  return licenseName.shortName + ' - ' + licenseName.fullName;
-}
-
 function getFormattedLicenseNamesToShortNameMapping(
   frequentLicenseNames: Array<FrequentLicenseName>
 ): {
   [key: string]: string;
 } {
+  function formatLicenseName(licenseName: FrequentLicenseName): string {
+    return licenseName.shortName + ' - ' + licenseName.fullName;
+  }
+
   return Object.fromEntries(
     frequentLicenseNames.map((option: FrequentLicenseName) => [
-      combineLicenseNames(option),
+      formatLicenseName(option),
       option.shortName,
     ])
   );
@@ -42,6 +42,11 @@ interface LicenseFieldProps extends InputElementProps {
 export function LicenseField(props: LicenseFieldProps): ReactElement {
   const formattedLicenseNamesToShortNameMapping =
     getFormattedLicenseNamesToShortNameMapping(props.frequentLicenseNames);
+  const sortedLicenses = Object.keys(
+    formattedLicenseNamesToShortNameMapping
+  ).sort((license, otherLicense) =>
+    license.toLowerCase() < otherLicense.toLowerCase() ? -1 : 1
+  );
 
   function formatOptionForDisplay(option: string): string {
     return formattedLicenseNamesToShortNameMapping[option]
@@ -62,7 +67,7 @@ export function LicenseField(props: LicenseFieldProps): ReactElement {
       title={props.title}
       handleChange={props.handleChange}
       isHighlighted={props.isHighlighted}
-      options={Object.keys(formattedLicenseNamesToShortNameMapping)}
+      options={sortedLicenses}
       endAdornmentText={props.endAdornmentText}
       inputValue={inputValue}
       showTextBold={inputValueIsInOptions}
