@@ -254,14 +254,20 @@ function getWizardListItem(
     id: `${idPrefix}-${packageAttribute}`,
     attributes: [
       {
-        text: `count: ${count} (${((count / totalAttributeCount) * 100).toFixed(
-          1
-        )}%)`,
+        text: getCountText(count, totalAttributeCount),
         id: `${idPrefix}-attribute-${packageAttribute}`,
       },
     ],
   };
 }
+
+function getCountText(count: number, totalAttributeCount: number): string {
+  const percentage = (count / totalAttributeCount) * 100;
+  return percentage < 1
+    ? `${count} (< 1%)`
+    : `${count} (${percentage.toFixed(0)}%)`;
+}
+
 export function getAttributionWizardPackageVersionListItems(
   packageName: string,
   packageNamesToVersions: { [name: string]: Set<string> }

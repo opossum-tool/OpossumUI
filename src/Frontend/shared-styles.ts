@@ -22,6 +22,9 @@ export const OpossumColors = {
   disabledButtonGrey: 'hsla(0, 0%, 0%, 0.13)',
   disabledGrey: 'hsla(0, 0%, 0%, 0.26)',
   grey: 'hsla(0, 0%, 0%, 0.52)',
+  lightGrey: 'hsla(0, 0%, 0%, 0.09)',
+  mediumGrey: 'hsla(0, 0%, 0%, 0.36)',
+  darkGrey: 'hsla(0, 0%, 0%, 0.7)',
   black: 'hsl(0, 0%, 0%)',
   pastelLightGreen: 'hsl(146, 50%, 80%)',
   pastelMiddleGreen: 'hsl(146, 50%, 68%)',
@@ -258,3 +261,22 @@ export const treeItemClasses = {
   },
   tooltip: tooltipStyle,
 };
+
+export const attributionWizardStepClasses = {
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start',
+    height: '100%',
+  },
+  purlRoot: {
+    width: '100%',
+  },
+  purlText: {
+    '&.Mui-disabled': {
+      WebkitTextFillColor: OpossumColors.darkGrey,
+    },
+  },
+};
+
+export const ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT = 45;

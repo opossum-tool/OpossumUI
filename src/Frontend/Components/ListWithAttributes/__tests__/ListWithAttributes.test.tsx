@@ -39,6 +39,7 @@ describe('ListWithAttributes', () => {
         selectedListItemId={testSelectedItemId}
         highlightedAttributeIds={testHighlightedAttributeIds}
         handleListItemClick={doNothing}
+        showChipsForAttributes={true}
         showAddNewInput={false}
         title={testListTitle}
       />
@@ -55,7 +56,5 @@ describe('ListWithAttributes', () => {
     expect(listItemElement2.getByText('package_1')).toBeInTheDocument();
     expect(listItemElement2.getByText('attrib_10')).toBeInTheDocument();
     expect(listItemElement2.getByText('attrib_11')).toBeInTheDocument();
-
-    // TODO: test for item highlighting/selecting later via redux state
   });
 });

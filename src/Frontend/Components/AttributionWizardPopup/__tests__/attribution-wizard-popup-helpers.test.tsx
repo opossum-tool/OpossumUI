@@ -153,16 +153,14 @@ describe('getAttributionWizardPackageListsItems', () => {
       {
         text: 'pip',
         id: 'namespace-pip',
-        attributes: [
-          { text: 'count: 6 (60.0%)', id: 'namespace-attribute-pip' },
-        ],
+        attributes: [{ text: '6 (60%)', id: 'namespace-attribute-pip' }],
       },
       {
         text: emptyAttribute,
         id: `namespace-${emptyAttribute}`,
         attributes: [
           {
-            text: 'count: 2 (20.0%)',
+            text: '2 (20%)',
             id: `namespace-attribute-${emptyAttribute}`,
           },
         ],
@@ -170,33 +168,31 @@ describe('getAttributionWizardPackageListsItems', () => {
       {
         text: 'npm',
         id: 'namespace-npm',
-        attributes: [
-          { text: 'count: 2 (20.0%)', id: 'namespace-attribute-npm' },
-        ],
+        attributes: [{ text: '2 (20%)', id: 'namespace-attribute-npm' }],
       },
     ];
     const expectedAttributedPackageNames: Array<ListWithAttributesItem> = [
       {
         text: 'numpy',
         id: 'name-numpy',
-        attributes: [{ text: 'count: 5 (50.0%)', id: 'name-attribute-numpy' }],
+        attributes: [{ text: '5 (50%)', id: 'name-attribute-numpy' }],
       },
       {
         text: emptyAttribute,
         id: `name-${emptyAttribute}`,
         attributes: [
-          { text: 'count: 2 (20.0%)', id: `name-attribute-${emptyAttribute}` },
+          { text: '2 (20%)', id: `name-attribute-${emptyAttribute}` },
         ],
       },
       {
         text: 'buffer',
         id: 'name-buffer',
-        attributes: [{ text: 'count: 2 (20.0%)', id: 'name-attribute-buffer' }],
+        attributes: [{ text: '2 (20%)', id: 'name-attribute-buffer' }],
       },
       {
         text: 'pandas',
         id: 'name-pandas',
-        attributes: [{ text: 'count: 1 (10.0%)', id: 'name-attribute-pandas' }],
+        attributes: [{ text: '1 (10%)', id: 'name-attribute-pandas' }],
       },
     ];
     const expectedPackageNamesToVersions = {

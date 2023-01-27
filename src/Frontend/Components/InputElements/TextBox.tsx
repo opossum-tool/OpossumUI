@@ -12,6 +12,7 @@ import { SxProps } from '@mui/material';
 
 interface TextProps extends InputElementProps {
   textFieldSx?: SxProps;
+  textFieldInputSx?: SxProps;
   minRows?: number;
   maxRows?: number;
   endIcon?: ReactElement;
@@ -34,6 +35,7 @@ export function TextBox(props: TextProps): ReactElement {
         InputProps={{
           inputProps: {
             'aria-label': props.title,
+            sx: props.textFieldInputSx,
           },
           endAdornment: props.endIcon && (
             <MuiInputAdornment position="end">

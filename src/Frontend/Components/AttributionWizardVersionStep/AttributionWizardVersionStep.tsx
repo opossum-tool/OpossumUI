@@ -5,29 +5,20 @@
 
 import React, { ReactElement } from 'react';
 import MuiBox from '@mui/material/Box';
-import MuiTypography from '@mui/material/Typography';
 import { ListWithAttributesItem } from '../../types/types';
 import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 import { PackageInfo } from '../../../shared/shared-types';
 import { generatePurlFromPackageInfo } from '../../util/handle-purl';
-
-const PURL_HEIGHT = 45;
+import { doNothing } from '../../util/do-nothing';
+import { TextBox } from '../InputElements/TextBox';
+import { attributionWizardStepClasses } from '../../shared-styles';
+import { ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT } from '../../shared-styles';
+import { SxProps } from '@mui/system';
 
 const classes = {
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'start',
-  },
-  purl: {
-    border: 1,
-    padding: '0px 3px',
-    marginTop: '5px',
-    marginBottom: '10px',
-  },
   listBox: {
     display: 'flex',
-    maxHeight: `calc(100% - ${PURL_HEIGHT}px)`,
+    maxHeight: `calc(100% - ${ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT}px)`,
   },
 };
 interface AttributionWizardVersionStepProps {
@@ -36,29 +27,35 @@ interface AttributionWizardVersionStepProps {
   selectedPackageInfo: PackageInfo;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
+  listSx?: SxProps;
 }
 
 export function AttributionWizardVersionStep(
   props: AttributionWizardVersionStepProps
 ): ReactElement {
-  const temporaryPackagePurl = generatePurlFromPackageInfo(
-    props.selectedPackageInfo
-  );
+  const temporaryPurl = generatePurlFromPackageInfo(props.selectedPackageInfo);
 
   return (
-    <MuiBox sx={classes.root}>
-      <MuiTypography variant={'subtitle1'} sx={classes.purl}>
-        {temporaryPackagePurl}
-      </MuiTypography>
+    <MuiBox sx={attributionWizardStepClasses.root}>
+      <TextBox
+        title={'PURL'}
+        isEditable={false}
+        text={temporaryPurl}
+        isHighlighted={false}
+        handleChange={doNothing}
+        sx={attributionWizardStepClasses.purlRoot}
+        textFieldInputSx={attributionWizardStepClasses.purlText}
+      />
       <MuiBox sx={classes.listBox}>
         <ListWithAttributes
           listItems={props.attributedPackageVersions}
           selectedListItemId={props.selectedPackageVersionId}
           highlightedAttributeIds={props.highlightedPackageNameIds}
           handleListItemClick={props.handlePackageVersionListItemClick}
+          showChipsForAttributes={true}
           showAddNewInput={false}
           title={'Package version'}
-          listItemSx={{ maxWidth: '400px' }}
+          listSx={props.listSx}
         />
       </MuiBox>
     </MuiBox>

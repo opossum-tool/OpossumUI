@@ -16,56 +16,66 @@ import { ListWithAttributesItem } from '../../types/types';
 import { SxProps } from '@mui/system';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
-const LIST_WITH_ATTRIBUTES_VERTICAL_BORDER_AND_MARGIN = 10; // 10px = margin + border
-const LIST_TITLE_HEIGHT = 28;
+const LIST_TITLE_HEIGHT = 36;
 
 const classes = {
   titleAndListBox: {
     display: 'flex',
     flexDirection: 'column',
+    marginTop: '15px',
   },
-  listBox: {
-    width: 'fit-content',
-    maxHeight: `calc(100% - ${LIST_TITLE_HEIGHT}px)`,
-    background: OpossumColors.lightBlue,
+  title: {
+    backgroundColor: OpossumColors.white,
+    paddingLeft: '9px',
+    paddingBottom: '8px',
+    height: `${LIST_TITLE_HEIGHT}px - 8px`,
   },
   list: {
     padding: '0px',
-    width: 'fit-content',
+    width: '250px',
     backgroundColor: OpossumColors.white,
-    border: `1px ${OpossumColors.grey} solid`,
-    maxHeight: `calc(100% - ${LIST_WITH_ATTRIBUTES_VERTICAL_BORDER_AND_MARGIN}px)`,
+    maxHeight: `calc(100% - ${LIST_TITLE_HEIGHT}px)`,
     overflowY: 'auto',
-    margin: '4px',
   },
   listItem: {
     padding: '0px',
-    borderBottom: 2,
-    borderColor: OpossumColors.lightBlue,
-    // TODO: Now: Single scroll bar for each list item.
-    // Remove 'overflowX' property to get single scroll bar
-    // for the whole list (also if only a single
-    // list item exceeds maxWidth)
-    overflowX: 'auto',
-    maxWidth: '300px',
-    minWidth: '200px',
+    backgroundColor: OpossumColors.white,
   },
   listItemButton: {
+    overflowX: 'auto',
+    margin: '0px 8px',
+    border: 'solid',
+    borderWidth: '1px 2px 1px 2px',
+    borderColor: OpossumColors.lightestBlue,
     padding: '0px 0px 0px 4px',
     '&:hover': {
       backgroundColor: OpossumColors.lightestBlueOnHover,
+      borderColor: OpossumColors.lightestBlueOnHover,
     },
     '&.Mui-selected': {
+      backgroundColor: OpossumColors.middleBlue,
+      borderColor: OpossumColors.middleBlue,
       '&:hover': {
         backgroundColor: OpossumColors.middleBlueOnHover,
+        borderColor: OpossumColors.middleBlueOnHover,
       },
-      backgroundColor: OpossumColors.middleBlue,
     },
+  },
+  firstListItemButton: {
+    borderWidth: '2px 2px 1px 2px',
+  },
+  lastListItemButton: {
+    marginBottom: '8px',
+    borderWidth: '1px 2px 2px 2px',
+  },
+  onlySingleListItemButton: {
+    marginBottom: '8px',
+    borderWidth: '2px',
   },
   listItemTextAttributesBox: {
     display: 'flex',
     flexWrap: 'wrap',
-    marginLeft: '20px',
+    marginLeft: '24px',
     paddingTop: '1px',
   },
 };
@@ -75,9 +85,10 @@ interface ListWithAttributesProps {
   selectedListItemId: string;
   highlightedAttributeIds?: Array<string>;
   handleListItemClick: (id: string) => void;
-  showAddNewInput: boolean; // TODO: required later
+  showChipsForAttributes: boolean;
+  showAddNewInput: boolean;
   title?: string;
-  listItemSx?: SxProps;
+  listSx?: SxProps;
   emptyTextFallback?: string;
 }
 
@@ -86,39 +97,53 @@ export function ListWithAttributes(
 ): ReactElement {
   return (
     <MuiBox sx={classes.titleAndListBox}>
-      <MuiTypography variant={'subtitle1'}>{props.title}</MuiTypography>
-      <MuiBox sx={classes.listBox}>
-        <MuiList sx={classes.list}>
-          {props.listItems.map((item) => (
-            <MuiListItem
-              key={`itemId-${item.id}`}
-              sx={getSxFromPropsAndClasses({
-                styleClass: classes.listItem,
-                sxProps: props.listItemSx,
-              })}
+      <MuiTypography sx={classes.title} variant={'subtitle1'}>
+        {props.title}
+      </MuiTypography>
+      <MuiList
+        sx={getSxFromPropsAndClasses({
+          sxProps: props.listSx,
+          styleClass: classes.list,
+        })}
+      >
+        {props.listItems.map((item, index) => (
+          <MuiListItem key={`itemId-${item.id}`} sx={classes.listItem}>
+            <MuiListItemButton
+              sx={
+                props.listItems.length === 1
+                  ? {
+                      ...classes.listItemButton,
+                      ...classes.onlySingleListItemButton,
+                    }
+                  : index === 0
+                  ? {
+                      ...classes.listItemButton,
+                      ...classes.firstListItemButton,
+                    }
+                  : index === props.listItems.length - 1
+                  ? { ...classes.listItemButton, ...classes.lastListItemButton }
+                  : classes.listItemButton
+              }
+              selected={item.id === props.selectedListItemId}
+              onClick={(): void => props.handleListItemClick(item.id)}
             >
-              <MuiListItemButton
-                sx={classes.listItemButton}
-                selected={item.id === props.selectedListItemId}
-                onClick={(): void => props.handleListItemClick(item.id)}
-              >
-                <MuiListItemText
-                  primary={item.text || (props.emptyTextFallback ?? '-')}
-                  secondary={
-                    <MuiBox sx={classes.listItemTextAttributesBox}>
-                      {getAttributesWithHighlighting(
-                        item.attributes,
-                        props.highlightedAttributeIds
-                      )}
-                    </MuiBox>
-                  }
-                  secondaryTypographyProps={{ component: 'span' }}
-                />
-              </MuiListItemButton>
-            </MuiListItem>
-          ))}
-        </MuiList>
-      </MuiBox>
+              <MuiListItemText
+                primary={item.text || (props.emptyTextFallback ?? '-')}
+                secondary={
+                  <MuiBox sx={classes.listItemTextAttributesBox}>
+                    {getAttributesWithHighlighting(
+                      item.attributes,
+                      props.showChipsForAttributes,
+                      props.highlightedAttributeIds
+                    )}
+                  </MuiBox>
+                }
+                secondaryTypographyProps={{ component: 'span' }}
+              />
+            </MuiListItemButton>
+          </MuiListItem>
+        ))}
+      </MuiList>
     </MuiBox>
   );
 }

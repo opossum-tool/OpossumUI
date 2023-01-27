@@ -4,34 +4,48 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import MuiBox from '@mui/material/Box';
+import MuiChip from '@mui/material/Chip';
 import { ListWithAttributesItemAttribute } from '../../types/types';
+import { OpossumColors } from '../../shared-styles';
 
 export function getAttributesWithHighlighting(
   attributes: Array<ListWithAttributesItemAttribute>,
-  highlightedAttributeIds: Array<string> = ['']
+  showChipsForAttributes: boolean,
+  highlightedAttributeIds?: Array<string>
 ): Array<ReactElement> {
-  const styleBasic = {
-    padding: '0px 1px 0px 2px',
-    marginLeft: '5px',
+  const styleChips = {
+    cursor: 'pointer',
+    backgroundColor: OpossumColors.lightGrey,
+    padding: '0px 8px',
+    margin: '5px 5px 0px 0px',
+    height: '22px',
+    '.MuiChip-label': {
+      padding: '0px',
+      color: OpossumColors.black,
+    },
   };
-  const styleHighlighted = {
-    border: 1,
+  const styleChipsHighlighted = {
+    backgroundColor: OpossumColors.mediumGrey,
   };
 
-  return attributes.map((attribute, attributeIndex) => (
+  return attributes.map((attribute) => (
     <React.Fragment key={`attributeId-${attribute.id}`}>
-      {attributeIndex === 0 ? '' : ','}
-      <MuiBox
-        sx={{
-          ...styleBasic,
-          ...(highlightedAttributeIds.includes(attribute.id)
-            ? styleHighlighted
-            : {}),
-        }}
-      >
-        {attribute.text}
-      </MuiBox>
+      {showChipsForAttributes ? (
+        <MuiChip
+          clickable={false}
+          label={attribute.text}
+          variant={'filled'}
+          size={'small'}
+          sx={{
+            ...styleChips,
+            ...(highlightedAttributeIds?.includes(attribute.id)
+              ? styleChipsHighlighted
+              : {}),
+          }}
+        />
+      ) : (
+        attribute.text
+      )}
     </React.Fragment>
   ));
 }
