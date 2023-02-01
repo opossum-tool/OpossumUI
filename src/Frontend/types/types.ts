@@ -150,5 +150,6 @@ export interface ListWithAttributesItemAttribute {
 export interface ListWithAttributesItem {
   text: string;
   id: string;
-  attributes: Array<ListWithAttributesItemAttribute>;
+  manuallyAdded?: boolean;
+  attributes?: Array<ListWithAttributesItemAttribute>;
 }

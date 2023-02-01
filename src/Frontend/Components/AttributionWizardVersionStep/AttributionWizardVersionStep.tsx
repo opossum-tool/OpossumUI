@@ -27,6 +27,8 @@ interface AttributionWizardVersionStepProps {
   selectedPackageInfo: PackageInfo;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
+  manuallyAddedVersions: Array<string>;
+  setManuallyAddedVersions(items: Array<string>): void;
   listSx?: SxProps;
 }
 
@@ -53,7 +55,9 @@ export function AttributionWizardVersionStep(
           highlightedAttributeIds={props.highlightedPackageNameIds}
           handleListItemClick={props.handlePackageVersionListItemClick}
           showChipsForAttributes={true}
-          showAddNewInput={false}
+          showAddNewListItem={true}
+          manuallyAddedListItems={props.manuallyAddedVersions}
+          setManuallyAddedListItems={props.setManuallyAddedVersions}
           title={'Package version'}
           listSx={props.listSx}
         />

@@ -106,7 +106,9 @@ export function getPreSelectedPackageAttributeIds(popupPackage: PackageInfo): {
 
 export function getAttributionWizardPackageListsItems(
   externalAndManualAttributionIdsWithCounts: Array<AttributionIdWithCount>,
-  externalAndManualAttributions: Attributions
+  externalAndManualAttributions: Attributions,
+  manuallyAddedNamespaces: Array<string>,
+  manuallyAddedNames: Array<string>
 ): {
   attributedPackageNamespaces: Array<ListWithAttributesItem>;
   attributedPackageNames: Array<ListWithAttributesItem>;
@@ -130,7 +132,7 @@ export function getAttributionWizardPackageListsItems(
     'name'
   );
 
-  const packageNamesToVersions = getPackageNamesToVersions(
+  let packageNamesToVersions = getPackageNamesToVersions(
     externalAndManualAttributionIdsWithCounts,
     externalAndManualAttributions
   );
@@ -142,16 +144,34 @@ export function getAttributionWizardPackageListsItems(
     packageNamesAndCounts
   );
 
-  const attributedPackageNamespaces = getWizardListItems(
+  let attributedPackageNamespaces = getWizardListItems(
     packageNamespacesWithCounts,
     totalAttributionCount,
     'namespace'
   );
-  const attributedPackageNames = getWizardListItems(
+  let attributedPackageNames = getWizardListItems(
     packageNamesWithCounts,
     totalAttributionCount,
     'name'
   );
+
+  attributedPackageNamespaces =
+    concatenatePackageAttributesWithManuallyAddedOnes(
+      manuallyAddedNamespaces,
+      attributedPackageNamespaces,
+      'namespace'
+    );
+
+  attributedPackageNames = concatenatePackageAttributesWithManuallyAddedOnes(
+    manuallyAddedNames,
+    attributedPackageNames,
+    'name'
+  );
+
+  packageNamesToVersions = {
+    ...packageNamesToVersions,
+    ...getManuallyAddedPackageNamesToVersions(manuallyAddedNames),
+  };
 
   return {
     attributedPackageNamespaces,
@@ -270,7 +290,8 @@ function getCountText(count: number, totalAttributeCount: number): string {
 
 export function getAttributionWizardPackageVersionListItems(
   packageName: string,
-  packageNamesToVersions: { [name: string]: Set<string> }
+  packageNamesToVersions: { [name: string]: Set<string> },
+  manuallyAddedVersions: Array<string>
 ): Array<ListWithAttributesItem> {
   const packageVersionsToNames: { [version: string]: Set<string> } = {};
   for (const [name, versions] of Object.entries(packageNamesToVersions)) {
@@ -282,9 +303,9 @@ export function getAttributionWizardPackageVersionListItems(
   }
 
   const versions = Array.from(packageNamesToVersions[packageName]).sort();
-  const packageVersionListItems: Array<ListWithAttributesItem> = [];
+  let attributedPackageVersions: Array<ListWithAttributesItem> = [];
   for (const version of versions) {
-    packageVersionListItems.push({
+    attributedPackageVersions.push({
       text: version,
       id: `version-${version}`,
       attributes: Array.from(packageVersionsToNames[version])
@@ -295,7 +316,14 @@ export function getAttributionWizardPackageVersionListItems(
         })),
     });
   }
-  return packageVersionListItems;
+
+  attributedPackageVersions = concatenatePackageAttributesWithManuallyAddedOnes(
+    manuallyAddedVersions,
+    attributedPackageVersions,
+    'version'
+  );
+
+  return attributedPackageVersions;
 }
 
 export function getHighlightedPackageNameIds(
@@ -316,4 +344,44 @@ export function filterForPackageAttributeId(
         (item) => item.id === selectedPackageAttributeId
       )[0].text
     : '';
+}
+
+export function getManuallyAddedPackageNamesToVersions(
+  manuallyAddedPackageNames: Array<string>
+): { [name: string]: Set<string> } {
+  const manuallyAddedPackageNamesToVersions: {
+    [packageName: string]: Set<string>;
+  } = {};
+  manuallyAddedPackageNames.forEach(
+    (manuallyAddedPackageName) =>
+      (manuallyAddedPackageNamesToVersions[manuallyAddedPackageName] =
+        new Set<string>([emptyAttribute]))
+  );
+  return manuallyAddedPackageNamesToVersions;
+}
+
+export function concatenatePackageAttributesWithManuallyAddedOnes(
+  manuallyAddedAttributes: Array<string>,
+  packageAttributes: Array<ListWithAttributesItem>,
+  attributeId: 'namespace' | 'name' | 'version'
+): Array<ListWithAttributesItem> {
+  return [
+    ...convertManuallyAddedListEntriesToListItems(
+      manuallyAddedAttributes,
+      attributeId
+    ),
+    ...packageAttributes,
+  ];
+}
+
+export function convertManuallyAddedListEntriesToListItems(
+  manuallyAddedListEntries: Array<string>,
+  packageAttributeId: string
+): Array<ListWithAttributesItem> {
+  return manuallyAddedListEntries.map((item) => ({
+    text: item,
+    id: `${packageAttributeId}-${item}`,
+    manuallyAdded: true,
+    attributes: undefined,
+  }));
 }
