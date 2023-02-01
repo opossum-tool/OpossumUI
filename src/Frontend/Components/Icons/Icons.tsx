@@ -241,5 +241,14 @@ export function IncompletePackagesIcon(props: IconProps): ReactElement {
 }
 
 export function ManuallyAddedListItemIcon(props: IconProps): ReactElement {
-  return <AutoAwesomeIcon sx={props.sx} />;
+  return (
+    <MuiTooltip
+      describeChild={true}
+      sx={classes.tooltip}
+      title={'entry was added manually'}
+      placement={'left'}
+    >
+      <AutoAwesomeIcon sx={props.sx} />
+    </MuiTooltip>
+  );
 }
