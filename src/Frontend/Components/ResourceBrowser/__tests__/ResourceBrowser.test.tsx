@@ -246,10 +246,10 @@ describe('ResourceBrowser', () => {
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
-      'c_package_folder',
-      'd_package_folder',
       'a_package.exe',
       'b_package.exe',
+      'c_package_folder',
+      'd_package_folder',
     ];
 
     const allPackages = screen.queryAllByText(/package/);
@@ -281,11 +281,11 @@ describe('ResourceBrowser', () => {
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
-      'a_package_folder',
-      'z_package_folder',
       'a_package.exe',
+      'a_package_folder',
       'package.json',
       'z_package.exe',
+      'z_package_folder',
     ];
 
     const allPackages = screen.queryAllByText(/package/);

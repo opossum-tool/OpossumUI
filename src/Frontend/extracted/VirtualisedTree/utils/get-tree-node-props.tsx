@@ -205,7 +205,7 @@ function getSortFunction(
 }
 
 function canNodeHaveChildren(node: NodesForTree | 1): node is NodesForTree {
-  return node !== 1;
+  return node !== 1 && Object.keys(node).length !== 0;
 }
 
 function isIdOfNodeWithChildren(nodeId: string): boolean {
