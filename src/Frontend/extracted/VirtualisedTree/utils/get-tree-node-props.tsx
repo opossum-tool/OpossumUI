@@ -34,8 +34,9 @@ export function getTreeNodeProps(
   for (const nodeName of sortedNodeNames) {
     const node = nodes[nodeName];
     const nodeHeight = cardHeight - 1;
-    const isExpandable = canNodeHaveChildren(node);
-    const nodeId = getNodeId(nodeName, parentPath, isExpandable);
+    const isExpandable =
+      canNodeHaveChildren(node) && Object.keys(node).length !== 0;
+    const nodeId = getNodeId(nodeName, parentPath, canNodeHaveChildren(node));
     const isExpandedNode = isExpanded(nodeId, expandedNodes);
 
     const nodeIdsToExpand: Array<string> = getNodeIdsToExpand(nodeId, node);
