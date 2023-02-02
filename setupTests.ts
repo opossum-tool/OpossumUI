@@ -6,6 +6,11 @@
 
 import '@testing-library/jest-dom/extend-expect';
 
+import { TextEncoder } from 'util';
+
+// required after bumping axios to 1.3.0
+global.TextEncoder = TextEncoder;
+
 const TEST_TIMEOUT = 15000;
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
   'Web worker error in workers context',
