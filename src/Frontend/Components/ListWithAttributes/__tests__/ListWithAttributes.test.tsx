@@ -4,9 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { fireEvent, render, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ListWithAttributes } from '../ListWithAttributes';
-import { screen } from '@testing-library/react';
 import { ListWithAttributesItem } from '../../../types/types';
 import { doNothing } from '../../../util/do-nothing';
 
@@ -88,7 +87,11 @@ describe('ListWithAttributes', () => {
       name: 'Enter text to add a new item to the list',
     });
     expect(iconButton).toBeDisabled();
+
     fireEvent.change(textBox, { target: { value: 'abc' } });
     expect(iconButton).toBeEnabled();
+
+    fireEvent.change(textBox, { target: { value: '     ' } });
+    expect(iconButton).toBeDisabled();
   });
 });
