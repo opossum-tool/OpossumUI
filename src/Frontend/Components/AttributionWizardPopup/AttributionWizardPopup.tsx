@@ -21,14 +21,13 @@ import {
   getManualData,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  getSelectedResourceId,
   getResolvedExternalAttributions,
+  getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import {
-  getAttributionWizardPackageListsItems,
   getAllAttributionIdsWithCountsFromResourceAndChildren,
+  getAttributionWizardPackageListsItems,
   getPreSelectedPackageAttributeIds,
-  emptyAttribute,
 } from './attribution-wizard-popup-helpers';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { PackageInfo } from '../../../shared/shared-types';
@@ -173,16 +172,11 @@ export function AttributionWizardPopup(): ReactElement {
 
   const selectedPackageInfo: PackageInfo = {
     packageType: popupAttribution.packageType ?? 'generic',
-    packageName:
-      selectedPackageName !== emptyAttribute ? selectedPackageName : undefined,
-    packageNamespace:
-      selectedPackageNamespace !== emptyAttribute
-        ? selectedPackageNamespace
-        : undefined,
-    packageVersion:
-      selectedPackageVersion !== emptyAttribute
-        ? selectedPackageVersion
-        : undefined,
+    packageName: selectedPackageName ? selectedPackageName : undefined,
+    packageNamespace: selectedPackageNamespace
+      ? selectedPackageNamespace
+      : undefined,
+    packageVersion: selectedPackageVersion ? selectedPackageVersion : undefined,
   };
 
   const handleBreadcrumbsClick = function (wizardStepId: string): void {

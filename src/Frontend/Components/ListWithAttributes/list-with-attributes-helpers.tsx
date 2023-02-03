@@ -33,7 +33,7 @@ export function getAttributesWithHighlighting(
       {showChipsForAttributes ? (
         <MuiChip
           clickable={false}
-          label={attribute.text}
+          label={attribute.text || '-'}
           variant={'filled'}
           size={'small'}
           sx={{
@@ -44,7 +44,7 @@ export function getAttributesWithHighlighting(
           }}
         />
       ) : (
-        attribute.text
+        attribute.text || '-'
       )}
     </React.Fragment>
   ));
