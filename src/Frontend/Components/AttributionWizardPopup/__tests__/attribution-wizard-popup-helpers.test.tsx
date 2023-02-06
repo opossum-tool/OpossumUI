@@ -11,13 +11,12 @@ import {
 } from '../../../../shared/shared-types';
 import { ListWithAttributesItem } from '../../../types/types';
 import {
-  emptyAttribute,
+  convertManuallyAddedListEntriesToListItems,
+  getAllAttributionIdsWithCountsFromResourceAndChildren,
   getAttributionWizardPackageListsItems,
   getAttributionWizardPackageVersionListItems,
-  getAllAttributionIdsWithCountsFromResourceAndChildren,
   getHighlightedPackageNameIds,
   getPreSelectedPackageAttributeIds,
-  convertManuallyAddedListEntriesToListItems,
   sortAttributedPackageVersions,
 } from '../attribution-wizard-popup-helpers';
 
@@ -171,12 +170,12 @@ describe('getAttributionWizardPackageListsItems', () => {
           attributes: [{ text: '6 (60%)', id: 'namespace-attribute-pip' }],
         },
         {
-          text: emptyAttribute,
-          id: `namespace-${emptyAttribute}`,
+          text: '',
+          id: 'namespace-',
           attributes: [
             {
               text: '2 (20%)',
-              id: `namespace-attribute-${emptyAttribute}`,
+              id: 'namespace-attribute-',
             },
           ],
         },
@@ -204,11 +203,9 @@ describe('getAttributionWizardPackageListsItems', () => {
           attributes: [{ text: '5 (50%)', id: 'name-attribute-numpy' }],
         },
         {
-          text: emptyAttribute,
-          id: `name-${emptyAttribute}`,
-          attributes: [
-            { text: '2 (20%)', id: `name-attribute-${emptyAttribute}` },
-          ],
+          text: '',
+          id: 'name-',
+          attributes: [{ text: '2 (20%)', id: 'name-attribute-' }],
         },
         {
           text: 'buffer',
@@ -234,9 +231,9 @@ describe('getAttributionWizardPackageListsItems', () => {
           attributes: [{ text: 'numpy', id: 'version-1.24.0-name-numpy' }],
         },
         {
-          text: '-',
-          id: 'version--',
-          attributes: [{ text: '-', id: 'version---name--' }],
+          text: '',
+          id: 'version-',
+          attributes: [{ text: '', id: 'version--name-' }],
         },
         {
           text: '1.5.2',

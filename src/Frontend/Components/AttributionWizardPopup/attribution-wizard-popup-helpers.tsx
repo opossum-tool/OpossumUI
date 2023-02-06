@@ -24,8 +24,6 @@ interface NamesWithCounts {
   [name: string]: number;
 }
 
-export const emptyAttribute = '-';
-
 export function getAllAttributionIdsWithCountsFromResourceAndChildren(
   selectedResourceId: string,
   externalData: AttributionData,
@@ -90,9 +88,9 @@ export function getPreSelectedPackageAttributeIds(popupPackage: PackageInfo): {
   preSelectedPackageNameId: string;
   preSelectedPackageVersionId: string;
 } {
-  const namespace = popupPackage.packageNamespace || emptyAttribute;
-  const name = popupPackage.packageName || emptyAttribute;
-  const version = popupPackage.packageVersion || emptyAttribute;
+  const namespace = popupPackage.packageNamespace || '';
+  const name = popupPackage.packageName || '';
+  const version = popupPackage.packageVersion || '';
 
   const preSelectedPackageNamespaceId = `namespace-${namespace}`;
   const preSelectedPackageNameId = `name-${name}`;
@@ -225,9 +223,9 @@ function getPackageAttributesAndCounts(
 
     let packageAttribute: string;
     if (packageAttributeId === 'namespace') {
-      packageAttribute = packageInfo.packageNamespace || emptyAttribute;
+      packageAttribute = packageInfo.packageNamespace || '';
     } else if (packageAttributeId === 'name') {
-      packageAttribute = packageInfo.packageName || emptyAttribute;
+      packageAttribute = packageInfo.packageName || '';
     } else {
       shouldNotBeCalled(packageAttributeId);
     }
@@ -248,8 +246,8 @@ function getPackageNamesToVersions(
     const packageInfo =
       externalAttributions[containedExternalPackage.attributionId];
 
-    const packageName = packageInfo.packageName || emptyAttribute;
-    const packageVersion = packageInfo.packageVersion || emptyAttribute;
+    const packageName = packageInfo.packageName || '';
+    const packageVersion = packageInfo.packageVersion || '';
 
     packageNamesToVersions[packageName] ??
       (packageNamesToVersions[packageName] = new Set<string>());
