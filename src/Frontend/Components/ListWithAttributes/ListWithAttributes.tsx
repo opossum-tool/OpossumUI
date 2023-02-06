@@ -6,27 +6,21 @@
 import React, { ChangeEvent, ReactElement, useState } from 'react';
 import MuiBox from '@mui/material/Box';
 import MuiList from '@mui/material/List';
-import MuiListItem from '@mui/material/ListItem';
-import MuiListItemText from '@mui/material/ListItemText';
-import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiTypography from '@mui/material/Typography';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import {
-  baseIcon,
   clickableIcon,
   disabledIcon,
   OpossumColors,
 } from '../../shared-styles';
-import { getAttributesWithHighlighting } from './list-with-attributes-helpers';
 import { ListWithAttributesItem } from '../../types/types';
 import { SxProps } from '@mui/system';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 import { TextBox } from '../InputElements/TextBox';
-import { ManuallyAddedListItemIcon } from '../Icons/Icons';
 import { IconButton } from '../IconButton/IconButton';
+import { ListWithAttributesListItem } from '../ListWithAttributesListItem/ListWithAttributesListItem';
 
 const LIST_TITLE_HEIGHT = 36;
-const ITEM_TEXT_FALLBACK = '-';
 
 const classes = {
   titleAndListBox: {
@@ -46,61 +40,6 @@ const classes = {
     backgroundColor: OpossumColors.white,
     maxHeight: `calc(100% - ${LIST_TITLE_HEIGHT}px)`,
     overflowY: 'auto',
-  },
-  listItem: {
-    padding: '0px',
-    backgroundColor: OpossumColors.white,
-  },
-  listItemButton: {
-    overflowX: 'auto',
-    margin: '0px 8px',
-    border: 'solid',
-    borderWidth: '1px 2px 1px 2px',
-    borderColor: OpossumColors.lightestBlue,
-    padding: '0px 0px 0px 4px',
-    '&:hover': {
-      backgroundColor: OpossumColors.lightestBlueOnHover,
-      borderColor: OpossumColors.lightestBlueOnHover,
-    },
-    '&.Mui-selected': {
-      backgroundColor: OpossumColors.middleBlue,
-      borderColor: OpossumColors.middleBlue,
-      '&:hover': {
-        backgroundColor: OpossumColors.middleBlueOnHover,
-        borderColor: OpossumColors.middleBlueOnHover,
-      },
-    },
-  },
-  firstListItemButton: {
-    borderWidth: '2px 2px 1px 2px',
-  },
-  lastListItemButton: {
-    marginBottom: '8px',
-    borderWidth: '1px 2px 2px 2px',
-  },
-  onlySingleListItemButton: {
-    marginBottom: '8px',
-    borderWidth: '2px',
-  },
-  listItemTextPrimaryBox: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  manuallyAddedListItemIcon: {
-    ...baseIcon,
-    color: OpossumColors.darkBlue,
-  },
-  listItemTextSecondaryBox: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    marginLeft: '24px',
-    paddingTop: '1px',
-  },
-  primaryTypography: {
-    margin: '13px 5px 13px 0px',
-  },
-  secondaryTypography: {
-    component: 'span',
   },
 };
 
@@ -143,6 +82,8 @@ export function ListWithAttributes(
     setTextBoxInput('');
   }
 
+  const textInputIsInvalid = !textBoxInput || !textBoxInput.trim().length;
+
   return (
     <MuiBox sx={classes.titleAndListBox}>
       <MuiTypography sx={classes.title} variant={'subtitle1'}>
@@ -155,61 +96,17 @@ export function ListWithAttributes(
         })}
       >
         {props.listItems.map((item, index) => (
-          <MuiListItem key={`itemId-${item.id}`} sx={classes.listItem}>
-            <MuiListItemButton
-              sx={
-                props.listItems.length === 1
-                  ? {
-                      ...classes.listItemButton,
-                      ...classes.onlySingleListItemButton,
-                    }
-                  : index === 0
-                  ? {
-                      ...classes.listItemButton,
-                      ...classes.firstListItemButton,
-                    }
-                  : index === props.listItems.length - 1
-                  ? { ...classes.listItemButton, ...classes.lastListItemButton }
-                  : classes.listItemButton
-              }
-              selected={item.id === props.selectedListItemId}
-              onClick={(): void => props.handleListItemClick(item.id)}
-            >
-              <MuiListItemText
-                primary={
-                  Boolean(item.manuallyAdded) ? (
-                    <MuiBox sx={classes.listItemTextPrimaryBox}>
-                      {item.text ||
-                        (props.emptyTextFallback ?? ITEM_TEXT_FALLBACK)}
-                      <ManuallyAddedListItemIcon
-                        sx={classes.manuallyAddedListItemIcon}
-                      />
-                    </MuiBox>
-                  ) : (
-                    item.text || (props.emptyTextFallback ?? ITEM_TEXT_FALLBACK)
-                  )
-                }
-                secondary={
-                  Boolean(item.manuallyAdded) ||
-                  item.attributes === undefined ? undefined : (
-                    <MuiBox sx={classes.listItemTextSecondaryBox}>
-                      {getAttributesWithHighlighting(
-                        item.attributes,
-                        props.showChipsForAttributes,
-                        props.highlightedAttributeIds
-                      )}
-                    </MuiBox>
-                  )
-                }
-                primaryTypographyProps={{
-                  sx: Boolean(item.manuallyAdded)
-                    ? classes.primaryTypography
-                    : undefined,
-                }}
-                secondaryTypographyProps={{ component: 'span' }}
-              />
-            </MuiListItemButton>
-          </MuiListItem>
+          <ListWithAttributesListItem
+            item={item}
+            key={`itemId-${item.id}`}
+            handleListItemClick={props.handleListItemClick}
+            isSelected={item.id === props.selectedListItemId}
+            showChipsForAttributes={props.showChipsForAttributes}
+            isFirstItem={index === 0}
+            isLastItem={index === props.listItems.length - 1}
+            listContainsSingleItem={props.listItems.length === 1}
+            emptyTextFallback={props.emptyTextFallback}
+          />
         ))}
       </MuiList>
       {props.showAddNewListItem && (
@@ -222,13 +119,13 @@ export function ListWithAttributes(
             <IconButton
               icon={
                 <AddBoxIcon
-                  sx={!Boolean(textBoxInput) ? disabledIcon : clickableIcon}
+                  sx={textInputIsInvalid ? disabledIcon : clickableIcon}
                 />
               }
               onClick={handleAddNewInputClick}
-              disabled={!Boolean(textBoxInput)}
+              disabled={textInputIsInvalid}
               tooltipTitle={
-                !Boolean(textBoxInput)
+                textInputIsInvalid
                   ? 'Enter text to add a new item to the list'
                   : 'Click to add a new item to the list'
               }
