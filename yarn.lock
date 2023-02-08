@@ -2742,14 +2742,14 @@
   dependencies:
     "@typescript-eslint/utils" "5.50.0"
 
-"@typescript-eslint/parser@^5.5.0", "@typescript-eslint/parser@^5.50.0":
-  version "5.50.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.50.0.tgz#a33f44b2cc83d1b7176ec854fbecd55605b0b032"
-  integrity sha512-KCcSyNaogUDftK2G9RXfQyOCt51uB5yqC6pkUYqhYh8Kgt+DwR5M0EwEAxGPy/+DH6hnmKeGsNhiZRQxjH71uQ==
+"@typescript-eslint/parser@^5.5.0", "@typescript-eslint/parser@^5.51.0":
+  version "5.51.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.51.0.tgz#2d74626652096d966ef107f44b9479f02f51f271"
+  integrity sha512-fEV0R9gGmfpDeRzJXn+fGQKcl0inIeYobmmUWijZh9zA7bxJ8clPhV9up2ZQzATxAiFAECqPQyMDB4o4B81AaA==
   dependencies:
-    "@typescript-eslint/scope-manager" "5.50.0"
-    "@typescript-eslint/types" "5.50.0"
-    "@typescript-eslint/typescript-estree" "5.50.0"
+    "@typescript-eslint/scope-manager" "5.51.0"
+    "@typescript-eslint/types" "5.51.0"
+    "@typescript-eslint/typescript-estree" "5.51.0"
     debug "^4.3.4"
 
 "@typescript-eslint/scope-manager@5.50.0":
