@@ -8,7 +8,9 @@ import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import {
   getCurrentAttributionId,
+  getExternalData,
   getManualAttributions,
+  getManualData,
   getPackageInfoOfSelected,
   getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
@@ -40,7 +42,23 @@ import {
   setTargetSelectedResourceId,
 } from '../resource-actions/audit-view-simple-actions';
 import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-actions';
-import { getSelectedResourceId } from '../../selectors/audit-view-resource-selectors';
+import {
+  getResolvedExternalAttributions,
+  getSelectedResourceId,
+} from '../../selectors/audit-view-resource-selectors';
+import {
+  getAllAttributionIdsWithCountsFromResourceAndChildren,
+  getAttributionWizardInitialState,
+  getPreSelectedPackageAttributeIds,
+} from '../../helpers/open-attribution-wizard-popup-helpers';
+import {
+  setAttributionWizardPackageNames,
+  setAttributionWizardPackageNamespaces,
+  setAttributionWizardPackageVersions,
+  setAttributionWizardPopupAttribution,
+  setAttributionWizardSelectedPackageIds,
+  setAttributionWizardTotalAttributionCount,
+} from '../resource-actions/attribution-wizard-actions';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string
@@ -198,5 +216,69 @@ export function closeEditAttributionPopupOrOpenUnsavedPopup(
     if (wereTemporaryPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
     }
+  };
+}
+
+export function openAttributionWizardPopup(
+  popupAttributionId: string
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const selectedResourceId = getSelectedResourceId(getState());
+    const externalData = getExternalData(getState());
+    const manualData = getManualData(getState());
+    const resolvedExternalAttributions = getResolvedExternalAttributions(
+      getState()
+    );
+    const manualAttributions = getManualAttributions(getState());
+
+    const allAttributionIdsOfResourceAndChildrenWithCounts =
+      getAllAttributionIdsWithCountsFromResourceAndChildren(
+        selectedResourceId,
+        externalData,
+        manualData,
+        resolvedExternalAttributions
+      );
+
+    const {
+      packageNamespaces,
+      packageNames,
+      packageVersions,
+      totalAttributionCount,
+    } = getAttributionWizardInitialState(
+      allAttributionIdsOfResourceAndChildrenWithCounts,
+      {
+        ...externalData.attributions,
+        ...manualData.attributions,
+      }
+    );
+
+    const startingAttribution =
+      popupAttributionId !== null ? manualAttributions[popupAttributionId] : {};
+
+    const {
+      preSelectedPackageNamespaceId,
+      preSelectedPackageNameId,
+      preSelectedPackageVersionId,
+    } = getPreSelectedPackageAttributeIds(
+      startingAttribution,
+      packageNamespaces,
+      packageNames,
+      packageVersions
+    );
+
+    dispatch(setAttributionWizardPopupAttribution(startingAttribution));
+    dispatch(setAttributionWizardPackageNamespaces(packageNamespaces));
+    dispatch(setAttributionWizardPackageNames(packageNames));
+    dispatch(setAttributionWizardPackageVersions(packageVersions));
+    dispatch(
+      setAttributionWizardSelectedPackageIds({
+        selectedPackageNamespaceId: preSelectedPackageNamespaceId,
+        selectedPackageNameId: preSelectedPackageNameId,
+        selectedPackageVersionId: preSelectedPackageVersionId,
+      })
+    );
+    dispatch(setAttributionWizardTotalAttributionCount(totalAttributionCount));
+
+    dispatch(openPopup(PopupType.AttributionWizardPopup, popupAttributionId));
   };
 }

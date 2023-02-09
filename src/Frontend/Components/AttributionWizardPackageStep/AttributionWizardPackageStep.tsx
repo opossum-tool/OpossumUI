@@ -16,6 +16,7 @@ import {
   ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT,
 } from '../../shared-styles';
 import { SxProps } from '@mui/system';
+import { sortAttributedPackageItems } from '../AttributionWizardPopup/attribution-wizard-popup-helpers';
 
 const classes = {
   listBox: {
@@ -32,10 +33,8 @@ interface AttributionWizardPackageStepProps {
   selectedPackageNameId: string;
   handlePackageNamespaceListItemClick: (id: string) => void;
   handlePackageNameListItemClick: (id: string) => void;
-  manuallyAddedNamespaces: Array<string>;
-  setManuallyAddedNamespaces(items: Array<string>): void;
-  manuallyAddedNames: Array<string>;
-  setManuallyAddedNames(items: Array<string>): void;
+  addPackageNamespace(namespace: string): void;
+  addPackageName(name: string): void;
   listBoxSx?: SxProps;
   listSx?: SxProps;
 }
@@ -69,10 +68,10 @@ export function AttributionWizardPackageStep(
           handleListItemClick={props.handlePackageNamespaceListItemClick}
           showChipsForAttributes={false}
           showAddNewListItem={true}
-          manuallyAddedListItems={props.manuallyAddedNamespaces}
-          setManuallyAddedListItems={props.setManuallyAddedNamespaces}
+          setManuallyAddedListItems={props.addPackageNamespace}
           title={'Package namespace'}
           listSx={props.listSx}
+          sortList={sortAttributedPackageItems}
         />
         <ListWithAttributes
           listItems={props.attributedPackageNames}
@@ -80,10 +79,10 @@ export function AttributionWizardPackageStep(
           handleListItemClick={props.handlePackageNameListItemClick}
           showChipsForAttributes={false}
           showAddNewListItem={true}
-          manuallyAddedListItems={props.manuallyAddedNames}
-          setManuallyAddedListItems={props.setManuallyAddedNames}
+          setManuallyAddedListItems={props.addPackageName}
           title={'Package name'}
           listSx={props.listSx}
+          sortList={sortAttributedPackageItems}
         />
       </MuiBox>
     </MuiBox>

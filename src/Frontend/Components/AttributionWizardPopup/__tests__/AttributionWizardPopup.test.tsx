@@ -12,7 +12,6 @@ import { act, fireEvent, screen, within } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { ButtonText, PopupType } from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import {
   Attributions,
   ResourcesToAttributions,
@@ -24,6 +23,7 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {
@@ -68,7 +68,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     expect(getOpenPopup(testStore.getState())).toBe(
@@ -120,7 +120,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     expect(screen.getByText('package')).toBeInTheDocument();
@@ -141,7 +141,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     expect(screen.getByText(namespaceListTitle)).toBeInTheDocument();
@@ -184,7 +184,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     expect(screen.getByText(namespaceListTitle)).toBeInTheDocument();
@@ -218,7 +218,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
@@ -245,7 +245,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     testStore.dispatch(setTemporaryPackageInfo(initialTemporaryPackageInfo));
@@ -278,7 +278,7 @@ describe('AttributionWizardPopup', () => {
     );
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
     const namespaceTable = screen.getByText('Package namespace')

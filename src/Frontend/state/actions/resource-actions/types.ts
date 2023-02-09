@@ -14,7 +14,11 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { PanelPackage } from '../../../types/types';
+import {
+  PanelPackage,
+  SelectedPackageAttributeIds,
+  PackageAttributes,
+} from '../../../types/types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';
@@ -72,6 +76,18 @@ export const ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS =
 export const ACTION_TOGGLE_ACCORDION_SEARCH_FIELD =
   'ACTION_TOGGLE_ACCORDION_SEARCH_FIELD';
 export const ACTION_SET_PACKAGE_SEARCH_TERM = 'ACTION_SET_PACKAGE_SEARCH_TERM';
+export const ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION =
+  'ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION';
+export const ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES =
+  'ACTION_SET_ATTRIBUTION_WIZARD_INITIAL_PACKAGE_NAMESPACES';
+export const ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES =
+  'ACTION_SET_ATTRIBUTION_WIZARD_INITIAL_PACKAGE_NAMES';
+export const ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS =
+  'ACTION_SET_ATTRIBUTION_WIZARD_INITIAL_PACKAGE_VERSIONS';
+export const ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS =
+  'ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS';
+export const ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT =
+  'ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -106,7 +122,13 @@ export type ResourceAction =
   | SetExternalAttributionSources
   | SetMultiSelectSelectedAttributionIds
   | ToggleAccordionSearchField
-  | SetPackageSearchTerm;
+  | SetPackageSearchTerm
+  | SetAttributionWizardPopupAttribution
+  | SetAttributionWizardPackageNamespaces
+  | SetAttributionWizardPackageNames
+  | SetAttributionWizardPackageVersions
+  | SetAttributionWizardSelectedPackageIds
+  | SetAttributionWizardTotalAttributionCount;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -290,4 +312,33 @@ export interface ToggleAccordionSearchField {
 export interface SetPackageSearchTerm {
   type: typeof ACTION_SET_PACKAGE_SEARCH_TERM;
   payload: string;
+}
+
+export interface SetAttributionWizardPopupAttribution {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION;
+  payload: PackageInfo;
+}
+export interface SetAttributionWizardPackageNamespaces {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES;
+  payload: PackageAttributes;
+}
+
+export interface SetAttributionWizardPackageNames {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES;
+  payload: PackageAttributes;
+}
+
+export interface SetAttributionWizardPackageVersions {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS;
+  payload: PackageAttributes;
+}
+
+export interface SetAttributionWizardSelectedPackageIds {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS;
+  payload: SelectedPackageAttributeIds;
+}
+
+export interface SetAttributionWizardTotalAttributionCount {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT;
+  payload: number | null;
 }

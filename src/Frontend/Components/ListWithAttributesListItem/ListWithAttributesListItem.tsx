@@ -152,7 +152,7 @@ export function ListWithAttributesListItem(
                         sx={{
                           ...classes.styleChips,
                           ...(props.highlightedAttributeIds?.includes(
-                            attribute.id
+                            attribute.id || ''
                           )
                             ? classes.styleChipsHighlighted
                             : {}),

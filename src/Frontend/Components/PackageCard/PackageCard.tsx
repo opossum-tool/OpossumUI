@@ -55,6 +55,7 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { PackageInfo } from '../../../shared/shared-types';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
+import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 
 const classes = {
   hiddenIcon: {
@@ -325,9 +326,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
               hideResourceSpecificButtons ||
               props.hideAttributionWizardContextMenuItem,
             onClick: (): void => {
-              dispatch(
-                openPopup(PopupType.AttributionWizardPopup, attributionId)
-              );
+              dispatch(openAttributionWizardPopup(attributionId));
             },
           },
         ];

@@ -47,14 +47,17 @@ interface ListWithAttributesProps {
   listItems: Array<ListWithAttributesItem>;
   selectedListItemId: string;
   highlightedAttributeIds?: Array<string>;
-  handleListItemClick: (id: string) => void;
+  handleListItemClick(id: string): void;
   showChipsForAttributes: boolean;
   showAddNewListItem?: boolean;
-  manuallyAddedListItems?: Array<string>;
-  setManuallyAddedListItems?(items: Array<string>): void;
+  setManuallyAddedListItems?(items: string): void;
   title?: string;
   listSx?: SxProps;
   emptyTextFallback?: string;
+  sortList?(
+    items: Array<ListWithAttributesItem>,
+    highlightedAttributeId?: string
+  ): Array<ListWithAttributesItem>;
 }
 
 export function ListWithAttributes(
@@ -69,20 +72,25 @@ export function ListWithAttributes(
   }
 
   function handleAddNewInputClick(): void {
-    if (
-      !props.manuallyAddedListItems?.includes(textBoxInput) &&
-      props.setManuallyAddedListItems &&
-      props.manuallyAddedListItems
-    ) {
-      props.setManuallyAddedListItems([
-        textBoxInput,
-        ...props.manuallyAddedListItems,
-      ]);
+    if (props.setManuallyAddedListItems) {
+      props.setManuallyAddedListItems(textBoxInput);
     }
     setTextBoxInput('');
   }
 
   const textInputIsInvalid = !textBoxInput || !textBoxInput.trim().length;
+
+  const listItemsToDisplay =
+    props.sortList !== undefined
+      ? props.sortList.length === 1
+        ? props.sortList(props.listItems)
+        : props.sortList(
+            props.listItems,
+            props.highlightedAttributeIds !== undefined
+              ? props.highlightedAttributeIds[0]
+              : ''
+          )
+      : props.listItems;
 
   return (
     <MuiBox sx={classes.titleAndListBox}>
@@ -95,16 +103,17 @@ export function ListWithAttributes(
           styleClass: classes.list,
         })}
       >
-        {props.listItems.map((item, index) => (
+        {listItemsToDisplay.map((item, index) => (
           <ListWithAttributesListItem
             item={item}
+            highlightedAttributeIds={props.highlightedAttributeIds}
             key={`itemId-${item.id}`}
             handleListItemClick={props.handleListItemClick}
             isSelected={item.id === props.selectedListItemId}
             showChipsForAttributes={props.showChipsForAttributes}
             isFirstItem={index === 0}
-            isLastItem={index === props.listItems.length - 1}
-            listContainsSingleItem={props.listItems.length === 1}
+            isLastItem={index === listItemsToDisplay.length - 1}
+            listContainsSingleItem={listItemsToDisplay.length === 1}
             emptyTextFallback={props.emptyTextFallback}
           />
         ))}
