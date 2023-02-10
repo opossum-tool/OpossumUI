@@ -3,12 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import {
   Cell as RcCell,
   Legend as RcLegend,
-  PieChart as RcPieChart,
   Pie as RcPie,
+  PieChart as RcPieChart,
   ResponsiveContainer as RcResponsiveContainer,
   Tooltip as RcTooltip,
 } from 'recharts';
@@ -66,7 +66,7 @@ export function PieChart(props: PieChartProps): ReactElement {
 
   function renderLegend(props: {
     payload?: Array<{ value: string }>;
-  }): ReactNode {
+  }): ReactElement {
     return (
       <div>
         {props.payload?.map((entry: { value: string }, index: number) => (
