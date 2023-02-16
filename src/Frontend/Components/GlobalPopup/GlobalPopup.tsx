@@ -21,6 +21,7 @@ import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPop
 import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
 import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
 import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWizardPopup';
+import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -52,6 +53,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ChangedInputFilePopup />;
     case PopupType.AttributionWizardPopup:
       return <AttributionWizardPopup />;
+    case PopupType.FileSupportPopup:
+      return <FileSupportPopup />;
     default:
       return null;
   }

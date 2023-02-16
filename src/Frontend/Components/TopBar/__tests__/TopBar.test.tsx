@@ -20,7 +20,7 @@ import { setResources } from '../../../state/actions/resource-actions/all-views-
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(10);
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(11);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expect.anything()
