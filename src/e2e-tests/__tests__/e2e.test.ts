@@ -9,12 +9,14 @@ import {
   E2E_TEST_TIMEOUT,
   EXPECT_TIMEOUT,
   getApp,
+  getButtonWithName,
   getElementWithAriaLabel,
   getElementWithText,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
 import fs from 'fs';
 import { expect, test } from '@playwright/test';
+import { ButtonText } from '../../Frontend/enums/enums';
 
 test.setTimeout(E2E_TEST_TIMEOUT);
 
@@ -98,7 +100,7 @@ test.describe('Open .opossum file via command line', () => {
   });
 });
 
-test.describe('Open .json file via command line', () => {
+test.describe('Open outdated .json file via command line', () => {
   let app: ElectronApplication;
   let window: Page;
 
@@ -111,13 +113,31 @@ test.describe('Open .json file via command line', () => {
   test.afterEach(async () => {
     if (app) {
       await app.close();
-      fs.unlinkSync(
-        'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
-      );
     }
   });
 
+  test('should open FileSupportPopup when .json file is provided as command line arg', async () => {
+    const header = 'Warning: Outdated input file format';
+    const fileSupportPopupEntry = await getElementWithText(window, header);
+    expect(fileSupportPopupEntry).toBeVisible({
+      timeout: EXPECT_TIMEOUT,
+    });
+    const keepOldFileFormatButton = await getButtonWithName(
+      window,
+      ButtonText.Keep
+    );
+    expect(keepOldFileFormatButton).toBeVisible({
+      timeout: EXPECT_TIMEOUT,
+    });
+  });
+
   test('should open file when provided as command line arg', async () => {
+    const keepOldFileFormatButton = await getButtonWithName(
+      window,
+      ButtonText.Keep
+    );
+    await keepOldFileFormatButton.click();
+
     await getElementWithText(window, 'Frontend');
 
     const electronBackendEntry = await getElementWithText(
@@ -125,9 +145,19 @@ test.describe('Open .json file via command line', () => {
       'ElectronBackend'
     );
     await electronBackendEntry.click();
+
+    fs.unlinkSync(
+      'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+    );
   });
 
   test('should show signals and attributions in accordions', async () => {
+    const keepOldFileFormatButton = await getButtonWithName(
+      window,
+      ButtonText.Keep
+    );
+    await keepOldFileFormatButton.click();
+
     const electronBackendEntry = await getElementWithText(
       window,
       'ElectronBackend'
@@ -150,12 +180,22 @@ test.describe('Open .json file via command line', () => {
     await signalsInFolderContentEntry.click();
 
     await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeHidden();
+
+    fs.unlinkSync(
+      'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+    );
   });
 
   // getOpenLinkListener does not work properly on Linux
   conditionalTest(os.platform() !== 'linux')(
     'should open an error popup if the base url is invalid',
     async () => {
+      const keepOldFileFormatButton = await getButtonWithName(
+        window,
+        ButtonText.Keep
+      );
+      await keepOldFileFormatButton.click();
+
       const electronBackendEntry = await getElementWithText(
         window,
         'ElectronBackend'
@@ -179,6 +219,10 @@ test.describe('Open .json file via command line', () => {
       await anotherOpenLinkIcon.click();
 
       await getElementWithText(window, 'Cannot open link.');
+
+      fs.unlinkSync(
+        'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+      );
     }
   );
 });

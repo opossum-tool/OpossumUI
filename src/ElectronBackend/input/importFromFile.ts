@@ -55,12 +55,6 @@ export async function loadInputAndOutputFromFilePath(
     resetState: true,
   });
 
-  // Uncomment and restart application to activate popup when opening a file
-  // TODO: Wire popup
-  // webContents.send(AllowedFrontendChannels.ShowFileSupportPopup, {
-  //   showFileSupportPopup: true,
-  // });
-
   let parsedInputData: ParsedOpossumInputFile;
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
@@ -74,6 +68,7 @@ export async function loadInputAndOutputFromFilePath(
     }
     parsedInputData = parsingResult.input;
     parsedOutputData = parsingResult.output;
+
     log.info('... Successfully read .opossum file.\n');
   } else {
     log.info(`Starting to parse input file ${filePath}`);
@@ -186,6 +181,7 @@ async function createOutputInOpossumFile(
   log.info(
     `Starting to create output in .opossum file, project ID is ${projectId}`
   );
+
   const attributionJSON = createJsonOutputFile(
     externalAttributions,
     resourcesToExternalAttributions,

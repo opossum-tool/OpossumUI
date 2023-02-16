@@ -21,7 +21,6 @@ import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
-import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
 import { createWindow } from '../createWindow';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
@@ -34,6 +33,9 @@ import {
   getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
+  getConvertInputFileToDotOpossumAndOpenListener,
+  getOpenOutdatedInputFileListener,
+  getOpenDotOpossumFileInsteadListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -47,6 +49,7 @@ import fs from 'fs';
 import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
+import JSZip from 'jszip';
 
 jest.mock('electron', () => ({
   app: {
@@ -127,6 +130,137 @@ const mockDate = 1603976726737;
 MockDate.set(new Date(mockDate));
 
 describe('getOpenFileListener', () => {
+  it('sends signal for opening FileSupportPopup to frontend when .opossum file is not existent', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const fileName = 'resources_file.json';
+    const temporaryPath: string = createTempFolder();
+    const jsonPath = path.join(upath.toUnix(temporaryPath), fileName);
+
+    fs.writeFileSync(jsonPath, 'dummy resource data');
+    // @ts-ignore
+    openFileDialog.mockReturnValueOnce([jsonPath]);
+
+    await getOpenFileListener(mainWindow)();
+
+    expect(openFileDialog).toBeCalled();
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowFileSupportPopup,
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false }
+    );
+    deleteFolder(temporaryPath);
+  });
+
+  it('sends signal for opening FileSupportPopupDotOpossumExistent to frontend when .opossum file exists', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const fileName = 'resources_file.json';
+    const temporaryPath: string = createTempFolder();
+    const jsonPath = path.join(upath.toUnix(temporaryPath), fileName);
+    fs.writeFileSync(jsonPath, 'dummy resource data');
+
+    const dotOpossumFileName = 'resources_file.opossum';
+    const dotOpossumPath = path.join(
+      upath.toUnix(temporaryPath),
+      dotOpossumFileName
+    );
+    fs.writeFileSync(dotOpossumPath, 'dummy resource data');
+
+    // @ts-ignore
+    openFileDialog.mockReturnValueOnce([jsonPath]);
+
+    await getOpenFileListener(mainWindow)();
+
+    expect(openFileDialog).toBeCalled();
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowFileSupportPopup,
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true }
+    );
+    deleteFolder(temporaryPath);
+  });
+
+  it('handles _attributions.json files correctly if .json present', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    // @ts-ignore
+    writeJsonToFile.mockImplementationOnce(
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+    );
+
+    const temporaryPath: string = createTempFolder();
+    const attributionsPath = path.join(
+      upath.toUnix(temporaryPath),
+      'path_attributions.json'
+    );
+
+    const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json');
+    writeJsonToFile(resourcePath, {});
+
+    // @ts-ignore
+    openFileDialog.mockReturnValueOnce([attributionsPath]);
+
+    await getOpenFileListener(mainWindow)();
+
+    expect(openFileDialog).toBeCalled();
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowFileSupportPopup,
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false }
+    );
+    deleteFolder(temporaryPath);
+  });
+
+  it('handles _attributions.json files correctly if .json.gz present', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    // @ts-ignore
+    writeJsonToFile.mockImplementationOnce(
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+    );
+
+    const temporaryPath: string = createTempFolder();
+    const attributionsPath = path.join(
+      upath.toUnix(temporaryPath),
+      'path_attributions.json'
+    );
+
+    const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json.gz');
+    writeJsonToFile(resourcePath, {});
+
+    // @ts-ignore
+    openFileDialog.mockReturnValueOnce([attributionsPath]);
+
+    await getOpenFileListener(mainWindow)();
+
+    expect(openFileDialog).toBeCalled();
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowFileSupportPopup,
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false }
+    );
+    deleteFolder(temporaryPath);
+  });
+});
+
+describe('getUseOutdatedInputFileFormatListener', () => {
   each([
     ['path.json', 'path.json'],
     ['path%20with%2Fencoding.json', 'path with/encoding.json'],
@@ -144,12 +278,13 @@ describe('getOpenFileListener', () => {
       const jsonPath = path.join(upath.toUnix(temporaryPath), filePath);
 
       fs.writeFileSync(jsonPath, 'dummy data');
-      // @ts-ignore
-      openFileDialog.mockReturnValueOnce([jsonPath]);
 
-      await getOpenFileListener(mainWindow)();
+      setGlobalBackendState({
+        resourceFilePath: jsonPath,
+      });
 
-      expect(openFileDialog).toBeCalled();
+      await getOpenOutdatedInputFileListener(mainWindow)();
+
       expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
         jsonPath
@@ -170,42 +305,6 @@ describe('getOpenFileListener', () => {
       deleteFolder(temporaryPath);
     }
   );
-
-  it('handles _attributions.json files correctly if .json present', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
-    );
-
-    const temporaryPath: string = createTempFolder();
-    const jsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      'path_attributions.json'
-    );
-
-    const expectedPath = path.join(upath.toUnix(temporaryPath), 'path.json');
-
-    writeJsonToFile(expectedPath, {});
-
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([jsonPath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toBeCalled();
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      expectedPath
-    );
-    deleteFolder(temporaryPath);
-  });
 
   it('checks the case with non-matching checksums', async () => {
     const mainWindow = {
@@ -265,105 +364,17 @@ describe('getOpenFileListener', () => {
 
     writeJsonToFile(attributionsFilePath, attributions_data);
 
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([resourcesFilePath]);
+    setGlobalBackendState({
+      resourceFilePath: resourcesFilePath,
+    });
 
-    await getOpenFileListener(mainWindow)();
+    await getOpenOutdatedInputFileListener(mainWindow)();
 
-    expect(openFileDialog).toBeCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowChangedInputFilePopup,
       {
         showChangedInputFilePopup: true,
       }
-    );
-    deleteFolder(temporaryPath);
-  });
-
-  it('ignores checksums in .opossum files', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const temporaryPath: string = createTempFolder();
-    const opossumFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'path.opossum'
-    );
-
-    const validAttribution: PackageInfo = {
-      packageName: 'Package',
-      packageVersion: '1.0',
-      licenseText: 'MIT',
-      followUp: 'FOLLOW_UP',
-    };
-    const attributions_data: OpossumOutputFile = {
-      metadata: {
-        projectId: 'test_id',
-        fileCreationDate: '1',
-        inputFileMD5Checksum: 'fake_checksum',
-      },
-      manualAttributions: {
-        ['test_uuid']: validAttribution,
-      },
-      resourcesToAttributions: {
-        '/path/1': ['test_uuid'],
-      },
-      resolvedExternalAttributions: [],
-    };
-
-    writeOpossumFile(opossumFilePath, {}, attributions_data);
-
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([opossumFilePath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toBeCalled();
-    expect(mainWindow.webContents.send).not.toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowChangedInputFilePopup,
-      {
-        showChangedInputFilePopup: true,
-      }
-    );
-    deleteFolder(temporaryPath);
-  });
-
-  it('handles _attributions.json files correctly if .json.gz present', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
-    );
-
-    const temporaryPath: string = createTempFolder();
-    const jsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      'path_attributions.json'
-    );
-
-    const expectedPath = path.join(upath.toUnix(temporaryPath), 'path.json.gz');
-
-    writeJsonToFile(expectedPath, {});
-
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([jsonPath]);
-
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toBeCalled();
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      expectedPath
     );
     deleteFolder(temporaryPath);
   });
@@ -405,13 +416,116 @@ describe('getOpenFileListener', () => {
       externalAttributionSources: {},
     };
     fs.writeFileSync(jsonPath, JSON.stringify(inputFileContent));
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([jsonPath]);
+    setGlobalBackendState({
+      resourceFilePath: jsonPath,
+    });
 
-    await getOpenFileListener(mainWindow)();
-
-    expect(openFileDialog).toBeCalled();
+    await getOpenOutdatedInputFileListener(mainWindow)();
     expect(mainWindow.setTitle).toBeCalledWith('Test Title');
+    deleteFolder(temporaryPath);
+  });
+});
+
+describe('getConvertInputFileToDotOpossumListener', () => {
+  it('converts outdated input file formats correctly and loads .opossum', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const temporaryPath: string = createTempFolder();
+
+    const resourceFileName = 'some_resource_file.json';
+    const resourcesJsonPath = path.join(
+      upath.toUnix(temporaryPath),
+      resourceFileName
+    );
+    const resourcesJson = 'dummy resource data';
+    fs.writeFileSync(resourcesJsonPath, resourcesJson);
+
+    const attributionsFileName = 'some_resource_file_attributions.json';
+    const attributionsJsonPath = path.join(
+      upath.toUnix(temporaryPath),
+      attributionsFileName
+    );
+    const attributionsJson = 'dummy attribution data';
+    fs.writeFileSync(attributionsJsonPath, attributionsJson);
+
+    setGlobalBackendState({
+      resourceFilePath: resourcesJsonPath,
+    });
+
+    await getConvertInputFileToDotOpossumAndOpenListener(mainWindow)();
+
+    const expectedDotOpossumFileName = 'some_resource_file.opossum';
+    const expectedDotOpossumFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      expectedDotOpossumFileName
+    );
+
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      expectedDotOpossumFilePath
+    );
+
+    let parsedInputJson: unknown;
+    let parsedOutputJson: unknown;
+
+    await new Promise<void>((resolve) => {
+      fs.readFile(expectedDotOpossumFilePath, (err, data) => {
+        if (err) throw err;
+        JSZip.loadAsync(data).then((zip) => {
+          zip.files['input.json']
+            .async('text')
+            .then((content) => {
+              parsedInputJson = content;
+            })
+            .then(resolve);
+          zip.files['output.json']
+            .async('text')
+            .then((content) => {
+              parsedOutputJson = content;
+            })
+            .then(resolve);
+        });
+      });
+    });
+
+    expect(parsedInputJson).toEqual(resourcesJson);
+    expect(parsedOutputJson).toEqual(attributionsJson);
+    deleteFolder(temporaryPath);
+  });
+});
+
+describe('getOpenDotOpossumFileListener', () => {
+  it('opens .opossum file', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const temporaryPath: string = createTempFolder();
+
+    const dotOpossumFileName = 'some_resource_file.opossum';
+    const dotOpossumFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      dotOpossumFileName
+    );
+
+    setGlobalBackendState({
+      opossumFilePath: dotOpossumFilePath,
+    });
+
+    await getOpenDotOpossumFileInsteadListener(mainWindow)();
+
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      dotOpossumFilePath
+    );
     deleteFolder(temporaryPath);
   });
 });

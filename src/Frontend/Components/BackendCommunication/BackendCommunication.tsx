@@ -15,6 +15,7 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
+  FileSupportPopupArgs,
   IsLoadingArgs,
   ParsedFileContent,
 } from '../../../shared/shared-types';
@@ -249,10 +250,14 @@ export function BackendCommunication(): ReactElement | null {
 
   function showFileSupportPopupListener(
     event: IpcRendererEvent,
-    showFileSupportPopup: boolean
+    fileSupportPopupArgs: FileSupportPopupArgs
   ): void {
-    if (showFileSupportPopup) {
-      dispatch(openPopup(PopupType.FileSupportPopup));
+    if (fileSupportPopupArgs && fileSupportPopupArgs.showFileSupportPopup) {
+      if (fileSupportPopupArgs.dotOpossumFileAlreadyExists) {
+        dispatch(openPopup(PopupType.FileSupportDotOpossumAlreadyExistsPopup));
+      } else {
+        dispatch(openPopup(PopupType.FileSupportPopup));
+      }
     }
   }
 

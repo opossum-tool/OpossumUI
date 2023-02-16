@@ -198,6 +198,11 @@ export interface ExternalAttributionSources {
   };
 }
 
+export interface FileSupportPopupArgs {
+  showFileSupportPopup: boolean;
+  dotOpossumFileAlreadyExists: boolean;
+}
+
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
@@ -206,6 +211,9 @@ export interface IElectronAPI {
   openFile: () => Promise<unknown>;
   deleteFile: () => Promise<unknown>;
   keepFile: () => Promise<unknown>;
+  convertInputFileToDotOpossum: () => void;
+  useOutdatedInpuFileFormat: () => void;
+  openDotOpossumFile: () => void;
   sendErrorInformation: (
     errorInformationArgs: SendErrorInformationArgs
   ) => void;

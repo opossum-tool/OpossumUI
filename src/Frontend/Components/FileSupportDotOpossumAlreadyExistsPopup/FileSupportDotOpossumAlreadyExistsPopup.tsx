@@ -19,8 +19,8 @@ const INFO_TEXT_PART_1 =
     However, older file formats can still be opened but support may be \
     discontinued in the future.';
 const INFO_TEXT_PART_2 =
-  'Would you like to create a new file with a ".opossum" extension from the current \
-    input file and proceed (recommended), or keep working with the old format?';
+  'A ".opossum" file with the same name of the current input file \
+  was found. This file will be opened instead.';
 
 const classes = {
   content: {
@@ -31,33 +31,24 @@ const classes = {
   },
 };
 
-export function FileSupportPopup(): ReactElement {
+export function FileSupportDotOpossumAlreadyExistsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
-  const handleCreateAndProceedButtonClick = (): void => {
-    window.electronAPI.convertInputFileToDotOpossum();
-    dispatch(closePopup());
-  };
-  const handleKeepButtonClick = (): void => {
-    window.electronAPI.useOutdatedInpuFileFormat();
+  const handleOpenDotOpossumButtonClick = (): void => {
+    window.electronAPI.openDotOpossumFile();
     dispatch(closePopup());
   };
 
-  const createAndProceedButtonConfig: ButtonConfig = {
-    onClick: handleCreateAndProceedButtonClick,
-    buttonText: ButtonText.CreateAndProceed,
+  const OpenDotOpossumButtonConfig: ButtonConfig = {
+    onClick: handleOpenDotOpossumButtonClick,
+    buttonText: ButtonText.OpenDotOpossumFile,
     isDark: true,
-  };
-  const keepButtonConfig: ButtonConfig = {
-    onClick: handleKeepButtonClick,
-    buttonText: ButtonText.Keep,
   };
 
   return (
     <NotificationPopup
       header={HEADER}
-      leftButtonConfig={createAndProceedButtonConfig}
-      rightButtonConfig={keepButtonConfig}
+      rightButtonConfig={OpenDotOpossumButtonConfig}
       isOpen={true}
       content={
         <MuiBox sx={classes.content}>

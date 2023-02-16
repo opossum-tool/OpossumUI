@@ -64,3 +64,13 @@ export async function getElementWithAriaLabel(
 
   return element;
 }
+
+export async function getButtonWithName(
+  window: Page,
+  name: string
+): Promise<Locator> {
+  const element = window.locator(`//button[text()='${name}']`);
+  await expect(element).toHaveCount(1, { timeout: EXPECT_TIMEOUT });
+
+  return element;
+}

@@ -21,6 +21,9 @@ import {
   getSaveFileListener,
   getSendErrorInformationListener,
   getKeepFileListener,
+  getConvertInputFileToDotOpossumAndOpenListener,
+  getOpenOutdatedInputFileListener,
+  getOpenDotOpossumFileInsteadListener,
 } from './listeners';
 import { installExtensionsForDev } from './installExtensionsForDev';
 import os from 'os';
@@ -41,6 +44,18 @@ export async function main(): Promise<void> {
     const mainWindow = await createWindow();
     const webContents = mainWindow.webContents;
 
+    ipcMain.handle(
+      IpcChannel.ConvertInputFile,
+      getConvertInputFileToDotOpossumAndOpenListener(mainWindow)
+    );
+    ipcMain.handle(
+      IpcChannel.UseOutdatedInputFile,
+      getOpenOutdatedInputFileListener(mainWindow)
+    );
+    ipcMain.handle(
+      IpcChannel.OpenDotOpossumFile,
+      getOpenDotOpossumFileInsteadListener(mainWindow)
+    );
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(webContents));
     ipcMain.handle(
