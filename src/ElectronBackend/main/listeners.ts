@@ -24,7 +24,6 @@ import {
 } from '../errorHandling/errorHandling';
 import { loadJsonFromFilePath } from '../input/importFromFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
-import { writeJsonToFile } from '../output/writeJsonToFile';
 import {
   GlobalBackendState,
   KeysOfAttributionInfo,
@@ -39,7 +38,7 @@ import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
 import { createMenu } from './menu';
-import { parseOpossumOutputFile } from '../input/parseFile';
+import { addFileToZip, parseOpossumOutputFile } from '../input/parseFile';
 import hash from 'object-hash';
 import upath from 'upath';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
@@ -75,10 +74,22 @@ export function getSaveFileListener(
           ),
         };
 
-        writeJsonToFile(
-          globalBackendState.attributionFilePath,
-          attributionFileContent
-        );
+        // writeJsonToFile(
+        //   globalBackendState.attributionFilePath,
+        //   attributionFileContent
+        // );
+        if (globalBackendState.resourceFilePath) {
+          let zipFilePath;
+          if (globalBackendState.resourceFilePath.endsWith('.zip')) {
+            zipFilePath = globalBackendState.resourceFilePath;
+          } else {
+            zipFilePath = getFilePathWithAppendix(
+              globalBackendState.resourceFilePath,
+              '_out.zip'
+            );
+          }
+          addFileToZip(zipFilePath, JSON.stringify(attributionFileContent));
+        }
       }
     }
   );
