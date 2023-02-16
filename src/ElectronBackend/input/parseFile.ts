@@ -15,6 +15,8 @@ import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import Asm from 'stream-json/Assembler';
 import { Parser, parser } from 'stream-json';
+import JSZip from 'jszip';
+import log from 'electron-log';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
@@ -46,6 +48,84 @@ export function parseOpossumOutputFile(
       ? new Set(resolvedExternalAttributions as Array<string>)
       : new Set(),
   } as ParsedOpossumOutputFile;
+}
+
+export function writeZip(
+  zipfilePath: string,
+  inputfileData: string,
+  outputfileData: string
+): void {
+  const writeStream = fs.createWriteStream(zipfilePath);
+  const zip = new JSZip();
+  zip.file('input.json', inputfileData);
+  zip.file('output.json', outputfileData);
+  zip
+    .generateNodeStream({
+      type: 'nodebuffer',
+      streamFiles: true,
+      compression: 'DEFLATE',
+      compressionOptions: { level: 1 },
+    })
+    .pipe(writeStream)
+    .on('end', () => {
+      log.info('zip file created!');
+      process.exit();
+    });
+}
+
+export async function readZip(
+  zipfilePath: string
+): Promise<[ParsedOpossumInputFile, ParsedOpossumOutputFile]> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let parsedInputData: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let parsedOutputData: any;
+  const sleep = (ms: number): Promise<unknown> =>
+    new Promise((r) => setTimeout(r, ms));
+  fs.readFile(zipfilePath, function (err, data): void {
+    if (err) throw err;
+    JSZip.loadAsync(data).then(function (zip) {
+      zip.files['input.json'].async('text').then(function (content) {
+        parsedInputData = JSON.parse(content);
+      });
+      zip.files['output.json'].async('text').then(function (content) {
+        parsedOutputData = JSON.parse(content);
+      });
+    });
+  });
+  await sleep(2000);
+  return [
+    parsedInputData as ParsedOpossumInputFile,
+    parsedOutputData as ParsedOpossumOutputFile,
+  ];
+}
+
+export function addFileToZip(
+  zipfilePath: string,
+  outputfileData: string
+): void {
+  const new_zip = new JSZip();
+  fs.readFile(zipfilePath, function (err, data) {
+    if (err) throw err;
+    new_zip.loadAsync(data).then(function (zip) {
+      zip.files['output.json'].async('text').then(function () {
+        new_zip.file('output.json', outputfileData);
+        const writeStream = fs.createWriteStream(zipfilePath);
+        new_zip
+          .generateNodeStream({
+            type: 'nodebuffer',
+            streamFiles: true,
+            compression: 'DEFLATE',
+            compressionOptions: { level: 1 },
+          })
+          .pipe(writeStream)
+          .on('end', () => {
+            log.info('zip file was overwritten!');
+            process.exit();
+          });
+      });
+    });
+  });
 }
 
 export function parseOpossumInputFile(

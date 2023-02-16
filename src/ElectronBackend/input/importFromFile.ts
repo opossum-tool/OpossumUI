@@ -15,13 +15,17 @@ import {
 import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   cleanNonExistentAttributions,
-  cleanNonExistentResolvedExternalAttributions,
   parseFrequentLicenses,
   parseRawAttributions,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
 } from './parseInputData';
-import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
+import {
+  parseOpossumInputFile,
+  parseOpossumOutputFile,
+  readZip,
+  writeZip,
+} from './parseFile';
 import {
   JsonParsingError,
   OpossumOutputFile,
@@ -48,9 +52,29 @@ export async function loadJsonFromFilePath(
   webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
+  let zipFilePath;
+  if (filePath.endsWith('.zip')) {
+    zipFilePath = filePath;
+  } else {
+    zipFilePath = getFilePathWithAppendix(filePath, '_out.zip');
+  }
+  let manualAttributions;
+  let parsingResult;
+  let opossumOutputData;
 
-  log.info(`Starting to parse input file ${filePath}`);
-  const parsingResult = await parseOpossumInputFile(filePath);
+  if (fs.existsSync(zipFilePath)) {
+    log.info(`Starting to read zip file ${zipFilePath} ...`);
+    [parsingResult, opossumOutputData] = await readZip(zipFilePath);
+    log.info('... Successfully read zip file.\n');
+    [manualAttributions] = parseRawAttributions(
+      opossumOutputData.manualAttributions
+    );
+  } else {
+    opossumOutputData = {};
+    manualAttributions = {};
+    log.info(`Starting to parse input file ${filePath}`);
+    parsingResult = await parseOpossumInputFile(filePath);
+  }
 
   if (isJsonParsingError(parsingResult)) {
     log.info('Invalid input file.');
@@ -70,7 +94,7 @@ export async function loadJsonFromFilePath(
   const projectId = parsingResult.metadata.projectId;
   const inputFileChecksum = getGlobalBackendState().inputFileChecksum;
 
-  if (!fs.existsSync(manualAttributionFilePath)) {
+  if (!fs.existsSync(manualAttributionFilePath) && !filePath.endsWith('.zip')) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
     createOutputFile(
       manualAttributionFilePath,
@@ -81,12 +105,24 @@ export async function loadJsonFromFilePath(
     );
     log.info('... Successfully created output file.');
   }
-  log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
-  const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
-  const [manualAttributions] = parseRawAttributions(
-    opossumOutputData.manualAttributions
-  );
-  log.info('... Successfully parsed output file.');
+
+  if (!fs.existsSync(zipFilePath)) {
+    log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
+    opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
+    [manualAttributions] = parseRawAttributions(
+      opossumOutputData.manualAttributions
+    );
+    log.info('... Successfully parsed output file.');
+
+    log.info(`Starting to write zip file ${zipFilePath} ...`);
+    writeZip(
+      zipFilePath,
+      JSON.stringify(parsingResult),
+      JSON.stringify(opossumOutputData)
+    );
+    log.info('... Successfully created zip file.');
+  }
+
   log.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsingResult.frequentLicenses
@@ -107,7 +143,7 @@ export async function loadJsonFromFilePath(
       // which are fixed by this clean-up.
       resourcesToAttributions: cleanNonExistentAttributions(
         webContents,
-        opossumOutputData.resourcesToAttributions,
+        opossumOutputData.resourcesToAttributions ?? {},
         manualAttributions
       ),
     },
@@ -116,11 +152,7 @@ export async function loadJsonFromFilePath(
       resourcesToAttributions: resourcesToExternalAttributions,
     },
     frequentLicenses,
-    resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
-      webContents,
-      opossumOutputData.resolvedExternalAttributions,
-      externalAttributions
-    ),
+    resolvedExternalAttributions: new Set(),
     attributionBreakpoints: new Set(parsingResult.attributionBreakpoints ?? []),
     filesWithChildren: new Set(parsingResult.filesWithChildren ?? []),
     baseUrlsForSources: sanitizeRawBaseUrlsForSources(
