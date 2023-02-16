@@ -71,7 +71,7 @@
     "eslint-plugin-testing-library": "^5.10.1",
     "husky": "8.0.3",
     "jest-each": "^29.4.3",
-    "lint-staged": "^13.1.1",
+    "lint-staged": "^13.1.2",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
     "playwright": "^1.30.0",
