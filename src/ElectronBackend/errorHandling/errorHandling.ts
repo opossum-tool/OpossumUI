@@ -13,7 +13,7 @@ import {
 } from 'electron';
 import log from 'electron-log';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { loadJsonFromFilePath } from '../input/importFromFile';
+import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
 
 export function createListenerCallbackWithErrorHandling(
@@ -122,7 +122,7 @@ function performButtonAction(
   switch (buttonIndex) {
     case 0:
       webContents.send(AllowedFrontendChannels.RestoreFrontend);
-      loadJsonFromFilePath(
+      loadInputAndOutputFromFilePath(
         webContents,
         globalBackendState.resourceFilePath as string
       );

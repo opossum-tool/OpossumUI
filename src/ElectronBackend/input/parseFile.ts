@@ -8,6 +8,7 @@ import zlib from 'zlib';
 import { Options, Validator } from 'jsonschema';
 import {
   JsonParsingError,
+  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../types/types';
@@ -15,40 +16,88 @@ import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import Asm from 'stream-json/Assembler';
 import { Parser, parser } from 'stream-json';
+import JSZip from 'jszip';
+import log from 'electron-log';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
   throwError: true,
 };
 
-export function parseOpossumOutputFile(
-  attributionFilePath: fs.PathLike
-): ParsedOpossumOutputFile {
-  const fileContent: unknown = parseJson(attributionFilePath);
+export async function parseOpossumFile(
+  opossumfilePath: string
+): Promise<ParsedOpossumInputAndOutput | JsonParsingError> {
+  let parsedInputData: unknown;
+  let parsedOutputData: unknown = null;
+  let error: string | null = null;
 
-  try {
-    jsonSchemaValidator.validate(
-      fileContent,
-      OpossumOutputFileSchema,
-      validationOptions
-    );
-  } catch (err) {
-    throw new Error(
-      `Error: ${attributionFilePath} is not a valid attribution file.\n${err}`
-    );
+  await new Promise<void>((resolve) => {
+    fs.readFile(opossumfilePath, (err, data) => {
+      if (err) throw err;
+      JSZip.loadAsync(data).then((zip) => {
+        zip.files['input.json']
+          .async('text')
+          .then((content) => {
+            parsedInputData = parseAndValidateJson(
+              content,
+              OpossumInputFileSchema
+            );
+          })
+          .catch((err) => {
+            error = err;
+          })
+          .then(resolve);
+        if ('output.json' in zip.files) {
+          zip.files['output.json'].async('text').then((content) => {
+            parsedOutputData = parseOutputJsonContent(content, opossumfilePath);
+          });
+        }
+      });
+    });
+  });
+
+  if (error) {
+    return {
+      message: `Error: ${opossumfilePath} is not a valid input file.\n${error}`,
+      type: 'jsonParsingError',
+    };
   }
-
-  const resolvedExternalAttributions = (fileContent as Record<string, unknown>)
-    .resolvedExternalAttributions;
   return {
-    ...(fileContent as Record<string, unknown>),
-    resolvedExternalAttributions: resolvedExternalAttributions
-      ? new Set(resolvedExternalAttributions as Array<string>)
-      : new Set(),
-  } as ParsedOpossumOutputFile;
+    input: parsedInputData as ParsedOpossumInputFile,
+    output: parsedOutputData as ParsedOpossumOutputFile,
+  };
 }
 
-export function parseOpossumInputFile(
+export async function addOutputToOpossumFile(
+  opossumfilePath: string,
+  outputfileData: unknown
+): Promise<void> {
+  const new_zip = new JSZip();
+
+  await new Promise<void>((resolve) => {
+    fs.readFile(opossumfilePath, (err, data) => {
+      if (err) throw err;
+      new_zip.loadAsync(data).then(() => {
+        new_zip.file('output.json', JSON.stringify(outputfileData));
+        const writeStream = fs.createWriteStream(opossumfilePath);
+        new_zip
+          .generateNodeStream({
+            type: 'nodebuffer',
+            streamFiles: true,
+            compression: 'DEFLATE',
+            compressionOptions: { level: 1 },
+          })
+          .pipe(writeStream)
+          .on('finish', () => {
+            log.info('opossum file was overwritten!');
+            resolve();
+          });
+      });
+    });
+  });
+}
+
+export function parseInputJsonFile(
   resourceFilePath: fs.PathLike
 ): Promise<ParsedOpossumInputFile | JsonParsingError> {
   let pipeline: Parser;
@@ -98,11 +147,45 @@ export function parseOpossumInputFile(
   return promise;
 }
 
-function parseJson(filePath: fs.PathLike): unknown {
+export function parseOutputJsonFile(
+  attributionFilePath: fs.PathLike
+): ParsedOpossumOutputFile {
+  const content = fs.readFileSync(attributionFilePath, 'utf-8');
+  return parseOutputJsonContent(content, attributionFilePath);
+}
+
+export function parseOutputJsonContent(
+  fileContent: string,
+  filePath: fs.PathLike
+): ParsedOpossumOutputFile {
+  let outputJsonContent;
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(content);
-  } catch {
-    throw new Error(`Error while reading the JSON file ${filePath}.`);
+    outputJsonContent = parseAndValidateJson(
+      fileContent,
+      OpossumOutputFileSchema
+    );
+  } catch (err) {
+    throw new Error(
+      `Error: ${filePath} is not a valid attribution file.\n${err}`
+    );
   }
+
+  const resolvedExternalAttributions = (
+    outputJsonContent as Record<string, unknown>
+  ).resolvedExternalAttributions;
+  return {
+    ...(outputJsonContent as Record<string, unknown>),
+    resolvedExternalAttributions: resolvedExternalAttributions
+      ? new Set(resolvedExternalAttributions as Array<string>)
+      : new Set(),
+  } as ParsedOpossumOutputFile;
+}
+
+function parseAndValidateJson(
+  content: string,
+  schema: typeof OpossumInputFileSchema | typeof OpossumOutputFileSchema
+): unknown {
+  const jsonContent = JSON.parse(content);
+  jsonSchemaValidator.validate(jsonContent, schema, validationOptions);
+  return jsonContent;
 }

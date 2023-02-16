@@ -6,6 +6,7 @@ Files: *.json
        *.prettierrc
        **.gitignore
        **yarn.lock
+       **.opossum
 Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
 License: Apache-2.0

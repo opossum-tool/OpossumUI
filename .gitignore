@@ -11,6 +11,7 @@
 /example-files/*.spdx.yaml
 /example-files/*.spdx.json
 /example-files/performance_tests/*.opossum
+/example-files/*.opossum
 /example-files/performance_tests/*_attributions.json
 /example-files/performance_tests/*_follow_up.csv
 /example-files/performance_tests/*_component_list.csv

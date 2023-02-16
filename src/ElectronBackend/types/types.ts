@@ -91,6 +91,11 @@ export interface ParsedOpossumOutputFile {
   resolvedExternalAttributions: Set<string>;
 }
 
+export interface ParsedOpossumInputAndOutput {
+  input: ParsedOpossumInputFile;
+  output: ParsedOpossumOutputFile | null;
+}
+
 export interface OpossumOutputFile {
   metadata: {
     projectId: string;

@@ -11,7 +11,10 @@ export function openFileDialog(): Array<string> | undefined {
     ? dialog.showOpenDialogSync(window, {
         properties: ['openFile'],
         filters: [
-          { name: 'Opossum Input File', extensions: ['json', 'json.gz'] },
+          {
+            name: 'Opossum Input File',
+            extensions: ['json', 'json.gz', 'opossum'],
+          },
         ],
       })
     : undefined;
