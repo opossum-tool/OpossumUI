@@ -2103,7 +2103,7 @@
     "@tanstack/query-core" "4.24.6"
     use-sync-external-store "^1.2.0"
 
-"@testing-library/dom@^8.11.1", "@testing-library/dom@^8.20.0":
+"@testing-library/dom@^8.11.1":
   version "8.20.0"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.20.0.tgz#914aa862cef0f5e89b98cc48e3445c4c921010f6"
   integrity sha512-d9ULIT+a4EXLX3UU8FBjauG9NnsZHkHztXoIcTsOKoOw030fyjheN9svkTULjJxtYag9DZz5Jz5qkWZDPxTFwA==
