@@ -25,6 +25,7 @@ export enum PopupType {
   PackageSearchPopup = 'PackageSearchPopup',
   ChangedInputFilePopup = 'ChangedInputFilePopup',
   AttributionWizardPopup = 'AttributionWizardPopup',
+  FileSupportPopup = 'FileSupportPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -51,6 +52,7 @@ export enum ButtonText {
   Confirm = 'Confirm',
   ConfirmGlobally = 'Confirm globally',
   ConfirmSelectedGlobally = 'Confirm selected globally',
+  CreateAndProceed = 'Create and proceed',
   Delete = 'Delete',
   DeleteGlobally = 'Delete globally',
   DeleteSelectedGlobally = 'Delete selected globally',

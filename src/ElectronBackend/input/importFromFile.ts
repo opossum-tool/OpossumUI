@@ -49,6 +49,12 @@ export async function loadJsonFromFilePath(
     resetState: true,
   });
 
+  // Uncomment and restart application to activate popup when opening a file
+  // TODO: Wire popup
+  // webContents.send(AllowedFrontendChannels.ShowFileSupportPopup, {
+  //   showFileSupportPopup: true,
+  // });
+
   log.info(`Starting to parse input file ${filePath}`);
   const parsingResult = await parseOpossumInputFile(filePath);
 

@@ -247,6 +247,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function showFileSupportPopupListener(
+    event: IpcRendererEvent,
+    showFileSupportPopup: boolean
+  ): void {
+    if (showFileSupportPopup) {
+      dispatch(openPopup(PopupType.FileSupportPopup));
+    }
+  }
+
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -294,6 +303,11 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(AllowedFrontendChannels.FileLoading, setFileLoadingListener, [
     dispatch,
   ]);
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowFileSupportPopup,
+    showFileSupportPopupListener,
+    [dispatch]
+  );
 
   return null;
 }
