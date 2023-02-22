@@ -9,7 +9,6 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ButtonText } from '../../enums/enums';
 import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { OpossumColors } from '../../shared-styles';
 import { PathBar } from '../PathBar/PathBar';
 import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
@@ -25,8 +24,8 @@ import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
   getAttributionWizardPackageVersions,
-  getAttributionWizardPopupAttribution,
-  getAttributionWizardSelectedPackageIds,
+  getAttributionWizarOriginalAttribution,
+  getAttributionWizardSelectedPackageAttributeIds,
   getAttributionWizardTotalAttributionCount,
 } from '../../state/selectors/attribution-wizard-selectors';
 import { v4 as uuid4 } from 'uuid';
@@ -36,6 +35,7 @@ import {
   setAttributionWizardPackageVersions,
   setAttributionWizardSelectedPackageIds,
 } from '../../state/actions/resource-actions/attribution-wizard-actions';
+import { closeAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 
 const MAXIMUM_NUMBER_OF_TABLES_IN_SINGLE_STEP = 2;
 const TABLE_WIDTH = 250;
@@ -76,14 +76,16 @@ const classes = {
 };
 
 export function AttributionWizardPopup(): ReactElement {
-  const popupAttribution = useAppSelector(getAttributionWizardPopupAttribution);
+  const originalAttribution = useAppSelector(
+    getAttributionWizarOriginalAttribution
+  );
   const packageNamespaces = useAppSelector(
     getAttributionWizardPackageNamespaces
   );
   const packageNames = useAppSelector(getAttributionWizardPackageNames);
   const packageVersions = useAppSelector(getAttributionWizardPackageVersions);
   const selectedPackageAttributeIds = useAppSelector(
-    getAttributionWizardSelectedPackageIds
+    getAttributionWizardSelectedPackageAttributeIds
   );
   const totalAttributionCount = useAppSelector(
     getAttributionWizardTotalAttributionCount
@@ -101,9 +103,8 @@ export function AttributionWizardPopup(): ReactElement {
   );
 
   const dispatch = useAppDispatch();
-  function closeAttributionWizardPopup(): void {
-    // TODO: Remove temporary wizard data form store
-    dispatch(closePopup());
+  function closeAttributionWizardPopupHandler(): void {
+    dispatch(closeAttributionWizardPopup());
   }
 
   const wizardStepIdsToDisplayValues: Array<[string, string]> = [
@@ -119,10 +120,9 @@ export function AttributionWizardPopup(): ReactElement {
   );
 
   const isPackageNamespaceAndNameSelected =
-    selectedPackageAttributeIds.selectedPackageNamespaceId !== '' &&
-    selectedPackageAttributeIds.selectedPackageNameId !== '';
-  const isPackageVersionSelected =
-    selectedPackageAttributeIds.selectedPackageVersionId !== '';
+    selectedPackageAttributeIds.namespaceId !== '' &&
+    selectedPackageAttributeIds.nameId !== '';
+  const isPackageVersionSelected = selectedPackageAttributeIds.versionId !== '';
 
   const {
     attributedPackageNamespacesWithManuallyAddedOnes,
@@ -136,7 +136,7 @@ export function AttributionWizardPopup(): ReactElement {
   );
 
   const selectedPackageInfo: PackageInfo = {
-    packageType: popupAttribution.packageType ?? 'generic',
+    packageType: originalAttribution.packageType ?? 'generic',
     packageName: selectedPackageName ? selectedPackageName : undefined,
     packageNamespace: selectedPackageNamespace
       ? selectedPackageNamespace
@@ -191,7 +191,7 @@ export function AttributionWizardPopup(): ReactElement {
     dispatch(
       setAttributionWizardSelectedPackageIds({
         ...selectedPackageAttributeIds,
-        selectedPackageNamespaceId: id,
+        namespaceId: id,
       })
     );
   }
@@ -199,7 +199,7 @@ export function AttributionWizardPopup(): ReactElement {
     dispatch(
       setAttributionWizardSelectedPackageIds({
         ...selectedPackageAttributeIds,
-        selectedPackageNameId: id,
+        nameId: id,
       })
     );
   }
@@ -207,18 +207,18 @@ export function AttributionWizardPopup(): ReactElement {
     dispatch(
       setAttributionWizardSelectedPackageIds({
         ...selectedPackageAttributeIds,
-        selectedPackageVersionId: id,
+        versionId: id,
       })
     );
   }
   function handleApplyClick(): void {
     dispatch(
       setTemporaryPackageInfo({
-        ...popupAttribution,
+        ...originalAttribution,
         ...selectedPackageInfo,
       })
     );
-    closeAttributionWizardPopup();
+    closeAttributionWizardPopupHandler();
   }
 
   const nextButtonConfig: ButtonConfig = {
@@ -239,7 +239,7 @@ export function AttributionWizardPopup(): ReactElement {
   };
   const cancelButtonConfig: ButtonConfig = {
     buttonText: ButtonText.Cancel,
-    onClick: closeAttributionWizardPopup,
+    onClick: closeAttributionWizardPopupHandler,
     disabled: false,
     isDark: false,
   };
@@ -266,8 +266,8 @@ export function AttributionWizardPopup(): ReactElement {
           : applyButtonConfig
       }
       rightButtonConfig={cancelButtonConfig}
-      onBackdropClick={closeAttributionWizardPopup}
-      onEscapeKeyDown={closeAttributionWizardPopup}
+      onBackdropClick={closeAttributionWizardPopupHandler}
+      onEscapeKeyDown={closeAttributionWizardPopupHandler}
       isOpen={true}
       fullWidth={false}
       contentSx={classes.dialogContent}
@@ -291,11 +291,9 @@ export function AttributionWizardPopup(): ReactElement {
                 }
                 selectedPackageInfo={selectedPackageInfo}
                 selectedPackageNamespaceId={
-                  selectedPackageAttributeIds.selectedPackageNamespaceId
+                  selectedPackageAttributeIds.namespaceId
                 }
-                selectedPackageNameId={
-                  selectedPackageAttributeIds.selectedPackageNameId
-                }
+                selectedPackageNameId={selectedPackageAttributeIds.nameId}
                 handlePackageNamespaceListItemClick={
                   handlePackageNamespaceListItemClick
                 }
@@ -311,12 +309,8 @@ export function AttributionWizardPopup(): ReactElement {
                   attributedPackageVersionsWithManuallyAddedOnes
                 }
                 selectedPackageInfo={selectedPackageInfo}
-                highlightedPackageNameId={
-                  selectedPackageAttributeIds.selectedPackageNameId
-                }
-                selectedPackageVersionId={
-                  selectedPackageAttributeIds.selectedPackageVersionId
-                }
+                highlightedPackageNameId={selectedPackageAttributeIds.nameId}
+                selectedPackageVersionId={selectedPackageAttributeIds.versionId}
                 handlePackageVersionListItemClick={
                   handlePackageVersionListItemClick
                 }

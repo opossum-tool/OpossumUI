@@ -56,7 +56,7 @@ interface ListWithAttributesProps {
   emptyTextFallback?: string;
   sortList?(
     items: Array<ListWithAttributesItem>,
-    highlightedAttributeId?: string
+    highlightedAttributeIds?: Array<string>
   ): Array<ListWithAttributesItem>;
 }
 
@@ -82,14 +82,7 @@ export function ListWithAttributes(
 
   const listItemsToDisplay =
     props.sortList !== undefined
-      ? props.sortList.length === 1
-        ? props.sortList(props.listItems)
-        : props.sortList(
-            props.listItems,
-            props.highlightedAttributeIds !== undefined
-              ? props.highlightedAttributeIds[0]
-              : ''
-          )
+      ? props.sortList(props.listItems, props.highlightedAttributeIds)
       : props.listItems;
 
   return (

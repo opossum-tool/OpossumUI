@@ -55,7 +55,7 @@ import {
   setAttributionWizardPackageNames,
   setAttributionWizardPackageNamespaces,
   setAttributionWizardPackageVersions,
-  setAttributionWizardPopupAttribution,
+  setAttributionWizardOriginalAttribution,
   setAttributionWizardSelectedPackageIds,
   setAttributionWizardTotalAttributionCount,
 } from '../resource-actions/attribution-wizard-actions';
@@ -252,7 +252,7 @@ export function openAttributionWizardPopup(
       }
     );
 
-    const startingAttribution =
+    const originalAttribution =
       popupAttributionId !== null ? manualAttributions[popupAttributionId] : {};
 
     const {
@@ -260,25 +260,73 @@ export function openAttributionWizardPopup(
       preSelectedPackageNameId,
       preSelectedPackageVersionId,
     } = getPreSelectedPackageAttributeIds(
-      startingAttribution,
+      originalAttribution,
       packageNamespaces,
       packageNames,
       packageVersions
     );
 
-    dispatch(setAttributionWizardPopupAttribution(startingAttribution));
+    dispatch(setAttributionWizardOriginalAttribution(originalAttribution));
     dispatch(setAttributionWizardPackageNamespaces(packageNamespaces));
     dispatch(setAttributionWizardPackageNames(packageNames));
     dispatch(setAttributionWizardPackageVersions(packageVersions));
     dispatch(
       setAttributionWizardSelectedPackageIds({
-        selectedPackageNamespaceId: preSelectedPackageNamespaceId,
-        selectedPackageNameId: preSelectedPackageNameId,
-        selectedPackageVersionId: preSelectedPackageVersionId,
+        namespaceId: preSelectedPackageNamespaceId,
+        nameId: preSelectedPackageNameId,
+        versionId: preSelectedPackageVersionId,
       })
     );
     dispatch(setAttributionWizardTotalAttributionCount(totalAttributionCount));
 
     dispatch(openPopup(PopupType.AttributionWizardPopup, popupAttributionId));
+  };
+}
+
+export function closeAttributionWizardPopup(): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
+    const emptyAttributionWizardState = {
+      originalAttribution: {},
+      packageNamespaces: {},
+      packageNames: {},
+      packageVersions: {},
+      selectedPackageAttributeIds: {
+        namespaceId: '',
+        nameId: '',
+        versionId: '',
+      },
+      totalAttributionCount: null,
+    };
+
+    dispatch(
+      setAttributionWizardOriginalAttribution(
+        emptyAttributionWizardState.originalAttribution
+      )
+    );
+    dispatch(
+      setAttributionWizardPackageNamespaces(
+        emptyAttributionWizardState.packageNamespaces
+      )
+    );
+    dispatch(
+      setAttributionWizardPackageNames(emptyAttributionWizardState.packageNames)
+    );
+    dispatch(
+      setAttributionWizardPackageVersions(
+        emptyAttributionWizardState.packageVersions
+      )
+    );
+    dispatch(
+      setAttributionWizardSelectedPackageIds(
+        emptyAttributionWizardState.selectedPackageAttributeIds
+      )
+    );
+    dispatch(
+      setAttributionWizardTotalAttributionCount(
+        emptyAttributionWizardState.totalAttributionCount
+      )
+    );
+
+    dispatch(closePopup());
   };
 }

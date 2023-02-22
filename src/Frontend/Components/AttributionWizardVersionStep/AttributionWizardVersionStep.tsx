@@ -14,7 +14,7 @@ import { TextBox } from '../InputElements/TextBox';
 import { attributionWizardStepClasses } from '../../shared-styles';
 import { ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT } from '../../shared-styles';
 import { SxProps } from '@mui/system';
-import { sortAttributedPackageVersions } from '../AttributionWizardPopup/attribution-wizard-popup-helpers';
+import { sortAttributedPackageVersions } from './attribution-wizard-verstion-step-helpers';
 
 const classes = {
   listBox: {

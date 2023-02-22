@@ -4,31 +4,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PackageInfo } from '../../../../shared/shared-types';
-import {
-  SelectedPackageAttributeIds,
-  PackageAttributes,
-} from '../../../types/types';
+import { PackageAttributeIds, PackageAttributes } from '../../../types/types';
 import {
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
-  ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION,
+  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
   ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
   ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
   SetAttributionWizardPackageNames,
   SetAttributionWizardPackageNamespaces,
   SetAttributionWizardPackageVersions,
-  SetAttributionWizardPopupAttribution,
+  SetAttributionWizardOriginalAttribution,
   SetAttributionWizardSelectedPackageIds,
   SetAttributionWizardTotalAttributionCount,
 } from './types';
 
-export function setAttributionWizardPopupAttribution(
-  popupAttribution: PackageInfo
-): SetAttributionWizardPopupAttribution {
+export function setAttributionWizardOriginalAttribution(
+  originalAttribution: PackageInfo
+): SetAttributionWizardOriginalAttribution {
   return {
-    type: ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION,
-    payload: popupAttribution,
+    type: ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
+    payload: originalAttribution,
   };
 }
 
@@ -60,7 +57,7 @@ export function setAttributionWizardPackageVersions(
 }
 
 export function setAttributionWizardSelectedPackageIds(
-  packageIds: SelectedPackageAttributeIds
+  packageIds: PackageAttributeIds
 ): SetAttributionWizardSelectedPackageIds {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,

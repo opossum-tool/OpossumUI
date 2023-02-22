@@ -15,7 +15,7 @@ import {
 import { PackagePanelTitle } from '../../enums/enums';
 import {
   PanelPackage,
-  SelectedPackageAttributeIds,
+  PackageAttributeIds,
   PackageAttributes,
 } from '../../types/types';
 import {
@@ -61,7 +61,7 @@ import {
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
-  ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION,
+  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
   ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
   ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
 } from '../actions/resource-actions/types';
@@ -118,17 +118,15 @@ export const initialResourceState: ResourceState = {
     fileSearch: '',
   },
   attributionWizard: {
-    popupAttribution: {},
+    originalAttribution: {},
     packageNamespaces: {},
     packageNames: {},
     packageVersions: {},
     selectedPackageAttributeIds: {
-      selectedPackageNamespaceId: '',
-      selectedPackageNameId: '',
-      selectedPackageVersionId: '',
+      namespaceId: '',
+      nameId: '',
+      versionId: '',
     },
-    packageNamesToVersions: {},
-    packageVersionsToNames: {},
     totalAttributionCount: null,
   },
 };
@@ -169,13 +167,11 @@ export type ResourceState = {
     fileSearch: string;
   };
   attributionWizard: {
-    popupAttribution: PackageInfo;
+    originalAttribution: PackageInfo;
     packageNamespaces: PackageAttributes;
     packageNames: PackageAttributes;
     packageVersions: PackageAttributes;
-    selectedPackageAttributeIds: SelectedPackageAttributeIds;
-    packageNamesToVersions: { [name: string]: Set<string> };
-    packageVersionsToNames: { [version: string]: Set<string> };
+    selectedPackageAttributeIds: PackageAttributeIds;
     totalAttributionCount: number | null;
   };
 };
@@ -639,12 +635,12 @@ export const resourceState = (
         },
       };
 
-    case ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION:
+    case ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION:
       return {
         ...state,
         attributionWizard: {
           ...state.attributionWizard,
-          popupAttribution: action.payload,
+          originalAttribution: action.payload,
         },
       };
     case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES:

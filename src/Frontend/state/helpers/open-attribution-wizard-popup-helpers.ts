@@ -207,7 +207,7 @@ export function getPackageVersionsWithRelatedPackageNameIds(
 }
 
 export function getPreSelectedPackageAttributeIds(
-  startingAttribution: PackageInfo,
+  originalAttribution: PackageInfo,
   packageNamespaces: PackageAttributes,
   packageNames: PackageAttributes,
   packageVersions: PackageAttributes
@@ -216,9 +216,9 @@ export function getPreSelectedPackageAttributeIds(
   preSelectedPackageNameId: string;
   preSelectedPackageVersionId: string;
 } {
-  const namespace = startingAttribution.packageNamespace || '';
-  const name = startingAttribution.packageName || '';
-  const version = startingAttribution.packageVersion || '';
+  const namespace = originalAttribution.packageNamespace || '';
+  const name = originalAttribution.packageName || '';
+  const version = originalAttribution.packageVersion || '';
 
   const preSelectedPackageNamespaceId = Object.entries(
     packageNamespaces

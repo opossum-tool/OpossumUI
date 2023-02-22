@@ -16,7 +16,7 @@ import {
 } from '../../../../shared/shared-types';
 import {
   PanelPackage,
-  SelectedPackageAttributeIds,
+  PackageAttributeIds,
   PackageAttributes,
 } from '../../../types/types';
 
@@ -76,8 +76,8 @@ export const ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS =
 export const ACTION_TOGGLE_ACCORDION_SEARCH_FIELD =
   'ACTION_TOGGLE_ACCORDION_SEARCH_FIELD';
 export const ACTION_SET_PACKAGE_SEARCH_TERM = 'ACTION_SET_PACKAGE_SEARCH_TERM';
-export const ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION =
-  'ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION';
+export const ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION =
+  'ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION';
 export const ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES =
   'ACTION_SET_ATTRIBUTION_WIZARD_INITIAL_PACKAGE_NAMESPACES';
 export const ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES =
@@ -123,7 +123,7 @@ export type ResourceAction =
   | SetMultiSelectSelectedAttributionIds
   | ToggleAccordionSearchField
   | SetPackageSearchTerm
-  | SetAttributionWizardPopupAttribution
+  | SetAttributionWizardOriginalAttribution
   | SetAttributionWizardPackageNamespaces
   | SetAttributionWizardPackageNames
   | SetAttributionWizardPackageVersions
@@ -314,8 +314,8 @@ export interface SetPackageSearchTerm {
   payload: string;
 }
 
-export interface SetAttributionWizardPopupAttribution {
-  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_POPUP_ATTRIBUTION;
+export interface SetAttributionWizardOriginalAttribution {
+  type: typeof ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION;
   payload: PackageInfo;
 }
 export interface SetAttributionWizardPackageNamespaces {
@@ -335,7 +335,7 @@ export interface SetAttributionWizardPackageVersions {
 
 export interface SetAttributionWizardSelectedPackageIds {
   type: typeof ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS;
-  payload: SelectedPackageAttributeIds;
+  payload: PackageAttributeIds;
 }
 
 export interface SetAttributionWizardTotalAttributionCount {

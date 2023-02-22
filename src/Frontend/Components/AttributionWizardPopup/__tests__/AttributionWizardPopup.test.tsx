@@ -21,9 +21,10 @@ import {
   setManualData,
   setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
+import { AttributionWizardPopup } from '../AttributionWizardPopup';
+import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {
@@ -66,10 +67,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
     expect(screen.getByText(selectedResourceId)).toBeInTheDocument();
@@ -93,7 +94,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
+
+    // GlobalPopup has to be rendered, otherwise closing is not possible and triggers re-render
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
+
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
@@ -103,6 +107,7 @@ describe('AttributionWizardPopup', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Cancel }));
+
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
@@ -118,10 +123,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText('package')).toBeInTheDocument();
     expect(screen.getByText('version')).toBeInTheDocument();
@@ -139,10 +144,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText(namespaceListTitle)).toBeInTheDocument();
     expect(screen.getByText(nameListTitle)).toBeInTheDocument();
@@ -182,10 +187,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText(namespaceListTitle)).toBeInTheDocument();
     expect(screen.getByText(nameListTitle)).toBeInTheDocument();
@@ -216,10 +221,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
 
@@ -243,6 +248,8 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
+
+    // GlobalPopup has to be rendered, otherwise closing is not possible and triggers re-render
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -276,10 +283,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     const namespaceTable = screen.getByText('Package namespace')
       .parentElement as HTMLElement;

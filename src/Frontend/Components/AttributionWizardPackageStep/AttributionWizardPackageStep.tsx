@@ -16,7 +16,7 @@ import {
   ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT,
 } from '../../shared-styles';
 import { SxProps } from '@mui/system';
-import { sortAttributedPackageItems } from '../AttributionWizardPopup/attribution-wizard-popup-helpers';
+import { sortAttributedPackageItems } from './attribution-wizard-package-step-helpers';
 
 const classes = {
   listBox: {

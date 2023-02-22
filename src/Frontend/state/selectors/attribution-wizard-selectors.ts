@@ -5,15 +5,15 @@
 
 import { PackageInfo } from '../../../shared/shared-types';
 import {
-  SelectedPackageAttributeIds,
+  PackageAttributeIds,
   State,
   PackageAttributes,
 } from '../../types/types';
 
-export function getAttributionWizardPopupAttribution(
+export function getAttributionWizarOriginalAttribution(
   state: State
 ): PackageInfo {
-  return state.resourceState.attributionWizard.popupAttribution;
+  return state.resourceState.attributionWizard.originalAttribution;
 }
 
 export function getAttributionWizardPackageNamespaces(
@@ -34,21 +34,9 @@ export function getAttributionWizardPackageVersions(
   return state.resourceState.attributionWizard.packageVersions;
 }
 
-export function getAttributionWizardPackageNamesToVersions(state: State): {
-  [name: string]: Set<string>;
-} {
-  return state.resourceState.attributionWizard.packageNamesToVersions;
-}
-
-export function getAttributionWizardPackageVersionsToNames(state: State): {
-  [version: string]: Set<string>;
-} {
-  return state.resourceState.attributionWizard.packageNamesToVersions;
-}
-
-export function getAttributionWizardSelectedPackageIds(
+export function getAttributionWizardSelectedPackageAttributeIds(
   state: State
-): SelectedPackageAttributeIds {
+): PackageAttributeIds {
   return state.resourceState.attributionWizard.selectedPackageAttributeIds;
 }
 

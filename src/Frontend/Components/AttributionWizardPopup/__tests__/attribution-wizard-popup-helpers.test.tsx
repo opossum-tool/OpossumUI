@@ -7,11 +7,7 @@ import {
   ListWithAttributesItem,
   PackageAttributes,
 } from '../../../types/types';
-import {
-  getAttributionWizardListItems,
-  sortAttributedPackageItems,
-  sortAttributedPackageVersions,
-} from '../attribution-wizard-popup-helpers';
+import { getAttributionWizardListItems } from '../attribution-wizard-popup-helpers';
 
 describe('getAttributionWizardListItems', () => {
   it('yields correct output', () => {
@@ -101,90 +97,6 @@ describe('getAttributionWizardListItems', () => {
     );
     expect(testAttributedPackageVersionsWithManuallyAddedOnes).toEqual(
       expectedAttributedPackageVersionsWithManuallyAddedOnes
-    );
-  });
-});
-
-describe('sortAttributedPackageItems', () => {
-  it('yields correct output', () => {
-    const testAttributedPackageItems: Array<ListWithAttributesItem> = [
-      { text: 'buffer', id: '1111', attributes: [{ text: '4 (40%)' }] },
-      { text: 'boost', id: '22222', attributes: [{ text: '6 (60%)' }] },
-      { text: 'numpy', id: '33333', manuallyAdded: true },
-    ];
-    const expectedSortedAttributedPackageItems: Array<ListWithAttributesItem> =
-      [
-        { text: 'numpy', id: '33333', manuallyAdded: true },
-        { text: 'boost', id: '22222', attributes: [{ text: '6 (60%)' }] },
-        { text: 'buffer', id: '1111', attributes: [{ text: '4 (40%)' }] },
-      ];
-
-    const testSortedAttributedPackageItems = sortAttributedPackageItems(
-      testAttributedPackageItems
-    );
-
-    expect(testSortedAttributedPackageItems).toEqual(
-      expectedSortedAttributedPackageItems
-    );
-  });
-});
-
-describe('sortAttributedPackageVersions', () => {
-  it('yields correct output', () => {
-    const testAttributedPackageVersions: Array<ListWithAttributesItem> = [
-      {
-        text: '6.0',
-        id: '1111',
-        attributes: [{ text: 'buffer', id: '2222' }],
-      },
-      {
-        text: '1.24.0',
-        id: '3333',
-        attributes: [{ text: 'numpy', id: '4444' }],
-      },
-      {
-        text: '6.0.3',
-        id: '5555',
-        attributes: [{ text: 'buffer', id: '6666' }],
-      },
-      {
-        text: '1.1.1',
-        id: '7777',
-        manuallyAdded: true,
-      },
-    ];
-    const testHighlightedPackageNameId = '6666';
-    const expectedSortedAttributedPackageVersions: Array<ListWithAttributesItem> =
-      [
-        {
-          text: '1.1.1',
-          id: '7777',
-          manuallyAdded: true,
-        },
-        {
-          text: '6.0.3',
-          id: '5555',
-          attributes: [{ text: 'buffer', id: '6666' }],
-        },
-        {
-          text: '1.24.0',
-          id: '3333',
-          attributes: [{ text: 'numpy', id: '4444' }],
-        },
-        {
-          text: '6.0',
-          id: '1111',
-          attributes: [{ text: 'buffer', id: '2222' }],
-        },
-      ];
-
-    const testSortedAttributedPackageVersions = sortAttributedPackageVersions(
-      testAttributedPackageVersions,
-      testHighlightedPackageNameId
-    );
-
-    expect(testSortedAttributedPackageVersions).toEqual(
-      expectedSortedAttributedPackageVersions
     );
   });
 });

@@ -162,8 +162,8 @@ export interface PackageAttributes {
   };
 }
 
-export interface SelectedPackageAttributeIds {
-  selectedPackageNamespaceId: string;
-  selectedPackageNameId: string;
-  selectedPackageVersionId: string;
+export interface PackageAttributeIds {
+  namespaceId: string;
+  nameId: string;
+  versionId: string;
 }
