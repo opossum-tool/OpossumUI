@@ -65,6 +65,8 @@ To work with OpossumUI, an input file can be opened to visualize and edit licens
 opening an input file for the first time, an accompanying output file with the naming convention
 "[INPUT NAME]\_attributions.json" is created in the same directory as the input file.
 
+If you open a `.opossum` file for the first time, it will be automatically updated.
+
 ## Generating input files
 
 Result files from _ScanCode_ and _SCANOSS_ can be converted into OpossumUI input files using 
@@ -108,6 +110,7 @@ For an in-depth explanation, read the [Users's Guide](USER_GUIDE.md).
 
 ## <a id="file_formats"></a> File formats
 
+Files with a `.opossum` extension are zip-archives which contain an `input.json` (must be provided) together with an `output.json` (optional).
 JSON schemas for both the [input](src/ElectronBackend/input/OpossumInputFileSchema.json)
 and [output](src/ElectronBackend/input/OpossumOutputFileSchema.json) files are available. Example files can be found
 under [example files](example-files/).
