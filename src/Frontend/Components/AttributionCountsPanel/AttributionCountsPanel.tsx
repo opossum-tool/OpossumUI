@@ -10,7 +10,8 @@ import { getManualAttributions } from '../../state/selectors/all-views-resource-
 import { OpossumColors } from '../../shared-styles';
 import {
   FollowUpIcon,
-  IncompletePackagesIcon,
+  IncompleteAttributionsIcon,
+  MissingPackageNameIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
 import pickBy from 'lodash/pickBy';
@@ -36,6 +37,9 @@ const classes = {
   incompleteAttributionIcon: {
     color: OpossumColors.lightOrange,
   },
+  missingPackageNameIcon: {
+    color: OpossumColors.darkOrange,
+  },
 };
 
 interface AttributionCountsPanelProps {
@@ -56,6 +60,10 @@ export function AttributionCountsPanel(
 
   const numberOfIncompleteAttributions = Object.keys(
     pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
+  ).length;
+
+  const numberOfAttributionsWithoutPackageName = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => !value.packageName)
   ).length;
 
   return (
@@ -80,13 +88,17 @@ export function AttributionCountsPanel(
         }}
       />
       {`, ${numberOfIncompleteAttributions}`}
-      <IncompletePackagesIcon
+      <IncompleteAttributionsIcon
         sx={{
           ...classes.incompleteAttributionIcon,
           ...classes.icons,
         }}
       />
-      )
+      {`, ${numberOfAttributionsWithoutPackageName}`}
+      <MissingPackageNameIcon
+        sx={{ ...classes.icons, ...classes.missingPackageNameIcon }}
+      />
+      {')'}
     </MuiTypography>
   );
 }

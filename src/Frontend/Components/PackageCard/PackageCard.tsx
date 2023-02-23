@@ -50,10 +50,13 @@ import {
   setMultiSelectSelectedAttributionIds,
 } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { getKey, getRightIcons } from './package-card-helpers';
+import {
+  getKey,
+  getPackageCardHighlighting,
+  getRightIcons,
+} from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { PackageInfo } from '../../../shared/shared-types';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
 
 const classes = {
@@ -139,9 +142,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       : undefined,
   };
 
-  const highlightedAttribution =
-    selectedView === View.Attribution &&
-    isPackageInfoIncomplete(manualAttributions[attributionId]);
+  const highlighting =
+    selectedView === View.Attribution
+      ? getPackageCardHighlighting(manualAttributions[attributionId])
+      : undefined;
 
   function getContextMenuItems(): Array<ContextMenuItem> {
     function openConfirmDeletionPopup(): void {
@@ -424,7 +428,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             openResourcesIcon
           )}
           leftElement={leftElement}
-          highlightedCard={highlightedAttribution}
+          highlighting={highlighting}
         />
       </ContextMenu>
     </MuiBox>

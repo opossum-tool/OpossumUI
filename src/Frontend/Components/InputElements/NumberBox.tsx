@@ -23,7 +23,7 @@ export function NumberBox(props: NumericProps): ReactElement {
         sx={{
           ...inputElementClasses.textField,
           ...(props.isHighlighted
-            ? inputElementClasses.highlightedTextField
+            ? inputElementClasses.defaultHighlightedTextField
             : {}),
         }}
         label={props.title}

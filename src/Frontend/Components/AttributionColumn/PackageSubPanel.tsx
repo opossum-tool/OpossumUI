@@ -17,6 +17,7 @@ import { SearchPackagesIcon } from '../Icons/Icons';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
 import { openUrl } from '../../util/open-url';
+import { HighlightingColor } from '../../enums/enums';
 
 const iconClasses = { clickableIcon, disabledIcon };
 
@@ -72,6 +73,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               props.displayPackageInfo
             )
           }
+          highlightingColor={HighlightingColor.DarkOrange}
         />
         <TextBox
           sx={{

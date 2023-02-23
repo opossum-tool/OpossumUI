@@ -9,6 +9,9 @@ import { inputElementClasses, InputElementProps } from './shared';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import { HighlightingColor } from '../../enums/enums';
+import { SystemStyleObject } from '@mui/system/styleFunctionSx';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 interface TextProps extends InputElementProps {
   textFieldSx?: SxProps;
@@ -17,20 +20,32 @@ interface TextProps extends InputElementProps {
   maxRows?: number;
   endIcon?: ReactElement;
   multiline?: boolean;
+  highlightingColor?: HighlightingColor;
 }
 
 export function TextBox(props: TextProps): ReactElement {
+  const isDefaultHighlighting =
+    props.highlightingColor === HighlightingColor.LightOrange ||
+    props.highlightingColor === undefined;
+
+  const highlightedStyling = isDefaultHighlighting
+    ? inputElementClasses.defaultHighlightedTextField
+    : props.highlightingColor === HighlightingColor.DarkOrange
+    ? inputElementClasses.strongHighlightedTextField
+    : {};
+
+  const textBoxSx = getSxFromPropsAndClasses({
+    sxProps: props.isHighlighted ? highlightedStyling : {},
+    styleClass: {
+      ...(props.textFieldSx as SystemStyleObject),
+      ...inputElementClasses.textField,
+    },
+  });
   return (
     <MuiBox sx={props.sx}>
       <MuiTextField
         disabled={!props.isEditable}
-        sx={{
-          ...props.textFieldSx,
-          ...inputElementClasses.textField,
-          ...(props.isHighlighted
-            ? inputElementClasses.highlightedTextField
-            : {}),
-        }}
+        sx={textBoxSx}
         label={props.title}
         InputProps={{
           inputProps: {

@@ -11,25 +11,13 @@ import { Criticality } from '../../../shared/shared-types';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
 import { merge } from 'lodash';
+import { HighlightingColor } from '../../enums/enums';
 
 const defaultCardHeight = '40px';
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;
 const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
 const defaultBackgroundColor = OpossumColors.lightestBlue;
 const packageBorder = `1px ${OpossumColors.white} solid`;
-
-const getHighlightedBackground = (
-  highlightColor: string,
-  backgroundColor: string
-): string => {
-  return (
-    'linear-gradient(225deg, ' +
-    highlightColor +
-    ' 44.5px, ' +
-    backgroundColor +
-    ' 0) 0 0/100% 40px no-repeat'
-  );
-};
 
 const classes = {
   root: {
@@ -54,19 +42,6 @@ const classes = {
       background: hoveredBackgroundColor,
     },
   },
-  highlightedPackage: {
-    border: packageBorder,
-    background: getHighlightedBackground(
-      OpossumColors.lightOrange,
-      defaultBackgroundColor
-    ),
-    '&:hover': {
-      background: getHighlightedBackground(
-        OpossumColors.lightOrangeOnHover,
-        hoveredBackgroundColor
-      ),
-    },
-  },
   externalAttribution: {
     background: defaultBackgroundColor,
     '&:hover': {
@@ -87,18 +62,6 @@ const classes = {
     background: OpossumColors.middleBlue,
     '&:hover': {
       background: hoveredSelectedBackgroundColor,
-    },
-  },
-  highlightedSelected: {
-    background: getHighlightedBackground(
-      OpossumColors.lightOrange,
-      OpossumColors.middleBlue
-    ),
-    '&:hover': {
-      background: getHighlightedBackground(
-        OpossumColors.lightOrangeOnHover,
-        hoveredSelectedBackgroundColor
-      ),
     },
   },
   hoveredSelected: {
@@ -199,7 +162,7 @@ interface ListCardProps {
   leftIcon?: JSX.Element;
   rightIcons?: Array<JSX.Element>;
   leftElement?: JSX.Element;
-  highlightedCard?: boolean;
+  highlighting?: HighlightingColor;
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
@@ -216,7 +179,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
   }
 
   return (
-    <MuiBox sx={getSx(props.cardConfig, props.highlightedCard)}>
+    <MuiBox sx={getSx(props.cardConfig, props.highlighting)}>
       {props.leftElement ? props.leftElement : null}
       <MuiBox
         sx={{
@@ -287,7 +250,10 @@ export function ListCard(props: ListCardProps): ReactElement | null {
   );
 }
 
-function getSx(cardConfig: ListCardConfig, highlightedCard?: boolean): SxProps {
+function getSx(
+  cardConfig: ListCardConfig,
+  highlighting?: HighlightingColor
+): SxProps {
   let sxProps: SxProps = { ...classes.root };
 
   if (cardConfig.isResource) {
@@ -326,15 +292,78 @@ function getSx(cardConfig: ListCardConfig, highlightedCard?: boolean): SxProps {
     if (cardConfig.isContextMenuOpen) {
       sxProps = merge(sxProps, classes.hoveredSelected);
     } else {
-      if (highlightedCard) {
-        sxProps = merge(sxProps, classes.highlightedSelected);
+      if (highlighting) {
+        sxProps = merge(
+          sxProps,
+          getHighlightedListCardStyle(highlighting, true)
+        );
       } else {
         sxProps = merge(sxProps, classes.selected);
       }
     }
-  } else if (highlightedCard) {
-    sxProps = merge(sxProps, classes.highlightedPackage);
+  } else if (highlighting) {
+    sxProps = merge(sxProps, getHighlightedListCardStyle(highlighting, false));
   }
 
   return sxProps;
+}
+
+function getHighlightedListCardStyle(
+  color: HighlightingColor,
+  selected: boolean
+): SxProps {
+  const highlightColor =
+    color === HighlightingColor.LightOrange
+      ? OpossumColors.lightOrange
+      : OpossumColors.darkOrange;
+  const backgroundColor = selected
+    ? OpossumColors.middleBlue
+    : defaultBackgroundColor;
+  const highlightColorOnHover =
+    color === HighlightingColor.LightOrange
+      ? OpossumColors.lightOrangeOnHover
+      : OpossumColors.darkOrangeOnHover;
+  const backgroundColorOnHover = selected
+    ? hoveredSelectedBackgroundColor
+    : hoveredBackgroundColor;
+
+  return getHighlightedStyleClass(
+    highlightColor,
+    backgroundColor,
+    highlightColorOnHover,
+    backgroundColorOnHover,
+    packageBorder
+  );
+}
+
+function getHighlightedStyleClass(
+  highlightColor: string,
+  backgroundColor: string,
+  highlightColorOnHover: string,
+  backgroundColorOnHover: string,
+  border: string
+): SxProps {
+  return {
+    border,
+    background: getHighlightedBackground(highlightColor, backgroundColor),
+    '&:hover': {
+      background: getHighlightedBackground(
+        highlightColorOnHover,
+        backgroundColorOnHover
+      ),
+    },
+  };
+}
+
+function getHighlightedBackground(
+  highlightColor: string,
+  backgroundColor: string
+): string {
+  return (
+    'linear-gradient(225deg, ' +
+    highlightColor +
+    ' 44.5px, ' +
+    backgroundColor +
+    ' 0) 0 0/100% 40px no-repeat'
+  );
 }

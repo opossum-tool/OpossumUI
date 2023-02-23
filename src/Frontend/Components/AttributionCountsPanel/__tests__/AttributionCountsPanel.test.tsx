@@ -34,7 +34,7 @@ describe('The Attribution Counts Panel', () => {
     [testOtherManualUuid]: {
       attributionConfidence: 0,
       comment: 'Some other comment',
-      packageName: 'Test other package',
+      packageName: '',
       packageVersion: '2.0',
       copyright: 'other Copyright John Doe',
       licenseText: 'Some other license text',
@@ -60,7 +60,8 @@ describe('The Attribution Counts Panel', () => {
     act(() => {
       store.dispatch(navigateToView(View.Attribution));
     });
-
-    expect(screen.getByText(/Attributions \(2 total, 1, 0, 1/));
+    expect(
+      screen.getByText(/Attributions \(2 total, 1, 0, 1, 1\)/, { exact: true })
+    );
   });
 });

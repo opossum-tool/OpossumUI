@@ -35,13 +35,23 @@ export const inputElementClasses = {
       },
     },
   },
-  highlightedTextField: {
+  defaultHighlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
       borderRadius: '0px',
     },
     '& label': {
       backgroundColor: OpossumColors.lightOrange,
+      padding: '1px 3px',
+    },
+  },
+  strongHighlightedTextField: {
+    '& div': {
+      backgroundColor: OpossumColors.darkOrange,
+      borderRadius: '0px',
+    },
+    '& label': {
+      backgroundColor: OpossumColors.darkOrange,
       padding: '1px 3px',
     },
   },
