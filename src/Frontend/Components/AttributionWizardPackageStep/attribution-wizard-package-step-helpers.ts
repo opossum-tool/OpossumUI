@@ -7,7 +7,9 @@ import { ListWithAttributesItem } from '../../types/types';
 
 export function sortAttributedPackageItems(
   attributedPackageItems: Array<ListWithAttributesItem>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+  // required for easy invoking of sortList in ListWithAttributes
+  // no logic to handle different numbers of input args necessary
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   highlightedPackageNameIds: Array<string>
 ): Array<ListWithAttributesItem> {
   return attributedPackageItems.sort(compareAttributedPackageItems);
@@ -21,7 +23,8 @@ function compareAttributedPackageItems(
 
   if (manuallyAddedA !== manuallyAddedB) {
     return manuallyAddedA ? -1 : 1;
-  } else if (manuallyAddedA && manuallyAddedB) {
+  }
+  if (manuallyAddedA && manuallyAddedB) {
     const textA = attributedPackageItemA.text;
     const textB = attributedPackageItemB.text;
     return textA.toLowerCase() < textB.toLowerCase() ? -1 : 1;
@@ -38,9 +41,8 @@ function compareAttributedPackageItems(
 
   if (countA !== countB) {
     return countB - countA;
-  } else {
-    const textA = attributedPackageItemA.text;
-    const textB = attributedPackageItemB.text;
-    return textA.toLowerCase() < textB.toLowerCase() ? -1 : 1;
   }
+  const textA = attributedPackageItemA.text;
+  const textB = attributedPackageItemB.text;
+  return textA.toLowerCase() < textB.toLowerCase() ? -1 : 1;
 }

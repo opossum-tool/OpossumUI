@@ -80,10 +80,9 @@ export function ListWithAttributes(
 
   const textInputIsInvalid = !textBoxInput || !textBoxInput.trim().length;
 
-  const listItemsToDisplay =
-    props.sortList !== undefined
-      ? props.sortList(props.listItems, props.highlightedAttributeIds)
-      : props.listItems;
+  const listItemsToDisplay = props.sortList
+    ? props.sortList(props.listItems, props.highlightedAttributeIds)
+    : props.listItems;
 
   return (
     <MuiBox sx={classes.titleAndListBox}>

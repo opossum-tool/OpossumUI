@@ -126,7 +126,7 @@ export function getAttributionWizardInitialState(
 function getPackageAttributes(
   externalAndManualAttributionIdsWithCounts: Array<AttributionIdWithCount>,
   externalAndManualAttributions: Attributions,
-  packageAttributeId: 'namespace' | 'name'
+  packageAttributeKey: 'namespace' | 'name'
 ): PackageAttributes {
   const packageAttributesAndCounts: NamesWithCounts = {};
   for (const attributionIdWithCount of externalAndManualAttributionIdsWithCounts) {
@@ -135,12 +135,12 @@ function getPackageAttributes(
     const packageCount = attributionIdWithCount.count ?? 0;
 
     let packageAttribute: string;
-    if (packageAttributeId === 'namespace') {
+    if (packageAttributeKey === 'namespace') {
       packageAttribute = packageInfo.packageNamespace || '';
-    } else if (packageAttributeId === 'name') {
+    } else if (packageAttributeKey === 'name') {
       packageAttribute = packageInfo.packageName || '';
     } else {
-      shouldNotBeCalled(packageAttributeId);
+      shouldNotBeCalled(packageAttributeKey);
     }
 
     packageAttributesAndCounts[packageAttribute] =

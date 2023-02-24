@@ -25,6 +25,7 @@ import {
   changeSelectedAttributionIdOrOpenUnsavedPopup,
   navigateToSelectedPathOrOpenUnsavedPopup,
   navigateToTargetResourceOrAttribution,
+  openAttributionWizardPopup,
   saveTemporaryPackageInfoAndNavigateToTargetView,
   selectAttributionInAccordionPanelOrOpenUnsavedPopup,
   selectAttributionInManualPackagePanelOrOpenUnsavedPopup,
@@ -51,6 +52,8 @@ import {
 } from '../../resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../resource-actions/load-actions';
 import {
+  setExternalData,
+  setManualData,
   setResources,
   setTemporaryPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
@@ -64,6 +67,15 @@ import {
   getSelectedAttributionId,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
+import { act } from 'react-dom/test-utils';
+import {
+  getAttributionWizarOriginalAttribution,
+  getAttributionWizardPackageNamespaces,
+  getAttributionWizardPackageNames,
+  getAttributionWizardPackageVersions,
+  getAttributionWizardSelectedPackageAttributeIds,
+  getAttributionWizardTotalAttributionCount,
+} from '../../../selectors/attribution-wizard-selectors';
 
 describe('The actions checking for unsaved changes', () => {
   describe('navigateToSelectedPathOrOpenUnsavedPopup', () => {
@@ -509,5 +521,123 @@ describe('The actions called from the unsaved popup', () => {
       const state: State = prepareTestState();
       expect(getManualAttributions(state)).toMatchObject({});
     });
+  });
+});
+
+describe('openAttributionWizardPopup', () => {
+  const selectedResourceId = '/samplepath/';
+  const testManualAttributions: Attributions = {
+    uuid_0: {
+      packageType: 'generic',
+      packageName: 'react',
+      packageNamespace: 'npm',
+      packageVersion: '18.2.0',
+    },
+  };
+  const testManualResourcesToAttributions: ResourcesToAttributions = {
+    [selectedResourceId]: ['uuid_0'],
+  };
+  const testExternalAttributions: Attributions = {
+    uuid_1: {
+      packageType: 'generic',
+      packageName: 'numpy',
+      packageNamespace: 'pip',
+      packageVersion: '1.24.1',
+    },
+  };
+  const testExternalResourcesToAttributions: ResourcesToAttributions = {
+    '/samplepath/file': ['uuid_1'],
+  };
+
+  it('writes initial attribution wizard state into store', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId(selectedResourceId));
+    testStore.dispatch(
+      setExternalData(
+        testExternalAttributions,
+        testExternalResourcesToAttributions
+      )
+    );
+    testStore.dispatch(
+      setManualData(testManualAttributions, testManualResourcesToAttributions)
+    );
+    act(() => {
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
+    });
+    const expectedOriginalAttribution: PackageInfo = {
+      packageType: 'generic',
+      packageName: 'react',
+      packageNamespace: 'npm',
+      packageVersion: '18.2.0',
+    };
+    const expectedPackageNamespacesValues = [
+      { text: 'pip', count: 1 },
+      { text: 'npm', count: 1 },
+    ];
+    const expectedPackageNamesValues = [
+      { text: 'numpy', count: 1 },
+      { text: 'react', count: 1 },
+    ];
+    const expectedPackageVersionsValues = [
+      { text: '1.24.1' },
+      { text: '18.2.0' },
+    ];
+    const expectedTotalAttributionCount = 2;
+
+    const testOriginalAttribution = getAttributionWizarOriginalAttribution(
+      testStore.getState()
+    );
+    const testPackageNamespaces = getAttributionWizardPackageNamespaces(
+      testStore.getState()
+    );
+    const testPackageNames = getAttributionWizardPackageNames(
+      testStore.getState()
+    );
+    const testPackageVersions = getAttributionWizardPackageVersions(
+      testStore.getState()
+    );
+    const testSelectedPackageAttributeIds =
+      getAttributionWizardSelectedPackageAttributeIds(testStore.getState());
+    const testTotalAttributionCount = getAttributionWizardTotalAttributionCount(
+      testStore.getState()
+    );
+
+    expect(testOriginalAttribution).toEqual(expectedOriginalAttribution);
+    expect(Object.values(testPackageNamespaces)).toEqual(
+      expectedPackageNamespacesValues
+    );
+    expect(Object.values(testPackageNames)).toEqual(expectedPackageNamesValues);
+    Object.values(testPackageVersions).forEach((packageVersion, index) => {
+      expect(packageVersion.text).toBe(
+        expectedPackageVersionsValues[index].text
+      );
+      expect(packageVersion).toHaveProperty('relatedIds');
+    });
+    expect(testTotalAttributionCount).toBe(expectedTotalAttributionCount);
+    expect(testSelectedPackageAttributeIds.namespaceId.length).toBeGreaterThan(
+      0
+    );
+    expect(testSelectedPackageAttributeIds.nameId.length).toBeGreaterThan(0);
+    expect(testSelectedPackageAttributeIds.versionId.length).toBeGreaterThan(0);
+  });
+
+  it('opens popup', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId(selectedResourceId));
+    testStore.dispatch(
+      setExternalData(
+        testExternalAttributions,
+        testExternalResourcesToAttributions
+      )
+    );
+    testStore.dispatch(
+      setManualData(testManualAttributions, testManualResourcesToAttributions)
+    );
+    act(() => {
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
+    });
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.AttributionWizardPopup
+    );
   });
 });

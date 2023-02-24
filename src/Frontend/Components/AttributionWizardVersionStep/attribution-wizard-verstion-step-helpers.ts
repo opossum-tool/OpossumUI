@@ -30,7 +30,8 @@ function compareVersionAttributeHighlighting(
 
   if (manuallyAddedA !== manuallyAddedB) {
     return manuallyAddedA ? -1 : 1;
-  } else if (manuallyAddedA && manuallyAddedB) {
+  }
+  if (manuallyAddedA && manuallyAddedB) {
     const textA = attributedPackageVersionA.text;
     const textB = attributedPackageVersionB.text;
     return textA.toLowerCase() < textB.toLowerCase() ? -1 : 1;
@@ -70,7 +71,8 @@ function compareSemanticVersion(versionA: string, versionB: string): number {
 
   if (!versionAIsValid && !versionBIsValid) {
     return compareAlphabetically(versionA, versionB);
-  } else if (!versionAIsValid || !versionBIsValid) {
+  }
+  if (!versionAIsValid || !versionBIsValid) {
     return !versionAIsValid ? 1 : -1;
   }
 

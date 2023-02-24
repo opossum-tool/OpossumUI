@@ -220,7 +220,7 @@ export function closeEditAttributionPopupOrOpenUnsavedPopup(
 }
 
 export function openAttributionWizardPopup(
-  popupAttributionId: string
+  originalAttributionId: string
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
@@ -229,7 +229,7 @@ export function openAttributionWizardPopup(
     const resolvedExternalAttributions = getResolvedExternalAttributions(
       getState()
     );
-    const manualAttributions = getManualAttributions(getState());
+    const manualAttributions = manualData.attributions;
 
     const allAttributionIdsOfResourceAndChildrenWithCounts =
       getAllAttributionIdsWithCountsFromResourceAndChildren(
@@ -253,7 +253,9 @@ export function openAttributionWizardPopup(
     );
 
     const originalAttribution =
-      popupAttributionId !== null ? manualAttributions[popupAttributionId] : {};
+      originalAttributionId !== null
+        ? manualAttributions[originalAttributionId]
+        : {};
 
     const {
       preSelectedPackageNamespaceId,
@@ -279,7 +281,9 @@ export function openAttributionWizardPopup(
     );
     dispatch(setAttributionWizardTotalAttributionCount(totalAttributionCount));
 
-    dispatch(openPopup(PopupType.AttributionWizardPopup, popupAttributionId));
+    dispatch(
+      openPopup(PopupType.AttributionWizardPopup, originalAttributionId)
+    );
   };
 }
 

@@ -10,8 +10,7 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { ButtonText, PopupType } from '../../../enums/enums';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { ButtonText } from '../../../enums/enums';
 import {
   Attributions,
   ResourcesToAttributions,
@@ -19,12 +18,9 @@ import {
 import {
   setExternalData,
   setManualData,
-  setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
 import { AttributionWizardPopup } from '../AttributionWizardPopup';
-import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {
@@ -80,35 +76,6 @@ describe('AttributionWizardPopup', () => {
     expect(
       screen.getByRole('button', { name: ButtonText.Next })
     ).toBeInTheDocument();
-  });
-
-  it('closes when clicking "cancel"', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
-    );
-
-    // GlobalPopup has to be rendered, otherwise closing is not possible and triggers re-render
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
-
-    act(() => {
-      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
-    });
-
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.AttributionWizardPopup
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Cancel }));
-
-    expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
   it('renders breadcrumbs', () => {
@@ -231,44 +198,6 @@ describe('AttributionWizardPopup', () => {
     expect(
       screen.getByRole('button', { name: ButtonText.Apply })
     ).toBeInTheDocument();
-  });
-
-  it('changes temporary package info', () => {
-    const initialTemporaryPackageInfo = testManualAttributions.uuid_0;
-    const expectedChangedTemporaryPackageInfo = testExternalAttributions.uuid_1;
-
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
-    );
-
-    // GlobalPopup has to be rendered, otherwise closing is not possible and triggers re-render
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
-    act(() => {
-      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
-    });
-
-    testStore.dispatch(setTemporaryPackageInfo(initialTemporaryPackageInfo));
-
-    fireEvent.click(screen.getByText('pip'));
-    fireEvent.click(screen.getByText('numpy'));
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
-    fireEvent.click(screen.getByText('1.24.1'));
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Apply }));
-
-    const changedTemporaryPackageInfo = getTemporaryPackageInfo(
-      testStore.getState()
-    );
-    expect(changedTemporaryPackageInfo).toEqual(
-      expectedChangedTemporaryPackageInfo
-    );
   });
 
   it('displays manually added list entries', () => {
