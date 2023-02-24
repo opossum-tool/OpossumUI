@@ -7,13 +7,34 @@ SPDX-License-Identifier: CC0-1.0
 
 # User's Guide
 
-## How to get & run OpossumUI
+## Table of contents
 
-### Get the latest release
+1. [How to get & run OpossumUI](#get_and_run_OpossumUI)
+    1. [Get the latest release](#get_latest_release)
+    2. [Running the app](#running_the_app)
+2. [Working with OpossumUI](#working_with_OpossumUI)
+    1. [Opossum file format](#dot_opossum)
+    2. [Json files](#json_files)
+    3. [Opening a file](#opening_a_file)
+    4. [Search](#search)
+    5. [Project Metadata](#project_metadata)
+    6. [Project Statistics](#project_statistics)
+    7. [Exporting Formats](#exporting_formats)
+    8. [Attributions](#attributions)
+    9. [Top Bar](#top_bar)
+    10. [Audit View](#audit_view)
+    11. [Attribution View](#attribution_view)
+    12. [Report View](#report_view)
+    
+
+
+## How to get & run OpossumUI <a name="get_and_run_OpossumUI"></a>
+
+### Get the latest release <a name="get_latest_release"></a>
 
 Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
-### Running the app
+### Running the app <a name="running_the_app"></a>
 
 #### Linux
 
@@ -27,9 +48,13 @@ Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
 
 Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from the start menu.
 
-## Working with OpossumUI
+## Working with OpossumUI <a name="working_with_OpossumUI"></a>
 
-### Opening a File
+### Opossum file format <a name="dot_opossum"></a>
+
+Files with a `.opossum` extension are zip-archives which contain an _input.json_ (must be provided) together with an _output.json_ (optional). An output file will be automatically created and added to the archive after opening the archive if there is no such file yet.
+
+### Json files <a name="json_files"></a>
 
 Two .json files are used by the app to store data:
 
@@ -39,27 +64,31 @@ Two .json files are used by the app to store data:
 The output file must be in the same folder as the input file and called `[NAME_OF_THE_FIRST_FILE]_attributions.json`
 to be recognized by the app.
 
+### Opening a File <a name="opening_a_file"></a>
+
 To open the input file in the app, click the _Open File_ button on the left of the top bar (or on the entry in the
 _File_ menu with the same name).
 
 ![integration](./docs/user_guide_screenshots/open_file.png)
 
-### Search
+If you try to open a _.json_ file, a popup will be shown which asks whether you would like to create a `.opossum` file and proceed (recommended) or continue working with the old format (two separate _.json_ files).
+
+### Search <a name="search"></a>
 
 To search for a path, press `CTRL + F` or open the `Edit` menu and select `Search for Files and Folders`.
 
 ![integration](./docs/user_guide_screenshots/search.png)
 
-### Project Metadata
+### Project Metadata <a name="project_metadata"></a>
 
 To view project metadata, open the `File` menu and select `Project Metadata`.
 
-### Project Statistics
+### Project Statistics <a name="project_statistics"></a>
 
 To view project statistics, open the `File` menu and select `Project Statistics`. This opens a popup that shows various
 tables and pie charts summarizing the state of the project.
 
-### Exporting Formats
+### Exporting Formats <a name="exporting_formats"></a>
 
 It is possible to directly export data to files. The following formats are available:
 
@@ -73,7 +102,7 @@ To generate a document, open the `File` menu and select `Export`.
 
 <img src="./docs/user_guide_screenshots/exports.png" width="550"/>
 
-### Attributions
+### Attributions <a name="attributions"></a>
 
 The basic building block of license/attribution information in the opossumUI is the **Attribution**. An **Attribution**
 isn't only a software package with name & version (or purl) and copyright, distributed under one or more licenses. It
@@ -87,7 +116,7 @@ In the opossumUI, a distinction between **signals** and **attributions** is made
   come from automatic tools or previous run of the opossumUI. They have a **source** and can be used as starting point for
   assigning attributions.
 
-### Top Bar
+### Top Bar <a name="top_bar></a>
 
 In the `Top Bar`, the following elements are present. From left to right:
 
@@ -116,7 +145,7 @@ are described in more detail in the respective sections).
 The app version is crucial to allow the development team to reproduce bugs: please always include it in
 screenshots/videos/emails documenting a bug.
 
-### Audit View
+### Audit View <a name="audit_view"></a>
 
 ![integration](./docs/user_guide_screenshots/audit_view.png)
 
@@ -275,7 +304,7 @@ _Delete Globally_, _Confirm_, _Confirm Globally_, _Mark for replacement_, _Hide_
 context menu, right-click a signal or an attribution, e.g. in the `Attributions Sub-Panel`, `Signals Sub-Panel` or
 `Attribution List`.
 
-### Attribution View
+### Attribution View <a name="attribution_view"></a>
 
 ![integration](./docs/user_guide_screenshots/attribution_view.png)
 
@@ -308,7 +337,7 @@ The `Selected Attribution Panel` looks much like the `Selected Resource Panel`. 
 - A `Resource List` shows the path of all resources linked to the selected attribution. Clicking on a path shows the
   selected resource in the `Audit View`.
 
-### Report View
+### Report View <a name="report_view"></a>
 
 ![integration](./docs/user_guide_screenshots/report_view.png)
 
