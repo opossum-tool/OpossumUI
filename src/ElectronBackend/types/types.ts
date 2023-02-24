@@ -23,6 +23,7 @@ export interface GlobalBackendState {
   projectTitle?: string;
   resourceFilePath?: string;
   attributionFilePath?: string;
+  opossumFilePath?: string;
   followUpFilePath?: string;
   compactBomFilePath?: string;
   detailedBomFilePath?: string;

@@ -38,15 +38,15 @@ import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
 import { createMenu } from './menu';
-import {
-  addOutputToOpossumFile,
-  parseOutputJsonFile,
-} from '../input/parseFile';
+import { parseOutputJsonFile } from '../input/parseFile';
 import hash from 'object-hash';
 import upath from 'upath';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { writeJsonToFile } from '../output/writeJsonToFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
+import { getLoadedFileType } from '../utils/getLoadedFile';
+import { LoadedFileFormat } from '../enums/enums';
+import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 
 export function getSaveFileListener(
   webContents: WebContents
@@ -63,7 +63,7 @@ export function getSaveFileListener(
         );
       }
 
-      const attributionFileContent: OpossumOutputFile = {
+      const outputFileContent: OpossumOutputFile = {
         metadata: {
           projectId: globalBackendState.projectId,
           fileCreationDate: String(Date.now()),
@@ -75,26 +75,26 @@ export function getSaveFileListener(
           args.resolvedExternalAttributions
         ),
       };
-      if (
-        globalBackendState.resourceFilePath &&
-        isOpossumFileFormat(globalBackendState.resourceFilePath)
-      ) {
-        const opossumFilePath = globalBackendState.resourceFilePath;
-        addOutputToOpossumFile(opossumFilePath, attributionFileContent);
-      } else if (!globalBackendState.attributionFilePath) {
-        throw new Error(
-          'Failed to save data. The file paths are incorrect.' +
-            `\nresourceFilePath: ${globalBackendState.resourceFilePath}` +
-            `\nattributionFilePath: ${globalBackendState.attributionFilePath}`
-        );
-      } else {
-        writeJsonToFile(
-          globalBackendState.attributionFilePath,
-          attributionFileContent
-        );
-      }
+
+      writeOutputJsonToFile(outputFileContent);
     }
   );
+}
+
+function writeOutputJsonToFile(outputFileContent: OpossumOutputFile): void {
+  const globalBackendState = getGlobalBackendState();
+  const fileLoadedType = getLoadedFileType(globalBackendState);
+  if (fileLoadedType === LoadedFileFormat.Opossum) {
+    writeOutputJsonToOpossumFile(
+      globalBackendState.opossumFilePath as string,
+      outputFileContent
+    );
+  } else {
+    writeJsonToFile(
+      globalBackendState.attributionFilePath as string,
+      outputFileContent
+    );
+  }
 }
 
 const outputFileEnding = '_attributions.json';
@@ -122,23 +122,23 @@ export function getOpenFileListener(
 
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
-  resourceFilePath: string
+  filePath: string
 ): Promise<void> {
   let checksums;
-  const isOpossumFormat = isOpossumFileFormat(resourceFilePath);
+  const isOpossumFormat = isOpossumFileFormat(filePath);
+
   if (!isOpossumFormat) {
-    checksums = getActualAndParsedChecksums(resourceFilePath);
+    checksums = getActualAndParsedChecksums(filePath);
   }
 
   log.info('Initializing global backend state');
   initializeGlobalBackendState(
-    resourceFilePath,
+    filePath,
     isOpossumFormat,
     checksums?.actualInputFileChecksum
   );
 
   const inputFileChanged =
-    !isOpossumFormat &&
     checksums &&
     checksums.parsedInputFileChecksum &&
     checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
@@ -153,7 +153,7 @@ export async function handleOpeningFile(
     );
   } else {
     log.info('Checksum of the input file has not changed.');
-    await openFile(mainWindow, resourceFilePath);
+    await openFile(mainWindow, filePath);
   }
 }
 
@@ -183,10 +183,11 @@ function initializeGlobalBackendState(
   inputFileChecksum?: string
 ): void {
   const newGlobalBackendState: GlobalBackendState = {
-    resourceFilePath: filePath,
+    resourceFilePath: isOpossumFormat ? undefined : filePath,
     attributionFilePath: isOpossumFormat
       ? undefined
       : getFilePathWithAppendix(filePath, '_attributions.json'),
+    opossumFilePath: isOpossumFormat ? filePath : undefined,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(
       filePath,
@@ -209,7 +210,7 @@ export function getKeepFileListener(
   return createListenerCallbackWithErrorHandling(
     mainWindow.webContents,
     async () => {
-      const filePath = getResourceFilePath();
+      const filePath = getGlobalBackendState().resourceFilePath as string;
       log.info('Opening file: ', filePath);
       await openFile(mainWindow, filePath);
     }
@@ -222,10 +223,13 @@ export function getDeleteAndCreateNewAttributionFileListener(
   return createListenerCallbackWithErrorHandling(
     mainWindow.webContents,
     async () => {
-      const filePath = getResourceFilePath();
       const globalBackendState = getGlobalBackendState();
+      const resourceFilePath = globalBackendState.resourceFilePath as string;
 
-      log.info('Deleting attribution file and opening input file: ', filePath);
+      log.info(
+        'Deleting attribution file and opening input file: ',
+        resourceFilePath
+      );
       if (globalBackendState.attributionFilePath) {
         fs.unlinkSync(globalBackendState.attributionFilePath);
       } else {
@@ -234,20 +238,9 @@ export function getDeleteAndCreateNewAttributionFileListener(
             `\n${globalBackendState.attributionFilePath}`
         );
       }
-      await openFile(mainWindow, filePath);
+      await openFile(mainWindow, resourceFilePath);
     }
   );
-}
-
-function getResourceFilePath(): string {
-  let filePath: string;
-  const globalBackendState = getGlobalBackendState();
-  if (globalBackendState.resourceFilePath) {
-    filePath = globalBackendState.resourceFilePath;
-  } else {
-    throw new Error('Resource file path is falsy.');
-  }
-  return filePath;
 }
 
 export function getSelectBaseURLListener(webContents: WebContents): () => void {

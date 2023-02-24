@@ -17,7 +17,6 @@ import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import Asm from 'stream-json/Assembler';
 import { Parser, parser } from 'stream-json';
 import JSZip from 'jszip';
-import log from 'electron-log';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
@@ -66,35 +65,6 @@ export async function parseOpossumFile(
     input: parsedInputData as ParsedOpossumInputFile,
     output: parsedOutputData as ParsedOpossumOutputFile,
   };
-}
-
-export async function addOutputToOpossumFile(
-  opossumfilePath: string,
-  outputfileData: unknown
-): Promise<void> {
-  const new_zip = new JSZip();
-
-  await new Promise<void>((resolve) => {
-    fs.readFile(opossumfilePath, (err, data) => {
-      if (err) throw err;
-      new_zip.loadAsync(data).then(() => {
-        new_zip.file('output.json', JSON.stringify(outputfileData));
-        const writeStream = fs.createWriteStream(opossumfilePath);
-        new_zip
-          .generateNodeStream({
-            type: 'nodebuffer',
-            streamFiles: true,
-            compression: 'DEFLATE',
-            compressionOptions: { level: 1 },
-          })
-          .pipe(writeStream)
-          .on('finish', () => {
-            log.info('opossum file was overwritten!');
-            resolve();
-          });
-      });
-    });
-  });
 }
 
 export function parseInputJsonFile(
