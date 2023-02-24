@@ -17,7 +17,7 @@ import {
   ExportType,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { loadJsonFromFilePath } from '../../input/importFromFile';
+import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
@@ -110,7 +110,7 @@ jest.mock('../../output/writeSpdxFile', () => ({
 }));
 
 jest.mock('../../input/importFromFile', () => ({
-  loadJsonFromFilePath: jest.fn(),
+  loadInputAndOutputFromFilePath: jest.fn(),
 }));
 
 jest.mock('../../utils/getFilePathWithAppendix', () => ({
@@ -130,7 +130,7 @@ describe('getOpenFileListener', () => {
     ['path.json', 'path.json'],
     ['path%20with%2Fencoding.json', 'path with/encoding.json'],
   ]).it(
-    'calls loadJsonFromFilePath and handles %s correctly',
+    'calls loadInputAndOutputFromFilePath and handles %s correctly',
     async (filePath: string, expectedTitle: string) => {
       const mainWindow = {
         webContents: {
@@ -149,7 +149,7 @@ describe('getOpenFileListener', () => {
       await getOpenFileListener(mainWindow)();
 
       expect(openFileDialog).toBeCalled();
-      expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+      expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
         jsonPath
       );
@@ -199,7 +199,7 @@ describe('getOpenFileListener', () => {
     await getOpenFileListener(mainWindow)();
 
     expect(openFileDialog).toBeCalled();
-    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       expectedPath
     );
@@ -308,7 +308,7 @@ describe('getOpenFileListener', () => {
     await getOpenFileListener(mainWindow)();
 
     expect(openFileDialog).toBeCalled();
-    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       expectedPath
     );
@@ -324,8 +324,9 @@ describe('getOpenFileListener', () => {
     } as unknown as BrowserWindow;
 
     // @ts-ignore
-    loadJsonFromFilePath.mockImplementationOnce(
-      jest.requireActual('../../input/importFromFile').loadJsonFromFilePath
+    loadInputAndOutputFromFilePath.mockImplementationOnce(
+      jest.requireActual('../../input/importFromFile')
+        .loadInputAndOutputFromFilePath
     );
     // @ts-ignore
     getFilePathWithAppendix.mockImplementation(
@@ -363,7 +364,7 @@ describe('getOpenFileListener', () => {
 });
 
 describe('getDeleteAndCreateNewAttributionFileListener', () => {
-  it('deletes attribution file and calls loadJsonFromFilePath', async () => {
+  it('deletes attribution file and calls loadInputAndOutputFromFilePath', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -387,7 +388,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
     await getDeleteAndCreateNewAttributionFileListener(mainWindow)();
 
     expect(fs.existsSync(jsonPath)).toBeFalsy();
-    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       '/somefile.json'
     );
@@ -396,7 +397,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
 });
 
 describe('getKeepFileListener', () => {
-  it('calls loadJsonFromFilePath with a correct path', async () => {
+  it('calls loadInputAndOutputFromFilePath with a correct path', async () => {
     const mainWindow = {
       webContents: {
         send: jest.fn(),
@@ -410,7 +411,7 @@ describe('getKeepFileListener', () => {
 
     await getKeepFileListener(mainWindow)();
 
-    expect(loadJsonFromFilePath).toHaveBeenCalledWith(
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
       '/somefile.json'
     );
@@ -445,7 +446,7 @@ describe('getSaveFileListener', () => {
     writeJsonToFile.mockReset();
   });
 
-  it('throws error when attributionFilePath and projectId are not set', async () => {
+  it('throws error when projectId is not set', async () => {
     const mockCallback = jest.fn();
     const webContents = { send: mockCallback as unknown } as WebContents;
     setGlobalBackendState({});
@@ -463,8 +464,39 @@ describe('getSaveFileListener', () => {
       expect.objectContaining({
         type: 'error',
         message:
-          'Error in app backend: Failed to save data. Either projectId or file' +
-          ' path are incorrect.\nprojectId: undefined\nattributionFilePath: undefined',
+          'Error in app backend: Failed to save data. ' +
+          'The projectId is incorrect.\nprojectId: undefined',
+        buttons: ['Reload File', 'Quit'],
+      })
+    );
+    expect(writeJsonToFile).not.toBeCalled();
+  });
+
+  it('throws error when attributionFilePath is not set', async () => {
+    const mockCallback = jest.fn();
+    const webContents = { send: mockCallback as unknown } as WebContents;
+    setGlobalBackendState({});
+
+    setGlobalBackendState({
+      projectId: 'uuid_1',
+    });
+
+    await getSaveFileListener(webContents)(
+      AllowedFrontendChannels.SaveFileRequest,
+      {
+        manualAttributions: {},
+        resourcesToAttributions: {},
+        resolvedExternalAttributions: new Set(),
+      }
+    );
+
+    expect(dialog.showMessageBox).toBeCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message:
+          'Error in app backend: Failed to save data. ' +
+          'The file paths are incorrect.\nresourceFilePath: undefined' +
+          '\nattributionFilePath: undefined',
         buttons: ['Reload File', 'Quit'],
       })
     );

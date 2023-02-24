@@ -11,7 +11,11 @@ export async function openFileFromCliIfProvided(
 ): Promise<void> {
   let inputFileName: string | null = null;
   for (const arg of process.argv) {
-    if (arg.endsWith('.json') || arg.endsWith('.json.gz')) {
+    if (
+      arg.endsWith('.json') ||
+      arg.endsWith('.json.gz') ||
+      arg.endsWith('.opossum')
+    ) {
       inputFileName = arg;
       break;
     }

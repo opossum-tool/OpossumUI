@@ -11,12 +11,18 @@ import zlib from 'zlib';
 import upath from 'upath';
 import {
   OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../../types/types';
-import { parseOpossumInputFile, parseOpossumOutputFile } from '../parseFile';
+import {
+  parseInputJsonFile,
+  parseOpossumFile,
+  parseOutputJsonFile,
+} from '../parseFile';
 import { cloneDeep, set } from 'lodash';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
 
 const testUuid: string = uuidNil;
 const correctInput: ParsedOpossumInputFile = {
@@ -102,7 +108,100 @@ const corruptInput = {
   },
 };
 
-describe('parseResources', () => {
+const correctOutput: OpossumOutputFile = {
+  metadata: {
+    projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
+    fileCreationDate: 'Attributions',
+  },
+  manualAttributions: {
+    [testUuid]: {
+      packageName: 'Some package',
+      packageVersion: '16.0.1',
+      licenseText: '',
+    },
+  },
+  resourcesToAttributions: {
+    '/folder/Types/types.ts': [testUuid],
+  },
+  resolvedExternalAttributions: [],
+};
+
+const correctParsedOuput: ParsedOpossumOutputFile = {
+  ...correctOutput,
+  resolvedExternalAttributions: new Set(),
+};
+
+describe('parseOpossumFile', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('reads a .opossum file with only input correctly', async () => {
+    const testInputContent = correctInput;
+    const temporaryPath: string = createTempFolder();
+    const opossumFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      'test.opossum'
+    );
+    await writeOpossumFile(opossumFilePath, testInputContent, null);
+
+    const parsingResult = (await parseOpossumFile(
+      opossumFilePath
+    )) as ParsedOpossumInputAndOutput;
+    expect(parsingResult.input).toStrictEqual(testInputContent);
+    expect(parsingResult.output).toBeNull;
+
+    deleteFolder(temporaryPath);
+  });
+
+  it('reads a .opossum file with input and output correctly', async () => {
+    const testInputContent = correctInput;
+    const testOutputContent = correctOutput;
+    const temporaryPath: string = createTempFolder();
+    const opossumFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      'test.opossum'
+    );
+    await writeOpossumFile(
+      opossumFilePath,
+      testInputContent,
+      testOutputContent
+    );
+
+    const parsingResult = (await parseOpossumFile(
+      opossumFilePath
+    )) as ParsedOpossumInputAndOutput;
+    expect(parsingResult.input).toStrictEqual(testInputContent);
+    expect(parsingResult.output).toStrictEqual(correctParsedOuput);
+
+    deleteFolder(temporaryPath);
+  });
+
+  it('returns JSONParsingError on an incorrect .opossum file', async () => {
+    const testInputContent = corruptInput;
+    const testOutputContent = correctOutput;
+    const temporaryPath: string = createTempFolder();
+    const opossumFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      'test.opossum'
+    ); //test
+
+    await writeOpossumFile(
+      opossumFilePath,
+      testInputContent,
+      testOutputContent
+    );
+
+    const result = await parseOpossumFile(opossumFilePath);
+    expect(result).toEqual({
+      message: expect.any(String),
+      type: 'jsonParsingError',
+    });
+    deleteFolder(temporaryPath);
+  });
+});
+
+describe('parseInputJsonFile', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -116,7 +215,7 @@ describe('parseResources', () => {
     );
     fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
 
-    const resources = await parseOpossumInputFile(resourcesPath);
+    const resources = await parseInputJsonFile(resourcesPath);
     expect(resources).toStrictEqual(testFileContent);
     deleteFolder(temporaryPath);
   });
@@ -141,7 +240,7 @@ describe('parseResources', () => {
     );
     fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
 
-    const resources = await parseOpossumInputFile(resourcesPath);
+    const resources = await parseInputJsonFile(resourcesPath);
 
     expect(resources).toStrictEqual(testFileContent);
     deleteFolder(temporaryPath);
@@ -156,7 +255,7 @@ describe('parseResources', () => {
     );
     fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
 
-    const result = await parseOpossumInputFile(resourcesPath);
+    const result = await parseInputJsonFile(resourcesPath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
@@ -173,7 +272,7 @@ describe('parseResources', () => {
     );
     fs.writeFileSync(resourcesPath, testFileContent);
 
-    const resources = await parseOpossumInputFile(resourcesPath);
+    const resources = await parseInputJsonFile(resourcesPath);
     expect(resources).toStrictEqual(correctInput);
     deleteFolder(temporaryPath);
   });
@@ -187,7 +286,7 @@ describe('parseResources', () => {
     );
     fs.writeFileSync(resourcesPath, testFileContent);
 
-    const result = await parseOpossumInputFile(resourcesPath);
+    const result = await parseInputJsonFile(resourcesPath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
@@ -196,30 +295,7 @@ describe('parseResources', () => {
   });
 });
 
-describe('parseOpossumOutputFile', () => {
-  const testCorrectFileContent: OpossumOutputFile = {
-    metadata: {
-      projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
-      fileCreationDate: 'Attributions',
-    },
-    manualAttributions: {
-      [testUuid]: {
-        packageName: 'Some package',
-        packageVersion: '16.0.1',
-        licenseText: '',
-      },
-    },
-    resourcesToAttributions: {
-      '/folder/Types/types.ts': [testUuid],
-    },
-    resolvedExternalAttributions: [],
-  };
-
-  const testCorrectParsedFileContent: ParsedOpossumOutputFile = {
-    ...testCorrectFileContent,
-    resolvedExternalAttributions: new Set(),
-  };
-
+describe('parseOutputJsonFile', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -230,11 +306,11 @@ describe('parseOpossumOutputFile', () => {
       upath.toUnix(temporaryPath),
       'test_attributions.json'
     );
-    fs.writeFileSync(attributionPath, JSON.stringify(testCorrectFileContent));
+    fs.writeFileSync(attributionPath, JSON.stringify(correctOutput));
 
-    const attributions = parseOpossumOutputFile(attributionPath);
+    const attributions = parseOutputJsonFile(attributionPath);
 
-    expect(attributions).toStrictEqual(testCorrectParsedFileContent);
+    expect(attributions).toStrictEqual(correctParsedOuput);
     deleteFolder(temporaryPath);
   });
 
@@ -249,7 +325,7 @@ describe('parseOpossumOutputFile', () => {
       JSON.stringify({ test: 'Invalid file.' })
     );
 
-    expect(() => parseOpossumOutputFile(attributionPath)).toThrow(
+    expect(() => parseOutputJsonFile(attributionPath)).toThrow(
       `Error: ${attributionPath} is not a valid attribution file.`
     );
     deleteFolder(temporaryPath);
@@ -262,12 +338,12 @@ describe('parseOpossumOutputFile', () => {
       'test_attributions.json'
     );
     const fileContentWithWrongProjectId: OpossumOutputFile = set(
-      cloneDeep(testCorrectFileContent),
+      cloneDeep(correctOutput),
       'metadata.projectId',
       'cff9095a-5c24-46e6-b84d-cc8596b17c58'
     );
     const parsedFileContentWithWrongProjectId: ParsedOpossumOutputFile = set(
-      cloneDeep(testCorrectParsedFileContent),
+      cloneDeep(correctParsedOuput),
       'metadata.projectId',
       'cff9095a-5c24-46e6-b84d-cc8596b17c58'
     );
@@ -277,7 +353,7 @@ describe('parseOpossumOutputFile', () => {
       JSON.stringify(fileContentWithWrongProjectId)
     );
 
-    const attributions = parseOpossumOutputFile(attributionPath);
+    const attributions = parseOutputJsonFile(attributionPath);
 
     expect(attributions).toStrictEqual(parsedFileContentWithWrongProjectId);
     deleteFolder(temporaryPath);

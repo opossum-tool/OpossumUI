@@ -21,13 +21,14 @@ import {
 import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { loadJsonFromFilePath } from '../importFromFile';
+import { loadInputAndOutputFromFilePath } from '../importFromFile';
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import * as fs from 'fs';
 import * as zlib from 'zlib';
 import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling';
 import writeFileAtomic from 'write-file-atomic';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
@@ -192,17 +193,84 @@ describe('Test of loading function', () => {
     );
 
     setGlobalBackendState({});
-    await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
     const expectedBackendState = getGlobalBackendState();
 
     writeFileAtomic.sync(corruptJsonPath, '{"name": 3');
 
-    await loadJsonFromFilePath(mainWindow.webContents, corruptJsonPath);
+    await loadInputAndOutputFromFilePath(
+      mainWindow.webContents,
+      corruptJsonPath
+    );
 
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(3);
 
     expect(getMessageBoxForParsingError).toHaveBeenCalled();
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
+    deleteFolder(temporaryPath);
+  });
+
+  it('loads .opossum file and parses jsons successfully', async () => {
+    const testUuid = 'test_uuid';
+    const temporaryPath: string = createTempFolder();
+
+    const opossumName = 'test.opossum';
+    const opossumPath = path.join(upath.toUnix(temporaryPath), opossumName);
+
+    const attributions: OpossumOutputFile = {
+      metadata: validMetadata,
+      manualAttributions: {
+        [testUuid]: validAttribution,
+      },
+      resourcesToAttributions: {
+        '/path/1': [testUuid],
+      },
+      resolvedExternalAttributions: [],
+    };
+    await writeOpossumFile(opossumPath, inputFileContent, attributions);
+
+    Date.now = jest.fn(() => 1);
+
+    const globalBackendState = {
+      resourceFilePath: '/previous/file.opossum',
+    };
+
+    setGlobalBackendState(globalBackendState);
+    await loadInputAndOutputFromFilePath(mainWindow.webContents, opossumPath);
+
+    assertFileLoadedCorrectly(testUuid);
+    expect(getGlobalBackendState().projectTitle).toBe(
+      inputFileContent.metadata.projectTitle
+    );
+    expect(getGlobalBackendState().projectId).toBe(
+      inputFileContent.metadata.projectId
+    );
+    expect(
+      getGlobalBackendState().inputContainsCriticalExternalAttributions
+    ).toBeTruthy();
+    deleteFolder(temporaryPath);
+  });
+
+  it('loads .opossum file, no output.json', async () => {
+    const temporaryPath: string = createTempFolder();
+
+    const opossumName = 'test.opossum';
+    const opossumPath = path.join(upath.toUnix(temporaryPath), opossumName);
+
+    await writeOpossumFile(opossumPath, inputFileContent, null);
+
+    Date.now = jest.fn(() => 1);
+
+    setGlobalBackendState({});
+    await loadInputAndOutputFromFilePath(mainWindow.webContents, opossumPath);
+
+    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
+    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
+      AllowedFrontendChannels.FileLoaded,
+      expectedFileContent
+    );
+
+    expect(dialog.showMessageBox).not.toBeCalled();
     deleteFolder(temporaryPath);
   });
 
@@ -215,7 +283,7 @@ describe('Test of loading function', () => {
       Date.now = jest.fn(() => 1);
 
       setGlobalBackendState({});
-      await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+      await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
@@ -238,7 +306,7 @@ describe('Test of loading function', () => {
       Date.now = jest.fn(() => 1);
 
       setGlobalBackendState({});
-      await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+      await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
@@ -281,7 +349,7 @@ describe('Test of loading function', () => {
     };
 
     setGlobalBackendState(globalBackendState);
-    await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
 
     assertFileLoadedCorrectly(testUuid);
     expect(getGlobalBackendState().projectTitle).toBe(
@@ -358,7 +426,7 @@ describe('Test of loading function', () => {
 
       setGlobalBackendState(globalBackendState);
 
-      await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+      await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
       const expectedLoadedFile: ParsedFileContent = {
         metadata: EMPTY_PROJECT_METADATA,
         resources: { a: 1 },
@@ -456,7 +524,7 @@ describe('Test of loading function', () => {
     Date.now = jest.fn(() => 1);
 
     setGlobalBackendState({});
-    await loadJsonFromFilePath(mainWindow.webContents, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
 
     const expectedLoadedFile: ParsedFileContent = {
       ...expectedFileContent,

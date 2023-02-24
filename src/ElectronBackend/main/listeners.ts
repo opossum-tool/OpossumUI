@@ -22,9 +22,8 @@ import {
   createListenerCallbackWithErrorHandling,
   getMessageBoxForErrors,
 } from '../errorHandling/errorHandling';
-import { loadJsonFromFilePath } from '../input/importFromFile';
+import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
-import { writeJsonToFile } from '../output/writeJsonToFile';
 import {
   GlobalBackendState,
   KeysOfAttributionInfo,
@@ -39,10 +38,15 @@ import fs from 'fs';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import log from 'electron-log';
 import { createMenu } from './menu';
-import { parseOpossumOutputFile } from '../input/parseFile';
+import {
+  addOutputToOpossumFile,
+  parseOutputJsonFile,
+} from '../input/parseFile';
 import hash from 'object-hash';
 import upath from 'upath';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
+import { writeJsonToFile } from '../output/writeJsonToFile';
+import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 
 export function getSaveFileListener(
   webContents: WebContents
@@ -52,29 +56,38 @@ export function getSaveFileListener(
     (_: unknown, args: SaveFileArgs) => {
       const globalBackendState = getGlobalBackendState();
 
-      if (
-        !globalBackendState.attributionFilePath ||
-        !globalBackendState.projectId
-      ) {
+      if (globalBackendState.projectId === undefined) {
         throw new Error(
-          'Failed to save data. Either projectId or file path are incorrect.' +
-            `\nprojectId: ${globalBackendState.projectId}` +
+          'Failed to save data. The projectId is incorrect.' +
+            `\nprojectId: ${globalBackendState.projectId}`
+        );
+      }
+
+      const attributionFileContent: OpossumOutputFile = {
+        metadata: {
+          projectId: globalBackendState.projectId,
+          fileCreationDate: String(Date.now()),
+          inputFileMD5Checksum: globalBackendState.inputFileChecksum,
+        },
+        manualAttributions: args.manualAttributions,
+        resourcesToAttributions: args.resourcesToAttributions,
+        resolvedExternalAttributions: Array.from(
+          args.resolvedExternalAttributions
+        ),
+      };
+      if (
+        globalBackendState.resourceFilePath &&
+        isOpossumFileFormat(globalBackendState.resourceFilePath)
+      ) {
+        const opossumFilePath = globalBackendState.resourceFilePath;
+        addOutputToOpossumFile(opossumFilePath, attributionFileContent);
+      } else if (!globalBackendState.attributionFilePath) {
+        throw new Error(
+          'Failed to save data. The file paths are incorrect.' +
+            `\nresourceFilePath: ${globalBackendState.resourceFilePath}` +
             `\nattributionFilePath: ${globalBackendState.attributionFilePath}`
         );
       } else {
-        const attributionFileContent: OpossumOutputFile = {
-          metadata: {
-            projectId: globalBackendState.projectId,
-            fileCreationDate: String(Date.now()),
-            inputFileMD5Checksum: globalBackendState.inputFileChecksum,
-          },
-          manualAttributions: args.manualAttributions,
-          resourcesToAttributions: args.resourcesToAttributions,
-          resolvedExternalAttributions: Array.from(
-            args.resolvedExternalAttributions
-          ),
-        };
-
         writeJsonToFile(
           globalBackendState.attributionFilePath,
           attributionFileContent
@@ -111,19 +124,37 @@ export async function handleOpeningFile(
   mainWindow: BrowserWindow,
   resourceFilePath: string
 ): Promise<void> {
-  const checksums = getActualAndParsedChecksums(resourceFilePath);
+  let checksums;
+  const isOpossumFormat = isOpossumFileFormat(resourceFilePath);
+  if (!isOpossumFormat) {
+    checksums = getActualAndParsedChecksums(resourceFilePath);
+  }
 
   log.info('Initializing global backend state');
   initializeGlobalBackendState(
     resourceFilePath,
-    checksums.actualInputFileChecksum
+    isOpossumFormat,
+    checksums?.actualInputFileChecksum
   );
 
-  await openFileOrShowChangedInputFilePopup(
-    checksums,
-    mainWindow,
-    resourceFilePath
-  );
+  const inputFileChanged =
+    !isOpossumFormat &&
+    checksums &&
+    checksums.parsedInputFileChecksum &&
+    checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
+
+  if (inputFileChanged) {
+    log.info('Checksum of the input file has changed.');
+    mainWindow.webContents.send(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      {
+        showChangedInputFilePopup: true,
+      }
+    );
+  } else {
+    log.info('Checksum of the input file has not changed.');
+    await openFile(mainWindow, resourceFilePath);
+  }
 }
 
 function getActualAndParsedChecksums(resourceFilePath: string): {
@@ -139,7 +170,7 @@ function getActualAndParsedChecksums(resourceFilePath: string): {
   let parsedInputFileChecksum = '';
 
   if (fs.existsSync(manualAttributionFilePath)) {
-    const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
+    const opossumOutputData = parseOutputJsonFile(manualAttributionFilePath);
     parsedInputFileChecksum =
       opossumOutputData.metadata.inputFileMD5Checksum ?? '';
   }
@@ -148,14 +179,14 @@ function getActualAndParsedChecksums(resourceFilePath: string): {
 
 function initializeGlobalBackendState(
   filePath: string,
-  inputFileChecksum: string
+  isOpossumFormat: boolean,
+  inputFileChecksum?: string
 ): void {
   const newGlobalBackendState: GlobalBackendState = {
     resourceFilePath: filePath,
-    attributionFilePath: getFilePathWithAppendix(
-      filePath,
-      '_attributions.json'
-    ),
+    attributionFilePath: isOpossumFormat
+      ? undefined
+      : getFilePathWithAppendix(filePath, '_attributions.json'),
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(
       filePath,
@@ -170,32 +201,6 @@ function initializeGlobalBackendState(
     inputFileChecksum,
   };
   setGlobalBackendState(newGlobalBackendState);
-}
-
-async function openFileOrShowChangedInputFilePopup(
-  checksums: {
-    actualInputFileChecksum: string;
-    parsedInputFileChecksum: string;
-  },
-  mainWindow: BrowserWindow,
-  filePath: string
-): Promise<void> {
-  log.info('Checking input file checksum');
-  if (
-    checksums.actualInputFileChecksum === checksums.parsedInputFileChecksum ||
-    !checksums.parsedInputFileChecksum
-  ) {
-    log.info('Checksum of the input file has not changed.');
-    await openFile(mainWindow, filePath);
-  } else {
-    log.info('Checksum of the input file has changed.');
-    mainWindow.webContents.send(
-      AllowedFrontendChannels.ShowChangedInputFilePopup,
-      {
-        showChangedInputFilePopup: true,
-      }
-    );
-  }
 }
 
 export function getKeepFileListener(
@@ -282,7 +287,7 @@ export async function openFile(
   setLoadingState(mainWindow.webContents, true);
 
   try {
-    await loadJsonFromFilePath(mainWindow.webContents, filePath);
+    await loadInputAndOutputFromFilePath(mainWindow.webContents, filePath);
     setTitle(mainWindow, filePath);
     mainWindow.removeMenu();
     Menu.setApplicationMenu(createMenu(mainWindow));

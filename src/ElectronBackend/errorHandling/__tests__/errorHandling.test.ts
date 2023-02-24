@@ -6,7 +6,7 @@
 
 import { app, dialog, WebContents } from 'electron';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
-import { loadJsonFromFilePath } from '../../input/importFromFile';
+import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
   createListenerCallbackWithErrorHandling,
   getMessageBoxContentForErrorsWrapper,
@@ -31,7 +31,7 @@ jest.mock('electron', () => ({
 jest.mock('electron-log');
 
 jest.mock('../../input/importFromFile', () => ({
-  loadJsonFromFilePath: jest.fn(),
+  loadInputAndOutputFromFilePath: jest.fn(),
 }));
 
 describe('error handling', () => {
@@ -139,7 +139,7 @@ describe('error handling', () => {
       expect(mockCallback.mock.calls[0][0]).toContain(
         AllowedFrontendChannels.RestoreFrontend
       );
-      expect(loadJsonFromFilePath).toBeCalled();
+      expect(loadInputAndOutputFromFilePath).toBeCalled();
     });
   });
 

@@ -21,11 +21,12 @@ import {
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
 } from './parseInputData';
-import { parseOpossumInputFile, parseOpossumOutputFile } from './parseFile';
 import {
   JsonParsingError,
   OpossumOutputFile,
+  ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
 } from '../types/types';
 import { WebContents } from 'electron';
 import { writeJsonToFile } from '../output/writeJsonToFile';
@@ -34,14 +35,19 @@ import log from 'electron-log';
 import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
 import { v4 as uuid4 } from 'uuid';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
+import {
+  parseInputJsonFile,
+  parseOutputJsonFile,
+  parseOpossumFile,
+  addOutputToOpossumFile,
+} from './parseFile';
+import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 
-function isJsonParsingError(
-  object: ParsedOpossumInputFile | JsonParsingError
-): object is JsonParsingError {
+function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';
 }
 
-export async function loadJsonFromFilePath(
+export async function loadInputAndOutputFromFilePath(
   webContents: WebContents,
   filePath: string
 ): Promise<void> {
@@ -55,65 +61,86 @@ export async function loadJsonFromFilePath(
   //   showFileSupportPopup: true,
   // });
 
-  log.info(`Starting to parse input file ${filePath}`);
-  const parsingResult = await parseOpossumInputFile(filePath);
+  let parsedInputData: ParsedOpossumInputFile;
+  let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
-  if (isJsonParsingError(parsingResult)) {
-    log.info('Invalid input file.');
-    await getMessageBoxForParsingError(parsingResult.message);
-
-    return;
+  if (isOpossumFileFormat(filePath)) {
+    log.info(`Starting to read .opossum file ${filePath} ...`);
+    const parsingResult = await parseOpossumFile(filePath);
+    if (isJsonParsingError(parsingResult)) {
+      log.info('Invalid input file.');
+      await getMessageBoxForParsingError(parsingResult.message);
+      return;
+    }
+    parsedInputData = parsingResult.input;
+    parsedOutputData = parsingResult.output;
+    log.info('... Successfully read .opossum file.\n');
+  } else {
+    log.info(`Starting to parse input file ${filePath}`);
+    const parsingResult = await parseInputJsonFile(filePath);
+    if (isJsonParsingError(parsingResult)) {
+      log.info('Invalid input file.');
+      await getMessageBoxForParsingError(parsingResult.message);
+      return;
+    }
+    parsedInputData = parsingResult;
+    log.info('... Successfully parsed input file.');
   }
 
-  log.info('... Successfully parsed input file.');
   const [externalAttributions, inputContainsCriticalExternalAttributions] =
-    parseRawAttributions(parsingResult.externalAttributions);
+    parseRawAttributions(parsedInputData.externalAttributions);
+  const projectId = parsedInputData.metadata.projectId;
+  const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
+  const resourcesToAttributions = parsedInputData.resourcesToAttributions;
 
-  const manualAttributionFilePath = getFilePathWithAppendix(
-    filePath,
-    '_attributions.json'
-  );
-  const projectId = parsingResult.metadata.projectId;
-  const inputFileChecksum = getGlobalBackendState().inputFileChecksum;
-
-  if (!fs.existsSync(manualAttributionFilePath)) {
-    log.info(`Starting to create output file, project ID is ${projectId}`);
-    createOutputFile(
-      manualAttributionFilePath,
-      externalAttributions,
-      parsingResult.resourcesToAttributions,
-      projectId,
-      inputFileChecksum
-    );
-    log.info('... Successfully created output file.');
+  if (parsedOutputData === null) {
+    if (isOpossumFileFormat(filePath)) {
+      parsedOutputData = await createOutputInOpossumFile(
+        filePath,
+        externalAttributions,
+        resourcesToAttributions,
+        projectId
+      );
+    } else {
+      const outputJsonPath = getFilePathWithAppendix(
+        filePath,
+        '_attributions.json'
+      );
+      parsedOutputData = parseOrCreateOutputJsonFile(
+        outputJsonPath,
+        externalAttributions,
+        resourcesToAttributions,
+        projectId,
+        inputFileMD5Checksum
+      );
+    }
   }
-  log.info(`Starting to parse output file ${manualAttributionFilePath} ...`);
-  const opossumOutputData = parseOpossumOutputFile(manualAttributionFilePath);
+
   const [manualAttributions] = parseRawAttributions(
-    opossumOutputData.manualAttributions
+    parsedOutputData.manualAttributions
   );
-  log.info('... Successfully parsed output file.');
+
   log.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
-    parsingResult.frequentLicenses
+    parsedInputData.frequentLicenses
   );
 
   log.info('Sanitizing external resources to attributions');
   const resourcesToExternalAttributions = sanitizeResourcesToAttributions(
-    parsingResult.resources,
-    parsingResult.resourcesToAttributions
+    parsedInputData.resources,
+    parsedInputData.resourcesToAttributions
   );
   log.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
-    metadata: parsingResult.metadata,
-    resources: parsingResult.resources,
+    metadata: parsedInputData.metadata,
+    resources: parsedInputData.resources,
     manualAttributions: {
       attributions: manualAttributions,
       // For a time, a bug in the app produced corrupt files,
       // which are fixed by this clean-up.
       resourcesToAttributions: cleanNonExistentAttributions(
         webContents,
-        opossumOutputData.resourcesToAttributions,
+        parsedOutputData.resourcesToAttributions ?? {},
         manualAttributions
       ),
     },
@@ -124,22 +151,25 @@ export async function loadJsonFromFilePath(
     frequentLicenses,
     resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
       webContents,
-      opossumOutputData.resolvedExternalAttributions,
+      parsedOutputData.resolvedExternalAttributions,
       externalAttributions
     ),
-    attributionBreakpoints: new Set(parsingResult.attributionBreakpoints ?? []),
-    filesWithChildren: new Set(parsingResult.filesWithChildren ?? []),
-    baseUrlsForSources: sanitizeRawBaseUrlsForSources(
-      parsingResult.baseUrlsForSources
+    attributionBreakpoints: new Set(
+      parsedInputData.attributionBreakpoints ?? []
     ),
-    externalAttributionSources: parsingResult.externalAttributionSources ?? {},
+    filesWithChildren: new Set(parsedInputData.filesWithChildren ?? []),
+    baseUrlsForSources: sanitizeRawBaseUrlsForSources(
+      parsedInputData.baseUrlsForSources
+    ),
+    externalAttributionSources:
+      parsedInputData.externalAttributionSources ?? {},
   };
   log.info('Sending data to electron frontend');
   webContents.send(AllowedFrontendChannels.FileLoaded, parsedFileContent);
 
   log.info('Updating global backend state');
 
-  getGlobalBackendState().projectTitle = parsingResult.metadata.projectTitle;
+  getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;
   getGlobalBackendState().projectId = projectId;
   getGlobalBackendState().inputContainsCriticalExternalAttributions =
     inputContainsCriticalExternalAttributions;
@@ -147,13 +177,63 @@ export async function loadJsonFromFilePath(
   log.info('File import finished successfully');
 }
 
-function createOutputFile(
-  manualAttributionFilePath: string,
+async function createOutputInOpossumFile(
+  filePath: string,
+  externalAttributions: Attributions,
+  resourcesToExternalAttributions: AttributionsToResources,
+  projectId: string
+): Promise<ParsedOpossumOutputFile> {
+  log.info(
+    `Starting to create output in .opossum file, project ID is ${projectId}`
+  );
+  const attributionJSON = createJsonOutputFile(
+    externalAttributions,
+    resourcesToExternalAttributions,
+    projectId
+  );
+  await addOutputToOpossumFile(filePath, attributionJSON);
+  log.info('... Successfully wrote output in .opssum file.');
+
+  log.info(`Starting to parse output file in ${filePath} ...`);
+  const parsingResult = (await parseOpossumFile(
+    filePath
+  )) as ParsedOpossumInputAndOutput;
+  const parsedOutputFile = parsingResult.output as ParsedOpossumOutputFile;
+  log.info('... Successfully parsed output file.');
+  return parsedOutputFile;
+}
+
+function parseOrCreateOutputJsonFile(
+  filePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string,
   inputFileMD5Checksum?: string
-): void {
+): ParsedOpossumOutputFile {
+  if (!fs.existsSync(filePath)) {
+    log.info(`Starting to create output file, project ID is ${projectId}`);
+    const attributionJSON = createJsonOutputFile(
+      externalAttributions,
+      resourcesToExternalAttributions,
+      projectId,
+      inputFileMD5Checksum
+    );
+    writeJsonToFile(filePath, attributionJSON);
+    log.info('... Successfully created output file.');
+  }
+
+  log.info(`Starting to parse output file ${filePath} ...`);
+  const parsedOutputFile = parseOutputJsonFile(filePath);
+  log.info('... Successfully parsed output file.');
+  return parsedOutputFile;
+}
+
+function createJsonOutputFile(
+  externalAttributions: Attributions,
+  resourcesToExternalAttributions: AttributionsToResources,
+  projectId: string,
+  inputFileMD5Checksum?: string
+): OpossumOutputFile {
   const externalAttributionsCopy = cloneDeep(externalAttributions);
   const preselectedExternalAttributions = Object.fromEntries(
     Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
@@ -218,5 +298,5 @@ function createOutputFile(
     resolvedExternalAttributions: [],
   };
 
-  writeJsonToFile(manualAttributionFilePath, attributionJSON);
+  return attributionJSON;
 }
