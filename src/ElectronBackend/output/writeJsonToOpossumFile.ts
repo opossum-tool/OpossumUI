@@ -5,6 +5,7 @@
 
 import JSZip from 'jszip';
 import fs from 'fs';
+import log from 'electron-log';
 
 export async function writeOpossumFile(
   opossumfilePath: string,
@@ -25,4 +26,33 @@ export async function writeOpossumFile(
       compressionOptions: { level: 1 },
     })
     .then((output) => writeStream.write(output));
+}
+
+export async function writeOutputJsonToOpossumFile(
+  opossumfilePath: string,
+  outputfileData: unknown
+): Promise<void> {
+  const new_zip = new JSZip();
+
+  await new Promise<void>((resolve) => {
+    fs.readFile(opossumfilePath, (err, data) => {
+      if (err) throw err;
+      new_zip.loadAsync(data).then(() => {
+        new_zip.file('output.json', JSON.stringify(outputfileData));
+        const writeStream = fs.createWriteStream(opossumfilePath);
+        new_zip
+          .generateNodeStream({
+            type: 'nodebuffer',
+            streamFiles: true,
+            compression: 'DEFLATE',
+            compressionOptions: { level: 1 },
+          })
+          .pipe(writeStream)
+          .on('finish', () => {
+            log.info('opossum file was overwritten!');
+            resolve();
+          });
+      });
+    });
+  });
 }

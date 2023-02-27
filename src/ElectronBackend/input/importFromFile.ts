@@ -39,9 +39,9 @@ import {
   parseInputJsonFile,
   parseOutputJsonFile,
   parseOpossumFile,
-  addOutputToOpossumFile,
 } from './parseFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
+import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';
@@ -90,7 +90,6 @@ export async function loadInputAndOutputFromFilePath(
   const [externalAttributions, inputContainsCriticalExternalAttributions] =
     parseRawAttributions(parsedInputData.externalAttributions);
   const projectId = parsedInputData.metadata.projectId;
-  const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
   const resourcesToAttributions = parsedInputData.resourcesToAttributions;
 
   if (parsedOutputData === null) {
@@ -106,6 +105,7 @@ export async function loadInputAndOutputFromFilePath(
         filePath,
         '_attributions.json'
       );
+      const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
       parsedOutputData = parseOrCreateOutputJsonFile(
         outputJsonPath,
         externalAttributions,
@@ -191,7 +191,7 @@ async function createOutputInOpossumFile(
     resourcesToExternalAttributions,
     projectId
   );
-  await addOutputToOpossumFile(filePath, attributionJSON);
+  await writeOutputJsonToOpossumFile(filePath, attributionJSON);
   log.info('... Successfully wrote output in .opssum file.');
 
   log.info(`Starting to parse output file in ${filePath} ...`);

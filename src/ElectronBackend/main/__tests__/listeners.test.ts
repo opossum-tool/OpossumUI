@@ -21,6 +21,7 @@ import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
+import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
 import { createWindow } from '../createWindow';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
@@ -279,6 +280,58 @@ describe('getOpenFileListener', () => {
     deleteFolder(temporaryPath);
   });
 
+  it('ignores checksums in .opossum files', async () => {
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
+
+    const temporaryPath: string = createTempFolder();
+    const opossumFilePath = path.join(
+      upath.toUnix(temporaryPath),
+      'path.opossum'
+    );
+
+    const validAttribution: PackageInfo = {
+      packageName: 'Package',
+      packageVersion: '1.0',
+      licenseText: 'MIT',
+      followUp: 'FOLLOW_UP',
+    };
+    const attributions_data: OpossumOutputFile = {
+      metadata: {
+        projectId: 'test_id',
+        fileCreationDate: '1',
+        inputFileMD5Checksum: 'fake_checksum',
+      },
+      manualAttributions: {
+        ['test_uuid']: validAttribution,
+      },
+      resourcesToAttributions: {
+        '/path/1': ['test_uuid'],
+      },
+      resolvedExternalAttributions: [],
+    };
+
+    writeOpossumFile(opossumFilePath, {}, attributions_data);
+
+    // @ts-ignore
+    openFileDialog.mockReturnValueOnce([opossumFilePath]);
+
+    await getOpenFileListener(mainWindow)();
+
+    expect(openFileDialog).toBeCalled();
+    expect(mainWindow.webContents.send).not.toHaveBeenCalledWith(
+      AllowedFrontendChannels.ShowChangedInputFilePopup,
+      {
+        showChangedInputFilePopup: true,
+      }
+    );
+    deleteFolder(temporaryPath);
+  });
+
   it('handles _attributions.json files correctly if .json.gz present', async () => {
     const mainWindow = {
       webContents: {
@@ -472,7 +525,7 @@ describe('getSaveFileListener', () => {
     expect(writeJsonToFile).not.toBeCalled();
   });
 
-  it('throws error when attributionFilePath is not set', async () => {
+  it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
     const mockCallback = jest.fn();
     const webContents = { send: mockCallback as unknown } as WebContents;
     setGlobalBackendState({});
@@ -494,9 +547,7 @@ describe('getSaveFileListener', () => {
       expect.objectContaining({
         type: 'error',
         message:
-          'Error in app backend: Failed to save data. ' +
-          'The file paths are incorrect.\nresourceFilePath: undefined' +
-          '\nattributionFilePath: undefined',
+          'Error in app backend: Tried to get file type when no file is loaded',
         buttons: ['Reload File', 'Quit'],
       })
     );
@@ -505,7 +556,7 @@ describe('getSaveFileListener', () => {
 
   it(
     'calls createListenerCallBackWithErrorHandling when ' +
-      'attributionFilePath and projectId are set',
+      'resourceFilePath, attributionFilePath and projectId are set',
     () => {
       const mockCallback = jest.fn();
       const webContents = { send: mockCallback as unknown } as WebContents;
@@ -514,7 +565,8 @@ describe('getSaveFileListener', () => {
       const listener = getSaveFileListener(webContents);
 
       setGlobalBackendState({
-        attributionFilePath: '/somefile.json',
+        resourceFilePath: '/resourceFile.json',
+        attributionFilePath: '/attributionFile.json',
         projectId: 'uuid_1',
       });
 
@@ -524,7 +576,7 @@ describe('getSaveFileListener', () => {
         resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),
       });
 
-      expect(writeJsonToFile).toBeCalledWith('/somefile.json', {
+      expect(writeJsonToFile).toBeCalledWith('/attributionFile.json', {
         manualAttributions: {},
         metadata: {
           projectId: 'uuid_1',

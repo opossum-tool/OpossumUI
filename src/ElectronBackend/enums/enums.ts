@@ -7,3 +7,8 @@ export enum UserRoles {
   Vetting = 'VETTING',
   QA = 'QA',
 }
+
+export enum LoadedFileFormat {
+  Opossum = 'OPOSSUM',
+  Json = 'JSON',
+}

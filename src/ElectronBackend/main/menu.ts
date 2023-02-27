@@ -17,6 +17,7 @@ import {
   getPathOfNoticeDocument,
 } from './notice-document-helpers';
 import { ExportType } from '../../shared/shared-types';
+import { isFileLoaded } from '../utils/getLoadedFile';
 
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
@@ -99,7 +100,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         {
           label: 'Project Metadata',
           click(): void {
-            if (getGlobalBackendState().resourceFilePath) {
+            if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(
                 AllowedFrontendChannels.ShowProjectMetadataPopup,
                 {
@@ -112,7 +113,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         {
           label: 'Project Statistics',
           click(): void {
-            if (getGlobalBackendState().resourceFilePath) {
+            if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(
                 AllowedFrontendChannels.ShowProjectStatisticsPopup,
                 {
@@ -152,7 +153,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Search for Files and Directories',
           accelerator: 'CmdOrCtrl+F',
           click(): void {
-            if (getGlobalBackendState().resourceFilePath) {
+            if (isFileLoaded(getGlobalBackendState())) {
               webContents.send(AllowedFrontendChannels.ShowSearchPopup, {
                 showSearchPopup: true,
               });

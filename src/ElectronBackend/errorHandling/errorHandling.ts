@@ -15,6 +15,7 @@ import log from 'electron-log';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
+import { getLoadedFilePath } from '../utils/getLoadedFile';
 
 export function createListenerCallbackWithErrorHandling(
   webContents: WebContents,
@@ -124,7 +125,7 @@ function performButtonAction(
       webContents.send(AllowedFrontendChannels.RestoreFrontend);
       loadInputAndOutputFromFilePath(
         webContents,
-        globalBackendState.resourceFilePath as string
+        getLoadedFilePath(globalBackendState) as string
       );
       break;
     case 1:
