@@ -6,10 +6,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React, { ReactElement, ReactNode } from 'react';
 import {
-  FetchLicenseInformationButton,
-  FetchStatus,
   FETCH_DATA_BUTTON_DISABLED_TOOLTIP,
   FETCH_DATA_TOOLTIP,
+  FetchLicenseInformationButton,
+  FetchStatus,
   useFetchPackageInfo,
 } from '../FetchLicenseInformationButton';
 import {
@@ -66,8 +66,9 @@ describe('FetchLicenseInformationButton', () => {
 
     it("shows fetching error 'Request failed with status code 404'", () => {
       const MOCK_URL = 'https://github.com/opossum-tool/Oposs';
+      const notFoundStatus = 404;
 
-      axiosMock.onGet(MOCK_URL).replyOnce(404, {});
+      axiosMock.onGet(MOCK_URL).replyOnce(notFoundStatus, {});
 
       renderComponentWithStore(
         <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
@@ -84,8 +85,9 @@ describe('FetchLicenseInformationButton', () => {
 
     it('shows fetch data tooltip after successful fetch', () => {
       const MOCK_URL = 'https://pypi.org/project/pip';
+      const okStatus = 200;
 
-      axiosMock.onGet(MOCK_URL).replyOnce(200, {
+      axiosMock.onGet(MOCK_URL).replyOnce(okStatus, {
         license: { spdx_id: 'Apache-2.0' },
         content: 'TGljZW5zZSBUZXh0', // "License Text" in base64
         html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
@@ -144,7 +146,8 @@ describe('useFetchPackageInfo', () => {
   });
 
   it('fetches data', async () => {
-    axiosMock.onGet(GITHUB_URL).replyOnce(200, {
+    const okStatus = 200;
+    axiosMock.onGet(GITHUB_URL).replyOnce(okStatus, {
       license: { spdx_id: 'Apache-2.0' },
       content: 'TGljZW5zZSBUZXh0', // "License Text" in base64
       html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',

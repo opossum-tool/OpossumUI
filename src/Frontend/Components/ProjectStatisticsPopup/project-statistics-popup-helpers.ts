@@ -226,6 +226,7 @@ export function aggregateAttributionPropertiesFromAttributions(
 export function getMostFrequentLicenses(
   licenseCounts: LicenseCounts
 ): Array<PieChartData> {
+  const numberOfDisplayedLicenses = 5;
   const mostFrequentLicenses: Array<PieChartData> = [];
 
   for (const license of Object.keys(
@@ -240,9 +241,9 @@ export function getMostFrequentLicenses(
     (a, b) => b.count - a.count
   );
 
-  if (sortedMostFrequentLicenses.length > 5) {
+  if (sortedMostFrequentLicenses.length > numberOfDisplayedLicenses) {
     const sortedTopFiveFrequentLicensesAndOther =
-      sortedMostFrequentLicenses.slice(0, 5);
+      sortedMostFrequentLicenses.slice(0, numberOfDisplayedLicenses);
 
     const total = Object.values(
       licenseCounts.totalAttributionsPerSource

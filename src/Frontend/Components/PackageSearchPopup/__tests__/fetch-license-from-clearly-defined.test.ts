@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -12,7 +14,8 @@ describe('fetchFromClearlyDefined', () => {
   const requestURL = `https://api.clearlydefined.io/definitions/${testCoordinate}`;
 
   it('parses payload correctly', async () => {
-    axiosMock.onGet(requestURL).replyOnce(200, {
+    const okStatus = 200;
+    axiosMock.onGet(requestURL).replyOnce(okStatus, {
       licensed: {
         declared: 'MIT',
         facets: {
@@ -50,7 +53,10 @@ describe('fetchFromClearlyDefined', () => {
   });
 
   it('reject in correct payload', async () => {
-    axiosMock.onGet(requestURL).replyOnce(200, { someRandomField: 'value' });
+    const okStatus = 200;
+    axiosMock
+      .onGet(requestURL)
+      .replyOnce(okStatus, { someRandomField: 'value' });
     await expect(fetchFromClearlyDefined(testCoordinate)).rejects.toBeTruthy();
   });
 });

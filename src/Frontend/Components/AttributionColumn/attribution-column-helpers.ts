@@ -53,8 +53,10 @@ export function getLicenseTextMaxRows(
 ): number {
   const heightOfTextBoxes = 480;
   const heightOfNonLicenseTextComponents =
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     heightOfTextBoxes + (view === View.Audit ? 34 : 0);
   const licenseTextMaxHeight = windowHeight - heightOfNonLicenseTextComponents;
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   return Math.floor(licenseTextMaxHeight / 19);
 }
 
@@ -292,6 +294,7 @@ export function useRows(
   commentRows: number;
 } {
   const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const reduceRowsCount = smallerLicenseTextOrCommentField ? 5 : 1;
   const licenseTextRows =
     getLicenseTextMaxRows(useWindowHeight(), view) - reduceRowsCount;
@@ -300,6 +303,7 @@ export function useRows(
     setIsLicenseTextShown(false);
   }, [resetViewIfThisIdChanges]);
 
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const copyrightRows = isLicenseTextShown ? 1 : 6;
   const commentRows = isLicenseTextShown
     ? 1

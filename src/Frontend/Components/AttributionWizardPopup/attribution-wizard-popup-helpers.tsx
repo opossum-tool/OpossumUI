@@ -102,7 +102,8 @@ export function getAttributionWizardListItems(
 }
 
 function getCountText(count: number, totalAttributeCount: number): string {
-  const percentage = (count / totalAttributeCount) * 100;
+  const percentageFactor = 100;
+  const percentage = (count / totalAttributeCount) * percentageFactor;
   return percentage < 1
     ? `${count} (< 1%)`
     : `${count} (${percentage.toFixed(0)}%)`;

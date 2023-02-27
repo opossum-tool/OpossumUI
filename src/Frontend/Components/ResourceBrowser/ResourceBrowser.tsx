@@ -32,9 +32,9 @@ import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-ite
 import { useWindowHeight } from '../../util/use-window-height';
 import { topBarHeight } from '../TopBar/TopBar';
 import {
-  treeClasses,
   TREE_ROOT_FOLDER_LABEL,
   TREE_ROW_HEIGHT,
+  treeClasses,
 } from '../../shared-styles';
 
 export function ResourceBrowser(): ReactElement | null {
@@ -106,6 +106,7 @@ export function ResourceBrowser(): ReactElement | null {
       );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const maxTreeHeight: number = useWindowHeight() - topBarHeight - 4;
 
   return resources ? (

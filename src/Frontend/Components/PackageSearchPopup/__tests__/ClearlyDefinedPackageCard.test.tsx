@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -23,9 +25,11 @@ describe('ClearlyDefinedPackageCard', () => {
   });
   const testCoordinate = 'sqlalchemy';
   const definitionEndpoint = `https://api.clearlydefined.io/definitions/${testCoordinate}`;
+  const okStatus = 200;
+  const notFoundStatus = 404;
 
   it('renders after successful fetch', async () => {
-    axiosMock.onGet(definitionEndpoint).replyOnce(200, {
+    axiosMock.onGet(definitionEndpoint).replyOnce(okStatus, {
       licensed: {
         declared: 'MIT',
         facets: {
@@ -82,7 +86,7 @@ describe('ClearlyDefinedPackageCard', () => {
   it('shows error message when fetch fails', async () => {
     // suppress output to console
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    axiosMock.onGet(definitionEndpoint).replyOnce(404);
+    axiosMock.onGet(definitionEndpoint).replyOnce(notFoundStatus);
 
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>

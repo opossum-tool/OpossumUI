@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -32,16 +34,19 @@ describe('PackageSearchPopup', () => {
       },
     },
   });
+  const okStatus = 200;
+  const serverErrorStatus = 500;
+  const notFoundStatus = 404;
 
   it('performs search successfully', async () => {
-    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(200, []);
+    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(okStatus, []);
     axiosMock
       .onGet(requestURLSearchEndpoint)
-      .replyOnce(200, ['sqlalchemy/1.4.1', 'sqlalchemy/1.3.0']);
+      .replyOnce(okStatus, ['sqlalchemy/1.4.1', 'sqlalchemy/1.3.0']);
 
     axiosMock
       .onGet(`${baseURLDefinitionEndpoint}sqlalchemy/1.4.1`)
-      .replyOnce(200, {
+      .replyOnce(okStatus, {
         licensed: {
           declared: 'MIT',
           facets: {
@@ -68,7 +73,7 @@ describe('PackageSearchPopup', () => {
 
     axiosMock
       .onGet(`${baseURLDefinitionEndpoint}sqlalchemy/1.3.0`)
-      .replyOnce(200, {
+      .replyOnce(okStatus, {
         licensed: {
           declared: 'MIT',
           facets: {
@@ -102,7 +107,7 @@ describe('PackageSearchPopup', () => {
     fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
     act(() => {
       // advance timer as form is debounced
-      jest.advanceTimersByTime(500);
+      jest.advanceTimersByTime(serverErrorStatus);
     });
 
     expect(await screen.findByText('sqlalchemy/1.3.0'));
@@ -113,8 +118,8 @@ describe('PackageSearchPopup', () => {
   it('shows an error message', async () => {
     // suppress output to console
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(200, []);
-    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(404);
+    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(okStatus, []);
+    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(notFoundStatus);
 
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
@@ -126,7 +131,7 @@ describe('PackageSearchPopup', () => {
     fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
     act(() => {
       // advance timer as form is debounced
-      jest.advanceTimersByTime(500);
+      jest.advanceTimersByTime(serverErrorStatus);
     });
 
     expect(
@@ -137,7 +142,7 @@ describe('PackageSearchPopup', () => {
   });
 
   it('shows a message when nothing is found', async () => {
-    axiosMock.onGet(requestURLSearchEndpoint).reply(200, []);
+    axiosMock.onGet(requestURLSearchEndpoint).reply(okStatus, []);
 
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
@@ -149,7 +154,7 @@ describe('PackageSearchPopup', () => {
     fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
     act(() => {
       // advance timer as form is debounced
-      jest.advanceTimersByTime(500);
+      jest.advanceTimersByTime(serverErrorStatus);
     });
 
     expect(await screen.findByText('No results found'));

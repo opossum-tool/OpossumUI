@@ -58,7 +58,8 @@ describe('The App backend', () => {
   it('calls ipc handler', async () => {
     await main();
 
-    expect(ipcMain.handle).toHaveBeenCalledTimes(10);
+    const expectedTotalNumberOfCalls = 10;
+    expect(ipcMain.handle).toHaveBeenCalledTimes(expectedTotalNumberOfCalls);
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       1,
       IpcChannel.ConvertInputFile,
@@ -70,42 +71,49 @@ describe('The App backend', () => {
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       3,
       IpcChannel.OpenDotOpossumFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       4,
       IpcChannel.OpenFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       5,
       IpcChannel.SaveFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       6,
       IpcChannel.DeleteFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       7,
       IpcChannel.KeepFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       8,
       IpcChannel.SendErrorInformation,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       9,
       IpcChannel.ExportFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
-      10,
+      expectedTotalNumberOfCalls,
       IpcChannel.OpenLink,
       expect.any(Function)
     );

@@ -34,7 +34,8 @@ function maxHeightWasGiven(
 }
 
 export function List(props: ListProps): ReactElement {
-  const cardHeight = props.cardVerticalDistance || 24;
+  const defaultCardHeight = 24;
+  const cardHeight = props.cardVerticalDistance || defaultCardHeight;
   const maxHeight = maxHeightWasGiven(props.max)
     ? props.max.height
     : props.max.numberOfDisplayedItems * cardHeight;

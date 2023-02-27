@@ -77,6 +77,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
@@ -86,6 +87,7 @@ describe('The App in Audit View', () => {
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 4, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -98,6 +100,7 @@ describe('The App in Audit View', () => {
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInTextBox(screen, 'Name', 'React');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 2, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
@@ -116,6 +119,7 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 
@@ -164,6 +168,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 5, 0);
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
@@ -172,6 +177,7 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupNotVisible(screen);
     expectValueNotInTextBox(screen, 'Name', 'React');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 4, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -183,6 +189,7 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
     expectConfirmDeletionPopupNotVisible(screen);
     expectValueNotInTextBox(screen, 'Name', 'React');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 2, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
@@ -200,6 +207,7 @@ describe('The App in Audit View', () => {
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupNotVisible(screen);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
   });
 });

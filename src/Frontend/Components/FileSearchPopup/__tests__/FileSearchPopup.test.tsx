@@ -43,9 +43,11 @@ describe('FileSearch popup ', () => {
   });
 
   each([
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     ['eagleBlu', 4],
     ['test.js', 2],
     ['non-existing-file', 0],
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     ['eagleblu', 4],
   ]).it(
     'search for %s results in %s results',
@@ -63,6 +65,7 @@ describe('FileSearch popup ', () => {
         jest.advanceTimersByTime(debounceWaitTimeInMs);
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expect(screen.queryAllByText('/', { exact: false })).toHaveLength(9);
 
       fireEvent.change(screen.getByRole('searchbox'), {
@@ -104,6 +107,7 @@ describe('FileSearch popup ', () => {
 
     jest.advanceTimersByTime(smallWaitTimeInMs);
 
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expect(screen.queryAllByText('/', { exact: false })).toHaveLength(9);
 
     act(() => {
@@ -134,8 +138,10 @@ describe('FileSearch popup ', () => {
       jest.advanceTimersByTime(debounceWaitTimeInMs);
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expect(screen.queryAllByText('/', { exact: false })).toHaveLength(4);
     expect(screen.queryAllByText('/eagleBlu/', { exact: false })).toHaveLength(
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       4
     );
   });

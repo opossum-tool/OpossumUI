@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -83,7 +85,11 @@ export function PackageSearchPopup(): ReactElement {
   const [currentSearchTerm, setCurrentSearchTerm] = useState<string>(
     getInitialSearchTerm(temporaryPackageInfo)
   );
-  const debouncedSearchTerm = useDebounceInput(currentSearchTerm, 500);
+  const debounceDelayInMs = 500;
+  const debouncedSearchTerm = useDebounceInput(
+    currentSearchTerm,
+    debounceDelayInMs
+  );
   const { isLoading, data, isError, error } = useQuery(
     ['clearlyDefinedPackageSearch', debouncedSearchTerm],
     () => searchPackagesOnClearlyDefined(debouncedSearchTerm),

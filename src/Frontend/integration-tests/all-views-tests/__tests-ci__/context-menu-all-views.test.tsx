@@ -103,6 +103,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'firstResource.js');
       expectValueInTextBox(screen, 'Name', 'Angular');
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
@@ -131,6 +132,7 @@ describe('The ContextMenu', () => {
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
       expectValueNotInTextBox(screen, 'Name', 'React');
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 4, 0, 0);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -158,6 +160,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
       expectValueNotInTextBox(screen, 'Name', 'React');
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 2, 0, 0);
 
       clickOnElementInResourceBrowser(screen, 'thirdResource.js');
@@ -177,6 +180,7 @@ describe('The ContextMenu', () => {
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
     });
 
@@ -233,6 +237,7 @@ describe('The ContextMenu', () => {
       );
       expectConfirmDeletionPopupNotVisible(screen);
       expectValueNotInTextBox(screen, 'Name', 'React');
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 4, 0);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -258,6 +263,7 @@ describe('The ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
       expectValueNotInTextBox(screen, 'Name', 'React');
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 2, 0);
 
       clickOnElementInResourceBrowser(screen, 'thirdResource.js');
@@ -276,6 +282,7 @@ describe('The ContextMenu', () => {
         ButtonText.DeleteGlobally
       );
       expectConfirmDeletionPopupNotVisible(screen);
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 0, 0);
     });
   });

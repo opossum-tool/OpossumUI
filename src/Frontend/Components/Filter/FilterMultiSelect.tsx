@@ -56,6 +56,7 @@ const classes = {
   },
   dropdownStyle: {
     '& paper': {
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       maxHeight: `${ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP}px`,
       left: '7px !important',
     },

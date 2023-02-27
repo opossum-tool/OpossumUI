@@ -128,6 +128,7 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
     }
     setAnchorPosition({
       left: event.clientX - 2,
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       top: event.clientY - 4,
     });
     setAnchorElement(event.currentTarget);

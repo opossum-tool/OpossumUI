@@ -44,7 +44,10 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(window.electronAPI.sendErrorInformation).toHaveBeenCalledTimes(3);
+    const expectedNumberOfCalls = 3;
+    expect(window.electronAPI.sendErrorInformation).toHaveBeenCalledTimes(
+      expectedNumberOfCalls
+    );
 
     expect(window.electronAPI.on).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
