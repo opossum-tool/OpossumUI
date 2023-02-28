@@ -98,3 +98,8 @@ export enum CriticalityTypes {
   MediumCriticality = 'Medium',
   NoCriticality = 'Not critical',
 }
+
+export enum HighlightingColor {
+  LightOrange = 'Light Orange',
+  DarkOrange = 'Dark Orange',
+}

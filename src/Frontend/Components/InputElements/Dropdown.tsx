@@ -42,7 +42,7 @@ export function Dropdown(props: DropdownProps): ReactElement {
         sx={{
           ...inputElementClasses.textField,
           ...(props.isHighlighted
-            ? inputElementClasses.highlightedTextField
+            ? inputElementClasses.defaultHighlightedTextField
             : {}),
         }}
         select

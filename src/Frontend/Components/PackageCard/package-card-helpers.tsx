@@ -12,6 +12,9 @@ import {
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { OpossumColors } from '../../shared-styles';
+import { PackageInfo } from '../../../shared/shared-types';
+import { HighlightingColor } from '../../enums/enums';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 export function getKey(prefix: string, cardId: string): string {
   return `${prefix}-${cardId}`;
@@ -65,4 +68,15 @@ export function getRightIcons(
   }
 
   return rightIcons;
+}
+
+export function getPackageCardHighlighting(
+  packageInfo: PackageInfo
+): HighlightingColor | undefined {
+  if (!packageInfo) return undefined;
+  if (packageInfo.packageName === undefined)
+    return HighlightingColor.DarkOrange;
+  return isPackageInfoIncomplete(packageInfo)
+    ? HighlightingColor.LightOrange
+    : undefined;
 }

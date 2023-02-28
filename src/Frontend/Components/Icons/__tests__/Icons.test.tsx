@@ -14,7 +14,7 @@ import {
   FileIcon,
   FirstPartyIcon,
   FollowUpIcon,
-  IncompletePackagesIcon,
+  IncompleteAttributionsIcon,
   PreSelectedIcon,
   SearchPackagesIcon,
   SignalIcon,
@@ -70,7 +70,7 @@ describe('The Icons', () => {
   });
 
   it('renders IncompletePackagesIcon', () => {
-    render(<IncompletePackagesIcon />);
+    render(<IncompleteAttributionsIcon />);
 
     expect(screen.getByLabelText('Incomplete icon'));
   });

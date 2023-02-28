@@ -55,7 +55,9 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
         freeSolo
         sx={{
           ...(props.isHighlighted
-            ? { '&.MuiAutocomplete-root': classes.highlightedTextField }
+            ? {
+                '&.MuiAutocomplete-root': classes.defaultHighlightedTextField,
+              }
             : {}),
           ...classes.popper,
         }}

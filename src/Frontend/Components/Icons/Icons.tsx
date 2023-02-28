@@ -226,7 +226,7 @@ export function SearchPackagesIcon(props: IconProps): ReactElement {
   );
 }
 
-export function IncompletePackagesIcon(props: IconProps): ReactElement {
+export function IncompleteAttributionsIcon(props: IconProps): ReactElement {
   return (
     <MuiTooltip sx={classes.tooltip} title="contains incomplete information">
       <RectangleIcon
@@ -249,6 +249,20 @@ export function ManuallyAddedListItemIcon(props: IconProps): ReactElement {
       placement={'left'}
     >
       <AutoAwesomeIcon sx={props.sx} />
+    </MuiTooltip>
+  );
+}
+
+export function MissingPackageNameIcon(props: IconProps): ReactElement {
+  return (
+    <MuiTooltip sx={classes.tooltip} title="is missing a package name">
+      <RectangleIcon
+        aria-label={'Missing packagename icon'}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
+      />
     </MuiTooltip>
   );
 }
