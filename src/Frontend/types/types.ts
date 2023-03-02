@@ -144,7 +144,7 @@ export type ProgressBarType = 'FolderProgressBar' | 'TopProgressBar';
 
 export interface ListWithAttributesItemAttribute {
   text: string;
-  id: string;
+  id?: string;
 }
 
 export interface ListWithAttributesItem {
@@ -152,4 +152,18 @@ export interface ListWithAttributesItem {
   id: string;
   manuallyAdded?: boolean;
   attributes?: Array<ListWithAttributesItemAttribute>;
+}
+export interface PackageAttributes {
+  [uuid: string]: {
+    text: string;
+    count?: number;
+    relatedIds?: Set<string>;
+    manuallyAdded?: boolean;
+  };
+}
+
+export interface PackageAttributeIds {
+  namespaceId: string;
+  nameId: string;
+  versionId: string;
 }

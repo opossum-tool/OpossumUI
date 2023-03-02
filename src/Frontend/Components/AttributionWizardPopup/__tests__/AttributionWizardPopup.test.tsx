@@ -10,9 +10,7 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { ButtonText, PopupType } from '../../../enums/enums';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import { ButtonText } from '../../../enums/enums';
 import {
   Attributions,
   ResourcesToAttributions,
@@ -20,10 +18,9 @@ import {
 import {
   setExternalData,
   setManualData,
-  setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
+import { AttributionWizardPopup } from '../AttributionWizardPopup';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {
@@ -66,10 +63,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
     expect(screen.getByText(selectedResourceId)).toBeInTheDocument();
@@ -79,31 +76,6 @@ describe('AttributionWizardPopup', () => {
     expect(
       screen.getByRole('button', { name: ButtonText.Next })
     ).toBeInTheDocument();
-  });
-
-  it('closes when clicking "cancel"', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
-    );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
-    act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
-    });
-
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.AttributionWizardPopup
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Cancel }));
-    expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
   it('renders breadcrumbs', () => {
@@ -118,10 +90,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText('package')).toBeInTheDocument();
     expect(screen.getByText('version')).toBeInTheDocument();
@@ -139,10 +111,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText(namespaceListTitle)).toBeInTheDocument();
     expect(screen.getByText(nameListTitle)).toBeInTheDocument();
@@ -182,10 +154,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     expect(screen.getByText(namespaceListTitle)).toBeInTheDocument();
     expect(screen.getByText(nameListTitle)).toBeInTheDocument();
@@ -216,52 +188,16 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
 
     expect(
       screen.getByRole('button', { name: ButtonText.Apply })
     ).toBeInTheDocument();
-  });
-
-  it('changes temporary package info', () => {
-    const initialTemporaryPackageInfo = testManualAttributions.uuid_0;
-    const expectedChangedTemporaryPackageInfo = testExternalAttributions.uuid_1;
-
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
-    );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
-    act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
-    });
-
-    testStore.dispatch(setTemporaryPackageInfo(initialTemporaryPackageInfo));
-
-    fireEvent.click(screen.getByText('pip'));
-    fireEvent.click(screen.getByText('numpy'));
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
-    fireEvent.click(screen.getByText('1.24.1'));
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Apply }));
-
-    const changedTemporaryPackageInfo = getTemporaryPackageInfo(
-      testStore.getState()
-    );
-    expect(changedTemporaryPackageInfo).toEqual(
-      expectedChangedTemporaryPackageInfo
-    );
   });
 
   it('displays manually added list entries', () => {
@@ -276,10 +212,10 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setManualData(testManualAttributions, testManualResourcesToAttributions)
     );
-    renderComponentWithStore(<GlobalPopup />, { store: testStore });
     act(() => {
-      testStore.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
 
     const namespaceTable = screen.getByText('Package namespace')
       .parentElement as HTMLElement;

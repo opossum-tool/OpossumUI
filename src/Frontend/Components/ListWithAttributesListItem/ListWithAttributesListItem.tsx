@@ -12,6 +12,7 @@ import MuiListItemText from '@mui/material/ListItemText';
 import MuiBox from '@mui/material/Box';
 import { ManuallyAddedListItemIcon } from '../Icons/Icons';
 import { ListWithAttributesItem } from '../../types/types';
+import { SxProps } from '@mui/system/styleFunctionSx';
 
 const classes = {
   listItem: {
@@ -149,14 +150,10 @@ export function ListWithAttributesListItem(
                         label={attribute.text || ITEM_TEXT_FALLBACK}
                         variant={'filled'}
                         size={'small'}
-                        sx={{
-                          ...classes.styleChips,
-                          ...(props.highlightedAttributeIds?.includes(
-                            attribute.id
-                          )
-                            ? classes.styleChipsHighlighted
-                            : {}),
-                        }}
+                        sx={getChipStyling(
+                          props.highlightedAttributeIds,
+                          attribute.id
+                        )}
                       />
                     ) : (
                       attribute.text || ITEM_TEXT_FALLBACK
@@ -176,4 +173,18 @@ export function ListWithAttributesListItem(
       </MuiListItemButton>
     </MuiListItem>
   );
+}
+
+function getChipStyling(
+  highlightedAttributeIds?: Array<string>,
+  attributeId?: string
+): SxProps {
+  const highlightedSx =
+    attributeId !== undefined
+      ? highlightedAttributeIds?.includes(attributeId)
+        ? classes.styleChipsHighlighted
+        : {}
+      : {};
+
+  return { ...classes.styleChips, ...highlightedSx };
 }

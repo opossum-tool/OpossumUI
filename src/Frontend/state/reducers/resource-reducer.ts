@@ -13,7 +13,11 @@ import {
   Resources,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { PanelPackage } from '../../types/types';
+import {
+  PanelPackage,
+  PackageAttributeIds,
+  PackageAttributes,
+} from '../../types/types';
 import {
   EMPTY_ATTRIBUTION_DATA,
   EMPTY_FREQUENT_LICENSES,
@@ -54,6 +58,12 @@ import {
   ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
   ACTION_SET_PACKAGE_SEARCH_TERM,
   ResourceAction,
+  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
+  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
+  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
+  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
+  ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
+  ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -107,6 +117,18 @@ export const initialResourceState: ResourceState = {
   fileSearchPopup: {
     fileSearch: '',
   },
+  attributionWizard: {
+    originalAttribution: {},
+    packageNamespaces: {},
+    packageNames: {},
+    packageVersions: {},
+    selectedPackageAttributeIds: {
+      namespaceId: '',
+      nameId: '',
+      versionId: '',
+    },
+    totalAttributionCount: null,
+  },
 };
 
 export type ResourceState = {
@@ -143,6 +165,14 @@ export type ResourceState = {
   };
   fileSearchPopup: {
     fileSearch: string;
+  };
+  attributionWizard: {
+    originalAttribution: PackageInfo;
+    packageNamespaces: PackageAttributes;
+    packageNames: PackageAttributes;
+    packageVersions: PackageAttributes;
+    selectedPackageAttributeIds: PackageAttributeIds;
+    totalAttributionCount: number | null;
   };
 };
 
@@ -602,6 +632,55 @@ export const resourceState = (
             ...state.auditView.accordionSearchField,
             searchTerm: action.payload,
           },
+        },
+      };
+
+    case ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION:
+      return {
+        ...state,
+        attributionWizard: {
+          ...state.attributionWizard,
+          originalAttribution: action.payload,
+        },
+      };
+    case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES:
+      return {
+        ...state,
+        attributionWizard: {
+          ...state.attributionWizard,
+          packageNamespaces: action.payload,
+        },
+      };
+    case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES:
+      return {
+        ...state,
+        attributionWizard: {
+          ...state.attributionWizard,
+          packageNames: action.payload,
+        },
+      };
+    case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS:
+      return {
+        ...state,
+        attributionWizard: {
+          ...state.attributionWizard,
+          packageVersions: action.payload,
+        },
+      };
+    case ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS:
+      return {
+        ...state,
+        attributionWizard: {
+          ...state.attributionWizard,
+          selectedPackageAttributeIds: action.payload,
+        },
+      };
+    case ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT:
+      return {
+        ...state,
+        attributionWizard: {
+          ...state.attributionWizard,
+          totalAttributionCount: action.payload,
         },
       };
     default:

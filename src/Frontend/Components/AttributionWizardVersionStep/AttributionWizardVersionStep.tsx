@@ -14,6 +14,7 @@ import { TextBox } from '../InputElements/TextBox';
 import { attributionWizardStepClasses } from '../../shared-styles';
 import { ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT } from '../../shared-styles';
 import { SxProps } from '@mui/system';
+import { sortAttributedPackageVersions } from './attribution-wizard-verstion-step-helpers';
 
 const classes = {
   listBox: {
@@ -23,12 +24,11 @@ const classes = {
 };
 interface AttributionWizardVersionStepProps {
   attributedPackageVersions: Array<ListWithAttributesItem>;
-  highlightedPackageNameIds: Array<string>;
+  highlightedPackageNameId: string;
   selectedPackageInfo: PackageInfo;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
-  manuallyAddedVersions: Array<string>;
-  setManuallyAddedVersions(items: Array<string>): void;
+  addNewPackageVersion(items: string): void;
   listSx?: SxProps;
 }
 
@@ -52,14 +52,14 @@ export function AttributionWizardVersionStep(
         <ListWithAttributes
           listItems={props.attributedPackageVersions}
           selectedListItemId={props.selectedPackageVersionId}
-          highlightedAttributeIds={props.highlightedPackageNameIds}
+          highlightedAttributeIds={[props.highlightedPackageNameId]}
           handleListItemClick={props.handlePackageVersionListItemClick}
           showChipsForAttributes={true}
           showAddNewListItem={true}
-          manuallyAddedListItems={props.manuallyAddedVersions}
-          setManuallyAddedListItems={props.setManuallyAddedVersions}
+          setManuallyAddedListItems={props.addNewPackageVersion}
           title={'Package version'}
           listSx={props.listSx}
+          sortList={sortAttributedPackageVersions}
         />
       </MuiBox>
     </MuiBox>

@@ -21,10 +21,11 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { act } from 'react-dom/test-utils';
 import {
-  setManualData,
   setExternalData,
+  setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
 
 describe('The GlobalPopUp', () => {
   it('does not open by default', () => {
@@ -183,7 +184,7 @@ describe('The GlobalPopUp', () => {
     renderComponentWithStore(<GlobalPopup />, { store });
 
     act(() => {
-      store.dispatch(openPopup(PopupType.AttributionWizardPopup, 'uuid_0'));
+      store.dispatch(openAttributionWizardPopup('uuid_0'));
     });
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
   });

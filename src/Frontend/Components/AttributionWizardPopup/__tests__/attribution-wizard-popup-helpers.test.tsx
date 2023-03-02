@@ -4,453 +4,99 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  AttributionData,
-  AttributionIdWithCount,
-  Attributions,
-  PackageInfo,
-} from '../../../../shared/shared-types';
-import { ListWithAttributesItem } from '../../../types/types';
-import {
-  convertManuallyAddedListEntriesToListItems,
-  getAllAttributionIdsWithCountsFromResourceAndChildren,
-  getAttributionWizardPackageListsItems,
-  getAttributionWizardPackageVersionListItems,
-  getHighlightedPackageNameIds,
-  getPreSelectedPackageAttributeIds,
-  sortAttributedPackageVersions,
-} from '../attribution-wizard-popup-helpers';
+  ListWithAttributesItem,
+  PackageAttributes,
+} from '../../../types/types';
+import { getAttributionWizardListItems } from '../attribution-wizard-popup-helpers';
 
-describe('getExternalAndManualAttributionIdsWithCountsFromResourceAndChildren', () => {
+describe('getAttributionWizardListItems', () => {
   it('yields correct output', () => {
-    const testSelectedResourceId = '/samplepath/';
-    const testExternalData: AttributionData = {
-      attributionsToResources: {},
-      resourcesWithAttributedChildren: {
-        '/samplepath/': new Set<string>([
-          '/samplepath/file_0',
-          '/samplepath/subfolder/file_1',
-          '/samplepath/subfolder/file_2',
-        ]),
-      },
-      resourcesToAttributions: {
-        '/samplepath/file_0': ['uuid_0'],
-        '/samplepath/subfolder/file_1': ['uuid_1'],
-        '/samplepath/subfolder/file_2': ['uuid_0'],
-      },
-      attributions: {},
+    const testPackageNamespaces: PackageAttributes = {
+      uuid_0: { text: 'npm', count: 6 },
+      uuid_1: { text: 'pip', count: 4 },
+      uuid_2: { text: 'new_namespace', manuallyAdded: true },
     };
-    const testManualData: AttributionData = {
-      attributionsToResources: {},
-      resourcesWithAttributedChildren: {
-        '/samplepath/': new Set<string>([
-          '/samplepath/subfolder/file_0',
-          '/samplepath/subfolder_2/file_3',
-          '/samplepath/subfolder_2/file_4',
-        ]),
-      },
-      resourcesToAttributions: {
-        '/samplepath/subfolder/file_0': ['uuid_2'],
-        '/samplepath/subfolder_2/file_3': ['uuid_3'],
-        '/samplepath/subfolder_2/file_4': ['uuid_4'],
-      },
-      attributions: {},
+    const testPackageNames: PackageAttributes = {
+      uuid_3: { text: 'buffer', count: 6 },
+      uuid_4: { text: 'numpy', count: 4 },
+      uuid_5: { text: 'new_name', manuallyAdded: true },
     };
-    const testResolvedExternalAttributions: Set<string> = new Set<string>();
-
-    const expectedTestAttributionsWithCounts: Array<AttributionIdWithCount> = [
-      { attributionId: 'uuid_0', count: 2 },
-      { attributionId: 'uuid_1', count: 1 },
-      { attributionId: 'uuid_2', count: 1 },
-      { attributionId: 'uuid_3', count: 1 },
-      { attributionId: 'uuid_4', count: 1 },
-    ];
-
-    const testAttributionsWithCounts =
-      getAllAttributionIdsWithCountsFromResourceAndChildren(
-        testSelectedResourceId,
-        testExternalData,
-        testManualData,
-        testResolvedExternalAttributions
-      );
-
-    expect(testAttributionsWithCounts).toEqual(
-      expectedTestAttributionsWithCounts
-    );
-  });
-});
-
-describe('getPreSelectedPackageAttributeIds', () => {
-  it('yields correct output', () => {
-    const testPackageInfo: PackageInfo = {
-      packageVersion: '6.0.3',
-      packageNamespace: 'npm',
-      packageName: 'buffer',
+    const testPackageVersions: PackageAttributes = {
+      uuid_6: { text: '6.0.2', relatedIds: new Set<string>(['uuid_3']) },
+      uuid_7: { text: '1.24.0', relatedIds: new Set<string>(['uuid_4']) },
+      uuid_8: { text: '6.0', relatedIds: new Set<string>(['uuid_3']) },
+      uuid_9: { text: 'new_version', manuallyAdded: true },
     };
-    const expectedPreSelectedPackageNamespaceId = 'namespace-npm';
-    const expectedPreSelectedPackageNameId = 'name-buffer';
-    const expectedPreSelectedPackageVersionId = 'version-6.0.3';
-
-    const {
-      preSelectedPackageNamespaceId: testPreSelectedPackageNamespaceId,
-      preSelectedPackageNameId: testPreSelectedPackageNameId,
-      preSelectedPackageVersionId: testPreSelectedPackageVersionId,
-    } = getPreSelectedPackageAttributeIds(testPackageInfo);
-
-    expect(testPreSelectedPackageNamespaceId).toEqual(
-      expectedPreSelectedPackageNamespaceId
-    );
-    expect(testPreSelectedPackageNameId).toEqual(
-      expectedPreSelectedPackageNameId
-    );
-    expect(testPreSelectedPackageVersionId).toEqual(
-      expectedPreSelectedPackageVersionId
-    );
-  });
-});
-
-describe('getAttributionWizardPackageListsItems', () => {
-  it('yields correct output', () => {
-    const testExternalAndManualAttributionIdsWithCounts: Array<AttributionIdWithCount> =
-      [
-        { attributionId: 'uuid_0', count: 1 },
-        { attributionId: 'uuid_1', count: 5 },
-        { attributionId: 'uuid_2', count: 1 },
-        { attributionId: 'uuid_3', count: 1 },
-        { attributionId: 'uuid_4', count: 1 },
-        { attributionId: 'uuid_5', count: 1 },
-      ];
-    const testExternalAndManualAttributions: Attributions = {
-      uuid_0: {
-        packageName: 'buffer',
-        packageNamespace: 'npm',
-        packageVersion: '6.0.3',
-      },
-      uuid_1: {
-        packageName: 'numpy',
-        packageNamespace: 'pip',
-        packageVersion: '1.24.0',
-      },
-      uuid_2: {
-        packageName: undefined,
-        packageNamespace: undefined,
-        packageVersion: undefined,
-      },
-      uuid_3: {
-        packageName: '',
-        packageNamespace: '',
-        packageVersion: '',
-      },
-      uuid_4: {
-        packageName: 'pandas',
-        packageNamespace: 'pip',
-        packageVersion: '1.5.2',
-      },
-      uuid_5: {
-        packageName: 'buffer',
-        packageNamespace: 'npm',
-        packageVersion: '6.0',
-      },
-    };
-    const testManuallyAddedNamespaces: Array<string> = ['new_namespace'];
-    const testManuallyAddedNames: Array<string> = ['new_name_1', 'new_name_2'];
-    const testManuallyAddedVersions: Array<string> = ['new_version'];
-    const testSelectedPackageNamespaceId = 'namespace-npm';
-    const testSelectedPackageNameId = 'name-numpy';
-
-    const expectedSortedAttributedPackageNamespacesWithManuallyAddedOnes: Array<ListWithAttributesItem> =
+    const testTotalAttributionCount = 10;
+    const expectedAttributedPackageNamespacesWithManuallyAddedOnes: Array<ListWithAttributesItem> =
       [
         {
-          text: 'new_namespace',
-          manuallyAdded: true,
-          id: 'namespace-new_namespace',
+          text: 'npm',
+          id: 'uuid_0',
+          attributes: [{ text: '6 (60%)' }],
         },
         {
           text: 'pip',
-          id: 'namespace-pip',
-          attributes: [{ text: '6 (60%)', id: 'namespace-attribute-pip' }],
+          id: 'uuid_1',
+          attributes: [{ text: '4 (40%)' }],
         },
-        {
-          text: '',
-          id: 'namespace-',
-          attributes: [
-            {
-              text: '2 (20%)',
-              id: 'namespace-attribute-',
-            },
-          ],
-        },
-        {
-          text: 'npm',
-          id: 'namespace-npm',
-          attributes: [{ text: '2 (20%)', id: 'namespace-attribute-npm' }],
-        },
+        { text: 'new_namespace', id: 'uuid_2', manuallyAdded: true },
       ];
-    const expectedSortedAttributedPackageNamesWithManuallyAddedOnes: Array<ListWithAttributesItem> =
+    const expectedAttributedPackageNamesWithManuallyAddedOnes: Array<ListWithAttributesItem> =
       [
         {
-          text: 'new_name_1',
-          manuallyAdded: true,
-          id: 'name-new_name_1',
-        },
-        {
-          text: 'new_name_2',
-          manuallyAdded: true,
-          id: 'name-new_name_2',
+          text: 'buffer',
+          id: 'uuid_3',
+          attributes: [{ text: '6 (60%)' }],
         },
         {
           text: 'numpy',
-          id: 'name-numpy',
-          attributes: [{ text: '5 (50%)', id: 'name-attribute-numpy' }],
+          id: 'uuid_4',
+          attributes: [{ text: '4 (40%)' }],
         },
-        {
-          text: '',
-          id: 'name-',
-          attributes: [{ text: '2 (20%)', id: 'name-attribute-' }],
-        },
-        {
-          text: 'buffer',
-          id: 'name-buffer',
-          attributes: [{ text: '2 (20%)', id: 'name-attribute-buffer' }],
-        },
-        {
-          text: 'pandas',
-          id: 'name-pandas',
-          attributes: [{ text: '1 (10%)', id: 'name-attribute-pandas' }],
-        },
+        { text: 'new_name', id: 'uuid_5', manuallyAdded: true },
       ];
-    const expectedSortedAttributedPackageVersionsWithManuallyAddedOnes: Array<ListWithAttributesItem> =
+    const expectedAttributedPackageVersionsWithManuallyAddedOnes: Array<ListWithAttributesItem> =
       [
         {
-          text: 'new_version',
-          manuallyAdded: true,
-          id: 'version-new_version',
+          text: '6.0.2',
+          id: 'uuid_6',
+          attributes: [{ text: 'buffer', id: 'uuid_3' }],
         },
         {
           text: '1.24.0',
-          id: 'version-1.24.0',
-          attributes: [{ text: 'numpy', id: 'version-1.24.0-name-numpy' }],
-        },
-        {
-          text: '',
-          id: 'version-',
-          attributes: [{ text: '', id: 'version--name-' }],
-        },
-        {
-          text: '1.5.2',
-          id: 'version-1.5.2',
-          attributes: [{ text: 'pandas', id: 'version-1.5.2-name-pandas' }],
+          id: 'uuid_7',
+          attributes: [{ text: 'numpy', id: 'uuid_4' }],
         },
         {
           text: '6.0',
-          id: 'version-6.0',
-          attributes: [{ text: 'buffer', id: 'version-6.0-name-buffer' }],
+          id: 'uuid_8',
+          attributes: [{ text: 'buffer', id: 'uuid_3' }],
         },
-        {
-          text: '6.0.3',
-          id: 'version-6.0.3',
-          attributes: [{ text: 'buffer', id: 'version-6.0.3-name-buffer' }],
-        },
+        { text: 'new_version', id: 'uuid_9', manuallyAdded: true },
       ];
-    const expectedSelectedPackageNamespace = 'npm';
-    const expectedSelectedPackageName = 'numpy';
-    const expectedHighlightedPackageNameIds: Array<string> = [
-      'version-1.24.0-name-numpy',
-    ];
-
     const {
-      sortedAttributedPackageNamespacesWithManuallyAddedOnes,
-      sortedAttributedPackageNamesWithManuallyAddedOnes,
-      sortedAttributedPackageVersionsWithManuallyAddedOnes,
-      selectedPackageNamespace,
-      selectedPackageName,
-      highlightedPackageNameIds,
-    } = getAttributionWizardPackageListsItems(
-      testExternalAndManualAttributionIdsWithCounts,
-      testExternalAndManualAttributions,
-      testManuallyAddedNamespaces,
-      testManuallyAddedNames,
-      testManuallyAddedVersions,
-      testSelectedPackageNamespaceId,
-      testSelectedPackageNameId
+      attributedPackageNamespacesWithManuallyAddedOnes:
+        testAttributedPackageNamespacesWithManuallyAddedOnes,
+      attributedPackageNamesWithManuallyAddedOnes:
+        testAttributedPackageNamesWithManuallyAddedOnes,
+      attributedPackageVersionsWithManuallyAddedOnes:
+        testAttributedPackageVersionsWithManuallyAddedOnes,
+    } = getAttributionWizardListItems(
+      testPackageNamespaces,
+      testPackageNames,
+      testPackageVersions,
+      testTotalAttributionCount
     );
 
-    expect(sortedAttributedPackageNamespacesWithManuallyAddedOnes).toEqual(
-      expectedSortedAttributedPackageNamespacesWithManuallyAddedOnes
+    expect(testAttributedPackageNamespacesWithManuallyAddedOnes).toEqual(
+      expectedAttributedPackageNamespacesWithManuallyAddedOnes
     );
-    expect(sortedAttributedPackageNamesWithManuallyAddedOnes).toEqual(
-      expectedSortedAttributedPackageNamesWithManuallyAddedOnes
+    expect(testAttributedPackageNamesWithManuallyAddedOnes).toEqual(
+      expectedAttributedPackageNamesWithManuallyAddedOnes
     );
-    expect(sortedAttributedPackageVersionsWithManuallyAddedOnes).toEqual(
-      expectedSortedAttributedPackageVersionsWithManuallyAddedOnes
-    );
-    expect(selectedPackageNamespace).toEqual(expectedSelectedPackageNamespace);
-    expect(selectedPackageName).toEqual(expectedSelectedPackageName);
-    expect(highlightedPackageNameIds).toEqual(
-      expectedHighlightedPackageNameIds
-    );
-  });
-});
-
-describe('getAttributionWizardPackageVersionListItems', () => {
-  it('yields correct output', () => {
-    const testPackageName = 'buffer';
-    const testPackageName2 = 'buffer2';
-    const testPackageName3 = 'numpy';
-    const testPackageNamesToVersions = {
-      [testPackageName]: new Set<string>(['6.0.3', '6.0']),
-      [testPackageName2]: new Set<string>(['6.0.3']),
-      [testPackageName3]: new Set<string>(['1.24.0']),
-    };
-
-    const expectedAttributedPackageVersions = [
-      {
-        text: '1.24.0',
-        id: 'version-1.24.0',
-        attributes: [
-          {
-            text: testPackageName3,
-            id: `version-1.24.0-name-${testPackageName3}`,
-          },
-        ],
-      },
-      {
-        text: '6.0',
-        id: 'version-6.0',
-        attributes: [
-          {
-            text: testPackageName,
-            id: `version-6.0-name-${testPackageName}`,
-          },
-        ],
-      },
-      {
-        text: '6.0.3',
-        id: 'version-6.0.3',
-        attributes: [
-          {
-            text: testPackageName,
-            id: `version-6.0.3-name-${testPackageName}`,
-          },
-          {
-            text: testPackageName2,
-            id: `version-6.0.3-name-${testPackageName2}`,
-          },
-        ],
-      },
-    ];
-
-    const testAttributedPackageVersions =
-      getAttributionWizardPackageVersionListItems(testPackageNamesToVersions);
-
-    expect(testAttributedPackageVersions).toEqual(
-      expectedAttributedPackageVersions
-    );
-  });
-});
-
-describe('getHighlightedPackeNameIds', () => {
-  it('yields correct output', () => {
-    const testSelectedPackageName = 'buffer';
-    const testPackageNamesToVersions = {
-      buffer: new Set<string>(['6.0.3', '6.0']),
-      numpy: new Set<string>(['1.24.0']),
-    };
-    const expectedHighlightedPackeNameIds = [
-      'version-6.0.3-name-buffer',
-      'version-6.0-name-buffer',
-    ];
-
-    const testHighlightedPackageNameIds = getHighlightedPackageNameIds(
-      testSelectedPackageName,
-      testPackageNamesToVersions
-    );
-
-    expect(testHighlightedPackageNameIds).toEqual(
-      expectedHighlightedPackeNameIds
-    );
-  });
-});
-
-describe('convertManuallyAddedListEntriesToListItems', () => {
-  it('yields correct output', () => {
-    const testManuallyAddedListEntries = ['new_package_0', 'new_package_1'];
-    const testPackageAttributeId = 'name';
-    const expectedNewListItems: Array<ListWithAttributesItem> = [
-      {
-        text: 'new_package_0',
-        manuallyAdded: true,
-        id: 'name-new_package_0',
-      },
-      {
-        text: 'new_package_1',
-        manuallyAdded: true,
-        id: 'name-new_package_1',
-      },
-    ];
-
-    const testNewListItems = convertManuallyAddedListEntriesToListItems(
-      testManuallyAddedListEntries,
-      testPackageAttributeId
-    );
-
-    expect(testNewListItems).toEqual(expectedNewListItems);
-  });
-});
-
-describe('sortAttributedPackageVersions', () => {
-  it('yields correct output', () => {
-    const testAttributedPackageVersions: Array<ListWithAttributesItem> = [
-      {
-        text: '6.0',
-        id: 'version-6.0',
-        attributes: [{ text: 'Buffer', id: 'version-6.0-name-Buffer' }],
-      },
-      {
-        text: '1.24.0',
-        id: 'version-1.24.0',
-        attributes: [{ text: 'numpy', id: 'version-1.24.0-name-numpy' }],
-      },
-      {
-        text: '6.0.3',
-        id: 'version-6.0.3',
-        attributes: [
-          { text: 'buffer', id: 'version-6.0.3-name-buffer' },
-          { text: 'Buffer', id: 'version-6.0.3-name-Buffer' },
-        ],
-      },
-    ];
-    const testHighlightedPackageNameIds: Array<string> = [
-      'version-6.0.3-name-buffer',
-    ];
-    const expectedSortedAttributedPackageVersions: Array<ListWithAttributesItem> =
-      [
-        {
-          text: '6.0.3',
-          id: 'version-6.0.3',
-          attributes: [
-            { text: 'buffer', id: 'version-6.0.3-name-buffer' },
-            { text: 'Buffer', id: 'version-6.0.3-name-Buffer' },
-          ],
-        },
-        {
-          text: '6.0',
-          id: 'version-6.0',
-          attributes: [{ text: 'Buffer', id: 'version-6.0-name-Buffer' }],
-        },
-        {
-          text: '1.24.0',
-          id: 'version-1.24.0',
-          attributes: [{ text: 'numpy', id: 'version-1.24.0-name-numpy' }],
-        },
-      ];
-
-    const testSortedAttributedPackageVersions = sortAttributedPackageVersions(
-      testAttributedPackageVersions,
-      testHighlightedPackageNameIds
-    );
-
-    expect(testSortedAttributedPackageVersions).toEqual(
-      expectedSortedAttributedPackageVersions
+    expect(testAttributedPackageVersionsWithManuallyAddedOnes).toEqual(
+      expectedAttributedPackageVersionsWithManuallyAddedOnes
     );
   });
 });
