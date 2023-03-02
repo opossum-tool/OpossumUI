@@ -167,14 +167,16 @@ interface ListCardProps {
 
 export function ListCard(props: ListCardProps): ReactElement | null {
   function getDisplayedCount(): string {
+    const digitsInAThousand = 4;
+    const digitsInAMillion = 7;
     const count = props.count ? props.count.toString() : '';
 
-    if (count.length < 4) {
+    if (count.length < digitsInAThousand) {
       return count;
-    } else if (count.length < 7) {
-      return `${count.slice(0, -3)}k`;
+    } else if (count.length < digitsInAMillion) {
+      return `${count.slice(0, -(digitsInAThousand - 1))}k`;
     } else {
-      return `${count.slice(0, -6)}M`;
+      return `${count.slice(0, -(digitsInAMillion - 1))}M`;
     }
   }
 

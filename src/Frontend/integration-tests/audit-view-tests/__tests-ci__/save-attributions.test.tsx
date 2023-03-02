@@ -243,6 +243,7 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
     expectButton(screen, ButtonText.Confirm);
     expectButton(screen, ButtonText.ConfirmGlobally);
@@ -250,6 +251,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 1, 3, 0);
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
@@ -267,6 +269,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.ConfirmGlobally);
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 3, 1, 0);
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
@@ -290,6 +293,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Confirm);
     expectValueNotInConfidenceField(screen, '90');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 4, 0, 0);
     expectButtonIsNotShown(screen, ButtonText.Confirm);
   });

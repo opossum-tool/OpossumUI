@@ -203,7 +203,10 @@ describe('Test of loading function', () => {
       corruptJsonPath
     );
 
-    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(3);
+    const expectedNumberOfCalls = 3;
+    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(
+      expectedNumberOfCalls
+    );
 
     expect(getMessageBoxForParsingError).toHaveBeenCalled();
     expect(getGlobalBackendState()).toEqual(expectedBackendState);

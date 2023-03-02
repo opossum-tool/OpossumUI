@@ -102,7 +102,8 @@ describe('The getUpdatedProgressBarData function', () => {
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
     });
-    expect(progressBarData.fileCount).toEqual(4);
+    const expectedNumberOfFiles = 4;
+    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(2);
     expect(
@@ -210,7 +211,8 @@ describe('The getUpdatedProgressBarData function', () => {
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
     });
-    expect(progressBarData.fileCount).toEqual(4);
+    const expectedNumberOfFiles = 4;
+    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(1);
     expect(
@@ -312,9 +314,11 @@ describe('The getUpdatedProgressBarData function', () => {
       attributionBreakpoints: testAttributionBreakpoints,
       filesWithChildren: new Set<string>(),
     });
-    expect(progressBarData.fileCount).toEqual(12);
+    const expectedNumberOfFiles = 12;
+    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(2);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(5);
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly
@@ -379,7 +383,8 @@ describe('The getUpdatedProgressBarData function', () => {
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: testFilesWithChildren,
     });
-    expect(progressBarData.fileCount).toEqual(3);
+    const expectedNumberOfFiles = 3;
+    expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);

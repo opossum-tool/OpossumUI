@@ -132,6 +132,7 @@ describe('In Audit View the ContextMenu', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueInConfidenceField(screen, '10');
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
     expectContextMenuForPreSelectedAttributionMultipleResources(
       screen,
@@ -145,6 +146,7 @@ describe('In Audit View the ContextMenu', () => {
     );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 1, 3, 0);
     expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
 
@@ -167,6 +169,7 @@ describe('In Audit View the ContextMenu', () => {
     );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 3, 1, 0);
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
@@ -193,6 +196,7 @@ describe('In Audit View the ContextMenu', () => {
     expectValueInTextBox(screen, 'Name', 'Vue');
     expectValueNotInConfidenceField(screen, '90');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 4, 0, 0);
 
     expectContextMenuForNotPreSelectedAttributionSingleResource(

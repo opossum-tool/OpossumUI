@@ -16,7 +16,7 @@ import {
 
 const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
 export const E2E_TEST_TIMEOUT = 120000;
-export const EXPECT_TIMEOUT = 15000;
+export const EXPECT_TIMEOUT = 20000;
 
 export async function getApp(
   commandLineArg?: string

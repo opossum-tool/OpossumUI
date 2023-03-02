@@ -18,6 +18,7 @@ export function FileSearchPopup(): ReactElement {
   const fileSearchPopupOffset = 260;
   const maxPossibleHeightInPx = useWindowHeight() - fileSearchPopupOffset;
   const resourceListMaxHeightInPx =
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     500 > maxPossibleHeightInPx ? maxPossibleHeightInPx : 500;
 
   function close(): void {

@@ -92,10 +92,14 @@ export function addSecondLineOfPackageLabelFromAttribute(
 }
 
 export function addPreambleToCopyright(originalCopyright: string): string {
+  const copyrightPrefixLength = 3;
+  const copyrightLength = 9;
   let copyright = originalCopyright;
   if (
-    originalCopyright.substring(0, 3).toLowerCase() !== '(c)' &&
-    originalCopyright.substring(0, 9).toLowerCase() !== 'copyright'
+    originalCopyright.substring(0, copyrightPrefixLength).toLowerCase() !==
+      '(c)' &&
+    originalCopyright.substring(0, copyrightLength).toLowerCase() !==
+      'copyright'
   ) {
     copyright = `(c) ${originalCopyright}`;
   }

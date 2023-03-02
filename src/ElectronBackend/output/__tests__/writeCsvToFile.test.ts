@@ -147,6 +147,7 @@ describe('writeCsvToFile', () => {
     };
 
     const expectedResources =
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       manyResources.slice(0, 225).join('\n') +
       ' ... (resources shortened, 25 paths are not displayed)';
 
@@ -438,8 +439,9 @@ describe('writeCsvToFile', () => {
       },
     };
 
+    const maxLength = 30000;
     const expectedLicenseText =
-      testLicenseText.substring(0, 30000) + '... (text shortened)';
+      testLicenseText.substring(0, maxLength) + '... (text shortened)';
 
     const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');

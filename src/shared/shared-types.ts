@@ -21,7 +21,9 @@ export enum Criticality {
 }
 
 export enum DiscreteConfidence {
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   High = 80,
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   Low = 20,
 }
 

@@ -11,12 +11,20 @@ import {
 } from '../attribution-column-helpers';
 
 describe('The AttributionColumn helpers', () => {
+  const windowHeight = 1080;
+
   it('getLicenseTextMaxRows in audit view', () => {
-    expect(getLicenseTextMaxRows(1080, View.Audit)).toEqual(29);
+    const expectedLicenseTextMaxRows = 29;
+    expect(getLicenseTextMaxRows(windowHeight, View.Audit)).toEqual(
+      expectedLicenseTextMaxRows
+    );
   });
 
   it('getLicenseTextMaxRows in attribution view', () => {
-    expect(getLicenseTextMaxRows(1080, View.Attribution)).toEqual(31);
+    const expectedLicenseTextMaxRows = 31;
+    expect(getLicenseTextMaxRows(windowHeight, View.Attribution)).toEqual(
+      expectedLicenseTextMaxRows
+    );
   });
 
   it('selectedPackageIsResolved returns true', () => {

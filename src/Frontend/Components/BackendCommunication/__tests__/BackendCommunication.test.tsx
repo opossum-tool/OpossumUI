@@ -16,7 +16,8 @@ import { Attributions, ExportType } from '../../../../shared/shared-types';
 describe('BackendCommunication', () => {
   it('renders an Open file icon', () => {
     renderComponentWithStore(<BackendCommunication />);
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(11);
+    const expectedNumberOfCalls = 11;
+    expect(window.electronAPI.on).toHaveBeenCalledTimes(expectedNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expect.anything()

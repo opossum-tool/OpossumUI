@@ -58,6 +58,7 @@ export function AttributionView(): ReactElement {
     setShowMultiselect(!showMultiSelect);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const countAndSearchAndFilterOffset = showMultiSelect ? 137 : 80;
 
   return (

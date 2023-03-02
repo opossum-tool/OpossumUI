@@ -53,7 +53,8 @@ describe('cleanNonExistentAttributions', () => {
       '/file1': ['attr2', 'attr4'],
       '/file3': ['attr4'],
     });
-    expect(mockCallback.mock.calls.length).toBe(3);
+    const expectedNumberOfCalls = 3;
+    expect(mockCallback.mock.calls.length).toBe(expectedNumberOfCalls);
     expect(mockCallback.mock.calls[0][1]).toContain('/file1');
     expect(mockCallback.mock.calls[1][1]).toContain('/file2');
     expect(mockCallback.mock.calls[2][1]).toContain('/file4');

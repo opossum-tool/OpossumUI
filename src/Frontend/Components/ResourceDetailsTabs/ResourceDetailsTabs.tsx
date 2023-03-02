@@ -90,7 +90,9 @@ export function ResourceDetailsTabs(
   const dispatch = useAppDispatch();
 
   enum Tabs {
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     Local = 0,
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     Global = 1,
   }
   const [selectedTab, setSelectedTab] = useState<Tabs>(Tabs.Local);
