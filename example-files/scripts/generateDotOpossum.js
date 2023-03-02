@@ -9,6 +9,11 @@ const glob = require('glob');
 const path = require('path');
 
 const exampleFilesDirectory = path.join(__dirname, '..');
+const jsonFileExtension = '.json';
+const dotOpossumFileExtension = '.opossum';
+const attributionsFileSuffix = '_attributions.json';
+const dotOpossumInputFileName = 'input.json';
+const dotOpossumOutputFileName = 'output.json';
 
 const { inputFilePaths, attributionFilePaths } =
   getInputAndAttributionFilePaths(exampleFilesDirectory);
@@ -16,7 +21,7 @@ const { inputFilePaths, attributionFilePaths } =
 for (const inputFilePath of inputFilePaths) {
   const inputFilePathParsed = path.parse(inputFilePath);
   const inputFileDirectory = inputFilePathParsed.dir;
-  const dotOpossumFileName = `${inputFilePathParsed.name}.opossum`;
+  const dotOpossumFileName = `${inputFilePathParsed.name}${dotOpossumFileExtension}`;
   const dotOpossumFilePath = path.join(inputFileDirectory, dotOpossumFileName);
 
   if (!fs.existsSync(dotOpossumFilePath)) {
@@ -36,7 +41,7 @@ for (const inputFilePath of inputFilePaths) {
         type: 'nodebuffer',
         streamFiles: true,
         compression: 'DEFLATE',
-        compressionOptions: { level: 9 },
+        compressionOptions: { level: 5 },
       })
       .then((output) => dotOpossumWriteStream.write(output));
 
@@ -47,20 +52,28 @@ for (const inputFilePath of inputFilePaths) {
 }
 
 function getInputAndAttributionFilePaths(exampleFilesDirectory) {
-  const jsonFilePaths = glob.sync(`${exampleFilesDirectory}/**/*.json`);
+  const jsonFilePaths = glob.sync(
+    `${exampleFilesDirectory}/**/*${jsonFileExtension}`
+  );
   const inputFilePaths = [];
   const attributionFilePaths = [];
   jsonFilePaths.forEach((filePath) =>
-    filePath.endsWith('_attributions.json')
+    filePath.endsWith(attributionsFileSuffix)
       ? attributionFilePaths.push(filePath)
-      : inputFilePaths.push(filePath)
+      : checkIfJsonFileIsInputJson(filePath)
+      ? inputFilePaths.push(filePath)
+      : null
   );
   return { inputFilePaths, attributionFilePaths };
 }
 
+function checkIfJsonFileIsInputJson(filePath) {
+  return path.basename(filePath).split('.').length <= 2;
+}
+
 function addInputJsonToArchive(archive, inputFilePath) {
   const inputJson = fs.readFileSync(inputFilePath, { encoding: 'utf-8' });
-  archive.file('input.json', inputJson);
+  archive.file(dotOpossumInputFileName, inputJson);
 }
 
 function addAttributionsJsonToArchive(
@@ -69,11 +82,11 @@ function addAttributionsJsonToArchive(
   attributionFilePaths
 ) {
   const expectedAssociatedAttributionFilePath =
-    inputFilePath.slice(0, -5) + '_attributions.json';
+    inputFilePath.slice(0, -5) + attributionsFileSuffix;
   if (attributionFilePaths.includes(expectedAssociatedAttributionFilePath)) {
     const outputJson = fs.readFileSync(expectedAssociatedAttributionFilePath, {
       encoding: 'utf-8',
     });
-    archive.file('output.json', outputJson);
+    archive.file(dotOpossumOutputFileName, outputJson);
   }
 }
