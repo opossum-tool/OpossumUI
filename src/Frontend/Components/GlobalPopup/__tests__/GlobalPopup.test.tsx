@@ -188,4 +188,26 @@ describe('The GlobalPopUp', () => {
     });
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
   });
+
+  it('opens the FileSupportPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    act(() => {
+      store.dispatch(openPopup(PopupType.FileSupportPopup));
+    });
+
+    const header = 'Warning: Outdated input file format';
+    expect(screen.getByText(header)).toBeInTheDocument();
+  });
+
+  it('opens the FileSupportDotOpossumAlreadyExistsPopup', () => {
+    const { store } = renderComponentWithStore(<GlobalPopup />);
+    act(() => {
+      store.dispatch(
+        openPopup(PopupType.FileSupportDotOpossumAlreadyExistsPopup)
+      );
+    });
+
+    const header = 'Warning: Outdated input file format';
+    expect(screen.getByText(header)).toBeInTheDocument();
+  });
 });

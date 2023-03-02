@@ -26,6 +26,7 @@ export enum PopupType {
   ChangedInputFilePopup = 'ChangedInputFilePopup',
   AttributionWizardPopup = 'AttributionWizardPopup',
   FileSupportPopup = 'FileSupportPopup',
+  FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -69,6 +70,7 @@ export enum ButtonText {
   Undo = 'Undo',
   UnmarkForReplacement = 'Unmark for replacement',
   Unhide = 'Unhide',
+  OpenDotOpossumFile = 'Open ".opossum" file',
 }
 
 export enum FilterType {

@@ -6,6 +6,7 @@
 import JSZip from 'jszip';
 import fs from 'fs';
 import log from 'electron-log';
+import { OPOSSUM_FILE_COMPRESSION_LEVEL } from '../shared-constants';
 
 export async function writeOpossumFile(
   opossumfilePath: string,
@@ -23,7 +24,7 @@ export async function writeOpossumFile(
       type: 'nodebuffer',
       streamFiles: true,
       compression: 'DEFLATE',
-      compressionOptions: { level: 1 },
+      compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
     })
     .then((output) => writeStream.write(output));
 }
@@ -45,7 +46,7 @@ export async function writeOutputJsonToOpossumFile(
             type: 'nodebuffer',
             streamFiles: true,
             compression: 'DEFLATE',
-            compressionOptions: { level: 1 },
+            compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
           })
           .pipe(writeStream)
           .on('finish', () => {

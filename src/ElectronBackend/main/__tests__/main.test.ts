@@ -58,39 +58,54 @@ describe('The App backend', () => {
   it('calls ipc handler', async () => {
     await main();
 
-    expect(ipcMain.handle).toHaveBeenCalledTimes(7);
+    expect(ipcMain.handle).toHaveBeenCalledTimes(10);
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       1,
-      IpcChannel.OpenFile,
+      IpcChannel.ConvertInputFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       2,
-      IpcChannel.SaveFile,
+      IpcChannel.UseOutdatedInputFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       3,
-      IpcChannel.DeleteFile,
+      IpcChannel.OpenDotOpossumFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       4,
-      IpcChannel.KeepFile,
+      IpcChannel.OpenFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       5,
-      IpcChannel.SendErrorInformation,
+      IpcChannel.SaveFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       6,
-      IpcChannel.ExportFile,
+      IpcChannel.DeleteFile,
       expect.any(Function)
     );
     expect(ipcMain.handle).toHaveBeenNthCalledWith(
       7,
+      IpcChannel.KeepFile,
+      expect.any(Function)
+    );
+    expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      8,
+      IpcChannel.SendErrorInformation,
+      expect.any(Function)
+    );
+    expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      9,
+      IpcChannel.ExportFile,
+      expect.any(Function)
+    );
+    expect(ipcMain.handle).toHaveBeenNthCalledWith(
+      10,
       IpcChannel.OpenLink,
       expect.any(Function)
     );

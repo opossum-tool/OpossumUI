@@ -12,6 +12,9 @@ export enum IpcChannel {
   OpenLink = 'open-link',
   SaveFile = 'save-file',
   SendErrorInformation = 'send-error-information',
+  ConvertInputFile = 'convert-input-file',
+  UseOutdatedInputFile = 'use-outdated-input-file',
+  OpenDotOpossumFile = 'open-dot-opossum-file',
 }
 
 export enum AllowedFrontendChannels {
