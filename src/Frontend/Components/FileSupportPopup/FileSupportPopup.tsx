@@ -34,13 +34,17 @@ const classes = {
 export function FileSupportPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
+  function close(): void {
+    dispatch(closePopup());
+  }
+
   const handleCreateAndProceedButtonClick = (): void => {
     window.electronAPI.convertInputFileToDotOpossum();
-    dispatch(closePopup());
+    close();
   };
   const handleKeepButtonClick = (): void => {
     window.electronAPI.useOutdatedInpuFileFormat();
-    dispatch(closePopup());
+    close();
   };
 
   const createAndProceedButtonConfig: ButtonConfig = {
@@ -65,6 +69,8 @@ export function FileSupportPopup(): ReactElement {
           <MuiTypography>{INFO_TEXT_PART_2}</MuiTypography>
         </MuiBox>
       }
+      onBackdropClick={close}
+      onEscapeKeyDown={close}
     />
   );
 }

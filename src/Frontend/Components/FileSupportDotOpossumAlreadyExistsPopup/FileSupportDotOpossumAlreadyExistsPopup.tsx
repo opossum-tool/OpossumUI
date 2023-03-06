@@ -34,9 +34,13 @@ const classes = {
 export function FileSupportDotOpossumAlreadyExistsPopup(): ReactElement {
   const dispatch = useAppDispatch();
 
+  function close(): void {
+    dispatch(closePopup());
+  }
+
   const handleOpenDotOpossumButtonClick = (): void => {
     window.electronAPI.openDotOpossumFile();
-    dispatch(closePopup());
+    close();
   };
 
   const OpenDotOpossumButtonConfig: ButtonConfig = {
@@ -56,6 +60,8 @@ export function FileSupportDotOpossumAlreadyExistsPopup(): ReactElement {
           <MuiTypography>{INFO_TEXT_PART_2}</MuiTypography>
         </MuiBox>
       }
+      onBackdropClick={close}
+      onEscapeKeyDown={close}
     />
   );
 }
