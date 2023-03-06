@@ -70,7 +70,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-testing-library": "^5.10.2",
     "husky": "8.0.3",
-    "jest-each": "^29.4.3",
+    "jest-each": "^29.5.0",
     "lint-staged": "^13.1.2",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
