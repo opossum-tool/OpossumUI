@@ -19,6 +19,7 @@ import { useAppSelector } from '../../state/hooks';
 import { checkboxClass } from '../../shared-styles';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import MuiBox from '@mui/material/Box';
+import { TextFieldStack } from '../TextFieldStack/TextFieldStack';
 
 const classes = {
   ...checkboxClass,
@@ -38,7 +39,8 @@ interface AuditingSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: PackageInfo;
   showManualAttributionData: boolean;
-  commentRows: number;
+  isCommentsBoxCollapsed: boolean;
+  commentBoxHeight: number;
   followUpChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
   excludeFromNoticeChangeHandler(
     event: React.ChangeEvent<HTMLInputElement>
@@ -135,15 +137,16 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
           />
         ) : null}
       </MuiBox>
-      <TextBox
+      <TextFieldStack
         isEditable={props.isEditable}
-        sx={classes.textBox}
-        title={'Comment'}
-        text={props.displayPackageInfo.comment}
-        minRows={props.commentRows}
-        maxRows={props.commentRows}
-        multiline={true}
-        handleChange={props.setUpdateTemporaryPackageInfoFor('comment')}
+        comments={
+          props.displayPackageInfo.comment
+            ? [props.displayPackageInfo.comment]
+            : []
+        }
+        isCollapsed={props.isCommentsBoxCollapsed}
+        commentBoxHeight={props.commentBoxHeight}
+        handleChange={props.setUpdateTemporaryPackageInfoFor}
       />
     </MuiPaper>
   );

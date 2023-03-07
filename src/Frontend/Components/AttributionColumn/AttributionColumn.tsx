@@ -106,7 +106,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     setIsLicenseTextShown,
     licenseTextRows,
     copyrightRows,
-    commentRows,
+    commentBoxHeight,
   } = useRows(
     view,
     props.resetViewIfThisIdChanges,
@@ -285,7 +285,8 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         showHighlight={showHighlight}
       />
       <AuditingSubPanel
-        commentRows={commentRows}
+        commentBoxHeight={commentBoxHeight}
+        isCommentsBoxCollapsed={isLicenseTextShown}
         setUpdateTemporaryPackageInfoFor={
           props.setUpdateTemporaryPackageInfoFor
         }

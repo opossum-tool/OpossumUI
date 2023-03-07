@@ -27,6 +27,9 @@ import { PanelPackage } from '../../types/types';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
 const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
+const HEIGHT_OF_TEXT_BOXES_IN_ATTRIBUTION_VIEW = 480;
+const HEIGHT_OF_TEXT_BOXES_IN_AUDIT_VIEW = 514;
+const ROW_HEIGHT = 19;
 
 export function getDisplayTexts(
   temporaryPackageInfo: PackageInfo,
@@ -51,13 +54,12 @@ export function getLicenseTextMaxRows(
   windowHeight: number,
   view: View
 ): number {
-  const heightOfTextBoxes = 480;
   const heightOfNonLicenseTextComponents =
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    heightOfTextBoxes + (view === View.Audit ? 34 : 0);
+    view === View.Audit
+      ? HEIGHT_OF_TEXT_BOXES_IN_AUDIT_VIEW
+      : HEIGHT_OF_TEXT_BOXES_IN_ATTRIBUTION_VIEW;
   const licenseTextMaxHeight = windowHeight - heightOfNonLicenseTextComponents;
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  return Math.floor(licenseTextMaxHeight / 19);
+  return Math.floor(licenseTextMaxHeight / ROW_HEIGHT);
 }
 
 export function getDiscreteConfidenceChangeHandler(
@@ -291,7 +293,7 @@ export function useRows(
   setIsLicenseTextShown: Dispatch<SetStateAction<boolean>>;
   licenseTextRows: number;
   copyrightRows: number;
-  commentRows: number;
+  commentBoxHeight: number;
 } {
   const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -308,12 +310,15 @@ export function useRows(
   const commentRows = isLicenseTextShown
     ? 1
     : Math.max(licenseTextRows - 2, 1) - reduceRowsCount;
+  const commentBoxHeight = isLicenseTextShown
+    ? ROW_HEIGHT
+    : commentRows * ROW_HEIGHT;
 
   return {
     isLicenseTextShown,
     setIsLicenseTextShown,
     licenseTextRows,
     copyrightRows,
-    commentRows,
+    commentBoxHeight,
   };
 }
