@@ -102,6 +102,8 @@ export function AttributionWizardPopup(): ReactElement {
     selectedPackageAttributeIds
   );
 
+  const selectedPackageNameIsValid = selectedPackageName !== '';
+
   const dispatch = useAppDispatch();
   function closeAttributionWizardPopupHandler(): void {
     dispatch(closeAttributionWizardPopup());
@@ -118,11 +120,6 @@ export function AttributionWizardPopup(): ReactElement {
   const [selectedWizardStepId, setSelectedWizardStepId] = useState<string>(
     wizardStepIds[0]
   );
-
-  const isPackageNamespaceAndNameSelected =
-    selectedPackageAttributeIds.namespaceId !== '' &&
-    selectedPackageAttributeIds.nameId !== '';
-  const isPackageVersionSelected = selectedPackageAttributeIds.versionId !== '';
 
   const {
     attributedPackageNamespacesWithManuallyAddedOnes,
@@ -224,11 +221,11 @@ export function AttributionWizardPopup(): ReactElement {
   const nextButtonConfig: ButtonConfig = {
     buttonText: ButtonText.Next,
     onClick: handleNextClick,
-    disabled: !isPackageNamespaceAndNameSelected,
+    disabled: !selectedPackageNameIsValid,
     isDark: true,
-    tooltipText: isPackageNamespaceAndNameSelected
-      ? ''
-      : 'Please select package namespace and name to continue',
+    tooltipText: !selectedPackageNameIsValid
+      ? 'Please select a valid package name to continue'
+      : '',
     tooltipPlacement: 'top',
   };
   const backButtonConfig: ButtonConfig = {
@@ -246,12 +243,7 @@ export function AttributionWizardPopup(): ReactElement {
   const applyButtonConfig: ButtonConfig = {
     buttonText: ButtonText.Apply,
     onClick: handleApplyClick,
-    disabled: !isPackageVersionSelected,
     isDark: true,
-    tooltipText: !isPackageVersionSelected
-      ? 'Please select package version to apply changes'
-      : '',
-    tooltipPlacement: 'top',
   };
 
   return (
