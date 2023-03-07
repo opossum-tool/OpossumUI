@@ -33,7 +33,13 @@ export async function parseOpossumFile(
   await new Promise<void>((resolve) => {
     fs.readFile(opossumfilePath, (err, data) => {
       if (err) throw err;
-      JSZip.loadAsync(data).then((zip) => {
+      JSZip.loadAsync(data).then(async (zip) => {
+        if ('output.json' in zip.files) {
+          await zip.files['output.json'].async('text').then((content) => {
+            parsedOutputData = parseOutputJsonContent(content, opossumfilePath);
+          });
+        }
+
         zip.files['input.json']
           .async('text')
           .then((content) => {
@@ -46,11 +52,6 @@ export async function parseOpossumFile(
             error = err;
           })
           .then(resolve);
-        if ('output.json' in zip.files) {
-          zip.files['output.json'].async('text').then((content) => {
-            parsedOutputData = parseOutputJsonContent(content, opossumfilePath);
-          });
-        }
       });
     });
   });
