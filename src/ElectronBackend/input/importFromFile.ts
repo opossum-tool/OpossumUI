@@ -28,7 +28,7 @@ import {
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../types/types';
-import { WebContents } from 'electron';
+import { BrowserWindow } from 'electron';
 import { writeJsonToFile } from '../output/writeJsonToFile';
 import { cloneDeep } from 'lodash';
 import log from 'electron-log';
@@ -48,10 +48,10 @@ function isJsonParsingError(object: unknown): object is JsonParsingError {
 }
 
 export async function loadInputAndOutputFromFilePath(
-  webContents: WebContents,
+  mainWindow: BrowserWindow,
   filePath: string
 ): Promise<void> {
-  webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
+  mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
 
@@ -60,7 +60,7 @@ export async function loadInputAndOutputFromFilePath(
 
   if (isOpossumFileFormat(filePath)) {
     log.info(`Starting to read .opossum file ${filePath} ...`);
-    const parsingResult = await parseOpossumFile(filePath);
+    const parsingResult = await parseOpossumFile(filePath, mainWindow);
     if (isJsonParsingError(parsingResult)) {
       log.info('Invalid input file.');
       await getMessageBoxForParsingError(parsingResult.message);
@@ -93,7 +93,8 @@ export async function loadInputAndOutputFromFilePath(
         filePath,
         externalAttributions,
         resourcesToAttributions,
-        projectId
+        projectId,
+        mainWindow
       );
     } else {
       const outputJsonPath = getFilePathWithAppendix(
@@ -134,7 +135,7 @@ export async function loadInputAndOutputFromFilePath(
       // For a time, a bug in the app produced corrupt files,
       // which are fixed by this clean-up.
       resourcesToAttributions: cleanNonExistentAttributions(
-        webContents,
+        mainWindow.webContents,
         parsedOutputData.resourcesToAttributions ?? {},
         manualAttributions
       ),
@@ -145,7 +146,7 @@ export async function loadInputAndOutputFromFilePath(
     },
     frequentLicenses,
     resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
-      webContents,
+      mainWindow.webContents,
       parsedOutputData.resolvedExternalAttributions,
       externalAttributions
     ),
@@ -160,7 +161,10 @@ export async function loadInputAndOutputFromFilePath(
       parsedInputData.externalAttributionSources ?? {},
   };
   log.info('Sending data to electron frontend');
-  webContents.send(AllowedFrontendChannels.FileLoaded, parsedFileContent);
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.FileLoaded,
+    parsedFileContent
+  );
 
   log.info('Updating global backend state');
 
@@ -176,7 +180,8 @@ async function createOutputInOpossumFile(
   filePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
-  projectId: string
+  projectId: string,
+  mainWindow: BrowserWindow
 ): Promise<ParsedOpossumOutputFile> {
   log.info(
     `Starting to create output in .opossum file, project ID is ${projectId}`
@@ -192,7 +197,8 @@ async function createOutputInOpossumFile(
 
   log.info(`Starting to parse output file in ${filePath} ...`);
   const parsingResult = (await parseOpossumFile(
-    filePath
+    filePath,
+    mainWindow
   )) as ParsedOpossumInputAndOutput;
   const parsedOutputFile = parsingResult.output as ParsedOpossumOutputFile;
   log.info('... Successfully parsed output file.');

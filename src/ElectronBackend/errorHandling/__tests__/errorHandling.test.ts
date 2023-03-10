@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { app, dialog, WebContents } from 'electron';
+import { app, BrowserWindow, dialog, WebContents } from 'electron';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
@@ -12,10 +12,12 @@ import {
   getMessageBoxContentForErrorsWrapper,
   getMessageBoxContentForParsingError,
   getMessageBoxForErrors,
+  getMessageBoxForInvalidDotOpossumFileError,
   getMessageBoxForParsingError,
 } from '../errorHandling';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { JsonParsingError } from '../../types/types';
+import { getOpenFileListener } from '../../main/listeners';
 
 jest.mock('electron', () => ({
   dialog: {
@@ -34,20 +36,25 @@ jest.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: jest.fn(),
 }));
 
+jest.mock('../../main/listeners', () => ({
+  getOpenFileListener: jest.fn(() => jest.fn()),
+}));
+
 describe('error handling', () => {
   describe('createListenerCallbackWithErrorHandling', () => {
     it('returns a wrapper that calls the input function with the same parameters', async () => {
+      const mainWindow = {
+        webContents: { send: jest.fn() },
+      } as unknown as BrowserWindow;
+
       const testFunction = jest.fn();
       const testArgs = {
         arg1: '1',
         arg2: true,
       };
 
-      const mockCallback = jest.fn();
-      const webContents = { send: mockCallback as unknown } as WebContents;
-
       await createListenerCallbackWithErrorHandling(
-        webContents,
+        mainWindow,
         testFunction
       )(testArgs);
       expect(testFunction).toHaveBeenCalledTimes(1);
@@ -57,17 +64,15 @@ describe('error handling', () => {
     });
 
     it('shows errors from the input function in a messageBox', async () => {
+      const mainWindow = {
+        webContents: { send: jest.fn() },
+      } as unknown as BrowserWindow;
+
       function testFunction(): void {
         throw new Error('TEST_ERROR');
       }
 
-      const mockCallback = jest.fn();
-      const webContents = { send: mockCallback as unknown } as WebContents;
-
-      await createListenerCallbackWithErrorHandling(
-        webContents,
-        testFunction
-      )();
+      await createListenerCallbackWithErrorHandling(mainWindow, testFunction)();
 
       expect(dialog.showMessageBox).toBeCalledWith(
         expect.objectContaining({
@@ -117,13 +122,16 @@ describe('error handling', () => {
         error: { message: 'errorMessage', name: 'Error' },
         errorInfo: { componentStack: 'componentStack' },
       };
+
       const mockCallback = jest.fn();
-      const webContents = { send: mockCallback as unknown } as WebContents;
+      const mainWindow = {
+        webContents: { send: mockCallback as unknown } as WebContents,
+      } as unknown as BrowserWindow;
 
       await getMessageBoxForErrors(
         sendErrorInformationArgs.error.message,
         sendErrorInformationArgs.errorInfo.componentStack,
-        webContents,
+        mainWindow,
         false
       );
 
@@ -135,6 +143,7 @@ describe('error handling', () => {
           buttons: ['Reload File', 'Quit'],
         })
       );
+
       expect(mockCallback.mock.calls.length).toBe(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
         AllowedFrontendChannels.RestoreFrontend
@@ -175,6 +184,47 @@ describe('error handling', () => {
         })
       );
       expect(app.exit).toBeCalledWith(0);
+    });
+  });
+
+  describe('getMessageBoxForInvalidDotOpossumFileError', () => {
+    it('returns a message box with correct content', async () => {
+      const testFilesInArchive = 'inpt.json, output.json';
+      const mainWindow = {
+        webContents: { send: jest.fn() },
+      } as unknown as BrowserWindow;
+
+      await getMessageBoxForInvalidDotOpossumFileError(
+        testFilesInArchive,
+        mainWindow
+      );
+
+      expect(dialog.showMessageBox).toBeCalledWith(
+        expect.objectContaining({
+          type: 'error',
+          message: "Error loading '.opossum' file.",
+          detail:
+            "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
+            `Actual files in the archive: ${testFilesInArchive}. ` +
+            "Either open another '.opossum' file or quit the application.",
+          buttons: ['Open New File', 'Quit'],
+        })
+      );
+
+      expect(getOpenFileListener).toBeCalledWith(mainWindow);
+    });
+
+    it("invokes getOpenFileListener with mainWindow if 'Load New File' is clicked", async () => {
+      const testFilesInArchive = 'inpt.json, output.json';
+      const mainWindow = {
+        webContents: { send: jest.fn() },
+      } as unknown as BrowserWindow;
+
+      await getMessageBoxForInvalidDotOpossumFileError(
+        testFilesInArchive,
+        mainWindow
+      );
+      expect(getOpenFileListener).toBeCalledWith(mainWindow);
     });
   });
 });

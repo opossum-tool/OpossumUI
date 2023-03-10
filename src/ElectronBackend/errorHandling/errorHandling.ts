@@ -6,19 +6,20 @@
 
 import {
   app,
+  BrowserWindow,
   dialog,
   MessageBoxOptions,
   MessageBoxReturnValue,
-  WebContents,
 } from 'electron';
 import log from 'electron-log';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';
+import { getOpenFileListener } from '../main/listeners';
 import { getLoadedFilePath } from '../utils/getLoadedFile';
 
 export function createListenerCallbackWithErrorHandling(
-  webContents: WebContents,
+  mainWindow: BrowserWindow,
   // @ts-nocheck
   // eslint-disable-next-line @typescript-eslint/ban-types
   func: Function
@@ -32,7 +33,7 @@ export function createListenerCallbackWithErrorHandling(
         await getMessageBoxForErrors(
           error.message,
           error.stack ?? '',
-          webContents,
+          mainWindow,
           true
         );
       } else {
@@ -40,7 +41,7 @@ export function createListenerCallbackWithErrorHandling(
         await getMessageBoxForErrors(
           'Unexpected internal error',
           '',
-          webContents,
+          mainWindow,
           true
         );
       }
@@ -48,7 +49,21 @@ export function createListenerCallbackWithErrorHandling(
   };
 }
 
-export function getErrorDialog(
+export function getMessageBoxForErrors(
+  errorMessage: string,
+  errorStack: string,
+  mainWindow: BrowserWindow,
+  isBackendError: boolean
+): Promise<void> {
+  return getErrorDialog(
+    getMessageBoxContentForErrorsWrapper(isBackendError, errorStack),
+    errorMessage,
+    (value: MessageBoxReturnValue) =>
+      performButtonAction(mainWindow, value.response)
+  );
+}
+
+function getErrorDialog(
   getMessageBoxContent: (errorMessage: string) => MessageBoxOptions,
   errorMessage: string,
   performButtonActionCallback: (value: MessageBoxReturnValue) => void
@@ -56,20 +71,6 @@ export function getErrorDialog(
   return dialog
     .showMessageBox(getMessageBoxContent(errorMessage))
     .then(performButtonActionCallback);
-}
-
-export function getMessageBoxForErrors(
-  errorMessage: string,
-  errorStack: string,
-  webContents: WebContents,
-  isBackendError: boolean
-): Promise<void> {
-  return getErrorDialog(
-    getMessageBoxContentForErrorsWrapper(isBackendError, errorStack),
-    errorMessage,
-    (value: MessageBoxReturnValue) =>
-      performButtonAction(webContents, value.response)
-  );
 }
 
 export function getMessageBoxContentForErrorsWrapper(
@@ -88,6 +89,27 @@ export function getMessageBoxContentForErrorsWrapper(
       detail: `Stack trace: ${errorStack || ''}`,
     };
   };
+}
+
+function performButtonAction(
+  mainWindow: BrowserWindow,
+  buttonIndex: number
+): void {
+  const globalBackendState = getGlobalBackendState();
+  switch (buttonIndex) {
+    case 0:
+      mainWindow.webContents.send(AllowedFrontendChannels.RestoreFrontend);
+      loadInputAndOutputFromFilePath(
+        mainWindow,
+        getLoadedFilePath(globalBackendState) as string
+      );
+      break;
+    case 1:
+      app.exit(0);
+      break;
+    default:
+      return;
+  }
 }
 
 export function getMessageBoxForParsingError(
@@ -115,18 +137,47 @@ export function getMessageBoxContentForParsingError(
   };
 }
 
-function performButtonAction(
-  webContents: WebContents,
+export async function getMessageBoxForInvalidDotOpossumFileError(
+  filesInArchive: string,
+  mainWindow: BrowserWindow
+): Promise<void> {
+  log.info(
+    "Loading .opossum file failed. The file is invalid as it does not contain an 'input.json.'"
+  );
+  return getErrorDialog(
+    getMessageBoxContentForInvalidDotOpossumFileError,
+    filesInArchive,
+    (value: MessageBoxReturnValue) =>
+      performButtonActionForInvalidDotOpossumFileError(
+        mainWindow,
+        value.response
+      )
+  );
+}
+
+function getMessageBoxContentForInvalidDotOpossumFileError(
+  filesInArchive: string
+): MessageBoxOptions {
+  return {
+    type: 'error',
+    buttons: ['Open New File', 'Quit'],
+    defaultId: 0,
+    title: 'Invalid File Error',
+    message: "Error loading '.opossum' file.",
+    detail:
+      "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
+      `Actual files in the archive: ${filesInArchive}. ` +
+      "Either open another '.opossum' file or quit the application.",
+  };
+}
+
+async function performButtonActionForInvalidDotOpossumFileError(
+  mainWindow: BrowserWindow,
   buttonIndex: number
-): void {
-  const globalBackendState = getGlobalBackendState();
+): Promise<void> {
   switch (buttonIndex) {
     case 0:
-      webContents.send(AllowedFrontendChannels.RestoreFrontend);
-      loadInputAndOutputFromFilePath(
-        webContents,
-        getLoadedFilePath(globalBackendState) as string
-      );
+      await getOpenFileListener(mainWindow)();
       break;
     case 1:
       app.exit(0);

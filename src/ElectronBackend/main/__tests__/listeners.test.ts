@@ -588,17 +588,19 @@ describe('getKeepFileListener', () => {
 describe('getSelectBaseURLListener', () => {
   it('opens base url dialog and sends selected path to frontend', () => {
     const mockCallback = jest.fn();
-    const webContents = { send: mockCallback as unknown } as WebContents;
+    const mainWindow = {
+      webContents: { send: mockCallback as unknown } as WebContents,
+    } as unknown as BrowserWindow;
     const baseURL = '/Users/path/to/sources';
     const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
 
     // @ts-ignore
     selectBaseURLDialog.mockReturnValueOnce([baseURL]);
 
-    getSelectBaseURLListener(webContents)();
+    getSelectBaseURLListener(mainWindow)();
 
     expect(selectBaseURLDialog).toBeCalled();
-    expect(webContents.send).toBeCalledWith(
+    expect(mainWindow.webContents.send).toBeCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
       {
         baseURLForRoot: expectedFormattedBaseURL,
@@ -615,10 +617,12 @@ describe('getSaveFileListener', () => {
 
   it('throws error when projectId is not set', async () => {
     const mockCallback = jest.fn();
-    const webContents = { send: mockCallback as unknown } as WebContents;
+    const mainWindow = {
+      webContents: { send: mockCallback as unknown } as WebContents,
+    } as unknown as BrowserWindow;
     setGlobalBackendState({});
 
-    await getSaveFileListener(webContents)(
+    await getSaveFileListener(mainWindow)(
       AllowedFrontendChannels.SaveFileRequest,
       {
         manualAttributions: {},
@@ -641,14 +645,16 @@ describe('getSaveFileListener', () => {
 
   it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
     const mockCallback = jest.fn();
-    const webContents = { send: mockCallback as unknown } as WebContents;
+    const mainWindow = {
+      webContents: { send: mockCallback as unknown } as WebContents,
+    } as unknown as BrowserWindow;
     setGlobalBackendState({});
 
     setGlobalBackendState({
       projectId: 'uuid_1',
     });
 
-    await getSaveFileListener(webContents)(
+    await getSaveFileListener(mainWindow)(
       AllowedFrontendChannels.SaveFileRequest,
       {
         manualAttributions: {},
@@ -673,10 +679,12 @@ describe('getSaveFileListener', () => {
       'resourceFilePath, attributionFilePath and projectId are set',
     () => {
       const mockCallback = jest.fn();
-      const webContents = { send: mockCallback as unknown } as WebContents;
+      const mainWindow = {
+        webContents: { send: mockCallback as unknown } as WebContents,
+      } as unknown as BrowserWindow;
       setGlobalBackendState({});
 
-      const listener = getSaveFileListener(webContents);
+      const listener = getSaveFileListener(mainWindow);
 
       setGlobalBackendState({
         resourceFilePath: '/resourceFile.json',

@@ -17,6 +17,9 @@ import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import Asm from 'stream-json/Assembler';
 import { Parser, parser } from 'stream-json';
 import JSZip from 'jszip';
+import { getMessageBoxForInvalidDotOpossumFileError } from '../errorHandling/errorHandling';
+import { BrowserWindow } from 'electron';
+import { setLoadingState } from '../main/listeners';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
@@ -24,7 +27,8 @@ const validationOptions: Options = {
 };
 
 export async function parseOpossumFile(
-  opossumfilePath: string
+  opossumfilePath: string,
+  mainWindow: BrowserWindow
 ): Promise<ParsedOpossumInputAndOutput | JsonParsingError> {
   let parsedInputData: unknown;
   let parsedOutputData: unknown = null;
@@ -34,6 +38,16 @@ export async function parseOpossumFile(
     fs.readFile(opossumfilePath, (err, data) => {
       if (err) throw err;
       JSZip.loadAsync(data).then(async (zip) => {
+        if (!('input.json' in zip.files)) {
+          setLoadingState(mainWindow.webContents, false);
+          await getMessageBoxForInvalidDotOpossumFileError(
+            Object.keys(zip.files)
+              .map((fileName) => `'${fileName}'`)
+              .join(', '),
+            mainWindow
+          );
+        }
+
         if ('output.json' in zip.files) {
           await zip.files['output.json'].async('text').then((content) => {
             parsedOutputData = parseOutputJsonContent(content, opossumfilePath);

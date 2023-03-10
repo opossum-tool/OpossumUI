@@ -23,6 +23,14 @@ import {
 import { cloneDeep, set } from 'lodash';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
+import { BrowserWindow } from 'electron';
+
+jest.mock('electron', () => ({
+  app: {
+    getName: jest.fn(),
+    getVersion: jest.fn(),
+  },
+}));
 
 const testUuid: string = uuidNil;
 const correctInput: ParsedOpossumInputFile = {
@@ -135,6 +143,9 @@ describe('parseOpossumFile', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
+  const mainWindow = {
+    webContents: { send: jest.fn() },
+  } as unknown as BrowserWindow;
 
   it('reads a .opossum file with only input correctly', async () => {
     const testInputContent = correctInput;
@@ -146,7 +157,8 @@ describe('parseOpossumFile', () => {
     await writeOpossumFile(opossumFilePath, testInputContent, null);
 
     const parsingResult = (await parseOpossumFile(
-      opossumFilePath
+      opossumFilePath,
+      mainWindow
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(testInputContent);
     expect(parsingResult.output).toBeNull;
@@ -169,7 +181,8 @@ describe('parseOpossumFile', () => {
     );
 
     const parsingResult = (await parseOpossumFile(
-      opossumFilePath
+      opossumFilePath,
+      mainWindow
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(testInputContent);
     expect(parsingResult.output).toStrictEqual(correctParsedOuput);
@@ -192,7 +205,7 @@ describe('parseOpossumFile', () => {
       testOutputContent
     );
 
-    const result = await parseOpossumFile(opossumFilePath);
+    const result = await parseOpossumFile(opossumFilePath, mainWindow);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',

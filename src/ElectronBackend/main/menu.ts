@@ -126,7 +126,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         {
           label: 'Set Path to Sources',
           click(): void {
-            getSelectBaseURLListener(webContents)();
+            getSelectBaseURLListener(mainWindow)();
           },
         },
         {
