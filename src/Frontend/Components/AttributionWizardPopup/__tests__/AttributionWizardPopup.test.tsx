@@ -261,4 +261,47 @@ describe('AttributionWizardPopup', () => {
     expect(versionIconButton).toBeDisabled();
     expect(screen.getByText('new_version')).toBeInTheDocument();
   });
+
+  it("disables the 'next' button if a package name with an empty string (displayed as a dash) is selected", () => {
+    const testExternalAttributionsExtended = {
+      ...testExternalAttributions,
+      ...{
+        uuid_2: {
+          packageType: 'generic',
+          packageName: '',
+          packageNamespace: 'npm',
+          packageVersion: '0.9.9',
+        },
+      },
+    };
+
+    const testExternalResourcesToAttributionsExtended: ResourcesToAttributions =
+      {
+        '/samplepath/file': ['uuid_1', 'uuid_2'],
+      };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(setSelectedResourceId(selectedResourceId));
+    testStore.dispatch(
+      setExternalData(
+        testExternalAttributionsExtended,
+        testExternalResourcesToAttributionsExtended
+      )
+    );
+    testStore.dispatch(
+      setManualData(testManualAttributions, testManualResourcesToAttributions)
+    );
+    act(() => {
+      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
+    });
+    renderComponentWithStore(<AttributionWizardPopup />, { store: testStore });
+
+    expect(screen.getByRole('button', { name: ButtonText.Next })).toBeEnabled();
+
+    fireEvent.click(screen.getByText('-'));
+
+    expect(
+      screen.getByRole('button', { name: ButtonText.Next })
+    ).toBeDisabled();
+  });
 });
