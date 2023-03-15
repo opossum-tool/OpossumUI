@@ -18,7 +18,6 @@ import {
   writeOutputJsonToOpossumFile,
 } from '../writeJsonToOpossumFile';
 import { parseOpossumFile } from '../../input/parseFile';
-import { BrowserWindow } from 'electron';
 
 jest.mock('electron', () => ({
   app: {
@@ -134,13 +133,6 @@ const parsedOutputFileContent: ParsedOpossumOutputFile = {
 };
 
 describe('writeOutputJsonToOpossumFile', () => {
-  const mainWindow = {
-    webContents: {
-      send: jest.fn(),
-    },
-    setTitle: jest.fn(),
-  } as unknown as BrowserWindow;
-
   it('writes new output', async () => {
     const temporaryPath: string = createTempFolder();
     const opossumPath = path.join(upath.toUnix(temporaryPath), 'test.opossum');
@@ -149,8 +141,7 @@ describe('writeOutputJsonToOpossumFile', () => {
     await writeOutputJsonToOpossumFile(opossumPath, outputFileContent);
 
     const parsingResult = (await parseOpossumFile(
-      opossumPath,
-      mainWindow
+      opossumPath
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(inputFileContent);
     expect(parsingResult.output).toStrictEqual(parsedOutputFileContent);
@@ -171,8 +162,7 @@ describe('writeOutputJsonToOpossumFile', () => {
     await writeOutputJsonToOpossumFile(opossumPath, outputFileContent);
 
     const parsingResult = (await parseOpossumFile(
-      opossumPath,
-      mainWindow
+      opossumPath
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(inputFileContent);
     expect(parsingResult.output).toStrictEqual(parsedOutputFileContent);

@@ -22,6 +22,7 @@ import {
   sanitizeResourcesToAttributions,
 } from './parseInputData';
 import {
+  InvalidDotOpossumFileError,
   JsonParsingError,
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,
@@ -32,7 +33,10 @@ import { BrowserWindow } from 'electron';
 import { writeJsonToFile } from '../output/writeJsonToFile';
 import { cloneDeep } from 'lodash';
 import log from 'electron-log';
-import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
+import {
+  getMessageBoxForInvalidDotOpossumFileError,
+  getMessageBoxForParsingError,
+} from '../errorHandling/errorHandling';
 import { v4 as uuid4 } from 'uuid';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
@@ -42,9 +46,18 @@ import {
 } from './parseFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
+import { setLoadingState } from '../main/listeners';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';
+}
+
+function isInvalidDotOpossumFileError(
+  object: unknown
+): object is InvalidDotOpossumFileError {
+  return (
+    (object as InvalidDotOpossumFileError).type === 'invalidDotOpossumFileError'
+  );
 }
 
 export async function loadInputAndOutputFromFilePath(
@@ -60,10 +73,19 @@ export async function loadInputAndOutputFromFilePath(
 
   if (isOpossumFileFormat(filePath)) {
     log.info(`Starting to read .opossum file ${filePath} ...`);
-    const parsingResult = await parseOpossumFile(filePath, mainWindow);
+    const parsingResult = await parseOpossumFile(filePath);
     if (isJsonParsingError(parsingResult)) {
       log.info('Invalid input file.');
       await getMessageBoxForParsingError(parsingResult.message);
+      return;
+    }
+    if (isInvalidDotOpossumFileError(parsingResult)) {
+      log.info('Invalid input file.');
+      setLoadingState(mainWindow.webContents, false);
+      await getMessageBoxForInvalidDotOpossumFileError(
+        parsingResult.filesInArchive,
+        mainWindow
+      );
       return;
     }
     parsedInputData = parsingResult.input;
@@ -93,8 +115,7 @@ export async function loadInputAndOutputFromFilePath(
         filePath,
         externalAttributions,
         resourcesToAttributions,
-        projectId,
-        mainWindow
+        projectId
       );
     } else {
       const outputJsonPath = getFilePathWithAppendix(
@@ -180,8 +201,7 @@ async function createOutputInOpossumFile(
   filePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
-  projectId: string,
-  mainWindow: BrowserWindow
+  projectId: string
 ): Promise<ParsedOpossumOutputFile> {
   log.info(
     `Starting to create output in .opossum file, project ID is ${projectId}`
@@ -197,8 +217,7 @@ async function createOutputInOpossumFile(
 
   log.info(`Starting to parse output file in ${filePath} ...`);
   const parsingResult = (await parseOpossumFile(
-    filePath,
-    mainWindow
+    filePath
   )) as ParsedOpossumInputAndOutput;
   const parsedOutputFile = parsingResult.output as ParsedOpossumOutputFile;
   log.info('... Successfully parsed output file.');
