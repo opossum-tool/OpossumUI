@@ -141,9 +141,7 @@ export async function getMessageBoxForInvalidDotOpossumFileError(
   filesInArchive: string,
   mainWindow: BrowserWindow
 ): Promise<void> {
-  log.info(
-    "Loading .opossum file failed. The file is invalid as it does not contain an 'input.json.'"
-  );
+  log.info("Error loading '.opossum' file. No 'input.json' found.");
   return getErrorDialog(
     getMessageBoxContentForInvalidDotOpossumFileError,
     filesInArchive,
@@ -167,7 +165,7 @@ function getMessageBoxContentForInvalidDotOpossumFileError(
     detail:
       "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
       `Actual files in the archive: ${filesInArchive}. ` +
-      "Either open another '.opossum' file or quit the application.",
+      'Either open another file or quit the application.',
   };
 }
 

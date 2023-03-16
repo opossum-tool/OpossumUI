@@ -19,13 +19,6 @@ import {
 } from '../writeJsonToOpossumFile';
 import { parseOpossumFile } from '../../input/parseFile';
 
-jest.mock('electron', () => ({
-  app: {
-    getName: jest.fn(),
-    getVersion: jest.fn(),
-  },
-}));
-
 const metadata = {
   projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
   fileCreationDate: '2',

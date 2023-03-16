@@ -24,13 +24,6 @@ import { cloneDeep, set } from 'lodash';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
 
-jest.mock('electron', () => ({
-  app: {
-    getName: jest.fn(),
-    getVersion: jest.fn(),
-  },
-}));
-
 const testUuid: string = uuidNil;
 const correctInput: ParsedOpossumInputFile = {
   metadata: {

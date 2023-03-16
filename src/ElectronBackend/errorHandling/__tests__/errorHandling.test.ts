@@ -206,7 +206,7 @@ describe('error handling', () => {
           detail:
             "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
             `Actual files in the archive: ${testFilesInArchive}. ` +
-            "Either open another '.opossum' file or quit the application.",
+            'Either open another file or quit the application.',
           buttons: ['Open New File', 'Quit'],
         })
       );
