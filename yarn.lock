@@ -8380,10 +8380,10 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
 
-packageurl-js@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/packageurl-js/-/packageurl-js-1.0.0.tgz#188ed35688d44a0684476e7af5b6c6835c3c5533"
-  integrity sha512-06kNFU+yB2pjDf5JyXouQeKfwSScGP8hrZK6VgB+W4SlVy4y5yB4vl+AVmh3R0GBNd+fBt0dEiSx3HKmuchuJQ==
+packageurl-js@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/packageurl-js/-/packageurl-js-1.0.1.tgz#5b5fbdf7962d2cf61774e999b5ccc3889576d8ea"
+  integrity sha512-EtXC0kgLjy/C7S4SN3Kk1SDRWLzIn/LUK0gXlz3gsxDdpI0k7q8C3SASpV0pc+v0yADBTt5rWewq/flGdGxtoQ==
 
 pako@~1.0.2:
   version "1.0.11"
