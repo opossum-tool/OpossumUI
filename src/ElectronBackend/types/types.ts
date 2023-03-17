@@ -19,6 +19,11 @@ export interface JsonParsingError {
   type: 'jsonParsingError';
 }
 
+export interface InvalidDotOpossumFileError {
+  filesInArchive: string;
+  type: 'invalidDotOpossumFileError';
+}
+
 export interface GlobalBackendState {
   projectTitle?: string;
   resourceFilePath?: string;

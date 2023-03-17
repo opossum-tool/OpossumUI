@@ -42,7 +42,6 @@ export async function main(): Promise<void> {
     }
 
     const mainWindow = await createWindow();
-    const webContents = mainWindow.webContents;
 
     ipcMain.handle(
       IpcChannel.ConvertInputFile,
@@ -57,7 +56,7 @@ export async function main(): Promise<void> {
       getOpenDotOpossumFileInsteadListener(mainWindow)
     );
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
-    ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(webContents));
+    ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.DeleteFile,
       getDeleteAndCreateNewAttributionFileListener(mainWindow)
@@ -65,7 +64,7 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.KeepFile, getKeepFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.SendErrorInformation,
-      getSendErrorInformationListener(webContents)
+      getSendErrorInformationListener(mainWindow)
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());

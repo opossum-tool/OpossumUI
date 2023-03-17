@@ -61,10 +61,10 @@ const dotOpossumFileInputJson = 'input.json';
 const dotOpossumFileOutputJson = 'output.json';
 
 export function getSaveFileListener(
-  webContents: WebContents
+  mainWindow: BrowserWindow
 ): (_: unknown, args: SaveFileArgs) => Promise<void> {
   return createListenerCallbackWithErrorHandling(
-    webContents,
+    mainWindow,
     (_: unknown, args: SaveFileArgs) => {
       const globalBackendState = getGlobalBackendState();
 
@@ -112,22 +112,19 @@ function writeOutputJsonToFile(outputFileContent: OpossumOutputFile): void {
 export function getOpenFileListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
-    async () => {
-      const filePaths = openFileDialog();
-      if (!filePaths || filePaths.length < 1) {
-        return;
-      }
-      let filePath = filePaths[0];
-
-      if (filePath.endsWith(outputFileEnding)) {
-        filePath = tryToGetInputFileFromOutputFile(filePath);
-      }
-
-      await handleOpeningFile(mainWindow, filePath);
+  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+    const filePaths = openFileDialog();
+    if (!filePaths || filePaths.length < 1) {
+      return;
     }
-  );
+    let filePath = filePaths[0];
+
+    if (filePath.endsWith(outputFileEnding)) {
+      filePath = tryToGetInputFileFromOutputFile(filePath);
+    }
+
+    await handleOpeningFile(mainWindow, filePath);
+  });
 }
 
 export async function handleOpeningFile(
@@ -204,44 +201,40 @@ function initializeGlobalBackendState(
 export function getKeepFileListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
-    async () => {
-      const filePath = getGlobalBackendState().resourceFilePath as string;
-      log.info('Opening file: ', filePath);
-      await openFile(mainWindow, filePath);
-    }
-  );
+  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+    const filePath = getGlobalBackendState().resourceFilePath as string;
+    log.info('Opening file: ', filePath);
+    await openFile(mainWindow, filePath);
+  });
 }
 
 export function getDeleteAndCreateNewAttributionFileListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
-    async () => {
-      const globalBackendState = getGlobalBackendState();
-      const resourceFilePath = globalBackendState.resourceFilePath as string;
+  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+    const globalBackendState = getGlobalBackendState();
+    const resourceFilePath = globalBackendState.resourceFilePath as string;
 
-      log.info(
-        'Deleting attribution file and opening input file: ',
-        resourceFilePath
+    log.info(
+      'Deleting attribution file and opening input file: ',
+      resourceFilePath
+    );
+    if (globalBackendState.attributionFilePath) {
+      fs.unlinkSync(globalBackendState.attributionFilePath);
+    } else {
+      throw new Error(
+        'Failed to delete output file. Attribution file path is incorrect:' +
+          `\n${globalBackendState.attributionFilePath}`
       );
-      if (globalBackendState.attributionFilePath) {
-        fs.unlinkSync(globalBackendState.attributionFilePath);
-      } else {
-        throw new Error(
-          'Failed to delete output file. Attribution file path is incorrect:' +
-            `\n${globalBackendState.attributionFilePath}`
-        );
-      }
-      await openFile(mainWindow, resourceFilePath);
     }
-  );
+    await openFile(mainWindow, resourceFilePath);
+  });
 }
 
-export function getSelectBaseURLListener(webContents: WebContents): () => void {
-  return createListenerCallbackWithErrorHandling(webContents, () => {
+export function getSelectBaseURLListener(
+  mainWindow: BrowserWindow
+): () => void {
+  return createListenerCallbackWithErrorHandling(mainWindow, () => {
     const baseURLs = selectBaseURLDialog();
     if (!baseURLs || baseURLs.length < 1) {
       return;
@@ -249,7 +242,7 @@ export function getSelectBaseURLListener(webContents: WebContents): () => void {
     const baseURL = baseURLs[0];
     const formattedBaseURL = formatBaseURL(baseURL);
 
-    webContents.send(AllowedFrontendChannels.SetBaseURLForRoot, {
+    mainWindow.webContents.send(AllowedFrontendChannels.SetBaseURLForRoot, {
       baseURLForRoot: formattedBaseURL,
     });
   });
@@ -277,7 +270,7 @@ export async function openFile(
   setLoadingState(mainWindow.webContents, true);
 
   try {
-    await loadInputAndOutputFromFilePath(mainWindow.webContents, filePath);
+    await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
     mainWindow.removeMenu();
     Menu.setApplicationMenu(createMenu(mainWindow));
@@ -298,14 +291,14 @@ function setTitle(mainWindow: BrowserWindow, filePath: string): void {
 }
 
 export function getSendErrorInformationListener(
-  webContents: WebContents
+  mainWindow: BrowserWindow
 ): (_: unknown, args: SendErrorInformationArgs) => Promise<void> {
   return async (_, args: SendErrorInformationArgs): Promise<void> => {
     log.error(args.error.message + args.errorInfo.componentStack);
     await getMessageBoxForErrors(
       args.error.message,
       args.errorInfo.componentStack,
-      webContents,
+      mainWindow,
       false
     );
   };
@@ -425,7 +418,7 @@ export function getExportFileListener(
   mainWindow: BrowserWindow
 ): (_: unknown, args: ExportArgsType) => Promise<void> {
   return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
+    mainWindow,
     _exportFileAndOpenFolder(mainWindow)
   );
 }
@@ -506,44 +499,41 @@ export function setLoadingState(
 export function getConvertInputFileToDotOpossumAndOpenListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
-    async () => {
-      log.info('Converting file with outdated format to .opossum format');
+  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+    log.info('Converting file with outdated format to .opossum format');
 
-      const isOpossumFormat = true;
-      const globalBackendState = getGlobalBackendState();
-      const resourceFilePath = globalBackendState.resourceFilePath;
+    const isOpossumFormat = true;
+    const globalBackendState = getGlobalBackendState();
+    const resourceFilePath = globalBackendState.resourceFilePath;
 
-      if (!resourceFilePath) {
-        throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
-      }
-
-      const dotOpossumFilePath = getDotOpossumFilePath(resourceFilePath);
-      const inputJson = getInputJson(resourceFilePath);
-
-      const dotOpossumArchive = new JSZip();
-      const dotOpossumWriteStream = fs.createWriteStream(dotOpossumFilePath);
-      dotOpossumArchive.file(dotOpossumFileInputJson, inputJson);
-
-      addOutputJsonFileToDotOpossum(resourceFilePath, dotOpossumArchive);
-
-      await dotOpossumArchive
-        .generateAsync({
-          type: 'nodebuffer',
-          streamFiles: true,
-          compression: 'DEFLATE',
-          compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
-        })
-        .then((output) => dotOpossumWriteStream.write(output));
-
-      log.info('Updating global backend state');
-      initializeGlobalBackendState(dotOpossumFilePath, isOpossumFormat);
-
-      log.info('Opening .opossum file');
-      await openFile(mainWindow, dotOpossumFilePath);
+    if (!resourceFilePath) {
+      throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
     }
-  );
+
+    const dotOpossumFilePath = getDotOpossumFilePath(resourceFilePath);
+    const inputJson = getInputJson(resourceFilePath);
+
+    const dotOpossumArchive = new JSZip();
+    const dotOpossumWriteStream = fs.createWriteStream(dotOpossumFilePath);
+    dotOpossumArchive.file(dotOpossumFileInputJson, inputJson);
+
+    addOutputJsonFileToDotOpossum(resourceFilePath, dotOpossumArchive);
+
+    await dotOpossumArchive
+      .generateAsync({
+        type: 'nodebuffer',
+        streamFiles: true,
+        compression: 'DEFLATE',
+        compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
+      })
+      .then((output) => dotOpossumWriteStream.write(output));
+
+    log.info('Updating global backend state');
+    initializeGlobalBackendState(dotOpossumFilePath, isOpossumFormat);
+
+    log.info('Opening .opossum file');
+    await openFile(mainWindow, dotOpossumFilePath);
+  });
 }
 
 function getDotOpossumFilePath(resourceFilePath: string): string {
@@ -594,61 +584,55 @@ function addOutputJsonFileToDotOpossum(
 export function getOpenOutdatedInputFileListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
-    async () => {
-      const isOpossumFormat = false;
-      const globalBackendState = getGlobalBackendState();
-      const resourceFilePath = globalBackendState.resourceFilePath;
+  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+    const isOpossumFormat = false;
+    const globalBackendState = getGlobalBackendState();
+    const resourceFilePath = globalBackendState.resourceFilePath;
 
-      if (!resourceFilePath) {
-        throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
-      }
-
-      const checksums = getActualAndParsedChecksums(resourceFilePath);
-
-      log.info('Update global backend state');
-      initializeGlobalBackendState(
-        resourceFilePath,
-        isOpossumFormat,
-        checksums?.actualInputFileChecksum
-      );
-
-      const inputFileChanged =
-        !isOpossumFormat &&
-        checksums &&
-        checksums.parsedInputFileChecksum &&
-        checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
-
-      if (inputFileChanged) {
-        log.info('Checksum of the input file has changed.');
-        mainWindow.webContents.send(
-          AllowedFrontendChannels.ShowChangedInputFilePopup,
-          {
-            showChangedInputFilePopup: true,
-          }
-        );
-      } else {
-        log.info('Checksum of the input file has not changed.');
-        log.info('Opening file with old format (not .opossum)');
-        await openFile(mainWindow, resourceFilePath);
-      }
+    if (!resourceFilePath) {
+      throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
     }
-  );
+
+    const checksums = getActualAndParsedChecksums(resourceFilePath);
+
+    log.info('Update global backend state');
+    initializeGlobalBackendState(
+      resourceFilePath,
+      isOpossumFormat,
+      checksums?.actualInputFileChecksum
+    );
+
+    const inputFileChanged =
+      !isOpossumFormat &&
+      checksums &&
+      checksums.parsedInputFileChecksum &&
+      checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
+
+    if (inputFileChanged) {
+      log.info('Checksum of the input file has changed.');
+      mainWindow.webContents.send(
+        AllowedFrontendChannels.ShowChangedInputFilePopup,
+        {
+          showChangedInputFilePopup: true,
+        }
+      );
+    } else {
+      log.info('Checksum of the input file has not changed.');
+      log.info('Opening file with old format (not .opossum)');
+      await openFile(mainWindow, resourceFilePath);
+    }
+  });
 }
 
 export function getOpenDotOpossumFileInsteadListener(
   mainWindow: BrowserWindow
 ): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(
-    mainWindow.webContents,
-    async () => {
-      const globalBackendState = getGlobalBackendState();
-      const opossumFilePath = globalBackendState.opossumFilePath;
-      if (!opossumFilePath) {
-        throw new Error(`Resource file path is invalid: ${opossumFilePath}`);
-      }
-      await openFile(mainWindow, opossumFilePath);
+  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
+    const globalBackendState = getGlobalBackendState();
+    const opossumFilePath = globalBackendState.opossumFilePath;
+    if (!opossumFilePath) {
+      throw new Error(`Resource file path is invalid: ${opossumFilePath}`);
     }
-  );
+    await openFile(mainWindow, opossumFilePath);
+  });
 }

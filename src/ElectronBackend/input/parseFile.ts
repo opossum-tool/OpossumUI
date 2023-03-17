@@ -7,6 +7,7 @@ import fs from 'fs';
 import zlib from 'zlib';
 import { Options, Validator } from 'jsonschema';
 import {
+  InvalidDotOpossumFileError,
   JsonParsingError,
   ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
@@ -25,47 +26,74 @@ const validationOptions: Options = {
 
 export async function parseOpossumFile(
   opossumfilePath: string
-): Promise<ParsedOpossumInputAndOutput | JsonParsingError> {
+): Promise<
+  ParsedOpossumInputAndOutput | JsonParsingError | InvalidDotOpossumFileError
+> {
   let parsedInputData: unknown;
   let parsedOutputData: unknown = null;
-  let error: string | null = null;
+  let jsonParsingError: JsonParsingError | null = null;
+  let invalidDotOpossumFileError: InvalidDotOpossumFileError | null = null;
 
   await new Promise<void>((resolve) => {
     fs.readFile(opossumfilePath, (err, data) => {
       if (err) throw err;
       JSZip.loadAsync(data).then(async (zip) => {
-        if ('output.json' in zip.files) {
-          await zip.files['output.json'].async('text').then((content) => {
-            parsedOutputData = parseOutputJsonContent(content, opossumfilePath);
-          });
-        }
+        if (!('input.json' in zip.files)) {
+          invalidDotOpossumFileError = {
+            filesInArchive: Object.keys(zip.files)
+              .map((fileName) => `'${fileName}'`)
+              .join(', '),
+            type: 'invalidDotOpossumFileError',
+          };
+          resolve();
+        } else {
+          const promiseInputJson = zip.files['input.json']
+            .async('text')
+            .then((content) => {
+              parsedInputData = parseAndValidateJson(
+                content,
+                OpossumInputFileSchema
+              );
+            })
+            .catch((err) => {
+              jsonParsingError = {
+                message: `Error: ${opossumfilePath} is not a valid input file.\n${err}`,
+                type: 'jsonParsingError',
+              };
+            });
 
-        zip.files['input.json']
-          .async('text')
-          .then((content) => {
-            parsedInputData = parseAndValidateJson(
-              content,
-              OpossumInputFileSchema
-            );
-          })
-          .catch((err) => {
-            error = err;
-          })
-          .then(resolve);
+          const promiseOutputJson =
+            'output.json' in zip.files
+              ? zip.files['output.json']
+                  .async('text')
+                  .then((content) => {
+                    parsedOutputData = parseOutputJsonContent(
+                      content,
+                      opossumfilePath
+                    );
+                  })
+                  .catch((err) => {
+                    jsonParsingError = {
+                      message: `Error: ${opossumfilePath} is not a valid input file.\n${err}`,
+                      type: 'jsonParsingError',
+                    };
+                  })
+              : new Promise<void>((resolve) => resolve());
+          await Promise.all([promiseInputJson, promiseOutputJson]);
+          resolve();
+        }
       });
     });
   });
 
-  if (error) {
-    return {
-      message: `Error: ${opossumfilePath} is not a valid input file.\n${error}`,
-      type: 'jsonParsingError',
-    };
-  }
-  return {
-    input: parsedInputData as ParsedOpossumInputFile,
-    output: parsedOutputData as ParsedOpossumOutputFile,
-  };
+  return jsonParsingError
+    ? jsonParsingError
+    : invalidDotOpossumFileError
+    ? invalidDotOpossumFileError
+    : {
+        input: parsedInputData as ParsedOpossumInputFile,
+        output: parsedOutputData as ParsedOpossumOutputFile,
+      };
 }
 
 export function parseInputJsonFile(

@@ -41,6 +41,10 @@ jest.mock('electron', () => ({
   BrowserWindow: {
     getFocusedWindow: jest.fn(),
   },
+  app: {
+    getName: jest.fn(),
+    getVersion: jest.fn(),
+  },
 }));
 
 jest.mock('electron-log');
@@ -193,15 +197,12 @@ describe('Test of loading function', () => {
     );
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
     const expectedBackendState = getGlobalBackendState();
 
     writeFileAtomic.sync(corruptJsonPath, '{"name": 3');
 
-    await loadInputAndOutputFromFilePath(
-      mainWindow.webContents,
-      corruptJsonPath
-    );
+    await loadInputAndOutputFromFilePath(mainWindow, corruptJsonPath);
 
     const expectedNumberOfCalls = 3;
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(
@@ -239,7 +240,7 @@ describe('Test of loading function', () => {
     };
 
     setGlobalBackendState(globalBackendState);
-    await loadInputAndOutputFromFilePath(mainWindow.webContents, opossumPath);
+    await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
 
     assertFileLoadedCorrectly(testUuid);
     expect(getGlobalBackendState().projectTitle).toBe(
@@ -265,7 +266,7 @@ describe('Test of loading function', () => {
     Date.now = jest.fn(() => 1);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow.webContents, opossumPath);
+    await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
 
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
     expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
@@ -286,7 +287,7 @@ describe('Test of loading function', () => {
       Date.now = jest.fn(() => 1);
 
       setGlobalBackendState({});
-      await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
+      await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
@@ -309,7 +310,7 @@ describe('Test of loading function', () => {
       Date.now = jest.fn(() => 1);
 
       setGlobalBackendState({});
-      await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
+      await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
@@ -352,7 +353,7 @@ describe('Test of loading function', () => {
     };
 
     setGlobalBackendState(globalBackendState);
-    await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
     assertFileLoadedCorrectly(testUuid);
     expect(getGlobalBackendState().projectTitle).toBe(
@@ -429,7 +430,7 @@ describe('Test of loading function', () => {
 
       setGlobalBackendState(globalBackendState);
 
-      await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
+      await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
       const expectedLoadedFile: ParsedFileContent = {
         metadata: EMPTY_PROJECT_METADATA,
         resources: { a: 1 },
@@ -527,7 +528,7 @@ describe('Test of loading function', () => {
     Date.now = jest.fn(() => 1);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow.webContents, jsonPath);
+    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
 
     const expectedLoadedFile: ParsedFileContent = {
       ...expectedFileContent,

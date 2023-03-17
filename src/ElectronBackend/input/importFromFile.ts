@@ -22,17 +22,21 @@ import {
   sanitizeResourcesToAttributions,
 } from './parseInputData';
 import {
+  InvalidDotOpossumFileError,
   JsonParsingError,
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../types/types';
-import { WebContents } from 'electron';
+import { BrowserWindow } from 'electron';
 import { writeJsonToFile } from '../output/writeJsonToFile';
 import { cloneDeep } from 'lodash';
 import log from 'electron-log';
-import { getMessageBoxForParsingError } from '../errorHandling/errorHandling';
+import {
+  getMessageBoxForInvalidDotOpossumFileError,
+  getMessageBoxForParsingError,
+} from '../errorHandling/errorHandling';
 import { v4 as uuid4 } from 'uuid';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
@@ -42,16 +46,25 @@ import {
 } from './parseFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
+import { setLoadingState } from '../main/listeners';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';
 }
 
+function isInvalidDotOpossumFileError(
+  object: unknown
+): object is InvalidDotOpossumFileError {
+  return (
+    (object as InvalidDotOpossumFileError).type === 'invalidDotOpossumFileError'
+  );
+}
+
 export async function loadInputAndOutputFromFilePath(
-  webContents: WebContents,
+  mainWindow: BrowserWindow,
   filePath: string
 ): Promise<void> {
-  webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
+  mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
   });
 
@@ -64,6 +77,15 @@ export async function loadInputAndOutputFromFilePath(
     if (isJsonParsingError(parsingResult)) {
       log.info('Invalid input file.');
       await getMessageBoxForParsingError(parsingResult.message);
+      return;
+    }
+    if (isInvalidDotOpossumFileError(parsingResult)) {
+      log.info('Invalid input file.');
+      setLoadingState(mainWindow.webContents, false);
+      await getMessageBoxForInvalidDotOpossumFileError(
+        parsingResult.filesInArchive,
+        mainWindow
+      );
       return;
     }
     parsedInputData = parsingResult.input;
@@ -134,7 +156,7 @@ export async function loadInputAndOutputFromFilePath(
       // For a time, a bug in the app produced corrupt files,
       // which are fixed by this clean-up.
       resourcesToAttributions: cleanNonExistentAttributions(
-        webContents,
+        mainWindow.webContents,
         parsedOutputData.resourcesToAttributions ?? {},
         manualAttributions
       ),
@@ -145,7 +167,7 @@ export async function loadInputAndOutputFromFilePath(
     },
     frequentLicenses,
     resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
-      webContents,
+      mainWindow.webContents,
       parsedOutputData.resolvedExternalAttributions,
       externalAttributions
     ),
@@ -160,7 +182,10 @@ export async function loadInputAndOutputFromFilePath(
       parsedInputData.externalAttributionSources ?? {},
   };
   log.info('Sending data to electron frontend');
-  webContents.send(AllowedFrontendChannels.FileLoaded, parsedFileContent);
+  mainWindow.webContents.send(
+    AllowedFrontendChannels.FileLoaded,
+    parsedFileContent
+  );
 
   log.info('Updating global backend state');
 
