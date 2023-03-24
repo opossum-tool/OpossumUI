@@ -200,6 +200,14 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'Help',
       submenu: [
         {
+          label: "User's Guide",
+          click: async (): Promise<void> => {
+            await shell.openExternal(
+              'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md'
+            );
+          },
+        },
+        {
           label: 'Open log files folder',
           click: async (): Promise<void> => {
             await shell.openPath(app.getPath('logs'));
