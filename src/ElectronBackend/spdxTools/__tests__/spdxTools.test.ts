@@ -157,7 +157,7 @@ describe('createSpdxDocument', () => {
             {
               referenceCategory: 'PACKAGE_MANAGER',
               referenceLocator:
-                'pkg:type 1/namespace%201/name%201@version%201appendix 1',
+                'pkg:type%201/namespace%201/name%201@version%201appendix 1',
               referenceType: 'purl',
             },
           ],

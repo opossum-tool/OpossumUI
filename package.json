@@ -39,7 +39,7 @@
     "write-file-atomic": "^5.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.30.0",
+    "@playwright/test": "^1.32.0",
     "@testing-library/dom": "^9.0.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
@@ -74,7 +74,7 @@
     "lint-staged": "^13.2.0",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.3",
-    "playwright": "^1.30.0",
+    "playwright": "^1.32.0",
     "prettier": "^2.8.6",
     "react-scripts": "5.0.1",
     "redux-devtools-extension": "^2.13.9",
