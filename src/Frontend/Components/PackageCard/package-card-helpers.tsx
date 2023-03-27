@@ -73,7 +73,7 @@ export function getRightIcons(
 export function getPackageCardHighlighting(
   packageInfo: PackageInfo
 ): HighlightingColor | undefined {
-  if (!packageInfo) return undefined;
+  if (packageInfo.excludeFromNotice || packageInfo.firstParty) return undefined;
   if (packageInfo.packageName === undefined)
     return HighlightingColor.DarkOrange;
   return isPackageInfoIncomplete(packageInfo)
