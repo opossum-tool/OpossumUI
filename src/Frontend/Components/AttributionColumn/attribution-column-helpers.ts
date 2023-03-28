@@ -249,6 +249,7 @@ export function usePurl(
       displayPackageInfo.packageType,
       displayPackageInfo.packageNamespace,
       displayPackageInfo.packageName,
+      displayPackageInfo.packageVersion,
     ]
   );
 
