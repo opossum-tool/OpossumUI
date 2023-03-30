@@ -8,6 +8,7 @@ import {
   AttributionData,
   Attributions,
   AttributionsToResources,
+  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenseName,
@@ -191,4 +192,10 @@ export function getExternalAttributionSources(
 
 export function getAttributionIdMarkedForReplacement(state: State): string {
   return state.resourceState.allViews.attributionIdMarkedForReplacement;
+}
+
+export function getExternalAttributionsToHashes(
+  state: State
+): AttributionsToHashes {
+  return state.resourceState.allViews.externalAttributionsToHashes;
 }
