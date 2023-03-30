@@ -70,6 +70,10 @@ export interface AttributionsToResources {
   [uuid: string]: Array<string>;
 }
 
+export interface AttributionsToHashes {
+  [uuid: string]: string;
+}
+
 export interface ResourcesWithAttributedChildren {
   [path: string]: Set<string>;
 }

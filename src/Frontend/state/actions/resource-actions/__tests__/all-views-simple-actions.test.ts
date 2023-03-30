@@ -20,6 +20,7 @@ import {
   getExternalAttributions,
   getExternalAttributionSources,
   getExternalAttributionsToResources,
+  getExternalAttributionsToHashes,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
   getIsSavingDisabled,
@@ -36,6 +37,7 @@ import {
   resetResourceState,
   setBaseUrlsForSources,
   setExternalAttributionSources,
+  setExternalAttributionsToHashes,
   setExternalData,
   setFrequentLicenses,
   setManualData,
@@ -259,5 +261,16 @@ describe('The load and navigation simple actions', () => {
     expect(getExternalAttributionSources(testStore.getState())).toEqual({
       SC: { name: 'Scancode', priority: 1 },
     });
+  });
+
+  it('sets and gets externalAttributionsToHashes', () => {
+    const testExternalAttributionsToHashes = { uuid: '0123-4567' };
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalAttributionsToHashes(testExternalAttributionsToHashes)
+    );
+    expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
+      testExternalAttributionsToHashes
+    );
   });
 });

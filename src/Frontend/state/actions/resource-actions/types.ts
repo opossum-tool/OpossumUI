@@ -6,6 +6,7 @@
 import {
   AttributionData,
   Attributions,
+  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
@@ -88,6 +89,8 @@ export const ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS =
   'ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS';
 export const ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT =
   'ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT';
+export const ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES =
+  'ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -128,7 +131,8 @@ export type ResourceAction =
   | SetAttributionWizardPackageNames
   | SetAttributionWizardPackageVersions
   | SetAttributionWizardSelectedPackageIds
-  | SetAttributionWizardTotalAttributionCount;
+  | SetAttributionWizardTotalAttributionCount
+  | SetExternalAttributionsToHashes;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -341,4 +345,9 @@ export interface SetAttributionWizardSelectedPackageIds {
 export interface SetAttributionWizardTotalAttributionCount {
   type: typeof ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT;
   payload: number | null;
+}
+
+export interface SetExternalAttributionsToHashes {
+  type: typeof ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES;
+  payload: AttributionsToHashes;
 }
