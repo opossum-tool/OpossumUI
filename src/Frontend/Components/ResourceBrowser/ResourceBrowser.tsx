@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import remove from 'lodash/remove';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -34,8 +34,28 @@ import { topBarHeight } from '../TopBar/TopBar';
 import {
   TREE_ROOT_FOLDER_LABEL,
   TREE_ROW_HEIGHT,
+  checkboxClass,
   treeClasses,
+  clickableIcon,
+  disabledIcon,
 } from '../../shared-styles';
+import { cloneDeep } from 'lodash';
+import { filterOutAttributedResourcesConsideringSiblings } from './resource-browser-helpers';
+import MuiBox from '@mui/material/Box';
+import { IconButton } from '../IconButton/IconButton';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { ResourcesFilter } from '../ResourcesFilter/ResourcesFilter';
+import { ResourcesFilterType } from '../../enums/enums';
+
+const classes = {
+  ...checkboxClass,
+  clickableIcon,
+  disabledIcon,
+  filterBox: {
+    display: 'flex',
+    paddingRight: '12px',
+  },
+};
 
 export function ResourceBrowser(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -64,6 +84,12 @@ export function ResourceBrowser(): ReactElement | null {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const externalData = useAppSelector(getExternalData);
   const dispatch = useAppDispatch();
+
+  const [activeFilters, setActiveFilters] = useState<
+    Array<ResourcesFilterType>
+  >([]);
+  const [showFilterMultiSelect, setShowFilterMultiSelect] =
+    useState<boolean>(false);
 
   function handleToggle(nodeIdsToExpand: Array<string>): void {
     let newExpandedNodeIds = [...expandedIds];
@@ -109,27 +135,99 @@ export function ResourceBrowser(): ReactElement | null {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const maxTreeHeight: number = useWindowHeight() - topBarHeight - 4;
 
-  return resources ? (
-    <VirtualizedTree
-      expandedIds={expandedIds}
-      isFakeNonExpandableNode={getFileWithChildrenCheck(filesWithChildren)}
-      onSelect={handleSelect}
-      onToggle={handleToggle}
-      nodes={{ [TREE_ROOT_FOLDER_LABEL]: resources }}
-      selectedNodeId={selectedResourceId}
-      ariaLabel={'resource browser'}
-      getTreeNodeLabel={getTreeItemLabelGetter()}
-      breakpoints={attributionBreakpoints}
-      cardHeight={TREE_ROW_HEIGHT}
-      maxHeight={maxTreeHeight}
-      sx={treeClasses.tree('browser')}
-      alwaysShowHorizontalScrollBar={true}
-      treeNodeStyle={{
-        root: treeClasses.treeItemLabel,
-        childrenOfSelected: treeClasses.treeItemLabelChildrenOfSelected,
-        selected: treeClasses.treeItemLabelSelected,
-        treeExpandIcon: treeClasses.treeExpandIcon,
-      }}
-    />
-  ) : null;
+  if (activeFilters.length > 0 && !showFilterMultiSelect) {
+    setShowFilterMultiSelect(!showFilterMultiSelect);
+  }
+
+  function updateFilters(filter: ResourcesFilterType): void {
+    if (activeFilters.includes(filter)) {
+      setActiveFilters(
+        activeFilters.filter(
+          (activeFilter: ResourcesFilterType) => activeFilter !== filter
+        )
+      );
+    } else {
+      setActiveFilters([...activeFilters, filter]);
+    }
+  }
+
+  // TODO: Remove before merging
+  console.time('Filtering');
+  // ##########################################################################
+
+  const filteredResources = useMemo(() => {
+    if (activeFilters.length > 0) {
+      const attributedResourceIds = new Set<string>(
+        Object.keys(resourcesToManualAttributions)
+      );
+      const resourcesToFilter = cloneDeep(resources);
+      return resourcesToFilter !== null
+        ? filterOutAttributedResourcesConsideringSiblings(
+            resourcesToFilter,
+            attributedResourceIds
+          )
+        : null;
+    } else {
+      return null;
+    }
+  }, [activeFilters, resourcesToManualAttributions, resources]);
+
+  const resourcesToDisplay =
+    activeFilters.length > 0 ? filteredResources : resources;
+
+  // TODO: Remove before merging
+  // ##########################################################################
+  console.timeEnd('Filtering');
+
+  return (
+    <MuiBox>
+      <MuiBox sx={classes.filterBox}>
+        <IconButton
+          sx={{ paddingTop: '7px' }}
+          tooltipTitle="Filters"
+          tooltipPlacement="right"
+          onClick={(): void => setShowFilterMultiSelect(!showFilterMultiSelect)}
+          disabled={activeFilters.length > 0}
+          icon={
+            <FilterAltIcon
+              aria-label={'Filter icon'}
+              sx={
+                activeFilters.length > 0
+                  ? classes.disabledIcon
+                  : classes.clickableIcon
+              }
+            />
+          }
+        />
+        <ResourcesFilter
+          sx={showFilterMultiSelect ? {} : { display: 'none' }}
+          activeFilters={activeFilters}
+          updateFilters={updateFilters}
+        />
+      </MuiBox>
+      {resourcesToDisplay ? (
+        <VirtualizedTree
+          expandedIds={expandedIds}
+          isFakeNonExpandableNode={getFileWithChildrenCheck(filesWithChildren)}
+          onSelect={handleSelect}
+          onToggle={handleToggle}
+          nodes={{ [TREE_ROOT_FOLDER_LABEL]: resourcesToDisplay }}
+          selectedNodeId={selectedResourceId}
+          ariaLabel={'resource browser'}
+          getTreeNodeLabel={getTreeItemLabelGetter()}
+          breakpoints={attributionBreakpoints}
+          cardHeight={TREE_ROW_HEIGHT}
+          maxHeight={maxTreeHeight}
+          sx={treeClasses.tree('browser')}
+          alwaysShowHorizontalScrollBar={true}
+          treeNodeStyle={{
+            root: treeClasses.treeItemLabel,
+            childrenOfSelected: treeClasses.treeItemLabelChildrenOfSelected,
+            selected: treeClasses.treeItemLabelSelected,
+            treeExpandIcon: treeClasses.treeExpandIcon,
+          }}
+        />
+      ) : null}
+    </MuiBox>
+  );
 }

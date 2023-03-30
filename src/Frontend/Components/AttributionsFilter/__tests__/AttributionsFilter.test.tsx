@@ -3,28 +3,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { FilterMultiSelect } from '../FilterMultiSelect';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import {
   expectFilterIsShown,
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
-import { FilterType } from '../../../enums/enums';
+import { AttributionsFilterType } from '../../../enums/enums';
 import { Provider } from 'react-redux';
 import { createAppStore } from '../../../state/configure-store';
+import { AttributionsFilter } from '../AttributionsFilter';
 
-describe('FilterMultiSelect', () => {
+describe('AttributionsFilter', () => {
   it('renders the filters in a dropdown', () => {
     const store = createAppStore();
     render(
       <Provider store={store}>
-        <FilterMultiSelect />
+        <AttributionsFilter />
       </Provider>
     );
     openDropDown(screen);
-    expectFilterIsShown(screen, FilterType.OnlyFirstParty);
-    expectFilterIsShown(screen, FilterType.OnlyFollowUp);
-    expectFilterIsShown(screen, FilterType.HideFirstParty);
+    expectFilterIsShown(screen, AttributionsFilterType.OnlyFirstParty);
+    expectFilterIsShown(screen, AttributionsFilterType.OnlyFollowUp);
+    expectFilterIsShown(screen, AttributionsFilterType.HideFirstParty);
+    expectFilterIsShown(screen, AttributionsFilterType.OnlyNeedsReview);
   });
 });

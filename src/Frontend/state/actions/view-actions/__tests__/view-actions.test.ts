@@ -4,7 +4,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { FilterType, PopupType, View } from '../../../../enums/enums';
+import {
+  AttributionsFilterType,
+  PopupType,
+  View,
+} from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import {
   getActiveFilters,
@@ -102,13 +106,17 @@ describe('view actions', () => {
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetView(View.Audit));
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.OnlyFollowUp)
+    );
 
     expect(isAttributionViewSelected(testStore.getState())).toBe(true);
     expect(getTargetView(testStore.getState())).toBe(View.Audit);
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFollowUp
+      )
     ).toBe(true);
 
     testStore.dispatch(resetViewState());
@@ -116,38 +124,64 @@ describe('view actions', () => {
     expect(getTargetView(testStore.getState())).toBe(null);
     expect(getOpenPopup(testStore.getState())).toBe(null);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFollowUp
+      )
     ).toBe(false);
   });
 
   it('sets filters correctly', () => {
     const testStore = createTestAppStore();
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.OnlyFirstParty)
+    );
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFirstParty
+      )
     ).toBe(true);
 
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.OnlyFirstParty)
+    );
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFirstParty
+      )
     ).toBe(false);
 
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    testStore.dispatch(updateActiveFilters(FilterType.HideFirstParty));
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.OnlyFirstParty)
+    );
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.HideFirstParty)
+    );
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFirstParty
+      )
     ).toBe(false);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.HideFirstParty)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.HideFirstParty
+      )
     ).toBe(true);
 
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.OnlyFirstParty)
+    );
+    testStore.dispatch(
+      updateActiveFilters(AttributionsFilterType.OnlyFollowUp)
+    );
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFirstParty
+      )
     ).toBe(true);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+      getActiveFilters(testStore.getState()).has(
+        AttributionsFilterType.OnlyFollowUp
+      )
     ).toBe(true);
   });
 

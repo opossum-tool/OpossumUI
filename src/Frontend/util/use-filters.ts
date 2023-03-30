@@ -9,7 +9,7 @@ import {
   AttributionsWithResources,
   PackageInfo,
 } from '../../shared/shared-types';
-import { FilterType } from '../enums/enums';
+import { AttributionsFilterType } from '../enums/enums';
 import { useAppSelector } from '../state/hooks';
 import { getActiveFilters } from '../state/selectors/view-selector';
 
@@ -22,16 +22,16 @@ export function useFilters(
 ): AttributionsWithResources | Attributions {
   const activeFilters = useAppSelector(getActiveFilters);
 
-  attributions = activeFilters.has(FilterType.OnlyFollowUp)
+  attributions = activeFilters.has(AttributionsFilterType.OnlyFollowUp)
     ? pickBy(attributions, (value: PackageInfo) => value.followUp)
     : attributions;
-  attributions = activeFilters.has(FilterType.OnlyFirstParty)
+  attributions = activeFilters.has(AttributionsFilterType.OnlyFirstParty)
     ? pickBy(attributions, (value: PackageInfo) => value.firstParty)
     : attributions;
-  attributions = activeFilters.has(FilterType.HideFirstParty)
+  attributions = activeFilters.has(AttributionsFilterType.HideFirstParty)
     ? pickBy(attributions, (value: PackageInfo) => !value.firstParty)
     : attributions;
-  attributions = activeFilters.has(FilterType.OnlyNeedsReview)
+  attributions = activeFilters.has(AttributionsFilterType.OnlyNeedsReview)
     ? pickBy(attributions, (value: PackageInfo) => value.needsReview)
     : attributions;
   return attributions;

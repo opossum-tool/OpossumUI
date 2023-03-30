@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { FilterType, View } from '../../enums/enums';
+import { AttributionsFilterType, View } from '../../enums/enums';
 import { PopupInfo } from '../../types/types';
 import {
   ACTION_CLOSE_POPUP,
@@ -22,7 +22,7 @@ export interface ViewState {
   view: View;
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
-  activeFilters: Set<FilterType>;
+  activeFilters: Set<AttributionsFilterType>;
   isLoading: boolean;
 }
 
@@ -30,7 +30,7 @@ export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   popupInfo: [],
-  activeFilters: new Set<FilterType>(),
+  activeFilters: new Set<AttributionsFilterType>(),
   isLoading: false,
 };
 

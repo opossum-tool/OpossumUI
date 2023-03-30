@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
-import { FilterType, PopupType, View } from '../../../enums/enums';
+import { AttributionsFilterType, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import { getDisplayPackageInfoOfSelectedAttributionInAttributionView } from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
@@ -88,7 +88,7 @@ export function closePopup(): ClosePopupAction {
 }
 
 export function updateActiveFilters(
-  filterType: FilterType
+  filterType: AttributionsFilterType
 ): UpdateActiveFilters {
   return {
     type: ACTION_UPDATE_ACTIVE_FILTERS,

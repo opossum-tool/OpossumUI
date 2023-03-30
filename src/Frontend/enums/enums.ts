@@ -74,11 +74,15 @@ export enum ButtonText {
   OpenDotOpossumFile = 'Open ".opossum" file',
 }
 
-export enum FilterType {
+export enum AttributionsFilterType {
   OnlyFirstParty = 'Only First Party',
   HideFirstParty = 'Hide First Party',
   OnlyFollowUp = 'Only Follow Up',
   OnlyNeedsReview = 'Only Needs Review',
+}
+
+export enum ResourcesFilterType {
+  HideAttributed = 'Hide Attributed',
 }
 
 export enum CheckboxLabel {

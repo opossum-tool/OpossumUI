@@ -11,22 +11,13 @@ import MuiSelect from '@mui/material/Select';
 import MuiChip from '@mui/material/Chip';
 import MuiBox from '@mui/material/Box';
 import MuiOutlinedInput from '@mui/material/OutlinedInput';
-import { FilterType } from '../../enums/enums';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
-import { getActiveFilters } from '../../state/selectors/view-selector';
+import { AttributionsFilterType, ResourcesFilterType } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
-const FILTERS = [
-  FilterType.OnlyFollowUp,
-  FilterType.OnlyFirstParty,
-  FilterType.HideFirstParty,
-  FilterType.OnlyNeedsReview,
-];
 
 const classes = {
   dropDownForm: {
@@ -65,26 +56,26 @@ const classes = {
 };
 
 interface FilterMultiSelectProps {
+  allFilters: Array<AttributionsFilterType | ResourcesFilterType>;
+  activeFilters: Array<AttributionsFilterType | ResourcesFilterType>;
+  updateFilters(filter: AttributionsFilterType | ResourcesFilterType): void;
   sx?: SxProps;
 }
 
 export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
-  const dispatch = useAppDispatch();
-  const activeFilters = Array.from(useAppSelector(getActiveFilters));
-
-  const updateFilters = (filter: FilterType): void => {
-    dispatch(updateActiveFilters(filter));
-  };
-
   function getMenuItems(): Array<ReactElement> {
-    return FILTERS.map((filter) => (
+    return props.allFilters.map((filter) => (
       <MuiMenuItem
         dense
         aria-label={filter}
         key={filter}
         value={filter}
         onClick={(event): void => {
-          updateFilters(event.currentTarget.textContent as FilterType);
+          props.updateFilters(
+            event.currentTarget.textContent as
+              | AttributionsFilterType
+              | ResourcesFilterType
+          );
         }}
       >
         {filter}
@@ -106,7 +97,7 @@ export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
         sx={classes.dropDownSelect}
         data-testid="test-id-filter-multi-select"
         multiple
-        value={activeFilters}
+        value={props.activeFilters}
         input={<MuiOutlinedInput />}
         renderValue={(selectedFilters): ReactElement => (
           <MuiBox sx={classes.dropDownBox}>
@@ -121,7 +112,7 @@ export function FilterMultiSelect(props: FilterMultiSelectProps): ReactElement {
                   event.stopPropagation();
                 }}
                 onDelete={(): void => {
-                  updateFilters(filter);
+                  props.updateFilters(filter);
                 }}
               />
             ))}

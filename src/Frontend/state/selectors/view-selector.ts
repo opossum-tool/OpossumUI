@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { FilterType, PopupType, View } from '../../enums/enums';
+import { AttributionsFilterType, PopupType, View } from '../../enums/enums';
 import { State } from '../../types/types';
 
 export function isAttributionViewSelected(state: State): boolean {
@@ -33,7 +33,7 @@ export function getOpenPopup(state: State): null | PopupType {
   return popup.length === 1 ? popup[0].popup : null;
 }
 
-export function getActiveFilters(state: State): Set<FilterType> {
+export function getActiveFilters(state: State): Set<AttributionsFilterType> {
   return state.viewState.activeFilters;
 }
 

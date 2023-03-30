@@ -11,7 +11,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { FilterType, View } from '../../../enums/enums';
+import { AttributionsFilterType, View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -96,7 +96,7 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test other package, 2.0'));
 
     openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFollowUp);
 
     expect(screen.getByText('Test other package, 2.0'));
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test other package, 2.0'));
 
     openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFirstParty);
 
     expect(screen.getByText('Test package, 1.0'));
     expect(
@@ -150,15 +150,15 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test other package, 2.0'));
 
     openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFollowUp);
 
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
     expect(
       screen.queryByText('Test other package, 2.0')
     ).not.toBeInTheDocument();
 
-    clickOnFilter(screen, FilterType.HideFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.HideFirstParty);
     expect(screen.getByText('Test other package, 2.0'));
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });

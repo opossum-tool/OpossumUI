@@ -11,7 +11,7 @@ import {
   renderComponentWithStore,
 } from '../../test-helpers/render-component-with-store';
 import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
-import { FilterType } from '../../enums/enums';
+import { AttributionsFilterType } from '../../enums/enums';
 
 let filteredAttributions: Attributions;
 
@@ -48,7 +48,7 @@ describe('useFollowUpFilter', () => {
 
   it('returns working getFilteredAttributions with follow-up filter', () => {
     const store = createTestAppStore();
-    store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.OnlyFollowUp));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }
@@ -69,7 +69,7 @@ describe('useFollowUpFilter', () => {
 
   it('returns working getFilteredAttributions with only first party filter', () => {
     const store = createTestAppStore();
-    store.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.OnlyFirstParty));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }
@@ -81,7 +81,7 @@ describe('useFollowUpFilter', () => {
 
   it('returns working getFilteredAttributions with hide first party filter', () => {
     const store = createTestAppStore();
-    store.dispatch(updateActiveFilters(FilterType.HideFirstParty));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.HideFirstParty));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }
@@ -93,8 +93,8 @@ describe('useFollowUpFilter', () => {
 
   it('returns working getFilteredAttributions with only first party and follow up filter', () => {
     const store = createTestAppStore();
-    store.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.OnlyFirstParty));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.OnlyFollowUp));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }
@@ -104,8 +104,8 @@ describe('useFollowUpFilter', () => {
 
   it('returns working getFilteredAttributions with hide first party and follow up filter', () => {
     const store = createTestAppStore();
-    store.dispatch(updateActiveFilters(FilterType.HideFirstParty));
-    store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.HideFirstParty));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.OnlyFollowUp));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }
@@ -117,7 +117,7 @@ describe('useFollowUpFilter', () => {
 
   it('returns working getFilteredAttributions with only needs review filter', () => {
     const store = createTestAppStore();
-    store.dispatch(updateActiveFilters(FilterType.OnlyNeedsReview));
+    store.dispatch(updateActiveFilters(AttributionsFilterType.OnlyNeedsReview));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }

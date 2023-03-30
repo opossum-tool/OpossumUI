@@ -21,7 +21,7 @@ import {
 import { ReportView } from '../ReportView';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { FilterType } from '../../../enums/enums';
+import { AttributionsFilterType } from '../../../enums/enums';
 
 describe('The ReportView', () => {
   const testResources: Resources = { ['test resource']: 1 };
@@ -102,7 +102,7 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test other package'));
 
     openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFollowUp);
 
     expect(screen.getByText('Test other package'));
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
@@ -126,12 +126,12 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test other package'));
 
     openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFirstParty);
 
     expect(screen.getByText('Test package'));
     expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
 
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFirstParty);
     expect(screen.getByText('Test package'));
     expect(screen.getByText('Test other package'));
   });
@@ -154,13 +154,13 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test other package'));
 
     openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.OnlyFollowUp);
 
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
     expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
 
-    clickOnFilter(screen, FilterType.HideFirstParty);
+    clickOnFilter(screen, AttributionsFilterType.HideFirstParty);
 
     expect(screen.getByText('Test other package'));
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { FilterType, View } from '../../../enums/enums';
+import { AttributionsFilterType, View } from '../../../enums/enums';
 import { PopupInfo } from '../../../types/types';
 
 export const ACTION_SET_TARGET_VIEW = 'ACTION_SET_TARGET_VIEW';
@@ -48,7 +48,7 @@ export interface OpenPopupAction {
 
 export interface UpdateActiveFilters {
   type: typeof ACTION_UPDATE_ACTIVE_FILTERS;
-  payload: FilterType;
+  payload: AttributionsFilterType;
 }
 
 export interface SetIsLoadingAction {

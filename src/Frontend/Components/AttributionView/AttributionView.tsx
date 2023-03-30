@@ -20,7 +20,6 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import { topBarHeight } from '../TopBar/TopBar';
-import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
@@ -28,6 +27,7 @@ import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCou
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import { AttributionsFilter } from '../AttributionsFilter/AttributionsFilter';
 
 const classes = {
   root: {
@@ -102,7 +102,7 @@ export function AttributionView(): ReactElement {
           />
         }
         filterElement={
-          <FilterMultiSelect sx={showMultiSelect ? {} : { display: 'none' }} />
+          <AttributionsFilter sx={showMultiSelect ? {} : { display: 'none' }} />
         }
       />
       <AttributionDetailsViewer />

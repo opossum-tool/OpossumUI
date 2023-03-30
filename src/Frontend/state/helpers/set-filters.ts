@@ -3,16 +3,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { FilterType } from '../../enums/enums';
+import { AttributionsFilterType } from '../../enums/enums';
 
 const mutuallyExclusiveFilters = [
-  [FilterType.OnlyFirstParty, FilterType.HideFirstParty],
+  [
+    AttributionsFilterType.OnlyFirstParty,
+    AttributionsFilterType.HideFirstParty,
+  ],
 ];
 
 export function getUpdatedFilters(
-  activeFilters: Set<FilterType>,
-  newFilter: FilterType
-): Set<FilterType> {
+  activeFilters: Set<AttributionsFilterType>,
+  newFilter: AttributionsFilterType
+): Set<AttributionsFilterType> {
   const currentFilters = new Set(activeFilters);
   if (currentFilters.has(newFilter)) {
     currentFilters.delete(newFilter);
@@ -26,7 +29,9 @@ export function getUpdatedFilters(
   return currentFilters;
 }
 
-export function getFiltersToRemove(newFilter: FilterType): Set<FilterType> {
+export function getFiltersToRemove(
+  newFilter: AttributionsFilterType
+): Set<AttributionsFilterType> {
   return new Set(
     mutuallyExclusiveFilters
       .filter((filterPair) => filterPair.includes(newFilter))

@@ -21,10 +21,10 @@ import { getAttributionsWithResources } from '../../util/get-attributions-with-r
 import { useFilters } from '../../util/use-filters';
 import { Table } from '../Table/Table';
 import { OpossumColors } from '../../shared-styles';
-import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import MuiBox from '@mui/material/Box';
 import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
+import { AttributionsFilter } from '../AttributionsFilter/AttributionsFilter';
 
 const classes = {
   root: {
@@ -63,7 +63,7 @@ export function ReportView(): ReactElement {
         onIconClick={getOnIconClick()}
         topElement={
           <>
-            <FilterMultiSelect sx={{ maxWidth: '300px' }} />
+            <AttributionsFilter sx={{ maxWidth: '300px' }} />
             <AttributionCountsPanel
               sx={{ display: 'inline-block', margin: '20px' }}
             />
