@@ -34,6 +34,8 @@ SPDX-License-Identifier: CC0-1.0
 
 Download the latest release for your OS from [Github](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
+To check if your installation is up to date, open the `Help` menu and select `Check for updates`.
+
 ### Running the app <a name="running_the_app"></a>
 
 #### Linux
@@ -116,7 +118,7 @@ In the opossumUI, a distinction between **signals** and **attributions** is made
   come from automatic tools or previous run of the opossumUI. They have a **source** and can be used as starting point for
   assigning attributions.
 
-### Top Bar <a name="top_bar></a>
+### Top Bar <a name="top_bar"></a>
 
 In the `Top Bar`, the following elements are present. From left to right:
 
