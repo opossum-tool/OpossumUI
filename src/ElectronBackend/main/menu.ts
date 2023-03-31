@@ -213,6 +213,14 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             await shell.openPath(app.getPath('logs'));
           },
         },
+        {
+          label: 'Check for updates',
+          click(): void {
+            webContents.send(AllowedFrontendChannels.ShowUpdateAppPopup, {
+              showUpdateAppPopup: true,
+            });
+          },
+        },
       ],
     },
   ]);
