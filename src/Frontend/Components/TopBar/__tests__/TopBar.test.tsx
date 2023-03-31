@@ -20,7 +20,7 @@ import { setResources } from '../../../state/actions/resource-actions/all-views-
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    const totalNumberOfCalls = 11;
+    const totalNumberOfCalls = 12;
     expect(window.electronAPI.on).toHaveBeenCalledTimes(totalNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,

@@ -26,6 +26,7 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 describe('The GlobalPopUp', () => {
   it('does not open by default', () => {
@@ -208,6 +209,27 @@ describe('The GlobalPopUp', () => {
     });
 
     const header = 'Warning: Outdated input file format';
+    expect(screen.getByText(header)).toBeInTheDocument();
+  });
+
+  it('opens the UpdateAppPopup', () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+    const { store } = renderComponentWithStore(
+      <QueryClientProvider client={queryClient}>
+        <GlobalPopup />
+      </QueryClientProvider>
+    );
+    act(() => {
+      store.dispatch(openPopup(PopupType.UpdateAppPopup));
+    });
+
+    const header = 'Check for updates';
     expect(screen.getByText(header)).toBeInTheDocument();
   });
 });
