@@ -20,10 +20,7 @@
           "description": "Checksum to check if the input file has changed."
         }
       },
-      "required": [
-        "projectId",
-        "fileCreationDate"
-      ],
+      "required": ["projectId", "fileCreationDate"],
       "additionalProperties": false
     },
     "manualAttributions": {
@@ -95,14 +92,19 @@
           },
           "followUp": {
             "type": "string",
-            "enum": [
-              "FOLLOW_UP"
-            ],
+            "enum": ["FOLLOW_UP"],
             "description": "Indicates that an attribution is problematic and needs to be followed up."
           },
           "originId": {
             "type": "string",
             "description": "Can be set to track a signal from the tooling that generated the input file. Copied from the input file"
+          },
+          "originIds": {
+            "type": "array",
+            "description": "Like originId but considers that a signal can have more than a single origin.",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [],
@@ -128,10 +130,6 @@
       }
     }
   },
-  "required": [
-    "metadata",
-    "manualAttributions",
-    "resourcesToAttributions"
-  ],
+  "required": ["metadata", "manualAttributions", "resourcesToAttributions"],
   "additionalProperties": true
 }

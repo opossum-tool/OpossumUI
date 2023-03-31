@@ -495,7 +495,7 @@ describe('Test of loading function', () => {
         },
       };
 
-      expect(mainWindow.webContents.send).toBeCalledWith(
+      expect(mainWindow.webContents.send).lastCalledWith(
         AllowedFrontendChannels.FileLoaded,
         expectedLoadedFile
       );
@@ -535,11 +535,66 @@ describe('Test of loading function', () => {
       metadata: inputFileContentWithCustomMetadata.metadata,
     };
 
-    expect(mainWindow.webContents.send).toBeCalledWith(
+    expect(mainWindow.webContents.send).lastCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expectedLoadedFile
     );
     expect(dialog.showMessageBox).not.toBeCalled();
+    deleteFolder(temporaryPath);
+  });
+
+  it('loads file and parses json successfully, custom metadata', async () => {
+    const inputFileContentWithOriginIds: ParsedOpossumInputFile = {
+      ...inputFileContent,
+      externalAttributions: {
+        uuid: {
+          source: {
+            name: 'REUSER:HHC',
+            documentConfidence: 13,
+          },
+          packageName: 'react',
+          originIds: ['abc', 'def'],
+        },
+      },
+      resourcesToAttributions: {
+        '/a': ['uuid'],
+      },
+    };
+    const temporaryPath: string = createTempFolder();
+    const jsonName = 'test.json';
+    const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
+
+    writeJsonToFile(jsonPath, inputFileContentWithOriginIds);
+
+    Date.now = jest.fn(() => 1);
+
+    setGlobalBackendState({});
+    await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
+
+    const expectedLoadedFile: ParsedFileContent = {
+      ...expectedFileContent,
+      externalAttributions: {
+        attributions: {
+          uuid: {
+            source: {
+              name: 'REUSER:HHC',
+              documentConfidence: 13,
+            },
+            packageName: 'react',
+            originIds: ['abc', 'def'],
+          },
+        },
+        resourcesToAttributions: {
+          '/a': ['uuid'],
+        },
+      },
+    };
+
+    expect(mainWindow.webContents.send).toBeCalledTimes(2);
+    expect(mainWindow.webContents.send).lastCalledWith(
+      AllowedFrontendChannels.FileLoaded,
+      expectedLoadedFile
+    );
     deleteFolder(temporaryPath);
   });
 });

@@ -36,7 +36,7 @@ const attributions: OpossumOutputFile = {
       copyright: '(c) many people 1989',
       licenseName: 'MIT',
       licenseText: 'This is totally an MIT license!!111!',
-      originId: '846f978e-8479-4b25-a010-63c1deac2e45',
+      originIds: ['846f978e-8479-4b25-a010-63c1deac2e45'],
     },
   },
   resourcesToAttributions: {
