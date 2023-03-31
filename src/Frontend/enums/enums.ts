@@ -27,6 +27,7 @@ export enum PopupType {
   AttributionWizardPopup = 'AttributionWizardPopup',
   FileSupportPopup = 'FileSupportPopup',
   FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
+  UpdateAppPopup = 'UpdateAppPopup',
 }
 
 export enum SavePackageInfoOperation {
