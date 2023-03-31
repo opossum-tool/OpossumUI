@@ -15,8 +15,8 @@ describe('The test package', () => {
   each([
     {},
     { attributionConfidence: 30 },
-    { originId: 'some-uuid' },
-    { originId: 'another-uuid', attributionConfidence: 100 },
+    { originIds: ['some-uuid'] },
+    { originIds: ['another-uuid'], attributionConfidence: 100 },
     { followUp: FollowUp },
     { excludeFromNotice: true },
     { criticality: Criticality.Medium },
@@ -33,7 +33,7 @@ describe('The test package', () => {
   each([
     { comment: 'Not so sure about this...' },
     { attributionConfidence: 30, packageName: 'React' },
-    { originId: 'some-uuid', url: 'https://www.test.com' },
+    { originIds: ['some-uuid'], url: 'https://www.test.com' },
   ]).it('has significant fields', (packageInfo: PackageInfo) => {
     expect(packageInfoHasNoSignificantFields(packageInfo)).toBe(false);
   });

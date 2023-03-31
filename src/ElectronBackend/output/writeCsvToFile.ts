@@ -86,7 +86,7 @@ export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
     comment: 'Comment',
     firstParty: 'First Party',
     followUp: 'Follow-up',
-    originId: 'Origin Attribution ID',
+    originIds: 'Origin Attribution IDs',
     preSelected: 'pre-selected',
     excludeFromNotice: 'exclude-from-notice',
     criticality: 'criticality',

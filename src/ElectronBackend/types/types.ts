@@ -55,6 +55,7 @@ interface RawPackageInfo {
   followUp?: string;
   source?: Source;
   originId?: string;
+  originIds?: Array<string>;
   preSelected?: boolean;
   excludeFromNotice?: boolean;
   criticality?: Criticality;
