@@ -19,7 +19,7 @@ import { createTempFolder, deleteFolder } from '../../test-helpers';
 const testCsvHeader =
   '"Index";"Confidence";"Comment";"Package Name";"Package Version";"Package Namespace";' +
   '"Package Type";"PURL Appendix";"URL";"Copyright";"License Name";"License Text (truncated)";"Source";"First Party";' +
-  '"Follow-up";"Origin Attribution ID";"pre-selected";"exclude-from-notice";"criticality";"Resources"';
+  '"Follow-up";"Origin Attribution IDs";"pre-selected";"exclude-from-notice";"criticality";"Resources"';
 
 describe('writeCsvToFile', () => {
   it('writeCsvToFile short', async () => {

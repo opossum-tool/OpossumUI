@@ -42,7 +42,7 @@ export interface PackageInfo {
   firstParty?: boolean;
   followUp?: FollowUp;
   source?: Source;
-  originId?: string;
+  originIds?: Array<string>;
   preSelected?: boolean;
   excludeFromNotice?: boolean;
   criticality?: Criticality;
