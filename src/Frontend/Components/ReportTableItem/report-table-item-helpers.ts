@@ -34,13 +34,14 @@ export function getFormattedCellData(
     case 'icons':
       cellData = '';
       break;
+    case 'source':
+      cellData = attributionInfo[config.attributionProperty]?.name.trim() || '';
+      break;
+    case 'originIds':
+      cellData = '';
+      break;
     default:
-      const attributionProperty =
-        attributionInfo[config.attributionProperty] || '';
-      cellData =
-        typeof attributionProperty === 'object'
-          ? attributionProperty.name
-          : attributionProperty;
+      cellData = attributionInfo[config.attributionProperty] || '';
       cellData = typeof cellData == 'string' ? cellData.trim() : cellData;
   }
 

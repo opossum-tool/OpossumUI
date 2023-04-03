@@ -100,7 +100,7 @@ describe('BackendCommunication', () => {
         copyright: '(c) John Doe',
         licenseName: '',
         licenseText: 'Permission is hereby granted, free of charge, to...',
-        originId: '',
+        originIds: [''],
         preSelected: true,
       },
     };
