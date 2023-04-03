@@ -19,6 +19,7 @@ import {
   setResources,
 } from './all-views-simple-actions';
 import { addResolvedExternalAttribution } from './audit-view-simple-actions';
+import { createExternalAttributionsToHashes } from '../../helpers/action-and-reducer-helpers';
 
 export function loadFromFile(
   parsedFileContent: ParsedFileContent
