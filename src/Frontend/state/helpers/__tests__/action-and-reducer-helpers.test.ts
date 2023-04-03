@@ -14,7 +14,10 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { attributionForTemporaryPackageInfoExists } from '../save-action-helpers';
 import { NIL as uuidNil } from 'uuid';
-import { computeChildrenWithAttributions } from '../action-and-reducer-helpers';
+import {
+  computeChildrenWithAttributions,
+  createExternalAttributionsToHashes,
+} from '../action-and-reducer-helpers';
 
 describe('The attributionForTemporaryPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
@@ -113,5 +116,67 @@ describe('computeChildrenWithAttributions', () => {
         '/root/src/something.js/subfolder'
       ),
     });
+  });
+});
+
+describe('createExternalAttributionsToHashes', () => {
+  it('yields correct results', () => {
+    const testExternalAttributions: Attributions = {
+      uuid1: {
+        attributionConfidence: 1,
+        comment: 'comment1',
+        packageName: 'name',
+        originIds: ['abc'],
+        preSelected: true,
+      },
+      uuid2: {
+        attributionConfidence: 2,
+        comment: 'comment2',
+        packageName: 'name',
+        originIds: ['def'],
+        preSelected: false,
+      },
+      uuid3: {
+        packageName: 'name',
+      },
+      uuid4: {
+        licenseName: '',
+        firstParty: true,
+      },
+      uuid5: {
+        firstParty: true,
+      },
+      uuid6: {
+        packageName: '',
+      },
+      uuid7: {
+        firstParty: false,
+      },
+    };
+
+    const testExternalAttributionsToHashes = createExternalAttributionsToHashes(
+      testExternalAttributions
+    );
+
+    expect(testExternalAttributionsToHashes.uuid1).toBeDefined();
+    expect(testExternalAttributionsToHashes.uuid2).toBeDefined();
+    expect(testExternalAttributionsToHashes.uuid3).toBeDefined();
+    expect(testExternalAttributionsToHashes.uuid4).toBeDefined();
+    expect(testExternalAttributionsToHashes.uuid5).toBeDefined();
+    expect(testExternalAttributionsToHashes.uuid6).toBeUndefined();
+    expect(testExternalAttributionsToHashes.uuid7).toBeUndefined();
+
+    expect(testExternalAttributionsToHashes.uuid1).toEqual(
+      testExternalAttributionsToHashes.uuid2
+    );
+    expect(testExternalAttributionsToHashes.uuid1).toEqual(
+      testExternalAttributionsToHashes.uuid3
+    );
+    expect(testExternalAttributionsToHashes.uuid1).not.toEqual(
+      testExternalAttributionsToHashes.uuid4
+    );
+    expect(testExternalAttributionsToHashes.uuid4).toEqual(
+      testExternalAttributionsToHashes.uuid5
+    );
   });
 });
