@@ -4,11 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ParsedFileContent } from '../../../../shared/shared-types';
+import { createExternalAttributionsToHashes } from '../../helpers/load-action-helpers';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
   setExternalAttributionSources,
+  setExternalAttributionsToHashes,
   setExternalData,
   setFilesWithChildren,
   setFrequentLicenses,
@@ -59,5 +61,11 @@ export function loadFromFile(
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
       dispatch(addResolvedExternalAttribution(attribution))
     );
+
+    const externalAttributionsToHashes = createExternalAttributionsToHashes(
+      parsedFileContent.externalAttributions.attributions
+    );
+
+    dispatch(setExternalAttributionsToHashes(externalAttributionsToHashes));
   };
 }
