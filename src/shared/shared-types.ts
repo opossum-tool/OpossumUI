@@ -54,6 +54,7 @@ export interface PackageInfo extends PackageInfoCore {
 export interface MergedPackageInfo extends PackageInfo {
   type: 'MergedPackageInfo';
   comments?: Array<string>;
+  originalAttributionIds: Array<string>;
 }
 
 export function isMergedPackageInfo(

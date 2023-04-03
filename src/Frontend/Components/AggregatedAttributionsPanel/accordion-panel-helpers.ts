@@ -52,7 +52,7 @@ export function getMergedContainedExternalPackagesWithCount(args: {
 }
 
 export function getMergedAttributionsWithCount(
-  attributionsWithIdCount: Array<AttributionIdWithCount>,
+  attributionIdsWithCount: Array<AttributionIdWithCount>,
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes
 ): Array<MergedAttributionWithCount> {
@@ -60,7 +60,7 @@ export function getMergedAttributionsWithCount(
   const hashToAttributions: { [hash: string]: Array<[string, PackageInfo]> } =
     {};
 
-  attributionsWithIdCount.forEach(({ attributionId }): void => {
+  attributionIdsWithCount.forEach(({ attributionId }): void => {
     const attribution: PackageInfo = attributions[attributionId];
     const savedHash = externalAttributionsToHashes[attributionId];
 
@@ -110,10 +110,15 @@ function getMergedAttributionWithCountFromAttributions(
   );
   const originIds: Array<string> = [...originIdsAsSet];
 
+  const originalAttributionIds: Array<string> = attributionsWithIds.map(
+    (attributionWithId) => attributionWithId[0]
+  );
+
   const attributionToShow: MergedPackageInfo = {
     ...attributionsWithIds[0][1],
     type: 'MergedPackageInfo',
     attributionConfidence: mergedAttributionConfidence,
+    originalAttributionIds,
   };
   delete attributionToShow.comment;
   if (comments.length > 0) {
