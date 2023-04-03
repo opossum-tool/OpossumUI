@@ -6,6 +6,7 @@
 import {
   AttributionData,
   Attributions,
+  AttributionsToHashes,
   BaseUrlsForSources,
   DiscreteConfidence,
   FrequentLicenses,
@@ -20,6 +21,7 @@ import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
   getExternalAttributionSources,
+  getExternalAttributionsToHashes,
   getExternalData,
   getFilesWithChildren,
   getFrequentLicensesNameOrder,
@@ -76,6 +78,20 @@ describe('loadFromFile', () => {
           name: 'Test document',
           documentConfidence: 99,
         },
+      },
+      doNotChangeMe1: {
+        packageName: 'name',
+        comment: 'comment1',
+        originIds: ['abc'],
+        preSelected: true,
+        attributionConfidence: 1,
+      },
+      doNotChangeMe2: {
+        packageName: 'name',
+        comment: 'comment2',
+        originIds: ['def'],
+        preSelected: false,
+        attributionConfidence: 2,
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
@@ -137,6 +153,10 @@ describe('loadFromFile', () => {
         '/root/src/': new Set<string>().add('/root/src/something.js'),
       },
     };
+    const expectedExternalAttributionsToHashes: AttributionsToHashes = {
+      doNotChangeMe1: '9263f76013801519989b1ba42aa42825de74ad93',
+      doNotChangeMe2: '9263f76013801519989b1ba42aa42825de74ad93',
+    };
 
     const testStore = createTestAppStore();
     expect(testStore.getState().resourceState).toMatchObject(
@@ -169,5 +189,8 @@ describe('loadFromFile', () => {
     expect(getExternalAttributionSources(testStore.getState())).toEqual({
       SC: { name: 'ScanCode', priority: 1 },
     });
+    expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
+      expectedExternalAttributionsToHashes
+    );
   });
 });
