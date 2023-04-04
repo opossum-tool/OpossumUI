@@ -7,6 +7,7 @@ import React, { FC, ReactNode, useMemo } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
+  getExternalAttributionsToHashes,
   getExternalData,
   getFilesWithChildren,
   getResources,
@@ -26,6 +27,7 @@ export const AccordionWorkersContextProvider: FC<{
   children: ReactNode | null;
 }> = ({ children }) => {
   const externalAttributionData = useAppSelector(getExternalData);
+  const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
 
   const externalData: PanelAttributionData = useMemo(
     () => ({
@@ -44,12 +46,12 @@ export const AccordionWorkersContextProvider: FC<{
         { externalData: null }
       );
       resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker.postMessage(
-        { externalData }
+        { externalData, attributionsToHashes }
       );
     } catch (error) {
       console.info('Web worker error in workers context provider: ', error);
     }
-  }, [externalData]);
+  }, [externalData, attributionsToHashes]);
 
   return (
     <AccordionWorkersContext.Provider value={resourceDetailsTabsWorkers}>
