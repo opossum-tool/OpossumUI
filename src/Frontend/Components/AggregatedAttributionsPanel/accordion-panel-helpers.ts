@@ -13,6 +13,30 @@ import {
   AttributionIdWithCount,
   MergedAttributionWithCount,
 } from '../../types/types';
+import {
+  getContainedExternalPackages,
+  PanelAttributionData,
+} from '../../util/get-contained-packages';
+
+export function getMergedContainedExternalPackagesWithCount(args: {
+  selectedResourceId: string;
+  externalData: Readonly<PanelAttributionData>;
+  resolvedExternalAttributions: Readonly<Set<string>>;
+  attributionsToHashes: Readonly<AttributionsToHashes>;
+}): Array<AttributionIdWithCount> {
+  const attributionIdsWithCount = getContainedExternalPackages(
+    args.selectedResourceId,
+    args.externalData.resourcesWithAttributedChildren,
+    args.externalData.attributions,
+    args.externalData.resourcesToAttributions,
+    args.resolvedExternalAttributions
+  );
+  return getMergedAttributionsWithCount(
+    attributionIdsWithCount,
+    args.externalData.attributions,
+    args.attributionsToHashes
+  );
+}
 
 export function getMergedAttributionsWithCount(
   attributionsWithIdCount: Array<AttributionIdWithCount>,
