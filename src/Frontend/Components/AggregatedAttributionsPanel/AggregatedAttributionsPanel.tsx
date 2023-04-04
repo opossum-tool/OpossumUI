@@ -19,15 +19,21 @@ import {
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
 import {
-  getContainedExternalPackages,
   getContainedManualPackages,
   getExternalAttributionIdsWithCount,
   PanelAttributionData,
 } from '../../util/get-contained-packages';
 import { AttributionIdWithCount } from '../../types/types';
+import { getMergedContainedExternalPackagesWithCount } from './accordion-panel-helpers';
+import { AttributionsToHashes } from '../../../shared/shared-types';
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;
+}
+
+export interface externalAttributionData {
+  panelAttributionData: PanelAttributionData;
+  attributionsToHashes: AttributionsToHashes;
 }
 
 export function AggregatedAttributionsPanel(
@@ -35,9 +41,7 @@ export function AggregatedAttributionsPanel(
 ): ReactElement {
   const manualData = useAppSelector(getManualData);
   const externalData = useAppSelector(getExternalData);
-  const externalAttributionsToHashes = useAppSelector(
-    getExternalAttributionsToHashes
-  );
+  const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const resolvedExternalAttributions: Set<string> = useAppSelector(
@@ -56,8 +60,14 @@ export function AggregatedAttributionsPanel(
       selectedResourceId,
       externalData,
       resolvedExternalAttributions,
+      attributionsToHashes,
     }),
-    [selectedResourceId, externalData, resolvedExternalAttributions]
+    [
+      selectedResourceId,
+      externalData,
+      resolvedExternalAttributions,
+      attributionsToHashes,
+    ]
   );
 
   const manualPanelData: PanelAttributionData = {
@@ -92,7 +102,7 @@ export function AggregatedAttributionsPanel(
           )
         }
         attributions={externalData.attributions}
-        attributionsToHashes={externalAttributionsToHashes}
+        attributionsToHashes={attributionsToHashes}
         isAddToPackageEnabled={props.isAddToPackageEnabled}
       />
       {isIdOfResourceWithChildren(selectedResourceId) ? (
@@ -101,14 +111,16 @@ export function AggregatedAttributionsPanel(
             title={PackagePanelTitle.ContainedExternalPackages}
             workerArgs={containedExternalPackagesWorkerArgs}
             syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-            getAttributionIdsWithCount={getContainedExternalPackages}
+            getMergedAttributionIdsWithCount={
+              getMergedContainedExternalPackagesWithCount
+            }
             attributions={externalData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
-            getAttributionIdsWithCount={getContainedManualPackages}
+            getMergedAttributionIdsWithCount={getContainedManualPackages}
             attributions={manualData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />

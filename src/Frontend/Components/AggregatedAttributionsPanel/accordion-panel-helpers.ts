@@ -13,6 +13,43 @@ import {
   AttributionIdWithCount,
   MergedAttributionWithCount,
 } from '../../types/types';
+import {
+  getContainedExternalPackages,
+  PanelAttributionData,
+} from '../../util/get-contained-packages';
+
+export function getMergedPackageInfoFromPackageInfo(
+  attribution: PackageInfo
+): MergedPackageInfo {
+  const packageInfoWithoutComment: PackageInfo = { ...attribution };
+  delete packageInfoWithoutComment.comment;
+  const mergedPackageInfo = <MergedPackageInfo>packageInfoWithoutComment;
+  if (attribution.comment !== undefined) {
+    mergedPackageInfo.comments = [attribution.comment];
+  }
+
+  return mergedPackageInfo;
+}
+
+export function getMergedContainedExternalPackagesWithCount(args: {
+  selectedResourceId: string;
+  externalData: Readonly<PanelAttributionData>;
+  resolvedExternalAttributions: Readonly<Set<string>>;
+  attributionsToHashes: Readonly<AttributionsToHashes>;
+}): Array<AttributionIdWithCount> {
+  const attributionIdsWithCount = getContainedExternalPackages(
+    args.selectedResourceId,
+    args.externalData.resourcesWithAttributedChildren,
+    args.externalData.attributions,
+    args.externalData.resourcesToAttributions,
+    args.resolvedExternalAttributions
+  );
+  return getMergedAttributionsWithCount(
+    attributionIdsWithCount,
+    args.externalData.attributions,
+    args.attributionsToHashes
+  );
+}
 
 export function getMergedAttributionsWithCount(
   attributionsWithIdCount: Array<AttributionIdWithCount>,
