@@ -10,27 +10,19 @@ import { PanelPackage } from '../../types/types';
 export function getDisplayPackageInfo(
   selectedPackage: PanelPackage | null,
   temporaryPackageInfo: PackageInfo,
-  manualAttributions: Attributions,
-  externalAttributions: Attributions
+  manualAttributions: Attributions
 ): PackageInfo {
-  const panelsWhereToShowTemporaryPackageInfos: Array<PackagePanelTitle> = [
-    PackagePanelTitle.ManualPackages,
-    PackagePanelTitle.ExternalPackages,
-    // TODO: PackagePanelTitle.ContainedExternalPackages should use the same logic
-  ];
-
-  if (
-    !selectedPackage ||
-    panelsWhereToShowTemporaryPackageInfos.includes(selectedPackage.panel)
-  ) {
-    return temporaryPackageInfo;
-  }
-
   let displayPackageInfo = {};
 
+  if (!selectedPackage) {
+    displayPackageInfo = temporaryPackageInfo;
+  }
+
   switch (selectedPackage?.panel) {
+    case PackagePanelTitle.ManualPackages:
+    case PackagePanelTitle.ExternalPackages:
     case PackagePanelTitle.ContainedExternalPackages:
-      displayPackageInfo = externalAttributions[selectedPackage.attributionId];
+      displayPackageInfo = temporaryPackageInfo;
       break;
     case PackagePanelTitle.ContainedManualPackages:
     case PackagePanelTitle.AllAttributions:

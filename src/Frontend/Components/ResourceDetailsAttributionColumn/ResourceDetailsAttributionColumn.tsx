@@ -9,7 +9,6 @@ import { PackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
   getAttributionBreakpoints,
-  getExternalData,
   getManualData,
   getTemporaryPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -42,7 +41,6 @@ export function ResourceDetailsAttributionColumn(
   props: ResourceDetailsAttributionColumnProps
 ): ReactElement | null {
   const manualData = useAppSelector(getManualData);
-  const externalData = useAppSelector(getExternalData);
   const displayedPackage: PanelPackage | null =
     useAppSelector(getDisplayedPackage);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
@@ -128,8 +126,7 @@ export function ResourceDetailsAttributionColumn(
   const displayPackageInfo: PackageInfo = getDisplayPackageInfo(
     displayedPackage,
     temporaryPackageInfo,
-    manualData.attributions,
-    externalData.attributions
+    manualData.attributions
   );
 
   const showSaveGloballyButton: boolean = hasAttributionMultipleResources(
