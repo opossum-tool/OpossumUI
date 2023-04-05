@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  AttributionIdWithCount,
   Attributions,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
@@ -12,6 +11,7 @@ import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
 } from '../package-panel-helpers';
+import { AttributionIdWithCount } from '../../../types/types';
 
 const testAttributionSources: ExternalAttributionSources = {
   MERGER: { name: 'Suggested', priority: 11 },

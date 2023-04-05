@@ -3,10 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { screen } from '@testing-library/react';
+import { queryAllByText, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
+  PackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -15,7 +16,10 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  getPackagePanel,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { expectPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
@@ -26,6 +30,7 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('The AggregatedAttributionsPanel', () => {
   it('renders', () => {
@@ -165,5 +170,90 @@ describe('The AggregatedAttributionsPanel', () => {
       'React, 16.0.0',
       true
     );
+  });
+
+  it('shows merged identical signals', () => {
+    const testResources: Resources = {
+      root: {},
+    };
+    const testExternalAttribution: PackageInfo = {
+      packageName: 'jQuery',
+      packageVersion: '16.0.0',
+      comment: 'ManualPackage',
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_1: testExternalAttribution,
+      uuid_2: testExternalAttribution,
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/root/': ['uuid_1', 'uuid_2'],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
+      )
+    );
+    testStore.dispatch(setSelectedResourceId('/root/'));
+    testStore.dispatch(
+      setExternalAttributionsToHashes({
+        uuid_1: '1',
+        uuid_2: '1',
+      })
+    );
+
+    renderComponentWithStore(
+      <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
+      { store: testStore }
+    );
+
+    const packagesPanel = getPackagePanel(screen, 'Signals');
+    // eslint-disable-next-line testing-library/prefer-screen-queries, jest-dom/prefer-in-document
+    expect(queryAllByText(packagesPanel, 'jQuery, 16.0.0')).toHaveLength(1);
+  });
+
+  it('does not merge signals without n hash', () => {
+    const testResources: Resources = {
+      root: {},
+    };
+    const testExternalAttribution: PackageInfo = {
+      packageName: 'jQuery',
+      packageVersion: '16.0.0',
+      comment: 'ManualPackage',
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_1: testExternalAttribution,
+      uuid_2: testExternalAttribution,
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/root/': ['uuid_1', 'uuid_2'],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
+      )
+    );
+    testStore.dispatch(setSelectedResourceId('/root/'));
+    testStore.dispatch(setExternalAttributionsToHashes({}));
+
+    renderComponentWithStore(
+      <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
+      { store: testStore }
+    );
+
+    const packagesPanel = getPackagePanel(screen, 'Signals');
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    expect(queryAllByText(packagesPanel, 'jQuery, 16.0.0')).toHaveLength(2);
   });
 });

@@ -7,8 +7,8 @@ import MuiBox from '@mui/material/Box';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  AttributionIdWithCount,
   Attributions,
+  MergedPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -30,7 +30,12 @@ import {
   getSortedSources,
 } from './package-panel-helpers';
 import { prettifySource } from '../../util/prettify-source';
-import { PackageCardConfig } from '../../types/types';
+import {
+  AttributionIdWithCount,
+  isMergedAttributionWithCount,
+  MergedAttributionWithCount,
+  PackageCardConfig,
+} from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
 
 const classes = {
@@ -41,7 +46,9 @@ const classes = {
 };
 
 interface PackagePanelProps {
-  attributionIdsWithCount: Array<AttributionIdWithCount>;
+  attributionIdsWithCount: Array<
+    AttributionIdWithCount | MergedAttributionWithCount
+  >;
   title: PackagePanelTitle;
   attributions: Attributions;
   isAddToPackageEnabled: boolean;
@@ -82,9 +89,31 @@ export function PackagePanel(
     dispatch(
       selectAttributionInAccordionPanelOrOpenUnsavedPopup(
         props.title,
-        attributionId
+        attributionId,
+        getAttributionFromMergedAttributionWithCount(attributionId)
       )
     );
+  }
+
+  function getAttributionFromMergedAttributionWithCount(
+    attributionId: string
+  ): MergedPackageInfo | undefined {
+    const attributionIdOrMergedAttributionWithCount:
+      | AttributionIdWithCount
+      | MergedAttributionWithCount
+      | undefined = props.attributionIdsWithCount.find(
+      (attributionIdWithCount) =>
+        attributionIdWithCount.attributionId === attributionId
+    );
+
+    if (
+      attributionIdOrMergedAttributionWithCount &&
+      isMergedAttributionWithCount(attributionIdOrMergedAttributionWithCount)
+    ) {
+      return attributionIdOrMergedAttributionWithCount.attribution;
+    } else {
+      return undefined;
+    }
   }
 
   function onAddAttributionClick(attributionId: string): void {
@@ -100,11 +129,14 @@ export function PackagePanel(
   }
 
   function getPackageCard(attributionId: string): ReactElement {
-    const packageInfo: PackageInfo = props.attributions[attributionId];
-    const packageCount = props.attributionIdsWithCount.filter(
-      (attributionIdWithCount) =>
-        attributionIdWithCount.attributionId === attributionId
-    )[0].count;
+    const packageInfo: PackageInfo | MergedPackageInfo =
+      getAttributionFromMergedAttributionWithCount(attributionId) ||
+      props.attributions[attributionId];
+    const packageCount: number | undefined =
+      props.attributionIdsWithCount.filter(
+        (attributionIdWithCount) =>
+          attributionIdWithCount.attributionId === attributionId
+      )[0].count;
 
     const isExternalAttribution =
       props.title === PackagePanelTitle.ExternalPackages ||

@@ -27,9 +27,8 @@ export enum DiscreteConfidence {
   Low = 20,
 }
 
-export interface PackageInfo {
+interface PackageInfoCore {
   attributionConfidence?: number;
-  comment?: string;
   packageName?: string;
   packageVersion?: string;
   packageNamespace?: string;
@@ -48,14 +47,27 @@ export interface PackageInfo {
   criticality?: Criticality;
 }
 
+export interface PackageInfo extends PackageInfoCore {
+  comment?: string;
+}
+
+export interface MergedPackageInfo extends PackageInfo {
+  type: 'MergedPackageInfo';
+  comments?: Array<string>;
+}
+
+export function isMergedPackageInfo(
+  packageInfoOrMergedPackageInfo: PackageInfo | MergedPackageInfo
+): packageInfoOrMergedPackageInfo is MergedPackageInfo {
+  return (
+    'type' in packageInfoOrMergedPackageInfo &&
+    packageInfoOrMergedPackageInfo.type === 'MergedPackageInfo'
+  );
+}
+
 export interface Source {
   name: string;
   documentConfidence: number;
-}
-
-export interface AttributionIdWithCount {
-  attributionId: string;
-  count?: number;
 }
 
 export interface Attributions {
