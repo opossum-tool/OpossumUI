@@ -142,6 +142,7 @@ export function PackagePanel(
     const packageInfo: PackageInfo | DisplayPackageInfo =
       getAttributionFromDisplayAttributionWithCount(attributionId) ||
       props.attributions[attributionId];
+
     const packageCount: number | undefined =
       props.attributionIdsWithCount.filter(
         (attributionIdWithCount) =>

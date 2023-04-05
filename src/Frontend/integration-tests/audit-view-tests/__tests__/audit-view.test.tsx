@@ -396,6 +396,81 @@ describe('The App in Audit View', () => {
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
   });
 
+  it('resolve button is shown and works for merged signals', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        folder1: { 'firstResource.js': 1 },
+      },
+
+      externalAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+          },
+          uuid_2: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+          },
+          uuid_3: {
+            packageName: 'Vue',
+            packageVersion: '1.2.0',
+            licenseText: 'Permission is not granted',
+          },
+          uuid_4: {
+            packageName: 'JQuery',
+            packageVersion: '16.5.0',
+            licenseText: 'Permission is hereby granted',
+          },
+        },
+        resourcesToAttributions: {
+          '/folder1/firstResource.js': ['uuid_1', 'uuid_2', 'uuid_3'],
+        },
+      },
+    };
+    mockElectronBackend(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'folder1');
+    expectPackageInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+    expectPackageInPackagePanel(
+      screen,
+      'Vue, 1.2.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+
+    clickOnPackageInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+    clickOnButton(screen, 'resolve attribution');
+    expectPackageNotInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      PackagePanelTitle.ContainedExternalPackages
+    );
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+
+    clickOnPackageInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      PackagePanelTitle.ExternalPackages
+    );
+    clickOnButton(screen, 'resolve attribution');
+
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+  });
+
   it('replaces attributions', () => {
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {

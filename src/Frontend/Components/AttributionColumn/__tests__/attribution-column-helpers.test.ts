@@ -7,7 +7,7 @@ import { View } from '../../../enums/enums';
 import {
   getLicenseTextMaxRows,
   getMergeButtonsDisplayState,
-  selectedPackageIsResolved,
+  selectedPackagesAreResolved,
 } from '../attribution-column-helpers';
 
 describe('The AttributionColumn helpers', () => {
@@ -29,19 +29,31 @@ describe('The AttributionColumn helpers', () => {
 
   it('selectedPackageIsResolved returns true', () => {
     expect(
-      selectedPackageIsResolved('123', new Set<string>().add('123'))
+      selectedPackagesAreResolved(['123'], new Set<string>().add('123'))
     ).toEqual(true);
   });
 
   it('selectedPackageIsResolved returns false if empty attributionId', () => {
-    expect(selectedPackageIsResolved('', new Set<string>().add('123'))).toEqual(
-      false
-    );
+    expect(
+      selectedPackagesAreResolved([''], new Set<string>().add('123'))
+    ).toEqual(false);
+  });
+
+  it('selectedPackageIsResolved returns false if empty array of attributionIds', () => {
+    expect(
+      selectedPackagesAreResolved([], new Set<string>().add('123'))
+    ).toEqual(false);
   });
 
   it('selectedPackageIsResolved returns false if id does not match', () => {
     expect(
-      selectedPackageIsResolved('123', new Set<string>().add('321'))
+      selectedPackagesAreResolved(['123'], new Set<string>().add('321'))
+    ).toEqual(false);
+  });
+
+  it('selectedPackageIsResolved returns false if only a subset matches', () => {
+    expect(
+      selectedPackagesAreResolved(['123', '456'], new Set<string>().add('123'))
     ).toEqual(false);
   });
 });

@@ -6,7 +6,10 @@
 
 import React, { ChangeEvent, ReactElement } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import {
+  PackageInfo,
+  isDisplayPackageInfo,
+} from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
@@ -31,7 +34,7 @@ import {
   getFollowUpChangeHandler,
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
-  selectedPackageIsResolved,
+  selectedPackagesAreResolved,
   usePurl,
   useRows,
 } from './attribution-column-helpers';
@@ -85,9 +88,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
   );
-  const temporaryPackageInfo: PackageInfo = useAppSelector(
-    getTemporaryPackageInfo
-  );
+  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
   const packageInfoWereModified = useAppSelector(
     wereTemporaryPackageInfoModified
   );
@@ -247,6 +248,12 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     !props.displayPackageInfo.firstParty &&
     !props.displayPackageInfo.excludeFromNotice;
 
+  const attributionIdsToResolveOrUnresolve = isDisplayPackageInfo(
+    temporaryPackageInfo
+  )
+    ? temporaryPackageInfo.attributionIds
+    : []; // TODO: remove when refactoring
+
   return (
     <MuiBox sx={classes.root}>
       <PackageSubPanel
@@ -314,12 +321,12 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       <ButtonRow
         showButtonGroup={props.showManualAttributionData}
         resolvedToggleHandler={getResolvedToggleHandler(
-          selectedPackageId,
+          attributionIdsToResolveOrUnresolve,
           resolvedExternalAttributions,
           dispatch
         )}
-        selectedPackageIsResolved={selectedPackageIsResolved(
-          selectedPackageId,
+        selectedPackageIsResolved={selectedPackagesAreResolved(
+          attributionIdsToResolveOrUnresolve,
           resolvedExternalAttributions
         )}
         areButtonsHidden={props.areButtonsHidden}

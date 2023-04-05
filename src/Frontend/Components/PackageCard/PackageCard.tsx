@@ -43,7 +43,7 @@ import {
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   MergeButtonDisplayState,
-  selectedPackageIsResolved,
+  selectedPackagesAreResolved,
 } from '../AttributionColumn/attribution-column-helpers';
 import {
   setAttributionIdMarkedForReplacement,
@@ -151,6 +151,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     selectedView === View.Attribution
       ? getPackageCardHighlighting(manualAttributions[attributionId])
       : undefined;
+
+  const displayAttributionIds = isDisplayPackageInfo(props.packageInfo)
+    ? props.packageInfo.attributionIds
+    : [attributionId]; // TODO: consider this when refactoring
 
   function getContextMenuItems(): Array<ContextMenuItem> {
     function openConfirmDeletionPopup(): void {
@@ -289,14 +293,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             onClick: (): void => setShowAssociatedResourcesPopup(true),
           },
           {
-            buttonText: selectedPackageIsResolved(
-              attributionId,
+            buttonText: selectedPackagesAreResolved(
+              displayAttributionIds,
               resolvedExternalAttributions
             )
               ? ButtonText.Unhide
               : ButtonText.Hide,
             onClick: getResolvedToggleHandler(
-              attributionId,
+              displayAttributionIds,
               resolvedExternalAttributions,
               dispatch
             ),
@@ -400,19 +404,13 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     />
   ) : undefined;
 
-  const attributionIdsForResourcePathPopup = isDisplayPackageInfo(
-    props.packageInfo
-  )
-    ? props.packageInfo.attributionIds
-    : [attributionId];
-
   return (
     <MuiBox sx={!props.showCheckBox ? classes.multiSelectPackageCard : {}}>
       {showAssociatedResourcesPopup &&
         !Boolean(props.hideContextMenuAndMultiSelect) && (
           <ResourcePathPopup
             closePopup={(): void => setShowAssociatedResourcesPopup(false)}
-            attributionIds={attributionIdsForResourcePathPopup}
+            attributionIds={displayAttributionIds}
             isExternalAttribution={Boolean(
               props.cardConfig.isExternalAttribution
             )}

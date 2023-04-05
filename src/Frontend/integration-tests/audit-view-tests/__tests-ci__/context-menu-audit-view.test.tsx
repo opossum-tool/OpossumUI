@@ -48,6 +48,7 @@ import {
   expectValueNotInConfidenceField,
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
+import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 const testResources: Resources = {
   folder1: { 'firstResource.js': 1 },
@@ -264,6 +265,103 @@ describe('In Audit View the ContextMenu', () => {
       'Signals'
     );
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+  });
+
+  it('hide / unhide works correctly for merged signals', () => {
+    const testResources: Resources = {
+      'firstResource.js': 1,
+      'secondResource.js': 1,
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+      },
+      uuid_2: {
+        packageName: 'React',
+        packageVersion: '16.5.0',
+      },
+      uuid_3: {
+        packageName: 'Vue',
+        packageVersion: '1.2.0',
+      },
+    };
+    const testExternalAttributionsToHashes = {
+      uuid_1: 'a',
+      uuid_2: 'a',
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/firstResource.js': ['uuid_1', 'uuid_2', 'uuid_3'],
+      '/secondResource.js': ['uuid_1', 'uuid_2', 'uuid_3'],
+    };
+
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      })
+    );
+    const { store } = renderComponentWithStore(<App />);
+    store.dispatch(
+      setExternalAttributionsToHashes(testExternalAttributionsToHashes)
+    );
+
+    clickOnElementInResourceBrowser(screen, 'firstResource.js');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+
+    clickOnButtonInPackageInPackagePanelContextMenu(
+      screen,
+      'React, 16.5.0',
+      'Signals',
+      ButtonText.Hide
+    );
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+    expectContextMenuForHiddenExternalAttributionInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      'Signals'
+    );
+    expectContextMenuForExternalAttributionInPackagePanel(
+      screen,
+      'Vue, 1.2.0',
+      'Signals'
+    );
+
+    clickOnElementInResourceBrowser(screen, 'secondResource.js');
+    expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+    expectContextMenuForHiddenExternalAttributionInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      'Signals'
+    );
+    expectContextMenuForExternalAttributionInPackagePanel(
+      screen,
+      'Vue, 1.2.0',
+      'Signals'
+    );
+
+    clickOnButtonInPackageInPackagePanelContextMenu(
+      screen,
+      'React, 16.5.0',
+      'Signals',
+      ButtonText.Unhide
+    );
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'React, 16.5.0');
+    expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
+    expectContextMenuForExternalAttributionInPackagePanel(
+      screen,
+      'React, 16.5.0',
+      'Signals'
+    );
+    expectContextMenuForExternalAttributionInPackagePanel(
+      screen,
+      'Vue, 1.2.0',
+      'Signals'
+    );
   });
 
   describe('replaces attributions', () => {
