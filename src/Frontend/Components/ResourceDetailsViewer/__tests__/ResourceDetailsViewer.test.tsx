@@ -276,6 +276,51 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
+  it('selects a merged external package, showing the right info', () => {
+    const externalAttributions = {
+      uuid_1: {
+        source: { name: 'HC', documentConfidence: 1 },
+        packageName: 'React',
+        copyright: 'Meta 2022',
+        attributionConfidence: 50,
+        comment: 'Comment 1',
+      },
+      uuid_2: {
+        source: { name: 'HC', documentConfidence: 1 },
+        packageName: 'React',
+        copyright: 'Meta 2022',
+        attributionConfidence: 40,
+        comment: 'Comment 2',
+      },
+    };
+    const resourcesToExternalAttributions = {
+      '/test_id': ['uuid_1', 'uuid_2'],
+    };
+    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
+    act(() => {
+      store.dispatch(setSelectedResourceId('/test_id'));
+      store.dispatch(
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: { a: { b: 1 } },
+            externalAttributions,
+            resourcesToExternalAttributions,
+          })
+        )
+      );
+    });
+
+    expect(screen.getByText('React'));
+    fireEvent.click(screen.getByText('React') as Element);
+
+    expect(screen.getByDisplayValue('Comment 1'));
+    expect(screen.getByDisplayValue('Comment 2'));
+    expect(screen.getByDisplayValue('40'));
+    expect(
+      screen.queryByRole('button', { name: 'Save' })
+    ).not.toBeInTheDocument();
+  });
+
   it('adds an external package to a manual package', () => {
     const manualAttributions: Attributions = {
       uuid_1: testTemporaryPackageInfo,

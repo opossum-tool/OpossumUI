@@ -6,7 +6,6 @@
 import { act, screen } from '@testing-library/react';
 import React from 'react';
 import {
-  AttributionIdWithCount,
   Attributions,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
@@ -20,6 +19,7 @@ import { getByText } from '@testing-library/react';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { AttributionIdWithCount } from '../../../types/types';
 
 describe('The PackagePanel', () => {
   it('renders TextBoxes with right content', () => {

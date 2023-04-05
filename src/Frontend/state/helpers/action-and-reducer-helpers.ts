@@ -6,6 +6,7 @@
 import {
   AttributionData,
   Attributions,
+  AttributionsToHashes,
   AttributionsToResources,
   PackageInfo,
   ResourcesToAttributions,
@@ -17,6 +18,7 @@ import {
   _addParentsToResourcesWithAttributedChildrenNoMutation,
   deleteChildrenFromAttributedResources,
 } from './save-action-helpers';
+import objectHash from 'object-hash';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -113,4 +115,57 @@ export function removeResolvedAttributionsFromResourcesWithAttributedChildren(
       resourceId
     );
   });
+}
+
+export function createExternalAttributionsToHashes(
+  externalAttributions: Attributions
+): AttributionsToHashes {
+  const excludeKeys = function (key: string): boolean {
+    return [
+      'comment',
+      'attributionConfidence',
+      'originIds',
+      'preSelected',
+    ].includes(key);
+  };
+  const hashOptions = {
+    excludeKeys,
+  };
+
+  const externalAttributionsToHashes: AttributionsToHashes = {};
+  const hashesToExternalAttributions: { [hash: string]: Array<string> } = {};
+
+  for (const [attributionId, attribution] of Object.entries(
+    externalAttributions
+  )) {
+    if (attribution.firstParty || attribution.packageName) {
+      const attributionKeys = Object.keys(attribution) as Array<
+        keyof PackageInfo
+      >;
+      attributionKeys.forEach(
+        (key) =>
+          (attribution[key] == null || attribution[key] === '') &&
+          delete attribution[key]
+      );
+
+      const hash = objectHash(attribution, hashOptions);
+
+      hashesToExternalAttributions[hash]
+        ? hashesToExternalAttributions[hash].push(attributionId)
+        : (hashesToExternalAttributions[hash] = [attributionId]);
+    }
+  }
+
+  Object.entries(hashesToExternalAttributions).forEach(
+    ([hash, attributionIds]) => {
+      if (attributionIds.length > 1) {
+        attributionIds.forEach(
+          (attributionId) =>
+            (externalAttributionsToHashes[attributionId] = hash)
+        );
+      }
+    }
+  );
+
+  return externalAttributionsToHashes;
 }

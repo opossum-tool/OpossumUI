@@ -4,16 +4,18 @@
 
 import React, { ReactElement } from 'react';
 import {
-  AttributionIdWithCount,
   Attributions,
+  AttributionsToHashes,
 } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
-import { PanelData } from '../../types/types';
+import { AttributionIdWithCount, PanelData } from '../../types/types';
+import { getMergedAttributionsWithCount } from './accordion-panel-helpers';
 
 interface SyncAccordionPanelProps {
   title: PackagePanelTitle;
   getAttributionIdsWithCount(): Array<AttributionIdWithCount>;
+  attributionsToHashes: AttributionsToHashes;
   attributions: Attributions;
   isAddToPackageEnabled: boolean;
 }
@@ -21,9 +23,14 @@ interface SyncAccordionPanelProps {
 export function SyncAccordionPanel(
   props: SyncAccordionPanelProps
 ): ReactElement {
+  const mergedAttributionIdsWithCount = getMergedAttributionsWithCount(
+    props.getAttributionIdsWithCount(),
+    props.attributions,
+    props.attributionsToHashes
+  );
   const panelData: PanelData = {
     title: props.title,
-    attributionIdsWithCount: props.getAttributionIdsWithCount(),
+    attributionIdsWithCount: mergedAttributionIdsWithCount,
     attributions: props.attributions,
   };
 

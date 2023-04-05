@@ -225,6 +225,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function showUpdateAppPopupListener(
+    event: IpcRendererEvent,
+    showUpdateAppPopup: boolean
+  ): void {
+    if (showUpdateAppPopup) {
+      dispatch(openPopup(PopupType.UpdateAppPopup));
+    }
+  }
+
   function setBaseURLForRootListener(
     event: IpcRendererEvent,
     baseURLForRootArgs: BaseURLForRootArgs
@@ -311,6 +320,11 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(
     AllowedFrontendChannels.ShowFileSupportPopup,
     showFileSupportPopupListener,
+    [dispatch]
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowUpdateAppPopup,
+    showUpdateAppPopupListener,
     [dispatch]
   );
 

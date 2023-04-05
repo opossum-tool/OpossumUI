@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  AttributionIdWithCount,
   Attributions,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
@@ -12,6 +11,7 @@ import {
   computeAggregatedAttributionsFromChildren,
   sortByCountAndPackageName,
 } from '../get-contained-packages';
+import { AttributionIdWithCount } from '../../types/types';
 
 describe('computeAggregatedAttributionsFromChildren', () => {
   const testAttributions: Attributions = {

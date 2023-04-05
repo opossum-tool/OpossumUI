@@ -3,14 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
-import {
-  AttributionIdWithCount,
-  Attributions,
-} from '../../../shared/shared-types';
+import { Attributions } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
   AttributionIdsWithCountAndResourceId,
+  AttributionIdWithCount,
   PanelData,
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
