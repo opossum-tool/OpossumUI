@@ -8,9 +8,12 @@ import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { ReactElement, useMemo, useState } from 'react';
-import { AttributionIdWithCount } from '../../../shared/shared-types';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
-import { PanelData } from '../../types/types';
+import {
+  AttributionIdWithCount,
+  MergedAttributionWithCount,
+  PanelData,
+} from '../../types/types';
 
 const classes = {
   expansionPanelExpanded: {
@@ -93,10 +96,9 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
 }
 
 function isDisabled(
-  attributionIdsWithCount: Array<AttributionIdWithCount>
+  attributionIdsWithCount: Array<
+    AttributionIdWithCount | MergedAttributionWithCount
+  >
 ): boolean {
-  return (
-    attributionIdsWithCount === undefined ||
-    (attributionIdsWithCount && attributionIdsWithCount?.length === 0)
-  );
+  return attributionIdsWithCount && attributionIdsWithCount?.length === 0;
 }

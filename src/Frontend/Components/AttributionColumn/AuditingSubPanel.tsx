@@ -5,7 +5,12 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { DiscreteConfidence, PackageInfo } from '../../../shared/shared-types';
+import {
+  DiscreteConfidence,
+  isMergedPackageInfo,
+  MergedPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { CheckboxLabel } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
 import { prettifySource } from '../../util/prettify-source';
@@ -37,7 +42,7 @@ const classes = {
 
 interface AuditingSubPanelProps {
   isEditable: boolean;
-  displayPackageInfo: PackageInfo;
+  displayPackageInfo: PackageInfo | MergedPackageInfo;
   showManualAttributionData: boolean;
   isCommentsBoxCollapsed: boolean;
   commentBoxHeight: number;
@@ -57,6 +62,15 @@ interface AuditingSubPanelProps {
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
   const attributionSources = useAppSelector(getExternalAttributionSources);
+
+  let comments: Array<string>;
+  if (isMergedPackageInfo(props.displayPackageInfo)) {
+    comments = props.displayPackageInfo.comments || [];
+  } else {
+    comments = props.displayPackageInfo.comment
+      ? [props.displayPackageInfo.comment]
+      : [];
+  }
 
   return (
     <MuiPaper sx={classes.panel} elevation={0} square={true}>
@@ -139,11 +153,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
       </MuiBox>
       <TextFieldStack
         isEditable={props.isEditable}
-        comments={
-          props.displayPackageInfo.comment
-            ? [props.displayPackageInfo.comment]
-            : []
-        }
+        comments={comments}
         isCollapsed={props.isCommentsBoxCollapsed}
         commentBoxHeight={props.commentBoxHeight}
         handleChange={props.setUpdateTemporaryPackageInfoFor}

@@ -3,7 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionData } from '../../../../shared/shared-types';
+import {
+  AttributionData,
+  MergedPackageInfo,
+} from '../../../../shared/shared-types';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { PanelPackage, State } from '../../../types/types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
@@ -107,11 +110,16 @@ export function openResourceInResourceBrowser(
 }
 
 export function setDisplayedPackageAndResetTemporaryPackageInfo(
-  panelPackage: PanelPackage
+  panelPackage: PanelPackage,
+  attribution?: MergedPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));
-    dispatch(resetTemporaryPackageInfo());
+    dispatch(
+      attribution
+        ? setTemporaryPackageInfo(attribution)
+        : resetTemporaryPackageInfo()
+    );
   };
 }
 
