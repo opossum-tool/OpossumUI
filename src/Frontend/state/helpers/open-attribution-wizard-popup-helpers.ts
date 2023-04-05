@@ -5,7 +5,6 @@
 
 import {
   AttributionData,
-  AttributionIdWithCount,
   ResourcesToAttributions,
   PackageInfo,
   Attributions,
@@ -13,7 +12,7 @@ import {
 import { getAttributedChildren } from '../../util/get-attributed-children';
 import { shouldNotBeCalled } from '../../util/should-not-be-called';
 import { v4 as uuid4 } from 'uuid';
-import { PackageAttributes } from '../../types/types';
+import { AttributionIdWithCount, PackageAttributes } from '../../types/types';
 
 interface NamesWithCounts {
   [name: string]: number;

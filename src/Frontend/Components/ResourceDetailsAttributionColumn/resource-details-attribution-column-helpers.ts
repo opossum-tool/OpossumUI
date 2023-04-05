@@ -13,9 +13,15 @@ export function getDisplayPackageInfo(
   manualAttributions: Attributions,
   externalAttributions: Attributions
 ): PackageInfo {
+  const panelsWhereToShowTemporaryPackageInfos: Array<PackagePanelTitle> = [
+    PackagePanelTitle.ManualPackages,
+    PackagePanelTitle.ExternalPackages,
+    // TODO: PackagePanelTitle.ContainedExternalPackages should use the same logic
+  ];
+
   if (
     !selectedPackage ||
-    selectedPackage.panel === PackagePanelTitle.ManualPackages
+    panelsWhereToShowTemporaryPackageInfos.includes(selectedPackage.panel)
   ) {
     return temporaryPackageInfo;
   }
@@ -23,7 +29,6 @@ export function getDisplayPackageInfo(
   let displayPackageInfo = {};
 
   switch (selectedPackage?.panel) {
-    case PackagePanelTitle.ExternalPackages:
     case PackagePanelTitle.ContainedExternalPackages:
       displayPackageInfo = externalAttributions[selectedPackage.attributionId];
       break;

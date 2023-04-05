@@ -39,3 +39,4 @@ yarn-error.log*
 /notices
 
 /.vscode
+/.run

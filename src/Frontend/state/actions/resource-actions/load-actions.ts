@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ParsedFileContent } from '../../../../shared/shared-types';
-import { createExternalAttributionsToHashes } from '../../helpers/load-action-helpers';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   setAttributionBreakpoints,

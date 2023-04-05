@@ -7,8 +7,8 @@ import { cloneDeep, isEqual } from 'lodash';
 import {
   AttributionData,
   Attributions,
-  AttributionsToResources,
   AttributionsToHashes,
+  AttributionsToResources,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenseName,
@@ -19,16 +19,16 @@ import {
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { View } from '../../enums/enums';
+import { PackagePanelTitle, View } from '../../enums/enums';
 import { State } from '../../types/types';
-import { getSelectedView } from './view-selector';
+import { getPopupAttributionId, getSelectedView } from './view-selector';
 import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionOfDisplayedPackageInManualPanel,
+  getDisplayedPackage,
 } from './audit-view-resource-selectors';
 import { getSelectedAttributionId } from './attribution-view-resource-selectors';
-import { getPopupAttributionId } from './view-selector';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.allViews.resources;
@@ -145,6 +145,13 @@ export function getPackageInfoOfSelected(state: State): PackageInfo | null {
 }
 
 export function wereTemporaryPackageInfoModified(state: State): boolean {
+  if (
+    getSelectedView(state) === View.Audit &&
+    getDisplayedPackage(state)?.panel !== PackagePanelTitle.ManualPackages
+  ) {
+    return false;
+  }
+
   const temporaryPackageInfo: PackageInfo = getTemporaryPackageInfo(state);
   const packageInfoOfSelected: PackageInfo =
     getPackageInfoOfSelected(state) || {};

@@ -4,12 +4,12 @@
 
 import {
   AttributionData,
-  AttributionIdWithCount,
   Attributions,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { getAttributedChildren } from './get-attributed-children';
+import { AttributionIdWithCount } from '../types/types';
 
 export type PanelAttributionData = Pick<
   AttributionData,
