@@ -10,6 +10,7 @@ import {
   AttributionsToHashes,
   AttributionsToResources,
   BaseUrlsForSources,
+  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenseName,
   LicenseTexts,
@@ -98,7 +99,9 @@ export function getFrequentLicensesTexts(state: State): LicenseTexts {
   return state.resourceState.allViews.frequentLicenses.texts;
 }
 
-export function getTemporaryPackageInfo(state: State): PackageInfo {
+export function getTemporaryPackageInfo(
+  state: State
+): PackageInfo | DisplayPackageInfo {
   return state.resourceState.allViews.temporaryPackageInfo;
 }
 
