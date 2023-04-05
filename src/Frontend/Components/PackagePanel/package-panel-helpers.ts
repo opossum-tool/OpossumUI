@@ -4,11 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  AttributionIdWithCount,
   Attributions,
   ExternalAttributionSources,
   Source,
 } from '../../../shared/shared-types';
+import { AttributionIdWithCount } from '../../types/types';
 
 export function getSortedSources(
   attributions: Attributions,
