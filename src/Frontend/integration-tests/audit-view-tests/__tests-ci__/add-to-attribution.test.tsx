@@ -308,4 +308,49 @@ describe('Add to attribution', () => {
     clickOnTab(screen, 'Local Tab');
     expectValueNotInAddToAttributionList(screen, 'Jquery, 16.5.0');
   });
+
+  it('adds a merged signal correctly', () => {
+    const testResources: Resources = {
+      folder1: { 'firstResource.js': 1 },
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_ext_1: {
+        packageName: 'Jquery',
+        packageVersion: '16.5.0',
+        originIds: ['abc'],
+        comment: 'It is a nice package.',
+      },
+      uuid_ext_2: {
+        packageName: 'Jquery',
+        packageVersion: '16.5.0',
+        originIds: ['def'],
+        comment: 'I do not like this package.',
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder1/': ['uuid_ext_1', 'uuid_ext_2'],
+    };
+
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
+      })
+    );
+
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'folder1');
+    clickOnTab(screen, 'Local Tab');
+    expectValueInAddToAttributionList(screen, 'Jquery, 16.5.0');
+
+    fireEvent.click(getCardInAttributionList(screen, 'Jquery, 16.5.0'));
+    expectValueInTextBox(screen, 'Comment 1', 'It is a nice package.');
+    expectValueInTextBox(screen, 'Comment 2', 'I do not like this package.');
+
+    clickAddIconOnCardInAttributionList(screen, 'Jquery, 16.5.0');
+    expectValueInTextBox(screen, 'Name', 'Jquery');
+    expectValueInTextBox(screen, 'Comment', '');
+  });
 });
