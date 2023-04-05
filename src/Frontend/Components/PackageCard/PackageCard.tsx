@@ -56,7 +56,11 @@ import {
   getRightIcons,
 } from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
-import { PackageInfo } from '../../../shared/shared-types';
+import {
+  isDisplayPackageInfo,
+  DisplayPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import MuiBox from '@mui/material/Box';
 import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 
@@ -77,7 +81,7 @@ const classes = {
 
 interface PackageCardProps {
   cardId: string;
-  packageInfo: PackageInfo;
+  packageInfo: PackageInfo | DisplayPackageInfo;
   attributionId: string;
   packageCount?: number;
   cardConfig: PackageCardConfig;
@@ -396,13 +400,19 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     />
   ) : undefined;
 
+  const attributionIdsForResourcePathPopup = isDisplayPackageInfo(
+    props.packageInfo
+  )
+    ? props.packageInfo.attributionIds
+    : [attributionId];
+
   return (
     <MuiBox sx={!props.showCheckBox ? classes.multiSelectPackageCard : {}}>
       {showAssociatedResourcesPopup &&
         !Boolean(props.hideContextMenuAndMultiSelect) && (
           <ResourcePathPopup
             closePopup={(): void => setShowAssociatedResourcesPopup(false)}
-            attributionId={props.attributionId}
+            attributionIds={attributionIdsForResourcePathPopup}
             isExternalAttribution={Boolean(
               props.cardConfig.isExternalAttribution
             )}
