@@ -119,28 +119,34 @@ export function getFirstPartyChangeHandler(
 }
 
 export function getResolvedToggleHandler(
-  attributionId: string,
+  attributionIds: Array<string>,
   resolvedExternalAttributions: Set<string>,
   dispatch: AppThunkDispatch
 ): () => void {
   return (): void => {
-    if (attributionId) {
-      if (resolvedExternalAttributions.has(attributionId)) {
+    if (
+      selectedPackagesAreResolved(attributionIds, resolvedExternalAttributions)
+    ) {
+      for (const attributionId of attributionIds) {
         dispatch(removeResolvedExternalAttribution(attributionId));
-      } else {
+      }
+    } else {
+      for (const attributionId of attributionIds) {
         dispatch(addResolvedExternalAttribution(attributionId));
       }
-      dispatch(saveManualAndResolvedAttributionsToFile());
     }
+    dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 
-export function selectedPackageIsResolved(
-  attributionId: string,
+export function selectedPackagesAreResolved(
+  attributionIds: Array<string>,
   resolvedExternalAttributions: Set<string>
 ): boolean {
-  return attributionId
-    ? resolvedExternalAttributions.has(attributionId)
+  return attributionIds.length > 0
+    ? attributionIds.every((attributionId) =>
+        resolvedExternalAttributions.has(attributionId)
+      )
     : false;
 }
 
