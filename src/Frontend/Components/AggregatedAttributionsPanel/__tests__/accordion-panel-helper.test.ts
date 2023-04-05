@@ -34,6 +34,7 @@ describe('getMergedAttributionsWithCount', () => {
         attributionId: 'uuid1',
         attribution: {
           type: 'MergedPackageInfo',
+          attributionIds: ['uuid1', 'uuid2'],
           packageName: 'Typescript',
           attributionConfidence: 0,
         },
@@ -63,6 +64,7 @@ describe('getMergedAttributionsWithCount', () => {
           type: 'MergedPackageInfo',
           packageName: 'Typescript',
           attributionConfidence: 0,
+          attributionIds: ['uuid1'],
         },
       },
       {
@@ -71,6 +73,7 @@ describe('getMergedAttributionsWithCount', () => {
           type: 'MergedPackageInfo',
           packageName: 'Typescript',
           attributionConfidence: 0,
+          attributionIds: ['uuid2'],
         },
       },
     ];
@@ -99,6 +102,7 @@ describe('getMergedAttributionsWithCount', () => {
         attributionId: 'uuid1',
         attribution: {
           type: 'MergedPackageInfo',
+          attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 20,
         },
       },
@@ -138,6 +142,7 @@ describe('getMergedAttributionsWithCount', () => {
         attributionId: 'uuid1',
         attribution: {
           type: 'MergedPackageInfo',
+          attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
           attributionConfidence: 0,
           comments: ['comment A', 'comment B'],
         },
@@ -168,6 +173,7 @@ describe('getMergedAttributionsWithCount', () => {
         attributionId: 'uuid1',
         attribution: {
           type: 'MergedPackageInfo',
+          attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 0,
           originIds: ['uuid3', 'uuid4', 'uuid5'],
         },
