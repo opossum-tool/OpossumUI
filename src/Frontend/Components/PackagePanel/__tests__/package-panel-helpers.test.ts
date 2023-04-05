@@ -6,8 +6,11 @@
 import {
   Attributions,
   ExternalAttributionSources,
+  DisplayPackageInfo,
+  PackageInfo,
 } from '../../../../shared/shared-types';
 import {
+  convertDisplayPackageInfoToPackageInfo,
   getAttributionIdsWithCountForSource,
   getSortedSources,
 } from '../package-panel-helpers';
@@ -175,5 +178,35 @@ describe('PackagePanel helpers', () => {
       'a_unknown',
       'b_unknown',
     ]);
+  });
+
+  it('convertDisplayPackageInfoToPackageInfo returns correct PackageInfo', () => {
+    const testDisplayPackageInfoA: DisplayPackageInfo = {
+      packageName: 'react',
+      type: 'DisplayPackageInfo',
+      comments: ['comment A', 'comment B'],
+      attributionIds: ['123', '456'],
+    };
+    const testDisplayPackageInfoB: DisplayPackageInfo = {
+      packageName: 'react',
+      type: 'DisplayPackageInfo',
+      comments: ['comment'],
+      attributionIds: ['123'],
+    };
+    const expectedPackageInfoA: PackageInfo = {
+      packageName: 'react',
+    };
+    const expectedPackageInfoB: PackageInfo = {
+      packageName: 'react',
+      comment: 'comment',
+    };
+    const testPackageInfoA = convertDisplayPackageInfoToPackageInfo(
+      testDisplayPackageInfoA
+    );
+    const testPackageInfoB = convertDisplayPackageInfoToPackageInfo(
+      testDisplayPackageInfoB
+    );
+    expect(testPackageInfoA).toEqual(expectedPackageInfoA);
+    expect(testPackageInfoB).toEqual(expectedPackageInfoB);
   });
 });

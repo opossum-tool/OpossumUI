@@ -108,7 +108,8 @@
       "attributionConfidence": 80,
       "comment": "Comment A",
       "firstParty": true,
-      "packageName": "Should Be Merged"
+      "packageName": "Should Be Merged",
+      "originIds": ["abc"]
     },
     "578b448b-2ba8-4285-810f-ce7b11ac2101": {
       "source": {
@@ -118,7 +119,8 @@
       "attributionConfidence": 20,
       "comment": "Comment B",
       "firstParty": true,
-      "packageName": "Should Be Merged"
+      "packageName": "Should Be Merged",
+      "originIds": ["def"]
     },
     "578b448b-2ba8-4285-810f-ce7b11ac260c": {
       "source": {
@@ -293,18 +295,12 @@
       "bb61b094-b5ba-4bd0-b218-8ec96b7c5ae2",
       "585bf5b2-4da7-4de4-8e8f-38d142e42079"
     ],
-    "/Frontend/Types/types.ts": [
-      "5f1948d6-63fa-4f7e-b02b-7799083511fc"
-    ],
+    "/Frontend/Types/types.ts": ["5f1948d6-63fa-4f7e-b02b-7799083511fc"],
     "/Frontend/Components/ResourcePanel/ResourcePanel.tsx": [
       "578b448b-2ba8-4285-810f-ce7b11ac260c"
     ],
-    "/package.json": [
-      "1ec44343-f764-12e1-8d99-b8599fde8t68"
-    ],
-    "/ElectronBackend/Types/types.ts": [
-      "bb61b094-b5ba-4bd0-b218-8ec96b7c5ae1"
-    ]
+    "/package.json": ["1ec44343-f764-12e1-8d99-b8599fde8t68"],
+    "/ElectronBackend/Types/types.ts": ["bb61b094-b5ba-4bd0-b218-8ec96b7c5ae1"]
   },
   "frequentLicenses": [
     {
@@ -339,9 +335,7 @@
     "/package.json/dependencies/",
     "/package.json/devDependencies/"
   ],
-  "filesWithChildren": [
-    "/package.json/"
-  ],
+  "filesWithChildren": ["/package.json/"],
   "baseUrlsForSources": {
     "/": "https://github.com/opossum-tool/OpossumUI/blob/main/src/{path}?test=bla",
     "/Frontend/": "https://github.com/opossum-tool/opossumUI/{path}?test=87583cf6c5d859bef90ee2b37fffe7a485c4d7a4",
