@@ -212,12 +212,63 @@ describe('The AggregatedAttributionsPanel', () => {
       { store: testStore }
     );
 
-    const packagesPanel = getPackagePanel(screen, 'Signals');
+    const signalsPanel = getPackagePanel(screen, 'Signals');
     // eslint-disable-next-line testing-library/prefer-screen-queries, jest-dom/prefer-in-document
-    expect(queryAllByText(packagesPanel, 'jQuery, 16.0.0')).toHaveLength(1);
+    expect(queryAllByText(signalsPanel, 'jQuery, 16.0.0')).toHaveLength(1);
   });
 
-  it('does not merge signals without n hash', () => {
+  it('shows merged identical signals in folder content', () => {
+    const testResources: Resources = {
+      root: {},
+    };
+    const testExternalAttribution: PackageInfo = {
+      packageName: 'jQuery',
+      packageVersion: '16.0.0',
+      comment: 'ManualPackage',
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_1: testExternalAttribution,
+      uuid_2: testExternalAttribution,
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/root/': ['uuid_1', 'uuid_2'],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        })
+      )
+    );
+    testStore.dispatch(setSelectedResourceId('/'));
+    testStore.dispatch(
+      setExternalAttributionsToHashes({
+        uuid_1: '1',
+        uuid_2: '1',
+      })
+    );
+
+    renderComponentWithStore(
+      <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
+      { store: testStore }
+    );
+
+    const signalsInFolderContentPanel = getPackagePanel(
+      screen,
+      'Signals in Folder Content'
+    );
+    expect(
+      // eslint-disable-next-line testing-library/prefer-screen-queries
+      queryAllByText(signalsInFolderContentPanel, 'jQuery, 16.0.0')
+      // eslint-disable-next-line jest-dom/prefer-in-document
+    ).toHaveLength(1);
+  });
+
+  it('does not merge signals without a hash', () => {
     const testResources: Resources = {
       root: {},
     };
