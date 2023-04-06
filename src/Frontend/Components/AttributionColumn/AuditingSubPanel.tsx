@@ -7,8 +7,8 @@ import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
 import {
   DiscreteConfidence,
-  isMergedPackageInfo,
-  MergedPackageInfo,
+  isDisplayPackageInfo,
+  DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { CheckboxLabel } from '../../enums/enums';
@@ -42,7 +42,7 @@ const classes = {
 
 interface AuditingSubPanelProps {
   isEditable: boolean;
-  displayPackageInfo: PackageInfo | MergedPackageInfo;
+  displayPackageInfo: PackageInfo | DisplayPackageInfo;
   showManualAttributionData: boolean;
   isCommentsBoxCollapsed: boolean;
   commentBoxHeight: number;
@@ -154,9 +154,9 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
 }
 
 function getComments(
-  displayPackageInfo: PackageInfo | MergedPackageInfo
+  displayPackageInfo: PackageInfo | DisplayPackageInfo
 ): Array<string> {
-  if (isMergedPackageInfo(displayPackageInfo)) {
+  if (isDisplayPackageInfo(displayPackageInfo)) {
     return displayPackageInfo.comments || [];
   } else {
     return displayPackageInfo.comment ? [displayPackageInfo.comment] : [];

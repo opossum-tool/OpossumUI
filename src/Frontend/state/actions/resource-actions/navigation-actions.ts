@@ -5,7 +5,7 @@
 
 import {
   AttributionData,
-  MergedPackageInfo,
+  DisplayPackageInfo,
 } from '../../../../shared/shared-types';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { PanelPackage, State } from '../../../types/types';
@@ -40,7 +40,7 @@ import {
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
 
 export function resetTemporaryPackageInfo(
-  attribution?: MergedPackageInfo
+  attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (attribution) {
@@ -118,7 +118,7 @@ export function openResourceInResourceBrowser(
 
 export function setDisplayedPackageAndResetTemporaryPackageInfo(
   panelPackage: PanelPackage,
-  attribution?: MergedPackageInfo
+  attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));

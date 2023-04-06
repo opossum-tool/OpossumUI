@@ -59,7 +59,7 @@ import {
   setAttributionWizardSelectedPackageIds,
   setAttributionWizardTotalAttributionCount,
 } from '../resource-actions/attribution-wizard-actions';
-import { MergedPackageInfo } from '../../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../../shared/shared-types';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string
@@ -118,7 +118,7 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
   packagePanelTitle: PackagePanelTitle,
   attributionId: string,
-  attribution?: MergedPackageInfo
+  attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {

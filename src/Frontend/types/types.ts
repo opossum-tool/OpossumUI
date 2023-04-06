@@ -10,7 +10,7 @@ import { ViewState } from '../state/reducers/view-reducer';
 import {
   Attributions,
   Criticality,
-  MergedPackageInfo,
+  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -98,7 +98,7 @@ export interface PanelData {
   title: PackagePanelTitle;
   attributionIdsWithCount:
     | Array<AttributionIdWithCount>
-    | Array<MergedAttributionWithCount>;
+    | Array<DisplayAttributionWithCount>;
   attributions: Attributions;
 }
 
@@ -175,12 +175,12 @@ export interface AttributionIdWithCount {
   count?: number;
 }
 
-export interface MergedAttributionWithCount extends AttributionIdWithCount {
-  attribution: MergedPackageInfo;
+export interface DisplayAttributionWithCount extends AttributionIdWithCount {
+  attribution: DisplayPackageInfo;
 }
 
-export function isMergedAttributionWithCount(
-  testObject: AttributionIdWithCount | MergedAttributionWithCount
-): testObject is MergedAttributionWithCount {
+export function isDisplayAttributionWithCount(
+  testObject: AttributionIdWithCount | DisplayAttributionWithCount
+): testObject is DisplayAttributionWithCount {
   return 'attribution' in testObject;
 }

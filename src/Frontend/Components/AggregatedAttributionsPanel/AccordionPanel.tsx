@@ -11,7 +11,7 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
 import {
   AttributionIdWithCount,
-  MergedAttributionWithCount,
+  DisplayAttributionWithCount,
   PanelData,
 } from '../../types/types';
 
@@ -97,7 +97,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
 
 function isDisabled(
   attributionIdsWithCount: Array<
-    AttributionIdWithCount | MergedAttributionWithCount
+    AttributionIdWithCount | DisplayAttributionWithCount
   >
 ): boolean {
   return attributionIdsWithCount?.length === 0;
