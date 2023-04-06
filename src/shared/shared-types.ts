@@ -51,18 +51,18 @@ export interface PackageInfo extends PackageInfoCore {
   comment?: string;
 }
 
-export interface MergedPackageInfo extends PackageInfo {
-  type: 'MergedPackageInfo';
+export interface DisplayPackageInfo extends PackageInfo {
+  type: 'DisplayPackageInfo';
   comments?: Array<string>;
   attributionIds: Array<string>;
 }
 
-export function isMergedPackageInfo(
-  packageInfoOrMergedPackageInfo: PackageInfo | MergedPackageInfo
-): packageInfoOrMergedPackageInfo is MergedPackageInfo {
+export function isDisplayPackageInfo(
+  packageInfoOrDisplayPackageInfo: PackageInfo | DisplayPackageInfo
+): packageInfoOrDisplayPackageInfo is DisplayPackageInfo {
   return (
-    'type' in packageInfoOrMergedPackageInfo &&
-    packageInfoOrMergedPackageInfo.type === 'MergedPackageInfo'
+    'type' in packageInfoOrDisplayPackageInfo &&
+    packageInfoOrDisplayPackageInfo.type === 'DisplayPackageInfo'
   );
 }
 

@@ -44,7 +44,7 @@ interface WorkerAccordionPanelProps {
     | PackagePanelTitle.ContainedManualPackages;
   workerArgs: ContainedAttributionsAccordionWorkerArgs;
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
-  getMergedAttributionIdsWithCount(
+  getDisplayAttributionIdsWithCount(
     workerArgs: ContainedAttributionsAccordionWorkerArgs
   ): Array<AttributionIdWithCount>;
   attributions: Attributions;
@@ -80,7 +80,7 @@ export function WorkerAccordionPanel(
       worker,
       props.title,
       setAttributionIdsWithCountAndResourceId,
-      props.getMergedAttributionIdsWithCount,
+      props.getDisplayAttributionIdsWithCount,
       props.syncFallbackArgs
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,7 +121,7 @@ async function loadAttributionIdsWithCount(
   setAttributionIdsWithCountAndResourceId: (
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
-  getMergedAttributionIdsWithCount: (
+  getDisplayAttributionIdsWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
@@ -143,7 +143,7 @@ async function loadAttributionIdsWithCount(
           panelTitle,
           Error('Web Worker execution error.'),
           setAttributionIdsWithCountAndResourceId,
-          getMergedAttributionIdsWithCount,
+          getDisplayAttributionIdsWithCount,
           workerArgs,
           syncFallbackArgs
         );
@@ -156,7 +156,7 @@ async function loadAttributionIdsWithCount(
       panelTitle,
       error,
       setAttributionIdsWithCountAndResourceId,
-      getMergedAttributionIdsWithCount,
+      getDisplayAttributionIdsWithCount,
       workerArgs,
       syncFallbackArgs
     );
@@ -169,18 +169,18 @@ function logErrorAndComputeInMainProcess(
   setAttributionIdsWithCountAndResourceId: (
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
-  getMergedAttributionIdsWithCount: (
+  getDisplayAttributionIdsWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): void {
-  const mergedAttributionIdsWithCount = getMergedAttributionIdsWithCount(
+  const displayAttributionIdsWithCount = getDisplayAttributionIdsWithCount(
     syncFallbackArgs || workerArgs
   );
 
   setAttributionIdsWithCountAndResourceId({
     resourceId: workerArgs.selectedResourceId,
-    attributionIdsWithCount: mergedAttributionIdsWithCount,
+    attributionIdsWithCount: displayAttributionIdsWithCount,
   });
 }
