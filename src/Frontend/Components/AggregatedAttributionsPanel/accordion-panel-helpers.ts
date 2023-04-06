@@ -6,19 +6,19 @@
 import {
   Attributions,
   AttributionsToHashes,
-  MergedPackageInfo,
+  DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import {
   AttributionIdWithCount,
-  MergedAttributionWithCount,
+  DisplayAttributionWithCount,
 } from '../../types/types';
 import {
   getContainedExternalPackages,
   PanelAttributionData,
 } from '../../util/get-contained-packages';
 
-export function getMergedContainedExternalPackagesWithCount(args: {
+export function getDisplayContainedExternalPackagesWithCount(args: {
   selectedResourceId: string;
   externalData: Readonly<PanelAttributionData>;
   resolvedExternalAttributions: Readonly<Set<string>>;
@@ -31,19 +31,19 @@ export function getMergedContainedExternalPackagesWithCount(args: {
     args.externalData.resourcesToAttributions,
     args.resolvedExternalAttributions
   );
-  return getMergedAttributionsWithCount(
+  return getDisplayAttributionsWithCount(
     attributionIdsWithCount,
     args.externalData.attributions,
     args.attributionsToHashes
   );
 }
 
-export function getMergedAttributionsWithCount(
+export function getDisplayAttributionsWithCount(
   attributionIdsWithCount: Array<AttributionIdWithCount>,
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes
-): Array<MergedAttributionWithCount> {
-  const mergedAttributionIdsWithCount: Array<MergedAttributionWithCount> = [];
+): Array<DisplayAttributionWithCount> {
+  const displayAttributionIdsWithCount: Array<DisplayAttributionWithCount> = [];
   const hashToAttributions: { [hash: string]: Array<[string, PackageInfo]> } =
     {};
 
@@ -57,8 +57,8 @@ export function getMergedAttributionsWithCount(
       }
       hashToAttributions[savedHash].push([attributionId, attribution]);
     } else {
-      mergedAttributionIdsWithCount.push(
-        getMergedAttributionWithCountFromAttributions([
+      displayAttributionIdsWithCount.push(
+        getDisplayAttributionWithCountFromAttributions([
           [attributionId, attribution],
         ])
       );
@@ -66,18 +66,18 @@ export function getMergedAttributionsWithCount(
   });
 
   Object.keys(hashToAttributions).forEach((hash: string): void => {
-    mergedAttributionIdsWithCount.push(
-      getMergedAttributionWithCountFromAttributions(hashToAttributions[hash])
+    displayAttributionIdsWithCount.push(
+      getDisplayAttributionWithCountFromAttributions(hashToAttributions[hash])
     );
   });
 
-  return mergedAttributionIdsWithCount;
+  return displayAttributionIdsWithCount;
 }
 
-function getMergedAttributionWithCountFromAttributions(
+function getDisplayAttributionWithCountFromAttributions(
   attributionsWithIds: Array<[string, PackageInfo]>
-): MergedAttributionWithCount {
-  const mergedAttributionConfidence: number = Math.min(
+): DisplayAttributionWithCount {
+  const displayAttributionConfidence: number = Math.min(
     ...attributionsWithIds.map(
       (attributionWithId): number =>
         attributionWithId[1].attributionConfidence || 0
@@ -101,10 +101,10 @@ function getMergedAttributionWithCountFromAttributions(
     (attributionWithId) => attributionWithId[0]
   );
 
-  const attributionToShow: MergedPackageInfo = {
+  const attributionToShow: DisplayPackageInfo = {
     ...attributionsWithIds[0][1],
-    type: 'MergedPackageInfo',
-    attributionConfidence: mergedAttributionConfidence,
+    type: 'DisplayPackageInfo',
+    attributionConfidence: displayAttributionConfidence,
     attributionIds,
   };
   delete attributionToShow.comment;

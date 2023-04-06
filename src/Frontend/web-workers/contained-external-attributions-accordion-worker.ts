@@ -4,7 +4,7 @@
 
 import { PanelAttributionData } from '../util/get-contained-packages';
 import { AttributionIdsWithCountAndResourceId } from '../types/types';
-import { getMergedContainedExternalPackagesWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
+import { getDisplayContainedExternalPackagesWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
 import { AttributionsToHashes } from '../../shared/shared-types';
 
 let cachedExternalData: PanelAttributionData | null = null;
@@ -29,8 +29,8 @@ self.onmessage = ({
 
   if (selectedResourceId) {
     if (cachedExternalData && cachedAttributionsToHashes) {
-      const mergedAttributionIdsWithCount =
-        getMergedContainedExternalPackagesWithCount({
+      const displayAttributionIdsWithCount =
+        getDisplayContainedExternalPackagesWithCount({
           selectedResourceId,
           externalData: cachedExternalData,
           resolvedExternalAttributions,
@@ -38,7 +38,7 @@ self.onmessage = ({
         });
       const output: AttributionIdsWithCountAndResourceId = {
         resourceId: selectedResourceId,
-        attributionIdsWithCount: mergedAttributionIdsWithCount,
+        attributionIdsWithCount: displayAttributionIdsWithCount,
       };
 
       self.postMessage({

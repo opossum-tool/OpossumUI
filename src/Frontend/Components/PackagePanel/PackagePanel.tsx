@@ -8,7 +8,7 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   Attributions,
-  MergedPackageInfo,
+  DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -32,8 +32,8 @@ import {
 import { prettifySource } from '../../util/prettify-source';
 import {
   AttributionIdWithCount,
-  isMergedAttributionWithCount,
-  MergedAttributionWithCount,
+  isDisplayAttributionWithCount,
+  DisplayAttributionWithCount,
   PackageCardConfig,
 } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
@@ -47,7 +47,7 @@ const classes = {
 
 interface PackagePanelProps {
   attributionIdsWithCount: Array<
-    AttributionIdWithCount | MergedAttributionWithCount
+    AttributionIdWithCount | DisplayAttributionWithCount
   >;
   title: PackagePanelTitle;
   attributions: Attributions;
@@ -90,27 +90,27 @@ export function PackagePanel(
       selectAttributionInAccordionPanelOrOpenUnsavedPopup(
         props.title,
         attributionId,
-        getAttributionFromMergedAttributionWithCount(attributionId)
+        getAttributionFromDisplayAttributionWithCount(attributionId)
       )
     );
   }
 
-  function getAttributionFromMergedAttributionWithCount(
+  function getAttributionFromDisplayAttributionWithCount(
     attributionId: string
-  ): MergedPackageInfo | undefined {
-    const attributionIdOrMergedAttributionWithCount:
+  ): DisplayPackageInfo | undefined {
+    const attributionIdOrDisplayAttributionWithCount:
       | AttributionIdWithCount
-      | MergedAttributionWithCount
+      | DisplayAttributionWithCount
       | undefined = props.attributionIdsWithCount.find(
       (attributionIdWithCount) =>
         attributionIdWithCount.attributionId === attributionId
     );
 
     if (
-      attributionIdOrMergedAttributionWithCount &&
-      isMergedAttributionWithCount(attributionIdOrMergedAttributionWithCount)
+      attributionIdOrDisplayAttributionWithCount &&
+      isDisplayAttributionWithCount(attributionIdOrDisplayAttributionWithCount)
     ) {
-      return attributionIdOrMergedAttributionWithCount.attribution;
+      return attributionIdOrDisplayAttributionWithCount.attribution;
     } else {
       return undefined;
     }
@@ -129,8 +129,8 @@ export function PackagePanel(
   }
 
   function getPackageCard(attributionId: string): ReactElement {
-    const packageInfo: PackageInfo | MergedPackageInfo =
-      getAttributionFromMergedAttributionWithCount(attributionId) ||
+    const packageInfo: PackageInfo | DisplayPackageInfo =
+      getAttributionFromDisplayAttributionWithCount(attributionId) ||
       props.attributions[attributionId];
     const packageCount: number | undefined =
       props.attributionIdsWithCount.filter(

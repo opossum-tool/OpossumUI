@@ -5,15 +5,15 @@
 
 import {
   AttributionIdWithCount,
-  MergedAttributionWithCount,
+  DisplayAttributionWithCount,
 } from '../../../types/types';
 import {
   Attributions,
   AttributionsToHashes,
 } from '../../../../shared/shared-types';
-import { getMergedAttributionsWithCount } from '../accordion-panel-helpers';
+import { getDisplayAttributionsWithCount } from '../accordion-panel-helpers';
 
-describe('getMergedAttributionsWithCount', () => {
+describe('getDisplayAttributionsWithCount', () => {
   const testAttributionsWithIdCount: Array<AttributionIdWithCount> = [
     { attributionId: 'uuid1' },
     { attributionId: 'uuid2' },
@@ -29,11 +29,11 @@ describe('getMergedAttributionsWithCount', () => {
       uuid2: 'a',
     };
 
-    const expectedMergedAttributions: Array<MergedAttributionWithCount> = [
+    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
         attribution: {
-          type: 'MergedPackageInfo',
+          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
           packageName: 'Typescript',
           attributionConfidence: 0,
@@ -42,12 +42,12 @@ describe('getMergedAttributionsWithCount', () => {
     ];
 
     expect(
-      getMergedAttributionsWithCount(
+      getDisplayAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
       )
-    ).toEqual(expectedMergedAttributions);
+    ).toEqual(expectedDisplayAttributions);
   });
 
   it('does not merge attributions without hash', () => {
@@ -57,11 +57,11 @@ describe('getMergedAttributionsWithCount', () => {
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {};
 
-    const expectedMergedAttributions: Array<MergedAttributionWithCount> = [
+    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
         attribution: {
-          type: 'MergedPackageInfo',
+          type: 'DisplayPackageInfo',
           packageName: 'Typescript',
           attributionConfidence: 0,
           attributionIds: ['uuid1'],
@@ -70,7 +70,7 @@ describe('getMergedAttributionsWithCount', () => {
       {
         attributionId: 'uuid2',
         attribution: {
-          type: 'MergedPackageInfo',
+          type: 'DisplayPackageInfo',
           packageName: 'Typescript',
           attributionConfidence: 0,
           attributionIds: ['uuid2'],
@@ -79,12 +79,12 @@ describe('getMergedAttributionsWithCount', () => {
     ];
 
     expect(
-      getMergedAttributionsWithCount(
+      getDisplayAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
       )
-    ).toEqual(expectedMergedAttributions);
+    ).toEqual(expectedDisplayAttributions);
   });
 
   it('keeps the minimum confidence in the merged attribution', () => {
@@ -97,11 +97,11 @@ describe('getMergedAttributionsWithCount', () => {
       uuid2: 'a',
     };
 
-    const expectedMergedAttributions: Array<MergedAttributionWithCount> = [
+    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
         attribution: {
-          type: 'MergedPackageInfo',
+          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 20,
         },
@@ -109,12 +109,12 @@ describe('getMergedAttributionsWithCount', () => {
     ];
 
     expect(
-      getMergedAttributionsWithCount(
+      getDisplayAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
       )
-    ).toEqual(expectedMergedAttributions);
+    ).toEqual(expectedDisplayAttributions);
   });
 
   it('appends comments, skipping empty ones', () => {
@@ -137,11 +137,11 @@ describe('getMergedAttributionsWithCount', () => {
       uuid4: 'a',
     };
 
-    const expectedMergedAttributions: Array<MergedAttributionWithCount> = [
+    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
         attribution: {
-          type: 'MergedPackageInfo',
+          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
           attributionConfidence: 0,
           comments: ['comment A', 'comment B'],
@@ -150,12 +150,12 @@ describe('getMergedAttributionsWithCount', () => {
     ];
 
     expect(
-      getMergedAttributionsWithCount(
+      getDisplayAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
       )
-    ).toEqual(expectedMergedAttributions);
+    ).toEqual(expectedDisplayAttributions);
   });
 
   it('merges originIds, de-duplicating them', () => {
@@ -168,11 +168,11 @@ describe('getMergedAttributionsWithCount', () => {
       uuid2: 'a',
     };
 
-    const expectedMergedAttributions: Array<MergedAttributionWithCount> = [
+    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
         attribution: {
-          type: 'MergedPackageInfo',
+          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 0,
           originIds: ['uuid3', 'uuid4', 'uuid5'],
@@ -181,11 +181,11 @@ describe('getMergedAttributionsWithCount', () => {
     ];
 
     expect(
-      getMergedAttributionsWithCount(
+      getDisplayAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
       )
-    ).toEqual(expectedMergedAttributions);
+    ).toEqual(expectedDisplayAttributions);
   });
 });
