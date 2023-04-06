@@ -24,7 +24,7 @@ import {
   PanelAttributionData,
 } from '../../util/get-contained-packages';
 import { AttributionIdWithCount } from '../../types/types';
-import { getMergedContainedExternalPackagesWithCount } from './accordion-panel-helpers';
+import { getDisplayContainedExternalPackagesWithCount } from './accordion-panel-helpers';
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;
@@ -105,8 +105,8 @@ export function AggregatedAttributionsPanel(
             title={PackagePanelTitle.ContainedExternalPackages}
             workerArgs={containedExternalPackagesWorkerArgs}
             syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-            getMergedAttributionIdsWithCount={
-              getMergedContainedExternalPackagesWithCount
+            getDisplayAttributionIdsWithCount={
+              getDisplayContainedExternalPackagesWithCount
             }
             attributions={externalData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
@@ -114,7 +114,7 @@ export function AggregatedAttributionsPanel(
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
-            getMergedAttributionIdsWithCount={getContainedManualPackages}
+            getDisplayAttributionIdsWithCount={getContainedManualPackages}
             attributions={manualData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />

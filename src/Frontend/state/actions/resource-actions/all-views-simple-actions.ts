@@ -9,7 +9,7 @@ import {
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
-  MergedPackageInfo,
+  DisplayPackageInfo,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -84,7 +84,7 @@ export function setFrequentLicenses(
 }
 
 export function setTemporaryPackageInfo(
-  packageInfo: PackageInfo | MergedPackageInfo
+  packageInfo: PackageInfo | DisplayPackageInfo
 ): SetTemporaryPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
 }

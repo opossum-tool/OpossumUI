@@ -9,7 +9,7 @@ import {
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
-  MergedPackageInfo,
+  DisplayPackageInfo,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -141,7 +141,7 @@ export type ResourceState = {
     manualData: AttributionData;
     externalData: AttributionData;
     frequentLicenses: FrequentLicenses;
-    temporaryPackageInfo: PackageInfo | MergedPackageInfo;
+    temporaryPackageInfo: PackageInfo | DisplayPackageInfo;
     attributionBreakpoints: Set<string>;
     filesWithChildren: Set<string>;
     isSavingDisabled: boolean;
