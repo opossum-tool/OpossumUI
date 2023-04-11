@@ -10,23 +10,21 @@ SPDX-License-Identifier: CC0-1.0
 ## Table of contents
 
 1. [How to get & run OpossumUI](#get_and_run_OpossumUI)
-    1. [Get the latest release](#get_latest_release)
-    2. [Running the app](#running_the_app)
+   1. [Get the latest release](#get_latest_release)
+   2. [Running the app](#running_the_app)
 2. [Working with OpossumUI](#working_with_OpossumUI)
-    1. [Opossum file format](#dot_opossum)
-    2. [Json files](#json_files)
-    3. [Opening a file](#opening_a_file)
-    4. [Search](#search)
-    5. [Project Metadata](#project_metadata)
-    6. [Project Statistics](#project_statistics)
-    7. [Exporting Formats](#exporting_formats)
-    8. [Attributions](#attributions)
-    9. [Top Bar](#top_bar)
-    10. [Audit View](#audit_view)
-    11. [Attribution View](#attribution_view)
-    12. [Report View](#report_view)
-    
-
+   1. [Opossum file format](#dot_opossum)
+   2. [Json files](#json_files)
+   3. [Opening a file](#opening_a_file)
+   4. [Search](#search)
+   5. [Project Metadata](#project_metadata)
+   6. [Project Statistics](#project_statistics)
+   7. [Exporting Formats](#exporting_formats)
+   8. [Attributions](#attributions)
+   9. [Top Bar](#top_bar)
+   10. [Audit View](#audit_view)
+   11. [Attribution View](#attribution_view)
+   12. [Report View](#report_view)
 
 ## How to get & run OpossumUI <a name="get_and_run_OpossumUI"></a>
 
@@ -228,6 +226,8 @@ attributions are shown with a `P` icon, even if the relative attributions have b
 ` ... in folder content` sub-panels also show the number of resources in the folder that are linked to the shown
 attribution.
 
+Similar signals that deviate only by `comment`, `attributionConfidence`, `originIds`, or the `preSelected` flag are merged into a single signal with multiple comments according to the comments of the individual merged signals. When adding a merged signal to the attributions of the current resource, the comment of the resulting attribution is empty. Relevant parts can be copied from the merged signal.
+
 The `Add to Attribution Sub-Panel` allows to add an existing attribution to the attributions of the selected resource.
 As in the other panels, the details of the attributions can be shown by clicking on the respective list item, while the
 attribution can be added by clicking on the corresponding **+ icon**.
@@ -274,6 +274,7 @@ IMPORTANT: Some fields in the column have special meanings/behaviors:
   - the attribution isn't an actual attribution or
   - it was globally decided that this attribution does not need attribution (e.g. it is proprietary but bought for the
     whole company).
+- _Comment / Comments_: In the case of an ordinary signal or an attribution, the comment textbox is displaying a single comment. In the case of a merged signal, the comment textbox is displaying multiple comments according to the comments of the individual merged signals.
 
 The `Attribution Details Column`, if editable, shows the following buttons:
 
@@ -299,7 +300,7 @@ When all fields except for the _confidence_ field are empty, pressing the _SAVE_
 the respective attribution.
 
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
-signal in the App for the current input/output files, and it will not have any consequence in the DB.
+signal in the App for the current input/output files, and it will not have any consequence in the DB. When clicking _HIDE_ for a merged signal, all individual signals that make up the merged signal are hidden.
 
 Instead of the buttons, the context menu can be used to execute all available actions out of _Delete_,
 _Delete Globally_, _Confirm_, _Confirm Globally_, _Mark for replacement_, _Hide_ and _Show Resources_. To open the
