@@ -8,27 +8,19 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import {
   DiscreteConfidence,
+  DisplayPackageInfo,
   FollowUp,
   FrequentLicenses,
   PackageInfo,
   SaveFileArgs,
   Source,
 } from '../../../../shared/shared-types';
-import {
-  ButtonText,
-  CheckboxLabel,
-  PackagePanelTitle,
-} from '../../../enums/enums';
+import { ButtonText, CheckboxLabel } from '../../../enums/enums';
 import {
   setFrequentLicenses,
-  setResources,
   setTemporaryPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  addResolvedExternalAttribution,
-  setDisplayedPackage,
-  setSelectedResourceId,
-} from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
@@ -37,7 +29,6 @@ import {
 } from '../../../test-helpers/general-test-helpers';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionColumn } from '../AttributionColumn';
-import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   clickGoToLinkIcon,
   expectGoToLinkButtonIsDisabled,
@@ -573,18 +564,20 @@ describe('The AttributionColumn', () => {
 
   describe('The ResolveButton', () => {
     it('saves resolved external attributions', () => {
-      const testTemporaryPackageInfo: PackageInfo = {};
+      const testPackageInfo: PackageInfo = {};
+      const testTemporaryPackageInfo: DisplayPackageInfo = {
+        type: 'DisplayPackageInfo',
+        attributionIds: ['TestId'],
+      };
       const expectedSaveFileArgs: SaveFileArgs = {
         manualAttributions: {},
-        resolvedExternalAttributions: new Set<string>()
-          .add('TestExternalAttribution')
-          .add('TestId'),
+        resolvedExternalAttributions: new Set<string>().add('TestId'),
         resourcesToAttributions: {},
       };
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          displayPackageInfo={testTemporaryPackageInfo}
+          displayPackageInfo={testPackageInfo}
           setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
           onSaveButtonClick={doNothing}
           setTemporaryPackageInfo={(): (() => void) => doNothing}
@@ -596,17 +589,7 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setSelectedAttributionId('TestId'));
-        store.dispatch(setResources({}));
-        store.dispatch(
-          setDisplayedPackage({
-            panel: PackagePanelTitle.ExternalPackages,
-            attributionId: 'TestId',
-          })
-        );
-        store.dispatch(
-          addResolvedExternalAttribution('TestExternalAttribution')
-        );
+        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
       });
 
       clickOnButton(screen, 'resolve attribution');
