@@ -10,6 +10,7 @@ import {
   Attributions,
   DisplayPackageInfo,
   PackageInfo,
+  isDisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -28,6 +29,7 @@ import {
 import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
+  convertDisplayPackageInfoToPackageInfo,
 } from './package-panel-helpers';
 import { prettifySource } from '../../util/prettify-source';
 import {
@@ -120,7 +122,15 @@ export function PackagePanel(
     switch (props.title) {
       case PackagePanelTitle.ExternalPackages:
       case PackagePanelTitle.ContainedExternalPackages:
-        dispatch(addToSelectedResource(props.attributions[attributionId]));
+        const packageInfo: PackageInfo | DisplayPackageInfo =
+          getAttributionFromDisplayAttributionWithCount(attributionId) ||
+          props.attributions[attributionId];
+
+        const packageInfoToAdd = isDisplayPackageInfo(packageInfo)
+          ? convertDisplayPackageInfoToPackageInfo(packageInfo)
+          : packageInfo;
+
+        dispatch(addToSelectedResource(packageInfoToAdd));
         break;
       case PackagePanelTitle.ContainedManualPackages:
         dispatch(addToSelectedResource(props.attributions[attributionId]));
