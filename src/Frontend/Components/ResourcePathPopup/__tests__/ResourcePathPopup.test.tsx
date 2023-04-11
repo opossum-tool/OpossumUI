@@ -40,7 +40,7 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
   return (
     <ResourcePathPopup
       closePopup={doNothing}
-      attributionId={'uuid_1'}
+      attributionIds={['uuid_1']}
       isExternalAttribution={props.isExternalAttribution}
     />
   );
