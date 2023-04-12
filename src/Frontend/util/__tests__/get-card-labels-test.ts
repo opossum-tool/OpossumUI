@@ -9,7 +9,7 @@ import {
   addSecondLineOfPackageLabelFromAttribute,
   getCardLabels,
 } from '../get-card-labels';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 
 describe('Test getPackageLabel', () => {
   const testProps: PackageInfo = {
@@ -118,22 +118,26 @@ describe('Test getPackageLabel', () => {
 });
 
 describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
-  const testProps: PackageInfo = {
+  const testProps: DisplayPackageInfo = {
     packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    type: 'DisplayPackageInfo',
+    attributionIds: ['abc'],
   };
-  const testPropsWithoutVersion: PackageInfo = {
+  const testPropsWithoutVersion: DisplayPackageInfo = {
     packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    type: 'DisplayPackageInfo',
+    attributionIds: ['abc'],
   };
 
   it('adds name and version', () => {
@@ -175,14 +179,16 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
 });
 
 describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
-  const testProps: PackageInfo = {
+  const testProps: DisplayPackageInfo = {
     packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    type: 'DisplayPackageInfo',
+    attributionIds: ['abc'],
   };
   it('adds copyright', () => {
     const testPackageLabels: Array<string> = ['Test package name'];
