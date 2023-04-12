@@ -23,7 +23,7 @@ export function getPackageInfoKeys(): Array<KeysOfPackageInfo> {
     source: true,
     firstParty: true,
     followUp: true,
-    originId: true,
+    originIds: true,
     preSelected: true,
     excludeFromNotice: true,
     criticality: true,

@@ -5,11 +5,13 @@
 
 import {
   AttributionData,
-  AttributionIdWithCount,
   Attributions,
   PackageInfo,
 } from '../../../../shared/shared-types';
-import { PackageAttributes } from '../../../types/types';
+import {
+  AttributionIdWithCount,
+  PackageAttributes,
+} from '../../../types/types';
 import {
   getAllAttributionIdsWithCountsFromResourceAndChildren,
   getAttributionWizardInitialState,

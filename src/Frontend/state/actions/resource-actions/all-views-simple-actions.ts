@@ -5,9 +5,11 @@
 
 import {
   Attributions,
+  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
+  DisplayPackageInfo,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -20,6 +22,7 @@ import {
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
+  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -30,6 +33,7 @@ import {
   SetAttributionBreakpoints,
   SetBaseUrlsForSources,
   SetExternalAttributionSources,
+  SetExternalAttributionsToHashes,
   SetExternalDataAction,
   SetFilesWithChildren,
   SetFrequentLicensesAction,
@@ -80,7 +84,7 @@ export function setFrequentLicenses(
 }
 
 export function setTemporaryPackageInfo(
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo | DisplayPackageInfo
 ): SetTemporaryPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
 }
@@ -127,5 +131,14 @@ export function setExternalAttributionSources(
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
     payload: externalAttributionSources,
+  };
+}
+
+export function setExternalAttributionsToHashes(
+  externalAttributionsToHashes: AttributionsToHashes
+): SetExternalAttributionsToHashes {
+  return {
+    type: ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
+    payload: externalAttributionsToHashes,
   };
 }

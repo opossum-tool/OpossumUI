@@ -4,13 +4,14 @@
 
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
-  AttributionIdWithCount,
   Attributions,
+  AttributionsToHashes,
 } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
   AttributionIdsWithCountAndResourceId,
+  AttributionIdWithCount,
   PanelData,
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
@@ -28,6 +29,7 @@ type ContainedAttributionsAccordionWorkerArgs =
 interface ContainedExternalAttributionsAccordionWorkerArgs {
   selectedResourceId: string;
   externalData?: PanelAttributionData;
+  attributionsToHashes?: AttributionsToHashes;
   resolvedExternalAttributions: Set<string>;
 }
 
@@ -42,7 +44,7 @@ interface WorkerAccordionPanelProps {
     | PackagePanelTitle.ContainedManualPackages;
   workerArgs: ContainedAttributionsAccordionWorkerArgs;
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
-  getAttributionIdsWithCount(
+  getDisplayAttributionIdsWithCount(
     workerArgs: ContainedAttributionsAccordionWorkerArgs
   ): Array<AttributionIdWithCount>;
   attributions: Attributions;
@@ -78,7 +80,7 @@ export function WorkerAccordionPanel(
       worker,
       props.title,
       setAttributionIdsWithCountAndResourceId,
-      props.getAttributionIdsWithCount,
+      props.getDisplayAttributionIdsWithCount,
       props.syncFallbackArgs
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,7 +121,7 @@ async function loadAttributionIdsWithCount(
   setAttributionIdsWithCountAndResourceId: (
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
-  getAttributionIdsWithCount: (
+  getDisplayAttributionIdsWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
@@ -141,7 +143,7 @@ async function loadAttributionIdsWithCount(
           panelTitle,
           Error('Web Worker execution error.'),
           setAttributionIdsWithCountAndResourceId,
-          getAttributionIdsWithCount,
+          getDisplayAttributionIdsWithCount,
           workerArgs,
           syncFallbackArgs
         );
@@ -154,7 +156,7 @@ async function loadAttributionIdsWithCount(
       panelTitle,
       error,
       setAttributionIdsWithCountAndResourceId,
-      getAttributionIdsWithCount,
+      getDisplayAttributionIdsWithCount,
       workerArgs,
       syncFallbackArgs
     );
@@ -167,20 +169,18 @@ function logErrorAndComputeInMainProcess(
   setAttributionIdsWithCountAndResourceId: (
     attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
   ) => void,
-  getAttributionIdsWithCount: (
+  getDisplayAttributionIdsWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
   ) => Array<AttributionIdWithCount>,
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): void {
-  console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
-
-  const attributionIdsWithCount = getAttributionIdsWithCount(
+  const displayAttributionIdsWithCount = getDisplayAttributionIdsWithCount(
     syncFallbackArgs || workerArgs
   );
 
   setAttributionIdsWithCountAndResourceId({
     resourceId: workerArgs.selectedResourceId,
-    attributionIdsWithCount,
+    attributionIdsWithCount: displayAttributionIdsWithCount,
   });
 }

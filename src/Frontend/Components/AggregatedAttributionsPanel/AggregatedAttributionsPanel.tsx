@@ -8,6 +8,7 @@ import { PackagePanelTitle } from '../../enums/enums';
 import { WorkerAccordionPanel } from './WorkerAccordionPanel';
 import { useAppSelector } from '../../state/hooks';
 import {
+  getExternalAttributionsToHashes,
   getExternalData,
   getManualData,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -16,14 +17,14 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
-import { AttributionIdWithCount } from '../../../shared/shared-types';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
 import {
-  PanelAttributionData,
-  getContainedExternalPackages,
   getContainedManualPackages,
   getExternalAttributionIdsWithCount,
+  PanelAttributionData,
 } from '../../util/get-contained-packages';
+import { AttributionIdWithCount } from '../../types/types';
+import { getDisplayContainedExternalPackagesWithCount } from './accordion-panel-helpers';
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;
@@ -34,6 +35,7 @@ export function AggregatedAttributionsPanel(
 ): ReactElement {
   const manualData = useAppSelector(getManualData);
   const externalData = useAppSelector(getExternalData);
+  const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const resolvedExternalAttributions: Set<string> = useAppSelector(
@@ -52,8 +54,14 @@ export function AggregatedAttributionsPanel(
       selectedResourceId,
       externalData,
       resolvedExternalAttributions,
+      attributionsToHashes,
     }),
-    [selectedResourceId, externalData, resolvedExternalAttributions]
+    [
+      selectedResourceId,
+      externalData,
+      resolvedExternalAttributions,
+      attributionsToHashes,
+    ]
   );
 
   const manualPanelData: PanelAttributionData = {
@@ -69,7 +77,7 @@ export function AggregatedAttributionsPanel(
 
     //  manualData is excluded from dependencies on purpose to avoid recalculation
     //  when it changes. Usually this is not an issue as the displayed data
-    //  remains correct. Therefore the panelData is eventually consistent.
+    //  remains correct. Therefore, the panelData is eventually consistent.
     //  We still need manualData.resourcesToAttributions in the dependencies to
     //  update panelData, when replaceAttributionPopup was called. This is
     //  relevant for manual attributions in the attributions in folder content panel.
@@ -88,6 +96,7 @@ export function AggregatedAttributionsPanel(
           )
         }
         attributions={externalData.attributions}
+        attributionsToHashes={attributionsToHashes}
         isAddToPackageEnabled={props.isAddToPackageEnabled}
       />
       {isIdOfResourceWithChildren(selectedResourceId) ? (
@@ -96,14 +105,16 @@ export function AggregatedAttributionsPanel(
             title={PackagePanelTitle.ContainedExternalPackages}
             workerArgs={containedExternalPackagesWorkerArgs}
             syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-            getAttributionIdsWithCount={getContainedExternalPackages}
+            getDisplayAttributionIdsWithCount={
+              getDisplayContainedExternalPackagesWithCount
+            }
             attributions={externalData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
-            getAttributionIdsWithCount={getContainedManualPackages}
+            getDisplayAttributionIdsWithCount={getContainedManualPackages}
             attributions={manualData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />

@@ -9,6 +9,7 @@ import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
   setExternalAttributionSources,
+  setExternalAttributionsToHashes,
   setExternalData,
   setFilesWithChildren,
   setFrequentLicenses,
@@ -17,6 +18,7 @@ import {
   setResources,
 } from './all-views-simple-actions';
 import { addResolvedExternalAttribution } from './audit-view-simple-actions';
+import { createExternalAttributionsToHashes } from '../../helpers/action-and-reducer-helpers';
 
 export function loadFromFile(
   parsedFileContent: ParsedFileContent
@@ -59,5 +61,11 @@ export function loadFromFile(
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
       dispatch(addResolvedExternalAttribution(attribution))
     );
+
+    const externalAttributionsToHashes = createExternalAttributionsToHashes(
+      parsedFileContent.externalAttributions.attributions
+    );
+
+    dispatch(setExternalAttributionsToHashes(externalAttributionsToHashes));
   };
 }

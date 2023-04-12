@@ -3,7 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { AttributionData } from '../../../../shared/shared-types';
+import {
+  AttributionData,
+  DisplayPackageInfo,
+} from '../../../../shared/shared-types';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { PanelPackage, State } from '../../../types/types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
@@ -36,8 +39,15 @@ import {
 } from '../../selectors/audit-view-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
 
-export function resetTemporaryPackageInfo(): AppThunkAction {
+export function resetTemporaryPackageInfo(
+  attribution?: DisplayPackageInfo
+): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    if (attribution) {
+      dispatch(setTemporaryPackageInfo(attribution));
+      return;
+    }
+
     const view: View = getSelectedView(getState());
 
     switch (view) {
@@ -107,11 +117,12 @@ export function openResourceInResourceBrowser(
 }
 
 export function setDisplayedPackageAndResetTemporaryPackageInfo(
-  panelPackage: PanelPackage
+  panelPackage: PanelPackage,
+  attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));
-    dispatch(resetTemporaryPackageInfo());
+    dispatch(resetTemporaryPackageInfo(attribution));
   };
 }
 

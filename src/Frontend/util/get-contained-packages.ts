@@ -4,12 +4,13 @@
 
 import {
   AttributionData,
-  AttributionIdWithCount,
   Attributions,
   PackageInfo,
   ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
 } from '../../shared/shared-types';
 import { getAttributedChildren } from './get-attributed-children';
+import { AttributionIdWithCount } from '../types/types';
 
 export type PanelAttributionData = Pick<
   AttributionData,
@@ -24,21 +25,23 @@ export function getExternalAttributionIdsWithCount(
   }));
 }
 
-export function getContainedExternalPackages(args: {
-  selectedResourceId: string;
-  externalData: Readonly<PanelAttributionData>;
-  resolvedExternalAttributions: Readonly<Set<string>>;
-}): Array<AttributionIdWithCount> {
+export function getContainedExternalPackages(
+  selectedResourceId: string,
+  resourcesWithAttributedChildren: Readonly<ResourcesWithAttributedChildren>,
+  externalAttributions: Readonly<Attributions>,
+  resourcesToExternalAttributions: Readonly<ResourcesToAttributions>,
+  resolvedExternalAttributions: Readonly<Set<string>>
+): Array<AttributionIdWithCount> {
   const externalAttributedChildren = getAttributedChildren(
-    args.externalData.resourcesWithAttributedChildren,
-    args.selectedResourceId
+    resourcesWithAttributedChildren,
+    selectedResourceId
   );
 
   return computeAggregatedAttributionsFromChildren(
-    args.externalData.attributions,
-    args.externalData.resourcesToAttributions,
+    externalAttributions,
+    resourcesToExternalAttributions,
     externalAttributedChildren,
-    args.resolvedExternalAttributions
+    resolvedExternalAttributions
   );
 }
 

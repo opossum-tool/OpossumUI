@@ -57,7 +57,11 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
           />
         ) : (
           <ToggleButton
-            buttonText={ButtonText.Hide}
+            buttonText={
+              props.selectedPackageIsResolved
+                ? ButtonText.Unhide
+                : ButtonText.Hide
+            }
             sx={classes.resolveButton}
             selected={props.selectedPackageIsResolved}
             handleChange={props.resolvedToggleHandler}

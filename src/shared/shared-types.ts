@@ -27,9 +27,8 @@ export enum DiscreteConfidence {
   Low = 20,
 }
 
-export interface PackageInfo {
+interface PackageInfoCore {
   attributionConfidence?: number;
-  comment?: string;
   packageName?: string;
   packageVersion?: string;
   packageNamespace?: string;
@@ -42,20 +41,34 @@ export interface PackageInfo {
   firstParty?: boolean;
   followUp?: FollowUp;
   source?: Source;
-  originId?: string;
+  originIds?: Array<string>;
   preSelected?: boolean;
   excludeFromNotice?: boolean;
   criticality?: Criticality;
 }
 
+export interface PackageInfo extends PackageInfoCore {
+  comment?: string;
+}
+
+export interface DisplayPackageInfo extends PackageInfo {
+  type: 'DisplayPackageInfo';
+  comments?: Array<string>;
+  attributionIds: Array<string>;
+}
+
+export function isDisplayPackageInfo(
+  packageInfoOrDisplayPackageInfo: PackageInfo | DisplayPackageInfo
+): packageInfoOrDisplayPackageInfo is DisplayPackageInfo {
+  return (
+    'type' in packageInfoOrDisplayPackageInfo &&
+    packageInfoOrDisplayPackageInfo.type === 'DisplayPackageInfo'
+  );
+}
+
 export interface Source {
   name: string;
   documentConfidence: number;
-}
-
-export interface AttributionIdWithCount {
-  attributionId: string;
-  count?: number;
 }
 
 export interface Attributions {
@@ -68,6 +81,10 @@ export interface ResourcesToAttributions {
 
 export interface AttributionsToResources {
   [uuid: string]: Array<string>;
+}
+
+export interface AttributionsToHashes {
+  [uuid: string]: string;
 }
 
 export interface ResourcesWithAttributedChildren {

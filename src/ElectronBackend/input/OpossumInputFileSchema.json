@@ -141,6 +141,13 @@
           "originId": {
             "type": "string",
             "description": "Can be set to track a signal from the tooling that generated the input file. Will be copied into the output when the signal is converted into an attribution."
+          },
+          "originIds": {
+            "type": "array",
+            "description": "Like originId but considers that a signal can have more than a single origin.",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": ["source"],

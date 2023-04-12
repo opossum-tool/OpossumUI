@@ -142,9 +142,16 @@ export function parseRawAttributions(
     if (criticality && !Object.values(Criticality).includes(criticality)) {
       delete rawAttributions[attributionId].criticality;
     }
-
     if (rawAttributions[attributionId]?.criticality) {
       inputContainsCriticalExternalAttributions = true;
+    }
+
+    const originId = rawAttributions[attributionId]?.originId;
+    if (originId) {
+      const originIds = rawAttributions[attributionId]?.originIds ?? [];
+      originIds.push(originId);
+      rawAttributions[attributionId].originIds = originIds;
+      delete rawAttributions[attributionId].originId;
     }
   }
 

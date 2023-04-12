@@ -8,9 +8,9 @@ import { PackagePanelTitle, PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
 import { ViewState } from '../state/reducers/view-reducer';
 import {
-  AttributionIdWithCount,
   Attributions,
   Criticality,
+  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -96,7 +96,9 @@ export interface ButtonConfig {
 
 export interface PanelData {
   title: PackagePanelTitle;
-  attributionIdsWithCount: Array<AttributionIdWithCount>;
+  attributionIdsWithCount:
+    | Array<AttributionIdWithCount>
+    | Array<DisplayAttributionWithCount>;
   attributions: Attributions;
 }
 
@@ -166,4 +168,19 @@ export interface PackageAttributeIds {
   namespaceId: string;
   nameId: string;
   versionId: string;
+}
+
+export interface AttributionIdWithCount {
+  attributionId: string;
+  count?: number;
+}
+
+export interface DisplayAttributionWithCount extends AttributionIdWithCount {
+  attribution: DisplayPackageInfo;
+}
+
+export function isDisplayAttributionWithCount(
+  testObject: AttributionIdWithCount | DisplayAttributionWithCount
+): testObject is DisplayAttributionWithCount {
+  return 'attribution' in testObject;
 }

@@ -59,6 +59,7 @@ import {
   setAttributionWizardSelectedPackageIds,
   setAttributionWizardTotalAttributionCount,
 } from '../resource-actions/attribution-wizard-actions';
+import { DisplayPackageInfo } from '../../../../shared/shared-types';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string
@@ -116,7 +117,8 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 
 export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
   packagePanelTitle: PackagePanelTitle,
-  attributionId: string
+  attributionId: string,
+  attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryPackageInfoModified(getState())) {
@@ -129,10 +131,13 @@ export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
-        setDisplayedPackageAndResetTemporaryPackageInfo({
-          panel: packagePanelTitle,
-          attributionId,
-        })
+        setDisplayedPackageAndResetTemporaryPackageInfo(
+          {
+            panel: packagePanelTitle,
+            attributionId,
+          },
+          attribution
+        )
       );
     }
   };

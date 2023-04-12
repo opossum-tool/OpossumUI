@@ -43,7 +43,7 @@ import {
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   MergeButtonDisplayState,
-  selectedPackageIsResolved,
+  selectedPackagesAreResolved,
 } from '../AttributionColumn/attribution-column-helpers';
 import {
   setAttributionIdMarkedForReplacement,
@@ -56,7 +56,11 @@ import {
   getRightIcons,
 } from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
-import { PackageInfo } from '../../../shared/shared-types';
+import {
+  isDisplayPackageInfo,
+  DisplayPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import MuiBox from '@mui/material/Box';
 import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 
@@ -77,7 +81,7 @@ const classes = {
 
 interface PackageCardProps {
   cardId: string;
-  packageInfo: PackageInfo;
+  packageInfo: PackageInfo | DisplayPackageInfo;
   attributionId: string;
   packageCount?: number;
   cardConfig: PackageCardConfig;
@@ -147,6 +151,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     selectedView === View.Attribution
       ? getPackageCardHighlighting(manualAttributions[attributionId])
       : undefined;
+
+  const displayAttributionIds = isDisplayPackageInfo(props.packageInfo)
+    ? props.packageInfo.attributionIds
+    : [attributionId]; // TODO: consider this when refactoring
 
   function getContextMenuItems(): Array<ContextMenuItem> {
     function openConfirmDeletionPopup(): void {
@@ -285,14 +293,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             onClick: (): void => setShowAssociatedResourcesPopup(true),
           },
           {
-            buttonText: selectedPackageIsResolved(
-              attributionId,
+            buttonText: selectedPackagesAreResolved(
+              displayAttributionIds,
               resolvedExternalAttributions
             )
               ? ButtonText.Unhide
               : ButtonText.Hide,
             onClick: getResolvedToggleHandler(
-              attributionId,
+              displayAttributionIds,
               resolvedExternalAttributions,
               dispatch
             ),
@@ -402,7 +410,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         !Boolean(props.hideContextMenuAndMultiSelect) && (
           <ResourcePathPopup
             closePopup={(): void => setShowAssociatedResourcesPopup(false)}
-            attributionId={props.attributionId}
+            attributionIds={displayAttributionIds}
             isExternalAttribution={Boolean(
               props.cardConfig.isExternalAttribution
             )}

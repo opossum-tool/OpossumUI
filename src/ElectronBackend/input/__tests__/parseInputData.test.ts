@@ -84,7 +84,7 @@ describe('cleanNonExistentResolvedExternalAttributions', () => {
   });
 });
 
-describe('sanitizeRawAttributions', () => {
+describe('parseRawAttributions', () => {
   it('leaves FollowUp as followUp', () => {
     const rawAttributions: RawAttributions = {
       id: {
@@ -188,6 +188,56 @@ describe('sanitizeRawAttributions', () => {
 
     expect(parseRawAttributions(rawAttributions)).toEqual([
       expectedAttributions,
+      expectedCriticalExternalAttributionsFlag,
+    ]);
+  });
+
+  it('merges originIds and originId if both exist', () => {
+    const testRawAttributions: RawAttributions = {
+      uuid: {
+        originId: 'abc',
+        originIds: ['def', 'ghi'],
+      },
+    };
+    const expectedParsedRawAttributions: RawAttributions = {
+      uuid: {
+        originIds: ['def', 'ghi', 'abc'],
+      },
+    };
+    const expectedCriticalExternalAttributionsFlag = false;
+    expect(parseRawAttributions(testRawAttributions)).toEqual([
+      expectedParsedRawAttributions,
+      expectedCriticalExternalAttributionsFlag,
+    ]);
+  });
+
+  it('creates originIds and writes originId into it if originIds does not exist initially', () => {
+    const testRawAttributions: RawAttributions = {
+      uuid: {
+        originId: 'abc',
+      },
+    };
+    const expectedParsedRawAttributions: RawAttributions = {
+      uuid: {
+        originIds: ['abc'],
+      },
+    };
+    const expectedCriticalExternalAttributionsFlag = false;
+    expect(parseRawAttributions(testRawAttributions)).toEqual([
+      expectedParsedRawAttributions,
+      expectedCriticalExternalAttributionsFlag,
+    ]);
+  });
+
+  it('leaves originIds as it is if originId does not exist', () => {
+    const testRawAttributions: RawAttributions = {
+      uuid: {
+        originIds: ['abc', 'cde'],
+      },
+    };
+    const expectedCriticalExternalAttributionsFlag = false;
+    expect(parseRawAttributions(testRawAttributions)).toEqual([
+      testRawAttributions,
       expectedCriticalExternalAttributionsFlag,
     ]);
   });

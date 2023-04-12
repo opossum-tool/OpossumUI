@@ -12,7 +12,7 @@ export function packageInfoHasNoSignificantFields(
   const packageInfoWithSignificantFields = cloneDeep(packageInfo);
   delete packageInfoWithSignificantFields.attributionConfidence;
   delete packageInfoWithSignificantFields.followUp;
-  delete packageInfoWithSignificantFields.originId;
+  delete packageInfoWithSignificantFields.originIds;
   delete packageInfoWithSignificantFields.preSelected;
   delete packageInfoWithSignificantFields.excludeFromNotice;
   delete packageInfoWithSignificantFields.criticality;

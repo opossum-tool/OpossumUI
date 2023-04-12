@@ -5,9 +5,11 @@
 
 import {
   AttributionData,
+  AttributionsToHashes,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
+  DisplayPackageInfo,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -64,6 +66,7 @@ import {
   ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
   ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
   ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
+  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -96,6 +99,7 @@ export const initialResourceState: ResourceState = {
     baseUrlsForSources: {},
     externalAttributionSources: {},
     attributionIdMarkedForReplacement: '',
+    externalAttributionsToHashes: {},
   },
   auditView: {
     selectedResourceId: '',
@@ -137,7 +141,7 @@ export type ResourceState = {
     manualData: AttributionData;
     externalData: AttributionData;
     frequentLicenses: FrequentLicenses;
-    temporaryPackageInfo: PackageInfo;
+    temporaryPackageInfo: PackageInfo | DisplayPackageInfo;
     attributionBreakpoints: Set<string>;
     filesWithChildren: Set<string>;
     isSavingDisabled: boolean;
@@ -145,6 +149,7 @@ export type ResourceState = {
     baseUrlsForSources: BaseUrlsForSources;
     externalAttributionSources: ExternalAttributionSources;
     attributionIdMarkedForReplacement: string;
+    externalAttributionsToHashes: AttributionsToHashes;
   };
   auditView: {
     selectedResourceId: string;
@@ -681,6 +686,14 @@ export const resourceState = (
         attributionWizard: {
           ...state.attributionWizard,
           totalAttributionCount: action.payload,
+        },
+      };
+    case ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES:
+      return {
+        ...state,
+        allViews: {
+          ...state.allViews,
+          externalAttributionsToHashes: action.payload,
         },
       };
     default:
