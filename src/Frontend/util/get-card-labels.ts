@@ -3,35 +3,64 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo } from '../../shared/shared-types';
+import {
+  DisplayPackageInfo,
+  PackageInfo,
+  isDisplayPackageInfo,
+} from '../../shared/shared-types';
 
-type RelevantPackageInfoAttributes =
+type RelevantDisplayPackageInfoAttributes =
   | 'packageName'
   | 'copyright'
   | 'licenseName'
   | 'licenseText'
-  | 'comment'
+  | 'comments'
   | 'url';
 
-const PRIORITIZED_PACKAGE_INFO_ATTRIBUTES: Array<RelevantPackageInfoAttributes> =
-  ['packageName', 'copyright', 'licenseName', 'licenseText', 'comment', 'url'];
+const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES: Array<RelevantDisplayPackageInfoAttributes> =
+  ['packageName', 'copyright', 'licenseName', 'licenseText', 'comments', 'url'];
+
 const FIRST_PARTY_TEXT = 'First party';
 
-export function getCardLabels(packageInfo: PackageInfo): Array<string> {
+function convertPackageInfoToDisplayPackageInfo(
+  packageInfo: PackageInfo
+): DisplayPackageInfo {
+  const displayPackageInfo: DisplayPackageInfo = {
+    ...packageInfo,
+    type: 'DisplayPackageInfo',
+    attributionIds: [],
+  };
+
+  if (packageInfo.comment) {
+    displayPackageInfo.comments = [packageInfo.comment];
+    delete displayPackageInfo.comment;
+  }
+
+  return displayPackageInfo;
+}
+
+export function getCardLabels(
+  packageInfo: PackageInfo | DisplayPackageInfo
+): Array<string> {
+  const displayPackageInfo = isDisplayPackageInfo(packageInfo)
+    ? packageInfo
+    : convertPackageInfoToDisplayPackageInfo(packageInfo);
   const packageLabels: Array<string> = [];
-  for (const attribute of PRIORITIZED_PACKAGE_INFO_ATTRIBUTES) {
-    addPackageLabelsFromAttribute(packageInfo, attribute, packageLabels);
+
+  for (const attribute of PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES) {
+    addPackageLabelsFromAttribute(displayPackageInfo, attribute, packageLabels);
     if (packageLabels.length > 1) {
       break;
     }
   }
-  addFirstPartyTextIfNoOtherTextPresent(packageLabels, packageInfo);
+
+  addFirstPartyTextIfNoOtherTextPresent(packageLabels, displayPackageInfo);
   return packageLabels;
 }
 
 function addPackageLabelsFromAttribute(
-  packageInfo: PackageInfo,
-  attribute: RelevantPackageInfoAttributes,
+  packageInfo: DisplayPackageInfo,
+  attribute: RelevantDisplayPackageInfoAttributes,
   packageLabels: Array<string>
 ): void {
   if (packageInfo[attribute]) {
@@ -58,8 +87,8 @@ function addPackageLabelsFromAttribute(
 }
 
 export function addFirstLineOfPackageLabelFromAttribute(
-  attribute: RelevantPackageInfoAttributes,
-  packageInfo: PackageInfo,
+  attribute: RelevantDisplayPackageInfoAttributes,
+  packageInfo: DisplayPackageInfo,
   packageLabels: Array<string>
 ): void {
   let firstLinePackageLabel;
@@ -69,6 +98,8 @@ export function addFirstLineOfPackageLabelFromAttribute(
       : `${packageInfo.packageName}`;
   } else if (attribute === 'copyright') {
     firstLinePackageLabel = addPreambleToCopyright(`${packageInfo.copyright}`);
+  } else if (attribute === 'comments') {
+    firstLinePackageLabel = getCommentIfAvailable(packageInfo);
   } else {
     firstLinePackageLabel = `${packageInfo[attribute]}`;
   }
@@ -76,13 +107,15 @@ export function addFirstLineOfPackageLabelFromAttribute(
 }
 
 export function addSecondLineOfPackageLabelFromAttribute(
-  attribute: RelevantPackageInfoAttributes,
-  packageInfo: PackageInfo,
+  attribute: RelevantDisplayPackageInfoAttributes,
+  packageInfo: DisplayPackageInfo,
   packageLabels: Array<string>
 ): void {
   let secondLinePackageLabel;
   if (attribute === 'copyright') {
     secondLinePackageLabel = addPreambleToCopyright(`${packageInfo.copyright}`);
+  } else if (attribute === 'comments') {
+    secondLinePackageLabel = getCommentIfAvailable(packageInfo);
   } else {
     secondLinePackageLabel = `${packageInfo[attribute]}`;
   }
@@ -108,9 +141,17 @@ export function addPreambleToCopyright(originalCopyright: string): string {
 
 function addFirstPartyTextIfNoOtherTextPresent(
   packageLabels: Array<string>,
-  packageInfo: PackageInfo
+  packageInfo: DisplayPackageInfo
 ): void {
   if (packageLabels.length === 0 && packageInfo.firstParty) {
     packageLabels.push(FIRST_PARTY_TEXT);
   }
+}
+
+function getCommentIfAvailable(packageInfo: DisplayPackageInfo): string {
+  const comments = packageInfo.comments;
+  if (comments !== undefined) {
+    return `${comments[0]}`;
+  }
+  return '';
 }
