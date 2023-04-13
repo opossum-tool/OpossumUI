@@ -50,6 +50,14 @@ export function AttributionCountPerSourcePerLicenseTable(
       (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1)
     );
 
+  Object.entries(
+    props.licenseCounts.attributionCountPerSourcePerLicense
+  ).forEach(
+    ([licenseName, value]) =>
+      (value[TOTAL_SOURCES_TITLE] =
+        props.licenseCounts.totalAttributionsPerLicense[licenseName])
+  );
+
   return (
     <ProjectLicensesTable
       title={props.title}
