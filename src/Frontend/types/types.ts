@@ -48,6 +48,8 @@ export interface Height {
 
 export type KeysOfPackageInfo = keyof PackageInfo;
 
+export type KeysOfDisplayPackageInfo = keyof DisplayPackageInfo;
+
 export interface PackageCardConfig {
   isExternalAttribution?: boolean;
   isSelected?: boolean;

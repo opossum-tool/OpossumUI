@@ -22,18 +22,17 @@ const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES: Array<RelevantDisplayPackageI
 
 const FIRST_PARTY_TEXT = 'First party';
 
+// TODO: Delete and replace
 function convertPackageInfoToDisplayPackageInfo(
   packageInfo: PackageInfo
 ): DisplayPackageInfo {
   const displayPackageInfo: DisplayPackageInfo = {
     ...packageInfo,
-    type: 'DisplayPackageInfo',
     attributionIds: [],
   };
 
   if (packageInfo.comment) {
     displayPackageInfo.comments = [packageInfo.comment];
-    delete displayPackageInfo.comment;
   }
 
   return displayPackageInfo;

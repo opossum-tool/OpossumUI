@@ -20,6 +20,7 @@ import { savePackageInfo } from '../../state/actions/resource-actions/save-actio
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import MuiBox from '@mui/material/Box';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 
 const classes = {
   typography: {
@@ -59,16 +60,18 @@ export function ReplaceAttributionPopup(): ReactElement {
   }
 
   function getPackageCard(attributionId: string): ReactElement {
-    const packageInfo = attributions[attributionId];
+    const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+      attributions[attributionId],
+      [attributionId]
+    );
 
     return (
       <PackageCard
-        attributionId={attributionId}
         onClick={doNothing}
         cardConfig={{}}
         hideContextMenuAndMultiSelect={true}
         cardId={`attribution-list-${attributionId}`}
-        packageInfo={packageInfo}
+        displayPackageInfo={displayPackageInfo}
       />
     );
   }

@@ -596,7 +596,6 @@ describe('The AttributionColumn', () => {
     it('saves resolved external attributions', () => {
       const testPackageInfo: PackageInfo = {};
       const testTemporaryPackageInfo: DisplayPackageInfo = {
-        type: 'DisplayPackageInfo',
         attributionIds: ['TestId'],
       };
       const expectedSaveFileArgs: SaveFileArgs = {
