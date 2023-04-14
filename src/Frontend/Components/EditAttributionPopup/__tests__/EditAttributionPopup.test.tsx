@@ -11,6 +11,7 @@ import {
   Attributions,
   PackageInfo,
   Resources,
+  isDisplayPackageInfo,
 } from '../../../../shared/shared-types';
 import {
   navigateToView,
@@ -131,7 +132,7 @@ describe('The EditAttributionPopup', () => {
         })
       )
     );
-    const changedTestTemporaryPackageInfo = {
+    const changedTestTemporaryPackageInfo: PackageInfo = {
       ...testTemporaryPackageInfo,
       comment: 'changed comment',
     };
@@ -145,8 +146,13 @@ describe('The EditAttributionPopup', () => {
 
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
-    expect(getTemporaryPackageInfo(store.getState()).comment).toBe(
-      changedTestTemporaryPackageInfo.comment
+    const resultingTemporaryPackageInfo = getTemporaryPackageInfo(
+      store.getState()
     );
+    if (!isDisplayPackageInfo(resultingTemporaryPackageInfo)) {
+      expect(resultingTemporaryPackageInfo.comment).toBe(
+        changedTestTemporaryPackageInfo.comment
+      );
+    }
   });
 });

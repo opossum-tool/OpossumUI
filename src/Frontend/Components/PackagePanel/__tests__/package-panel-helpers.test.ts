@@ -10,11 +10,11 @@ import {
   PackageInfo,
 } from '../../../../shared/shared-types';
 import {
-  convertDisplayPackageInfoToPackageInfo,
   getAttributionIdsWithCountForSource,
   getSortedSources,
 } from '../package-panel-helpers';
 import { AttributionIdWithCount } from '../../../types/types';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 
 const testAttributionSources: ExternalAttributionSources = {
   MERGER: { name: 'Suggested', priority: 11 },
@@ -183,13 +183,11 @@ describe('PackagePanel helpers', () => {
   it('convertDisplayPackageInfoToPackageInfo returns correct PackageInfo', () => {
     const testDisplayPackageInfoA: DisplayPackageInfo = {
       packageName: 'react',
-      type: 'DisplayPackageInfo',
       comments: ['comment A', 'comment B'],
       attributionIds: ['123', '456'],
     };
     const testDisplayPackageInfoB: DisplayPackageInfo = {
       packageName: 'react',
-      type: 'DisplayPackageInfo',
       comments: ['comment'],
       attributionIds: ['123'],
     };

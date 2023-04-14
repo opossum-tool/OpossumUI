@@ -126,7 +126,6 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    type: 'DisplayPackageInfo',
     attributionIds: ['abc'],
   };
   const testPropsWithoutVersion: DisplayPackageInfo = {
@@ -136,7 +135,6 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    type: 'DisplayPackageInfo',
     attributionIds: ['abc'],
   };
 
@@ -187,7 +185,6 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    type: 'DisplayPackageInfo',
     attributionIds: ['abc'],
   };
   it('adds copyright', () => {

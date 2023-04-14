@@ -14,6 +14,10 @@ import { PackageCardConfig } from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
 import { PackageList } from '../PackageList/PackageList';
 import { PackageCard } from '../PackageCard/PackageCard';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../util/convert-package-info';
 
 const classes = {
   root: {
@@ -35,7 +39,10 @@ export function AllAttributionsPanel(
   const dispatch = useAppDispatch();
 
   function getPackageCard(attributionId: string): ReactElement | null {
-    const packageInfo = props.attributions && props.attributions[attributionId];
+    const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+      props.attributions[attributionId],
+      [attributionId]
+    );
 
     function onCardClick(): void {
       dispatch(
@@ -47,12 +54,14 @@ export function AllAttributionsPanel(
     }
 
     function onAddClick(): void {
+      const packageInfo =
+        convertDisplayPackageInfoToPackageInfo(displayPackageInfo);
       dispatch(addToSelectedResource(packageInfo));
     }
 
     const cardConfig: PackageCardConfig = {
       isSelected: attributionId === props.selectedAttributionId,
-      isPreSelected: Boolean(packageInfo.preSelected),
+      isPreSelected: Boolean(displayPackageInfo.preSelected),
     };
 
     return (
@@ -61,10 +70,9 @@ export function AllAttributionsPanel(
         onClick={onCardClick}
         onIconClick={props.isAddToPackageEnabled ? onAddClick : undefined}
         cardConfig={cardConfig}
-        key={`PackageCard-${packageInfo.packageName}-${attributionId}`}
-        packageInfo={packageInfo}
+        key={`PackageCard-${displayPackageInfo.packageName}-${attributionId}`}
+        displayPackageInfo={displayPackageInfo}
         hideResourceSpecificButtons={true}
-        attributionId={attributionId}
         showOpenResourcesIcon={true}
       />
     );
