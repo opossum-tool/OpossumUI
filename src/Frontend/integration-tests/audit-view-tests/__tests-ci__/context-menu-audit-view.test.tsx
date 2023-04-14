@@ -49,6 +49,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 
 const testResources: Resources = {
   folder1: { 'firstResource.js': 1 },
@@ -92,7 +93,7 @@ describe('In Audit View the ContextMenu', () => {
     renderComponentWithStore(<App />);
     clickOnElementInResourceBrowser(screen, 'folder1');
 
-    const cardLabel = 'Add new attribution';
+    const cardLabel = ADD_NEW_ATTRIBUTION_BUTTON_TEXT;
     expectContextMenuIsNotShown(screen, cardLabel);
   });
 

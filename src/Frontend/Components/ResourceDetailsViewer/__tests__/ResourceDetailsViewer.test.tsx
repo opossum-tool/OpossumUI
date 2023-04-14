@@ -30,6 +30,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 import { act } from 'react-dom/test-utils';
+import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
@@ -645,7 +646,9 @@ describe('The ResourceDetailsViewer', () => {
     });
 
     expect(screen.queryByText('Attributions')).not.toBeInTheDocument();
-    expect(screen.queryByText('Add new attribution')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT)
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('1st party')).not.toBeInTheDocument();
     expect(
       screen.queryByText('License Text (to appear in attribution document)')

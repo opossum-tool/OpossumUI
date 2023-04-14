@@ -47,8 +47,8 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   useMemo(() => {
-    setExpanded(props.panelData.attributionIdsWithCount?.length > 0);
-  }, [props.panelData.attributionIdsWithCount]);
+    setExpanded(props.panelData.displayAttributionsWithCount?.length > 0);
+  }, [props.panelData.displayAttributionsWithCount]);
 
   function handleExpansionChange(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -69,7 +69,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       key={`PackagePanel-${props.panelData.title}`}
       expanded={expanded}
       onChange={handleExpansionChange}
-      disabled={isDisabled(props.panelData.attributionIdsWithCount)}
+      disabled={isDisabled(props.panelData.displayAttributionsWithCount)}
     >
       <MuiAccordionSummary
         sx={{
@@ -86,8 +86,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       >
         <PackagePanel
           title={props.panelData.title}
-          attributionIdsWithCount={props.panelData.attributionIdsWithCount}
-          attributions={props.panelData.attributions}
+          attributionIdsWithCount={props.panelData.displayAttributionsWithCount}
           isAddToPackageEnabled={props.isAddToPackageEnabled}
         />
       </MuiAccordionDetails>

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PanelAttributionData } from '../util/get-contained-packages';
-import { AttributionIdsWithCountAndResourceId } from '../types/types';
+import { DisplayAttributionsWithCountAndResourceId } from '../types/types';
 import { getDisplayContainedExternalPackagesWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
 import { AttributionsToHashes } from '../../shared/shared-types';
 
@@ -36,9 +36,9 @@ self.onmessage = ({
           resolvedExternalAttributions,
           attributionsToHashes: cachedAttributionsToHashes,
         });
-      const output: AttributionIdsWithCountAndResourceId = {
+      const output: DisplayAttributionsWithCountAndResourceId = {
         resourceId: selectedResourceId,
-        attributionIdsWithCount: displayAttributionIdsWithCount,
+        displayAttributionsWithCount: displayAttributionIdsWithCount,
       };
 
       self.postMessage({

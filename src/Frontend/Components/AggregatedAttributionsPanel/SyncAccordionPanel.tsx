@@ -10,7 +10,7 @@ import {
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import { AttributionIdWithCount, PanelData } from '../../types/types';
-import { getDisplayAttributionsWithCount } from './accordion-panel-helpers';
+import { getDisplayExternalAttributionsWithCount } from './accordion-panel-helpers';
 
 interface SyncAccordionPanelProps {
   title: PackagePanelTitle;
@@ -23,15 +23,14 @@ interface SyncAccordionPanelProps {
 export function SyncAccordionPanel(
   props: SyncAccordionPanelProps
 ): ReactElement {
-  const displayAttributionIdsWithCount = getDisplayAttributionsWithCount(
+  const displayAttributionsWithCount = getDisplayExternalAttributionsWithCount(
     props.getAttributionIdsWithCount(),
     props.attributions,
     props.attributionsToHashes
   );
   const panelData: PanelData = {
     title: props.title,
-    attributionIdsWithCount: displayAttributionIdsWithCount,
-    attributions: props.attributions,
+    displayAttributionsWithCount,
   };
 
   return (

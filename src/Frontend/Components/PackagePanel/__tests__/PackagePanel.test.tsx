@@ -19,16 +19,39 @@ import { getByText } from '@testing-library/react';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { AttributionIdWithCount } from '../../../types/types';
+import { DisplayAttributionWithCount } from '../../../types/types';
 
 describe('The PackagePanel', () => {
   it('renders TextBoxes with right content', () => {
     const testSource = { name: 'HC', documentConfidence: 1 };
-    const testAttributionIds: Array<AttributionIdWithCount> = [
-      { attributionId: 'uuid1' },
-      { attributionId: 'uuid2' },
-      { attributionId: 'uuid3' },
-    ];
+    const testDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+      [
+        {
+          attributionId: 'uuid1',
+          attribution: {
+            source: testSource,
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            attributionIds: ['uuid1'],
+          },
+        },
+        {
+          attributionId: 'uuid2',
+          attribution: {
+            source: testSource,
+            packageName: 'JQuery',
+            attributionIds: ['uuid2'],
+          },
+        },
+        {
+          attributionId: 'uuid3',
+          attribution: {
+            source: testSource,
+            attributionIds: ['uuid3'],
+          },
+        },
+      ];
+
     const testAttributions: Attributions = {
       uuid1: {
         source: testSource,
@@ -51,8 +74,7 @@ describe('The PackagePanel', () => {
     );
     renderComponentWithStore(
       <PackagePanel
-        attributionIdsWithCount={testAttributionIds}
-        attributions={testAttributions}
+        attributionIdsWithCount={testDisplayAttributionsWithCount}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,
@@ -65,11 +87,34 @@ describe('The PackagePanel', () => {
   });
 
   it('groups by source and prettifies known sources', () => {
-    const testAttributionIds: Array<AttributionIdWithCount> = [
-      { attributionId: 'uuid1' },
-      { attributionId: 'uuid2' },
-      { attributionId: 'uuid3' },
-    ];
+    const testDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+      [
+        {
+          attributionId: 'uuid1',
+          attribution: {
+            source: { name: 'other', documentConfidence: 1 },
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            attributionIds: ['uuid1'],
+          },
+        },
+        {
+          attributionId: 'uuid2',
+          attribution: {
+            source: { name: 'SC', documentConfidence: 1 },
+            packageName: 'JQuery',
+            attributionIds: ['uuid2'],
+          },
+        },
+        {
+          attributionId: 'uuid3',
+          attribution: {
+            packageName: 'JQuery 2',
+            attributionIds: ['uuid3'],
+          },
+        },
+      ];
+
     const testAttributions: Attributions = {
       uuid1: {
         source: { name: 'other', documentConfidence: 1 },
@@ -97,8 +142,7 @@ describe('The PackagePanel', () => {
     );
     renderComponentWithStore(
       <PackagePanel
-        attributionIdsWithCount={testAttributionIds}
-        attributions={testAttributions}
+        attributionIdsWithCount={testDisplayAttributionsWithCount}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,

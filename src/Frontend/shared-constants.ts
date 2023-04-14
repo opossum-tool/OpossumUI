@@ -5,6 +5,7 @@
 
 import {
   AttributionData,
+  DisplayPackageInfo,
   FrequentLicenses,
   ProjectMetadata,
 } from '../shared/shared-types';
@@ -29,3 +30,10 @@ export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
   projectId: '',
   fileCreationDate: '',
 };
+
+export const EMPTY_DISPLAY_PACKAGE_INFO: DisplayPackageInfo = {
+  attributionIds: [],
+};
+
+export const ADD_NEW_ATTRIBUTION_BUTTON_ID = 'ADD_NEW_ATTRIBUTION_ID';
+export const ADD_NEW_ATTRIBUTION_BUTTON_TEXT = 'Add new attribution';

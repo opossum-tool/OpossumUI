@@ -2,17 +2,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { getContainedManualPackages } from '../util/get-contained-packages';
-import { AttributionIdsWithCountAndResourceId } from '../types/types';
+import { DisplayAttributionsWithCountAndResourceId } from '../types/types';
+import { getDisplayContainedManualPackagesWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
 
 self.onmessage = ({ data: { selectedResourceId, manualData } }): void => {
-  const attributionIdsWithCount = getContainedManualPackages({
+  const attributionIdsWithCount = getDisplayContainedManualPackagesWithCount({
     selectedResourceId,
     manualData,
   });
-  const output: AttributionIdsWithCountAndResourceId = {
+  const output: DisplayAttributionsWithCountAndResourceId = {
     resourceId: selectedResourceId,
-    attributionIdsWithCount,
+    displayAttributionsWithCount: attributionIdsWithCount,
   };
 
   self.postMessage({
