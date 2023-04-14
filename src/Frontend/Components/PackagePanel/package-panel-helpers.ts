@@ -4,23 +4,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  Attributions,
   ExternalAttributionSources,
   Source,
 } from '../../../shared/shared-types';
-import { AttributionIdWithCount } from '../../types/types';
+import { DisplayAttributionWithCount } from '../../types/types';
 
 export function getSortedSources(
-  attributions: Attributions,
-  attributionIdsWithCount: Array<AttributionIdWithCount>,
+  attributionIdsWithCount: Array<DisplayAttributionWithCount>,
   attributionSources: ExternalAttributionSources
 ): Array<string> {
   function reducer(
     sources: Set<string>,
-    attributionIdWithCount: AttributionIdWithCount
+    attributionIdWithCount: DisplayAttributionWithCount
   ): Set<string> {
     const source: Source | undefined =
-      attributions[attributionIdWithCount.attributionId]?.source;
+      attributionIdWithCount.attribution?.source;
     sources.add(source ? source.name : '');
 
     return sources;
@@ -72,13 +70,12 @@ function sortSources(
 }
 
 export function getAttributionIdsWithCountForSource(
-  attributionIds: Array<AttributionIdWithCount>,
-  attributions: Attributions,
+  attributionIdsWithCount: Array<DisplayAttributionWithCount>,
   sourceName: string
-): Array<AttributionIdWithCount> {
-  return attributionIds.filter((attributionIdWithCount) => {
+): Array<DisplayAttributionWithCount> {
+  return attributionIdsWithCount.filter((attributionIdWithCount) => {
     const source: Source | undefined =
-      attributions[attributionIdWithCount.attributionId]?.source;
+      attributionIdWithCount.attribution?.source;
 
     return sourceName
       ? Boolean(source?.name && source?.name === sourceName)

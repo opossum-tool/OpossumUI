@@ -53,7 +53,6 @@ describe('The AllAttributionsPanel', () => {
       <AllAttributionsPanel
         attributions={{}}
         selectedAttributionId={null}
-        attributionIds={[]}
         isAddToPackageEnabled={true}
       />
     );
@@ -76,7 +75,6 @@ describe('The AllAttributionsPanel', () => {
       <AllAttributionsPanel
         attributions={testAttributions}
         selectedAttributionId={null}
-        attributionIds={['uuid1', 'uuid2']}
         isAddToPackageEnabled={true}
       />,
       { store: testStore }
@@ -98,17 +96,13 @@ describe('The AllAttributionsPanel', () => {
       <AllAttributionsPanel
         attributions={testManualAttributions}
         selectedAttributionId={testManualAttributionUuid2}
-        attributionIds={[
-          testManualAttributionUuid2,
-          testManualAttributionUuid3,
-        ]}
         isAddToPackageEnabled={true}
       />,
       { store: testStore }
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
-    expect(screen.queryByText('Typescript, 1.0')).not.toBeInTheDocument();
+    expect(screen.getByText('Typescript, 1.0')).toBeInTheDocument();
     expect(screen.getByText('React, 2.0')).toBeInTheDocument();
     expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
   });
@@ -155,7 +149,6 @@ describe('The AllAttributionsPanel', () => {
       <AllAttributionsPanel
         attributions={testManualAttributions}
         selectedAttributionId={null}
-        attributionIds={['uuid_1', 'uuid_2', 'uuid_3']}
         isAddToPackageEnabled={true}
       />,
       { store: testStore }

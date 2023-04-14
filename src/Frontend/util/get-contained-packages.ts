@@ -45,18 +45,18 @@ export function getContainedExternalPackages(
   );
 }
 
-export function getContainedManualPackages(args: {
-  selectedResourceId: string;
-  manualData: Readonly<PanelAttributionData>;
-}): Array<AttributionIdWithCount> {
+export function getContainedManualPackages(
+  selectedResourceId: string,
+  manualData: Readonly<PanelAttributionData>
+): Array<AttributionIdWithCount> {
   const manualAttributedChildren = getAttributedChildren(
-    args.manualData.resourcesWithAttributedChildren,
-    args.selectedResourceId
+    manualData.resourcesWithAttributedChildren,
+    selectedResourceId
   );
 
   return computeAggregatedAttributionsFromChildren(
-    args.manualData.attributions,
-    args.manualData.resourcesToAttributions,
+    manualData.attributions,
+    manualData.resourcesToAttributions,
     manualAttributedChildren
   );
 }

@@ -8,7 +8,7 @@ import { Attributions } from '../../../shared/shared-types';
 import { Height, NumberOfDisplayedItems } from '../../types/types';
 import { List } from '../List/List';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getFilteredPackageIds } from './package-list-helpers';
+import { getFilteredPackageIdsFromAttributions } from './package-list-helpers';
 
 const CARD_VERTICAL_DISTANCE = 41;
 
@@ -28,7 +28,12 @@ export function AttributionsViewPackageList(
 
   const filteredPackageIds: Array<string> = useMemo(
     () =>
-      getFilteredPackageIds(props.attributions, props.attributionIds, search),
+      // TODO: Adapt
+      getFilteredPackageIdsFromAttributions(
+        props.attributions,
+        props.attributionIds,
+        search
+      ),
     [props.attributions, props.attributionIds, search]
   );
 
