@@ -8,6 +8,7 @@ import React from 'react';
 import {
   Attributions,
   FollowUp,
+  Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { FilterType, View } from '../../../enums/enums';
@@ -160,5 +161,50 @@ describe('The Attribution View', () => {
     clickOnFilter(screen, FilterType.HideFirstParty);
     expect(screen.getByText('Test other package, 2.0'));
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
+  });
+
+  it('sorts displayAttributionsWithCount', () => {
+    const testResources: Resources = { ['test resource']: 1 };
+    const testManualAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'zz Test package',
+      },
+      uuid_2: {
+        attributionConfidence: 0,
+        comment: 'Some comment',
+        packageName: 'Test package',
+        packageVersion: '1.0',
+        copyright: 'Copyright John Doe',
+        licenseText: 'Some license text',
+      },
+      uuid_3: {
+        copyright: '(C) Copyright John Doe 2',
+      },
+    };
+    const testResourcesToManualAttributions = {
+      '/file': ['uuid_1', 'uuid_2', 'uuid_3'],
+    };
+
+    const { store } = renderComponentWithStore(<AttributionView />);
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
+      )
+    );
+    act(() => {
+      store.dispatch(navigateToView(View.Attribution));
+    });
+
+    const nodePackage1 = screen.getByText(/zz Test package/);
+    const nodePackage2 = screen.getByText(/Test package, 1\.0/);
+    const nodePackage3 = screen.getByText(/\(C\) Copyright John Doe 2/);
+
+    expect(nodePackage3.compareDocumentPosition(nodePackage1)).toBe(2);
+    expect(nodePackage3.compareDocumentPosition(nodePackage2)).toBe(2);
+    expect(nodePackage1.compareDocumentPosition(nodePackage2)).toBe(2);
   });
 });

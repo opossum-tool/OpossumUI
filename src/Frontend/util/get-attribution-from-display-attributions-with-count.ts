@@ -28,6 +28,6 @@ export function getAttributionFromDisplayAttributionsWithCount(
   } else {
     return {
       attributionIds: [],
-    } as DisplayPackageInfo;
+    };
   }
 }
