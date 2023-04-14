@@ -34,7 +34,6 @@ describe('getDisplayAttributionsWithCount', () => {
         attributionId: 'uuid1',
         count: 5,
         attribution: {
-          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
           packageName: 'Typescript',
           attributionConfidence: 0,
@@ -63,7 +62,6 @@ describe('getDisplayAttributionsWithCount', () => {
         attributionId: 'uuid1',
         count: 3,
         attribution: {
-          type: 'DisplayPackageInfo',
           packageName: 'Typescript',
           attributionConfidence: 0,
           attributionIds: ['uuid1'],
@@ -73,7 +71,6 @@ describe('getDisplayAttributionsWithCount', () => {
         attributionId: 'uuid2',
         count: 2,
         attribution: {
-          type: 'DisplayPackageInfo',
           packageName: 'Typescript',
           attributionConfidence: 0,
           attributionIds: ['uuid2'],
@@ -105,7 +102,6 @@ describe('getDisplayAttributionsWithCount', () => {
         attributionId: 'uuid1',
         count: 5,
         attribution: {
-          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 20,
         },
@@ -145,7 +141,6 @@ describe('getDisplayAttributionsWithCount', () => {
       {
         attributionId: 'uuid1',
         attribution: {
-          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
           attributionConfidence: 0,
           comments: ['comment A', 'comment B'],
@@ -177,7 +172,6 @@ describe('getDisplayAttributionsWithCount', () => {
         attributionId: 'uuid1',
         count: 5,
         attribution: {
-          type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 0,
           originIds: ['uuid3', 'uuid4', 'uuid5'],

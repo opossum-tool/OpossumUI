@@ -5,14 +5,10 @@
 
 import {
   Attributions,
-  DisplayPackageInfo,
   ExternalAttributionSources,
-  PackageInfo,
   Source,
 } from '../../../shared/shared-types';
-import { getPackageInfoKeys } from '../../../shared/shared-util';
 import { AttributionIdWithCount } from '../../types/types';
-import { shouldNotBeCalled } from '../../util/should-not-be-called';
 
 export function getSortedSources(
   attributions: Attributions,
@@ -88,60 +84,4 @@ export function getAttributionIdsWithCountForSource(
       ? Boolean(source?.name && source?.name === sourceName)
       : !source;
   });
-}
-
-export function convertDisplayPackageInfoToPackageInfo(
-  displayPackageInfo: DisplayPackageInfo
-): PackageInfo {
-  const packageInfo: PackageInfo = {};
-
-  getPackageInfoKeys().forEach((packageInfoKey) => {
-    if (packageInfoKey in displayPackageInfo) {
-      switch (packageInfoKey) {
-        case 'packageName':
-        case 'packageVersion':
-        case 'packageNamespace':
-        case 'packageType':
-        case 'packagePURLAppendix':
-        case 'url':
-        case 'copyright':
-        case 'licenseName':
-        case 'licenseText':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'comment':
-          break;
-        case 'firstParty':
-        case 'preSelected':
-        case 'excludeFromNotice':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'attributionConfidence':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'followUp':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'source':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'originIds':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'criticality':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        default:
-          shouldNotBeCalled(packageInfoKey);
-      }
-    }
-    if (
-      displayPackageInfo.attributionIds.length === 1 &&
-      displayPackageInfo.comments
-    ) {
-      packageInfo.comment = displayPackageInfo.comments[0];
-    }
-  });
-
-  return packageInfo;
 }

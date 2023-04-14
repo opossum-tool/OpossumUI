@@ -51,8 +51,7 @@ export interface PackageInfo extends PackageInfoCore {
   comment?: string;
 }
 
-export interface DisplayPackageInfo extends PackageInfo {
-  type: 'DisplayPackageInfo';
+export interface DisplayPackageInfo extends PackageInfoCore {
   comments?: Array<string>;
   attributionIds: Array<string>;
 }
@@ -60,10 +59,7 @@ export interface DisplayPackageInfo extends PackageInfo {
 export function isDisplayPackageInfo(
   packageInfoOrDisplayPackageInfo: PackageInfo | DisplayPackageInfo
 ): packageInfoOrDisplayPackageInfo is DisplayPackageInfo {
-  return (
-    'type' in packageInfoOrDisplayPackageInfo &&
-    packageInfoOrDisplayPackageInfo.type === 'DisplayPackageInfo'
-  );
+  return 'attributionIds' in packageInfoOrDisplayPackageInfo;
 }
 
 export interface Source {
