@@ -9,6 +9,7 @@ import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { List } from '../List/List';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageCardConfig } from '../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 
 const addNewAttributionButtonText = 'Add new attribution';
 const addNewAttributionButtonId = 'ADD_NEW_ATTRIBUTION_ID';
@@ -38,8 +39,12 @@ export function ManualAttributionList(
   }
 
   function getAttributionCard(attributionId: string): ReactElement {
-    const packageInfo = attributions[attributionId];
     const isButton = attributionId === addNewAttributionButtonId;
+
+    const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+      attributions[attributionId],
+      isButton ? [''] : [attributionId]
+    );
 
     function isSelected(): boolean {
       return (
@@ -54,18 +59,17 @@ export function ManualAttributionList(
 
     const cardConfig: PackageCardConfig = {
       isSelected: isSelected(),
-      isPreSelected: Boolean(packageInfo.preSelected),
+      isPreSelected: Boolean(displayPackageInfo.preSelected),
     };
 
     return (
       <PackageCard
-        attributionId={isButton ? '' : attributionId}
         onClick={onClick}
         hideContextMenuAndMultiSelect={isButton}
         cardConfig={cardConfig}
-        key={`AttributionCard-${packageInfo.packageName}-${attributionId}`}
+        key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
         cardId={`manual-${props.selectedResourceId}-${attributionId}`}
-        packageInfo={packageInfo}
+        displayPackageInfo={displayPackageInfo}
         showOpenResourcesIcon={!isButton}
         hideAttributionWizardContextMenuItem={props.attributionsFromParent}
       />

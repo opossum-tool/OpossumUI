@@ -56,11 +56,7 @@ import {
   getRightIcons,
 } from './package-card-helpers';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
-import {
-  isDisplayPackageInfo,
-  DisplayPackageInfo,
-  PackageInfo,
-} from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import MuiBox from '@mui/material/Box';
 import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 
@@ -81,8 +77,7 @@ const classes = {
 
 interface PackageCardProps {
   cardId: string;
-  packageInfo: PackageInfo | DisplayPackageInfo;
-  attributionId: string;
+  displayPackageInfo: DisplayPackageInfo;
   packageCount?: number;
   cardConfig: PackageCardConfig;
   onClick(): void;
@@ -122,41 +117,54 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
     useState<boolean>(false);
 
+  const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
   const isPreselected = Boolean(props.cardConfig.isPreSelected);
-  const packageLabels = getCardLabels(props.packageInfo);
-  const attributionId = props.attributionId;
+  const packageLabels = getCardLabels(props.displayPackageInfo);
+  const attributionIds = props.displayPackageInfo.attributionIds;
   const selectedAttributionId =
     selectedView === View.Attribution
       ? selectedAttributionIdAttributionView
       : selectedAttributionIdAuditView;
 
-  const listCardConfig: ListCardConfig = {
-    ...props.cardConfig,
-    firstParty: props.packageInfo.firstParty,
-    excludeFromNotice: props.packageInfo.excludeFromNotice,
-    followUp: Boolean(props.packageInfo.followUp),
-    isContextMenuOpen,
-    isMarkedForReplacement:
-      Boolean(attributionId) &&
-      attributionId === attributionIdMarkedForReplacement,
-    isMultiSelected: multiSelectSelectedAttributionIds.includes(attributionId),
-    criticality: props.cardConfig.isExternalAttribution
-      ? props.packageInfo.criticality
-      : props.packageInfo.preSelected
-      ? props.packageInfo.criticality
-      : undefined,
-  };
+  function getListCardConfig(): ListCardConfig {
+    let listCardConfig: ListCardConfig = {
+      ...props.cardConfig,
+      firstParty: props.displayPackageInfo.firstParty,
+      excludeFromNotice: props.displayPackageInfo.excludeFromNotice,
+      followUp: Boolean(props.displayPackageInfo.followUp),
+      isContextMenuOpen,
+      criticality: props.cardConfig.isExternalAttribution
+        ? props.displayPackageInfo.criticality
+        : props.displayPackageInfo.preSelected
+        ? props.displayPackageInfo.criticality
+        : undefined,
+    };
+    if (!isExternalAttribution) {
+      const attributionId = attributionIds[0];
+      listCardConfig = {
+        ...listCardConfig,
+        isMarkedForReplacement:
+          Boolean(attributionId) &&
+          attributionId === attributionIdMarkedForReplacement,
+        isMultiSelected:
+          multiSelectSelectedAttributionIds.includes(attributionId),
+      };
+    }
+
+    return listCardConfig;
+  }
+
+  const listCardConfig = getListCardConfig();
 
   const highlighting =
     selectedView === View.Attribution
-      ? getPackageCardHighlighting(manualAttributions[attributionId])
+      ? getPackageCardHighlighting(props.displayPackageInfo)
       : undefined;
 
-  const displayAttributionIds = isDisplayPackageInfo(props.packageInfo)
-    ? props.packageInfo.attributionIds
-    : [attributionId]; // TODO: consider this when refactoring
+  const displayAttributionIds = props.displayPackageInfo.attributionIds;
 
-  function getContextMenuItems(): Array<ContextMenuItem> {
+  function getContextMenuItemsForManualAttributions(): Array<ContextMenuItem> {
+    const attributionId = attributionIds[0];
     function openConfirmDeletionPopup(): void {
       if (isPreselected) {
         dispatch(
@@ -228,13 +236,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     const hideResourceSpecificButtons = Boolean(
       props.hideResourceSpecificButtons
     );
-    const isExternalAttribution = Boolean(
-      props.cardConfig.isExternalAttribution
-    );
     const showGlobalButtons =
-      !Boolean(isExternalAttribution) &&
+      !isExternalAttribution &&
       (hasAttributionMultipleResources(
-        props.attributionId,
+        attributionId,
         attributionsToResources
       ) ||
         hideResourceSpecificButtons);
@@ -293,20 +298,6 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             onClick: (): void => setShowAssociatedResourcesPopup(true),
           },
           {
-            buttonText: selectedPackagesAreResolved(
-              displayAttributionIds,
-              resolvedExternalAttributions
-            )
-              ? ButtonText.Unhide
-              : ButtonText.Hide,
-            onClick: getResolvedToggleHandler(
-              displayAttributionIds,
-              resolvedExternalAttributions,
-              dispatch
-            ),
-            hidden: !isExternalAttribution,
-          },
-          {
             buttonText: ButtonText.MarkForReplacement,
             onClick: (): void => {
               dispatch(setAttributionIdMarkedForReplacement(attributionId));
@@ -343,31 +334,66 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           },
         ];
   }
+  function getContextMenuItemsForExternalAttributions(): Array<ContextMenuItem> {
+    return props.hideContextMenuAndMultiSelect
+      ? []
+      : [
+          {
+            buttonText: ButtonText.ShowResources,
+            onClick: (): void => setShowAssociatedResourcesPopup(true),
+          },
+          {
+            buttonText: selectedPackagesAreResolved(
+              displayAttributionIds,
+              resolvedExternalAttributions
+            )
+              ? ButtonText.Unhide
+              : ButtonText.Hide,
+            onClick: getResolvedToggleHandler(
+              displayAttributionIds,
+              resolvedExternalAttributions,
+              dispatch
+            ),
+            hidden: !isExternalAttribution,
+          },
+        ];
+  }
 
   function toggleIsContextMenuOpen(): void {
     setIsContextMenuOpen(!isContextMenuOpen);
   }
 
-  function handleMultiSelectAttributionSelected(
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void {
-    const newMultiSelectSelectedAttributionIds = event.target.checked
-      ? multiSelectSelectedAttributionIds.concat([attributionId])
-      : multiSelectSelectedAttributionIds.filter((id) => id !== attributionId);
+  function getLeftElementForManualAttribution(): ReactElement | undefined {
+    const attributionId = attributionIds[0];
 
-    dispatch(
-      setMultiSelectSelectedAttributionIds(newMultiSelectSelectedAttributionIds)
-    );
-  }
+    function handleMultiSelectAttributionSelected(
+      event: React.ChangeEvent<HTMLInputElement>
+    ): void {
+      const newMultiSelectSelectedAttributionIds = event.target.checked
+        ? multiSelectSelectedAttributionIds.concat([attributionId])
+        : multiSelectSelectedAttributionIds.filter(
+            (id) => id !== attributionId
+          );
 
-  const leftElement =
-    props.showCheckBox && !props.hideContextMenuAndMultiSelect ? (
+      dispatch(
+        setMultiSelectSelectedAttributionIds(
+          newMultiSelectSelectedAttributionIds
+        )
+      );
+    }
+
+    return props.showCheckBox && !props.hideContextMenuAndMultiSelect ? (
       <Checkbox
         checked={multiSelectSelectedAttributionIds.includes(attributionId)}
         onChange={handleMultiSelectAttributionSelected}
         sx={classes.multiSelectCheckbox}
       />
     ) : undefined;
+  }
+
+  const leftElement = isExternalAttribution
+    ? undefined
+    : getLeftElementForManualAttribution();
 
   const leftIcon = props.onIconClick ? (
     <IconButton
@@ -394,7 +420,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       onClick={(): void => {
         setShowAssociatedResourcesPopup(true);
       }}
-      key={`open-resources-icon-${props.packageInfo.packageName}-${props.packageInfo.packageVersion}`}
+      key={`open-resources-icon-${props.displayPackageInfo.packageName}-${props.displayPackageInfo.packageVersion}`}
       icon={
         <OpenInBrowserIcon
           sx={classes.clickableIcon}
@@ -417,7 +443,11 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           />
         )}
       <ContextMenu
-        menuItems={getContextMenuItems()}
+        menuItems={
+          isExternalAttribution
+            ? getContextMenuItemsForExternalAttributions()
+            : getContextMenuItemsForManualAttributions()
+        }
         activation={'onRightClick'}
         onClose={toggleIsContextMenuOpen}
         onOpen={toggleIsContextMenuOpen}

@@ -29,7 +29,6 @@ import {
 import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
-  convertDisplayPackageInfoToPackageInfo,
 } from './package-panel-helpers';
 import { prettifySource } from '../../util/prettify-source';
 import {
@@ -39,6 +38,10 @@ import {
   PackageCardConfig,
 } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../util/convert-package-info';
 
 const classes = {
   root: {
@@ -139,9 +142,12 @@ export function PackagePanel(
   }
 
   function getPackageCard(attributionId: string): ReactElement {
-    const packageInfo: PackageInfo | DisplayPackageInfo =
-      getAttributionFromDisplayAttributionWithCount(attributionId) ||
-      props.attributions[attributionId];
+    const displayPackageInfo: DisplayPackageInfo =
+      getAttributionFromDisplayAttributionWithCount(attributionId) ??
+      convertPackageInfoToDisplayPackageInfo(
+        props.attributions[attributionId],
+        [attributionId]
+      );
 
     const packageCount: number | undefined =
       props.attributionIdsWithCount.filter(
@@ -157,7 +163,7 @@ export function PackagePanel(
       ? getPreSelectedExternalAttributionIdsForSelectedResource().includes(
           attributionId
         )
-      : packageInfo.preSelected;
+      : displayPackageInfo.preSelected;
 
     const selectedAttributionId =
       selectedPackage && props.title === selectedPackage.panel
@@ -179,12 +185,11 @@ export function PackagePanel(
       <PackageCard
         onClick={(): void => onCardClick(attributionId)}
         onIconClick={props.isAddToPackageEnabled ? onIconClick : undefined}
-        key={`PackageCard-${packageInfo.packageName}-${attributionId}`}
+        key={`PackageCard-${displayPackageInfo.packageName}-${attributionId}`}
         packageCount={packageCount}
         hideResourceSpecificButtons={true}
         cardId={`package-${selectedResourceId}-${attributionId}`}
-        packageInfo={packageInfo}
-        attributionId={attributionId}
+        displayPackageInfo={displayPackageInfo}
         cardConfig={cardConfig}
         showOpenResourcesIcon={true}
       />

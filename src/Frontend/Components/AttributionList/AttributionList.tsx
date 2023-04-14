@@ -12,6 +12,7 @@ import { checkboxClass } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 
 const classes = {
   ...checkboxClass,
@@ -41,7 +42,10 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   }).sort(getAlphabeticalComparer(attributions));
 
   function getAttributionCard(attributionId: string): ReactElement {
-    const packageInfo = attributions[attributionId];
+    const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+      attributions[attributionId],
+      [attributionId]
+    );
 
     function isSelected(): boolean {
       return attributionId === props.selectedAttributionId;
@@ -53,17 +57,16 @@ export function AttributionList(props: AttributionListProps): ReactElement {
 
     const cardConfig: PackageCardConfig = {
       isSelected: isSelected(),
-      isPreSelected: Boolean(packageInfo.preSelected),
+      isPreSelected: Boolean(displayPackageInfo.preSelected),
     };
 
     return (
       <PackageCard
         cardId={`attribution-list-${attributionId}`}
-        attributionId={attributionId}
         onClick={onClick}
         cardConfig={cardConfig}
-        key={`AttributionCard-${packageInfo.packageName}-${attributionId}`}
-        packageInfo={packageInfo}
+        key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
+        displayPackageInfo={displayPackageInfo}
         hideResourceSpecificButtons={true}
         showCheckBox={true}
       />

@@ -23,7 +23,7 @@ export function getDisplayContainedExternalPackagesWithCount(args: {
   externalData: Readonly<PanelAttributionData>;
   resolvedExternalAttributions: Readonly<Set<string>>;
   attributionsToHashes: Readonly<AttributionsToHashes>;
-}): Array<AttributionIdWithCount> {
+}): Array<DisplayAttributionWithCount> {
   const attributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
     args.externalData.resourcesWithAttributedChildren,
@@ -101,13 +101,14 @@ function getDisplayAttributionWithCountFromAttributions(
     (attributionWithId) => attributionWithId[0]
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { comment, ...packageInfoWithoutComment } = attributionsWithIds[0][1];
+
   const attributionToShow: DisplayPackageInfo = {
-    ...attributionsWithIds[0][1],
-    type: 'DisplayPackageInfo',
+    ...packageInfoWithoutComment,
     attributionConfidence: displayAttributionConfidence,
     attributionIds,
   };
-  delete attributionToShow.comment;
   if (comments.length > 0) {
     attributionToShow.comments = comments;
   }

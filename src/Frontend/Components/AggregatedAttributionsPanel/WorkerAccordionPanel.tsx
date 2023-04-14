@@ -12,6 +12,7 @@ import { PackagePanelTitle } from '../../enums/enums';
 import {
   AttributionIdsWithCountAndResourceId,
   AttributionIdWithCount,
+  DisplayAttributionWithCount,
   PanelData,
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
@@ -46,7 +47,7 @@ interface WorkerAccordionPanelProps {
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
   getDisplayAttributionIdsWithCount(
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ): Array<AttributionIdWithCount>;
+  ): Array<AttributionIdWithCount | DisplayAttributionWithCount>;
   attributions: Attributions;
   isAddToPackageEnabled: boolean;
 }

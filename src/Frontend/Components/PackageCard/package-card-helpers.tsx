@@ -12,7 +12,7 @@ import {
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { OpossumColors } from '../../shared-styles';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { HighlightingColor } from '../../enums/enums';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
@@ -71,7 +71,7 @@ export function getRightIcons(
 }
 
 export function getPackageCardHighlighting(
-  packageInfo: PackageInfo
+  packageInfo: DisplayPackageInfo
 ): HighlightingColor | undefined {
   if (packageInfo.excludeFromNotice || packageInfo.firstParty) return undefined;
   if (packageInfo.packageName === undefined)
