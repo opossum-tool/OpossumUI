@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { FilterType, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
-import { getPackageInfoOfSelectedAttribution } from '../../selectors/all-views-resource-selectors';
+import { getDisplayPackageInfoOfSelectedAttribution } from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-actions';
-import { getAttributionOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
+import { getDisplayPackageInfoOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -28,6 +28,7 @@ import {
   UpdateActiveFilters,
 } from './types';
 import { setMultiSelectSelectedAttributionIds } from '../resource-actions/attribution-view-simple-actions';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
 export function resetViewState(): ResetViewStateAction {
   return { type: ACTION_RESET_VIEW_STATE };
@@ -43,10 +44,11 @@ export function navigateToView(view: View): AppThunkAction {
     dispatch(setView(view));
     dispatch(setMultiSelectSelectedAttributionIds([]));
 
-    const updatedTemporaryPackageInfo: PackageInfo =
+    const updatedTemporaryPackageInfo: DisplayPackageInfo =
       (view === View.Audit
-        ? getAttributionOfDisplayedPackageInManualPanel(getState())
-        : getPackageInfoOfSelectedAttribution(getState())) || {};
+        ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(getState())
+        : getDisplayPackageInfoOfSelectedAttribution(getState())) ||
+      EMPTY_DISPLAY_PACKAGE_INFO;
     dispatch(setTemporaryPackageInfo(updatedTemporaryPackageInfo));
   };
 }

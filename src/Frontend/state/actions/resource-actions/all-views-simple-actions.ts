@@ -10,7 +10,6 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   DisplayPackageInfo,
-  PackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -84,7 +83,7 @@ export function setFrequentLicenses(
 }
 
 export function setTemporaryPackageInfo(
-  packageInfo: PackageInfo | DisplayPackageInfo
+  packageInfo: DisplayPackageInfo
 ): SetTemporaryPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
 }

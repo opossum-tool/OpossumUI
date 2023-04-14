@@ -14,7 +14,6 @@ import {
   ExternalAttributionSources,
   FrequentLicenseName,
   LicenseTexts,
-  PackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -23,13 +22,15 @@ import {
 import { PackagePanelTitle, View } from '../../enums/enums';
 import { State } from '../../types/types';
 import { getPopupAttributionId, getSelectedView } from './view-selector';
-import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
+import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
-  getAttributionOfDisplayedPackageInManualPanel,
+  getDisplayPackageInfoOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
 } from './audit-view-resource-selectors';
 import { getSelectedAttributionId } from './attribution-view-resource-selectors';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.allViews.resources;
@@ -99,9 +100,7 @@ export function getFrequentLicensesTexts(state: State): LicenseTexts {
   return state.resourceState.allViews.frequentLicenses.texts;
 }
 
-export function getTemporaryPackageInfo(
-  state: State
-): PackageInfo | DisplayPackageInfo {
+export function getTemporaryPackageInfo(state: State): DisplayPackageInfo {
   return state.resourceState.allViews.temporaryPackageInfo;
 }
 
@@ -128,23 +127,30 @@ export function getCurrentAttributionId(state: State): string | null {
   }
 }
 
-export function getPackageInfoOfSelectedAttribution(
+export function getDisplayPackageInfoOfSelectedAttribution(
   state: State
-): PackageInfo | null {
+): DisplayPackageInfo | null {
   const selectedAttributionId = getSelectedAttributionId(state);
 
   if (!selectedAttributionId) {
     return null;
   }
   const attributions = getManualAttributions(state);
-
-  return attributions[selectedAttributionId];
+  const selectedPackageInfo = attributions[selectedAttributionId];
+  return selectedPackageInfo
+    ? convertPackageInfoToDisplayPackageInfo(
+        attributions[selectedAttributionId],
+        [selectedAttributionId]
+      )
+    : null;
 }
 
-export function getPackageInfoOfSelected(state: State): PackageInfo | null {
+export function getDisplayPackageInfoOfSelected(
+  state: State
+): DisplayPackageInfo | null {
   return getSelectedView(state) === View.Audit
-    ? getAttributionOfDisplayedPackageInManualPanel(state)
-    : getPackageInfoOfSelectedAttribution(state);
+    ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(state)
+    : getDisplayPackageInfoOfSelectedAttribution(state);
 }
 
 export function wereTemporaryPackageInfoModified(state: State): boolean {
@@ -155,23 +161,24 @@ export function wereTemporaryPackageInfoModified(state: State): boolean {
     return false;
   }
 
-  const temporaryPackageInfo: PackageInfo = getTemporaryPackageInfo(state);
-  const packageInfoOfSelected: PackageInfo =
-    getPackageInfoOfSelected(state) || {};
+  const temporaryPackageInfo: DisplayPackageInfo =
+    getTemporaryPackageInfo(state);
+  const packageInfoOfSelected: DisplayPackageInfo =
+    getDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
 
   function hasPackageInfoChanged(): boolean {
-    const temporaryPackageInfoWithoutConfidence = getStrippedPackageInfo(
+    const strippedTemporaryPackageInfo = getStrippedDisplayPackageInfo(
       cloneDeep(temporaryPackageInfo)
     );
-    const packageInfoOfSelectedWithoutConfidence = getStrippedPackageInfo(
+    const strippedPackageInfoOfSelected = getStrippedDisplayPackageInfo(
       cloneDeep(packageInfoOfSelected)
     );
-    delete temporaryPackageInfoWithoutConfidence.attributionConfidence;
-    delete packageInfoOfSelectedWithoutConfidence.attributionConfidence;
+    delete strippedTemporaryPackageInfo.attributionConfidence;
+    delete strippedPackageInfoOfSelected.attributionConfidence;
 
     return !isEqual(
-      temporaryPackageInfoWithoutConfidence,
-      packageInfoOfSelectedWithoutConfidence
+      strippedTemporaryPackageInfo,
+      strippedPackageInfoOfSelected
     );
   }
 

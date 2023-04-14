@@ -7,9 +7,9 @@
 import { View } from '../../enums/enums';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
+  DisplayPackageInfo,
   FollowUp,
   FrequentLicenseName,
-  PackageInfo,
 } from '../../../shared/shared-types';
 import { AppThunkDispatch } from '../../state/types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -22,7 +22,10 @@ import {
   setIsSavingDisabled,
 } from '../../state/actions/resource-actions/save-actions';
 import { useWindowHeight } from '../../util/use-window-height';
-import { generatePurlFromPackageInfo, parsePurl } from '../../util/handle-purl';
+import {
+  generatePurlFromDisplayPackageInfo,
+  parsePurl,
+} from '../../util/handle-purl';
 import { PanelPackage } from '../../types/types';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
@@ -32,7 +35,7 @@ const HEIGHT_OF_TEXT_BOXES_IN_AUDIT_VIEW = 514;
 const ROW_HEIGHT = 19;
 
 export function getDisplayTexts(
-  temporaryPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   selectedAttributionId: string,
   attributionIdMarkedForReplacement: string,
   view: View
@@ -63,7 +66,7 @@ export function getLicenseTextMaxRows(
 }
 
 export function getDiscreteConfidenceChangeHandler(
-  temporaryPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<{ value: unknown }>) => void {
   return (event): void => {
@@ -77,7 +80,7 @@ export function getDiscreteConfidenceChangeHandler(
 }
 
 export function getFollowUpChangeHandler(
-  temporaryPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
@@ -91,7 +94,7 @@ export function getFollowUpChangeHandler(
 }
 
 export function getExcludeFromNoticeChangeHandler(
-  temporaryPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
@@ -105,7 +108,7 @@ export function getExcludeFromNoticeChangeHandler(
 }
 
 export function getFirstPartyChangeHandler(
-  temporaryPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
@@ -216,15 +219,14 @@ export function getMergeButtonsDisplayState(currentState: {
 export function usePurl(
   dispatch: AppThunkDispatch,
   packageInfoWereModified: boolean,
-  temporaryPackageInfo: PackageInfo,
-  displayPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   selectedPackage: PanelPackage | null,
   selectedAttributionId: string | null
 ): {
   temporaryPurl: string;
   isDisplayedPurlValid: boolean;
   handlePurlChange: (event: React.ChangeEvent<{ value: string }>) => void;
-  updatePurl: (packageInfo: PackageInfo) => void;
+  updatePurl: (displayPackageInfo: DisplayPackageInfo) => void;
 } {
   const [temporaryPurl, setTemporaryPurl] = useState<string>('');
   const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
@@ -245,17 +247,19 @@ export function usePurl(
 
   useEffect(
     () => {
-      setTemporaryPurl(generatePurlFromPackageInfo(displayPackageInfo) || '');
+      setTemporaryPurl(
+        generatePurlFromDisplayPackageInfo(temporaryPackageInfo) || ''
+      );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedPackage?.panel,
       selectedPackage?.attributionId,
       selectedAttributionId,
-      displayPackageInfo.packageType,
-      displayPackageInfo.packageNamespace,
-      displayPackageInfo.packageName,
-      displayPackageInfo.packageVersion,
+      temporaryPackageInfo.packageType,
+      temporaryPackageInfo.packageNamespace,
+      temporaryPackageInfo.packageName,
+      temporaryPackageInfo.packageVersion,
     ]
   );
 
@@ -278,8 +282,8 @@ export function usePurl(
     }
   }
 
-  function updatePurl(packageInfo: PackageInfo): void {
-    const purl = generatePurlFromPackageInfo(packageInfo);
+  function updatePurl(displayPackageInfo: DisplayPackageInfo): void {
+    const purl = generatePurlFromDisplayPackageInfo(displayPackageInfo);
     setTemporaryPurl(purl);
   }
 

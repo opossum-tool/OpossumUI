@@ -7,7 +7,7 @@ import React from 'react';
 import {
   Attributions,
   DiscreteConfidence,
-  PackageInfo,
+  DisplayPackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import {
@@ -26,21 +26,23 @@ import { act, screen } from '@testing-library/react';
 
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
-const testTemporaryPackageInfo: PackageInfo = {
+const testTemporaryPackageInfo: DisplayPackageInfo = {
   packageName: 'React',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
+  attributionIds: [],
 };
-const testTemporaryPackageInfo2: PackageInfo = {
+const testTemporaryPackageInfo2: DisplayPackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
+  attributionIds: [],
 };
 
 function getTestTemporaryAndExternalStateWithParentAttribution(
   store: EnhancedTestStore,
   selectedResourceId: string,
-  temporaryPackageInfo: PackageInfo
+  temporaryPackageInfo: DisplayPackageInfo
 ): void {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryPackageInfo,
@@ -69,13 +71,14 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 
 describe('The ResourceDetailsAttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
-      comment: 'some comment',
+      comments: ['some comment'],
       packageName: 'Some package',
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe Inc. 2019',
       licenseText: 'Permission is hereby granted',
+      attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />
@@ -94,9 +97,11 @@ describe('The ResourceDetailsAttributionColumn', () => {
       )
     );
     expect(screen.queryAllByText('Comment'));
-    expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.comment as string)
-    );
+    const testComment =
+      testTemporaryPackageInfo?.comments !== undefined
+        ? testTemporaryPackageInfo?.comments[0]
+        : '';
+    expect(screen.getByDisplayValue(testComment));
     expect(screen.queryAllByText('Name'));
     expect(
       screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)

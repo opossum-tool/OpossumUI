@@ -80,6 +80,7 @@ describe('ClearlyDefinedPackageCard', () => {
       packageType: 'pypi',
       copyright: 'Copyright Jane Doe\nCopyright John Doe',
       url: 'https://pypi.org/project/SQLAlchemy/1.4.1',
+      attributionIds: [],
     });
     expect(getOpenPopup(store.getState())).toBeNull();
   });

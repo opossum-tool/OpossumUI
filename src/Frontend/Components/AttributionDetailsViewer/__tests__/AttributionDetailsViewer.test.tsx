@@ -8,6 +8,7 @@ import React from 'react';
 import {
   Attributions,
   DiscreteConfidence,
+  DisplayPackageInfo,
   PackageInfo,
 } from '../../../../shared/shared-types';
 import { View } from '../../../enums/enums';
@@ -19,16 +20,18 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 
 describe('The AttributionDetailsViewer', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
-      comment: 'some comment',
+      comments: ['some comment'],
       packageName: 'Some package',
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe 2019',
       licenseText: 'Permission is hereby granted',
+      attributionIds: [],
     };
     const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
     act(() => {
@@ -45,8 +48,9 @@ describe('The AttributionDetailsViewer', () => {
       )
     );
     expect(screen.queryAllByText('Comment'));
-    expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.comment as string)
+
+    testTemporaryPackageInfo.comments?.forEach((comment) =>
+      expect(screen.getByDisplayValue(comment))
     );
     expect(screen.queryAllByText('Name'));
     expect(
@@ -91,7 +95,13 @@ describe('The AttributionDetailsViewer', () => {
       );
       store.dispatch(navigateToView(View.Attribution));
       store.dispatch(setSelectedAttributionId('uuid_1'));
-      store.dispatch(setTemporaryPackageInfo(expectedPackageInfo));
+      store.dispatch(
+        setTemporaryPackageInfo(
+          convertPackageInfoToDisplayPackageInfo(expectedPackageInfo, [
+            'uuid_1',
+          ])
+        )
+      );
     });
     expect(screen.getByDisplayValue('React'));
 

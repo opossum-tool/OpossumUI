@@ -14,7 +14,7 @@ import {
   getTemporaryPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import {
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
@@ -22,6 +22,7 @@ import {
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 
 export function EditAttributionPopup(): ReactElement {
   const dispatch = useAppDispatch();
@@ -41,7 +42,13 @@ export function EditAttributionPopup(): ReactElement {
   }, [dispatch, popupAttributionId, temporaryPackageInfo]);
 
   const dispatchSavePackageInfo = useCallback(() => {
-    dispatch(savePackageInfo(null, popupAttributionId, temporaryPackageInfo));
+    dispatch(
+      savePackageInfo(
+        null,
+        popupAttributionId,
+        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+      )
+    );
   }, [dispatch, popupAttributionId, temporaryPackageInfo]);
 
   function checkForModifiedPackageInfoBeforeClosing(): void {
@@ -61,10 +68,11 @@ export function EditAttributionPopup(): ReactElement {
           isEditable
           areButtonsHidden
           showManualAttributionData
-          displayPackageInfo={temporaryPackageInfo}
           setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
-          setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
-            dispatch(setTemporaryPackageInfo(packageInfo));
+          setTemporaryPackageInfo={(
+            displayPackageInfo: DisplayPackageInfo
+          ): void => {
+            dispatch(setTemporaryPackageInfo(displayPackageInfo));
           }}
           saveFileRequestListener={saveFileRequestListener}
           smallerLicenseTextOrCommentField

@@ -115,7 +115,7 @@ export function convertDisplayPackageInfoToPackageInfo(
       }
     }
     if (
-      displayPackageInfo.attributionIds.length === 1 &&
+      displayPackageInfo.attributionIds.length <= 1 &&
       displayPackageInfo.comments
     ) {
       packageInfo.comment = displayPackageInfo.comments[0];

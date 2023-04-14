@@ -5,7 +5,7 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
 import { TextBox } from '../InputElements/TextBox';
@@ -58,7 +58,7 @@ const classes = {
 
 interface LicenseSubPanelProps {
   isEditable: boolean;
-  displayPackageInfo: PackageInfo;
+  displayPackageInfo: DisplayPackageInfo;
   isLicenseTextShown: boolean;
   licenseTextRows: number;
   showHighlight?: boolean;

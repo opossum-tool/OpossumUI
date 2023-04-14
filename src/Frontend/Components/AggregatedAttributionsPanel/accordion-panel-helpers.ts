@@ -51,11 +51,11 @@ export function getDisplayContainedManualPackagesWithCount(args: {
   const displayAttributionIdsWithCount: Array<DisplayAttributionWithCount> = [];
 
   attributionIdsWithCount.forEach(({ attributionId, count }): void => {
-    const attribution: PackageInfo =
+    const packageInfo: PackageInfo =
       args.manualData.attributions[attributionId];
     displayAttributionIdsWithCount.push(
       getDisplayAttributionWithCountFromAttributions([
-        [attributionId, attribution, count],
+        [attributionId, packageInfo, count],
       ])
     );
   });
@@ -74,18 +74,18 @@ export function getDisplayExternalAttributionsWithCount(
   } = {};
 
   attributionIdsWithCount.forEach(({ attributionId, count }): void => {
-    const attribution: PackageInfo = attributions[attributionId];
+    const packageInfo: PackageInfo = attributions[attributionId];
     const savedHash = externalAttributionsToHashes[attributionId];
 
     if (savedHash) {
       if (!hashToAttributions[savedHash]) {
         hashToAttributions[savedHash] = [];
       }
-      hashToAttributions[savedHash].push([attributionId, attribution, count]);
+      hashToAttributions[savedHash].push([attributionId, packageInfo, count]);
     } else {
       displayAttributionIdsWithCount.push(
         getDisplayAttributionWithCountFromAttributions([
-          [attributionId, attribution, count],
+          [attributionId, packageInfo, count],
         ])
       );
     }

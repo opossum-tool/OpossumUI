@@ -30,6 +30,7 @@ import {
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
 function setupTestState(
   store: EnhancedTestStore,
@@ -69,17 +70,22 @@ describe('NotSavedPopup and do not change view', () => {
   it('renders a NotSavedPopup and click reset', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
-    store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
+    store.dispatch(
+      setTemporaryPackageInfo({ packageName: 'test name', attributionIds: [] })
+    );
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
+      attributionIds: [],
     });
 
     fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(getTemporaryPackageInfo(store.getState())).toEqual({});
+    expect(getTemporaryPackageInfo(store.getState())).toEqual(
+      EMPTY_DISPLAY_PACKAGE_INFO
+    );
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
 
@@ -123,17 +129,22 @@ describe('NotSavedPopup and change view', () => {
   it('renders a NotSavedPopup and click reset', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
-    store.dispatch(setTemporaryPackageInfo({ packageName: 'test name' }));
+    store.dispatch(
+      setTemporaryPackageInfo({ packageName: 'test name', attributionIds: [] })
+    );
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
+      attributionIds: [],
     });
 
     fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(getTemporaryPackageInfo(store.getState())).toEqual({});
+    expect(getTemporaryPackageInfo(store.getState())).toEqual(
+      EMPTY_DISPLAY_PACKAGE_INFO
+    );
     expect(isAttributionViewSelected(store.getState())).toBe(true);
   });
 });

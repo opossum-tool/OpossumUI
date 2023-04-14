@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PackageURL } from 'packageurl-js';
-import { PackageInfo } from '../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
 
 export interface ParsedPurl {
   isValid: boolean;
@@ -37,19 +37,23 @@ export function parsePurl(potentialPurl: string): ParsedPurl {
   }
 }
 
-export function generatePurlFromPackageInfo(packageInfo: PackageInfo): string {
-  return (packageInfo.packageNamespace ||
-    packageInfo.packageType ||
-    packageInfo.packagePURLAppendix) &&
-    packageInfo.packageName
+export function generatePurlFromDisplayPackageInfo(
+  displayPackageInfo: DisplayPackageInfo
+): string {
+  return (displayPackageInfo.packageNamespace ||
+    displayPackageInfo.packageType ||
+    displayPackageInfo.packagePURLAppendix) &&
+    displayPackageInfo.packageName
     ? new PackageURL(
-        packageInfo.packageType ? packageInfo.packageType : 'generic',
-        packageInfo?.packageNamespace,
-        packageInfo.packageName,
-        packageInfo?.packageVersion,
+        displayPackageInfo.packageType
+          ? displayPackageInfo.packageType
+          : 'generic',
+        displayPackageInfo?.packageNamespace,
+        displayPackageInfo.packageName,
+        displayPackageInfo?.packageVersion,
         undefined,
         undefined
-      ).toString() + (packageInfo.packagePURLAppendix || '')
+      ).toString() + (displayPackageInfo.packagePURLAppendix || '')
     : '';
 }
 

@@ -7,6 +7,7 @@ import {
   Attributions,
   AttributionsToResources,
   DiscreteConfidence,
+  DisplayPackageInfo,
   FrequentLicenses,
   PackageInfo,
   Resources,
@@ -84,10 +85,11 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 describe('The load and navigation simple actions', () => {
   it('resets the state', () => {
     const testStore = createTestAppStore();
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryPackageInfo: DisplayPackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
+      attributionIds: [],
     };
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)
@@ -252,15 +254,16 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets temporaryPackageInfo', () => {
-    const testPackageInfo: PackageInfo = {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'test',
       packageVersion: '1.0',
       licenseText: 'License Text',
+      attributionIds: [],
     };
     const testStore = createTestAppStore();
-    testStore.dispatch(setTemporaryPackageInfo(testPackageInfo));
+    testStore.dispatch(setTemporaryPackageInfo(testDisplayPackageInfo));
     expect(getTemporaryPackageInfo(testStore.getState())).toMatchObject(
-      testPackageInfo
+      testDisplayPackageInfo
     );
   });
 

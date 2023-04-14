@@ -3,17 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import {
   PackageAttributeIds,
   State,
   PackageAttributes,
 } from '../../types/types';
 
-export function getAttributionWizarOriginalAttribution(
+export function getAttributionWizarOriginalDisplayPackageInfo(
   state: State
-): PackageInfo {
-  return state.resourceState.attributionWizard.originalAttribution;
+): DisplayPackageInfo {
+  return state.resourceState.attributionWizard.originalDisplayPackageInfo;
 }
 
 export function getAttributionWizardPackageNamespaces(

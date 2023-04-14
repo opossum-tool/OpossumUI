@@ -20,6 +20,7 @@ import { fetchFromClearlyDefined } from './fetch-from-clearly-defined';
 import { Alert } from '../Alert/Alert';
 import { baseIcon } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 
 interface ClearlyDefinedPackageCardProps {
   coordinate: string;
@@ -114,7 +115,9 @@ export function ClearlyDefinedPackageCard(
               tooltipPlacement={'right'}
               disabled={!Boolean(data)}
               onClick={(): void => {
-                dispatch(setTemporaryPackageInfo(data ?? {}));
+                dispatch(
+                  setTemporaryPackageInfo(data ?? EMPTY_DISPLAY_PACKAGE_INFO)
+                );
                 dispatch(closePopup());
               }}
               icon={<PlusIcon sx={classes.baseIcon} />}

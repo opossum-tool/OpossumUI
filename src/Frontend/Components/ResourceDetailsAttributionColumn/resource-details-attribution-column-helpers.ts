@@ -9,20 +9,20 @@ import { PanelPackage } from '../../types/types';
 
 export function getDisplayPackageInfo(
   selectedPackage: PanelPackage | null,
-  temporaryPackageInfo: PackageInfo,
+  packageInfo: PackageInfo,
   manualAttributions: Attributions
 ): PackageInfo {
   let displayPackageInfo = {};
 
   if (!selectedPackage) {
-    displayPackageInfo = temporaryPackageInfo;
+    displayPackageInfo = packageInfo;
   }
 
   switch (selectedPackage?.panel) {
     case PackagePanelTitle.ManualPackages:
     case PackagePanelTitle.ExternalPackages:
     case PackagePanelTitle.ContainedExternalPackages:
-      displayPackageInfo = temporaryPackageInfo;
+      displayPackageInfo = packageInfo;
       break;
     case PackagePanelTitle.ContainedManualPackages:
     case PackagePanelTitle.AllAttributions:

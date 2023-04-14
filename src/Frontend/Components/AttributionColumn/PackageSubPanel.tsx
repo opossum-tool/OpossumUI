@@ -6,7 +6,7 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -22,7 +22,7 @@ import { HighlightingColor } from '../../enums/enums';
 const iconClasses = { clickableIcon, disabledIcon };
 
 interface PackageSubPanelProps {
-  displayPackageInfo: PackageInfo;
+  displayPackageInfo: DisplayPackageInfo;
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
