@@ -26,6 +26,7 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { ButtonText } from '../../../enums/enums';
+import { DisplayAttributionWithCount } from '../../../types/types';
 
 function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   const store = createTestAppStore();
@@ -40,8 +41,24 @@ function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
 }
 
 describe('The AttributionList', () => {
-  const packages: Attributions = {
-    '1': {
+  const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
+    {
+      attributionId: 'uuid_1',
+      attribution: {
+        attributionConfidence: 0,
+        comments: ['Some comment'],
+        packageName: 'Test package',
+        packageVersion: '1.0',
+        copyright: 'Copyright John Doe',
+        licenseText: 'Some license text',
+        firstParty: true,
+        attributionIds: ['uuid_1'],
+      },
+    },
+  ];
+
+  const attributions: Attributions = {
+    uuid_1: {
       attributionConfidence: 0,
       comment: 'Some comment',
       packageName: 'Test package',
@@ -51,6 +68,7 @@ describe('The AttributionList', () => {
       firstParty: true,
     },
   };
+
   const mockCallback = jest.fn((attributionId: string) => {
     return attributionId;
   });
@@ -61,13 +79,13 @@ describe('The AttributionList', () => {
   it('renders', () => {
     renderComponentWithStore(
       <AttributionList
-        attributions={packages}
+        displayAttributions={testDisplayAttributions}
         selectedAttributionId={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(attributions) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
@@ -76,13 +94,13 @@ describe('The AttributionList', () => {
   it('renders first party icon', () => {
     renderComponentWithStore(
       <AttributionList
-        attributions={packages}
+        displayAttributions={testDisplayAttributions}
         selectedAttributionId={''}
         onCardClick={doNothing}
         maxHeight={1000}
         title={'title'}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(attributions) }
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
@@ -91,54 +109,19 @@ describe('The AttributionList', () => {
   it('sets selectedAttributionId on click', () => {
     renderComponentWithStore(
       <AttributionList
-        attributions={packages}
+        displayAttributions={testDisplayAttributions}
         selectedAttributionId={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(attributions) }
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
     fireEvent.click(attributionCard);
     expect(mockCallback.mock.calls.length).toBe(1);
-    expect(mockCallback.mock.calls[0][0]).toBe('1');
-  });
-
-  it('sorts its elements', () => {
-    const testPackages: Attributions = {
-      '1': {
-        packageName: 'zz Test package',
-      },
-      '2': {
-        attributionConfidence: 0,
-        comment: 'Some comment',
-        packageName: 'Test package',
-        packageVersion: '1.0',
-        copyright: 'Copyright John Doe',
-        licenseText: 'Some license text',
-      },
-      '3': {
-        copyright: 'Copyright John Doe 2',
-      },
-    };
-    const { container } = renderComponentWithStore(
-      <AttributionList
-        attributions={testPackages}
-        selectedAttributionId={''}
-        onCardClick={mockCallback}
-        maxHeight={1000}
-        title={'title'}
-      />,
-      { store: getTestStore(testPackages) }
-    );
-
-    expect(container.childNodes[0]).toHaveTextContent(/zz Test package/);
-    expect(container.childNodes[0]).toHaveTextContent(
-      /Test package, 1\.0Copyright John Doe/
-    );
-    expect(container.childNodes[0]).toHaveTextContent(/Copyright John Doe 2/);
+    expect(mockCallback.mock.calls[0][0]).toBe('uuid_1');
   });
 
   it('shows correct replace attribution buttons in the context menu', () => {
@@ -146,6 +129,37 @@ describe('The AttributionList', () => {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,
     };
+    const testDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+      [
+        {
+          attributionId: 'uuid_1',
+          attribution: {
+            packageName: 'jQuery',
+            packageVersion: '16.0.0',
+            comments: ['ManualPackage'],
+            attributionIds: ['uuid_1'],
+          },
+        },
+        {
+          attributionId: 'uuid_2',
+          attribution: {
+            packageName: 'React',
+            packageVersion: '16.0.0',
+            comments: ['ManualPackage'],
+            attributionIds: ['uuid_2'],
+          },
+        },
+        {
+          attributionId: 'uuid_3',
+          attribution: {
+            packageName: 'Vue',
+            packageVersion: '16.0.0',
+            comments: ['ManualPackage'],
+            preSelected: true,
+            attributionIds: ['uuid_3'],
+          },
+        },
+      ];
     const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'jQuery',
@@ -181,7 +195,7 @@ describe('The AttributionList', () => {
     );
     renderComponentWithStore(
       <AttributionList
-        attributions={testManualAttributions}
+        displayAttributions={testDisplayAttributionsWithCount}
         selectedAttributionId={''}
         onCardClick={mockCallback}
         maxHeight={1000}

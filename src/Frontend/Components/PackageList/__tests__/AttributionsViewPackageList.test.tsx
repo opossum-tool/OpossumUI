@@ -5,34 +5,45 @@
 
 import { fireEvent, screen } from '@testing-library/react';
 import React, { ReactElement } from 'react';
-import { Attributions } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AttributionsViewPackageList } from '../AttributionsViewPackageList';
+import { DisplayAttributionWithCount } from '../../../types/types';
 
 describe('The AttributionsViewPackageList', () => {
   it('has search functionality', () => {
-    const testAttributions: Attributions = {
-      uuid1: {
-        packageName: 'name 1',
-        licenseText: 'text',
-        licenseName: 'license name 2',
-        comment: 'comment bla',
-        packageVersion: '1.1.1',
+    const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
+      {
+        attributionId: 'uuid1',
+        attribution: {
+          packageName: 'name 1',
+          licenseText: 'text',
+          licenseName: 'license name 2',
+          comments: ['comment bla'],
+          packageVersion: '1.1.1',
+          attributionIds: ['uuid_1'],
+        },
       },
-      uuid2: {
-        packageName: 'name 2',
-        copyright: '(c)',
-        comment: 'comment blub',
-        url: 'www.url.de',
+      {
+        attributionId: 'uuid2',
+        attribution: {
+          packageName: 'name 2',
+          copyright: '(c)',
+          comments: ['comment blub'],
+          url: 'www.url.de',
+          attributionIds: ['uuid_2'],
+        },
       },
-      uuid3: {
-        packageVersion: 'packageVersion',
+      {
+        attributionId: 'uuid3',
+        attribution: {
+          packageVersion: 'packageVersion',
+          attributionIds: ['uuid_3'],
+        },
       },
-    };
+    ];
     renderComponentWithStore(
       <AttributionsViewPackageList
-        attributions={testAttributions}
-        attributionIds={['uuid1', 'uuid2', 'uuid3']}
+        displayAttributions={testDisplayAttributions}
         getAttributionCard={(attributionId): ReactElement => (
           <div>{attributionId}</div>
         )}
