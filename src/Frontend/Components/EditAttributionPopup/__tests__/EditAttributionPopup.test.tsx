@@ -9,9 +9,8 @@ import React from 'react';
 import { EditAttributionPopup } from '../EditAttributionPopup';
 import {
   Attributions,
-  PackageInfo,
+  DisplayPackageInfo,
   Resources,
-  isDisplayPackageInfo,
 } from '../../../../shared/shared-types';
 import {
   navigateToView,
@@ -25,6 +24,7 @@ import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { act } from 'react-dom/test-utils';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 
 describe('The EditAttributionPopup', () => {
   const testResources: Resources = {
@@ -33,21 +33,24 @@ describe('The EditAttributionPopup', () => {
       'package_2.tr.gz': 1,
     },
   };
-  const testTemporaryPackageInfo: PackageInfo = {
+  const testTemporaryPackageInfo: DisplayPackageInfo = {
     attributionConfidence: 20,
     packageName: 'jQuery',
     packageVersion: '16.5.0',
     packagePURLAppendix: '?appendix',
     packageNamespace: 'namespace',
     packageType: 'type',
-    comment: 'some comment',
+    comments: ['some comment'],
     copyright: 'Copyright Doe Inc. 2019',
     licenseText: 'Permission is hereby granted',
     licenseName: 'Made up license name',
     url: 'www.1999.com',
+    attributionIds: [],
   };
   const testAttributions: Attributions = {
-    test_selected_id: testTemporaryPackageInfo,
+    test_selected_id: convertDisplayPackageInfoToPackageInfo(
+      testTemporaryPackageInfo
+    ),
     test_marked_id: { packageName: 'Vue' },
   };
   const testResourcesToManualAttributions = {
@@ -73,7 +76,12 @@ describe('The EditAttributionPopup', () => {
     );
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryPackageInfo({
+          ...testTemporaryPackageInfo,
+          attributionIds: ['test_selected_id'],
+        })
+      );
     });
 
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
@@ -132,9 +140,10 @@ describe('The EditAttributionPopup', () => {
         })
       )
     );
-    const changedTestTemporaryPackageInfo: PackageInfo = {
+    const changedTestTemporaryPackageInfo: DisplayPackageInfo = {
       ...testTemporaryPackageInfo,
-      comment: 'changed comment',
+      attributionIds: ['test_selected_id'],
+      comments: ['changed comment'],
     };
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
@@ -149,10 +158,9 @@ describe('The EditAttributionPopup', () => {
     const resultingTemporaryPackageInfo = getTemporaryPackageInfo(
       store.getState()
     );
-    if (!isDisplayPackageInfo(resultingTemporaryPackageInfo)) {
-      expect(resultingTemporaryPackageInfo.comment).toBe(
-        changedTestTemporaryPackageInfo.comment
-      );
-    }
+
+    expect(resultingTemporaryPackageInfo.comments).toEqual(
+      changedTestTemporaryPackageInfo.comments
+    );
   });
 });

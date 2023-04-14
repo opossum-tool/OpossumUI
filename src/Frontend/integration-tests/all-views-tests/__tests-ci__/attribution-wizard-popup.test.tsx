@@ -24,6 +24,7 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {
@@ -79,8 +80,15 @@ describe('AttributionWizardPopup', () => {
   });
 
   it('changes temporary package info', () => {
-    const initialTemporaryPackageInfo = testManualAttributions.uuid_0;
-    const expectedChangedTemporaryPackageInfo = testExternalAttributions.uuid_1;
+    const initialTemporaryPackageInfo = convertPackageInfoToDisplayPackageInfo(
+      testManualAttributions.uuid_0,
+      ['uuid_0']
+    );
+    const expectedChangedTemporaryPackageInfo =
+      convertPackageInfoToDisplayPackageInfo(
+        testExternalAttributions.uuid_1,
+        []
+      );
 
     const testStore = createTestAppStore();
     testStore.dispatch(setSelectedResourceId(selectedResourceId));

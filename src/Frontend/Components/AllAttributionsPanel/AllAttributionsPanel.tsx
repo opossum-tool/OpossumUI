@@ -5,20 +5,19 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ReactElement } from 'react';
-import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { OpossumColors } from '../../shared-styles';
-import { PackageCardConfig } from '../../types/types';
+import {
+  DisplayAttributionWithCount,
+  PackageCardConfig,
+} from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
 import { PackageList } from '../PackageList/PackageList';
 import { PackageCard } from '../PackageCard/PackageCard';
-import {
-  convertDisplayPackageInfoToPackageInfo,
-  convertPackageInfoToDisplayPackageInfo,
-} from '../../util/convert-package-info';
-import { getDisplayAttributionWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { getAttributionFromDisplayAttributionsWithCount } from '../../util/get-attribution-from-display-attributions-with-count';
 
 const classes = {
   root: {
@@ -28,7 +27,7 @@ const classes = {
 };
 
 interface AllAttributionsPanelProps {
-  attributions: Attributions;
+  displayAttributions: Array<DisplayAttributionWithCount>;
   selectedAttributionId: string | null;
   isAddToPackageEnabled: boolean;
 }
@@ -38,24 +37,18 @@ export function AllAttributionsPanel(
 ): ReactElement {
   const dispatch = useAppDispatch();
 
-  const displayAttributionsWithCounts = Object.entries(props.attributions).map(
-    ([attributionId, packageInfo]) =>
-      getDisplayAttributionWithCountFromAttributions([
-        [attributionId, packageInfo, undefined],
-      ])
-  );
-
   function getPackageCard(attributionId: string): ReactElement | null {
-    const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
-      props.attributions[attributionId],
-      [attributionId]
+    const displayPackageInfo = getAttributionFromDisplayAttributionsWithCount(
+      attributionId,
+      props.displayAttributions
     );
 
     function onCardClick(): void {
       dispatch(
         selectAttributionInAccordionPanelOrOpenUnsavedPopup(
           PackagePanelTitle.AllAttributions,
-          attributionId
+          attributionId,
+          displayPackageInfo
         )
       );
     }
@@ -88,7 +81,7 @@ export function AllAttributionsPanel(
   return (
     <MuiPaper sx={classes.root} elevation={0} square={true}>
       <PackageList
-        displayAttributionsWithCount={displayAttributionsWithCounts}
+        displayAttributionsWithCount={props.displayAttributions}
         getAttributionCard={getPackageCard}
         maxNumberOfDisplayedItems={20}
         listTitle={PackagePanelTitle.AllAttributions}

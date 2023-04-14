@@ -5,7 +5,7 @@
 
 import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -13,7 +13,7 @@ import MuiBox from '@mui/material/Box';
 
 interface CopyrightSubPanelProps {
   isEditable: boolean;
-  displayPackageInfo: PackageInfo;
+  displayPackageInfo: DisplayPackageInfo;
   setUpdateTemporaryPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;

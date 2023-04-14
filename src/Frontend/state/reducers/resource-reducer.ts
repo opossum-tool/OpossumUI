@@ -10,7 +10,6 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   DisplayPackageInfo,
-  PackageInfo,
   ProjectMetadata,
   Resources,
 } from '../../../shared/shared-types';
@@ -22,6 +21,7 @@ import {
 } from '../../types/types';
 import {
   EMPTY_ATTRIBUTION_DATA,
+  EMPTY_DISPLAY_PACKAGE_INFO,
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
 } from '../../shared-constants';
@@ -84,6 +84,7 @@ import {
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 
 export const initialResourceState: ResourceState = {
   allViews: {
@@ -91,7 +92,7 @@ export const initialResourceState: ResourceState = {
     manualData: EMPTY_ATTRIBUTION_DATA,
     externalData: EMPTY_ATTRIBUTION_DATA,
     frequentLicenses: EMPTY_FREQUENT_LICENSES,
-    temporaryPackageInfo: {},
+    temporaryPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     attributionBreakpoints: new Set(),
     filesWithChildren: new Set(),
     isSavingDisabled: false,
@@ -122,7 +123,7 @@ export const initialResourceState: ResourceState = {
     fileSearch: '',
   },
   attributionWizard: {
-    originalAttribution: {},
+    originalDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     packageNamespaces: {},
     packageNames: {},
     packageVersions: {},
@@ -141,7 +142,7 @@ export type ResourceState = {
     manualData: AttributionData;
     externalData: AttributionData;
     frequentLicenses: FrequentLicenses;
-    temporaryPackageInfo: PackageInfo | DisplayPackageInfo;
+    temporaryPackageInfo: DisplayPackageInfo;
     attributionBreakpoints: Set<string>;
     filesWithChildren: Set<string>;
     isSavingDisabled: boolean;
@@ -172,7 +173,7 @@ export type ResourceState = {
     fileSearch: string;
   };
   attributionWizard: {
-    originalAttribution: PackageInfo;
+    originalDisplayPackageInfo: DisplayPackageInfo;
     packageNamespaces: PackageAttributes;
     packageNames: PackageAttributes;
     packageVersions: PackageAttributes;
@@ -252,6 +253,9 @@ export const resourceState = (
         }
       }
 
+      const newPackageInfo =
+        state.allViews.manualData.attributions[displayedAttributionId];
+
       return {
         ...state,
         auditView: {
@@ -264,9 +268,11 @@ export const resourceState = (
         },
         allViews: {
           ...state.allViews,
-          temporaryPackageInfo:
-            state.allViews.manualData.attributions[displayedAttributionId] ||
-            {},
+          temporaryPackageInfo: newPackageInfo
+            ? convertPackageInfoToDisplayPackageInfo(newPackageInfo, [
+                displayedAttributionId,
+              ])
+            : EMPTY_DISPLAY_PACKAGE_INFO,
         },
       };
     case ACTION_SET_TARGET_SELECTED_RESOURCE_ID:
@@ -395,7 +401,10 @@ export const resourceState = (
           ...state.allViews,
           manualData: updatedManualData,
           ...(action.payload.jumpToUpdatedAttribution && {
-            temporaryPackageInfo: action.payload.strippedPackageInfo,
+            temporaryPackageInfo: convertPackageInfoToDisplayPackageInfo(
+              action.payload.strippedPackageInfo,
+              [action.payload.attributionId]
+            ),
           }),
         },
       };
@@ -645,7 +654,7 @@ export const resourceState = (
         ...state,
         attributionWizard: {
           ...state.attributionWizard,
-          originalAttribution: action.payload,
+          originalDisplayPackageInfo: action.payload,
         },
       };
     case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES:

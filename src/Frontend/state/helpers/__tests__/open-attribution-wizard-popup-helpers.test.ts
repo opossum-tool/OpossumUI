@@ -3,7 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Attributions, PackageInfo } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  DisplayPackageInfo,
+} from '../../../../shared/shared-types';
 import {
   AttributionIdWithCount,
   PackageAttributes,
@@ -154,10 +157,11 @@ describe('getPackageVersionsWithRelatedPackageNameIds', () => {
 
 describe('getPreSelectedPackageAttributeIds', () => {
   it('yields correct output', () => {
-    const testStartingAttribution: PackageInfo = {
+    const testStartingDisplayPackageInfo: DisplayPackageInfo = {
       packageNamespace: 'npm',
       packageName: 'buffer',
       packageVersion: '6.0.3',
+      attributionIds: [],
     };
     const testPackageNamespaces: PackageAttributes = {
       '1111': { text: 'npm' },
@@ -179,7 +183,7 @@ describe('getPreSelectedPackageAttributeIds', () => {
 
     const testPreSelectedPackageAttributeIds =
       getPreSelectedPackageAttributeIds(
-        testStartingAttribution,
+        testStartingDisplayPackageInfo,
         testPackageNamespaces,
         testPackageNames,
         testPackageVersions

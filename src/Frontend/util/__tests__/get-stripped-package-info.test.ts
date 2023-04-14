@@ -3,8 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Criticality, PackageInfo } from '../../../shared/shared-types';
-import { getStrippedPackageInfo } from '../get-stripped-package-info';
+import {
+  Criticality,
+  DisplayPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
+import {
+  getStrippedDisplayPackageInfo,
+  getStrippedPackageInfo,
+} from '../get-stripped-package-info';
 
 describe('The getStrippedPackageInfo function', () => {
   it('strips falsy values', () => {
@@ -62,6 +69,76 @@ describe('The getStrippedPackageInfo function', () => {
 
     expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
       packageName: 'React',
+    });
+  });
+});
+
+describe('The getStrippedDisplayPackageInfo function', () => {
+  it('strips falsy values', () => {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
+      packageName: 'React',
+      packageVersion: '',
+      attributionIds: [],
+    };
+
+    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
+      packageName: 'React',
+      attributionIds: [],
+    });
+  });
+
+  it('strips source ', () => {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
+      packageName: 'React',
+      source: {
+        name: 'HC',
+        documentConfidence: 10,
+      },
+      attributionIds: [],
+    };
+
+    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
+      packageName: 'React',
+      attributionIds: [],
+    });
+  });
+
+  it('strips preSelected ', () => {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
+      packageName: 'React',
+      preSelected: true,
+      attributionIds: [],
+    };
+
+    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
+      packageName: 'React',
+      attributionIds: [],
+    });
+  });
+
+  it('strips criticality ', () => {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
+      packageName: 'React',
+      criticality: Criticality.High,
+      attributionIds: [],
+    };
+
+    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
+      packageName: 'React',
+      attributionIds: [],
+    });
+  });
+
+  it('strips excess values', () => {
+    const testDisplayPackageInfo = {
+      packageName: 'React',
+      count: 0,
+      attributionIds: [],
+    };
+
+    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
+      packageName: 'React',
+      attributionIds: [],
     });
   });
 });

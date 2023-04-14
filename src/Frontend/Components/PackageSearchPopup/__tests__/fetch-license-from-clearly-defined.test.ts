@@ -49,6 +49,7 @@ describe('fetchFromClearlyDefined', () => {
       copyright: 'Copyright Jane Doe\nCopyright John Doe',
       licenseName: 'MIT',
       url: 'https://pypi.org/project/SQLAlchemy/1.4.14',
+      attributionIds: [],
     });
   });
 

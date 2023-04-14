@@ -5,12 +5,12 @@
 
 import {
   generatePurlAppendix,
-  generatePurlFromPackageInfo,
+  generatePurlFromDisplayPackageInfo,
   ParsedPurl,
   parsePurl,
 } from '../handle-purl';
 import { PackageURL } from 'packageurl-js';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 
 describe('parsePurl', () => {
   it('returns false for an invalid purl', () => {
@@ -39,49 +39,59 @@ describe('parsePurl', () => {
 
 describe('generatePurlFromPackageInfo', () => {
   it('generates a valid Purl', () => {
-    const testPackageInfo: PackageInfo = {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
       packagePURLAppendix: '?appendix',
+      attributionIds: [],
     };
     const expectedPurl = 'pkg:type/namespace/name@version?appendix';
 
-    expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
+    expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe(
+      expectedPurl
+    );
   });
 
   it('generates a valid Purl without appendix', () => {
-    const testPackageInfo: PackageInfo = {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
+      attributionIds: [],
     };
     const expectedPurl = 'pkg:type/namespace/name@version';
 
-    expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
+    expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe(
+      expectedPurl
+    );
   });
 
   it('returns undefined when no packageName is given', () => {
-    const testPackageInfo: PackageInfo = {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
+      attributionIds: [],
     };
 
-    expect(generatePurlFromPackageInfo(testPackageInfo)).toBe('');
+    expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe('');
   });
 
   it('generates Purl with generic type when no packageType is given', () => {
-    const testPackageInfo: PackageInfo = {
+    const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
       packageVersion: 'version',
+      attributionIds: [],
     };
     const expectedPurl = 'pkg:generic/namespace/name@version';
 
-    expect(generatePurlFromPackageInfo(testPackageInfo)).toBe(expectedPurl);
+    expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe(
+      expectedPurl
+    );
   });
 });
 

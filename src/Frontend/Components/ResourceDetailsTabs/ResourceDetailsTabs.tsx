@@ -9,7 +9,7 @@ import MuiTab from '@mui/material/Tab';
 import { getManualData } from '../../state/selectors/all-views-resource-selectors';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
-import { pick, remove } from 'lodash';
+import { remove } from 'lodash';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
@@ -27,6 +27,8 @@ import {
   toggleAccordionSearchField,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
+import { getDisplayAttributionWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { DisplayAttributionWithCount } from '../../types/types';
 
 const classes = {
   tabsRoot: {
@@ -106,10 +108,12 @@ export function ResourceDetailsTabs(
       !attributionIdsOfSelectedResource.includes(attributionId)
   );
 
-  const manualAttributionsToDisplay = pick(
-    manualData.attributions,
-    assignableAttributionIds
-  );
+  const displayAttributions: Array<DisplayAttributionWithCount> =
+    assignableAttributionIds.map((attributionId) =>
+      getDisplayAttributionWithCountFromAttributions([
+        [attributionId, manualData.attributions[attributionId], undefined],
+      ])
+    );
 
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
@@ -182,7 +186,7 @@ export function ResourceDetailsTabs(
         aggregatedAttributionsPanel
       ) : (
         <AllAttributionsPanel
-          attributions={manualAttributionsToDisplay}
+          displayAttributions={displayAttributions}
           selectedAttributionId={
             selectedPackage && selectedPackage.attributionId
           }

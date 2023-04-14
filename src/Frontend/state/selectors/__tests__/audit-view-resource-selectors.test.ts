@@ -6,12 +6,13 @@
 import {
   Attributions,
   DiscreteConfidence,
+  DisplayPackageInfo,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../types/types';
-import { getPackageInfoOfSelected } from '../all-views-resource-selectors';
+import { getDisplayPackageInfoOfSelected } from '../all-views-resource-selectors';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
 import {
   setDisplayedPackage,
@@ -27,24 +28,31 @@ import {
   getResolvedExternalAttributions,
 } from '../audit-view-resource-selectors';
 import { PackagePanelTitle } from '../../../enums/enums';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryPackageInfo: PackageInfo = {
+  const testTemporaryPackageInfo: DisplayPackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
+    attributionIds: [testManualAttributionUuid_1],
   };
-  const secondTestTemporaryPackageInfo: PackageInfo = {
+  const secondTestTemporaryPackageInfo: DisplayPackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
+    attributionIds: [testManualAttributionUuid_2],
   };
   const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-    [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+    [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
+      testTemporaryPackageInfo
+    ),
+    [testManualAttributionUuid_2]: convertDisplayPackageInfoToPackageInfo(
+      secondTestTemporaryPackageInfo
+    ),
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
@@ -52,20 +60,21 @@ describe('The audit view resource selectors', () => {
 
   it('sets Attributions and getsAttribution for a ResourceId', () => {
     const testStore = createTestAppStore();
-    const expectedPackageInfo: PackageInfo = {
+    const expectedDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
+      attributionIds: [testManualAttributionUuid_1],
     };
-    expect(getPackageInfoOfSelected(testStore.getState())).toBeNull();
+    expect(getDisplayPackageInfoOfSelected(testStore.getState())).toBeNull();
 
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(getPackageInfoOfSelected(testStore.getState())).toEqual(
-      expectedPackageInfo
+    expect(getDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+      expectedDisplayPackageInfo
     );
   });
 

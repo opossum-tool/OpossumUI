@@ -11,6 +11,7 @@ import {
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
+  DisplayPackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -168,7 +169,7 @@ export interface SetProgressBarDataPayload {
 
 export interface SetTemporaryPackageInfoAction {
   type: typeof ACTION_SET_TEMPORARY_PACKAGE_INFO;
-  payload: PackageInfo;
+  payload: DisplayPackageInfo;
 }
 
 export interface SetSelectedResourceIdAction {
@@ -320,7 +321,7 @@ export interface SetPackageSearchTerm {
 
 export interface SetAttributionWizardOriginalAttribution {
   type: typeof ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION;
-  payload: PackageInfo;
+  payload: DisplayPackageInfo;
 }
 export interface SetAttributionWizardPackageNamespaces {
   type: typeof ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES;

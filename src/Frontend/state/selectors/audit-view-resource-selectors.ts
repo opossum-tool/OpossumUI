@@ -5,7 +5,7 @@
 
 import { PanelPackage, State } from '../../types/types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { Attributions, PackageInfo } from '../../../shared/shared-types';
+import { Attributions, DisplayPackageInfo } from '../../../shared/shared-types';
 import { getFilteredAttributionsById } from '../../util/get-filtered-attributions-by-id';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import {
@@ -13,6 +13,7 @@ import {
   getResourcesToManualAttributions,
 } from './all-views-resource-selectors';
 import { getAttributionBreakpointCheckForState } from '../../util/is-attribution-breakpoint';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 
 export function getSelectedResourceId(state: State): string {
   return state.resourceState.auditView.selectedResourceId;
@@ -106,16 +107,18 @@ export function getAttributionIdOfDisplayedPackageInManualPanel(
     : null;
 }
 
-export function getAttributionOfDisplayedPackageInManualPanel(
+export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
   state: State
-): PackageInfo | null {
+): DisplayPackageInfo | null {
   const attributionId: string | null =
     getAttributionIdOfDisplayedPackageInManualPanel(state);
   if (attributionId) {
     const manualAttributions: Attributions = getManualAttributions(state);
-    return manualAttributions[attributionId];
+    return convertPackageInfoToDisplayPackageInfo(
+      manualAttributions[attributionId],
+      [attributionId]
+    );
   }
-
   return null;
 }
 

@@ -13,7 +13,7 @@ import { PackagePanelTitle, View } from '../../../enums/enums';
 import { getSelectedView, getTargetView } from '../../selectors/view-selector';
 import {
   getManualData,
-  getPackageInfoOfSelectedAttribution,
+  getDisplayPackageInfoOfSelectedAttribution,
 } from '../../selectors/all-views-resource-selectors';
 import { doNothing } from '../../../util/do-nothing';
 import { getParents } from '../../helpers/get-parents';
@@ -31,13 +31,14 @@ import {
 } from './audit-view-simple-actions';
 import { setTemporaryPackageInfo } from './all-views-simple-actions';
 import {
-  getAttributionOfDisplayedPackageInManualPanel,
+  getDisplayPackageInfoOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
   getSelectedResourceId,
   getTargetDisplayedPackage,
   getTargetSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
 export function resetTemporaryPackageInfo(
   attribution?: DisplayPackageInfo
@@ -54,14 +55,16 @@ export function resetTemporaryPackageInfo(
       case View.Audit:
         dispatch(
           setTemporaryPackageInfo(
-            getAttributionOfDisplayedPackageInManualPanel(getState()) || {}
+            getDisplayPackageInfoOfDisplayedPackageInManualPanel(getState()) ||
+              EMPTY_DISPLAY_PACKAGE_INFO
           )
         );
         break;
       case View.Attribution:
         dispatch(
           setTemporaryPackageInfo(
-            getPackageInfoOfSelectedAttribution(getState()) || {}
+            getDisplayPackageInfoOfSelectedAttribution(getState()) ||
+              EMPTY_DISPLAY_PACKAGE_INFO
           )
         );
         break;

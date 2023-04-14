@@ -6,7 +6,7 @@
 import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import {
@@ -26,6 +26,7 @@ import { PopupType } from '../../enums/enums';
 import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import MuiBox from '@mui/material/Box';
 import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
+import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 
 const VERTICAL_RESOURCE_COLUMN_PADDING = 24;
 const VERTICAL_RESOURCE_HEADER_AND_FOOTER_SIZE = 72;
@@ -72,7 +73,11 @@ export function AttributionDetailsViewer(): ReactElement | null {
 
   const dispatchSavePackageInfo = useCallback(() => {
     dispatch(
-      savePackageInfo(null, selectedAttributionId, temporaryPackageInfo)
+      savePackageInfo(
+        null,
+        selectedAttributionId,
+        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+      )
     );
   }, [dispatch, selectedAttributionId, temporaryPackageInfo]);
 
@@ -111,12 +116,13 @@ export function AttributionDetailsViewer(): ReactElement | null {
         isEditable={true}
         showManualAttributionData={true}
         areButtonsHidden={false}
-        displayPackageInfo={temporaryPackageInfo}
         setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
         onSaveButtonClick={dispatchSavePackageInfo}
         onDeleteButtonClick={deleteAttribution}
-        setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
-          dispatch(setTemporaryPackageInfo(packageInfo));
+        setTemporaryPackageInfo={(
+          displayPackageInfo: DisplayPackageInfo
+        ): void => {
+          dispatch(setTemporaryPackageInfo(displayPackageInfo));
         }}
         saveFileRequestListener={saveFileRequestListener}
       />

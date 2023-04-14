@@ -6,7 +6,7 @@
 import {
   Attributions,
   DiscreteConfidence,
-  PackageInfo,
+  DisplayPackageInfo,
   ProjectMetadata,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -14,7 +14,7 @@ import { createTestAppStore } from '../../../test-helpers/render-component-with-
 import {
   getAttributionBreakpoints,
   getFilesWithChildren,
-  getPackageInfoOfSelectedAttribution,
+  getDisplayPackageInfoOfSelectedAttribution,
   getProjectMetadata,
 } from '../all-views-resource-selectors';
 import {
@@ -25,17 +25,21 @@ import {
 } from '../../actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 
 describe('getPackageInfoOfSelectedAttribution', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-  const testTemporaryPackageInfo: PackageInfo = {
+  const testTemporaryPackageInfo: DisplayPackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
+    attributionIds: [testManualAttributionUuid_1],
   };
   const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: testTemporaryPackageInfo,
+    [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
+      testTemporaryPackageInfo
+    ),
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
@@ -47,9 +51,9 @@ describe('getPackageInfoOfSelectedAttribution', () => {
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
-    expect(getPackageInfoOfSelectedAttribution(testStore.getState())).toBe(
-      testTemporaryPackageInfo
-    );
+    expect(
+      getDisplayPackageInfoOfSelectedAttribution(testStore.getState())
+    ).toEqual(testTemporaryPackageInfo);
   });
 
   it('returns empty temporary package info if no selected attribution', () => {
@@ -59,7 +63,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
     );
 
     expect(
-      getPackageInfoOfSelectedAttribution(testStore.getState())
+      getDisplayPackageInfoOfSelectedAttribution(testStore.getState())
     ).toBeNull();
   });
 });

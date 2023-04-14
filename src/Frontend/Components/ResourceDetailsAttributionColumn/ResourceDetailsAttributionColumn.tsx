@@ -5,7 +5,7 @@
 
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
   getAttributionBreakpoints,
@@ -15,7 +15,6 @@ import {
 import { PanelPackage } from '../../types/types';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
-import { getDisplayPackageInfo } from './resource-details-attribution-column-helpers';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -32,6 +31,7 @@ import {
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 
 interface ResourceDetailsAttributionColumnProps {
   showParentAttributions: boolean;
@@ -59,7 +59,7 @@ export function ResourceDetailsAttributionColumn(
         unlinkAttributionAndSavePackageInfo(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          temporaryPackageInfo
+          convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
         )
       );
     }
@@ -70,14 +70,14 @@ export function ResourceDetailsAttributionColumn(
       savePackageInfo(
         selectedResourceId,
         attributionIdOfSelectedPackageInManualPanel,
-        temporaryPackageInfo
+        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
       )
     );
   }
 
   function openConfirmDeletionPopup(): void {
     if (!attributionIdOfSelectedPackageInManualPanel) return;
-    if (displayPackageInfo.preSelected) {
+    if (temporaryPackageInfo.preSelected) {
       dispatch(
         deleteAttributionAndSave(
           selectedResourceId,
@@ -97,7 +97,7 @@ export function ResourceDetailsAttributionColumn(
   function openConfirmDeletionGloballyPopup(): void {
     if (!attributionIdOfSelectedPackageInManualPanel) return;
 
-    if (displayPackageInfo.preSelected) {
+    if (temporaryPackageInfo.preSelected) {
       dispatch(
         deleteAttributionGloballyAndSave(
           attributionIdOfSelectedPackageInManualPanel
@@ -122,12 +122,6 @@ export function ResourceDetailsAttributionColumn(
       )
     );
   }
-
-  const displayPackageInfo: PackageInfo = getDisplayPackageInfo(
-    displayedPackage,
-    temporaryPackageInfo,
-    manualData.attributions
-  );
 
   const showSaveGloballyButton: boolean = hasAttributionMultipleResources(
     attributionIdOfSelectedPackageInManualPanel,
@@ -169,7 +163,6 @@ export function ResourceDetailsAttributionColumn(
       areButtonsHidden={
         displayedPackage.panel !== PackagePanelTitle.ManualPackages
       }
-      displayPackageInfo={displayPackageInfo}
       showParentAttributions={props.showParentAttributions}
       showSaveGloballyButton={showSaveGloballyButton}
       hideDeleteButtons={hideDeleteButtons}
@@ -183,8 +176,10 @@ export function ResourceDetailsAttributionColumn(
           : dispatchSavePackageInfo
       }
       onSaveGloballyButtonClick={dispatchSavePackageInfo}
-      setTemporaryPackageInfo={(packageInfo: PackageInfo): void => {
-        dispatch(setTemporaryPackageInfo(packageInfo));
+      setTemporaryPackageInfo={(
+        displayPackageInfo: DisplayPackageInfo
+      ): void => {
+        dispatch(setTemporaryPackageInfo(displayPackageInfo));
       }}
       saveFileRequestListener={saveFileRequestListener}
       onDeleteButtonClick={openConfirmDeletionPopup}

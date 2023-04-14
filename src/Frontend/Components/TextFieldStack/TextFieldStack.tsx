@@ -35,6 +35,7 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
   if (filteredComments.length == 0) {
     filteredComments.push('');
   }
+
   return props.isCollapsed ? (
     <MuiBox>
       <TextBox
@@ -44,7 +45,7 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
         text={''}
         minRows={1}
         maxRows={1}
-        handleChange={props.handleChange('comment')}
+        handleChange={props.handleChange('comments')}
       />
     </MuiBox>
   ) : (
@@ -61,7 +62,7 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
               minRows={numLines}
               maxRows={numLines}
               multiline={true}
-              handleChange={props.handleChange('comment')}
+              handleChange={props.handleChange('comments')}
             />
           </MuiBox>
         );
