@@ -140,7 +140,8 @@
           },
           "originId": {
             "type": "string",
-            "description": "Can be set to track a signal from the tooling that generated the input file. Will be copied into the output when the signal is converted into an attribution."
+            "description": "Deprecated - originIds should be used instead. Can be set to track a signal from the tooling that generated the input file. Will be copied into the output when the signal is converted into an attribution.",
+            "deprecated": true
           },
           "originIds": {
             "type": "array",
