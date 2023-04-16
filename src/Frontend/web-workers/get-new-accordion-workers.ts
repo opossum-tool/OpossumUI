@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import ContainedExternalAttributionsAccordionWorker from './contained-external-attributions-accordion-worker?worker';
+import ContainedManualAttributionsAccordionWorker from './contained-manual-attributions-accordion-worker?worker';
+
 export interface ResourceDetailsTabsWorkers {
   containedExternalAttributionsAccordionWorker: Worker;
   containedManualAttributionsAccordionWorker: Worker;
@@ -10,23 +13,8 @@ export interface ResourceDetailsTabsWorkers {
 export function getNewAccordionWorkers(): ResourceDetailsTabsWorkers {
   return {
     containedExternalAttributionsAccordionWorker:
-      getNewContainedExternalAttributionsAccordionWorker(),
+      new ContainedExternalAttributionsAccordionWorker(),
     containedManualAttributionsAccordionWorker:
-      getNewContainedManualAttributionsAccordionWorker(),
+      new ContainedManualAttributionsAccordionWorker(),
   };
-}
-
-function getNewContainedExternalAttributionsAccordionWorker(): Worker {
-  return new Worker(
-    new URL(
-      './contained-external-attributions-accordion-worker',
-      import.meta.url
-    )
-  );
-}
-
-function getNewContainedManualAttributionsAccordionWorker(): Worker {
-  return new Worker(
-    new URL('./contained-manual-attributions-accordion-worker', import.meta.url)
-  );
 }

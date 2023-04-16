@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import ProgressBarWorker from './progress-bar-worker?worker';
+
 export interface ProgressBarWorkers {
   TopProgressBarWorker: Worker;
   FolderProgressBarWorker: Worker;
@@ -9,11 +11,7 @@ export interface ProgressBarWorkers {
 
 export function getNewProgressBarWorkers(): ProgressBarWorkers {
   return {
-    TopProgressBarWorker: getNewProgressBarWorker(),
-    FolderProgressBarWorker: getNewProgressBarWorker(),
+    TopProgressBarWorker: new ProgressBarWorker(),
+    FolderProgressBarWorker: new ProgressBarWorker(),
   };
-}
-
-function getNewProgressBarWorker(): Worker {
-  return new Worker(new URL('./progress-bar-worker', import.meta.url));
 }

@@ -23,14 +23,9 @@ export async function getApp(
 ): Promise<ElectronApplication> {
   const app = 'build/ElectronBackend/app.js';
 
-  require('setimmediate'); // required to work with react-scripts v5
   return await _electron.launch({
     args: commandLineArg ? [app, commandLineArg] : [app],
     timeout: ELECTRON_LAUNCH_TEST_TIMEOUT,
-    env: {
-      DISPLAY: process.env.DISPLAY ?? ':99',
-      RUNNING_IN_E2E_TEST: 'true',
-    },
   });
 }
 

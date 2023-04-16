@@ -15,6 +15,7 @@ describe('FileSupportPopup', () => {
     renderComponentWithStore(<FileSupportPopup />);
     expect(screen.getByText(header)).toBeInTheDocument();
   });
+
   it('sends correct signal to backend when clicking createAndProceedButton', () => {
     renderComponentWithStore(<FileSupportPopup />);
     fireEvent.click(
@@ -24,11 +25,12 @@ describe('FileSupportPopup', () => {
       global.window.electronAPI.convertInputFileToDotOpossum
     ).toHaveBeenCalled();
   });
+
   it('sends correct signal to backend when clicking keepButton', () => {
     renderComponentWithStore(<FileSupportPopup />);
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Keep }));
     expect(
-      global.window.electronAPI.useOutdatedInpuFileFormat
+      global.window.electronAPI.useOutdatedInputFileFormat
     ).toHaveBeenCalled();
   });
 });

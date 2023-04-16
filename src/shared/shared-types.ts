@@ -233,7 +233,7 @@ export interface IElectronAPI {
   deleteFile: () => Promise<unknown>;
   keepFile: () => Promise<unknown>;
   convertInputFileToDotOpossum: () => void;
-  useOutdatedInpuFileFormat: () => void;
+  useOutdatedInputFileFormat: () => void;
   openDotOpossumFile: () => void;
   sendErrorInformation: (
     errorInformationArgs: SendErrorInformationArgs

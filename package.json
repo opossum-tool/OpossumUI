@@ -39,12 +39,14 @@
     "write-file-atomic": "^5.0.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.20.2",
     "@playwright/test": "^1.32.0",
     "@testing-library/dom": "^9.0.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/electron-devtools-installer": "^2.2.2",
+    "@types/jest": "^29.5.0",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.194",
     "@types/object-hash": "^3.0.2",
@@ -56,7 +58,9 @@
     "@types/write-file-atomic": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
+    "@vitejs/plugin-react": "^3.1.0",
     "axios-mock-adapter": "^1.21.4",
+    "babel-jest": "^29.5.0",
     "concurrently": "^8.0.1",
     "cross-env": "^7.0.3",
     "electron": "^24.1.2",
@@ -70,36 +74,41 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-testing-library": "^5.10.3",
     "husky": "8.0.3",
+    "jest": "^29.5.0",
     "jest-each": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
     "lint-staged": "^13.2.1",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.4",
     "playwright": "^1.32.0",
     "prettier": "^2.8.6",
-    "react-scripts": "5.0.1",
     "redux-devtools-extension": "^2.13.9",
     "run-script-os": "^1.1.6",
-    "setimmediate": "^1.0.5",
+    "start-server-and-test": "^2.0.0",
+    "ts-jest": "^29.0.5",
     "typescript": "^5.0.4",
-    "wait-on": "^7.0.1"
+    "vite": "^4.2.1",
+    "vite-plugin-electron": "^0.11.1",
+    "vite-plugin-svgr": "^2.4.0",
+    "vite-tsconfig-paths": "^4.0.7"
   },
   "scripts": {
     "start": "run-script-os",
-    "start:darwin:linux": "concurrently \"yarn build:dev; BROWSER=none ESLINT_NO_DEV_ERRORS=true react-scripts start\" \"wait-on http://127.0.0.1:3000 && electron .\"",
-    "start:win32": "concurrently \"yarn build:dev & cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true react-scripts start\" \"wait-on http://127.0.0.1:3000 && electron .\"",
+    "start:darwin:linux": "yarn build:dev; BROWSER=none ESLINT_NO_DEV_ERRORS=true vite",
+    "start:win32": "yarn build:dev & cross-env BROWSER=none ESLINT_NO_DEV_ERRORS=true vite",
     "build:dev": "run-script-os",
-    "build:dev:darwin:linux": "yarn generate-notice && DISABLE_ESLINT_PLUGIN=true react-scripts build && tsc -p src/ElectronBackend",
-    "build:dev:win32": "yarn generate-notice && cross-env DISABLE_ESLINT_PLUGIN=true react-scripts build && tsc -p src/ElectronBackend",
-    "build:prod": "yarn generate-notice && react-scripts build && tsc -p src/ElectronBackend",
+    "build:dev:darwin:linux": "yarn generate-notice && DISABLE_ESLINT_PLUGIN=true tsc -p ./ && vite build && tsc -p src/ElectronBackend",
+    "build:dev:win32": "yarn generate-notice && cross-env DISABLE_ESLINT_PLUGIN=true tsc -p ./ && vite build && tsc -p src/ElectronBackend",
+    "build:prod": "yarn generate-notice && tsc -p ./ && vite build && tsc -p src/ElectronBackend",
     "compile-all": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
-    "test:unit": "react-scripts test --watchAll=false --setupFilesAfterEnv=./setupTests.ts --testPathIgnorePatterns=src/e2e-tests --testPathIgnorePatterns=src/Frontend/integration-tests",
-    "test:local": "react-scripts test --watchAll=false src/ --setupFilesAfterEnv=./setupTests.ts --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__tests__/**/*.ts?(x)\" ]",
-    "test:changed": "react-scripts test --watchAll=false --setupFilesAfterEnv=./setupTests.ts --onlyChanged",
-    "test:all": "react-scripts test --watchAll=false src/ --setupFilesAfterEnv=./setupTests.ts --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__(tests|tests-ci)__/**/*.ts?(x)\", \"**/?(*.)+(test).ts?(x)\" ] && yarn test:e2e",
-    "test:integration-ci": "react-scripts test --watchAll=false src/Frontend/integration-tests --setupFilesAfterEnv=./setupTests.ts --testMatch=[ \"**/__(tests|tests-ci)__/**/*.ts?(x)\", \"**/?(*.)+(test).ts?(x)\" ]",
+    "test:unit": "jest --testPathIgnorePatterns=src/e2e-tests --testPathIgnorePatterns=src/Frontend/integration-tests",
+    "test:local": "jest --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__tests__/**/*.ts?(x)\" ]",
+    "test:changed": "jest --onlyChanged",
+    "test:all": "jest --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__(tests|tests-ci)__/**/*.ts?(x)\", \"**/?(*.)+(test).ts?(x)\" ] && yarn test:e2e",
+    "test:integration-ci": "jest src/Frontend/integration-tests --testMatch=[ \"**/__(tests|tests-ci)__/**/*.ts?(x)\", \"**/?(*.)+(test).ts?(x)\" ]",
     "test:e2e": "run-script-os",
-    "test:e2e:darwin:linux": "concurrently -s first -k true \"yarn build:dev; BROWSER=none react-scripts start\" \"wait-on http://127.0.0.1:3000 && npx playwright test src/e2e-tests\"",
-    "test:e2e:win32": "concurrently -s first -k true \"yarn build:dev & cross-env BROWSER=none react-scripts start\" \"wait-on http://127.0.0.1:3000 && npx playwright test src/e2e-tests\"",
+    "test:e2e:darwin:linux": "start-server-and-test \"yarn build:dev; BROWSER=none vite --config src/e2e-tests/vite-e2e-config.ts\" \"http://localhost:5173/\" \"RUNNING_IN_E2E_TEST=true DISPLAY=:99 npx playwright test src/e2e-tests\"",
+    "test:e2e:win32": "start-server-and-test \"yarn build:dev & cross-env BROWSER=none vite --config src/e2e-tests/vite-e2e-config.ts\" \"http://localhost:5173/\" \"RUNNING_IN_E2E_TEST=true DISPLAY=:99 npx playwright test src/e2e-tests\"",
     "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
     "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
     "copyright-lint-check": "reuse lint",
@@ -124,8 +133,12 @@
   "build": {
     "productName": "OpossumUI",
     "appId": "opossum_ui_electron",
+    "files": [
+      "build/**/*",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!build/**/__tests__/**/*"
+    ],
     "directories": {
-      "buildResources": "build",
       "output": "release"
     },
     "mac": {
@@ -164,20 +177,9 @@
     ]
   },
   "resolutions": {
-    "nth-check": "^2.0.1",
-    "d3-color": "^3.1.0",
     "minimatch": "^3.0.5"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "jest": {
-    "resetMocks": false,
-    "transformIgnorePatterns": [
-      "/node_modules/(?!d3-*|internmap|axios)"
-    ],
-    "transform": {
-      "/node_modules/(?!d3-*|internmap|axios)": "babel-jest"
-    }
   }
 }

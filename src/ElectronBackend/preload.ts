@@ -36,7 +36,7 @@ const electronAPI: IElectronAPI = {
   keepFile: () => ipcRenderer.invoke(IpcChannel.KeepFile),
   convertInputFileToDotOpossum: () =>
     ipcRenderer.invoke(IpcChannel.ConvertInputFile),
-  useOutdatedInpuFileFormat: () =>
+  useOutdatedInputFileFormat: () =>
     ipcRenderer.invoke(IpcChannel.UseOutdatedInputFile),
   openDotOpossumFile: () => ipcRenderer.invoke(IpcChannel.OpenDotOpossumFile),
   sendErrorInformation: (errorInformationArgs: SendErrorInformationArgs) =>

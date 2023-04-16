@@ -38,11 +38,21 @@ jest.mock('electron', () => ({
 jest.mock('electron-is-dev', () => true);
 
 describe('createWindow', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const oldEnv = process.env;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = { ...oldEnv };
+  });
+
+  afterAll(() => {
+    process.env = oldEnv;
+  });
 
   it('returns correct BrowserWindow in devMode', async () => {
     const browserWindow = await createWindow();
     expect(browserWindow.webContents.openDevTools).toHaveBeenCalled();
-    expect(browserWindow.loadURL).toHaveBeenCalledWith('http://localhost:3000');
+    expect(browserWindow.loadURL).toHaveBeenCalledWith(
+      'http://localhost:5173/'
+    );
   });
 });
