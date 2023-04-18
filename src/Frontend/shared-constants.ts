@@ -13,7 +13,11 @@ export const EMPTY_ATTRIBUTION_DATA: AttributionData = {
   attributions: {},
   resourcesToAttributions: {},
   attributionsToResources: {},
-  resourcesWithAttributedChildren: {},
+  resourcesWithAttributedChildren: {
+    paths: [],
+    pathsToIndices: {},
+    attributedChildren: {},
+  },
 };
 
 export const EMPTY_FREQUENT_LICENSES: FrequentLicenses = {

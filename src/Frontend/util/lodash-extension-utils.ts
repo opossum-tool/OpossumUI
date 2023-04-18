@@ -40,8 +40,18 @@ export function removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty<T>(
 }
 
 export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
+  object: Record<number, Set<T>>,
+  setKey: number,
+  element: T
+): void;
+export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
   object: Record<string, Set<T>>,
   setKey: string,
+  element: T
+): void;
+export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
+  object: Record<string | number, Set<T>>,
+  setKey: string | number,
   element: T
 ): void {
   if (!object[setKey]) {

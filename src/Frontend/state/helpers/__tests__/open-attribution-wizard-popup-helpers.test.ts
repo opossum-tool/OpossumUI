@@ -3,11 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  AttributionData,
-  Attributions,
-  PackageInfo,
-} from '../../../../shared/shared-types';
+import { Attributions, PackageInfo } from '../../../../shared/shared-types';
 import {
   AttributionIdWithCount,
   PackageAttributes,
@@ -18,42 +14,26 @@ import {
   getPackageVersionsWithRelatedPackageNameIds,
   getPreSelectedPackageAttributeIds,
 } from '../open-attribution-wizard-popup-helpers';
+import { computeChildrenWithAttributions } from '../action-and-reducer-helpers';
 
 describe('getExternalAndManualAttributionIdsWithCountsFromResourceAndChildren', () => {
   it('yields correct output', () => {
     const testSelectedResourceId = '/samplepath/';
-    const testExternalData: AttributionData = {
-      attributionsToResources: {},
-      resourcesWithAttributedChildren: {
-        '/samplepath/': new Set<string>([
-          '/samplepath/file_0',
-          '/samplepath/subfolder/file_1',
-          '/samplepath/subfolder/file_2',
-        ]),
-      },
-      resourcesToAttributions: {
-        '/samplepath/file_0': ['uuid_0'],
-        '/samplepath/subfolder/file_1': ['uuid_1'],
-        '/samplepath/subfolder/file_2': ['uuid_0'],
-      },
-      attributions: {},
+    const testResourcesToExternalAttributions = {
+      '/samplepath/file_0': ['uuid_0'],
+      '/samplepath/subfolder/file_1': ['uuid_1'],
+      '/samplepath/subfolder/file_2': ['uuid_0'],
     };
-    const testManualData: AttributionData = {
-      attributionsToResources: {},
-      resourcesWithAttributedChildren: {
-        '/samplepath/': new Set<string>([
-          '/samplepath/subfolder/file_0',
-          '/samplepath/subfolder_2/file_3',
-          '/samplepath/subfolder_2/file_4',
-        ]),
-      },
-      resourcesToAttributions: {
-        '/samplepath/subfolder/file_0': ['uuid_2'],
-        '/samplepath/subfolder_2/file_3': ['uuid_3'],
-        '/samplepath/subfolder_2/file_4': ['uuid_4'],
-      },
-      attributions: {},
+    const testResourcesWithExternallyAttributedChildren =
+      computeChildrenWithAttributions(testResourcesToExternalAttributions);
+    const testResourcesToManualAttributions = {
+      '/samplepath/subfolder/file_0': ['uuid_2'],
+      '/samplepath/subfolder_2/file_3': ['uuid_3'],
+      '/samplepath/subfolder_2/file_4': ['uuid_4'],
     };
+    const testResourcesWithManuallyAttributedChildren =
+      computeChildrenWithAttributions(testResourcesToManualAttributions);
+
     const testResolvedExternalAttributions: Set<string> = new Set<string>();
 
     const expectedTestAttributionsWithCounts: Array<AttributionIdWithCount> = [
@@ -67,8 +47,10 @@ describe('getExternalAndManualAttributionIdsWithCountsFromResourceAndChildren', 
     const testAttributionsWithCounts =
       getAllAttributionIdsWithCountsFromResourceAndChildren(
         testSelectedResourceId,
-        testExternalData,
-        testManualData,
+        testResourcesToExternalAttributions,
+        testResourcesWithExternallyAttributedChildren,
+        testResourcesToManualAttributions,
+        testResourcesWithManuallyAttributedChildren,
         testResolvedExternalAttributions
       );
 

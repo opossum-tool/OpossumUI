@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  AttributionData,
   ResourcesToAttributions,
   PackageInfo,
   Attributions,
+  ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { getAttributedChildren } from '../../util/get-attributed-children';
 import { shouldNotBeCalled } from '../../util/should-not-be-called';
@@ -20,33 +20,35 @@ interface NamesWithCounts {
 
 export function getAllAttributionIdsWithCountsFromResourceAndChildren(
   selectedResourceId: string,
-  externalData: AttributionData,
-  manualData: AttributionData,
+  resourcesToExternalAttributions: ResourcesToAttributions,
+  resourcesWithExternallyAttributedChildren: ResourcesWithAttributedChildren,
+  resourcesToManualAttributions: ResourcesToAttributions,
+  resourcesWithManuallyAttributedChildren: ResourcesWithAttributedChildren,
   resolvedExternalAttributions: Set<string>
 ): Array<AttributionIdWithCount> {
-  const externalAttributedChildren = getAttributedChildren(
-    externalData.resourcesWithAttributedChildren,
+  const externalAttributedChildren: Set<string> = getAttributedChildren(
+    resourcesWithExternallyAttributedChildren,
     selectedResourceId
   );
-  if (selectedResourceId in externalData.resourcesToAttributions) {
+  if (selectedResourceId in resourcesToExternalAttributions) {
     externalAttributedChildren.add(selectedResourceId);
   }
 
-  const manualAttributedChildren = getAttributedChildren(
-    manualData.resourcesWithAttributedChildren,
+  const manualAttributedChildren: Set<string> = getAttributedChildren(
+    resourcesWithManuallyAttributedChildren,
     selectedResourceId
   );
-  if (selectedResourceId in manualData.resourcesToAttributions) {
+  if (selectedResourceId in resourcesToManualAttributions) {
     manualAttributedChildren.add(selectedResourceId);
   }
 
   const externalAttributionsWithCounts = getAggregatedAttributionIdsAndCounts(
-    externalData.resourcesToAttributions,
+    resourcesToExternalAttributions,
     externalAttributedChildren,
     resolvedExternalAttributions
   );
   const manualAttributionsWithCounts = getAggregatedAttributionIdsAndCounts(
-    manualData.resourcesToAttributions,
+    resourcesToManualAttributions,
     manualAttributedChildren
   );
 

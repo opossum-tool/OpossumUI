@@ -149,9 +149,13 @@ function containsExternalAttribution(
   nodeId: string,
   resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren
 ): boolean {
+  const nodeIndex =
+    resourcesWithExternalAttributedChildren.pathsToIndices[nodeId];
+
   return (
-    resourcesWithExternalAttributedChildren &&
-    nodeId in resourcesWithExternalAttributedChildren
+    nodeIndex !== undefined &&
+    resourcesWithExternalAttributedChildren.attributedChildren[nodeIndex] !==
+      undefined
   );
 }
 
@@ -161,7 +165,7 @@ function containsManualAttribution(
 ): boolean {
   return (
     resourcesWithManualAttributedChildren &&
-    nodeId in resourcesWithManualAttributedChildren
+    nodeId in resourcesWithManualAttributedChildren.pathsToIndices
   );
 }
 

@@ -9,8 +9,19 @@ export function getAttributedChildren(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
   resourceId: string
 ): Set<string> {
-  return resourcesWithAttributedChildren &&
-    resourceId in resourcesWithAttributedChildren
-    ? resourcesWithAttributedChildren[resourceId]
-    : new Set();
+  const resourceIndex: number | undefined =
+    resourcesWithAttributedChildren?.pathsToIndices[resourceId];
+  if (resourceIndex === undefined) {
+    return new Set();
+  }
+
+  const attributedChildrenIds = new Set<string>();
+  resourcesWithAttributedChildren.attributedChildren[resourceIndex]?.forEach(
+    (resourceIndex) =>
+      attributedChildrenIds.add(
+        resourcesWithAttributedChildren.paths[resourceIndex]
+      )
+  );
+
+  return attributedChildrenIds;
 }

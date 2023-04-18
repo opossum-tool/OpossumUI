@@ -107,14 +107,30 @@ describe('computeChildrenWithAttributions', () => {
     );
 
     expect(result).toEqual({
-      '/': new Set().add('/root/src/').add('/root/src/something.js/subfolder'),
-      '/root/': new Set()
-        .add('/root/src/')
-        .add('/root/src/something.js/subfolder'),
-      '/root/src/': new Set().add('/root/src/something.js/subfolder'),
-      '/root/src/something.js/': new Set().add(
-        '/root/src/something.js/subfolder'
-      ),
+      attributedChildren: {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '0': new Set<number>().add(3),
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '1': new Set<number>().add(0).add(3),
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '2': new Set<number>().add(0).add(3),
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '4': new Set<number>().add(3),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 0,
+        '/root/src/something.js/': 4,
+        '/root/src/something.js/subfolder': 3,
+      },
+      paths: [
+        '/root/src/',
+        '/',
+        '/root/',
+        '/root/src/something.js/subfolder',
+        '/root/src/something.js/',
+      ],
     });
   });
 });

@@ -60,7 +60,14 @@ describe('The deleteManualAttribution function', () => {
         [testUuid]: ['/first/'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>().add('/first/'),
+        attributedChildren: {
+          '0': new Set<number>().add(1),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+        },
+        paths: ['/', '/first/'],
       },
     };
     const newManualData: AttributionData = deleteManualAttribution(
@@ -71,7 +78,14 @@ describe('The deleteManualAttribution function', () => {
     expect(isEmpty(newManualData.attributions)).toBe(true);
     expect(isEmpty(newManualData.resourcesToAttributions)).toBe(true);
     expect(isEmpty(newManualData.attributionsToResources)).toBe(true);
-    expect(isEmpty(newManualData.resourcesWithAttributedChildren)).toBe(true);
+    expect(newManualData.resourcesWithAttributedChildren).toEqual({
+      attributedChildren: {},
+      pathsToIndices: {
+        '/': 0,
+        '/first/': 1,
+      },
+      paths: ['/', '/first/'],
+    });
   });
 
   it('correctly maintains childrenFromAttributedResources', () => {
@@ -95,7 +109,14 @@ describe('The deleteManualAttribution function', () => {
         [testAnotherUuid]: ['/first/'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>().add('/first/'),
+        attributedChildren: {
+          '0': new Set<number>().add(1),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+        },
+        paths: ['/', '/first/'],
       },
     };
     const newManualData: AttributionData = deleteManualAttribution(
@@ -113,7 +134,14 @@ describe('The deleteManualAttribution function', () => {
       '000': ['/first/'],
     });
     expect(newManualData.resourcesWithAttributedChildren).toEqual({
-      '/': new Set().add('/first/'),
+      attributedChildren: {
+        '0': new Set<number>().add(1),
+      },
+      pathsToIndices: {
+        '/': 0,
+        '/first/': 1,
+      },
+      paths: ['/', '/first/'],
     });
   });
 });
@@ -138,7 +166,11 @@ describe('The updateManualAttribution function', () => {
       attributionsToResources: {
         [testUuid]: ['/something.js', 'somethingElse.js'],
       },
-      resourcesWithAttributedChildren: {},
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {},
+        paths: [],
+      },
     };
 
     const newManualData: AttributionData = updateManualAttribution(
@@ -176,14 +208,21 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         uuid1: ['/first/', '/first/second/', '/first/second/third/'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/')
-          .add('/first/second/third/'),
-        '/first/': new Set<string>()
-          .add('/first/second/')
-          .add('/first/second/third/'),
-        '/first/second/': new Set<string>().add('/first/second/third/'),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(2).add(3),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(2).add(3),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+        },
+        paths: ['/', '/first/', '/first/second/', '/first/second/third/'],
       },
     };
 
@@ -200,7 +239,16 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         uuid1: ['/first/'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>().add('/first/'),
+        attributedChildren: {
+          '0': new Set<number>().add(1),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+        },
+        paths: ['/', '/first/', '/first/second/', '/first/second/third/'],
       },
     };
 
@@ -242,21 +290,30 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         uuid3: ['/first/', '/first/second/', '/first/second/third/fourth'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/': new Set<string>()
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/third/': new Set<string>().add(
-          '/first/second/third/fourth'
-        ),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '3': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+          '/first/second/third/fourth': 4,
+        },
+        paths: [
+          '/',
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
       },
     };
 
@@ -287,19 +344,30 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         uuid3: ['/first/', '/first/second/third/fourth'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/third/': new Set<string>().add(
-          '/first/second/third/fourth'
-        ),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '3': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+          '/first/second/third/fourth': 4,
+        },
+        paths: [
+          '/',
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
       },
     };
 
@@ -348,21 +416,30 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
         uuid3: ['/first/', '/first/second/', '/first/second/third/fourth'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/': new Set<string>()
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/third/': new Set<string>().add(
-          '/first/second/third/fourth'
-        ),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '3': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+          '/first/second/third/fourth': 4,
+        },
+        paths: [
+          '/',
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
       },
     };
 
@@ -395,19 +472,30 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
         uuid3: ['/first/', '/first/second/third/fourth'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/third/': new Set<string>().add(
-          '/first/second/third/fourth'
-        ),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '3': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+          '/first/second/third/fourth': 4,
+        },
+        paths: [
+          '/',
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
       },
     };
 
@@ -438,21 +526,30 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
         uuid2: ['/first/second/third/'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/': new Set<string>()
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/third/': new Set<string>().add(
-          '/first/second/third/fourth'
-        ),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '3': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+          '/first/second/third/fourth': 4,
+        },
+        paths: [
+          '/',
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
       },
     };
 
@@ -476,21 +573,30 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
         uuid2: ['/first/second/third/'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/first/')
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/': new Set<string>()
-          .add('/first/second/')
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/': new Set<string>()
-          .add('/first/second/third/')
-          .add('/first/second/third/fourth'),
-        '/first/second/third/': new Set<string>().add(
-          '/first/second/third/fourth'
-        ),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '0': new Set<number>().add(1).add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(2).add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(3).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '3': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+          '/first/second/': 2,
+          '/first/second/third/': 3,
+          '/first/second/third/fourth': 4,
+        },
+        paths: [
+          '/',
+          '/first/',
+          '/first/second/',
+          '/first/second/third/',
+          '/first/second/third/fourth',
+        ],
       },
     };
 

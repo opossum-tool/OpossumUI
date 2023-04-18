@@ -88,7 +88,9 @@ export interface AttributionsToHashes {
 }
 
 export interface ResourcesWithAttributedChildren {
-  [path: string]: Set<string>;
+  paths: Array<string>;
+  pathsToIndices: { [path: string]: number };
+  attributedChildren: { [index: number]: Set<number> };
 }
 
 export interface InputFileAttributionData {

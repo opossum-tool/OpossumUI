@@ -34,9 +34,13 @@ export function getMatchingAttributionId(
 export function computeChildrenWithAttributions(
   resourcesToAttributions: ResourcesToAttributions
 ): ResourcesWithAttributedChildren {
-  const childrenWithAttributions = {};
+  const childrenWithAttributions: ResourcesWithAttributedChildren = {
+    paths: [],
+    pathsToIndices: {},
+    attributedChildren: {},
+  };
   for (const path of Object.keys(resourcesToAttributions)) {
-    _addParentsToResourcesWithAttributedChildren(
+    _addPathAndParentsToResourcesWithAttributedChildren(
       path,
       childrenWithAttributions
     );
@@ -45,17 +49,45 @@ export function computeChildrenWithAttributions(
   return childrenWithAttributions;
 }
 
-export function _addParentsToResourcesWithAttributedChildren(
+export function _addPathAndParentsToResourcesWithAttributedChildren(
   attributedPath: string,
   childrenWithAttributions: ResourcesWithAttributedChildren
 ): void {
+  const attributedPathIndex =
+    addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+      childrenWithAttributions,
+      attributedPath
+    );
+
   getParents(attributedPath).forEach((parent) => {
-    if (!(parent in childrenWithAttributions)) {
-      childrenWithAttributions[parent] = new Set();
+    const parentIndex =
+      addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+        childrenWithAttributions,
+        parent
+      );
+
+    if (
+      childrenWithAttributions.attributedChildren[parentIndex] === undefined
+    ) {
+      childrenWithAttributions.attributedChildren[parentIndex] = new Set();
     }
 
-    childrenWithAttributions[parent].add(attributedPath);
+    childrenWithAttributions.attributedChildren[parentIndex].add(
+      attributedPathIndex
+    );
   });
+}
+
+export function addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+  childrenWithAttributions: ResourcesWithAttributedChildren,
+  path: string
+): number {
+  if (childrenWithAttributions.pathsToIndices[path] === undefined) {
+    const newLength = childrenWithAttributions.paths.push(path);
+    childrenWithAttributions.pathsToIndices[path] = newLength - 1;
+  }
+
+  return childrenWithAttributions.pathsToIndices[path];
 }
 
 export function getAttributionDataFromSetAttributionDataPayload(payload: {
