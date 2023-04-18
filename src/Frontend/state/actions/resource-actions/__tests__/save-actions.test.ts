@@ -199,7 +199,11 @@ describe('The savePackageInfo action', () => {
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState())
-    ).toEqual({});
+    ).toEqual({
+      attributedChildren: {},
+      pathsToIndices: {},
+      paths: [],
+    });
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
 
     testStore.dispatch(
@@ -211,8 +215,16 @@ describe('The savePackageInfo action', () => {
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState())
     ).toEqual({
-      '/': new Set().add('/root/src/'),
-      '/root/': new Set().add('/root/src/'),
+      attributedChildren: {
+        '1': new Set<number>().add(0),
+        '2': new Set<number>().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 0,
+      },
+      paths: ['/root/src/', '/', '/root/'],
     });
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
   });
@@ -240,9 +252,18 @@ describe('The savePackageInfo action', () => {
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState())
     ).toEqual({
-      '/': new Set().add('/root/src/something.js'),
-      '/root/': new Set().add('/root/src/something.js'),
-      '/root/src/': new Set().add('/root/src/something.js'),
+      attributedChildren: {
+        '1': new Set().add(0),
+        '2': new Set().add(0),
+        '3': new Set().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 3,
+        '/root/src/something.js': 0,
+      },
+      paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
 
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
@@ -261,9 +282,18 @@ describe('The savePackageInfo action', () => {
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState())
     ).toEqual({
-      '/': new Set().add('/root/src/something.js'),
-      '/root/': new Set().add('/root/src/something.js'),
-      '/root/src/': new Set().add('/root/src/something.js'),
+      attributedChildren: {
+        '1': new Set<number>().add(0),
+        '2': new Set<number>().add(0),
+        '3': new Set<number>().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/src/': 3,
+        '/root/src/something.js': 0,
+      },
+      paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
     expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
   });
@@ -290,18 +320,50 @@ describe('The savePackageInfo action', () => {
     };
     const expectedResourcesWithManualAttributedChildren1: ResourcesWithAttributedChildren =
       {
-        '/': new Set<string>()
-          .add('/root/src/something.js')
-          .add('/root/somethingElse.js'),
-        '/root/': new Set<string>()
-          .add('/root/src/something.js')
-          .add('/root/somethingElse.js'),
-        '/root/src/': new Set<string>().add('/root/src/something.js'),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(0).add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(0).add(4),
+          '3': new Set<number>().add(0),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/root/': 2,
+          '/root/somethingElse.js': 4,
+          '/root/src/': 3,
+          '/root/src/something.js': 0,
+        },
+        paths: [
+          '/root/src/something.js',
+          '/',
+          '/root/',
+          '/root/src/',
+          '/root/somethingElse.js',
+        ],
       };
     const expectedResourcesWithManualAttributedChildren2: ResourcesWithAttributedChildren =
       {
-        '/': new Set<string>().add('/root/somethingElse.js'),
-        '/root/': new Set<string>().add('/root/somethingElse.js'),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(4),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(4),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/root/': 2,
+          '/root/somethingElse.js': 4,
+          '/root/src/': 3,
+          '/root/src/something.js': 0,
+        },
+        paths: [
+          '/root/src/something.js',
+          '/',
+          '/root/',
+          '/root/src/',
+          '/root/somethingElse.js',
+        ],
       };
     const emptyTestTemporaryPackageInfo: PackageInfo = {};
 
@@ -516,9 +578,15 @@ describe('The savePackageInfo action', () => {
         uuid1: ['/something.js', '/somethingElse.js'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set()
-          .add('/something.js')
-          .add('/somethingElse.js') as Set<string>,
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
       },
     };
 
@@ -583,10 +651,17 @@ describe('The savePackageInfo action', () => {
         [testUuid]: ['/something.js', '/folder/somethingElse.js'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>()
-          .add('/something.js')
-          .add('/folder/somethingElse.js'),
-        '/folder/': new Set<string>().add('/folder/somethingElse.js'),
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+          '3': new Set<number>().add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/folder/': 3,
+          '/folder/somethingElse.js': 2,
+          '/something.js': 0,
+        },
+        paths: ['/something.js', '/', '/folder/somethingElse.js', '/folder/'],
       },
     };
 
@@ -837,9 +912,15 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
         vueUuid: ['/something.js'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set()
-          .add('/something.js')
-          .add('/somethingElse.js') as Set<string>,
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
       },
     };
 
@@ -877,7 +958,14 @@ describe('The deleteAttributionAndSave action', () => {
       attributions: {},
       resourcesToAttributions: {},
       attributionsToResources: {},
-      resourcesWithAttributedChildren: {},
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {
+          '/': 1,
+          '/file1': 0,
+        },
+        paths: ['/file1', '/'],
+      },
     };
     const testStore = createTestAppStore();
     testStore.dispatch(
@@ -908,7 +996,14 @@ describe('The deleteAttributionAndSave action', () => {
       attributions: {},
       resourcesToAttributions: {},
       attributionsToResources: {},
-      resourcesWithAttributedChildren: {},
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {
+          '/': 1,
+          '/file1': 0,
+        },
+        paths: ['/file1', '/'],
+      },
     };
     const testStore = createTestAppStore();
     testStore.dispatch(
@@ -952,9 +1047,17 @@ describe('The deleteAttributionAndSave action', () => {
         uuid1: ['/file1'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>().add('/file1'),
+        attributedChildren: {
+          '1': new Set<number>().add(0),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/file1': 0,
+        },
+        paths: ['/file1', '/'],
       },
     };
+
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(
@@ -1006,7 +1109,15 @@ describe('The deleteAttributionGloballyAndSave action', () => {
         vueUuid: ['/somethingElse.js'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set().add('/somethingElse.js') as Set<string>,
+        attributedChildren: {
+          '1': new Set<number>().add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
       },
     };
 

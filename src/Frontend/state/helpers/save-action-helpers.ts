@@ -22,6 +22,7 @@ import { getManualAttributions } from '../selectors/all-views-resource-selectors
 import { v4 as uuid4 } from 'uuid';
 import { remove } from 'lodash';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
+import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './action-and-reducer-helpers';
 
 export function createManualAttribution(
   manualData: AttributionData,
@@ -140,16 +141,26 @@ export function deleteChildrenFromAttributedResources(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
   resourceId: string
 ): ResourcesWithAttributedChildren {
-  getParents(resourceId).forEach((parentResource: string): void => {
-    const children = resourcesWithAttributedChildren[parentResource];
+  const resourceIndex: number =
+    resourcesWithAttributedChildren.pathsToIndices[resourceId];
 
-    if (!children) {
+  getParents(resourceId).forEach((parentResource: string): void => {
+    const parentIndex: number =
+      resourcesWithAttributedChildren.pathsToIndices[parentResource];
+    const childrenIndexes: Set<number> =
+      resourcesWithAttributedChildren.attributedChildren[parentIndex];
+
+    if (!childrenIndexes) {
       return;
-    } else if (children.size === 1) {
-      delete resourcesWithAttributedChildren[parentResource];
+    } else if (childrenIndexes.size === 1) {
+      delete resourcesWithAttributedChildren.attributedChildren[parentIndex];
     } else {
-      resourcesWithAttributedChildren[parentResource] = new Set(children);
-      resourcesWithAttributedChildren[parentResource].delete(resourceId);
+      resourcesWithAttributedChildren.attributedChildren[parentIndex] = new Set(
+        childrenIndexes
+      );
+      resourcesWithAttributedChildren.attributedChildren[parentIndex].delete(
+        resourceIndex
+      );
     }
   });
 
@@ -319,16 +330,34 @@ export function _addParentsToResourcesWithAttributedChildrenNoMutation(
   attributedPath: string,
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren
 ): void {
+  const attributedPathIndex =
+    addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+      resourcesWithAttributedChildren,
+      attributedPath
+    );
+
   getParents(attributedPath).forEach((parent) => {
-    if (!(parent in resourcesWithAttributedChildren)) {
-      resourcesWithAttributedChildren[parent] = new Set();
+    const parentIndex =
+      addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+        resourcesWithAttributedChildren,
+        parent
+      );
+
+    if (
+      resourcesWithAttributedChildren.attributedChildren[parentIndex] ===
+      undefined
+    ) {
+      resourcesWithAttributedChildren.attributedChildren[parentIndex] =
+        new Set();
     } else {
-      resourcesWithAttributedChildren[parent] = new Set(
-        resourcesWithAttributedChildren[parent]
+      resourcesWithAttributedChildren.attributedChildren[parentIndex] = new Set(
+        resourcesWithAttributedChildren.attributedChildren[parentIndex]
       );
     }
 
-    resourcesWithAttributedChildren[parent].add(attributedPath);
+    resourcesWithAttributedChildren.attributedChildren[parentIndex].add(
+      attributedPathIndex
+    );
   });
 }
 
@@ -414,9 +443,9 @@ function removeManualAttributionFromChildIfInferable(
     const idsOfParents: Array<string> = getParents(childId);
     idsOfParents.forEach((parentId: string) =>
       removeFromSetCloneAndDeleteKeyFromObjectIfEmpty(
-        manualData.resourcesWithAttributedChildren,
-        parentId,
-        childId
+        manualData.resourcesWithAttributedChildren.attributedChildren,
+        manualData.resourcesWithAttributedChildren.pathsToIndices[parentId],
+        manualData.resourcesWithAttributedChildren.pathsToIndices[childId]
       )
     );
   }

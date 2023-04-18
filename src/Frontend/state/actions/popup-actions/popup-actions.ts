@@ -239,8 +239,10 @@ export function openAttributionWizardPopup(
     const allAttributionIdsOfResourceAndChildrenWithCounts =
       getAllAttributionIdsWithCountsFromResourceAndChildren(
         selectedResourceId,
-        externalData,
-        manualData,
+        externalData.resourcesToAttributions,
+        externalData.resourcesWithAttributedChildren,
+        manualData.resourcesToAttributions,
+        manualData.resourcesWithAttributedChildren,
         resolvedExternalAttributions
       );
 

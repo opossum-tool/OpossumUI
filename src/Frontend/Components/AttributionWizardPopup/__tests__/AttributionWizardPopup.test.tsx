@@ -21,6 +21,8 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
 import { AttributionWizardPopup } from '../AttributionWizardPopup';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {
@@ -31,7 +33,7 @@ const testManualAttributions: Attributions = {
     packageVersion: '18.2.0',
   },
 };
-const testManualResourcesToAttributions: ResourcesToAttributions = {
+const testResourcesToManualAttributions: ResourcesToAttributions = {
   [selectedResourceId]: ['uuid_0'],
 };
 const testExternalAttributions: Attributions = {
@@ -42,7 +44,7 @@ const testExternalAttributions: Attributions = {
     packageVersion: '1.24.1',
   },
 };
-const testExternalResourcesToAttributions: ResourcesToAttributions = {
+const testResourcesToExternalAttributions: ResourcesToAttributions = {
   '/samplepath/file': ['uuid_1'],
 };
 
@@ -53,16 +55,17 @@ const versionListTitle = 'Package version';
 describe('AttributionWizardPopup', () => {
   it('renders with header, resource path, and buttons', () => {
     const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
     testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        })
       )
     );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
-    );
+    testStore.dispatch(setSelectedResourceId(selectedResourceId));
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
@@ -84,11 +87,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
+        testResourcesToExternalAttributions
       )
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -105,11 +108,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
+        testResourcesToExternalAttributions
       )
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -148,11 +151,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
+        testResourcesToExternalAttributions
       )
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -182,11 +185,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
+        testResourcesToExternalAttributions
       )
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -206,11 +209,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
+        testResourcesToExternalAttributions
       )
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -275,7 +278,7 @@ describe('AttributionWizardPopup', () => {
       },
     };
 
-    const testExternalResourcesToAttributionsExtended: ResourcesToAttributions =
+    const testResourcesToExternalAttributionsExtended: ResourcesToAttributions =
       {
         '/samplepath/file': ['uuid_1', 'uuid_2'],
       };
@@ -285,11 +288,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributionsExtended,
-        testExternalResourcesToAttributionsExtended
+        testResourcesToExternalAttributionsExtended
       )
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));

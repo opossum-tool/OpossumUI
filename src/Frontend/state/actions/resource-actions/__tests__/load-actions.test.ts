@@ -135,9 +135,18 @@ describe('loadFromFile', () => {
         '4d9f0b16-fbff-11ea-adc1-0242ac120002': ['/root/src/something.js'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>().add('/root/src/something.js'),
-        '/root/': new Set<string>().add('/root/src/something.js'),
-        '/root/src/': new Set<string>().add('/root/src/something.js'),
+        attributedChildren: {
+          '1': new Set<number>().add(0),
+          '2': new Set<number>().add(0),
+          '3': new Set<number>().add(0),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/root/': 2,
+          '/root/src/': 3,
+          '/root/src/something.js': 0,
+        },
+        paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
       },
     };
     const expectedExternalData: AttributionData = {
@@ -148,9 +157,27 @@ describe('loadFromFile', () => {
         test_id: ['/thirdParty/package_1.tr.gz'],
       },
       resourcesWithAttributedChildren: {
-        '/': new Set<string>().add('/root/src/something.js'),
-        '/root/': new Set<string>().add('/root/src/something.js'),
-        '/root/src/': new Set<string>().add('/root/src/something.js'),
+        attributedChildren: {
+          '1': new Set<number>().add(0),
+          '2': new Set<number>().add(0),
+          '3': new Set<number>().add(0),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/root/': 2,
+          '/root/src/': 3,
+          '/root/src/something.js': 0,
+          '/thirdParty/': 5,
+          '/thirdParty/package_1.tr.gz': 4,
+        },
+        paths: [
+          '/root/src/something.js',
+          '/',
+          '/root/',
+          '/root/src/',
+          '/thirdParty/package_1.tr.gz',
+          '/thirdParty/',
+        ],
       },
     };
     const expectedExternalAttributionsToHashes: AttributionsToHashes = {

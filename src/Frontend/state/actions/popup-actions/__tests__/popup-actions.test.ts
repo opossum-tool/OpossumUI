@@ -405,7 +405,15 @@ describe('The actions called from the unsaved popup', () => {
           reactUuid: ['/somethingElse.js'],
         },
         resourcesWithAttributedChildren: {
-          '/': new Set<string>().add('/somethingElse.js'),
+          attributedChildren: {
+            '1': new Set<number>().add(2),
+          },
+          pathsToIndices: {
+            '/': 1,
+            '/something.js': 0,
+            '/somethingElse.js': 2,
+          },
+          paths: ['/something.js', '/', '/somethingElse.js'],
         },
       };
 

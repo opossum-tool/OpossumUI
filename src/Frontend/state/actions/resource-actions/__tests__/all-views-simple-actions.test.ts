@@ -123,8 +123,19 @@ describe('The load and navigation simple actions', () => {
     };
     const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
       {
-        '/': new Set<string>().add('/some/path1').add('/some/path2'),
-        '/some/': new Set<string>().add('/some/path1').add('/some/path2'),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(0).add(3),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(0).add(3),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/some/': 2,
+          '/some/path1': 0,
+          '/some/path2': 3,
+        },
+        paths: ['/some/path1', '/', '/some/', '/some/path2'],
       };
 
     const testStore = createTestAppStore();
@@ -133,7 +144,11 @@ describe('The load and navigation simple actions', () => {
     expect(getManualAttributionsToResources(testStore.getState())).toEqual({});
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState())
-    ).toEqual({});
+    ).toEqual({
+      attributedChildren: {},
+      pathsToIndices: {},
+      paths: [],
+    });
 
     testStore.dispatch(
       setManualData(testAttributions, testResourcesToAttributions)
@@ -167,8 +182,19 @@ describe('The load and navigation simple actions', () => {
     };
     const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
       {
-        '/': new Set<string>().add('/some/path1').add('/some/path2'),
-        '/some/': new Set<string>().add('/some/path1').add('/some/path2'),
+        attributedChildren: {
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(0).add(3),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '2': new Set<number>().add(0).add(3),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/some/': 2,
+          '/some/path1': 0,
+          '/some/path2': 3,
+        },
+        paths: ['/some/path1', '/', '/some/', '/some/path2'],
       };
 
     const testStore = createTestAppStore();
@@ -181,7 +207,11 @@ describe('The load and navigation simple actions', () => {
     );
     expect(
       getResourcesWithExternalAttributedChildren(testStore.getState())
-    ).toEqual({});
+    ).toEqual({
+      attributedChildren: {},
+      pathsToIndices: {},
+      paths: [],
+    });
 
     testStore.dispatch(
       setExternalData(testAttributions, testResourcesToAttributions)

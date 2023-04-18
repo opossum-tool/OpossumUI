@@ -112,8 +112,19 @@ describe('The audit view simple actions', () => {
     expect(
       getResourcesWithExternalAttributedChildren(testStore.getState())
     ).toMatchObject({
-      '/root/': new Set(['/root/src/', '/root/external/']),
-      '/': new Set(['/root/src/', '/root/external/']),
+      attributedChildren: {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '1': new Set<number>().add(0).add(3),
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '2': new Set<number>().add(0).add(3),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/external/': 3,
+        '/root/src/': 0,
+      },
+      paths: ['/root/src/', '/', '/root/', '/root/external/'],
     });
 
     expectedResolvedExternalAttributions.add(uuid1).add(uuid2);
@@ -174,8 +185,17 @@ describe('The audit view simple actions', () => {
     expect(
       getResourcesWithExternalAttributedChildren(testStore.getState())
     ).toEqual({
-      '/root/': new Set(['/root/src/']),
-      '/': new Set(['/root/src/']),
+      attributedChildren: {
+        '1': new Set<number>().add(0),
+        '2': new Set<number>().add(0),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/external/': 3,
+        '/root/src/': 0,
+      },
+      paths: ['/root/src/', '/', '/root/', '/root/external/'],
     });
 
     testStore.dispatch(addResolvedExternalAttribution(uuid3));
@@ -184,7 +204,16 @@ describe('The audit view simple actions', () => {
     );
     expect(
       getResourcesWithExternalAttributedChildren(testStore.getState())
-    ).toEqual({});
+    ).toEqual({
+      attributedChildren: {},
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/external/': 3,
+        '/root/src/': 0,
+      },
+      paths: ['/root/src/', '/', '/root/', '/root/external/'],
+    });
 
     testStore.dispatch(removeResolvedExternalAttribution(uuid2));
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
@@ -194,8 +223,19 @@ describe('The audit view simple actions', () => {
     expect(
       getResourcesWithExternalAttributedChildren(testStore.getState())
     ).toEqual({
-      '/root/': new Set(['/root/external/']),
-      '/': new Set(['/root/external/']),
+      attributedChildren: {
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '1': new Set<number>().add(3),
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        '2': new Set<number>().add(3),
+      },
+      pathsToIndices: {
+        '/': 1,
+        '/root/': 2,
+        '/root/external/': 3,
+        '/root/src/': 0,
+      },
+      paths: ['/root/src/', '/', '/root/', '/root/external/'],
     });
   });
 });
