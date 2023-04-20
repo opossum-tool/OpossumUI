@@ -78,7 +78,7 @@ reporter. It uses metadata from the analyzer as well as scan results from the sc
 [oss-review-toolkit/ort](https://github.com/oss-review-toolkit/ort) and the new reporter output
 is called `Opossum`.
 
-For details of the file format, see [Contributing](CONTRIBUTING.md#file_formats)
+For details of the file format, see [File formats](#file_formats).
 
 ## How to get & run OpossumUI
 
