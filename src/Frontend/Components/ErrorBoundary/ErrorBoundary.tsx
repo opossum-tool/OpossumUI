@@ -25,9 +25,11 @@ const classes = {
 // catches errors that are not thrown during render
 // it's known to fire twice in dev mode: https://github.com/facebook/react/issues/19613
 window.addEventListener('error', (event): void => {
-  sendErrorInfo(event.error, {
-    componentStack: event.error.stack,
-  });
+  if (event.error) {
+    sendErrorInfo(event.error, {
+      componentStack: event.error.stack,
+    });
+  }
 });
 
 interface ErrorBoundaryState {

@@ -8,6 +8,7 @@ import {
   E2E_TEST_TIMEOUT,
   getApp,
   getElementWithText,
+  LOAD_TIMEOUT,
 } from '../test-helpers/test-helpers';
 import { expect, test } from '@playwright/test';
 
@@ -20,7 +21,7 @@ test.describe('The OpossumUI', () => {
   test.beforeEach(async () => {
     app = await getApp();
     window = await app.firstWindow();
-    await window.waitForLoadState();
+    await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
   });
 
   test.afterEach(async () => {

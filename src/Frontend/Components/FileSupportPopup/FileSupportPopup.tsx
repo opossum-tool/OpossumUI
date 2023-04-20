@@ -43,7 +43,7 @@ export function FileSupportPopup(): ReactElement {
     close();
   };
   const handleKeepButtonClick = (): void => {
-    window.electronAPI.useOutdatedInpuFileFormat();
+    window.electronAPI.useOutdatedInputFileFormat();
     close();
   };
 

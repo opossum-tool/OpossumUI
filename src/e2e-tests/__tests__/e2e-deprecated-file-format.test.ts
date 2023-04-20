@@ -12,6 +12,7 @@ import {
   getButtonWithName,
   getElementWithAriaLabel,
   getElementWithText,
+  LOAD_TIMEOUT,
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
 import fs from 'fs';
@@ -26,7 +27,7 @@ test.describe('Open outdated .json file via command line', () => {
   test.beforeEach(async () => {
     app = await getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
     window = await app.firstWindow();
-    await window.waitForLoadState();
+    await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
   });
 
   test.afterEach(async () => {
