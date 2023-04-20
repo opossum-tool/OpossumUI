@@ -14,23 +14,22 @@ import {
   TestType,
 } from '@playwright/test';
 
+// The timeouts are chosen so large, as some of the machines used in
+// Github actions are slow (for Win and Mac).
+
 const ELECTRON_LAUNCH_TEST_TIMEOUT = 75000;
 export const E2E_TEST_TIMEOUT = 120000;
 export const EXPECT_TIMEOUT = 30000;
+export const LOAD_TIMEOUT = 100000;
 
 export async function getApp(
   commandLineArg?: string
 ): Promise<ElectronApplication> {
   const app = 'build/ElectronBackend/app.js';
 
-  require('setimmediate'); // required to work with react-scripts v5
   return await _electron.launch({
     args: commandLineArg ? [app, commandLineArg] : [app],
     timeout: ELECTRON_LAUNCH_TEST_TIMEOUT,
-    env: {
-      DISPLAY: process.env.DISPLAY ?? ':99',
-      RUNNING_IN_E2E_TEST: 'true',
-    },
   });
 }
 

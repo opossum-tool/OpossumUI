@@ -43,6 +43,8 @@ describe('createWindow', () => {
   it('returns correct BrowserWindow in devMode', async () => {
     const browserWindow = await createWindow();
     expect(browserWindow.webContents.openDevTools).toHaveBeenCalled();
-    expect(browserWindow.loadURL).toHaveBeenCalledWith('http://localhost:3000');
+    expect(browserWindow.loadURL).toHaveBeenCalledWith(
+      'http://localhost:5173/'
+    );
   });
 });

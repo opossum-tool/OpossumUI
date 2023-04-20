@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "esnext",
+    "target": "ESNext",
     "lib": [
       "dom",
+      "dom.iterable",
+      "esnext",
       "es2019"
     ],
+    "types": [
+      "vite/client",
+      "vite-plugin-svgr/client",
+      "jest",
+      "@testing-library/jest-dom"
+    ],
+    "module": "ESNext",
     "jsx": "react-jsx",
     "sourceMap": true,
     "outDir": "./build/lib",
@@ -24,7 +32,9 @@
   "include": [
     "src/**/*",
     ".eslintrc.js",
-    "setupTests.ts"
+    "setupTests.ts",
+    "vite.config.ts",
+    "index.html"
   ],
   "exclude": [
     "src/ElectronBackend/**/*"

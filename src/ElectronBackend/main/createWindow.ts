@@ -25,21 +25,21 @@ export async function createWindow(): Promise<BrowserWindow> {
   });
 
   Menu.setApplicationMenu(createMenu(mainWindow));
-  await loadApplication(mainWindow, '', '../../index.html', true);
+  await loadApplication(mainWindow, '../../index.html', true);
 
   return mainWindow;
 }
 
-export async function loadApplication(
+async function loadApplication(
   mainWindow: BrowserWindow,
-  devURLAppendix: string,
   prodEntryPoint: string,
   openDevTools: boolean
 ): Promise<void> {
-  const devURL = 'http://localhost:3000' + devURLAppendix;
-  if (isDev) {
+  const devURL = 'http://localhost:5173/';
+
+  if (isDev && devURL) {
     await mainWindow.loadURL(devURL);
-    if (openDevTools) {
+    if (openDevTools && !process.env.RUNNING_IN_E2E_TEST) {
       mainWindow.webContents.openDevTools();
     }
   } else {

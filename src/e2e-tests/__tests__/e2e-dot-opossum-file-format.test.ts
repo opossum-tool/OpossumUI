@@ -9,6 +9,7 @@ import {
   EXPECT_TIMEOUT,
   getApp,
   getElementWithText,
+  LOAD_TIMEOUT,
 } from '../test-helpers/test-helpers';
 import { expect, test } from '@playwright/test';
 
@@ -23,7 +24,7 @@ test.describe('Open .opossum file via command line', () => {
       'src/e2e-tests/test-resources/opossum_input_and_output_e2e.opossum'
     );
     window = await app.firstWindow();
-    await window.waitForLoadState();
+    await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
   });
 
   test.afterEach(async () => {

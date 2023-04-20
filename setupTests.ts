@@ -6,11 +6,6 @@
 
 import '@testing-library/jest-dom/extend-expect';
 
-import { TextEncoder } from 'util';
-
-// required after bumping axios to 1.3.0
-global.TextEncoder = TextEncoder;
-
 const TEST_TIMEOUT = 15000;
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
   'Web worker error in workers context',
@@ -38,7 +33,7 @@ beforeAll(() => {
     deleteFile: jest.fn(),
     keepFile: jest.fn(),
     convertInputFileToDotOpossum: jest.fn(),
-    useOutdatedInpuFileFormat: jest.fn(),
+    useOutdatedInputFileFormat: jest.fn(),
     openDotOpossumFile: jest.fn(),
     sendErrorInformation: jest.fn(),
     exportFile: jest.fn(),
