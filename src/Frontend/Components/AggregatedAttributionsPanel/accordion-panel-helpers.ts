@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { sum } from 'lodash';
 import {
   Attributions,
   AttributionsToHashes,
@@ -44,10 +45,11 @@ export function getDisplayAttributionsWithCount(
   externalAttributionsToHashes: AttributionsToHashes
 ): Array<DisplayAttributionWithCount> {
   const displayAttributionIdsWithCount: Array<DisplayAttributionWithCount> = [];
-  const hashToAttributions: { [hash: string]: Array<[string, PackageInfo]> } =
-    {};
+  const hashToAttributions: {
+    [hash: string]: Array<[string, PackageInfo, number | undefined]>;
+  } = {};
 
-  attributionIdsWithCount.forEach(({ attributionId }): void => {
+  attributionIdsWithCount.forEach(({ attributionId, count }): void => {
     const attribution: PackageInfo = attributions[attributionId];
     const savedHash = externalAttributionsToHashes[attributionId];
 
@@ -55,11 +57,11 @@ export function getDisplayAttributionsWithCount(
       if (!hashToAttributions[savedHash]) {
         hashToAttributions[savedHash] = [];
       }
-      hashToAttributions[savedHash].push([attributionId, attribution]);
+      hashToAttributions[savedHash].push([attributionId, attribution, count]);
     } else {
       displayAttributionIdsWithCount.push(
         getDisplayAttributionWithCountFromAttributions([
-          [attributionId, attribution],
+          [attributionId, attribution, count],
         ])
       );
     }
@@ -75,18 +77,38 @@ export function getDisplayAttributionsWithCount(
 }
 
 function getDisplayAttributionWithCountFromAttributions(
-  attributionsWithIds: Array<[string, PackageInfo]>
+  attributionsWithIdsAndCounts: Array<[string, PackageInfo, number | undefined]>
 ): DisplayAttributionWithCount {
   const displayAttributionConfidence: number = Math.min(
-    ...attributionsWithIds.map(
+    ...attributionsWithIdsAndCounts.map(
       (attributionWithId): number =>
         attributionWithId[1].attributionConfidence || 0
     )
   );
-  const comments: Array<string> = attributionsWithIds
-    .map((attributionWithId) => attributionWithId[1].comment || '')
-    .filter((comment: string | undefined) => comment !== '');
-  const originIdsAsSet: Set<string> = attributionsWithIds.reduce(
+
+  const counts: Array<number> = attributionsWithIdsAndCounts.reduce(
+    (filteredCounts, attributionWithIdAndCount) => {
+      const count = attributionWithIdAndCount[2];
+      if (count !== undefined) {
+        filteredCounts.push(count);
+      }
+      return filteredCounts;
+    },
+    Array<number>()
+  );
+
+  const comments: Array<string> = attributionsWithIdsAndCounts.reduce(
+    (filteredComments, attributionWithIdAndCount) => {
+      const comment = attributionWithIdAndCount[1].comment || '';
+      if (comment !== '') {
+        filteredComments.push(comment);
+      }
+      return filteredComments;
+    },
+    Array<string>()
+  );
+
+  const originIdsAsSet: Set<string> = attributionsWithIdsAndCounts.reduce(
     (originIdSet, attributionWithId) => {
       (attributionWithId[1].originIds ?? []).forEach((originId: string) =>
         originIdSet.add(originId)
@@ -97,12 +119,12 @@ function getDisplayAttributionWithCountFromAttributions(
   );
   const originIds: Array<string> = [...originIdsAsSet];
 
-  const attributionIds = attributionsWithIds.map(
+  const attributionIds = attributionsWithIdsAndCounts.map(
     (attributionWithId) => attributionWithId[0]
   );
 
   const attributionToShow: DisplayPackageInfo = {
-    ...attributionsWithIds[0][1],
+    ...attributionsWithIdsAndCounts[0][1],
     type: 'DisplayPackageInfo',
     attributionConfidence: displayAttributionConfidence,
     attributionIds,
@@ -116,7 +138,8 @@ function getDisplayAttributionWithCountFromAttributions(
   }
 
   return {
-    attributionId: attributionsWithIds[0][0],
+    attributionId: attributionsWithIdsAndCounts[0][0],
+    count: counts.length > 0 ? sum(counts) : undefined,
     attribution: attributionToShow,
   };
 }

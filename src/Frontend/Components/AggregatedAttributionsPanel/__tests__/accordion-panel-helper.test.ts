@@ -15,8 +15,8 @@ import { getDisplayAttributionsWithCount } from '../accordion-panel-helpers';
 
 describe('getDisplayAttributionsWithCount', () => {
   const testAttributionsWithIdCount: Array<AttributionIdWithCount> = [
-    { attributionId: 'uuid1' },
-    { attributionId: 'uuid2' },
+    { attributionId: 'uuid1', count: 3 },
+    { attributionId: 'uuid2', count: 2 },
   ];
 
   it('merges attributions with same hash', () => {
@@ -32,6 +32,7 @@ describe('getDisplayAttributionsWithCount', () => {
     const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
+        count: 5,
         attribution: {
           type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
@@ -60,6 +61,7 @@ describe('getDisplayAttributionsWithCount', () => {
     const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
+        count: 3,
         attribution: {
           type: 'DisplayPackageInfo',
           packageName: 'Typescript',
@@ -69,6 +71,7 @@ describe('getDisplayAttributionsWithCount', () => {
       },
       {
         attributionId: 'uuid2',
+        count: 2,
         attribution: {
           type: 'DisplayPackageInfo',
           packageName: 'Typescript',
@@ -100,6 +103,7 @@ describe('getDisplayAttributionsWithCount', () => {
     const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
+        count: 5,
         attribution: {
           type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
@@ -171,6 +175,7 @@ describe('getDisplayAttributionsWithCount', () => {
     const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
       {
         attributionId: 'uuid1',
+        count: 5,
         attribution: {
           type: 'DisplayPackageInfo',
           attributionIds: ['uuid1', 'uuid2'],
