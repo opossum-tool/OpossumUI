@@ -48,8 +48,7 @@ whenever possible) with Redux for state management.
 
 Development under Linux and macOS is fully supported: Development under Windows has currently the following limitations:
 
-- only Windows executables can be built,
-- "version unknown" is written in the built app instead of the commit hash
+- only Windows executables can be built.
 
 ### Repo setup
 
