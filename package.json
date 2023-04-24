@@ -122,7 +122,7 @@
     "ship-win": "run-script-os",
     "ship-win:darwin:linux": "yarn build:prod && electron-builder --win --x64 --publish never && mkdir -p release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
     "ship-win:win32": "yarn build:prod && electron-builder --win --x64 --publish never && cd release && (if not exist win (mkdir win)) && move \"OpossumUI Setup 0.1.0.exe\" \"win/OpossumUI-for-win.exe\" && cd ..",
-    "ship-mac": "yarn build:prod && electron-builder --mac --x64 --publish never && zip -r -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
+    "ship-mac": "yarn build:prod && electron-builder --mac --x64 --publish never",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
     "clean": "rm -rf ./build/ ./release/",
     "postinstall": "husky install && yarn update-commit-hash",
