@@ -21,7 +21,7 @@ jobs:
             FILE: release/linux/OpossumUI-for-linux.AppImage
           - os: macos-latest
             SHIP: ship-mac
-            FILE: release/mac/OpossumUI.app
+            FILE: release/mac/OpossumUI-for-mac.zip
           - os: windows-latest
             SHIP: ship-win
             FILE: release/win/OpossumUI-for-win.exe
