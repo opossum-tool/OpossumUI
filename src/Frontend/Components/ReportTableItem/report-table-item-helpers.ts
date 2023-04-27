@@ -28,6 +28,7 @@ export function getFormattedCellData(
     case 'firstParty':
     case 'followUp':
     case 'preSelected':
+    case 'needsReview':
     case 'excludeFromNotice':
       cellData = attributionInfo[config.attributionProperty] ? 'Yes' : 'No';
       break;

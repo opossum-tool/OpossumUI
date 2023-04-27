@@ -27,6 +27,7 @@ export function getPackageInfoKeys(): Array<KeysOfPackageInfo> {
     preSelected: true,
     excludeFromNotice: true,
     criticality: true,
+    needsReview: true,
   };
   return Object.keys(packageInfoKeysObject) as Array<KeysOfPackageInfo>;
 }

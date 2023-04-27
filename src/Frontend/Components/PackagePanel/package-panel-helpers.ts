@@ -113,6 +113,7 @@ export function convertDisplayPackageInfoToPackageInfo(
           break;
         case 'firstParty':
         case 'preSelected':
+        case 'needsReview':
         case 'excludeFromNotice':
           packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
           break;
