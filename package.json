@@ -36,7 +36,7 @@
     "upath": "^2.0.1",
     "url": "^0.11.0",
     "uuid": "^9.0.0",
-    "write-file-atomic": "^5.0.0"
+    "write-file-atomic": "^5.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
