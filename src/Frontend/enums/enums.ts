@@ -84,6 +84,7 @@ export enum CheckboxLabel {
   FirstParty = '1st Party',
   FollowUp = 'Follow-up',
   ExcludeFromNotice = 'Exclude From Notice',
+  NeedsReview = 'Needs Review',
 }
 
 export enum ProjectStatisticsPopupTitle {
