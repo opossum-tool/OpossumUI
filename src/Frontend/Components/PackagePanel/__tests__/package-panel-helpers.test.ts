@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  Attributions,
   ExternalAttributionSources,
   DisplayPackageInfo,
   PackageInfo,
@@ -13,7 +12,7 @@ import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
 } from '../package-panel-helpers';
-import { AttributionIdWithCount } from '../../../types/types';
+import { DisplayAttributionWithCount } from '../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 
 const testAttributionSources: ExternalAttributionSources = {
@@ -31,78 +30,91 @@ const testAttributionSources: ExternalAttributionSources = {
 };
 
 describe('PackagePanel helpers', () => {
-  const testAttributionIds: Array<AttributionIdWithCount> = [
-    { attributionId: 'jquery' },
-    { attributionId: 'b_unknown', count: 5 },
-    { attributionId: 'react', count: 5 },
-    { attributionId: 'vue', count: 500 },
-    { attributionId: 'a_unknown', count: 3 },
-    { attributionId: 'reuser', count: 3 },
-    { attributionId: 'blub', count: 1 },
+  const testDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> = [
+    {
+      attributionId: 'react',
+      count: 5,
+      attribution: {
+        source: { name: 'MERGER', documentConfidence: 100 },
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        attributionIds: ['react'],
+      },
+    },
+    {
+      attributionId: 'jquery',
+      attribution: {
+        source: { name: 'HC', documentConfidence: 100 },
+        packageName: 'JQuery',
+        attributionIds: ['jquery'],
+      },
+    },
+    {
+      attributionId: 'blub',
+      count: 1,
+      attribution: {
+        source: { name: 'HINT', documentConfidence: 10 },
+        packageName: 'Blub',
+        attributionIds: ['blub'],
+      },
+    },
+    {
+      attributionId: 'b_unknown',
+      count: 5,
+      attribution: {
+        source: { name: 'a_unknown', documentConfidence: 100 },
+        attributionIds: ['b_unknown'],
+      },
+    },
+    {
+      attributionId: 'vue',
+      count: 500,
+      attribution: {
+        source: { name: 'SC', documentConfidence: 100 },
+        packageName: 'Vue',
+        attributionIds: ['vue'],
+      },
+    },
+    {
+      attributionId: 'a_unknown',
+      count: 3,
+      attribution: {
+        source: { name: 'b_unknown', documentConfidence: 100 },
+        attributionIds: ['a_unknown'],
+      },
+    },
+    {
+      attributionId: 'reuser',
+      count: 3,
+      attribution: {
+        source: { name: 'REUSER:HHC', documentConfidence: 100 },
+        attributionIds: ['reuser'],
+      },
+    },
   ];
-  const testAttributions: Attributions = {
-    react: {
-      source: {
-        name: 'MERGER',
-        documentConfidence: 100,
-      },
-      packageName: 'React',
-      packageVersion: '16.5.0',
-    },
-    jquery: {
-      source: {
-        name: 'HC',
-        documentConfidence: 100,
-      },
-      packageName: 'JQuery',
-    },
-    blub: {
-      source: {
-        name: 'HINT',
-        documentConfidence: 10,
-      },
-      packageName: 'Blub',
-    },
-    b_unknown: {
-      source: {
-        name: 'a_unknown',
-        documentConfidence: 100,
-      },
-    },
-    vue: {
-      source: {
-        name: 'SC',
-        documentConfidence: 100,
-      },
-      packageName: 'Vue',
-    },
-    a_unknown: {
-      source: {
-        name: 'b_unknown',
-        documentConfidence: 100,
-      },
-    },
-    reuser: {
-      source: {
-        name: 'REUSER:HHC',
-        documentConfidence: 100,
-      },
-    },
-  };
 
   it('getAttributionIdsWithCountForSource returns attributionIdsWithCountForSource', () => {
     const sourceName = 'MERGER';
-    const expectedAttributionIdsWithCountForSource: Array<AttributionIdWithCount> =
+    const expectedAttributionIdsWithCountForSource: Array<DisplayAttributionWithCount> =
       [
         {
           attributionId: 'react',
           count: 5,
+          attribution: {
+            source: {
+              name: 'MERGER',
+              documentConfidence: 100,
+            },
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            attributionIds: ['react'],
+          },
         },
       ];
+
     expect(
       getAttributionIdsWithCountForSource(
-        testAttributionIds,
-        testAttributions,
+        testDisplayAttributionsWithCount,
         sourceName
       )
     ).toEqual(expectedAttributionIdsWithCountForSource);
@@ -112,8 +124,7 @@ describe('PackagePanel helpers', () => {
     const sourceName = 'something';
     expect(
       getAttributionIdsWithCountForSource(
-        testAttributionIds,
-        testAttributions,
+        testDisplayAttributionsWithCount,
         sourceName
       )
     ).toEqual([]);
@@ -130,24 +141,12 @@ describe('PackagePanel helpers', () => {
       'b_unknown',
     ];
     expect(
-      getSortedSources(
-        testAttributions,
-        testAttributionIds,
-        testAttributionSources
-      )
+      getSortedSources(testDisplayAttributionsWithCount, testAttributionSources)
     ).toEqual(expectedSortedSources);
   });
 
-  it('getSources returns empty array for no attributionIds', () => {
-    expect(
-      getSortedSources(testAttributions, [], testAttributionSources)
-    ).toEqual([]);
-  });
-
-  it('getSources returns empty string for no attributions', () => {
-    expect(
-      getSortedSources({}, testAttributionIds, testAttributionSources)
-    ).toEqual(['']);
+  it('getSources returns empty array for no displayAttributionsWithCount,', () => {
+    expect(getSortedSources([], testAttributionSources)).toEqual([]);
   });
 
   it('getSources sorts alphabetically if priority is identical', () => {
@@ -165,8 +164,7 @@ describe('PackagePanel helpers', () => {
     };
     expect(
       getSortedSources(
-        testAttributions,
-        testAttributionIds,
+        testDisplayAttributionsWithCount,
         testAttributionSourcesEqualPrio
       )
     ).toEqual([

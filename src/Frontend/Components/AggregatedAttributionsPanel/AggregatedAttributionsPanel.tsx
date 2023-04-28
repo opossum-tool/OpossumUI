@@ -19,12 +19,14 @@ import {
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
 import {
-  getContainedManualPackages,
   getExternalAttributionIdsWithCount,
   PanelAttributionData,
 } from '../../util/get-contained-packages';
 import { AttributionIdWithCount } from '../../types/types';
-import { getDisplayContainedExternalPackagesWithCount } from './accordion-panel-helpers';
+import {
+  getDisplayContainedExternalPackagesWithCount,
+  getDisplayContainedManualPackagesWithCount,
+} from './accordion-panel-helpers';
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;
@@ -105,17 +107,17 @@ export function AggregatedAttributionsPanel(
             title={PackagePanelTitle.ContainedExternalPackages}
             workerArgs={containedExternalPackagesWorkerArgs}
             syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-            getDisplayAttributionIdsWithCount={
+            getDisplayAttributionsWithCount={
               getDisplayContainedExternalPackagesWithCount
             }
-            attributions={externalData.attributions}
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
-            getDisplayAttributionIdsWithCount={getContainedManualPackages}
-            attributions={manualData.attributions}
+            getDisplayAttributionsWithCount={
+              getDisplayContainedManualPackagesWithCount
+            }
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />
         </>

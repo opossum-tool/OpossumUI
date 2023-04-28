@@ -98,15 +98,12 @@ export interface ButtonConfig {
 
 export interface PanelData {
   title: PackagePanelTitle;
-  attributionIdsWithCount:
-    | Array<AttributionIdWithCount>
-    | Array<DisplayAttributionWithCount>;
-  attributions: Attributions;
+  displayAttributionsWithCount: Array<DisplayAttributionWithCount>;
 }
 
-export interface AttributionIdsWithCountAndResourceId {
+export interface DisplayAttributionsWithCountAndResourceId {
   resourceId: string;
-  attributionIdsWithCount: Array<AttributionIdWithCount>;
+  displayAttributionsWithCount: Array<DisplayAttributionWithCount>;
 }
 
 export interface ProgressBarDataAndResourceId {

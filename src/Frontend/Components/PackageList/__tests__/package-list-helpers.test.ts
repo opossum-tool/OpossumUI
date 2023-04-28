@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Attributions } from '../../../../shared/shared-types';
-import { getFilteredPackageIds } from '../package-list-helpers';
+import { getFilteredPackageIdsFromAttributions } from '../package-list-helpers';
 
 describe('The PackageListHelper', () => {
   it('filters Attributions', () => {
@@ -30,7 +30,7 @@ describe('The PackageListHelper', () => {
     const testAttributionIds = Object.entries(testAttributions).map(
       ([attributionId]) => attributionId
     );
-    const filteredTestAttributions = getFilteredPackageIds(
+    const filteredTestAttributions = getFilteredPackageIdsFromAttributions(
       testAttributions,
       testAttributionIds,
       'SeArCh_TeRm'
@@ -58,7 +58,7 @@ describe('The PackageListHelper', () => {
     const testAttributionIds = Object.entries(testAttributions).map(
       ([attributionId]) => attributionId
     );
-    const filteredTestAttributions = getFilteredPackageIds(
+    const filteredTestAttributions = getFilteredPackageIdsFromAttributions(
       testAttributions,
       testAttributionIds,
       ''

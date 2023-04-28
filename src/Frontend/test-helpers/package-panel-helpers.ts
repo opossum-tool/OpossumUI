@@ -11,6 +11,7 @@ import {
   Screen,
 } from '@testing-library/react';
 import { getPackagePanel } from './general-test-helpers';
+import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../shared-constants';
 
 export function expectPackageInPackagePanel(
   screen: Screen,
@@ -215,5 +216,5 @@ export function expectValueNotInAddToAttributionList(
 }
 
 export function clickAddNewAttributionButton(screen: Screen): void {
-  fireEvent.click(screen.getByText('Add new attribution') as Element);
+  fireEvent.click(screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT) as Element);
 }

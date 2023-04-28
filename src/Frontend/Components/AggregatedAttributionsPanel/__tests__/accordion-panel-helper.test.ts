@@ -10,10 +10,16 @@ import {
 import {
   Attributions,
   AttributionsToHashes,
+  ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
-import { getDisplayAttributionsWithCount } from '../accordion-panel-helpers';
+import {
+  getDisplayContainedManualPackagesWithCount,
+  getDisplayExternalAttributionsWithCount,
+} from '../accordion-panel-helpers';
+import { PanelAttributionData } from '../../../util/get-contained-packages';
 
-describe('getDisplayAttributionsWithCount', () => {
+describe('getDisplayExternalAttributionsWithCount', () => {
   const testAttributionsWithIdCount: Array<AttributionIdWithCount> = [
     { attributionId: 'uuid1', count: 3 },
     { attributionId: 'uuid2', count: 2 },
@@ -36,13 +42,12 @@ describe('getDisplayAttributionsWithCount', () => {
         attribution: {
           attributionIds: ['uuid1', 'uuid2'],
           packageName: 'Typescript',
-          attributionConfidence: 0,
         },
       },
     ];
 
     expect(
-      getDisplayAttributionsWithCount(
+      getDisplayExternalAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
@@ -63,7 +68,6 @@ describe('getDisplayAttributionsWithCount', () => {
         count: 3,
         attribution: {
           packageName: 'Typescript',
-          attributionConfidence: 0,
           attributionIds: ['uuid1'],
         },
       },
@@ -72,14 +76,13 @@ describe('getDisplayAttributionsWithCount', () => {
         count: 2,
         attribution: {
           packageName: 'Typescript',
-          attributionConfidence: 0,
           attributionIds: ['uuid2'],
         },
       },
     ];
 
     expect(
-      getDisplayAttributionsWithCount(
+      getDisplayExternalAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
@@ -109,7 +112,7 @@ describe('getDisplayAttributionsWithCount', () => {
     ];
 
     expect(
-      getDisplayAttributionsWithCount(
+      getDisplayExternalAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
@@ -142,14 +145,13 @@ describe('getDisplayAttributionsWithCount', () => {
         attributionId: 'uuid1',
         attribution: {
           attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
-          attributionConfidence: 0,
           comments: ['comment A', 'comment B'],
         },
       },
     ];
 
     expect(
-      getDisplayAttributionsWithCount(
+      getDisplayExternalAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
@@ -173,18 +175,77 @@ describe('getDisplayAttributionsWithCount', () => {
         count: 5,
         attribution: {
           attributionIds: ['uuid1', 'uuid2'],
-          attributionConfidence: 0,
           originIds: ['uuid3', 'uuid4', 'uuid5'],
         },
       },
     ];
 
     expect(
-      getDisplayAttributionsWithCount(
+      getDisplayExternalAttributionsWithCount(
         testAttributionsWithIdCount,
         testAttributions,
         testExternalAttributionsToHashes
       )
     ).toEqual(expectedDisplayAttributions);
+  });
+});
+
+describe('getDisplayContainedManualPackagesWithCount', () => {
+  it('yields correct results', () => {
+    const selectedResourceId = 'folder/';
+    const testAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'React',
+      },
+      uuid_2: {
+        packageName: 'Vue',
+      },
+      uuid_3: {
+        packageName: 'Angular',
+      },
+    };
+    const testResourcesToAttributions: ResourcesToAttributions = {
+      'folder/file1': ['uuid_1', 'uuid_2'],
+      'folder/file2': ['uuid_2', 'uuid_3'],
+    };
+    const testResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
+      {
+        paths: ['folder/', 'folder/file1', 'folder/file2'],
+        pathsToIndices: { 'folder/': 0, 'folder/file1': 1, 'folder/file2': 2 },
+        attributedChildren: { 0: new Set([1, 2]) },
+      };
+    const manualData: PanelAttributionData = {
+      attributions: testAttributions,
+      resourcesToAttributions: testResourcesToAttributions,
+      resourcesWithAttributedChildren: testResourcesWithAttributedChildren,
+    };
+    const expectedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+      [
+        {
+          attributionId: 'uuid_2',
+          attribution: { packageName: 'Vue', attributionIds: ['uuid_2'] },
+          count: 2,
+        },
+        {
+          attributionId: 'uuid_3',
+          attribution: { packageName: 'Angular', attributionIds: ['uuid_3'] },
+          count: 1,
+        },
+        {
+          attributionId: 'uuid_1',
+          attribution: { packageName: 'React', attributionIds: ['uuid_1'] },
+          count: 1,
+        },
+      ];
+
+    const testDisplayAttributionsWithCount =
+      getDisplayContainedManualPackagesWithCount({
+        selectedResourceId,
+        manualData,
+      });
+
+    expect(testDisplayAttributionsWithCount).toEqual(
+      expectedDisplayAttributionsWithCount
+    );
   });
 });

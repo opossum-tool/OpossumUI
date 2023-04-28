@@ -18,6 +18,7 @@ import {
   convertDisplayPackageInfoToPackageInfo,
   convertPackageInfoToDisplayPackageInfo,
 } from '../../util/convert-package-info';
+import { getDisplayAttributionWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 
 const classes = {
   root: {
@@ -29,7 +30,6 @@ const classes = {
 interface AllAttributionsPanelProps {
   attributions: Attributions;
   selectedAttributionId: string | null;
-  attributionIds: Array<string>;
   isAddToPackageEnabled: boolean;
 }
 
@@ -37,6 +37,13 @@ export function AllAttributionsPanel(
   props: AllAttributionsPanelProps
 ): ReactElement {
   const dispatch = useAppDispatch();
+
+  const displayAttributionsWithCounts = Object.entries(props.attributions).map(
+    ([attributionId, packageInfo]) =>
+      getDisplayAttributionWithCountFromAttributions([
+        [attributionId, packageInfo, undefined],
+      ])
+  );
 
   function getPackageCard(attributionId: string): ReactElement | null {
     const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
@@ -81,8 +88,7 @@ export function AllAttributionsPanel(
   return (
     <MuiPaper sx={classes.root} elevation={0} square={true}>
       <PackageList
-        attributions={props.attributions}
-        attributionIds={props.attributionIds}
+        displayAttributionsWithCount={displayAttributionsWithCounts}
         getAttributionCard={getPackageCard}
         maxNumberOfDisplayedItems={20}
         listTitle={PackagePanelTitle.AllAttributions}

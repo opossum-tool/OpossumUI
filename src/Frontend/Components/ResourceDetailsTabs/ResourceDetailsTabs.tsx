@@ -9,7 +9,7 @@ import MuiTab from '@mui/material/Tab';
 import { getManualData } from '../../state/selectors/all-views-resource-selectors';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
-import { remove } from 'lodash';
+import { pick, remove } from 'lodash';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
@@ -106,6 +106,11 @@ export function ResourceDetailsTabs(
       !attributionIdsOfSelectedResource.includes(attributionId)
   );
 
+  const manualAttributionsToDisplay = pick(
+    manualData.attributions,
+    assignableAttributionIds
+  );
+
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
   const aggregatedAttributionsPanel = useMemo(
@@ -177,11 +182,10 @@ export function ResourceDetailsTabs(
         aggregatedAttributionsPanel
       ) : (
         <AllAttributionsPanel
-          attributions={manualData.attributions}
+          attributions={manualAttributionsToDisplay}
           selectedAttributionId={
             selectedPackage && selectedPackage.attributionId
           }
-          attributionIds={assignableAttributionIds}
           isAddToPackageEnabled={
             props.isGlobalTabEnabled && props.isAddToPackageEnabled
           }
