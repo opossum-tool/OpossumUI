@@ -8,6 +8,7 @@ import { inputElementClasses, InputElementProps } from './shared';
 import MuiTextField from '@mui/material/TextField';
 import MuiMenuItem from '@mui/material/MenuItem';
 import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
 
 interface DropdownProps extends InputElementProps {
   value: number;
@@ -61,7 +62,7 @@ export function Dropdown(props: DropdownProps): ReactElement {
         {menuItems.map((menuItem) => {
           return (
             <MuiMenuItem value={menuItem.value} key={menuItem.name}>
-              {menuItem.name}
+              <MuiTypography>{menuItem.name}</MuiTypography>
             </MuiMenuItem>
           );
         })}
