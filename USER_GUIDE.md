@@ -100,7 +100,7 @@ It is possible to directly export data to files. The following formats are avail
 
 To generate a document, open the `File` menu and select `Export`.
 
-<img src="./docs/user_guide_screenshots/exports.png" width="550"/>
+![integration](./docs/user_guide_screenshots/exports.png)
 
 ### Attributions <a name="attributions"></a>
 
@@ -174,7 +174,8 @@ structure:
   Furthermore, no attribution is inferred beyond such a breakpoint),
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
-<img src="./docs/user_guide_screenshots/filetree.png" width="550"/>
+
+![integration](./docs/user_guide_screenshots/filetree.png)
 
 The coloring scheme reads as follows:
 
@@ -243,15 +244,17 @@ The `Attribution Wizard` has the following structure (compare image):
 - Package URL (3) that describes the currently selected package.
 - Lists of aggregated package attributes (4), e.g., package namespace, name, and version (depending on wizard step).
 
-<img src="./docs/user_guide_screenshots/attribution_wizard_doc_overview.png" width="550"/>
+
+![integration](./docs/user_guide_screenshots/attribution_wizard_doc_overview.png)
 
 In the first step, package namespace and name can be selected. The list items are sorted by count, i.e., the number of occurrences in the attributions and signals of the current resource and its descendents. New list items can be added manually via the textboxes below the lists (5). Manually added items are marked with a star-icon and are displayed at the top of the list (6).
 
-<img src="./docs/user_guide_screenshots/attribution_wizard_doc_add_new.png" width="450"/>
+
+![integration](./docs/user_guide_screenshots/attribution_wizard_doc_add_new.png)
 
 In the second step, a single list with package versions is shown (7). Additionally, each list item displays corresponding package names. The selected package name (from the first wizard step) is highlighted. Also the version list allows adding new items via the textbox below. The selections that have been made can now be saved to the `Attribution Details Column` by clicking `Apply` (8).
 
-<img src="./docs/user_guide_screenshots/attribution_wizard_doc_version.png" width="550"/>
+![integration](./docs/user_guide_screenshots/attribution_wizard_doc_version.png)
 
 Note that the information in the `Attribution Details Column` is only saved temporarily. To update the attribution, one has to click `Save` or `Confirm` in the bottom right corner of the `Attribution Details Column`.
 
