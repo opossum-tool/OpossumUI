@@ -68,6 +68,7 @@ export function EditAttributionPopup(): ReactElement {
           }}
           saveFileRequestListener={saveFileRequestListener}
           smallerLicenseTextOrCommentField
+          addMarginForNeedsReviewCheckbox
         />
       }
       header={'Edit Attribution'}

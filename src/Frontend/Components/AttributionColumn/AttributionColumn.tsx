@@ -32,6 +32,7 @@ import {
   getExcludeFromNoticeChangeHandler,
   getFirstPartyChangeHandler,
   getFollowUpChangeHandler,
+  getNeedsReviewChangeHandler,
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   selectedPackagesAreResolved,
@@ -78,6 +79,7 @@ interface AttributionColumnProps {
   saveFileRequestListener(): void;
   setTemporaryPackageInfo(packageInfo: PackageInfo): void;
   smallerLicenseTextOrCommentField?: boolean;
+  addMarginForNeedsReviewCheckbox?: boolean;
 }
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
@@ -333,6 +335,13 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         mainButtonConfigs={mainButtonConfigs}
         hamburgerMenuButtonConfigs={hamburgerMenuButtonConfigs}
         displayTexts={displayTexts}
+        isEditable={props.isEditable}
+        displayPackageInfo={props.displayPackageInfo}
+        needsReviewChangeHandler={getNeedsReviewChangeHandler(
+          temporaryPackageInfo,
+          dispatch
+        )}
+        addMarginForNeedsReviewCheckbox={props.addMarginForNeedsReviewCheckbox}
       />
     </MuiBox>
   );
