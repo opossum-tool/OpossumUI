@@ -118,6 +118,7 @@ const correctOutput: OpossumOutputFile = {
       packageName: 'Some package',
       packageVersion: '16.0.1',
       licenseText: '',
+      needsReview: true,
     },
   },
   resourcesToAttributions: {

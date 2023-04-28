@@ -38,7 +38,7 @@
           },
           "packageNamespace": {
             "type": "string",
-            "description": "Namespace of the pacakge, e.g. Github user (part of a package URL)"
+            "description": "Namespace of the package, e.g. Github user (part of a package URL)"
           },
           "packageType": {
             "type": "string",
@@ -105,6 +105,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "needsReview": {
+            "type": "boolean",
+            "description": "Indicates that the information in an attribution needs further review."
           }
         },
         "required": [],
