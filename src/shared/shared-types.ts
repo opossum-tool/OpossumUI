@@ -45,6 +45,7 @@ interface PackageInfoCore {
   preSelected?: boolean;
   excludeFromNotice?: boolean;
   criticality?: Criticality;
+  needsReview?: boolean;
 }
 
 export interface PackageInfo extends PackageInfoCore {

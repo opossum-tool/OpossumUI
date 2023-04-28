@@ -90,6 +90,7 @@ export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
     preSelected: 'pre-selected',
     excludeFromNotice: 'exclude-from-notice',
     criticality: 'criticality',
+    needsReview: 'needs-review',
   };
 
   const headers: { [key: string]: string } = {};

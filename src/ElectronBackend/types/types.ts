@@ -59,6 +59,7 @@ interface RawPackageInfo {
   preSelected?: boolean;
   excludeFromNotice?: boolean;
   criticality?: Criticality;
+  needsReview?: boolean;
 }
 
 export interface RawAttributions {
