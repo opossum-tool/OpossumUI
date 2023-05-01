@@ -1106,7 +1106,7 @@
     minimatch "^3.0.4"
     plist "^3.0.4"
 
-"@emotion/babel-plugin@^11.10.6", "@emotion/babel-plugin@^11.10.8":
+"@emotion/babel-plugin@^11.10.8":
   version "11.10.8"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.10.8.tgz#bae325c902937665d00684038fd5294223ef9e1d"
   integrity sha512-gxNky50AJL3AlkbjvTARiwAqei6/tNUxDZPSKd+3jqWVM3AmdVTTdpjHorR/an/M0VJqdsuq5oGcFH+rjtyujQ==
@@ -1181,13 +1181,13 @@
   resolved "https://registry.yarnpkg.com/@emotion/sheet/-/sheet-1.2.1.tgz#0767e0305230e894897cadb6c8df2c51e61a6c2c"
   integrity sha512-zxRBwl93sHMsOj4zs+OslQKg/uhF38MB+OMKoCrVuS0nyTkqnau+BM3WGEoOptg9Oz45T/aIGs1qbVAsEFo3nA==
 
-"@emotion/styled@^11.10.6":
-  version "11.10.6"
-  resolved "https://registry.yarnpkg.com/@emotion/styled/-/styled-11.10.6.tgz#d886afdc51ef4d66c787ebde848f3cc8b117ebba"
-  integrity sha512-OXtBzOmDSJo5Q0AFemHCfl+bUueT8BIcPSxu0EGTpGk6DmI5dnhSzQANm1e1ze0YZL7TDyAyy6s/b/zmGOS3Og==
+"@emotion/styled@^11.10.8":
+  version "11.10.8"
+  resolved "https://registry.yarnpkg.com/@emotion/styled/-/styled-11.10.8.tgz#a3fd68efd90bd7e8a06b82b95adec643d386fa69"
+  integrity sha512-gow0lF4Uw/QEdX2REMhI8v6wLOabPKJ+4HKNF0xdJ2DJdznN6fxaXpQOx6sNkyBhSUL558Rmcu1Lq/MYlVo4vw==
   dependencies:
     "@babel/runtime" "^7.18.3"
-    "@emotion/babel-plugin" "^11.10.6"
+    "@emotion/babel-plugin" "^11.10.8"
     "@emotion/is-prop-valid" "^1.2.0"
     "@emotion/serialize" "^1.1.1"
     "@emotion/use-insertion-effect-with-fallbacks" "^1.0.0"
