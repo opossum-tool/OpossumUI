@@ -3,22 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  Attributions,
-  DisplayPackageInfo,
-  PackageInfo,
-} from '../../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 import { DisplayAttributionWithCount } from '../../types/types';
-
-export function getFilteredPackageIdsFromAttributions(
-  attributions: Attributions,
-  attributionIds: Array<string>,
-  searchTerm: string
-): Array<string> {
-  return attributionIds.filter((id) =>
-    attributionContainsSearchTerm(attributions[id], searchTerm)
-  );
-}
 
 export function getFilteredPackageIdsFromDisplayAttributions(
   displayAttributionsWithCount: Array<DisplayAttributionWithCount>,

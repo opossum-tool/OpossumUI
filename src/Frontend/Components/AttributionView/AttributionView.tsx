@@ -25,6 +25,9 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
 import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
+import { DisplayAttributionWithCount } from '../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 
 const classes = {
   root: {
@@ -46,10 +49,6 @@ export function AttributionView(): ReactElement {
   const selectedAttributionId: string = useAppSelector(
     getSelectedAttributionId
   );
-  function onCardClick(attributionId: string): void {
-    dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
-  }
-
   const filteredAttributions = useFilters(attributions);
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
   const [showMultiSelect, setShowMultiselect] = useState<boolean>(false);
@@ -58,13 +57,32 @@ export function AttributionView(): ReactElement {
     setShowMultiselect(!showMultiSelect);
   }
 
+  const sortedAttributionIds = Object.keys(filteredAttributions).sort(
+    getAlphabeticalComparer(filteredAttributions)
+  );
+
+  const filteredAndSortedDisplayAttributions: Array<DisplayAttributionWithCount> =
+    sortedAttributionIds.map((attributionId) => {
+      return {
+        attributionId,
+        attribution: convertPackageInfoToDisplayPackageInfo(
+          filteredAttributions[attributionId],
+          [attributionId]
+        ),
+      };
+    });
+
+  function onCardClick(attributionId: string): void {
+    dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const countAndSearchAndFilterOffset = showMultiSelect ? 137 : 80;
 
   return (
     <MuiBox sx={classes.root}>
       <AttributionList
-        attributions={filteredAttributions}
+        displayAttributions={filteredAndSortedDisplayAttributions}
         selectedAttributionId={selectedAttributionId}
         onCardClick={onCardClick}
         sx={classes.attributionList}
