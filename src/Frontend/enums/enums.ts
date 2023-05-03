@@ -78,6 +78,7 @@ export enum FilterType {
   OnlyFirstParty = 'Only First Party',
   HideFirstParty = 'Hide First Party',
   OnlyFollowUp = 'Only Follow Up',
+  OnlyNeedsReview = 'Only Needs Review',
 }
 
 export enum CheckboxLabel {
