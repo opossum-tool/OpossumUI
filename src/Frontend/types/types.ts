@@ -64,6 +64,7 @@ export interface ListCardConfig {
   isPreSelected?: boolean;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
+  needsReview?: boolean;
   followUp?: boolean;
   isHeader?: boolean;
   isContextMenuOpen?: boolean;

@@ -11,6 +11,7 @@ import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  NeedsReviewIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { TableConfig, tableConfigs } from '../Table/Table';
@@ -96,6 +97,10 @@ const classes = {
   followUpIcon: {
     border: `2px ${OpossumColors.red} solid`,
     color: OpossumColors.red,
+  },
+  needsReviewIcon: {
+    border: `2px ${OpossumColors.orange} solid`,
+    color: OpossumColors.orange,
   },
   excludeFromNoticeIcon: {
     border: `2px ${OpossumColors.grey} solid`,
@@ -298,6 +303,17 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           />
           <br />
         </>
+        {attributionInfo.needsReview && (
+          <>
+            <NeedsReviewIcon
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.needsReviewIcon,
+              }}
+            />{' '}
+            <br />
+          </>
+        )}
         {attributionInfo.followUp && (
           <>
             <FollowUpIcon

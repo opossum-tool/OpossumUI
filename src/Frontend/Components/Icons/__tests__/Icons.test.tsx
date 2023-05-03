@@ -15,6 +15,7 @@ import {
   FirstPartyIcon,
   FollowUpIcon,
   IncompleteAttributionsIcon,
+  NeedsReviewIcon,
   PreSelectedIcon,
   SearchPackagesIcon,
   SignalIcon,
@@ -37,6 +38,12 @@ describe('The Icons', () => {
     render(<FollowUpIcon />);
 
     expect(screen.getByLabelText('Follow-up icon'));
+  });
+
+  it('renders NeedsReviewIcon', () => {
+    render(<NeedsReviewIcon />);
+
+    expect(screen.getByLabelText('Needs-review icon'));
   });
 
   it('renders FirstPartyIcon', () => {
