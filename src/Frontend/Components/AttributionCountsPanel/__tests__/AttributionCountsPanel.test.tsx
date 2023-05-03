@@ -61,7 +61,9 @@ describe('The Attribution Counts Panel', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
     expect(
-      screen.getByText(/Attributions \(2 total, 1, 0, 1, 1\)/, { exact: true })
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 1, 1\)/, {
+        exact: true,
+      })
     );
   });
 });

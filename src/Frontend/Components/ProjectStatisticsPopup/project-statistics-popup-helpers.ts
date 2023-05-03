@@ -23,6 +23,7 @@ interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;
 }
 
+const ATTRIBUTION_PROPERTY_NEEDS_REVIEW = 'needsReview';
 const ATTRIBUTION_PROPERTY_FOLLOW_UP = 'followUp';
 const ATTRIBUTION_PROPERTY_FIRST_PARTY = 'firstParty';
 const ATTRIBUTION_PROPERTY_INCOMPLETE = 'incomplete';
@@ -207,6 +208,9 @@ export function aggregateAttributionPropertiesFromAttributions(
   const attributionPropertyCounts: {
     [attributionPropertyOrTotal: string]: number;
   } = {};
+  attributionPropertyCounts[ATTRIBUTION_PROPERTY_NEEDS_REVIEW] = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => value.needsReview)
+  ).length;
   attributionPropertyCounts[ATTRIBUTION_PROPERTY_FOLLOW_UP] = Object.keys(
     pickBy(attributions, (value: PackageInfo) => value.followUp)
   ).length;

@@ -134,6 +134,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     ...props.cardConfig,
     firstParty: props.packageInfo.firstParty,
     excludeFromNotice: props.packageInfo.excludeFromNotice,
+    needsReview: Boolean(props.packageInfo.needsReview),
     followUp: Boolean(props.packageInfo.followUp),
     isContextMenuOpen,
     isMarkedForReplacement:
