@@ -25,6 +25,7 @@ const FILTERS = [
   FilterType.OnlyFollowUp,
   FilterType.OnlyFirstParty,
   FilterType.HideFirstParty,
+  FilterType.OnlyNeedsReview,
 ];
 
 const classes = {

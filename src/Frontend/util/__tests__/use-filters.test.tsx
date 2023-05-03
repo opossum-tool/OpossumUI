@@ -43,6 +43,7 @@ describe('useFollowUpFilter', () => {
     copyright: 'other Copyright John Doe',
     licenseText: 'Some other license text',
     followUp: FollowUp,
+    needsReview: true,
   };
 
   it('returns working getFilteredAttributions with follow-up filter', () => {
@@ -105,6 +106,18 @@ describe('useFollowUpFilter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.HideFirstParty));
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
+    renderComponentWithStore(
+      <TestComponent manualAttributions={testManualAttributions} />,
+      { store }
+    );
+    expect(filteredAttributions).toEqual({
+      [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],
+    });
+  });
+
+  it('returns working getFilteredAttributions with only needs review filter', () => {
+    const store = createTestAppStore();
+    store.dispatch(updateActiveFilters(FilterType.OnlyNeedsReview));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store }
