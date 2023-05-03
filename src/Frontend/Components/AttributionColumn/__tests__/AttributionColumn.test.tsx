@@ -336,6 +336,36 @@ describe('The AttributionColumn', () => {
     );
   });
 
+  it('renders a checkbox for needs review', () => {
+    const testTemporaryPackageInfo: PackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        displayPackageInfo={testTemporaryPackageInfo}
+        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+    act(() => {
+      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    });
+
+    expect(
+      getTemporaryPackageInfo(store.getState()).needsReview
+    ).toBeUndefined();
+
+    clickOnCheckbox(screen, CheckboxLabel.NeedsReview);
+    expect(getTemporaryPackageInfo(store.getState()).needsReview).toBe(true);
+  });
+
   it('renders an url icon and opens a link in browser', () => {
     const testTemporaryPackageInfo: PackageInfo = {
       url: 'https://www.testurl.com/',

@@ -7,16 +7,22 @@ import React, { ReactElement } from 'react';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import MuiTypography from '@mui/material/Typography';
-import { ButtonText } from '../../enums/enums';
+import { ButtonText, CheckboxLabel } from '../../enums/enums';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import MuiBox from '@mui/material/Box';
+import { Checkbox } from '../Checkbox/Checkbox';
+import { checkboxClass } from '../../shared-styles';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 
 const classes = {
+  ...checkboxClass,
   root: {
     marginLeft: '10px',
     marginTop: '5px',
   },
   buttonRow: {
+    display: 'flex',
+    alignItems: 'center',
     position: 'absolute',
     bottom: '0px',
     right: '0px',
@@ -28,6 +34,10 @@ const classes = {
     marginTop: '0px',
     marginRight: '0px',
   },
+  checkboxForPopUp: {
+    marginRight: '190px',
+    marginBottom: '-8px',
+  },
 };
 
 interface ButtonRowProps {
@@ -38,9 +48,17 @@ interface ButtonRowProps {
   displayTexts: Array<string>;
   mainButtonConfigs: Array<MainButtonConfig>;
   hamburgerMenuButtonConfigs?: Array<ContextMenuItem>;
+  isEditable: boolean;
+  displayPackageInfo: PackageInfo | DisplayPackageInfo;
+  needsReviewChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
+  addMarginForNeedsReviewCheckbox?: boolean;
 }
 
 export function ButtonRow(props: ButtonRowProps): ReactElement {
+  const marginForNeedsReviewCheckbox = props.addMarginForNeedsReviewCheckbox
+    ? classes.checkboxForPopUp
+    : {};
+
   return (
     <MuiBox sx={classes.root}>
       {props.displayTexts.map((text, index) => (
@@ -50,11 +68,23 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
       ))}
       <MuiBox sx={classes.buttonRow}>
         {props.showButtonGroup ? (
-          <ButtonGroup
-            isHidden={props.areButtonsHidden}
-            mainButtonConfigs={props.mainButtonConfigs}
-            hamburgerMenuButtonConfigs={props.hamburgerMenuButtonConfigs}
-          />
+          <>
+            <Checkbox
+              sx={{
+                ...classes.checkBox,
+                ...marginForNeedsReviewCheckbox,
+              }}
+              label={CheckboxLabel.NeedsReview}
+              disabled={!props.isEditable}
+              checked={Boolean(props.displayPackageInfo.needsReview)}
+              onChange={props.needsReviewChangeHandler}
+            />
+            <ButtonGroup
+              isHidden={props.areButtonsHidden}
+              mainButtonConfigs={props.mainButtonConfigs}
+              hamburgerMenuButtonConfigs={props.hamburgerMenuButtonConfigs}
+            />
+          </>
         ) : (
           <ToggleButton
             buttonText={
