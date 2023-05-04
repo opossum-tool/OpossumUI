@@ -74,6 +74,7 @@ describe('The ReportTableItem', () => {
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
+        needsReview: true,
       },
       uuid2: {
         packageName: 'Redux',
@@ -107,5 +108,6 @@ describe('The ReportTableItem', () => {
     expect(screen.getByLabelText('First party icon'));
     expect(screen.getByLabelText('Follow-up icon'));
     expect(screen.getByLabelText('Exclude from notice icon'));
+    expect(screen.getByLabelText('Needs-review icon'));
   });
 });

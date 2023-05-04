@@ -9,6 +9,7 @@ import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  NeedsReviewIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { OpossumColors } from '../../shared-styles';
@@ -21,8 +22,11 @@ export function getKey(prefix: string, cardId: string): string {
 }
 
 const classes = {
-  followUpIcon: {
+  needsReviewIcon: {
     color: OpossumColors.orange,
+  },
+  followUpIcon: {
+    color: OpossumColors.red,
   },
   excludeFromNoticeIcon: {
     color: OpossumColors.grey,
@@ -40,6 +44,22 @@ export function getRightIcons(
     rightIcons.push(openResourcesIcon);
   }
 
+  if (cardConfig.needsReview) {
+    rightIcons.push(
+      <NeedsReviewIcon
+        key={getKey('needs-review-icon', cardId)}
+        sx={classes.needsReviewIcon}
+      />
+    );
+  }
+  if (cardConfig.followUp) {
+    rightIcons.push(
+      <FollowUpIcon
+        key={getKey('follow-up-icon', cardId)}
+        sx={classes.followUpIcon}
+      />
+    );
+  }
   if (cardConfig.firstParty) {
     rightIcons.push(
       <FirstPartyIcon key={getKey('first-party-icon', cardId)} />
@@ -50,14 +70,6 @@ export function getRightIcons(
       <ExcludeFromNoticeIcon
         key={getKey('exclude-icon', cardId)}
         sx={classes.excludeFromNoticeIcon}
-      />
-    );
-  }
-  if (cardConfig.followUp) {
-    rightIcons.push(
-      <FollowUpIcon
-        key={getKey('follow-up-icon', cardId)}
-        sx={classes.followUpIcon}
       />
     );
   }

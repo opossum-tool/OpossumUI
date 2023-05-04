@@ -12,6 +12,7 @@ import {
   FollowUpIcon,
   IncompleteAttributionsIcon,
   MissingPackageNameIcon,
+  NeedsReviewIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
 import pickBy from 'lodash/pickBy';
@@ -28,8 +29,11 @@ const classes = {
     width: '13px',
     height: '13px',
   },
-  titleFollowUpIcon: {
+  titleNeedsReviewIcon: {
     color: OpossumColors.orange,
+  },
+  titleFollowUpIcon: {
+    color: OpossumColors.red,
   },
   preselectedAttributionIcon: {
     color: OpossumColors.darkBlue,
@@ -51,6 +55,9 @@ export function AttributionCountsPanel(
 ): ReactElement {
   const attributions: Attributions = useAppSelector(getManualAttributions);
   const numberOfAttributions = Object.keys(attributions).length;
+  const numberOfAttributionsThatNeedReview = Object.keys(
+    pickBy(attributions, (value: PackageInfo) => value.needsReview)
+  ).length;
   const numberOfFollowUps = Object.keys(
     pickBy(attributions, (value: PackageInfo) => value.followUp)
   ).length;
@@ -73,7 +80,14 @@ export function AttributionCountsPanel(
         sxProps: props.sx,
       })}
     >
-      {`Attributions (${numberOfAttributions} total, ${numberOfFollowUps}`}
+      {`Attributions (${numberOfAttributions} total, ${numberOfAttributionsThatNeedReview}`}
+      <NeedsReviewIcon
+        sx={{
+          ...classes.titleNeedsReviewIcon,
+          ...classes.icons,
+        }}
+      />
+      {`, ${numberOfFollowUps}`}
       <FollowUpIcon
         sx={{
           ...classes.titleFollowUpIcon,

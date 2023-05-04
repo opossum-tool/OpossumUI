@@ -16,6 +16,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import React, { ReactElement } from 'react';
 import {
   baseIcon,
@@ -119,6 +120,20 @@ export function FollowUpIcon(props: IconProps): ReactElement {
     <MuiTooltip sx={classes.tooltip} title="has follow-up">
       <ReplayIcon
         aria-label={'Follow-up icon'}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function NeedsReviewIcon(props: IconProps): ReactElement {
+  return (
+    <MuiTooltip sx={classes.tooltip} title="needs review">
+      <QuestionMarkIcon
+        aria-label={'Needs-review icon'}
         sx={getSxFromPropsAndClasses({
           styleClass: classes.nonClickableIcon,
           sxProps: props.sx,
