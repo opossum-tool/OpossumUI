@@ -278,7 +278,8 @@ IMPORTANT: Some fields in the column have special meanings/behaviors:
   - it was globally decided that this attribution does not need attribution (e.g. it is proprietary but bought for the
     whole company).
 - _Comment / Comments_: In the case of an ordinary signal or an attribution, the comment textbox is displaying a single comment. In the case of a merged signal, the comment textbox is displaying multiple comments according to the comments of the individual merged signals.
-- _Needs Review Checkbox_: Checking this checkbox does not have any effect on the overall workflow. The state of the checkbox is however persisted when saving the attribution.
+- _Needs Review Checkbox_: This checkbox can be used to signal to another OpossumUI user that an attribution needs further review.
+  The state of the checkbox is persisted when saving the attribution, so it can e.g. be used for a typical QA workflow.
 
 The `Attribution Details Column`, if editable, shows the following buttons:
 
