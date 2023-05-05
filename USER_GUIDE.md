@@ -266,18 +266,20 @@ attribution information and signals cannot be edited.
 
 IMPORTANT: Some fields in the column have special meanings/behaviors:
 
-- _PURL_: if provided, package name and version are extracted from it, and the corresponding fields are not editable. A
+- _PURL_: If provided, package name and version are extracted from it, and the corresponding fields are not editable. A
   basic validity check is done on the purl: if the purl text is red it means it is invalid and saving is prevented.
-- _License Text_: it will appear in the attributions document. It will be automatically filled in for licenses suggested
+- _License Text_: It will appear in the attributions document. It will be automatically filled in for licenses suggested
   in the license name dropdown.
-- _Exclude From Notice Checkbox_: if checked, the relative attribution will not be shown in the notice document.
-  In the case of first party code the respective flag should be preferred.
+- _Exclude From Notice Checkbox_: If checked, the relative attribution will not be shown in the notice document.
+  In the case of first party code, the respective flag should be preferred.
   _Exclude From Notice Checkbox_ should be used only if:
   - the content of the attribution does not need attribution or
   - the attribution isn't an actual attribution or
   - it was globally decided that this attribution does not need attribution (e.g. it is proprietary but bought for the
     whole company).
 - _Comment / Comments_: In the case of an ordinary signal or an attribution, the comment textbox is displaying a single comment. In the case of a merged signal, the comment textbox is displaying multiple comments according to the comments of the individual merged signals.
+- _Needs Review Checkbox_: This checkbox can be used to signal to another OpossumUI user that an attribution needs further review.
+  The state of the checkbox is persisted when saving the attribution, so it can e.g. be used for a typical QA workflow.
 
 The `Attribution Details Column`, if editable, shows the following buttons:
 

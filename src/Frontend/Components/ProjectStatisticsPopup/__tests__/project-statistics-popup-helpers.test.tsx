@@ -34,6 +34,7 @@ const testAttributions_1: Attributions = {
     criticality: Criticality.Medium,
     licenseName: 'Apache License Version 2.0',
     firstParty: true,
+    needsReview: true,
   },
   uuid2: {
     source: {
@@ -50,6 +51,7 @@ const testAttributions_1: Attributions = {
     },
     licenseName: ' Apache license version-2.0 ',
     followUp: FollowUp,
+    needsReview: true,
   },
   uuid4: {
     source: {
@@ -202,6 +204,7 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
     const expectedAttributionPropertyCounts: {
       [attributionPropertyOrTotal: string]: number;
     } = {
+      needsReview: 2,
       followUp: 1,
       firstParty: 2,
       incomplete: 4,
@@ -227,6 +230,7 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
     const expectedAttributionPropertyCounts: {
       [attributionPropertyOrTotal: string]: number;
     } = {
+      needsReview: 0,
       followUp: 0,
       firstParty: 0,
       incomplete: 5,

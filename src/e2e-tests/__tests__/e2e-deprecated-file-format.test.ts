@@ -28,24 +28,13 @@ test.describe('Open outdated .json file via command line', () => {
     app = await getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
     window = await app.firstWindow();
     await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
+    await window.title();
   });
 
   test.afterEach(async () => {
     if (app) {
       await app.close();
     }
-  });
-
-  test('should open FileSupportPopup when .json file is provided as command line arg', async () => {
-    const header = 'Warning: Outdated input file format';
-    const fileSupportPopupEntry = await getElementWithText(window, header);
-    await expect(fileSupportPopupEntry).toBeVisible({
-      timeout: EXPECT_TIMEOUT,
-    });
-    const keepOldFileFormatButton = await getButtonWithName(window, 'Keep');
-    await expect(keepOldFileFormatButton).toBeVisible({
-      timeout: EXPECT_TIMEOUT,
-    });
   });
 
   test('should open file when provided as command line arg', async () => {

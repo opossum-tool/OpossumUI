@@ -15,7 +15,6 @@ import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-class
 
 const classes = {
   root: {
-    marginTop: '10px',
     justifyContent: 'space-evenly',
     display: 'flex',
   },

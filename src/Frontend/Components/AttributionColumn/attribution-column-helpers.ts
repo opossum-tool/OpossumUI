@@ -139,6 +139,20 @@ export function getResolvedToggleHandler(
   };
 }
 
+export function getNeedsReviewChangeHandler(
+  temporaryPackageInfo: PackageInfo,
+  dispatch: AppThunkDispatch
+): (event: React.ChangeEvent<HTMLInputElement>) => void {
+  return (event): void => {
+    dispatch(
+      setTemporaryPackageInfo({
+        ...temporaryPackageInfo,
+        needsReview: event.target.checked,
+      })
+    );
+  };
+}
+
 export function selectedPackagesAreResolved(
   attributionIds: Array<string>,
   resolvedExternalAttributions: Set<string>

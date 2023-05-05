@@ -17,6 +17,7 @@ import { tableClasses } from '../../shared-styles';
 const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {
   [attributionProperty: string]: string;
 } = {
+  needsReview: 'Needs review',
   followUp: 'Follow up',
   firstParty: 'First party',
   incomplete: 'Incomplete Attributions',
