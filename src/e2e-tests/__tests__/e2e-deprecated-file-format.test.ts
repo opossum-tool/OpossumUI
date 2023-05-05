@@ -28,6 +28,7 @@ test.describe('Open outdated .json file via command line', () => {
     app = await getApp('src/e2e-tests/test-resources/opossum_input_e2e.json');
     window = await app.firstWindow();
     await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
+    await window.title();
   });
 
   test.afterEach(async () => {

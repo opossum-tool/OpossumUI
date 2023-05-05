@@ -25,6 +25,7 @@ test.describe('Open .opossum file via command line', () => {
     );
     window = await app.firstWindow();
     await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
+    await window.title();
   });
 
   test.afterEach(async () => {
