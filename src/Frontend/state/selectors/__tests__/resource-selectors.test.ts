@@ -11,7 +11,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
-import { wereTemporaryPackageInfoModified } from '../all-views-resource-selectors';
+import { wereTemporaryDisplayPackageInfoModified } from '../all-views-resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { PackagePanelTitle } from '../../../enums/enums';
 import {
@@ -21,7 +21,7 @@ import {
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import {
   setManualData,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../../actions/resource-actions/all-views-simple-actions';
 
 describe('getWerePackageInfoModified', () => {
@@ -40,30 +40,30 @@ describe('getWerePackageInfoModified', () => {
 
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
     attributionIds: [],
   };
-  const secondTestTemporaryPackageInfo: DisplayPackageInfo = {
+  const secondTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
     attributionIds: [],
   };
   const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-    [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+    [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
   };
 
-  it('returns true  when TemporaryPackageInfo have been modified', () => {
+  it('returns true  when TemporaryDisplayPackageInfo have been modified', () => {
     const testStore = createTestAppStore();
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
@@ -73,15 +73,21 @@ describe('getWerePackageInfoModified', () => {
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
-    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      false
+    );
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+    );
 
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      true
+    );
   });
 
   it('returns true  when confidence is changed', () => {
     const testStore = createTestAppStore();
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageVersion: '1.0',
       packageName: 'test Package',
@@ -92,10 +98,16 @@ describe('getWerePackageInfoModified', () => {
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
-    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      false
+    );
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+    );
 
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      true
+    );
   });
 
   it('returns false when only confidence is set and true when attribution is created', () => {
@@ -104,27 +116,33 @@ describe('getWerePackageInfoModified', () => {
       loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      false
+    );
     testStore.dispatch(
-      setTemporaryPackageInfo({
+      setTemporaryDisplayPackageInfo({
         attributionConfidence: DiscreteConfidence.Low,
         attributionIds: [],
       })
     );
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      false
+    );
     testStore.dispatch(
-      setTemporaryPackageInfo({
+      setTemporaryDisplayPackageInfo({
         attributionConfidence: DiscreteConfidence.Low,
         packageName: 'test Package',
         attributionIds: [],
       })
     );
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(true);
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      true
+    );
   });
 
-  it('returns false when TemporaryPackageInfo have not been modified', () => {
+  it('returns false when TemporaryDisplayPackageInfo have not been modified', () => {
     const testStore = createTestAppStore();
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
@@ -141,8 +159,12 @@ describe('getWerePackageInfoModified', () => {
         attributionId: testManualAttributionUuid_1,
       })
     );
-    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+    );
 
-    expect(wereTemporaryPackageInfoModified(testStore.getState())).toBe(false);
+    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
+      false
+    );
   });
 });

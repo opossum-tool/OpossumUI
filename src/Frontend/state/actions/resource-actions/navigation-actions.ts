@@ -29,7 +29,7 @@ import {
   setTargetDisplayedPackage,
   setTargetSelectedResourceId,
 } from './audit-view-simple-actions';
-import { setTemporaryPackageInfo } from './all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 import {
   getDisplayPackageInfoOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
@@ -40,12 +40,12 @@ import {
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
-export function resetTemporaryPackageInfo(
+export function resetTemporaryDisplayPackageInfo(
   attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (attribution) {
-      dispatch(setTemporaryPackageInfo(attribution));
+      dispatch(setTemporaryDisplayPackageInfo(attribution));
       return;
     }
 
@@ -54,7 +54,7 @@ export function resetTemporaryPackageInfo(
     switch (view) {
       case View.Audit:
         dispatch(
-          setTemporaryPackageInfo(
+          setTemporaryDisplayPackageInfo(
             getDisplayPackageInfoOfDisplayedPackageInManualPanel(getState()) ||
               EMPTY_DISPLAY_PACKAGE_INFO
           )
@@ -62,7 +62,7 @@ export function resetTemporaryPackageInfo(
         break;
       case View.Attribution:
         dispatch(
-          setTemporaryPackageInfo(
+          setTemporaryDisplayPackageInfo(
             getDisplayPackageInfoOfSelectedAttribution(getState()) ||
               EMPTY_DISPLAY_PACKAGE_INFO
           )
@@ -83,7 +83,7 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       const targetDisplayedPackage = getTargetDisplayedPackage(getState());
       if (targetDisplayedPackage) {
         dispatch(
-          setDisplayedPackageAndResetTemporaryPackageInfo(
+          setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
             targetDisplayedPackage
           )
         );
@@ -119,13 +119,13 @@ export function openResourceInResourceBrowser(
   };
 }
 
-export function setDisplayedPackageAndResetTemporaryPackageInfo(
+export function setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
   panelPackage: PanelPackage,
   attribution?: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));
-    dispatch(resetTemporaryPackageInfo(attribution));
+    dispatch(resetTemporaryDisplayPackageInfo(attribution));
   };
 }
 

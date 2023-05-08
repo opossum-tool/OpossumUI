@@ -27,15 +27,17 @@ describe('The createManualAttribution function', () => {
   it('adds a new manual attribution', () => {
     const testManualData: AttributionData = EMPTY_ATTRIBUTION_DATA;
     const testSelectedResourceId = '/something.js';
-    const testTemporaryPackageInfo: PackageInfo = { packageName: 'React' };
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
+      packageName: 'React',
+    };
 
     const { newManualData, newAttributionId } = createManualAttribution(
       testManualData,
       testSelectedResourceId,
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     );
     expect(newManualData.attributions[newAttributionId]).toEqual(
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     );
     expect(newManualData.attributionsToResources[newAttributionId]).toEqual([
       '/something.js',
@@ -149,7 +151,7 @@ describe('The deleteManualAttribution function', () => {
 describe('The updateManualAttribution function', () => {
   it('updates an existing manual attribution', () => {
     const testPackageInfo: PackageInfo = { packageName: 'Vue' };
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -176,7 +178,7 @@ describe('The updateManualAttribution function', () => {
     const newManualData: AttributionData = updateManualAttribution(
       testUuid,
       testManualData,
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     );
 
     expect(newManualData.attributions).toEqual({

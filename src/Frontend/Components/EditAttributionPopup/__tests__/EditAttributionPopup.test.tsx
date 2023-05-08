@@ -19,10 +19,10 @@ import {
 import { ButtonText, PopupType, View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { act } from 'react-dom/test-utils';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 
@@ -33,7 +33,7 @@ describe('The EditAttributionPopup', () => {
       'package_2.tr.gz': 1,
     },
   };
-  const testTemporaryPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
     attributionConfidence: 20,
     packageName: 'jQuery',
     packageVersion: '16.5.0',
@@ -49,7 +49,7 @@ describe('The EditAttributionPopup', () => {
   };
   const testAttributions: Attributions = {
     test_selected_id: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     ),
     test_marked_id: { packageName: 'Vue' },
   };
@@ -77,8 +77,8 @@ describe('The EditAttributionPopup', () => {
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
       store.dispatch(
-        setTemporaryPackageInfo({
-          ...testTemporaryPackageInfo,
+        setTemporaryDisplayPackageInfo({
+          ...testTemporaryDisplayPackageInfo,
           attributionIds: ['test_selected_id'],
         })
       );
@@ -107,14 +107,16 @@ describe('The EditAttributionPopup', () => {
         })
       )
     );
-    const changedTestTemporaryPackageInfo = {
-      ...testTemporaryPackageInfo,
+    const changedTestTemporaryDisplayPackageInfo = {
+      ...testTemporaryDisplayPackageInfo,
       comment: 'changed comment',
     };
 
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
-      store.dispatch(setTemporaryPackageInfo(changedTestTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(changedTestTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
@@ -140,14 +142,16 @@ describe('The EditAttributionPopup', () => {
         })
       )
     );
-    const changedTestTemporaryPackageInfo: DisplayPackageInfo = {
-      ...testTemporaryPackageInfo,
+    const changedTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      ...testTemporaryDisplayPackageInfo,
       attributionIds: ['test_selected_id'],
       comments: ['changed comment'],
     };
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
-      store.dispatch(setTemporaryPackageInfo(changedTestTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(changedTestTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();
@@ -155,12 +159,12 @@ describe('The EditAttributionPopup', () => {
 
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
-    const resultingTemporaryPackageInfo = getTemporaryPackageInfo(
+    const resultingTemporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
       store.getState()
     );
 
-    expect(resultingTemporaryPackageInfo.comments).toEqual(
-      changedTestTemporaryPackageInfo.comments
+    expect(resultingTemporaryDisplayPackageInfo.comments).toEqual(
+      changedTestTemporaryDisplayPackageInfo.comments
     );
   });
 });

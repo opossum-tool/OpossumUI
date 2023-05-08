@@ -14,7 +14,7 @@ import MuiBox from '@mui/material/Box';
 interface CopyrightSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  setUpdateTemporaryPackageInfoFor(
+  setUpdateTemporaryDisplayPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   copyrightRows: number;
@@ -33,7 +33,9 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
           minRows={props.copyrightRows}
           maxRows={props.copyrightRows}
           multiline={true}
-          handleChange={props.setUpdateTemporaryPackageInfoFor('copyright')}
+          handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
+            'copyright'
+          )}
           isHighlighted={
             props.showHighlight &&
             isImportantAttributionInformationMissing(

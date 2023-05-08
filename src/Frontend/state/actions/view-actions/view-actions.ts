@@ -9,7 +9,7 @@ import { State } from '../../../types/types';
 import { getDisplayPackageInfoOfSelectedAttribution } from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
-import { setTemporaryPackageInfo } from '../resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import { getDisplayPackageInfoOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
 import {
   ACTION_CLOSE_POPUP,
@@ -44,12 +44,14 @@ export function navigateToView(view: View): AppThunkAction {
     dispatch(setView(view));
     dispatch(setMultiSelectSelectedAttributionIds([]));
 
-    const updatedTemporaryPackageInfo: DisplayPackageInfo =
+    const updatedTemporaryDisplayPackageInfo: DisplayPackageInfo =
       (view === View.Audit
         ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(getState())
         : getDisplayPackageInfoOfSelectedAttribution(getState())) ||
       EMPTY_DISPLAY_PACKAGE_INFO;
-    dispatch(setTemporaryPackageInfo(updatedTemporaryPackageInfo));
+    dispatch(
+      setTemporaryDisplayPackageInfo(updatedTemporaryDisplayPackageInfo)
+    );
   };
 }
 

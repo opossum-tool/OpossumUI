@@ -14,7 +14,7 @@ import {
 } from '../../state/actions/view-actions/view-actions';
 import {
   navigateToTargetResourceOrAttribution,
-  saveTemporaryPackageInfoAndNavigateToTargetView,
+  saveTemporaryDisplayPackageInfoAndNavigateToTargetView,
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
 } from '../../state/actions/popup-actions/popup-actions';
 import {
@@ -47,7 +47,7 @@ export function NotSavedPopup(): ReactElement {
   }
 
   function handleSaveGloballyClick(): void {
-    dispatch(saveTemporaryPackageInfoAndNavigateToTargetView());
+    dispatch(saveTemporaryDisplayPackageInfoAndNavigateToTargetView());
   }
 
   function handleUndoClick(): void {

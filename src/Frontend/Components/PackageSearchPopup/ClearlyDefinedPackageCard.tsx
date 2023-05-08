@@ -13,7 +13,7 @@ import MuiAccordion from '@mui/material/Accordion';
 import { IconButton } from '../IconButton/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PlusIcon from '@mui/icons-material/Add';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { fetchFromClearlyDefined } from './fetch-from-clearly-defined';
@@ -116,7 +116,9 @@ export function ClearlyDefinedPackageCard(
               disabled={!Boolean(data)}
               onClick={(): void => {
                 dispatch(
-                  setTemporaryPackageInfo(data ?? EMPTY_DISPLAY_PACKAGE_INFO)
+                  setTemporaryDisplayPackageInfo(
+                    data ?? EMPTY_DISPLAY_PACKAGE_INFO
+                  )
                 );
                 dispatch(closePopup());
               }}

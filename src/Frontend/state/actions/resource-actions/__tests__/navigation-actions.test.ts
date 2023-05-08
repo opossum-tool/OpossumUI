@@ -17,12 +17,12 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import { PanelPackage } from '../../../../types/types';
 import {
   getManualData,
-  getTemporaryPackageInfo,
+  getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
   openResourceInResourceBrowser,
-  resetTemporaryPackageInfo,
-  setDisplayedPackageAndResetTemporaryPackageInfo,
+  resetTemporaryDisplayPackageInfo,
+  setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../navigation-actions';
 import { savePackageInfo } from '../save-actions';
@@ -39,7 +39,7 @@ import {
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
 import { loadFromFile } from '../load-actions';
-import { setTemporaryPackageInfo } from '../all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../all-views-simple-actions';
 import {
   getDisplayedPackage,
   getExpandedIds,
@@ -49,7 +49,7 @@ import { getSelectedAttributionId } from '../../../selectors/attribution-view-re
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 
-describe('resetTemporaryPackageInfo', () => {
+describe('resetTemporaryDisplayPackageInfo', () => {
   it('works correctly on audit view', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
@@ -71,7 +71,7 @@ describe('resetTemporaryPackageInfo', () => {
       panel: PackagePanelTitle.ManualPackages,
       attributionId: 'uuid1',
     };
-    const initialTemporaryPackageInfo: DisplayPackageInfo = {
+    const initialTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'Vue',
       attributionIds: [],
     };
@@ -89,13 +89,15 @@ describe('resetTemporaryPackageInfo', () => {
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setSelectedResourceId('/file'));
     testStore.dispatch(setDisplayedPackage(initialSelectedPackage));
-    testStore.dispatch(setTemporaryPackageInfo(initialTemporaryPackageInfo));
-    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
-      initialTemporaryPackageInfo
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo)
+    );
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      initialTemporaryDisplayPackageInfo
     );
 
-    testStore.dispatch(resetTemporaryPackageInfo());
-    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+    testStore.dispatch(resetTemporaryDisplayPackageInfo());
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testDisplayPackageInfo
     );
   });
@@ -107,7 +109,7 @@ describe('resetTemporaryPackageInfo', () => {
     const testManualAttributions: Attributions = {
       uuid1: testReact,
     };
-    const initialTemporaryPackageInfo: DisplayPackageInfo = {
+    const initialTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'Vue',
       attributionIds: [],
     };
@@ -122,15 +124,17 @@ describe('resetTemporaryPackageInfo', () => {
     );
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setSelectedAttributionId('uuid1'));
-    testStore.dispatch(setTemporaryPackageInfo(initialTemporaryPackageInfo));
-    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
-      initialTemporaryPackageInfo
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo)
+    );
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      initialTemporaryDisplayPackageInfo
     );
 
-    testStore.dispatch(resetTemporaryPackageInfo());
+    testStore.dispatch(resetTemporaryDisplayPackageInfo());
     expect(
       convertDisplayPackageInfoToPackageInfo(
-        getTemporaryPackageInfo(testStore.getState())
+        getTemporaryDisplayPackageInfo(testStore.getState())
       )
     ).toEqual(testReact);
   });
@@ -231,8 +235,8 @@ describe('setSelectedResourceIdAndExpand', () => {
   });
 });
 
-describe('setDisplayedPackageAndResetTemporaryPackageInfo', () => {
-  it('sets the displayedPackage and loads the right initial temporaryPackageInfo', () => {
+describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
+  it('sets the displayedPackage and loads the right initial temporaryDisplayPackageInfo', () => {
     const testPackageInfo: PackageInfo = { packageName: 'React' };
     const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'React',
@@ -263,17 +267,19 @@ describe('setDisplayedPackageAndResetTemporaryPackageInfo', () => {
       )
     );
     expect(getDisplayedPackage(testStore.getState())).toBeNull();
-    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO
     );
 
     testStore.dispatch(
-      setDisplayedPackageAndResetTemporaryPackageInfo(expectedDisplayedPackage)
+      setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
+        expectedDisplayedPackage
+      )
     );
     expect(getDisplayedPackage(testStore.getState())).toEqual(
       expectedDisplayedPackage
     );
-    expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testDisplayPackageInfo
     );
   });

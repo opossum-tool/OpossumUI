@@ -29,7 +29,7 @@ import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-pa
 
 describe('getPackageInfoOfSelectedAttribution', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-  const testTemporaryPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
@@ -38,7 +38,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     ),
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -53,7 +53,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     expect(
       getDisplayPackageInfoOfSelectedAttribution(testStore.getState())
-    ).toEqual(testTemporaryPackageInfo);
+    ).toEqual(testTemporaryDisplayPackageInfo);
   });
 
   it('returns empty temporary package info if no selected attribution', () => {

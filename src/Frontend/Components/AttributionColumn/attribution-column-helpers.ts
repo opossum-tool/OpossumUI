@@ -12,7 +12,7 @@ import {
   FrequentLicenseName,
 } from '../../../shared/shared-types';
 import { AppThunkDispatch } from '../../state/types';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   addResolvedExternalAttribution,
   removeResolvedExternalAttribution,
@@ -35,13 +35,13 @@ const HEIGHT_OF_TEXT_BOXES_IN_AUDIT_VIEW = 514;
 const ROW_HEIGHT = 19;
 
 export function getDisplayTexts(
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   selectedAttributionId: string,
   attributionIdMarkedForReplacement: string,
   view: View
 ): Array<string> {
   const displayTexts = [];
-  if (temporaryPackageInfo.preSelected) {
+  if (temporaryDisplayPackageInfo.preSelected) {
     displayTexts.push(PRE_SELECTED_LABEL);
   }
   if (
@@ -66,13 +66,13 @@ export function getLicenseTextMaxRows(
 }
 
 export function getDiscreteConfidenceChangeHandler(
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<{ value: unknown }>) => void {
   return (event): void => {
     dispatch(
-      setTemporaryPackageInfo({
-        ...temporaryPackageInfo,
+      setTemporaryDisplayPackageInfo({
+        ...temporaryDisplayPackageInfo,
         attributionConfidence: Number(event.target.value),
       })
     );
@@ -80,13 +80,13 @@ export function getDiscreteConfidenceChangeHandler(
 }
 
 export function getFollowUpChangeHandler(
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
-      setTemporaryPackageInfo({
-        ...temporaryPackageInfo,
+      setTemporaryDisplayPackageInfo({
+        ...temporaryDisplayPackageInfo,
         followUp: event.target.checked ? FollowUp : undefined,
       })
     );
@@ -94,13 +94,13 @@ export function getFollowUpChangeHandler(
 }
 
 export function getExcludeFromNoticeChangeHandler(
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
-      setTemporaryPackageInfo({
-        ...temporaryPackageInfo,
+      setTemporaryDisplayPackageInfo({
+        ...temporaryDisplayPackageInfo,
         excludeFromNotice: event.target.checked ? true : undefined,
       })
     );
@@ -108,13 +108,13 @@ export function getExcludeFromNoticeChangeHandler(
 }
 
 export function getFirstPartyChangeHandler(
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
-      setTemporaryPackageInfo({
-        ...temporaryPackageInfo,
+      setTemporaryDisplayPackageInfo({
+        ...temporaryDisplayPackageInfo,
         firstParty: event.target.checked,
       })
     );
@@ -143,13 +143,13 @@ export function getResolvedToggleHandler(
 }
 
 export function getNeedsReviewChangeHandler(
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
-      setTemporaryPackageInfo({
-        ...temporaryPackageInfo,
+      setTemporaryDisplayPackageInfo({
+        ...temporaryDisplayPackageInfo,
         needsReview: event.target.checked,
       })
     );
@@ -233,7 +233,7 @@ export function getMergeButtonsDisplayState(currentState: {
 export function usePurl(
   dispatch: AppThunkDispatch,
   packageInfoWereModified: boolean,
-  temporaryPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
   selectedPackage: PanelPackage | null,
   selectedAttributionId: string | null
 ): {
@@ -249,20 +249,20 @@ export function usePurl(
     dispatch(
       setIsSavingDisabled(
         (!packageInfoWereModified || !isDisplayedPurlValid) &&
-          !temporaryPackageInfo.preSelected
+          !temporaryDisplayPackageInfo.preSelected
       )
     );
   }, [
     dispatch,
     packageInfoWereModified,
     isDisplayedPurlValid,
-    temporaryPackageInfo,
+    temporaryDisplayPackageInfo,
   ]);
 
   useEffect(
     () => {
       setTemporaryPurl(
-        generatePurlFromDisplayPackageInfo(temporaryPackageInfo) || ''
+        generatePurlFromDisplayPackageInfo(temporaryDisplayPackageInfo) || ''
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -270,10 +270,10 @@ export function usePurl(
       selectedPackage?.panel,
       selectedPackage?.attributionId,
       selectedAttributionId,
-      temporaryPackageInfo.packageType,
-      temporaryPackageInfo.packageNamespace,
-      temporaryPackageInfo.packageName,
-      temporaryPackageInfo.packageVersion,
+      temporaryDisplayPackageInfo.packageType,
+      temporaryDisplayPackageInfo.packageNamespace,
+      temporaryDisplayPackageInfo.packageName,
+      temporaryDisplayPackageInfo.packageVersion,
     ]
   );
 
@@ -284,8 +284,8 @@ export function usePurl(
 
     if (isValid && purl) {
       dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
+        setTemporaryDisplayPackageInfo({
+          ...temporaryDisplayPackageInfo,
           packageName: purl.packageName,
           packageVersion: purl.packageVersion,
           packageNamespace: purl.packageNamespace,

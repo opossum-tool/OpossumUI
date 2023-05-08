@@ -27,7 +27,7 @@ import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './ac
 export function createManualAttribution(
   manualData: AttributionData,
   selectedResourceId: string,
-  strippedTemporaryPackageInfo: PackageInfo
+  strippedTemporaryDisplayPackageInfo: PackageInfo
 ): { newManualData: AttributionData; newAttributionId: string } {
   const newAttributionId = uuid4();
 
@@ -40,7 +40,7 @@ export function createManualAttribution(
   const newManualData: AttributionData = {
     attributions: {
       ...manualData.attributions,
-      [newAttributionId]: strippedTemporaryPackageInfo,
+      [newAttributionId]: strippedTemporaryDisplayPackageInfo,
     },
     resourcesToAttributions: {
       ...manualData.resourcesToAttributions,
@@ -66,13 +66,13 @@ export function createManualAttribution(
 export function updateManualAttribution(
   attributionToUpdateId: string,
   manualData: AttributionData,
-  strippedTemporaryPackageInfo: PackageInfo
+  strippedTemporaryDisplayPackageInfo: PackageInfo
 ): AttributionData {
   return {
     ...manualData,
     attributions: {
       ...manualData.attributions,
-      [attributionToUpdateId]: strippedTemporaryPackageInfo,
+      [attributionToUpdateId]: strippedTemporaryDisplayPackageInfo,
     },
   };
 }
@@ -516,7 +516,7 @@ function removeManualAttributionFromChildrenOfParentsIfInferable(
   );
 }
 
-export function attributionForTemporaryPackageInfoExists(
+export function attributionForTemporaryDisplayPackageInfoExists(
   packageInfoToMatch: PackageInfo,
   state: State
 ): boolean {

@@ -9,7 +9,7 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import {
   getManualAttributions,
   getManualData,
-  getTemporaryPackageInfo,
+  getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
   getOpenPopup,
@@ -26,7 +26,7 @@ import {
   navigateToSelectedPathOrOpenUnsavedPopup,
   navigateToTargetResourceOrAttribution,
   openAttributionWizardPopup,
-  saveTemporaryPackageInfoAndNavigateToTargetView,
+  saveTemporaryDisplayPackageInfoAndNavigateToTargetView,
   selectAttributionInAccordionPanelOrOpenUnsavedPopup,
   selectAttributionInManualPackagePanelOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
@@ -55,7 +55,7 @@ import {
   setExternalData,
   setManualData,
   setResources,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
 import {
   getDisplayedPackage,
@@ -103,7 +103,7 @@ describe('The actions checking for unsaved changes', () => {
 
   describe('changeSelectedAttributionIdOrOpenUnsavedPopup', () => {
     it(
-      'setsTargetSelectedAttributionId and temporaryPackageInfo' +
+      'setsTargetSelectedAttributionId and temporaryDisplayPackageInfo' +
         ' and opens popup if packageInfo were modified',
       () => {
         const testResources: Resources = {
@@ -129,7 +129,10 @@ describe('The actions checking for unsaved changes', () => {
           savePackageInfo(null, null, { packageName: 'Test' })
         );
         testStore.dispatch(
-          setTemporaryPackageInfo({ packageName: 'Test 2', attributionIds: [] })
+          setTemporaryDisplayPackageInfo({
+            packageName: 'Test 2',
+            attributionIds: [],
+          })
         );
 
         testStore.dispatch(
@@ -144,14 +147,14 @@ describe('The actions checking for unsaved changes', () => {
           PopupType.NotSavedPopup
         );
         expect(getSelectedAttributionId(testStore.getState())).toBe('');
-        expect(getTemporaryPackageInfo(testStore.getState())).toEqual({
+        expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
           packageName: 'Test 2',
           attributionIds: [],
         });
       }
     );
 
-    it('setSelectedAttributionId and temporaryPackageInfo if packageInfo were not modified', () => {
+    it('setSelectedAttributionId and temporaryDisplayPackageInfo if packageInfo were not modified', () => {
       const testResources: Resources = {
         selectedResource: 1,
         newSelectedResource: 1,
@@ -173,7 +176,10 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(setSelectedAttributionId('selectedAttributionId'));
       testStore.dispatch(navigateToView(View.Attribution));
       testStore.dispatch(
-        setTemporaryPackageInfo({ packageName: 'Test', attributionIds: [] })
+        setTemporaryDisplayPackageInfo({
+          packageName: 'Test',
+          attributionIds: [],
+        })
       );
       testStore.dispatch(
         savePackageInfo('selectedResource', 'selectedAttributionId', {
@@ -188,7 +194,7 @@ describe('The actions checking for unsaved changes', () => {
       expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
       expect(getOpenPopup(testStore.getState())).toBeFalsy();
       expect(getSelectedAttributionId(testStore.getState())).toBe('uuid_1');
-      expect(getTemporaryPackageInfo(testStore.getState())).toEqual({
+      expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
         packageName: 'React',
         attributionIds: ['uuid_1'],
       });
@@ -208,7 +214,10 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setSelectedResourceId('/testId/'));
       testStore.dispatch(
-        setTemporaryPackageInfo({ packageName: 'new Name', attributionIds: [] })
+        setTemporaryDisplayPackageInfo({
+          packageName: 'new Name',
+          attributionIds: [],
+        })
       );
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
@@ -287,7 +296,10 @@ describe('The actions checking for unsaved changes', () => {
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
       testStore.dispatch(
-        setTemporaryPackageInfo({ packageName: 'new Name', attributionIds: [] })
+        setTemporaryDisplayPackageInfo({
+          packageName: 'new Name',
+          attributionIds: [],
+        })
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
@@ -340,7 +352,7 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toEqual(
         testSelectedPackage
       );
-      expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+      expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
         EMPTY_DISPLAY_PACKAGE_INFO
       );
     });
@@ -385,7 +397,7 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toEqual(
         testSelectedPackage
       );
-      expect(getTemporaryPackageInfo(testStore.getState())).toEqual({
+      expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
         ...testPackageInfo,
         attributionIds: ['uuid'],
       });
@@ -450,7 +462,9 @@ describe('The actions called from the unsaved popup', () => {
           attributionId: 'reactUuid',
         })
       );
-      testStore.dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO)
+      );
       testStore.dispatch(setTargetView(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
 
@@ -462,7 +476,7 @@ describe('The actions called from the unsaved popup', () => {
     });
   });
 
-  describe('saveTemporaryPackageInfoAndNavigateToTargetView', () => {
+  describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetView', () => {
     function prepareTestState(): State {
       const testStore = createTestAppStore();
       const testResources: Resources = {
@@ -474,20 +488,25 @@ describe('The actions called from the unsaved popup', () => {
       );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
       testStore.dispatch(
-        setTemporaryPackageInfo({ packageName: 'Test', attributionIds: [] })
+        setTemporaryDisplayPackageInfo({
+          packageName: 'Test',
+          attributionIds: [],
+        })
       );
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
       testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-      testStore.dispatch(saveTemporaryPackageInfoAndNavigateToTargetView());
+      testStore.dispatch(
+        saveTemporaryDisplayPackageInfoAndNavigateToTargetView()
+      );
 
       return testStore.getState();
     }
 
-    it('saves temporaryPackageInfo', () => {
+    it('saves temporaryDisplayPackageInfo', () => {
       const state: State = prepareTestState();
-      expect(getTemporaryPackageInfo(state)).toMatchObject({});
+      expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
     });
 
     it('sets TargetSelectedResourceOrAttribution', () => {
@@ -514,7 +533,10 @@ describe('The actions called from the unsaved popup', () => {
       );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
       testStore.dispatch(
-        setTemporaryPackageInfo({ packageName: 'Test', attributionIds: [] })
+        setTemporaryDisplayPackageInfo({
+          packageName: 'Test',
+          attributionIds: [],
+        })
       );
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
@@ -539,12 +561,12 @@ describe('The actions called from the unsaved popup', () => {
       expect(getSelectedResourceId(state)).toBe('newSelectedResource');
     });
 
-    it('sets temporaryPackageInfo', () => {
+    it('sets temporaryDisplayPackageInfo', () => {
       const state: State = prepareTestState();
-      expect(getTemporaryPackageInfo(state)).toMatchObject({});
+      expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
     });
 
-    it('does not save temporaryPackageInfo', () => {
+    it('does not save temporaryDisplayPackageInfo', () => {
       const state: State = prepareTestState();
       expect(getManualAttributions(state)).toMatchObject({});
     });

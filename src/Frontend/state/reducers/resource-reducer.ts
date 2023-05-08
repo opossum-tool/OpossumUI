@@ -92,7 +92,7 @@ export const initialResourceState: ResourceState = {
     manualData: EMPTY_ATTRIBUTION_DATA,
     externalData: EMPTY_ATTRIBUTION_DATA,
     frequentLicenses: EMPTY_FREQUENT_LICENSES,
-    temporaryPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
+    temporaryDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     attributionBreakpoints: new Set(),
     filesWithChildren: new Set(),
     isSavingDisabled: false,
@@ -142,7 +142,7 @@ export type ResourceState = {
     manualData: AttributionData;
     externalData: AttributionData;
     frequentLicenses: FrequentLicenses;
-    temporaryPackageInfo: DisplayPackageInfo;
+    temporaryDisplayPackageInfo: DisplayPackageInfo;
     attributionBreakpoints: Set<string>;
     filesWithChildren: Set<string>;
     isSavingDisabled: boolean;
@@ -227,7 +227,7 @@ export const resourceState = (
         ...state,
         allViews: {
           ...state.allViews,
-          temporaryPackageInfo: { ...action.payload },
+          temporaryDisplayPackageInfo: { ...action.payload },
         },
       };
     case ACTION_SET_SELECTED_RESOURCE_ID:
@@ -268,7 +268,7 @@ export const resourceState = (
         },
         allViews: {
           ...state.allViews,
-          temporaryPackageInfo: newPackageInfo
+          temporaryDisplayPackageInfo: newPackageInfo
             ? convertPackageInfoToDisplayPackageInfo(newPackageInfo, [
                 displayedAttributionId,
               ])
@@ -401,7 +401,7 @@ export const resourceState = (
           ...state.allViews,
           manualData: updatedManualData,
           ...(action.payload.jumpToUpdatedAttribution && {
-            temporaryPackageInfo: convertPackageInfoToDisplayPackageInfo(
+            temporaryDisplayPackageInfo: convertPackageInfoToDisplayPackageInfo(
               action.payload.strippedPackageInfo,
               [action.payload.attributionId]
             ),

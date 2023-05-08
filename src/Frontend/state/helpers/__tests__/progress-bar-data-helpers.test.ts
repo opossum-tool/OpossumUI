@@ -33,20 +33,20 @@ describe('The getUpdatedProgressBarData function', () => {
     };
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    const secondTestTemporaryPackageInfo: PackageInfo = {
+    const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
     };
     const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+      [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+      [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
     };
 
     const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -139,20 +139,20 @@ describe('The getUpdatedProgressBarData function', () => {
 
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    const secondTestTemporaryPackageInfo: PackageInfo = {
+    const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
     };
     const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+      [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+      [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
     };
 
     const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -413,38 +413,38 @@ describe('The getUpdatedProgressBarData function', () => {
     const testResolvedExternalAttributionUuid =
       'aafdf604-5881-42f1-9d65-ef76efa44fd6';
 
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    const secondTestTemporaryPackageInfo: PackageInfo = {
+    const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
     };
 
-    const thirdTemporaryPackageInfo: PackageInfo = {
+    const thirdTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '3.0',
       packageName: 'test package for external attribution',
       licenseText: 'test package for external attribution License text',
     };
 
-    const forthTemporaryPackageInfo: PackageInfo = {
+    const forthTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '4.0',
       packageName: 'test another package for external attribution',
       licenseText: 'test another package for external attribution License text',
     };
 
     const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+      [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+      [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
     };
 
     const testExternalAttributions: Attributions = {
-      [testExternalAttributionUuid]: thirdTemporaryPackageInfo,
-      [testResolvedExternalAttributionUuid]: forthTemporaryPackageInfo,
+      [testExternalAttributionUuid]: thirdTemporaryDisplayPackageInfo,
+      [testResolvedExternalAttributionUuid]: forthTemporaryDisplayPackageInfo,
     };
 
     const testResourcesToManualAttributions: ResourcesToAttributions = {

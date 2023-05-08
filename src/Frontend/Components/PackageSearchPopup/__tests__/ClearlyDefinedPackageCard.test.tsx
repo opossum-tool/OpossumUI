@@ -11,7 +11,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import React from 'react';
 import { ClearlyDefinedPackageCard } from '../ClearlyDefinedPackageCard';
 import { fireEvent, screen } from '@testing-library/react';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 
 describe('ClearlyDefinedPackageCard', () => {
@@ -72,7 +72,7 @@ describe('ClearlyDefinedPackageCard', () => {
     const addPackageInformationButton = screen.getByLabelText('Add');
     fireEvent.click(addPackageInformationButton);
 
-    expect(getTemporaryPackageInfo(store.getState())).toStrictEqual({
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toStrictEqual({
       packageName: 'sqlalchemy',
       packageVersion: '1.4.1',
       licenseName: 'MIT',

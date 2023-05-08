@@ -15,10 +15,10 @@ import { openAttributionWizardPopup } from '../../../state/actions/popup-actions
 import {
   setExternalData,
   setManualData,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import {
   createTestAppStore,
@@ -80,11 +80,11 @@ describe('AttributionWizardPopup', () => {
   });
 
   it('changes temporary package info', () => {
-    const initialTemporaryPackageInfo = convertPackageInfoToDisplayPackageInfo(
-      testManualAttributions.uuid_0,
-      ['uuid_0']
-    );
-    const expectedChangedTemporaryPackageInfo =
+    const initialTemporaryDisplayPackageInfo =
+      convertPackageInfoToDisplayPackageInfo(testManualAttributions.uuid_0, [
+        'uuid_0',
+      ]);
+    const expectedChangedTemporaryDisplayPackageInfo =
       convertPackageInfoToDisplayPackageInfo(
         testExternalAttributions.uuid_1,
         []
@@ -107,7 +107,9 @@ describe('AttributionWizardPopup', () => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
 
-    testStore.dispatch(setTemporaryPackageInfo(initialTemporaryPackageInfo));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo)
+    );
 
     fireEvent.click(screen.getByText('pip'));
     fireEvent.click(screen.getByText('numpy'));
@@ -115,11 +117,11 @@ describe('AttributionWizardPopup', () => {
     fireEvent.click(screen.getByText('1.24.1'));
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Apply }));
 
-    const changedTemporaryPackageInfo = getTemporaryPackageInfo(
+    const changedTemporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
       testStore.getState()
     );
-    expect(changedTemporaryPackageInfo).toEqual(
-      expectedChangedTemporaryPackageInfo
+    expect(changedTemporaryDisplayPackageInfo).toEqual(
+      expectedChangedTemporaryDisplayPackageInfo
     );
   });
 });

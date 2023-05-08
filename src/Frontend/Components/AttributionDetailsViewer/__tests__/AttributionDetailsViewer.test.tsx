@@ -19,12 +19,12 @@ import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 
 describe('The AttributionDetailsViewer', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       comments: ['some comment'],
       packageName: 'Some package',
@@ -36,35 +36,41 @@ describe('The AttributionDetailsViewer', () => {
     const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
     act(() => {
       store.dispatch(setSelectedAttributionId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.queryAllByText('Confidence'));
     expect(
       screen.getByDisplayValue(
         (
-          testTemporaryPackageInfo.attributionConfidence as unknown as number
+          testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
         ).toString()
       )
     );
     expect(screen.queryAllByText('Comment'));
 
-    testTemporaryPackageInfo.comments?.forEach((comment) =>
+    testTemporaryDisplayPackageInfo.comments?.forEach((comment) =>
       expect(screen.getByDisplayValue(comment))
     );
     expect(screen.queryAllByText('Name'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.packageName as string
+      )
     );
     expect(screen.queryAllByText('Version'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryPackageInfo.packageVersion as string
+        testTemporaryDisplayPackageInfo.packageVersion as string
       )
     );
     expect(screen.queryAllByText('Copyright'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.copyright as string
+      )
     );
     expect(
       screen.queryAllByText('License Text (to appear in attribution document)')
@@ -96,7 +102,7 @@ describe('The AttributionDetailsViewer', () => {
       store.dispatch(navigateToView(View.Attribution));
       store.dispatch(setSelectedAttributionId('uuid_1'));
       store.dispatch(
-        setTemporaryPackageInfo(
+        setTemporaryDisplayPackageInfo(
           convertPackageInfoToDisplayPackageInfo(expectedPackageInfo, [
             'uuid_1',
           ])

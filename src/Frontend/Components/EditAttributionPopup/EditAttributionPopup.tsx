@@ -11,9 +11,9 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import {
   getIsSavingDisabled,
-  getTemporaryPackageInfo,
+  getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import {
   savePackageInfo,
@@ -21,35 +21,40 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 
 export function EditAttributionPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const popupAttributionId = useAppSelector(getPopupAttributionId);
-  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
-  const setUpdateTemporaryPackageInfoFor =
-    setUpdateTemporaryPackageInfoForCreator(dispatch, temporaryPackageInfo);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo
+  );
+  const setUpdateTemporaryDisplayPackageInfoFor =
+    setUpdateTemporaryDisplayPackageInfoForCreator(
+      dispatch,
+      temporaryDisplayPackageInfo
+    );
 
   const saveFileRequestListener = useCallback(() => {
     dispatch(
       savePackageInfoIfSavingIsNotDisabled(
         null,
         popupAttributionId,
-        temporaryPackageInfo
+        temporaryDisplayPackageInfo
       )
     );
-  }, [dispatch, popupAttributionId, temporaryPackageInfo]);
+  }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
   const dispatchSavePackageInfo = useCallback(() => {
     dispatch(
       savePackageInfo(
         null,
         popupAttributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
       )
     );
-  }, [dispatch, popupAttributionId, temporaryPackageInfo]);
+  }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
   function checkForModifiedPackageInfoBeforeClosing(): void {
     popupAttributionId &&
@@ -68,11 +73,13 @@ export function EditAttributionPopup(): ReactElement {
           isEditable
           areButtonsHidden
           showManualAttributionData
-          setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
-          setTemporaryPackageInfo={(
+          setUpdateTemporaryDisplayPackageInfoFor={
+            setUpdateTemporaryDisplayPackageInfoFor
+          }
+          setTemporaryDisplayPackageInfo={(
             displayPackageInfo: DisplayPackageInfo
           ): void => {
-            dispatch(setTemporaryPackageInfo(displayPackageInfo));
+            dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
           }}
           saveFileRequestListener={saveFileRequestListener}
           smallerLicenseTextOrCommentField

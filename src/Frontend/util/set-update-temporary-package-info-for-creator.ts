@@ -6,17 +6,17 @@
 import { ChangeEvent } from 'react';
 import { DisplayPackageInfo } from '../../shared/shared-types';
 import { AppThunkDispatch } from '../state/types';
-import { setTemporaryPackageInfo } from '../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../state/actions/resource-actions/all-views-simple-actions';
 
-export function setUpdateTemporaryPackageInfoForCreator(
+export function setUpdateTemporaryDisplayPackageInfoForCreator(
   dispatch: AppThunkDispatch,
-  temporaryPackageInfo: DisplayPackageInfo
+  temporaryDisplayPackageInfo: DisplayPackageInfo
 ) {
   return (propertyToUpdate: string) => {
     return (
       event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ): void => {
-      const newValueOfTemporaryPackageInfoProperty =
+      const newValueOfTemporaryDisplayPackageInfoProperty =
         event.target.type === 'number'
           ? parseInt(event.target.value)
           : propertyToUpdate === 'comments'
@@ -24,9 +24,9 @@ export function setUpdateTemporaryPackageInfoForCreator(
           : event.target.value;
 
       dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
-          [propertyToUpdate]: newValueOfTemporaryPackageInfoProperty,
+        setTemporaryDisplayPackageInfo({
+          ...temporaryDisplayPackageInfo,
+          [propertyToUpdate]: newValueOfTemporaryDisplayPackageInfoProperty,
         })
       );
     };

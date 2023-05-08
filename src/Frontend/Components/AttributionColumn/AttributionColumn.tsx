@@ -7,13 +7,13 @@
 import React, { ChangeEvent, ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
   getIsSavingDisabled,
   getDisplayPackageInfoOfSelected,
-  getTemporaryPackageInfo,
-  wereTemporaryPackageInfoModified,
+  getTemporaryDisplayPackageInfo,
+  wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import {
@@ -67,7 +67,7 @@ interface AttributionColumnProps {
   showParentAttributions?: boolean;
   showManualAttributionData: boolean;
   resetViewIfThisIdChanges?: string;
-  setUpdateTemporaryPackageInfoFor(
+  setUpdateTemporaryDisplayPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSaveButtonClick?(): void;
@@ -75,7 +75,7 @@ interface AttributionColumnProps {
   onDeleteButtonClick?(): void;
   onDeleteGloballyButtonClick?(): void;
   saveFileRequestListener(): void;
-  setTemporaryPackageInfo(displayPackageInfo: DisplayPackageInfo): void;
+  setTemporaryDisplayPackageInfo(displayPackageInfo: DisplayPackageInfo): void;
   smallerLicenseTextOrCommentField?: boolean;
   addMarginForNeedsReviewCheckbox?: boolean;
 }
@@ -89,9 +89,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
   );
-  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo
+  );
   const packageInfoWereModified = useAppSelector(
-    wereTemporaryPackageInfoModified
+    wereTemporaryDisplayPackageInfoModified
   );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const selectedAttributionIdInAttributionView = useAppSelector(
@@ -120,7 +122,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     usePurl(
       dispatch,
       packageInfoWereModified,
-      temporaryPackageInfo,
+      temporaryDisplayPackageInfo,
       selectedPackage,
       selectedAttributionIdInAttributionView
     );
@@ -135,7 +137,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     targetAttributionId: selectedAttributionIdInCurrentView,
     selectedAttributionId: selectedAttributionIdInCurrentView,
     packageInfoWereModified,
-    targetAttributionIsPreSelected: Boolean(temporaryPackageInfo.preSelected),
+    targetAttributionIsPreSelected: Boolean(
+      temporaryDisplayPackageInfo.preSelected
+    ),
     targetAttributionIsExternalAttribution: false,
   });
 
@@ -143,12 +147,12 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   if (props.onSaveButtonClick) {
     mainButtonConfigs.push({
-      buttonText: temporaryPackageInfo.preSelected
+      buttonText: temporaryDisplayPackageInfo.preSelected
         ? ButtonText.Confirm
         : ButtonText.Save,
       disabled: isSavingDisabled,
       onClick: () => {
-        updatePurl(temporaryPackageInfo);
+        updatePurl(temporaryDisplayPackageInfo);
         props.onSaveButtonClick && props.onSaveButtonClick();
       },
       hidden: false,
@@ -157,12 +161,12 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   if (props.onSaveGloballyButtonClick) {
     mainButtonConfigs.push({
-      buttonText: temporaryPackageInfo.preSelected
+      buttonText: temporaryDisplayPackageInfo.preSelected
         ? ButtonText.ConfirmGlobally
         : ButtonText.SaveGlobally,
       disabled: isSavingDisabled,
       onClick: () => {
-        updatePurl(temporaryPackageInfo);
+        updatePurl(temporaryDisplayPackageInfo);
         props.onSaveGloballyButtonClick && props.onSaveGloballyButtonClick();
       },
       hidden: !Boolean(props.showSaveGloballyButton),
@@ -175,7 +179,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       disabled: !packageInfoWereModified,
       onClick: (): void => {
         updatePurl(initialDisplayPackageInfo);
-        dispatch(setTemporaryPackageInfo(initialDisplayPackageInfo));
+        dispatch(setTemporaryDisplayPackageInfo(initialDisplayPackageInfo));
       },
     },
     {
@@ -230,7 +234,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   }
 
   const displayTexts = getDisplayTexts(
-    temporaryPackageInfo,
+    temporaryDisplayPackageInfo,
     selectedAttributionIdInAttributionView,
     attributionIdMarkedForReplacement,
     view
@@ -247,22 +251,22 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   const showHighlight =
     view === View.Attribution &&
-    !temporaryPackageInfo.firstParty &&
-    !temporaryPackageInfo.excludeFromNotice;
+    !temporaryDisplayPackageInfo.firstParty &&
+    !temporaryDisplayPackageInfo.excludeFromNotice;
 
   const attributionIdsToResolveOrUnresolve =
-    temporaryPackageInfo.attributionIds;
+    temporaryDisplayPackageInfo.attributionIds;
 
   return (
     <MuiBox sx={classes.root}>
       <PackageSubPanel
-        displayPackageInfo={temporaryPackageInfo}
+        displayPackageInfo={temporaryDisplayPackageInfo}
         handlePurlChange={handlePurlChange}
         isDisplayedPurlValid={isDisplayedPurlValid}
         isEditable={props.isEditable}
         nameAndVersionAreEditable={nameAndVersionAreEditable}
-        setUpdateTemporaryPackageInfoFor={
-          props.setUpdateTemporaryPackageInfoFor
+        setUpdateTemporaryDisplayPackageInfoFor={
+          props.setUpdateTemporaryDisplayPackageInfoFor
         }
         temporaryPurl={temporaryPurl}
         openPackageSearchPopup={(): void => {
@@ -271,20 +275,20 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         showHighlight={showHighlight}
       />
       <CopyrightSubPanel
-        setUpdateTemporaryPackageInfoFor={
-          props.setUpdateTemporaryPackageInfoFor
+        setUpdateTemporaryDisplayPackageInfoFor={
+          props.setUpdateTemporaryDisplayPackageInfoFor
         }
         isEditable={props.isEditable}
-        displayPackageInfo={temporaryPackageInfo}
+        displayPackageInfo={temporaryDisplayPackageInfo}
         copyrightRows={copyrightRows}
         showHighlight={showHighlight}
       />
       <LicenseSubPanel
         isLicenseTextShown={isLicenseTextShown}
-        displayPackageInfo={temporaryPackageInfo}
+        displayPackageInfo={temporaryDisplayPackageInfo}
         isEditable={props.isEditable}
-        setUpdateTemporaryPackageInfoFor={
-          props.setUpdateTemporaryPackageInfoFor
+        setUpdateTemporaryDisplayPackageInfoFor={
+          props.setUpdateTemporaryDisplayPackageInfoFor
         }
         licenseTextRows={licenseTextRows}
         setIsLicenseTextShown={setIsLicenseTextShown}
@@ -293,25 +297,25 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       <AuditingSubPanel
         commentBoxHeight={commentBoxHeight}
         isCommentsBoxCollapsed={isLicenseTextShown}
-        setUpdateTemporaryPackageInfoFor={
-          props.setUpdateTemporaryPackageInfoFor
+        setUpdateTemporaryDisplayPackageInfoFor={
+          props.setUpdateTemporaryDisplayPackageInfoFor
         }
         isEditable={props.isEditable}
-        displayPackageInfo={temporaryPackageInfo}
+        displayPackageInfo={temporaryDisplayPackageInfo}
         firstPartyChangeHandler={getFirstPartyChangeHandler(
-          temporaryPackageInfo,
+          temporaryDisplayPackageInfo,
           dispatch
         )}
         discreteConfidenceChangeHandler={getDiscreteConfidenceChangeHandler(
-          temporaryPackageInfo,
+          temporaryDisplayPackageInfo,
           dispatch
         )}
         followUpChangeHandler={getFollowUpChangeHandler(
-          temporaryPackageInfo,
+          temporaryDisplayPackageInfo,
           dispatch
         )}
         excludeFromNoticeChangeHandler={getExcludeFromNoticeChangeHandler(
-          temporaryPackageInfo,
+          temporaryDisplayPackageInfo,
           dispatch
         )}
         showManualAttributionData={props.showManualAttributionData}
@@ -333,9 +337,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         hamburgerMenuButtonConfigs={hamburgerMenuButtonConfigs}
         displayTexts={displayTexts}
         isEditable={props.isEditable}
-        displayPackageInfo={temporaryPackageInfo}
+        displayPackageInfo={temporaryDisplayPackageInfo}
         needsReviewChangeHandler={getNeedsReviewChangeHandler(
-          temporaryPackageInfo,
+          temporaryDisplayPackageInfo,
           dispatch
         )}
         addMarginForNeedsReviewCheckbox={props.addMarginForNeedsReviewCheckbox}

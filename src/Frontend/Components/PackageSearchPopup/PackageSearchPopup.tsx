@@ -10,7 +10,7 @@ import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { ClearlyDefinedPackageCard } from './ClearlyDefinedPackageCard';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -81,9 +81,11 @@ function getInitialSearchTerm(packageInfo: PackageInfo): string {
 
 export function PackageSearchPopup(): ReactElement {
   const dispatch = useAppDispatch();
-  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo
+  );
   const [currentSearchTerm, setCurrentSearchTerm] = useState<string>(
-    getInitialSearchTerm(temporaryPackageInfo)
+    getInitialSearchTerm(temporaryDisplayPackageInfo)
   );
   const debounceDelayInMs = 500;
   const debouncedSearchTerm = useDebounceInput(

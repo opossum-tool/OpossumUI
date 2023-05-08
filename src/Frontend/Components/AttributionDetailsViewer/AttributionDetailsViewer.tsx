@@ -7,14 +7,14 @@ import MuiTypography from '@mui/material/Typography';
 import React, { ReactElement, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import {
   deleteAttributionGloballyAndSave,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getResourceIdsOfSelectedAttribution,
   getSelectedAttributionId,
@@ -23,7 +23,7 @@ import { OpossumColors, treeClasses } from '../../shared-styles';
 import { useWindowHeight } from '../../util/use-window-height';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
-import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import MuiBox from '@mui/material/Box';
 import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
@@ -55,7 +55,9 @@ const classes = {
 
 export function AttributionDetailsViewer(): ReactElement | null {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo
+  );
   const resourceIdsOfSelectedAttributionId: Array<string> =
     useAppSelector(getResourceIdsOfSelectedAttribution) || [];
 
@@ -66,26 +68,29 @@ export function AttributionDetailsViewer(): ReactElement | null {
       savePackageInfoIfSavingIsNotDisabled(
         null,
         selectedAttributionId,
-        temporaryPackageInfo
+        temporaryDisplayPackageInfo
       )
     );
-  }, [dispatch, selectedAttributionId, temporaryPackageInfo]);
+  }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
   const dispatchSavePackageInfo = useCallback(() => {
     dispatch(
       savePackageInfo(
         null,
         selectedAttributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
       )
     );
-  }, [dispatch, selectedAttributionId, temporaryPackageInfo]);
+  }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
-  const setUpdateTemporaryPackageInfoFor =
-    setUpdateTemporaryPackageInfoForCreator(dispatch, temporaryPackageInfo);
+  const setUpdateTemporaryDisplayPackageInfoFor =
+    setUpdateTemporaryDisplayPackageInfoForCreator(
+      dispatch,
+      temporaryDisplayPackageInfo
+    );
 
   function deleteAttribution(): void {
-    if (temporaryPackageInfo.preSelected) {
+    if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
     } else {
       dispatch(
@@ -116,13 +121,15 @@ export function AttributionDetailsViewer(): ReactElement | null {
         isEditable={true}
         showManualAttributionData={true}
         areButtonsHidden={false}
-        setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoFor}
+        setUpdateTemporaryDisplayPackageInfoFor={
+          setUpdateTemporaryDisplayPackageInfoFor
+        }
         onSaveButtonClick={dispatchSavePackageInfo}
         onDeleteButtonClick={deleteAttribution}
-        setTemporaryPackageInfo={(
+        setTemporaryDisplayPackageInfo={(
           displayPackageInfo: DisplayPackageInfo
         ): void => {
-          dispatch(setTemporaryPackageInfo(displayPackageInfo));
+          dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
         }}
         saveFileRequestListener={saveFileRequestListener}
       />
