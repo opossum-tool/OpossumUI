@@ -143,7 +143,7 @@ export function getResolvedToggleHandler(
 }
 
 export function getNeedsReviewChangeHandler(
-  temporaryPackageInfo: PackageInfo,
+  temporaryPackageInfo: DisplayPackageInfo,
   dispatch: AppThunkDispatch
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {

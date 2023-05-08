@@ -338,13 +338,13 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a checkbox for needs review', () => {
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
+      attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        displayPackageInfo={testTemporaryPackageInfo}
         setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
         setTemporaryPackageInfo={(): (() => void) => doNothing}

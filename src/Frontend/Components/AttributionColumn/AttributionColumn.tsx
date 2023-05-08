@@ -333,7 +333,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         hamburgerMenuButtonConfigs={hamburgerMenuButtonConfigs}
         displayTexts={displayTexts}
         isEditable={props.isEditable}
-        displayPackageInfo={props.displayPackageInfo}
+        displayPackageInfo={temporaryPackageInfo}
         needsReviewChangeHandler={getNeedsReviewChangeHandler(
           temporaryPackageInfo,
           dispatch

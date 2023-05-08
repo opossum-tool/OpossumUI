@@ -24,6 +24,7 @@ export function getDisplayPackageInfoKeys(): Array<KeysOfDisplayPackageInfo> {
     followUp: true,
     originIds: true,
     preSelected: true,
+    needsReview: true,
     excludeFromNotice: true,
     criticality: true,
     comments: true,

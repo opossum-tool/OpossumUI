@@ -31,6 +31,7 @@ export function convertPackageInfoToDisplayPackageInfo(
         break;
       case 'firstParty':
       case 'preSelected':
+      case 'needsReview':
       case 'excludeFromNotice':
         displayPackageInfo[displayPackageInfoKey] =
           packageInfo[displayPackageInfoKey];
@@ -92,6 +93,7 @@ export function convertDisplayPackageInfoToPackageInfo(
           break;
         case 'firstParty':
         case 'preSelected':
+        case 'needsReview':
         case 'excludeFromNotice':
           packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
           break;
