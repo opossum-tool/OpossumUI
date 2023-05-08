@@ -5,6 +5,7 @@
 
 import { Attributions } from '../../shared/shared-types';
 import { getCardLabels } from './get-card-labels';
+import { convertPackageInfoToDisplayPackageInfo } from './convert-package-info';
 
 export function getAlphabeticalComparer(attributions: Attributions) {
   return function compareFunction(
@@ -13,20 +14,30 @@ export function getAlphabeticalComparer(attributions: Attributions) {
   ): number {
     const defaultName = '\u10FFFF'; // largest unicode character
 
-    const elementCardLabels = getCardLabels({
-      packageName: attributions[element].packageName,
-      ...attributions[element],
-    });
+    const elementCardLabels = getCardLabels(
+      convertPackageInfoToDisplayPackageInfo(
+        {
+          packageName: attributions[element].packageName,
+          ...attributions[element],
+        },
+        []
+      )
+    );
     const elementTitle = getElementTitle(elementCardLabels, defaultName);
     const elementTitleIsAlphabetical = isElementTitleAlphabetical(
       elementTitle,
       defaultName
     );
 
-    const otherElementCardLabels = getCardLabels({
-      packageName: attributions[otherElement].packageName,
-      ...attributions[otherElement],
-    });
+    const otherElementCardLabels = getCardLabels(
+      convertPackageInfoToDisplayPackageInfo(
+        {
+          packageName: attributions[otherElement].packageName,
+          ...attributions[otherElement],
+        },
+        []
+      )
+    );
     const otherElementTitle = getElementTitle(
       otherElementCardLabels,
       defaultName

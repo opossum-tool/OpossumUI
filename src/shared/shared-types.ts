@@ -57,12 +57,6 @@ export interface DisplayPackageInfo extends PackageInfoCore {
   attributionIds: Array<string>;
 }
 
-export function isDisplayPackageInfo(
-  packageInfoOrDisplayPackageInfo: PackageInfo | DisplayPackageInfo
-): packageInfoOrDisplayPackageInfo is DisplayPackageInfo {
-  return 'attributionIds' in packageInfoOrDisplayPackageInfo;
-}
-
 export interface Source {
   name: string;
   documentConfidence: number;
