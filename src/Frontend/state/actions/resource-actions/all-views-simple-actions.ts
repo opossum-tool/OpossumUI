@@ -39,7 +39,7 @@ import {
   SetManualDataAction,
   SetProjectMetadata,
   SetResourcesAction,
-  SetTemporaryPackageInfoAction,
+  SetTemporaryDisplayPackageInfoAction,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {
@@ -82,9 +82,9 @@ export function setFrequentLicenses(
   return { type: ACTION_SET_FREQUENT_LICENSES, payload: licenses };
 }
 
-export function setTemporaryPackageInfo(
+export function setTemporaryDisplayPackageInfo(
   packageInfo: DisplayPackageInfo
-): SetTemporaryPackageInfoAction {
+): SetTemporaryDisplayPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
 }
 

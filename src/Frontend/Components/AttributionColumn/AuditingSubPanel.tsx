@@ -52,7 +52,7 @@ interface AuditingSubPanelProps {
     event: React.ChangeEvent<HTMLInputElement>
   ): void;
   firstPartyChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
-  setUpdateTemporaryPackageInfoFor(
+  setUpdateTemporaryDisplayPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   showHighlight?: boolean;
@@ -110,7 +110,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
           <NumberBox
             sx={classes.confidenceDropDown}
             title={'Confidence'}
-            handleChange={props.setUpdateTemporaryPackageInfoFor(
+            handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
               'attributionConfidence'
             )}
             isEditable={props.isEditable}
@@ -145,7 +145,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
         comments={props.displayPackageInfo.comments || []}
         isCollapsed={props.isCommentsBoxCollapsed}
         commentBoxHeight={props.commentBoxHeight}
-        handleChange={props.setUpdateTemporaryPackageInfoFor}
+        handleChange={props.setUpdateTemporaryDisplayPackageInfoFor}
       />
     </MuiPaper>
   );

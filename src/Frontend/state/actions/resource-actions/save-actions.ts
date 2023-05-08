@@ -20,12 +20,12 @@ import {
   getManualAttributions,
   getManualAttributionsToResources,
   getResourcesToManualAttributions,
-  wereTemporaryPackageInfoModified,
+  wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import {
   resetSelectedPackagePanelIfContainedAttributionWasRemoved,
-  resetTemporaryPackageInfo,
+  resetTemporaryDisplayPackageInfo,
 } from './navigation-actions';
 import {
   getAttributionIdsOfSelectedResource,
@@ -33,7 +33,7 @@ import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
-import { attributionForTemporaryPackageInfoExists } from '../../helpers/save-action-helpers';
+import { attributionForTemporaryDisplayPackageInfoExists } from '../../helpers/save-action-helpers';
 import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
   ACTION_DELETE_ATTRIBUTION,
@@ -146,7 +146,7 @@ export function savePackageInfo(
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     if (!applyContextMenuActionOnDifferentAttribution) {
-      dispatch(resetTemporaryPackageInfo());
+      dispatch(resetTemporaryDisplayPackageInfo());
     }
     dispatch(
       filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
@@ -168,7 +168,9 @@ function getSavePackageInfoOperation(
     return SavePackageInfoOperation.Delete;
   }
 
-  if (attributionForTemporaryPackageInfoExists(strippedPackageInfo, state)) {
+  if (
+    attributionForTemporaryDisplayPackageInfoExists(strippedPackageInfo, state)
+  ) {
     return attributionId
       ? SavePackageInfoOperation.Replace
       : SavePackageInfoOperation.Link;
@@ -224,7 +226,7 @@ export function addToSelectedResource(
   packageInfo: PackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryPackageInfoModified(getState())) {
+    if (wereTemporaryDisplayPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
@@ -316,7 +318,7 @@ function unlinkResourceFromAttributionAndSave(
     dispatch(unlinkAttribtionsIfParentAttributionsAreIdentical(resourceId));
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     if (!differentAttributionIsDeleted) {
-      dispatch(resetTemporaryPackageInfo());
+      dispatch(resetTemporaryDisplayPackageInfo());
     }
     dispatch(saveManualAndResolvedAttributionsToFile());
   };

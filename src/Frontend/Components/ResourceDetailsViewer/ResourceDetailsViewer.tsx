@@ -12,7 +12,7 @@ import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionC
 import { PackagePanelTitle } from '../../enums/enums';
 import { isEqual } from 'lodash';
 import { setDisplayedPackage } from '../../state/actions/resource-actions/audit-view-simple-actions';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdsOfSelectedResource,
   getAttributionIdsOfSelectedResourceClosestParent,
@@ -94,7 +94,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
 
   function onOverrideParentClick(): void {
     setOverrideParentMode(true);
-    dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
+    dispatch(setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
     dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,

@@ -23,7 +23,7 @@ const iconClasses = { clickableIcon, disabledIcon };
 
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
-  setUpdateTemporaryPackageInfoFor(
+  setUpdateTemporaryDisplayPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   nameAndVersionAreEditable: boolean;
@@ -47,7 +47,9 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           sx={attributionColumnClasses.textBox}
           title={'Name'}
           text={props.displayPackageInfo.packageName}
-          handleChange={props.setUpdateTemporaryPackageInfoFor('packageName')}
+          handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
+            'packageName'
+          )}
           isEditable={props.nameAndVersionAreEditable}
           endIcon={
             <IconButton
@@ -82,7 +84,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           }}
           title={'Version'}
           text={props.displayPackageInfo.packageVersion}
-          handleChange={props.setUpdateTemporaryPackageInfoFor(
+          handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
             'packageVersion'
           )}
           isEditable={props.nameAndVersionAreEditable}
@@ -119,7 +121,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
         sx={attributionColumnClasses.textBox}
         title={'URL'}
         text={props.displayPackageInfo.url}
-        handleChange={props.setUpdateTemporaryPackageInfoFor('url')}
+        handleChange={props.setUpdateTemporaryDisplayPackageInfoFor('url')}
         endIcon={
           <>
             <FetchLicenseInformationButton

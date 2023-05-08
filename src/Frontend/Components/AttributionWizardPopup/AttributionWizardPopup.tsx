@@ -19,7 +19,7 @@ import {
   getSelectedPackageAttributes,
 } from './attribution-wizard-popup-helpers';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
@@ -211,7 +211,7 @@ export function AttributionWizardPopup(): ReactElement {
   }
   function handleApplyClick(): void {
     dispatch(
-      setTemporaryPackageInfo({
+      setTemporaryDisplayPackageInfo({
         ...originalDisplayPackageInfo,
         ...selectedDisplayPackageInfo,
       })

@@ -99,7 +99,7 @@ export type ResourceAction =
   | SetManualDataAction
   | SetExternalDataAction
   | SetFrequentLicensesAction
-  | SetTemporaryPackageInfoAction
+  | SetTemporaryDisplayPackageInfoAction
   | SetSelectedResourceIdAction
   | SetExpandedIdsAction
   | SetTargetSelectedResourceId
@@ -167,7 +167,7 @@ export interface SetProgressBarDataPayload {
   resolvedExternalAttributions: Set<string>;
 }
 
-export interface SetTemporaryPackageInfoAction {
+export interface SetTemporaryDisplayPackageInfoAction {
   type: typeof ACTION_SET_TEMPORARY_PACKAGE_INFO;
   payload: DisplayPackageInfo;
 }

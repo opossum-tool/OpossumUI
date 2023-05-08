@@ -20,7 +20,7 @@ import { PackageInfo } from '../../../../shared/shared-types';
 import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { convertGithubPayload } from '../github-fetching-helpers';
@@ -170,7 +170,7 @@ describe('useFetchPackageInfo', () => {
     });
 
     expect(result.current.fetchStatus).toBe(FetchStatus.Success);
-    expect(getTemporaryPackageInfo(store.getState())).toMatchObject({
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
       licenseName: 'Apache-2.0',
     });
   });
@@ -193,6 +193,6 @@ describe('useFetchPackageInfo', () => {
       await result.current.fetchData();
     });
     expect(result.current.fetchStatus).toBe(FetchStatus.Error);
-    expect(getTemporaryPackageInfo(store.getState())).toMatchObject({});
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({});
   });
 });

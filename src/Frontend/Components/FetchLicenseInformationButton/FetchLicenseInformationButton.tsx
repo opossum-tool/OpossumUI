@@ -12,8 +12,8 @@ import {
   disabledIcon,
   OpossumColors,
 } from '../../shared-styles';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { getTemporaryPackageInfo } from '../../state/selectors/all-views-resource-selectors';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { PackageInfo } from '../../../shared/shared-types';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
@@ -69,7 +69,9 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
   fetchData: () => Promise<void>;
 } {
   const dispatch = useAppDispatch();
-  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo
+  );
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>(FetchStatus.Idle);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -102,8 +104,8 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
       selectedResourceId === fetchedPackageInfo?.selectedResourceId
     ) {
       dispatch(
-        setTemporaryPackageInfo({
-          ...temporaryPackageInfo,
+        setTemporaryDisplayPackageInfo({
+          ...temporaryDisplayPackageInfo,
           ...fetchedPackageInfo.packageInfo,
         })
       );

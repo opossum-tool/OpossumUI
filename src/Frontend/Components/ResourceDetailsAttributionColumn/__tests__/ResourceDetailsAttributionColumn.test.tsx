@@ -20,19 +20,19 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   setManualData,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { act, screen } from '@testing-library/react';
 
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
-const testTemporaryPackageInfo: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
   packageName: 'React',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
   attributionIds: [],
 };
-const testTemporaryPackageInfo2: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
@@ -42,11 +42,11 @@ const testTemporaryPackageInfo2: DisplayPackageInfo = {
 function getTestTemporaryAndExternalStateWithParentAttribution(
   store: EnhancedTestStore,
   selectedResourceId: string,
-  temporaryPackageInfo: DisplayPackageInfo
+  temporaryDisplayPackageInfo: DisplayPackageInfo
 ): void {
   const manualAttributions: Attributions = {
-    uuid_1: testTemporaryPackageInfo,
-    uuid_2: testTemporaryPackageInfo2,
+    uuid_1: testTemporaryDisplayPackageInfo,
+    uuid_2: testTemporaryDisplayPackageInfo2,
   };
   const resourcesToManualAttributions: ResourcesToAttributions = {
     '/test_parent': ['uuid_1'],
@@ -65,13 +65,13 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
       setManualData(manualAttributions, resourcesToManualAttributions)
     );
     store.dispatch(setSelectedResourceId(selectedResourceId));
-    store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+    store.dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
   });
 }
 
 describe('The ResourceDetailsAttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       comments: ['some comment'],
       packageName: 'Some package',
@@ -85,36 +85,42 @@ describe('The ResourceDetailsAttributionColumn', () => {
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.queryAllByText('Confidence'));
     expect(
       screen.getByDisplayValue(
         (
-          testTemporaryPackageInfo.attributionConfidence as unknown as number
+          testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
         ).toString()
       )
     );
     expect(screen.queryAllByText('Comment'));
     const testComment =
-      testTemporaryPackageInfo?.comments !== undefined
-        ? testTemporaryPackageInfo?.comments[0]
+      testTemporaryDisplayPackageInfo?.comments !== undefined
+        ? testTemporaryDisplayPackageInfo?.comments[0]
         : '';
     expect(screen.getByDisplayValue(testComment));
     expect(screen.queryAllByText('Name'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.packageName as string
+      )
     );
     expect(screen.queryAllByText('Version'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryPackageInfo.packageVersion as string
+        testTemporaryDisplayPackageInfo.packageVersion as string
       )
     );
     expect(screen.queryAllByText('Copyright'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.copyright as string
+      )
     );
     expect(
       screen.queryAllByText('License Text (to appear in attribution document)')
@@ -131,7 +137,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     );
 
     expect(screen.getByDisplayValue('React'));
@@ -146,7 +152,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
-      testTemporaryPackageInfo2
+      testTemporaryDisplayPackageInfo2
     );
 
     expect(screen.queryByText('React')).not.toBeInTheDocument();

@@ -19,10 +19,10 @@ import { ButtonText, CheckboxLabel } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
   setFrequentLicenses,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import {
   clickGoToLinkIcon,
   expectGoToLinkButtonIsDisabled,
@@ -39,7 +39,7 @@ import { AttributionColumn } from '../AttributionColumn';
 
 describe('The AttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
@@ -56,9 +56,9 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -68,25 +68,29 @@ describe('The AttributionColumn', () => {
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.queryAllByText('Confidence')).toHaveLength(2);
     expect(
       screen.getByDisplayValue(
         (
-          testTemporaryPackageInfo.attributionConfidence as unknown as number
+          testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
         ).toString()
       )
     );
     expect(screen.queryAllByText('Name')).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.packageName as string
+      )
     );
     expect(screen.queryAllByText('Version')).toHaveLength(2);
     expect(
       screen.getByDisplayValue(
-        testTemporaryPackageInfo.packageVersion as string
+        testTemporaryDisplayPackageInfo.packageVersion as string
       )
     );
     expect(
@@ -96,21 +100,27 @@ describe('The AttributionColumn', () => {
     expect(screen.queryByText('Source')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Copyright'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.copyright as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.copyright as string
+      )
     );
     expect(screen.getByLabelText('License Name'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.licenseName as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.licenseName as string
+      )
     );
     expect(screen.getByLabelText('URL'));
-    expect(screen.getByDisplayValue(testTemporaryPackageInfo.url as string));
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url as string)
+    );
     expect(screen.getByLabelText(/License Text/));
     expect(
       screen.getByDisplayValue('Permission is hereby granted', { exact: false })
     );
     expect(screen.getByLabelText('Comment'));
-    const testComment = testTemporaryPackageInfo.comments
-      ? testTemporaryPackageInfo.comments[0]
+    const testComment = testTemporaryDisplayPackageInfo.comments
+      ? testTemporaryDisplayPackageInfo.comments[0]
       : '';
     expect(screen.getByDisplayValue(testComment));
     expect(screen.queryAllByText('PURL')).toHaveLength(2);
@@ -120,7 +130,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders qualifier in the purl correctly', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
@@ -137,9 +147,9 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -149,7 +159,9 @@ describe('The AttributionColumn', () => {
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     insertValueIntoTextBox(
@@ -166,7 +178,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('sorts qualifier in the purl alphabetically', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
@@ -183,9 +195,9 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -195,7 +207,9 @@ describe('The AttributionColumn', () => {
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     insertValueIntoTextBox(
@@ -212,7 +226,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('removes special symbol from the end of the purl if nothing follows', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
@@ -229,9 +243,9 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -241,7 +255,9 @@ describe('The AttributionColumn', () => {
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     insertValueIntoTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0?');
@@ -250,16 +266,16 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a TextBox for the source, if it is defined', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       source: { name: 'The Source', documentConfidence: 10 },
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -269,25 +285,29 @@ describe('The AttributionColumn', () => {
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(
-      screen.getByDisplayValue((testTemporaryPackageInfo.source as Source).name)
+      screen.getByDisplayValue(
+        (testTemporaryDisplayPackageInfo.source as Source).name
+      )
     );
   });
 
   it('renders a checkbox for Follow-up', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -296,88 +316,100 @@ describe('The AttributionColumn', () => {
       />
     );
     act(() => {
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
-    });
-
-    expect(getTemporaryPackageInfo(store.getState()).followUp).toBeUndefined();
-
-    clickOnCheckbox(screen, CheckboxLabel.FollowUp);
-    expect(getTemporaryPackageInfo(store.getState()).followUp).toBe(FollowUp);
-  });
-
-  it('renders a checkbox for Exclude from notice', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      attributionIds: [],
-    };
-    const { store } = renderComponentWithStore(
-      <AttributionColumn
-        isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
-        onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
-      />
-    );
-    act(() => {
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(
-      getTemporaryPackageInfo(store.getState()).excludeFromNotice
+      getTemporaryDisplayPackageInfo(store.getState()).followUp
+    ).toBeUndefined();
+
+    clickOnCheckbox(screen, CheckboxLabel.FollowUp);
+    expect(getTemporaryDisplayPackageInfo(store.getState()).followUp).toBe(
+      FollowUp
+    );
+  });
+
+  it('renders a checkbox for Exclude from notice', () => {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+      attributionIds: [],
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+    act(() => {
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
+    });
+
+    expect(
+      getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice
     ).toBeUndefined();
 
     clickOnCheckbox(screen, CheckboxLabel.ExcludeFromNotice);
-    expect(getTemporaryPackageInfo(store.getState()).excludeFromNotice).toBe(
+    expect(
+      getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice
+    ).toBe(true);
+  });
+
+  it('renders a checkbox for needs review', () => {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      attributionConfidence: DiscreteConfidence.High,
+      attributionIds: [],
+    };
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
+        onSaveButtonClick={doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />
+    );
+    act(() => {
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
+    });
+
+    expect(
+      getTemporaryDisplayPackageInfo(store.getState()).needsReview
+    ).toBeUndefined();
+
+    clickOnCheckbox(screen, CheckboxLabel.NeedsReview);
+    expect(getTemporaryDisplayPackageInfo(store.getState()).needsReview).toBe(
       true
     );
   });
 
-  it('renders a checkbox for needs review', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      attributionIds: [],
-    };
-    const { store } = renderComponentWithStore(
-      <AttributionColumn
-        isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
-        onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
-      />
-    );
-    act(() => {
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
-    });
-
-    expect(
-      getTemporaryPackageInfo(store.getState()).needsReview
-    ).toBeUndefined();
-
-    clickOnCheckbox(screen, CheckboxLabel.NeedsReview);
-    expect(getTemporaryPackageInfo(store.getState()).needsReview).toBe(true);
-  });
-
   it('renders an url icon and opens a link in browser', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: 'https://www.testurl.com/',
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -386,27 +418,29 @@ describe('The AttributionColumn', () => {
       />
     );
     act(() => {
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.getByLabelText('Url icon'));
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      testTemporaryPackageInfo.url
+      testTemporaryDisplayPackageInfo.url
     );
   });
 
   it('opens a link without protocol', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: 'www.testurl.com',
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -415,26 +449,28 @@ describe('The AttributionColumn', () => {
       />
     );
     act(() => {
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      'https://' + testTemporaryPackageInfo.url
+      'https://' + testTemporaryDisplayPackageInfo.url
     );
   });
 
   it('disables url icon if empty url', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: '',
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryPackageInfo={(): (() => void) => doNothing}
+        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -443,7 +479,9 @@ describe('The AttributionColumn', () => {
       />
     );
     act(() => {
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     clickGoToLinkIcon(screen, 'Url icon');
@@ -453,16 +491,18 @@ describe('The AttributionColumn', () => {
 
   describe('there are different license text labels', () => {
     it('shows standard text if editable and non frequent license', () => {
-      const testTemporaryPackageInfo: DisplayPackageInfo = {
+      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
         packageName: 'jQuery',
         attributionIds: [],
       };
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
+            doNothing
+          }
           onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -471,7 +511,9 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+        store.dispatch(
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        );
       });
 
       expect(
@@ -482,7 +524,7 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows shortened text if not editable and frequent license', () => {
-      const testTemporaryPackageInfo: DisplayPackageInfo = {
+      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
         packageName: 'jQuery',
         licenseName: 'Mit',
         attributionIds: [],
@@ -490,9 +532,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={false}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
+            doNothing
+          }
           onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -501,7 +545,9 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+        store.dispatch(
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        );
       });
       const testFrequentLicenses: FrequentLicenses = {
         nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
@@ -515,7 +561,7 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows long text if editable and frequent license', () => {
-      const testTemporaryPackageInfo: DisplayPackageInfo = {
+      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
         packageName: 'jQuery',
         licenseName: 'mit',
         attributionIds: [],
@@ -523,9 +569,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
+            doNothing
+          }
           onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -534,7 +582,9 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+        store.dispatch(
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        );
       });
       const testFrequentLicenses: FrequentLicenses = {
         nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
@@ -554,14 +604,16 @@ describe('The AttributionColumn', () => {
 
   describe('while changing the first party value', () => {
     it('sets first party flag when checking first party', () => {
-      const testTemporaryPackageInfo: DisplayPackageInfo =
+      const testTemporaryDisplayPackageInfo: DisplayPackageInfo =
         EMPTY_DISPLAY_PACKAGE_INFO;
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
+            doNothing
+          }
           onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -570,20 +622,24 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+        store.dispatch(
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        );
       });
 
       expect(
-        getTemporaryPackageInfo(store.getState()).copyright
+        getTemporaryDisplayPackageInfo(store.getState()).copyright
       ).toBeUndefined();
 
       clickOnCheckbox(screen, CheckboxLabel.FirstParty);
-      expect(getTemporaryPackageInfo(store.getState()).firstParty).toBe(true);
+      expect(getTemporaryDisplayPackageInfo(store.getState()).firstParty).toBe(
+        true
+      );
     });
 
     it('leaves copyright unchanged when checking first party', () => {
       const testCopyright = 'Test Copyright';
-      const testTemporaryPackageInfo: DisplayPackageInfo = {
+      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
         copyright: testCopyright,
         firstParty: true,
         attributionIds: [],
@@ -591,9 +647,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
+            doNothing
+          }
           onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -602,15 +660,17 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+        store.dispatch(
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        );
       });
 
-      expect(getTemporaryPackageInfo(store.getState()).copyright).toBe(
+      expect(getTemporaryDisplayPackageInfo(store.getState()).copyright).toBe(
         testCopyright
       );
 
       clickOnCheckbox(screen, CheckboxLabel.FirstParty);
-      expect(getTemporaryPackageInfo(store.getState()).copyright).toBe(
+      expect(getTemporaryDisplayPackageInfo(store.getState()).copyright).toBe(
         testCopyright
       );
     });
@@ -618,7 +678,7 @@ describe('The AttributionColumn', () => {
 
   describe('The ResolveButton', () => {
     it('saves resolved external attributions', () => {
-      const testTemporaryPackageInfo: DisplayPackageInfo = {
+      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
         attributionIds: ['TestId'],
       };
       const expectedSaveFileArgs: SaveFileArgs = {
@@ -629,9 +689,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryPackageInfoFor={(): (() => void) => doNothing}
+          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
+            doNothing
+          }
           onSaveButtonClick={doNothing}
-          setTemporaryPackageInfo={(): (() => void) => doNothing}
+          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={false}
           saveFileRequestListener={doNothing}
@@ -640,7 +702,9 @@ describe('The AttributionColumn', () => {
         />
       );
       act(() => {
-        store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+        store.dispatch(
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        );
       });
 
       clickOnButton(screen, 'resolve attribution');

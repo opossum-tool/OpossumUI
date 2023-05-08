@@ -21,7 +21,7 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   setExternalData,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getDisplayedPackage } from '../../../state/selectors/audit-view-resource-selectors';
 import {
@@ -39,13 +39,13 @@ const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
-const testTemporaryPackageInfo: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
   packageName: 'jQuery',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
   attributionIds: [],
 };
-const testTemporaryPackageInfo2: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
@@ -55,11 +55,11 @@ const testTemporaryPackageInfo2: DisplayPackageInfo = {
 function getTestTemporaryAndExternalStateWithParentAttribution(
   store: EnhancedTestStore,
   selectedResourceId: string,
-  temporaryPackageInfo: DisplayPackageInfo
+  temporaryDisplayPackageInfo: DisplayPackageInfo
 ): void {
   const manualAttributions: Attributions = {
-    uuid_1: testTemporaryPackageInfo,
-    uuid_2: testTemporaryPackageInfo2,
+    uuid_1: testTemporaryDisplayPackageInfo,
+    uuid_2: testTemporaryDisplayPackageInfo2,
   };
   const resourcesToManualAttributions: ResourcesToAttributions = {
     '/test_parent': ['uuid_1'],
@@ -75,25 +75,29 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
       )
     );
     store.dispatch(setSelectedResourceId(selectedResourceId));
-    store.dispatch(setTemporaryPackageInfo(temporaryPackageInfo));
+    store.dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
   });
 }
 
 describe('The ResourceDetailsViewer', () => {
   it('renders an Attribution column', () => {
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'jQuery',
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      );
     });
 
     expect(screen.queryAllByText('Name'));
     expect(
-      screen.getByDisplayValue(testTemporaryPackageInfo.packageName as string)
+      screen.getByDisplayValue(
+        testTemporaryDisplayPackageInfo.packageName as string
+      )
     );
   });
 
@@ -170,7 +174,9 @@ describe('The ResourceDetailsViewer', () => {
       store.dispatch(
         setExternalData(externalAttributions, resourcesToExternalAttributions)
       );
-      store.dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO)
+      );
     });
 
     expect(screen.getByText('Signals'));
@@ -203,7 +209,9 @@ describe('The ResourceDetailsViewer', () => {
         )
       );
       store.dispatch(setSelectedResourceId('/test_id/'));
-      store.dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO)
+      );
     });
 
     expect(screen.getByText('Signals in Folder Content'));
@@ -212,7 +220,7 @@ describe('The ResourceDetailsViewer', () => {
 
   it('selects an external package and a manual package, showing the right info', () => {
     const manualAttributions = {
-      uuid_1: testTemporaryPackageInfo,
+      uuid_1: testTemporaryDisplayPackageInfo,
     };
     const resourcesToManualAttributions = { '/test_id': ['uuid_1'] };
     const externalAttributions = {
@@ -330,7 +338,7 @@ describe('The ResourceDetailsViewer', () => {
 
   it('adds an external package to a manual package', () => {
     const manualAttributions: Attributions = {
-      uuid_1: testTemporaryPackageInfo,
+      uuid_1: testTemporaryDisplayPackageInfo,
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_1'],
@@ -416,7 +424,7 @@ describe('The ResourceDetailsViewer', () => {
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
 
     const manualAttributions: Attributions = {
-      uuid_1: testTemporaryPackageInfo,
+      uuid_1: testTemporaryDisplayPackageInfo,
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_1'],
@@ -491,7 +499,7 @@ describe('The ResourceDetailsViewer', () => {
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     );
 
     expect(screen.getByDisplayValue('jQuery'));
@@ -508,7 +516,7 @@ describe('The ResourceDetailsViewer', () => {
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child_with_own_attr',
-      testTemporaryPackageInfo2
+      testTemporaryDisplayPackageInfo2
     );
 
     expect(screen.getByDisplayValue('Vue.js'));
@@ -527,12 +535,12 @@ describe('The ResourceDetailsViewer', () => {
       },
     };
     const manualAttributions: Attributions = {
-      uuid_1: testTemporaryPackageInfo,
+      uuid_1: testTemporaryDisplayPackageInfo,
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {
       fileWithoutAttribution: ['uuid_1'],
     };
-    const manualPackagePanelLabel = `${testTemporaryPackageInfo.packageName}, ${testTemporaryPackageInfo.packageVersion}`;
+    const manualPackagePanelLabel = `${testTemporaryDisplayPackageInfo.packageName}, ${testTemporaryDisplayPackageInfo.packageVersion}`;
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     store.dispatch(
       loadFromFile(
@@ -563,7 +571,7 @@ describe('The ResourceDetailsViewer', () => {
       fileWithAttribution: 1,
     };
     const manualAttributions: Attributions = {
-      uuid_1: testTemporaryPackageInfo,
+      uuid_1: testTemporaryDisplayPackageInfo,
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/fileWithAttribution': ['uuid_1'],
@@ -592,8 +600,8 @@ describe('The ResourceDetailsViewer', () => {
       folderWithAttribution: { childrenFile: 1 },
     };
     const manualAttributions: Attributions = {
-      uuid_1: testTemporaryPackageInfo,
-      uuid_2: testTemporaryPackageInfo2,
+      uuid_1: testTemporaryDisplayPackageInfo,
+      uuid_2: testTemporaryDisplayPackageInfo2,
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/folderWithAttribution/': ['uuid_1'],

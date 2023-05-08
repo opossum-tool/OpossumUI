@@ -30,6 +30,7 @@ describe('convertPackageInfoToDisplayPackageInfo', () => {
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
   });
 
+  // This test ensures that newly added PackageInfo keys are considered when converting
   it('does not allow excess keys', () => {
     const testKeysOfPackageInfo = getPackageInfoKeys();
     const expectedKeysOfPackageInfo = [
@@ -108,6 +109,7 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
     expect(testPackageInfo).toEqual(expectedPackageInfo);
   });
 
+  // This test ensures that newly added DisplayPackageInfo keys are considered when converting
   it('does not allow excess keys', () => {
     const testKeysOfDisplayPackageInfo = getDisplayPackageInfoKeys();
     const expectedKeysOfDisplayPackageInfo = [

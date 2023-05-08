@@ -17,7 +17,7 @@ import {
   getAttributionIdMarkedForReplacement,
   getManualAttributions,
   getManualAttributionsToResources,
-  wereTemporaryPackageInfoModified,
+  wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import {
@@ -104,7 +104,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     getResolvedExternalAttributions
   );
   const packageInfoWereModified = useAppSelector(
-    wereTemporaryPackageInfoModified
+    wereTemporaryDisplayPackageInfoModified
   );
   const attributionIdMarkedForReplacement = useAppSelector(
     getAttributionIdMarkedForReplacement

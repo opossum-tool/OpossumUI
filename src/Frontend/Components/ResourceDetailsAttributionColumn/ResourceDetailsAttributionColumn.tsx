@@ -10,7 +10,7 @@ import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
   getAttributionBreakpoints,
   getManualData,
-  getTemporaryPackageInfo,
+  getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
 import { PanelPackage } from '../../types/types';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
@@ -22,7 +22,7 @@ import {
   savePackageInfoIfSavingIsNotDisabled,
   unlinkAttributionAndSavePackageInfo,
 } from '../../state/actions/resource-actions/save-actions';
-import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
@@ -30,7 +30,7 @@ import {
 } from '../../state/selectors/audit-view-resource-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { setUpdateTemporaryPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 
 interface ResourceDetailsAttributionColumnProps {
@@ -46,7 +46,9 @@ export function ResourceDetailsAttributionColumn(
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdOfSelectedPackageInManualPanel: string | null =
     useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
-  const temporaryPackageInfo = useAppSelector(getTemporaryPackageInfo);
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo
+  );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const selectedResourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
     attributionBreakpoints
@@ -59,7 +61,7 @@ export function ResourceDetailsAttributionColumn(
         unlinkAttributionAndSavePackageInfo(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
         )
       );
     }
@@ -70,14 +72,14 @@ export function ResourceDetailsAttributionColumn(
       savePackageInfo(
         selectedResourceId,
         attributionIdOfSelectedPackageInManualPanel,
-        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
       )
     );
   }
 
   function openConfirmDeletionPopup(): void {
     if (!attributionIdOfSelectedPackageInManualPanel) return;
-    if (temporaryPackageInfo.preSelected) {
+    if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(
         deleteAttributionAndSave(
           selectedResourceId,
@@ -97,7 +99,7 @@ export function ResourceDetailsAttributionColumn(
   function openConfirmDeletionGloballyPopup(): void {
     if (!attributionIdOfSelectedPackageInManualPanel) return;
 
-    if (temporaryPackageInfo.preSelected) {
+    if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(
         deleteAttributionGloballyAndSave(
           attributionIdOfSelectedPackageInManualPanel
@@ -118,7 +120,7 @@ export function ResourceDetailsAttributionColumn(
       savePackageInfoIfSavingIsNotDisabled(
         selectedResourceId,
         attributionIdOfSelectedPackageInManualPanel,
-        temporaryPackageInfo
+        temporaryDisplayPackageInfo
       )
     );
   }
@@ -166,9 +168,9 @@ export function ResourceDetailsAttributionColumn(
       showParentAttributions={props.showParentAttributions}
       showSaveGloballyButton={showSaveGloballyButton}
       hideDeleteButtons={hideDeleteButtons}
-      setUpdateTemporaryPackageInfoFor={setUpdateTemporaryPackageInfoForCreator(
+      setUpdateTemporaryDisplayPackageInfoFor={setUpdateTemporaryDisplayPackageInfoForCreator(
         dispatch,
-        temporaryPackageInfo
+        temporaryDisplayPackageInfo
       )}
       onSaveButtonClick={
         showSaveGloballyButton
@@ -176,10 +178,10 @@ export function ResourceDetailsAttributionColumn(
           : dispatchSavePackageInfo
       }
       onSaveGloballyButtonClick={dispatchSavePackageInfo}
-      setTemporaryPackageInfo={(
+      setTemporaryDisplayPackageInfo={(
         displayPackageInfo: DisplayPackageInfo
       ): void => {
-        dispatch(setTemporaryPackageInfo(displayPackageInfo));
+        dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
       }}
       saveFileRequestListener={saveFileRequestListener}
       onDeleteButtonClick={openConfirmDeletionPopup}

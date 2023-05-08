@@ -12,14 +12,14 @@ import {
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import { attributionForTemporaryPackageInfoExists } from '../save-action-helpers';
+import { attributionForTemporaryDisplayPackageInfoExists } from '../save-action-helpers';
 import { NIL as uuidNil } from 'uuid';
 import {
   computeChildrenWithAttributions,
   createExternalAttributionsToHashes,
 } from '../action-and-reducer-helpers';
 
-describe('The attributionForTemporaryPackageInfoExists function', () => {
+describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
     const testResources: Resources = {
       thirdParty: {
@@ -81,13 +81,13 @@ describe('The attributionForTemporaryPackageInfoExists function', () => {
     );
 
     expect(
-      attributionForTemporaryPackageInfoExists(
+      attributionForTemporaryDisplayPackageInfoExists(
         testExistingPackageInfo,
         testStore.getState()
       )
     ).toBeTruthy();
     expect(
-      attributionForTemporaryPackageInfoExists(
+      attributionForTemporaryDisplayPackageInfoExists(
         testNotExistingPackageInfo,
         testStore.getState()
       )

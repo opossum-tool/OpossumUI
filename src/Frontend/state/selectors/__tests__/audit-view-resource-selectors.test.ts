@@ -33,14 +33,14 @@ import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-pa
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
     attributionIds: [testManualAttributionUuid_1],
   };
-  const secondTestTemporaryPackageInfo: DisplayPackageInfo = {
+  const secondTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
@@ -48,10 +48,10 @@ describe('The audit view resource selectors', () => {
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryPackageInfo
+      testTemporaryDisplayPackageInfo
     ),
     [testManualAttributionUuid_2]: convertDisplayPackageInfoToPackageInfo(
-      secondTestTemporaryPackageInfo
+      secondTestTemporaryDisplayPackageInfo
     ),
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {

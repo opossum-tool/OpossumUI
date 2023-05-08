@@ -100,8 +100,10 @@ export function getFrequentLicensesTexts(state: State): LicenseTexts {
   return state.resourceState.allViews.frequentLicenses.texts;
 }
 
-export function getTemporaryPackageInfo(state: State): DisplayPackageInfo {
-  return state.resourceState.allViews.temporaryPackageInfo;
+export function getTemporaryDisplayPackageInfo(
+  state: State
+): DisplayPackageInfo {
+  return state.resourceState.allViews.temporaryDisplayPackageInfo;
 }
 
 export function getAttributionBreakpoints(state: State): Set<string> {
@@ -153,7 +155,7 @@ export function getDisplayPackageInfoOfSelected(
     : getDisplayPackageInfoOfSelectedAttribution(state);
 }
 
-export function wereTemporaryPackageInfoModified(state: State): boolean {
+export function wereTemporaryDisplayPackageInfoModified(state: State): boolean {
   if (
     getSelectedView(state) === View.Audit &&
     getDisplayedPackage(state)?.panel !== PackagePanelTitle.ManualPackages
@@ -161,23 +163,23 @@ export function wereTemporaryPackageInfoModified(state: State): boolean {
     return false;
   }
 
-  const temporaryPackageInfo: DisplayPackageInfo =
-    getTemporaryPackageInfo(state);
+  const temporaryDisplayPackageInfo: DisplayPackageInfo =
+    getTemporaryDisplayPackageInfo(state);
   const packageInfoOfSelected: DisplayPackageInfo =
     getDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
 
   function hasPackageInfoChanged(): boolean {
-    const strippedTemporaryPackageInfo = getStrippedDisplayPackageInfo(
-      cloneDeep(temporaryPackageInfo)
+    const strippedTemporaryDisplayPackageInfo = getStrippedDisplayPackageInfo(
+      cloneDeep(temporaryDisplayPackageInfo)
     );
     const strippedPackageInfoOfSelected = getStrippedDisplayPackageInfo(
       cloneDeep(packageInfoOfSelected)
     );
-    delete strippedTemporaryPackageInfo.attributionConfidence;
+    delete strippedTemporaryDisplayPackageInfo.attributionConfidence;
     delete strippedPackageInfoOfSelected.attributionConfidence;
 
     return !isEqual(
-      strippedTemporaryPackageInfo,
+      strippedTemporaryDisplayPackageInfo,
       strippedPackageInfoOfSelected
     );
   }
@@ -186,7 +188,7 @@ export function wereTemporaryPackageInfoModified(state: State): boolean {
     return (
       Boolean(packageInfoOfSelected.attributionConfidence) &&
       packageInfoOfSelected.attributionConfidence !==
-        temporaryPackageInfo.attributionConfidence
+        temporaryDisplayPackageInfo.attributionConfidence
     );
   }
 

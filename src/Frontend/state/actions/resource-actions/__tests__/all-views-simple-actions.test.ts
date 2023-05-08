@@ -32,7 +32,7 @@ import {
   getResourcesToManualAttributions,
   getResourcesWithExternalAttributedChildren,
   getResourcesWithManualAttributedChildren,
-  getTemporaryPackageInfo,
+  getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
   resetResourceState,
@@ -43,7 +43,7 @@ import {
   setFrequentLicenses,
   setManualData,
   setResources,
-  setTemporaryPackageInfo,
+  setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
 import { setIsSavingDisabled } from '../save-actions';
@@ -63,20 +63,20 @@ const testResources: Resources = {
 
 const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
 const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-const testTemporaryPackageInfo: PackageInfo = {
+const testTemporaryDisplayPackageInfo: PackageInfo = {
   attributionConfidence: DiscreteConfidence.High,
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
 };
-const secondTestTemporaryPackageInfo: PackageInfo = {
+const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
 };
 const testManualAttributions: Attributions = {
-  [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-  [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+  [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+  [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
 };
 const testResourcesToManualAttributions: ResourcesToAttributions = {
   '/root/src/something.js': [testManualAttributionUuid_1],
@@ -85,7 +85,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 describe('The load and navigation simple actions', () => {
   it('resets the state', () => {
     const testStore = createTestAppStore();
-    const testTemporaryPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
@@ -95,7 +95,9 @@ describe('The load and navigation simple actions', () => {
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    testStore.dispatch(setTemporaryPackageInfo(testTemporaryPackageInfo));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+    );
 
     testStore.dispatch(resetResourceState());
 
@@ -253,7 +255,7 @@ describe('The load and navigation simple actions', () => {
     );
   });
 
-  it('sets and gets temporaryPackageInfo', () => {
+  it('sets and gets temporaryDisplayPackageInfo', () => {
     const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'test',
       packageVersion: '1.0',
@@ -261,8 +263,8 @@ describe('The load and navigation simple actions', () => {
       attributionIds: [],
     };
     const testStore = createTestAppStore();
-    testStore.dispatch(setTemporaryPackageInfo(testDisplayPackageInfo));
-    expect(getTemporaryPackageInfo(testStore.getState())).toMatchObject(
+    testStore.dispatch(setTemporaryDisplayPackageInfo(testDisplayPackageInfo));
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject(
       testDisplayPackageInfo
     );
   });

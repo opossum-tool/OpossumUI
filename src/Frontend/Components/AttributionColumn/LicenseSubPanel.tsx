@@ -62,7 +62,7 @@ interface LicenseSubPanelProps {
   isLicenseTextShown: boolean;
   licenseTextRows: number;
   showHighlight?: boolean;
-  setUpdateTemporaryPackageInfoFor(
+  setUpdateTemporaryDisplayPackageInfoFor(
     propertyToUpdate: string
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   setIsLicenseTextShown(isLicenseTextShown: boolean): void;
@@ -110,7 +110,9 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             title={'License Name'}
             text={props.displayPackageInfo.licenseName}
             frequentLicenseNames={frequentLicensesNameOrder}
-            handleChange={props.setUpdateTemporaryPackageInfoFor('licenseName')}
+            handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
+              'licenseName'
+            )}
             endAdornmentText={
               props.displayPackageInfo.licenseText
                 ? '(Licence text modified)'
@@ -141,7 +143,9 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
               frequentLicensesNameOrder
             )}
             text={props.displayPackageInfo.licenseText}
-            handleChange={props.setUpdateTemporaryPackageInfoFor('licenseText')}
+            handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
+              'licenseText'
+            )}
           />
         </MuiAccordionDetails>
       </MuiAccordion>

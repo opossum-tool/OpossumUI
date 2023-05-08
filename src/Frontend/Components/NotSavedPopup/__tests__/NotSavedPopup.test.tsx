@@ -11,7 +11,7 @@ import {
   openPopup,
   setTargetView,
 } from '../../../state/actions/view-actions/view-actions';
-import { getTemporaryPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import {
   getOpenPopup,
   isAttributionViewSelected,
@@ -28,7 +28,7 @@ import {
   setTargetSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { setTemporaryPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
@@ -71,11 +71,14 @@ describe('NotSavedPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store);
     store.dispatch(
-      setTemporaryPackageInfo({ packageName: 'test name', attributionIds: [] })
+      setTemporaryDisplayPackageInfo({
+        packageName: 'test name',
+        attributionIds: [],
+      })
     );
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
-    expect(getTemporaryPackageInfo(store.getState())).toEqual({
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
       attributionIds: [],
     });
@@ -83,7 +86,7 @@ describe('NotSavedPopup and do not change view', () => {
     fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(getTemporaryPackageInfo(store.getState())).toEqual(
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO
     );
     expect(isAuditViewSelected(store.getState())).toBe(true);
@@ -130,11 +133,14 @@ describe('NotSavedPopup and change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     setupTestState(store, View.Attribution);
     store.dispatch(
-      setTemporaryPackageInfo({ packageName: 'test name', attributionIds: [] })
+      setTemporaryDisplayPackageInfo({
+        packageName: 'test name',
+        attributionIds: [],
+      })
     );
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
-    expect(getTemporaryPackageInfo(store.getState())).toEqual({
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
       attributionIds: [],
     });
@@ -142,7 +148,7 @@ describe('NotSavedPopup and change view', () => {
     fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
-    expect(getTemporaryPackageInfo(store.getState())).toEqual(
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO
     );
     expect(isAttributionViewSelected(store.getState())).toBe(true);
