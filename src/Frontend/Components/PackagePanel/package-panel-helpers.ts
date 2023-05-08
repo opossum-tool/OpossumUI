@@ -4,27 +4,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  Attributions,
-  DisplayPackageInfo,
   ExternalAttributionSources,
-  PackageInfo,
   Source,
 } from '../../../shared/shared-types';
-import { getPackageInfoKeys } from '../../../shared/shared-util';
-import { AttributionIdWithCount } from '../../types/types';
-import { shouldNotBeCalled } from '../../util/should-not-be-called';
+import { DisplayAttributionWithCount } from '../../types/types';
 
 export function getSortedSources(
-  attributions: Attributions,
-  attributionIdsWithCount: Array<AttributionIdWithCount>,
+  attributionIdsWithCount: Array<DisplayAttributionWithCount>,
   attributionSources: ExternalAttributionSources
 ): Array<string> {
   function reducer(
     sources: Set<string>,
-    attributionIdWithCount: AttributionIdWithCount
+    attributionIdWithCount: DisplayAttributionWithCount
   ): Set<string> {
     const source: Source | undefined =
-      attributions[attributionIdWithCount.attributionId]?.source;
+      attributionIdWithCount.attribution?.source;
     sources.add(source ? source.name : '');
 
     return sources;
@@ -76,73 +70,15 @@ function sortSources(
 }
 
 export function getAttributionIdsWithCountForSource(
-  attributionIds: Array<AttributionIdWithCount>,
-  attributions: Attributions,
+  attributionIdsWithCount: Array<DisplayAttributionWithCount>,
   sourceName: string
-): Array<AttributionIdWithCount> {
-  return attributionIds.filter((attributionIdWithCount) => {
+): Array<DisplayAttributionWithCount> {
+  return attributionIdsWithCount.filter((attributionIdWithCount) => {
     const source: Source | undefined =
-      attributions[attributionIdWithCount.attributionId]?.source;
+      attributionIdWithCount.attribution?.source;
 
     return sourceName
       ? Boolean(source?.name && source?.name === sourceName)
       : !source;
   });
-}
-
-export function convertDisplayPackageInfoToPackageInfo(
-  displayPackageInfo: DisplayPackageInfo
-): PackageInfo {
-  const packageInfo: PackageInfo = {};
-
-  getPackageInfoKeys().forEach((packageInfoKey) => {
-    if (packageInfoKey in displayPackageInfo) {
-      switch (packageInfoKey) {
-        case 'packageName':
-        case 'packageVersion':
-        case 'packageNamespace':
-        case 'packageType':
-        case 'packagePURLAppendix':
-        case 'url':
-        case 'copyright':
-        case 'licenseName':
-        case 'licenseText':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'comment':
-          break;
-        case 'firstParty':
-        case 'preSelected':
-        case 'needsReview':
-        case 'excludeFromNotice':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'attributionConfidence':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'followUp':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'source':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'originIds':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        case 'criticality':
-          packageInfo[packageInfoKey] = displayPackageInfo[packageInfoKey];
-          break;
-        default:
-          shouldNotBeCalled(packageInfoKey);
-      }
-    }
-    if (
-      displayPackageInfo.attributionIds.length === 1 &&
-      displayPackageInfo.comments
-    ) {
-      packageInfo.comment = displayPackageInfo.comments[0];
-    }
-  });
-
-  return packageInfo;
 }

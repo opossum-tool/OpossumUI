@@ -62,11 +62,11 @@ describe('The PackageCard', () => {
     );
     renderComponentWithStore(
       <PackageCard
-        attributionId={testAttributionId}
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        packageInfo={{
+        displayPackageInfo={{
           packageName: 'packageName',
+          attributionIds: [testAttributionId],
         }}
         onClick={doNothing}
       />,
@@ -114,11 +114,11 @@ describe('The PackageCard', () => {
     );
     renderComponentWithStore(
       <PackageCard
-        attributionId={testAttributionId}
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        packageInfo={{
+        displayPackageInfo={{
           packageName: 'packageName',
+          attributionIds: [testAttributionId],
         }}
         onClick={doNothing}
       />,
@@ -166,11 +166,11 @@ describe('The PackageCard', () => {
     );
     const { store } = renderComponentWithStore(
       <PackageCard
-        attributionId={testAttributionId}
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        packageInfo={{
+        displayPackageInfo={{
           packageName: 'packageName',
+          attributionIds: [testAttributionId],
         }}
         onClick={doNothing}
         showCheckBox={true}
@@ -217,22 +217,22 @@ describe('The PackageCard', () => {
     renderComponentWithStore(
       <div>
         <PackageCard
-          attributionId={testAttributionId}
           cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
           cardId={'some_id'}
-          packageInfo={{
+          displayPackageInfo={{
             packageName: 'packageName',
+            attributionIds: [testAttributionId],
           }}
           onClick={doNothing}
           showCheckBox={true}
         />
         ,
         <PackageCard
-          attributionId={anotherAttributionId}
           cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
           cardId={'some_id_2'}
-          packageInfo={{
+          displayPackageInfo={{
             packageName: 'packageName2',
+            attributionIds: [anotherAttributionId],
           }}
           onClick={doNothing}
           showCheckBox={true}
@@ -306,8 +306,10 @@ describe('The PackageCard', () => {
     renderComponentWithStore(
       <PackageCard
         cardId={'testCardId'}
-        packageInfo={{ packageName: 'testPackage' }}
-        attributionId={'uuid_0'}
+        displayPackageInfo={{
+          packageName: 'testPackage',
+          attributionIds: ['uuid_0'],
+        }}
         cardConfig={{ isExternalAttribution: false, isSelected: true }}
         onClick={doNothing}
         hideContextMenuAndMultiSelect={false}

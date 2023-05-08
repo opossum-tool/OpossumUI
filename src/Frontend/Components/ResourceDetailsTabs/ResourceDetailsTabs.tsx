@@ -27,6 +27,8 @@ import {
   toggleAccordionSearchField,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
+import { getDisplayAttributionWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { DisplayAttributionWithCount } from '../../types/types';
 
 const classes = {
   tabsRoot: {
@@ -106,6 +108,13 @@ export function ResourceDetailsTabs(
       !attributionIdsOfSelectedResource.includes(attributionId)
   );
 
+  const displayAttributions: Array<DisplayAttributionWithCount> =
+    assignableAttributionIds.map((attributionId) =>
+      getDisplayAttributionWithCountFromAttributions([
+        [attributionId, manualData.attributions[attributionId], undefined],
+      ])
+    );
+
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
   const aggregatedAttributionsPanel = useMemo(
@@ -177,11 +186,10 @@ export function ResourceDetailsTabs(
         aggregatedAttributionsPanel
       ) : (
         <AllAttributionsPanel
-          attributions={manualData.attributions}
+          displayAttributions={displayAttributions}
           selectedAttributionId={
             selectedPackage && selectedPackage.attributionId
           }
-          attributionIds={assignableAttributionIds}
           isAddToPackageEnabled={
             props.isGlobalTabEnabled && props.isAddToPackageEnabled
           }

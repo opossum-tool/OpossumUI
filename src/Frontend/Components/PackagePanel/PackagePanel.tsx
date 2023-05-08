@@ -6,12 +6,7 @@
 import MuiBox from '@mui/material/Box';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  Attributions,
-  DisplayPackageInfo,
-  PackageInfo,
-  isDisplayPackageInfo,
-} from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
@@ -29,16 +24,15 @@ import {
 import {
   getAttributionIdsWithCountForSource,
   getSortedSources,
-  convertDisplayPackageInfoToPackageInfo,
 } from './package-panel-helpers';
 import { prettifySource } from '../../util/prettify-source';
 import {
-  AttributionIdWithCount,
-  isDisplayAttributionWithCount,
   DisplayAttributionWithCount,
   PackageCardConfig,
 } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
+import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { getAttributionFromDisplayAttributionsWithCount } from '../../util/get-attribution-from-display-attributions-with-count';
 
 const classes = {
   root: {
@@ -48,11 +42,8 @@ const classes = {
 };
 
 interface PackagePanelProps {
-  attributionIdsWithCount: Array<
-    AttributionIdWithCount | DisplayAttributionWithCount
-  >;
+  attributionIdsWithCount: Array<DisplayAttributionWithCount>;
   title: PackagePanelTitle;
-  attributions: Attributions;
   isAddToPackageEnabled: boolean;
 }
 
@@ -92,56 +83,32 @@ export function PackagePanel(
       selectAttributionInAccordionPanelOrOpenUnsavedPopup(
         props.title,
         attributionId,
-        getAttributionFromDisplayAttributionWithCount(attributionId)
+        getAttributionFromDisplayAttributionsWithCount(
+          attributionId,
+          props.attributionIdsWithCount
+        )
       )
     );
   }
 
-  function getAttributionFromDisplayAttributionWithCount(
-    attributionId: string
-  ): DisplayPackageInfo | undefined {
-    const attributionIdOrDisplayAttributionWithCount:
-      | AttributionIdWithCount
-      | DisplayAttributionWithCount
-      | undefined = props.attributionIdsWithCount.find(
-      (attributionIdWithCount) =>
-        attributionIdWithCount.attributionId === attributionId
-    );
-
-    if (
-      attributionIdOrDisplayAttributionWithCount &&
-      isDisplayAttributionWithCount(attributionIdOrDisplayAttributionWithCount)
-    ) {
-      return attributionIdOrDisplayAttributionWithCount.attribution;
-    } else {
-      return undefined;
-    }
-  }
-
   function onAddAttributionClick(attributionId: string): void {
-    switch (props.title) {
-      case PackagePanelTitle.ExternalPackages:
-      case PackagePanelTitle.ContainedExternalPackages:
-        const packageInfo: PackageInfo | DisplayPackageInfo =
-          getAttributionFromDisplayAttributionWithCount(attributionId) ||
-          props.attributions[attributionId];
+    const displayPackageInfo: DisplayPackageInfo =
+      getAttributionFromDisplayAttributionsWithCount(
+        attributionId,
+        props.attributionIdsWithCount
+      );
+    const packageInfoToAdd =
+      convertDisplayPackageInfoToPackageInfo(displayPackageInfo);
 
-        const packageInfoToAdd = isDisplayPackageInfo(packageInfo)
-          ? convertDisplayPackageInfoToPackageInfo(packageInfo)
-          : packageInfo;
-
-        dispatch(addToSelectedResource(packageInfoToAdd));
-        break;
-      case PackagePanelTitle.ContainedManualPackages:
-        dispatch(addToSelectedResource(props.attributions[attributionId]));
-        break;
-    }
+    dispatch(addToSelectedResource(packageInfoToAdd));
   }
 
   function getPackageCard(attributionId: string): ReactElement {
-    const packageInfo: PackageInfo | DisplayPackageInfo =
-      getAttributionFromDisplayAttributionWithCount(attributionId) ||
-      props.attributions[attributionId];
+    const displayPackageInfo: DisplayPackageInfo =
+      getAttributionFromDisplayAttributionsWithCount(
+        attributionId,
+        props.attributionIdsWithCount
+      );
 
     const packageCount: number | undefined =
       props.attributionIdsWithCount.filter(
@@ -157,7 +124,7 @@ export function PackagePanel(
       ? getPreSelectedExternalAttributionIdsForSelectedResource().includes(
           attributionId
         )
-      : packageInfo.preSelected;
+      : displayPackageInfo.preSelected;
 
     const selectedAttributionId =
       selectedPackage && props.title === selectedPackage.panel
@@ -179,12 +146,11 @@ export function PackagePanel(
       <PackageCard
         onClick={(): void => onCardClick(attributionId)}
         onIconClick={props.isAddToPackageEnabled ? onIconClick : undefined}
-        key={`PackageCard-${packageInfo.packageName}-${attributionId}`}
+        key={`PackageCard-${displayPackageInfo.packageName}-${attributionId}`}
         packageCount={packageCount}
         hideResourceSpecificButtons={true}
         cardId={`package-${selectedResourceId}-${attributionId}`}
-        packageInfo={packageInfo}
-        attributionId={attributionId}
+        displayPackageInfo={displayPackageInfo}
         cardConfig={cardConfig}
         showOpenResourcesIcon={true}
       />
@@ -192,7 +158,6 @@ export function PackagePanel(
   }
 
   const sortedSources = getSortedSources(
-    props.attributions,
     props.attributionIdsWithCount,
     attributionSources
   );
@@ -202,13 +167,9 @@ export function PackagePanel(
       {sortedSources.map((sourceName) => (
         <div key={`PackageListForSource-${sourceName}`}>
           <PackageList
-            attributions={props.attributions}
-            attributionIds={getAttributionIdsWithCountForSource(
+            displayAttributionsWithCount={getAttributionIdsWithCountForSource(
               props.attributionIdsWithCount,
-              props.attributions,
               sourceName
-            ).map(
-              (attributionIdWithCount) => attributionIdWithCount.attributionId
             )}
             getAttributionCard={getPackageCard}
             maxNumberOfDisplayedItems={15}

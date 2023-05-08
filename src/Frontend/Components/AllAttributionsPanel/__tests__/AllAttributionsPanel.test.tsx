@@ -25,11 +25,41 @@ import {
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
+import { DisplayAttributionWithCount } from '../../../types/types';
 
 describe('The AllAttributionsPanel', () => {
   const testManualAttributionUuid1 = '374ba87a-f68b-11ea-adc1-0242ac120002';
   const testManualAttributionUuid2 = '374bac4e-f68b-11ea-adc1-0242ac120002';
   const testManualAttributionUuid3 = '374bar8a-f68b-11ea-adc1-0242ac120002';
+  const testManualDisplayAttributions: Array<DisplayAttributionWithCount> = [
+    {
+      attributionId: testManualAttributionUuid1,
+      attribution: {
+        packageVersion: '1.0',
+        packageName: 'Typescript',
+        licenseText: ' test License text',
+        attributionIds: [testManualAttributionUuid1],
+      },
+    },
+    {
+      attributionId: testManualAttributionUuid2,
+      attribution: {
+        packageVersion: '2.0',
+        packageName: 'React',
+        licenseText: ' test license text',
+        attributionIds: [testManualAttributionUuid2],
+      },
+    },
+    {
+      attributionId: testManualAttributionUuid3,
+      attribution: {
+        packageVersion: '3.0',
+        packageName: 'Vue',
+        licenseText: ' test license text',
+        attributionIds: [testManualAttributionUuid3],
+      },
+    },
+  ];
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid1]: {
       packageVersion: '1.0',
@@ -51,15 +81,24 @@ describe('The AllAttributionsPanel', () => {
   it('renders empty list', () => {
     renderComponentWithStore(
       <AllAttributionsPanel
-        attributions={{}}
+        displayAttributions={[]}
         selectedAttributionId={null}
-        attributionIds={[]}
         isAddToPackageEnabled={true}
       />
     );
   });
 
   it('renders non-empty list', () => {
+    const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
+      {
+        attributionId: 'uuid1',
+        attribution: { packageName: 'name 1', attributionIds: ['uuid1'] },
+      },
+      {
+        attributionId: 'uuid2',
+        attribution: { packageName: 'name 2', attributionIds: ['uuid2'] },
+      },
+    ];
     const testAttributions: Attributions = {
       uuid1: { packageName: 'name 1' },
       uuid2: { packageName: 'name 2' },
@@ -74,9 +113,8 @@ describe('The AllAttributionsPanel', () => {
     );
     renderComponentWithStore(
       <AllAttributionsPanel
-        attributions={testAttributions}
+        displayAttributions={testDisplayAttributions}
         selectedAttributionId={null}
-        attributionIds={['uuid1', 'uuid2']}
         isAddToPackageEnabled={true}
       />,
       { store: testStore }
@@ -96,19 +134,15 @@ describe('The AllAttributionsPanel', () => {
     );
     const { store } = renderComponentWithStore(
       <AllAttributionsPanel
-        attributions={testManualAttributions}
+        displayAttributions={testManualDisplayAttributions}
         selectedAttributionId={testManualAttributionUuid2}
-        attributionIds={[
-          testManualAttributionUuid2,
-          testManualAttributionUuid3,
-        ]}
         isAddToPackageEnabled={true}
       />,
       { store: testStore }
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
-    expect(screen.queryByText('Typescript, 1.0')).not.toBeInTheDocument();
+    expect(screen.getByText('Typescript, 1.0')).toBeInTheDocument();
     expect(screen.getByText('React, 2.0')).toBeInTheDocument();
     expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
   });
@@ -118,6 +152,36 @@ describe('The AllAttributionsPanel', () => {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,
     };
+    const testManualDisplayAttributions: Array<DisplayAttributionWithCount> = [
+      {
+        attributionId: 'uuid_1',
+        attribution: {
+          packageName: 'jQuery',
+          packageVersion: '16.0.0',
+          comments: ['ManualPackage'],
+          attributionIds: ['uuid_1'],
+        },
+      },
+      {
+        attributionId: 'uuid_2',
+        attribution: {
+          packageName: 'React',
+          packageVersion: '16.0.0',
+          comments: ['ManualPackage'],
+          attributionIds: ['uuid_2'],
+        },
+      },
+      {
+        attributionId: 'uuid_3',
+        attribution: {
+          packageName: 'Vue',
+          packageVersion: '16.0.0',
+          comments: ['ManualPackage'],
+          preSelected: true,
+          attributionIds: ['uuid_3'],
+        },
+      },
+    ];
     const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'jQuery',
@@ -153,9 +217,8 @@ describe('The AllAttributionsPanel', () => {
     );
     renderComponentWithStore(
       <AllAttributionsPanel
-        attributions={testManualAttributions}
+        displayAttributions={testManualDisplayAttributions}
         selectedAttributionId={null}
-        attributionIds={['uuid_1', 'uuid_2', 'uuid_3']}
         isAddToPackageEnabled={true}
       />,
       { store: testStore }

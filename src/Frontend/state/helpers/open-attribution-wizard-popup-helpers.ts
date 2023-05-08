@@ -5,9 +5,9 @@
 
 import {
   ResourcesToAttributions,
-  PackageInfo,
   Attributions,
   ResourcesWithAttributedChildren,
+  DisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { getAttributedChildren } from '../../util/get-attributed-children';
 import { shouldNotBeCalled } from '../../util/should-not-be-called';
@@ -208,7 +208,7 @@ export function getPackageVersionsWithRelatedPackageNameIds(
 }
 
 export function getPreSelectedPackageAttributeIds(
-  originalAttribution: PackageInfo,
+  originalDisplayPackageInfo: DisplayPackageInfo,
   packageNamespaces: PackageAttributes,
   packageNames: PackageAttributes,
   packageVersions: PackageAttributes
@@ -217,9 +217,9 @@ export function getPreSelectedPackageAttributeIds(
   preSelectedPackageNameId: string;
   preSelectedPackageVersionId: string;
 } {
-  const namespace = originalAttribution.packageNamespace || '';
-  const name = originalAttribution.packageName || '';
-  const version = originalAttribution.packageVersion || '';
+  const namespace = originalDisplayPackageInfo.packageNamespace || '';
+  const name = originalDisplayPackageInfo.packageName || '';
+  const version = originalDisplayPackageInfo.packageVersion || '';
 
   const preSelectedPackageNamespaceId = Object.entries(
     packageNamespaces

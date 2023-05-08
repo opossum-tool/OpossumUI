@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo } from '../../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { PackageAttributeIds, PackageAttributes } from '../../../types/types';
 import {
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
@@ -21,11 +21,11 @@ import {
 } from './types';
 
 export function setAttributionWizardOriginalAttribution(
-  originalAttribution: PackageInfo
+  originalDisplayPackageInfo: DisplayPackageInfo
 ): SetAttributionWizardOriginalAttribution {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
-    payload: originalAttribution,
+    payload: originalDisplayPackageInfo,
   };
 }
 

@@ -29,6 +29,7 @@ import { getAttributionBreakpoints } from '../../state/selectors/all-views-resou
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { FolderProgressBar } from '../ProgressBar/FolderProgressBar';
 import MuiBox from '@mui/material/Box';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 
 const classes = {
   root: {
@@ -93,7 +94,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
 
   function onOverrideParentClick(): void {
     setOverrideParentMode(true);
-    dispatch(setTemporaryPackageInfo({}));
+    dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
     dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,

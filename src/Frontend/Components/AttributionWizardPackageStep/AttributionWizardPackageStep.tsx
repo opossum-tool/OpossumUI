@@ -5,9 +5,9 @@
 
 import React, { ReactElement } from 'react';
 import MuiBox from '@mui/material/Box';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ListWithAttributesItem } from '../../types/types';
-import { generatePurlFromPackageInfo } from '../../util/handle-purl';
+import { generatePurlFromDisplayPackageInfo } from '../../util/handle-purl';
 import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 import { TextBox } from '../InputElements/TextBox';
 import { doNothing } from '../../util/do-nothing';
@@ -28,7 +28,7 @@ const classes = {
 interface AttributionWizardPackageStepProps {
   attributedPackageNamespaces: Array<ListWithAttributesItem>;
   attributedPackageNames: Array<ListWithAttributesItem>;
-  selectedPackageInfo: PackageInfo;
+  selectedDisplayPackageInfo: DisplayPackageInfo;
   selectedPackageNamespaceId: string;
   selectedPackageNameId: string;
   handlePackageNamespaceListItemClick: (id: string) => void;
@@ -43,10 +43,10 @@ export function AttributionWizardPackageStep(
   props: AttributionWizardPackageStepProps
 ): ReactElement {
   const selectedPackageInfoWithoutVersion = {
-    ...props.selectedPackageInfo,
+    ...props.selectedDisplayPackageInfo,
     packageVersion: undefined,
   };
-  const temporaryPurl = generatePurlFromPackageInfo(
+  const temporaryPurl = generatePurlFromDisplayPackageInfo(
     selectedPackageInfoWithoutVersion
   );
 

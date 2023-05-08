@@ -6,15 +6,12 @@
 
 import React, { ChangeEvent, ReactElement } from 'react';
 
-import {
-  PackageInfo,
-  isDisplayPackageInfo,
-} from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
   getIsSavingDisabled,
-  getPackageInfoOfSelected,
+  getDisplayPackageInfoOfSelected,
   getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -52,6 +49,8 @@ import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import { isEqual } from 'lodash';
 
 const classes = {
   root: {
@@ -63,7 +62,6 @@ const classes = {
 interface AttributionColumnProps {
   isEditable: boolean;
   areButtonsHidden?: boolean;
-  displayPackageInfo: PackageInfo;
   showSaveGloballyButton?: boolean;
   hideDeleteButtons?: boolean;
   showParentAttributions?: boolean;
@@ -77,15 +75,16 @@ interface AttributionColumnProps {
   onDeleteButtonClick?(): void;
   onDeleteGloballyButtonClick?(): void;
   saveFileRequestListener(): void;
-  setTemporaryPackageInfo(packageInfo: PackageInfo): void;
+  setTemporaryPackageInfo(displayPackageInfo: DisplayPackageInfo): void;
   smallerLicenseTextOrCommentField?: boolean;
   addMarginForNeedsReviewCheckbox?: boolean;
 }
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const dispatch = useAppDispatch();
-  const initialPackageInfo: PackageInfo =
-    useAppSelector(getPackageInfoOfSelected) || {};
+  const initialDisplayPackageInfo =
+    useAppSelector(getDisplayPackageInfoOfSelected, isEqual) ||
+    EMPTY_DISPLAY_PACKAGE_INFO;
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions
@@ -95,13 +94,15 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     wereTemporaryPackageInfoModified
   );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const selectedAttributionIdInAttributionView = useAppSelector(
+    getSelectedAttributionId
+  );
   const attributionIdMarkedForReplacement = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
   const view = useAppSelector(getSelectedView);
 
-  const selectedPackageId = selectedPackage
+  const selectedAttributionIdInAuditView = selectedPackage
     ? selectedPackage.attributionId
     : '';
   const {
@@ -120,22 +121,19 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       dispatch,
       packageInfoWereModified,
       temporaryPackageInfo,
-      props.displayPackageInfo,
       selectedPackage,
-      selectedAttributionId
+      selectedAttributionIdInAttributionView
     );
   const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
-  const currentViewSelectedAttributionId =
+  const selectedAttributionIdInCurrentView =
     view === View.Attribution
-      ? selectedAttributionId
-      : view === View.Audit
-      ? selectedPackageId
-      : '';
+      ? selectedAttributionIdInAttributionView
+      : selectedAttributionIdInAuditView;
 
   const mergeButtonDisplayState = getMergeButtonsDisplayState({
     attributionIdMarkedForReplacement,
-    targetAttributionId: currentViewSelectedAttributionId,
-    selectedAttributionId: currentViewSelectedAttributionId,
+    targetAttributionId: selectedAttributionIdInCurrentView,
+    selectedAttributionId: selectedAttributionIdInCurrentView,
     packageInfoWereModified,
     targetAttributionIsPreSelected: Boolean(temporaryPackageInfo.preSelected),
     targetAttributionIsExternalAttribution: false,
@@ -176,15 +174,17 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.Undo,
       disabled: !packageInfoWereModified,
       onClick: (): void => {
-        updatePurl(initialPackageInfo);
-        dispatch(setTemporaryPackageInfo(initialPackageInfo));
+        updatePurl(initialDisplayPackageInfo);
+        dispatch(setTemporaryPackageInfo(initialDisplayPackageInfo));
       },
     },
     {
       buttonText: ButtonText.MarkForReplacement,
       onClick: (): void => {
         dispatch(
-          setAttributionIdMarkedForReplacement(currentViewSelectedAttributionId)
+          setAttributionIdMarkedForReplacement(
+            selectedAttributionIdInCurrentView
+          )
         );
       },
       hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
@@ -203,7 +203,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         dispatch(
           openPopup(
             PopupType.ReplaceAttributionPopup,
-            currentViewSelectedAttributionId
+            selectedAttributionIdInCurrentView
           )
         );
       },
@@ -231,7 +231,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   const displayTexts = getDisplayTexts(
     temporaryPackageInfo,
-    selectedAttributionId,
+    selectedAttributionIdInAttributionView,
     attributionIdMarkedForReplacement,
     view
   );
@@ -247,19 +247,16 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   const showHighlight =
     view === View.Attribution &&
-    !props.displayPackageInfo.firstParty &&
-    !props.displayPackageInfo.excludeFromNotice;
+    !temporaryPackageInfo.firstParty &&
+    !temporaryPackageInfo.excludeFromNotice;
 
-  const attributionIdsToResolveOrUnresolve = isDisplayPackageInfo(
-    temporaryPackageInfo
-  )
-    ? temporaryPackageInfo.attributionIds
-    : []; // TODO: remove when refactoring
+  const attributionIdsToResolveOrUnresolve =
+    temporaryPackageInfo.attributionIds;
 
   return (
     <MuiBox sx={classes.root}>
       <PackageSubPanel
-        displayPackageInfo={props.displayPackageInfo}
+        displayPackageInfo={temporaryPackageInfo}
         handlePurlChange={handlePurlChange}
         isDisplayedPurlValid={isDisplayedPurlValid}
         isEditable={props.isEditable}
@@ -278,13 +275,13 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           props.setUpdateTemporaryPackageInfoFor
         }
         isEditable={props.isEditable}
-        displayPackageInfo={props.displayPackageInfo}
+        displayPackageInfo={temporaryPackageInfo}
         copyrightRows={copyrightRows}
         showHighlight={showHighlight}
       />
       <LicenseSubPanel
         isLicenseTextShown={isLicenseTextShown}
-        displayPackageInfo={props.displayPackageInfo}
+        displayPackageInfo={temporaryPackageInfo}
         isEditable={props.isEditable}
         setUpdateTemporaryPackageInfoFor={
           props.setUpdateTemporaryPackageInfoFor
@@ -300,7 +297,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           props.setUpdateTemporaryPackageInfoFor
         }
         isEditable={props.isEditable}
-        displayPackageInfo={props.displayPackageInfo}
+        displayPackageInfo={temporaryPackageInfo}
         firstPartyChangeHandler={getFirstPartyChangeHandler(
           temporaryPackageInfo,
           dispatch
@@ -336,7 +333,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         hamburgerMenuButtonConfigs={hamburgerMenuButtonConfigs}
         displayTexts={displayTexts}
         isEditable={props.isEditable}
-        displayPackageInfo={props.displayPackageInfo}
+        displayPackageInfo={temporaryPackageInfo}
         needsReviewChangeHandler={getNeedsReviewChangeHandler(
           temporaryPackageInfo,
           dispatch

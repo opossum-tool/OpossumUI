@@ -3,14 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { KeysOfPackageInfo } from '../Frontend/types/types';
-import { PackageInfo } from './shared-types';
+import { DisplayPackageInfo } from '../../shared/shared-types';
+import { KeysOfDisplayPackageInfo } from '../types/types';
 
-export function getPackageInfoKeys(): Array<KeysOfPackageInfo> {
+export function getDisplayPackageInfoKeys(): Array<KeysOfDisplayPackageInfo> {
   type KeysEnum<T> = { [P in keyof Required<T>]: true };
-  const packageInfoKeysObject: KeysEnum<PackageInfo> = {
+  const displayPackageInfoKeysObject: KeysEnum<DisplayPackageInfo> = {
     attributionConfidence: true,
-    comment: true,
     packageName: true,
     packageVersion: true,
     packageNamespace: true,
@@ -25,9 +24,13 @@ export function getPackageInfoKeys(): Array<KeysOfPackageInfo> {
     followUp: true,
     originIds: true,
     preSelected: true,
+    needsReview: true,
     excludeFromNotice: true,
     criticality: true,
-    needsReview: true,
+    comments: true,
+    attributionIds: true,
   };
-  return Object.keys(packageInfoKeysObject) as Array<KeysOfPackageInfo>;
+  return Object.keys(
+    displayPackageInfoKeysObject
+  ) as Array<KeysOfDisplayPackageInfo>;
 }

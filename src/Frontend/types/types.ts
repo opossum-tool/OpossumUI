@@ -48,6 +48,8 @@ export interface Height {
 
 export type KeysOfPackageInfo = keyof PackageInfo;
 
+export type KeysOfDisplayPackageInfo = keyof DisplayPackageInfo;
+
 export interface PackageCardConfig {
   isExternalAttribution?: boolean;
   isSelected?: boolean;
@@ -97,15 +99,12 @@ export interface ButtonConfig {
 
 export interface PanelData {
   title: PackagePanelTitle;
-  attributionIdsWithCount:
-    | Array<AttributionIdWithCount>
-    | Array<DisplayAttributionWithCount>;
-  attributions: Attributions;
+  displayAttributionsWithCount: Array<DisplayAttributionWithCount>;
 }
 
-export interface AttributionIdsWithCountAndResourceId {
+export interface DisplayAttributionsWithCountAndResourceId {
   resourceId: string;
-  attributionIdsWithCount: Array<AttributionIdWithCount>;
+  displayAttributionsWithCount: Array<DisplayAttributionWithCount>;
 }
 
 export interface ProgressBarDataAndResourceId {

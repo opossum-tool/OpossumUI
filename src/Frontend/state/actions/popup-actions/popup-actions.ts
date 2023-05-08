@@ -11,7 +11,7 @@ import {
   getExternalData,
   getManualAttributions,
   getManualData,
-  getPackageInfoOfSelected,
+  getDisplayPackageInfoOfSelected,
   getTemporaryPackageInfo,
   wereTemporaryPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
@@ -60,6 +60,11 @@ import {
   setAttributionWizardTotalAttributionCount,
 } from '../resource-actions/attribution-wizard-actions';
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../../util/convert-package-info';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string
@@ -85,7 +90,14 @@ export function changeSelectedAttributionIdOrOpenUnsavedPopup(
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(setSelectedAttributionId(attributionId));
-      dispatch(setTemporaryPackageInfo(manualAttributions[attributionId]));
+      dispatch(
+        setTemporaryPackageInfo(
+          convertPackageInfoToDisplayPackageInfo(
+            manualAttributions[attributionId],
+            [attributionId]
+          )
+        )
+      );
     }
   };
 }
@@ -191,7 +203,11 @@ export function saveTemporaryPackageInfoAndNavigateToTargetView(): AppThunkActio
     const temporaryPackageInfo = getTemporaryPackageInfo(getState());
 
     dispatch(
-      savePackageInfo(selectedResourceId, attributionId, temporaryPackageInfo)
+      savePackageInfo(
+        selectedResourceId,
+        attributionId,
+        convertDisplayPackageInfoToPackageInfo(temporaryPackageInfo)
+      )
     );
     dispatch(navigateToTargetResourceOrAttribution());
   };
@@ -206,7 +222,10 @@ export function navigateToTargetResourceOrAttribution(): AppThunkAction {
       dispatch(navigateToView(targetView));
     }
     dispatch(
-      setTemporaryPackageInfo(getPackageInfoOfSelected(getState()) || {})
+      setTemporaryPackageInfo(
+        getDisplayPackageInfoOfSelected(getState()) ||
+          EMPTY_DISPLAY_PACKAGE_INFO
+      )
     );
 
     dispatch(closePopup());
@@ -259,23 +278,28 @@ export function openAttributionWizardPopup(
       }
     );
 
-    const originalAttribution =
+    const originalDisplayPackageInfo =
       originalAttributionId !== null
-        ? manualAttributions[originalAttributionId]
-        : {};
+        ? convertPackageInfoToDisplayPackageInfo(
+            manualAttributions[originalAttributionId],
+            [originalAttributionId]
+          )
+        : EMPTY_DISPLAY_PACKAGE_INFO;
 
     const {
       preSelectedPackageNamespaceId,
       preSelectedPackageNameId,
       preSelectedPackageVersionId,
     } = getPreSelectedPackageAttributeIds(
-      originalAttribution,
+      originalDisplayPackageInfo,
       packageNamespaces,
       packageNames,
       packageVersions
     );
 
-    dispatch(setAttributionWizardOriginalAttribution(originalAttribution));
+    dispatch(
+      setAttributionWizardOriginalAttribution(originalDisplayPackageInfo)
+    );
     dispatch(setAttributionWizardPackageNamespaces(packageNamespaces));
     dispatch(setAttributionWizardPackageNames(packageNames));
     dispatch(setAttributionWizardPackageVersions(packageVersions));
@@ -297,7 +321,7 @@ export function openAttributionWizardPopup(
 export function closeAttributionWizardPopup(): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     const emptyAttributionWizardState = {
-      originalAttribution: {},
+      originalDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
       packageNamespaces: {},
       packageNames: {},
       packageVersions: {},
@@ -311,7 +335,7 @@ export function closeAttributionWizardPopup(): AppThunkAction {
 
     dispatch(
       setAttributionWizardOriginalAttribution(
-        emptyAttributionWizardState.originalAttribution
+        emptyAttributionWizardState.originalDisplayPackageInfo
       )
     );
     dispatch(

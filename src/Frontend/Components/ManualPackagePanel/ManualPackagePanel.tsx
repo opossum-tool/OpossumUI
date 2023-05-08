@@ -20,6 +20,9 @@ import { Button } from '../Button/Button';
 import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
 import { OpossumColors } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
+import { DisplayAttributionWithCount } from '../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 
 const classes = {
   root: {
@@ -53,7 +56,7 @@ export function ManualPackagePanel(
     getAttributionIdOfDisplayedPackageInManualPanel
   );
 
-  const attributionIdsOfSelectedResource: Attributions = useAppSelector(
+  const attributionsOfSelectedResource: Attributions = useAppSelector(
     getAttributionsOfSelectedResource
   );
   const selectedResourceOrClosestParentAttributions: Attributions =
@@ -62,8 +65,23 @@ export function ManualPackagePanel(
   const selectedResourceId: string = useAppSelector(getSelectedResourceId);
 
   const shownAttributionsOfResource: Attributions = props.overrideParentMode
-    ? attributionIdsOfSelectedResource
+    ? attributionsOfSelectedResource
     : selectedResourceOrClosestParentAttributions;
+
+  const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
+    getAlphabeticalComparer(shownAttributionsOfResource)
+  );
+
+  const sortedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+    sortedAttributionIds.map((attributionId) => {
+      return {
+        attributionId,
+        attribution: convertPackageInfoToDisplayPackageInfo(
+          shownAttributionsOfResource[attributionId],
+          [attributionId]
+        ),
+      };
+    });
 
   function onCardClick(
     attributionId: string,
@@ -88,11 +106,11 @@ export function ManualPackagePanel(
           : 'Attributions'}
       </MuiTypography>
       <ManualAttributionList
+        sortedDisplayAttributionsWithCount={sortedDisplayAttributionsWithCount}
         selectedResourceId={selectedResourceId}
-        attributions={shownAttributionsOfResource}
         selectedAttributionId={selectedAttributionId}
-        isAddNewAttributionItemShown={props.showAddNewAttributionButton}
         onCardClick={onCardClick}
+        isAddNewAttributionItemShown={props.showAddNewAttributionButton}
         attributionsFromParent={showParentAttributions}
       />
       <MuiBox sx={classes.buttonDiv}>

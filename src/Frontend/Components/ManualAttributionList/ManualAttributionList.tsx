@@ -4,18 +4,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { Attributions } from '../../../shared/shared-types';
-import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { List } from '../List/List';
 import { PackageCard } from '../PackageCard/PackageCard';
-import { PackageCardConfig } from '../../types/types';
+import {
+  DisplayAttributionWithCount,
+  PackageCardConfig,
+} from '../../types/types';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
+} from '../../shared-constants';
+import { getAttributionFromDisplayAttributionsWithCount } from '../../util/get-attribution-from-display-attributions-with-count';
 
-const addNewAttributionButtonText = 'Add new attribution';
-const addNewAttributionButtonId = 'ADD_NEW_ATTRIBUTION_ID';
+const DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON: DisplayPackageInfo =
+  {
+    packageName: ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
+    attributionIds: [''],
+  };
 
 interface ManualAttributionListProps {
+  sortedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount>;
   selectedResourceId: string;
-  attributions: Attributions;
   selectedAttributionId: string | null;
   onCardClick(attributionId: string, isButton?: boolean): void;
   isAddNewAttributionItemShown?: boolean;
@@ -25,21 +35,24 @@ interface ManualAttributionListProps {
 export function ManualAttributionList(
   props: ManualAttributionListProps
 ): ReactElement {
-  const attributions = { ...props.attributions };
-  const attributionIds: Array<string> = Object.keys({
-    ...props.attributions,
-  }).sort(getAlphabeticalComparer(attributions));
+  const attributionIds: Array<string> =
+    props.sortedDisplayAttributionsWithCount.map(
+      ({ attributionId }) => attributionId
+    );
 
   if (props.isAddNewAttributionItemShown) {
-    attributions[addNewAttributionButtonId] = {
-      packageName: addNewAttributionButtonText,
-    };
-    attributionIds.push(addNewAttributionButtonId);
+    attributionIds.push(ADD_NEW_ATTRIBUTION_BUTTON_ID);
   }
 
   function getAttributionCard(attributionId: string): ReactElement {
-    const packageInfo = attributions[attributionId];
-    const isButton = attributionId === addNewAttributionButtonId;
+    const isButton = attributionId === ADD_NEW_ATTRIBUTION_BUTTON_ID;
+
+    const displayPackageInfo: DisplayPackageInfo = isButton
+      ? DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON
+      : getAttributionFromDisplayAttributionsWithCount(
+          attributionId,
+          props.sortedDisplayAttributionsWithCount
+        );
 
     function isSelected(): boolean {
       return (
@@ -54,18 +67,17 @@ export function ManualAttributionList(
 
     const cardConfig: PackageCardConfig = {
       isSelected: isSelected(),
-      isPreSelected: Boolean(packageInfo.preSelected),
+      isPreSelected: Boolean(displayPackageInfo.preSelected),
     };
 
     return (
       <PackageCard
-        attributionId={isButton ? '' : attributionId}
         onClick={onClick}
         hideContextMenuAndMultiSelect={isButton}
         cardConfig={cardConfig}
-        key={`AttributionCard-${packageInfo.packageName}-${attributionId}`}
+        key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
         cardId={`manual-${props.selectedResourceId}-${attributionId}`}
-        packageInfo={packageInfo}
+        displayPackageInfo={displayPackageInfo}
         showOpenResourcesIcon={!isButton}
         hideAttributionWizardContextMenuItem={props.attributionsFromParent}
       />

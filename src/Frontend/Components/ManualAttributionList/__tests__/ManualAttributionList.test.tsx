@@ -27,6 +27,8 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { ButtonText } from '../../../enums/enums';
+import { DisplayAttributionWithCount } from '../../../types/types';
+import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 
 function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   const store = createTestAppStore();
@@ -41,6 +43,22 @@ function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
 }
 
 describe('The ManualAttributionList', () => {
+  const testSortedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+    [
+      {
+        attributionId: '1',
+        attribution: {
+          attributionConfidence: 0,
+          comments: ['Some comment'],
+          packageName: 'Test package',
+          packageVersion: '1.0',
+          copyright: 'Copyright John Doe',
+          licenseText: 'Some license text',
+          firstParty: true,
+          attributionIds: ['1'],
+        },
+      },
+    ];
   const packages: Attributions = {
     '1': {
       attributionConfidence: 0,
@@ -63,7 +81,9 @@ describe('The ManualAttributionList', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
-        attributions={packages}
+        sortedDisplayAttributionsWithCount={
+          testSortedDisplayAttributionsWithCount
+        }
         selectedAttributionId={''}
         onCardClick={mockCallback}
       />,
@@ -77,7 +97,9 @@ describe('The ManualAttributionList', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
-        attributions={packages}
+        sortedDisplayAttributionsWithCount={
+          testSortedDisplayAttributionsWithCount
+        }
         selectedAttributionId={''}
         onCardClick={doNothing}
       />,
@@ -92,7 +114,9 @@ describe('The ManualAttributionList', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
-        attributions={packages}
+        sortedDisplayAttributionsWithCount={
+          testSortedDisplayAttributionsWithCount
+        }
         selectedAttributionId={''}
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
@@ -100,7 +124,7 @@ describe('The ManualAttributionList', () => {
       { store: getTestStore(packages) }
     );
     expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByText('Add new attribution'));
+    expect(screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
@@ -108,7 +132,9 @@ describe('The ManualAttributionList', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/folder/"
-        attributions={packages}
+        sortedDisplayAttributionsWithCount={
+          testSortedDisplayAttributionsWithCount
+        }
         selectedAttributionId={''}
         onCardClick={mockCallback}
       />,
@@ -121,47 +147,42 @@ describe('The ManualAttributionList', () => {
     expect(mockCallback.mock.calls[0][0]).toBe('1');
   });
 
-  it('sorts its elements', () => {
-    const testPackages: Attributions = {
-      '1': {
-        packageName: 'zz Test package',
-      },
-      '2': {
-        attributionConfidence: 0,
-        comment: 'Some comment',
-        packageName: 'Test package',
-        packageVersion: '1.0',
-        copyright: 'Copyright John Doe',
-        licenseText: 'Some license text',
-      },
-      '3': {
-        copyright: '(C) Copyright John Doe 2',
-      },
-    };
-    const { container } = renderComponentWithStore(
-      <ManualAttributionList
-        selectedResourceId="/folder/"
-        attributions={testPackages}
-        selectedAttributionId={''}
-        onCardClick={mockCallback}
-      />,
-      { store: getTestStore(testPackages) }
-    );
-
-    expect(container.childNodes[0]).toHaveTextContent(/zz Test package/);
-    expect(container.childNodes[0]).toHaveTextContent(
-      /Test package, 1\.0Copyright John Doe/
-    );
-    expect(container.childNodes[0]).toHaveTextContent(
-      /\(C\) Copyright John Doe 2/
-    );
-  });
-
   it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,
     };
+    const testSortedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
+      [
+        {
+          attributionId: 'uuid_1',
+          attribution: {
+            packageName: 'jQuery',
+            packageVersion: '16.0.0',
+            comments: ['ManualPackage'],
+            attributionIds: ['uuid_1'],
+          },
+        },
+        {
+          attributionId: 'uuid_2',
+          attribution: {
+            packageName: 'React',
+            packageVersion: '16.0.0',
+            comments: ['ManualPackage'],
+            attributionIds: ['uuid_2'],
+          },
+        },
+        {
+          attributionId: 'uuid_3',
+          attribution: {
+            packageName: 'Vue',
+            packageVersion: '16.0.0',
+            comments: ['ManualPackage'],
+            preSelected: true,
+            attributionIds: ['uuid_3'],
+          },
+        },
+      ];
     const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'jQuery',
@@ -198,7 +219,9 @@ describe('The ManualAttributionList', () => {
     renderComponentWithStore(
       <ManualAttributionList
         selectedResourceId="/root/src/file_1"
-        attributions={testManualAttributions}
+        sortedDisplayAttributionsWithCount={
+          testSortedDisplayAttributionsWithCount
+        }
         selectedAttributionId={''}
         onCardClick={mockCallback}
       />,

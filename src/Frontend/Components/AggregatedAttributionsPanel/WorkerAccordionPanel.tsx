@@ -3,24 +3,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
-import {
-  Attributions,
-  AttributionsToHashes,
-} from '../../../shared/shared-types';
+import { AttributionsToHashes } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
-  AttributionIdsWithCountAndResourceId,
-  AttributionIdWithCount,
+  DisplayAttributionsWithCountAndResourceId,
+  DisplayAttributionWithCount,
   PanelData,
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { PanelAttributionData } from '../../util/get-contained-packages';
 
-const EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID = {
-  resourceId: '',
-  attributionIdsWithCount: [],
-};
+const EMPTY_DISPLAY_ATTRIBUTIONS_WITH_COUNT_AND_RESOURCE_ID: DisplayAttributionsWithCountAndResourceId =
+  {
+    resourceId: '',
+    displayAttributionsWithCount: [],
+  };
 
 type ContainedAttributionsAccordionWorkerArgs =
   | ContainedExternalAttributionsAccordionWorkerArgs
@@ -44,10 +42,9 @@ interface WorkerAccordionPanelProps {
     | PackagePanelTitle.ContainedManualPackages;
   workerArgs: ContainedAttributionsAccordionWorkerArgs;
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
-  getDisplayAttributionIdsWithCount(
+  getDisplayAttributionsWithCount(
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ): Array<AttributionIdWithCount>;
-  attributions: Attributions;
+  ): Array<DisplayAttributionWithCount>;
   isAddToPackageEnabled: boolean;
 }
 
@@ -55,10 +52,10 @@ export function WorkerAccordionPanel(
   props: WorkerAccordionPanelProps
 ): ReactElement {
   const [
-    attributionIdsWithCountAndResourceId,
-    setAttributionIdsWithCountAndResourceId,
-  ] = useState<AttributionIdsWithCountAndResourceId>(
-    EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
+    displayAttributionsWithCountAndResourceId,
+    setDisplayAttributionsWithCountAndResourceId,
+  ] = useState<DisplayAttributionsWithCountAndResourceId>(
+    EMPTY_DISPLAY_ATTRIBUTIONS_WITH_COUNT_AND_RESOURCE_ID
   );
   const resourceDetailsTabsWorkers = useContext(AccordionWorkersContext);
 
@@ -79,8 +76,8 @@ export function WorkerAccordionPanel(
       props.workerArgs,
       worker,
       props.title,
-      setAttributionIdsWithCountAndResourceId,
-      props.getDisplayAttributionIdsWithCount,
+      setDisplayAttributionsWithCountAndResourceId,
+      props.getDisplayAttributionsWithCount,
       props.syncFallbackArgs
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,19 +86,17 @@ export function WorkerAccordionPanel(
   let panelData: PanelData;
   if (
     props.workerArgs.selectedResourceId ===
-    attributionIdsWithCountAndResourceId.resourceId
+    displayAttributionsWithCountAndResourceId.resourceId
   ) {
     panelData = {
       title: props.title,
-      attributionIdsWithCount:
-        attributionIdsWithCountAndResourceId.attributionIdsWithCount,
-      attributions: props.attributions,
+      displayAttributionsWithCount:
+        displayAttributionsWithCountAndResourceId.displayAttributionsWithCount,
     };
   } else {
     panelData = {
       title: props.title,
-      attributionIdsWithCount: [],
-      attributions: props.attributions,
+      displayAttributionsWithCount: [],
     };
   }
 
@@ -118,16 +113,16 @@ async function loadAttributionIdsWithCount(
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
   worker: Worker,
   panelTitle: string,
-  setAttributionIdsWithCountAndResourceId: (
-    attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
+  setDisplayAttributionsWithCountAndResourceId: (
+    attributionIdsWithCountAndResourceId: DisplayAttributionsWithCountAndResourceId
   ) => void,
-  getDisplayAttributionIdsWithCount: (
+  getDisplayAttributionsWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ) => Array<AttributionIdWithCount>,
+  ) => Array<DisplayAttributionWithCount>,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): Promise<void> {
-  setAttributionIdsWithCountAndResourceId(
-    EMPTY_ATTRIBUTION_IDS_WITH_COUNT_AND_RESOURCE_ID
+  setDisplayAttributionsWithCountAndResourceId(
+    EMPTY_DISPLAY_ATTRIBUTIONS_WITH_COUNT_AND_RESOURCE_ID
   );
 
   // WebWorkers can fail for different reasons, e.g. because they run out
@@ -142,21 +137,21 @@ async function loadAttributionIdsWithCount(
         logErrorAndComputeInMainProcess(
           panelTitle,
           Error('Web Worker execution error.'),
-          setAttributionIdsWithCountAndResourceId,
-          getDisplayAttributionIdsWithCount,
+          setDisplayAttributionsWithCountAndResourceId,
+          getDisplayAttributionsWithCount,
           workerArgs,
           syncFallbackArgs
         );
       } else {
-        setAttributionIdsWithCountAndResourceId(output);
+        setDisplayAttributionsWithCountAndResourceId(output);
       }
     };
   } catch (error) {
     logErrorAndComputeInMainProcess(
       panelTitle,
       error,
-      setAttributionIdsWithCountAndResourceId,
-      getDisplayAttributionIdsWithCount,
+      setDisplayAttributionsWithCountAndResourceId,
+      getDisplayAttributionsWithCount,
       workerArgs,
       syncFallbackArgs
     );
@@ -166,21 +161,23 @@ async function loadAttributionIdsWithCount(
 function logErrorAndComputeInMainProcess(
   panelTitle: string,
   error: unknown,
-  setAttributionIdsWithCountAndResourceId: (
-    attributionIdsWithCountAndResourceId: AttributionIdsWithCountAndResourceId
+  setDisplayAttributionsWithCountAndResourceId: (
+    attributionIdsWithCountAndResourceId: DisplayAttributionsWithCountAndResourceId
   ) => void,
-  getDisplayAttributionIdsWithCount: (
+  getDisplayAttributionsWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ) => Array<AttributionIdWithCount>,
+  ) => Array<DisplayAttributionWithCount>,
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): void {
-  const displayAttributionIdsWithCount = getDisplayAttributionIdsWithCount(
+  console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
+
+  const displayAttributionIdsWithCount = getDisplayAttributionsWithCount(
     syncFallbackArgs || workerArgs
   );
 
-  setAttributionIdsWithCountAndResourceId({
+  setDisplayAttributionsWithCountAndResourceId({
     resourceId: workerArgs.selectedResourceId,
-    attributionIdsWithCount: displayAttributionIdsWithCount,
+    displayAttributionsWithCount: displayAttributionIdsWithCount,
   });
 }

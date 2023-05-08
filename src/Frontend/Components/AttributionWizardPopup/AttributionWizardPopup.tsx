@@ -18,13 +18,13 @@ import {
   getAttributionWizardListItems,
   getSelectedPackageAttributes,
 } from './attribution-wizard-popup-helpers';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { setTemporaryPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
   getAttributionWizardPackageVersions,
-  getAttributionWizarOriginalAttribution,
+  getAttributionWizarOriginalDisplayPackageInfo,
   getAttributionWizardSelectedPackageAttributeIds,
   getAttributionWizardTotalAttributionCount,
 } from '../../state/selectors/attribution-wizard-selectors';
@@ -76,8 +76,8 @@ const classes = {
 };
 
 export function AttributionWizardPopup(): ReactElement {
-  const originalAttribution = useAppSelector(
-    getAttributionWizarOriginalAttribution
+  const originalDisplayPackageInfo = useAppSelector(
+    getAttributionWizarOriginalDisplayPackageInfo
   );
   const packageNamespaces = useAppSelector(
     getAttributionWizardPackageNamespaces
@@ -132,13 +132,14 @@ export function AttributionWizardPopup(): ReactElement {
     totalAttributionCount || 1
   );
 
-  const selectedPackageInfo: PackageInfo = {
-    packageType: originalAttribution.packageType ?? 'generic',
+  const selectedDisplayPackageInfo: DisplayPackageInfo = {
+    packageType: originalDisplayPackageInfo.packageType ?? 'generic',
     packageName: selectedPackageName ? selectedPackageName : undefined,
     packageNamespace: selectedPackageNamespace
       ? selectedPackageNamespace
       : undefined,
     packageVersion: selectedPackageVersion ? selectedPackageVersion : undefined,
+    attributionIds: [],
   };
 
   function addNewPackageNamespace(newNamespace: string): void {
@@ -211,8 +212,8 @@ export function AttributionWizardPopup(): ReactElement {
   function handleApplyClick(): void {
     dispatch(
       setTemporaryPackageInfo({
-        ...originalAttribution,
-        ...selectedPackageInfo,
+        ...originalDisplayPackageInfo,
+        ...selectedDisplayPackageInfo,
       })
     );
     closeAttributionWizardPopupHandler();
@@ -281,7 +282,7 @@ export function AttributionWizardPopup(): ReactElement {
                 attributedPackageNames={
                   attributedPackageNamesWithManuallyAddedOnes
                 }
-                selectedPackageInfo={selectedPackageInfo}
+                selectedDisplayPackageInfo={selectedDisplayPackageInfo}
                 selectedPackageNamespaceId={
                   selectedPackageAttributeIds.namespaceId
                 }
@@ -300,7 +301,7 @@ export function AttributionWizardPopup(): ReactElement {
                 attributedPackageVersions={
                   attributedPackageVersionsWithManuallyAddedOnes
                 }
-                selectedPackageInfo={selectedPackageInfo}
+                selectedDisplayPackageInfo={selectedDisplayPackageInfo}
                 highlightedPackageNameId={selectedPackageAttributeIds.nameId}
                 selectedPackageVersionId={selectedPackageAttributeIds.versionId}
                 handlePackageVersionListItemClick={

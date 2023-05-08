@@ -3,38 +3,55 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Attributions } from '../../../../shared/shared-types';
-import { getFilteredPackageIds } from '../package-list-helpers';
+import { DisplayAttributionWithCount } from '../../../types/types';
+import { getFilteredPackageIdsFromDisplayAttributions } from '../package-list-helpers';
 
 describe('The PackageListHelper', () => {
   it('filters Attributions', () => {
-    const testAttributions: Attributions = {
-      uuid1: {
-        packageName: 'Search_term package',
+    const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
+      {
+        attributionId: 'uuid1',
+        attribution: {
+          packageName: 'Search_term package',
+          attributionIds: ['uuid1'],
+        },
       },
-      uuid2: {
-        copyright: '(c) Search_term 2022',
+      {
+        attributionId: 'uuid2',
+        attribution: {
+          copyright: '(c) Search_term 2022',
+          attributionIds: ['uuid2'],
+        },
       },
-      uuid3: {
-        licenseName: 'Search_term licence',
+      {
+        attributionId: 'uuid3',
+        attribution: {
+          licenseName: 'Search_term licence',
+          attributionIds: ['uuid3'],
+        },
       },
-      uuid4: {
-        packageVersion: 'version search_term',
+      {
+        attributionId: 'uuid4',
+        attribution: {
+          packageVersion: 'version search_term',
+          attributionIds: ['uuid4'],
+        },
       },
-      uuid5: {
-        comment: 'comment search_term',
-        licenseText: 'text search_term',
-        url: 'www.search_term.com',
+      {
+        attributionId: 'uuid5',
+        attribution: {
+          comments: ['comment search_term'],
+          licenseText: 'text search_term',
+          url: 'www.search_term.com',
+          attributionIds: ['uuid5'],
+        },
       },
-    };
-    const testAttributionIds = Object.entries(testAttributions).map(
-      ([attributionId]) => attributionId
-    );
-    const filteredTestAttributions = getFilteredPackageIds(
-      testAttributions,
-      testAttributionIds,
-      'SeArCh_TeRm'
-    );
+    ];
+    const filteredTestAttributions =
+      getFilteredPackageIdsFromDisplayAttributions(
+        testDisplayAttributions,
+        'SeArCh_TeRm'
+      );
 
     expect(filteredTestAttributions).toContain('uuid1');
     expect(filteredTestAttributions).toContain('uuid2');
@@ -44,25 +61,31 @@ describe('The PackageListHelper', () => {
   });
 
   it('sorts Attributions', () => {
-    const testAttributions = {
-      uuid1: {
-        packageName: 'package 3',
+    const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
+      {
+        attributionId: 'uuid1',
+        attribution: {
+          packageName: 'package 3',
+          attributionIds: ['uuid1'],
+        },
       },
-      uuid2: {
-        packageName: 'package 1',
+      {
+        attributionId: 'uuid2',
+        attribution: {
+          packageName: 'package 1',
+          attributionIds: ['uuid2'],
+        },
       },
-      uuid3: {
-        packageName: 'package 2',
+      {
+        attributionId: 'uuid3',
+        attribution: {
+          packageName: 'package 2',
+          attributionIds: ['uuid3'],
+        },
       },
-    };
-    const testAttributionIds = Object.entries(testAttributions).map(
-      ([attributionId]) => attributionId
-    );
-    const filteredTestAttributions = getFilteredPackageIds(
-      testAttributions,
-      testAttributionIds,
-      ''
-    );
+    ];
+    const filteredTestAttributions =
+      getFilteredPackageIdsFromDisplayAttributions(testDisplayAttributions, '');
     expect(filteredTestAttributions).toEqual(['uuid1', 'uuid2', 'uuid3']);
   });
 });

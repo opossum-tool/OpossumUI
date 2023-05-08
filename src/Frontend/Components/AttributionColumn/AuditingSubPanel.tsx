@@ -7,9 +7,7 @@ import MuiPaper from '@mui/material/Paper';
 import React, { ChangeEvent, ReactElement } from 'react';
 import {
   DiscreteConfidence,
-  isDisplayPackageInfo,
   DisplayPackageInfo,
-  PackageInfo,
 } from '../../../shared/shared-types';
 import { CheckboxLabel } from '../../enums/enums';
 import { doNothing } from '../../util/do-nothing';
@@ -42,7 +40,7 @@ const classes = {
 
 interface AuditingSubPanelProps {
   isEditable: boolean;
-  displayPackageInfo: PackageInfo | DisplayPackageInfo;
+  displayPackageInfo: DisplayPackageInfo;
   showManualAttributionData: boolean;
   isCommentsBoxCollapsed: boolean;
   commentBoxHeight: number;
@@ -144,21 +142,11 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
       </MuiBox>
       <TextFieldStack
         isEditable={props.isEditable}
-        comments={getComments(props.displayPackageInfo)}
+        comments={props.displayPackageInfo.comments || []}
         isCollapsed={props.isCommentsBoxCollapsed}
         commentBoxHeight={props.commentBoxHeight}
         handleChange={props.setUpdateTemporaryPackageInfoFor}
       />
     </MuiPaper>
   );
-}
-
-function getComments(
-  displayPackageInfo: PackageInfo | DisplayPackageInfo
-): Array<string> {
-  if (isDisplayPackageInfo(displayPackageInfo)) {
-    return displayPackageInfo.comments || [];
-  } else {
-    return displayPackageInfo.comment ? [displayPackageInfo.comment] : [];
-  }
 }

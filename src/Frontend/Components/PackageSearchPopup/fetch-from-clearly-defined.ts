@@ -4,7 +4,7 @@
 
 import { Schema, Validator } from 'jsonschema';
 import axios from 'axios';
-import { PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 
 const jsonSchemaValidator = new Validator();
 
@@ -101,7 +101,7 @@ const clearlyDefinedSchema: Schema = {
 
 export async function fetchFromClearlyDefined(
   coordinate: string
-): Promise<PackageInfo> {
+): Promise<DisplayPackageInfo> {
   const response = await axios.get(
     `https://api.clearlydefined.io/definitions/${coordinate}`
   );
@@ -121,6 +121,7 @@ export async function fetchFromClearlyDefined(
     url:
       payload?.described.urls?.version ??
       payload?.described.sourceLocation?.url,
+    attributionIds: [],
   };
 }
 

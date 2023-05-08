@@ -7,8 +7,8 @@ import React, { ReactElement } from 'react';
 import MuiBox from '@mui/material/Box';
 import { ListWithAttributesItem } from '../../types/types';
 import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
-import { PackageInfo } from '../../../shared/shared-types';
-import { generatePurlFromPackageInfo } from '../../util/handle-purl';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { generatePurlFromDisplayPackageInfo } from '../../util/handle-purl';
 import { doNothing } from '../../util/do-nothing';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionWizardStepClasses } from '../../shared-styles';
@@ -25,7 +25,7 @@ const classes = {
 interface AttributionWizardVersionStepProps {
   attributedPackageVersions: Array<ListWithAttributesItem>;
   highlightedPackageNameId: string;
-  selectedPackageInfo: PackageInfo;
+  selectedDisplayPackageInfo: DisplayPackageInfo;
   selectedPackageVersionId: string;
   handlePackageVersionListItemClick: (id: string) => void;
   addNewPackageVersion(items: string): void;
@@ -35,7 +35,9 @@ interface AttributionWizardVersionStepProps {
 export function AttributionWizardVersionStep(
   props: AttributionWizardVersionStepProps
 ): ReactElement {
-  const temporaryPurl = generatePurlFromPackageInfo(props.selectedPackageInfo);
+  const temporaryPurl = generatePurlFromDisplayPackageInfo(
+    props.selectedDisplayPackageInfo
+  );
 
   return (
     <MuiBox sx={attributionWizardStepClasses.root}>

@@ -40,21 +40,21 @@ describe('TopProgressBar', () => {
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
     const testExternalAttributionUuid = 'b5da73d4-f400-11ea-adc1-0242ac120003';
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    const secondTestTemporaryPackageInfo: PackageInfo = {
+    const secondTestPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
       preSelected: true,
     };
     const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+      [testManualAttributionUuid_1]: testPackageInfo,
+      [testManualAttributionUuid_2]: secondTestPackageInfo,
     };
 
     const testExternalAttributions: Attributions = {
@@ -119,21 +119,21 @@ describe('TopProgressBar', () => {
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
 
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    const secondTestTemporaryPackageInfo: PackageInfo = {
+    const secondTestPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
       preSelected: true,
     };
     const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+      [testManualAttributionUuid_1]: testPackageInfo,
+      [testManualAttributionUuid_2]: secondTestPackageInfo,
     };
 
     const testHighlyCriticalExternalAttributionUuid =

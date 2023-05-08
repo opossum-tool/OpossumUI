@@ -4,20 +4,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement, useMemo, useState } from 'react';
-import { Attributions } from '../../../shared/shared-types';
-import { Height, NumberOfDisplayedItems } from '../../types/types';
+import {
+  DisplayAttributionWithCount,
+  Height,
+  NumberOfDisplayedItems,
+} from '../../types/types';
 import { List } from '../List/List';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getFilteredPackageIds } from './package-list-helpers';
+import { getFilteredPackageIdsFromDisplayAttributions } from './package-list-helpers';
 
 const CARD_VERTICAL_DISTANCE = 41;
 
 interface AttributionsViewPackageListProps {
-  attributions: Attributions;
-  attributionIds: Array<string>;
-
+  displayAttributions: Array<DisplayAttributionWithCount>;
   getAttributionCard(attributionId: string): ReactElement | null;
-
   max: NumberOfDisplayedItems | Height;
 }
 
@@ -28,8 +28,11 @@ export function AttributionsViewPackageList(
 
   const filteredPackageIds: Array<string> = useMemo(
     () =>
-      getFilteredPackageIds(props.attributions, props.attributionIds, search),
-    [props.attributions, props.attributionIds, search]
+      getFilteredPackageIdsFromDisplayAttributions(
+        props.displayAttributions,
+        search
+      ),
+    [props.displayAttributions, search]
   );
 
   return (

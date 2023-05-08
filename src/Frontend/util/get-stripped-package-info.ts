@@ -4,23 +4,44 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { pick, pickBy } from 'lodash';
-import { PackageInfo } from '../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
 import { getPackageInfoKeys } from '../../shared/shared-util';
+import { getDisplayPackageInfoKeys } from './get-display-package-info-keys';
 
 export function getStrippedPackageInfo(
   rawPackageInfo: PackageInfo
 ): PackageInfo {
-  const strippedTemporaryPackageInfo = pickBy(rawPackageInfo, (value) =>
-    Boolean(value)
-  );
-  delete strippedTemporaryPackageInfo.source;
-  delete strippedTemporaryPackageInfo.preSelected;
-  delete strippedTemporaryPackageInfo.criticality;
+  const strippedPackageInfo = pickBy(rawPackageInfo, (value) => Boolean(value));
+  delete strippedPackageInfo.source;
+  delete strippedPackageInfo.preSelected;
+  delete strippedPackageInfo.criticality;
 
-  return removeExcessProperties(strippedTemporaryPackageInfo);
+  return removeExcessProperties(strippedPackageInfo);
 }
 
 function removeExcessProperties(rawPackageInfo: PackageInfo): PackageInfo {
   const packageInfoKeys = getPackageInfoKeys();
   return pick(rawPackageInfo, packageInfoKeys);
+}
+
+export function getStrippedDisplayPackageInfo(
+  rawDisplayPackageInfo: DisplayPackageInfo
+): DisplayPackageInfo {
+  const strippedDisplayPackageInfo = pickBy(rawDisplayPackageInfo, (value) =>
+    Boolean(value)
+  );
+  delete strippedDisplayPackageInfo.source;
+  delete strippedDisplayPackageInfo.preSelected;
+  delete strippedDisplayPackageInfo.criticality;
+
+  return removeExcessPropertiesOfDisplayPackageInfo(
+    strippedDisplayPackageInfo as DisplayPackageInfo
+  );
+}
+
+function removeExcessPropertiesOfDisplayPackageInfo(
+  rawDisplayPackageInfo: DisplayPackageInfo
+): DisplayPackageInfo {
+  const displayPackageInfoKeys = getDisplayPackageInfoKeys();
+  return pick(rawDisplayPackageInfo, displayPackageInfoKeys);
 }

@@ -7,7 +7,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
-  PackageInfo,
+  DisplayPackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -30,26 +30,32 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 import { act } from 'react-dom/test-utils';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../shared-constants';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
-const testTemporaryPackageInfo: PackageInfo = {
+const testTemporaryPackageInfo: DisplayPackageInfo = {
   packageName: 'jQuery',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
+  attributionIds: [],
 };
-const testTemporaryPackageInfo2: PackageInfo = {
+const testTemporaryPackageInfo2: DisplayPackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
+  attributionIds: [],
 };
 
 function getTestTemporaryAndExternalStateWithParentAttribution(
   store: EnhancedTestStore,
   selectedResourceId: string,
-  temporaryPackageInfo: PackageInfo
+  temporaryPackageInfo: DisplayPackageInfo
 ): void {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryPackageInfo,
@@ -75,8 +81,9 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 
 describe('The ResourceDetailsViewer', () => {
   it('renders an Attribution column', () => {
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testTemporaryPackageInfo: DisplayPackageInfo = {
       packageName: 'jQuery',
+      attributionIds: [],
     };
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     act(() => {
@@ -163,7 +170,7 @@ describe('The ResourceDetailsViewer', () => {
       store.dispatch(
         setExternalData(externalAttributions, resourcesToExternalAttributions)
       );
-      store.dispatch(setTemporaryPackageInfo({}));
+      store.dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
     });
 
     expect(screen.getByText('Signals'));
@@ -196,7 +203,7 @@ describe('The ResourceDetailsViewer', () => {
         )
       );
       store.dispatch(setSelectedResourceId('/test_id/'));
-      store.dispatch(setTemporaryPackageInfo({}));
+      store.dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
     });
 
     expect(screen.getByText('Signals in Folder Content'));
@@ -645,7 +652,9 @@ describe('The ResourceDetailsViewer', () => {
     });
 
     expect(screen.queryByText('Attributions')).not.toBeInTheDocument();
-    expect(screen.queryByText('Add new attribution')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT)
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('1st party')).not.toBeInTheDocument();
     expect(
       screen.queryByText('License Text (to appear in attribution document)')

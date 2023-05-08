@@ -69,13 +69,15 @@ import {
 } from '../../../selectors/attribution-view-resource-selectors';
 import { act } from 'react-dom/test-utils';
 import {
-  getAttributionWizarOriginalAttribution,
+  getAttributionWizarOriginalDisplayPackageInfo,
   getAttributionWizardPackageNamespaces,
   getAttributionWizardPackageNames,
   getAttributionWizardPackageVersions,
   getAttributionWizardSelectedPackageAttributeIds,
   getAttributionWizardTotalAttributionCount,
 } from '../../../selectors/attribution-wizard-selectors';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 
 describe('The actions checking for unsaved changes', () => {
   describe('navigateToSelectedPathOrOpenUnsavedPopup', () => {
@@ -126,7 +128,9 @@ describe('The actions checking for unsaved changes', () => {
         testStore.dispatch(
           savePackageInfo(null, null, { packageName: 'Test' })
         );
-        testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test 2' }));
+        testStore.dispatch(
+          setTemporaryPackageInfo({ packageName: 'Test 2', attributionIds: [] })
+        );
 
         testStore.dispatch(
           changeSelectedAttributionIdOrOpenUnsavedPopup('uuid_1')
@@ -142,6 +146,7 @@ describe('The actions checking for unsaved changes', () => {
         expect(getSelectedAttributionId(testStore.getState())).toBe('');
         expect(getTemporaryPackageInfo(testStore.getState())).toEqual({
           packageName: 'Test 2',
+          attributionIds: [],
         });
       }
     );
@@ -167,7 +172,9 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(setSelectedResourceId('selectedResource'));
       testStore.dispatch(setSelectedAttributionId('selectedAttributionId'));
       testStore.dispatch(navigateToView(View.Attribution));
-      testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test' }));
+      testStore.dispatch(
+        setTemporaryPackageInfo({ packageName: 'Test', attributionIds: [] })
+      );
       testStore.dispatch(
         savePackageInfo('selectedResource', 'selectedAttributionId', {
           packageName: 'Test',
@@ -183,6 +190,7 @@ describe('The actions checking for unsaved changes', () => {
       expect(getSelectedAttributionId(testStore.getState())).toBe('uuid_1');
       expect(getTemporaryPackageInfo(testStore.getState())).toEqual({
         packageName: 'React',
+        attributionIds: ['uuid_1'],
       });
     });
   });
@@ -199,7 +207,9 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setSelectedResourceId('/testId/'));
-      testStore.dispatch(setTemporaryPackageInfo({ packageName: 'new Name' }));
+      testStore.dispatch(
+        setTemporaryPackageInfo({ packageName: 'new Name', attributionIds: [] })
+      );
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
       expect(getTargetView(testStore.getState())).toBe(View.Attribution);
@@ -226,20 +236,20 @@ describe('The actions checking for unsaved changes', () => {
 
     const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
     const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-    const testTemporaryPackageInfo: PackageInfo = {
+    const testPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
     };
-    const secondTestTemporaryPackageInfo: PackageInfo = {
+    const secondTestPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
     };
     const testManualAttributions: Attributions = {
-      [testManualAttributionUuid_1]: testTemporaryPackageInfo,
-      [testManualAttributionUuid_2]: secondTestTemporaryPackageInfo,
+      [testManualAttributionUuid_1]: testPackageInfo,
+      [testManualAttributionUuid_2]: secondTestPackageInfo,
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/root/src/something.js': [testManualAttributionUuid_1],
@@ -276,7 +286,9 @@ describe('The actions checking for unsaved changes', () => {
         )
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
-      testStore.dispatch(setTemporaryPackageInfo({ packageName: 'new Name' }));
+      testStore.dispatch(
+        setTemporaryPackageInfo({ packageName: 'new Name', attributionIds: [] })
+      );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
         setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/')
@@ -328,7 +340,9 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toEqual(
         testSelectedPackage
       );
-      expect(getTemporaryPackageInfo(testStore.getState())).toEqual({});
+      expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
+        EMPTY_DISPLAY_PACKAGE_INFO
+      );
     });
   });
 
@@ -371,9 +385,10 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toEqual(
         testSelectedPackage
       );
-      expect(getTemporaryPackageInfo(testStore.getState())).toEqual(
-        testPackageInfo
-      );
+      expect(getTemporaryPackageInfo(testStore.getState())).toEqual({
+        ...testPackageInfo,
+        attributionIds: ['uuid'],
+      });
     });
   });
 });
@@ -435,7 +450,7 @@ describe('The actions called from the unsaved popup', () => {
           attributionId: 'reactUuid',
         })
       );
-      testStore.dispatch(setTemporaryPackageInfo({}));
+      testStore.dispatch(setTemporaryPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO));
       testStore.dispatch(setTargetView(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
 
@@ -458,7 +473,9 @@ describe('The actions called from the unsaved popup', () => {
         loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
       );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
-      testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test' }));
+      testStore.dispatch(
+        setTemporaryPackageInfo({ packageName: 'Test', attributionIds: [] })
+      );
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
@@ -496,7 +513,9 @@ describe('The actions called from the unsaved popup', () => {
         setResources({ selectedResource: 1, newSelectedResource: 1 })
       );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
-      testStore.dispatch(setTemporaryPackageInfo({ packageName: 'Test' }));
+      testStore.dispatch(
+        setTemporaryPackageInfo({ packageName: 'Test', attributionIds: [] })
+      );
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
@@ -592,9 +611,8 @@ describe('openAttributionWizardPopup', () => {
     ];
     const expectedTotalAttributionCount = 2;
 
-    const testOriginalAttribution = getAttributionWizarOriginalAttribution(
-      testStore.getState()
-    );
+    const testOriginalDisplayPackageInfo =
+      getAttributionWizarOriginalDisplayPackageInfo(testStore.getState());
     const testPackageNamespaces = getAttributionWizardPackageNamespaces(
       testStore.getState()
     );
@@ -610,7 +628,9 @@ describe('openAttributionWizardPopup', () => {
       testStore.getState()
     );
 
-    expect(testOriginalAttribution).toEqual(expectedOriginalAttribution);
+    expect(
+      convertDisplayPackageInfoToPackageInfo(testOriginalDisplayPackageInfo)
+    ).toEqual(expectedOriginalAttribution);
     expect(Object.values(testPackageNamespaces)).toEqual(
       expectedPackageNamespacesValues
     );

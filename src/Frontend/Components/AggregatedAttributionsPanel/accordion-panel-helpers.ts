@@ -3,11 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { sum } from 'lodash';
 import {
   Attributions,
   AttributionsToHashes,
-  DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import {
@@ -16,15 +14,17 @@ import {
 } from '../../types/types';
 import {
   getContainedExternalPackages,
+  getContainedManualPackages,
   PanelAttributionData,
 } from '../../util/get-contained-packages';
+import { getDisplayAttributionWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 
 export function getDisplayContainedExternalPackagesWithCount(args: {
   selectedResourceId: string;
   externalData: Readonly<PanelAttributionData>;
   resolvedExternalAttributions: Readonly<Set<string>>;
   attributionsToHashes: Readonly<AttributionsToHashes>;
-}): Array<AttributionIdWithCount> {
+}): Array<DisplayAttributionWithCount> {
   const attributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
     args.externalData.resourcesWithAttributedChildren,
@@ -32,14 +32,38 @@ export function getDisplayContainedExternalPackagesWithCount(args: {
     args.externalData.resourcesToAttributions,
     args.resolvedExternalAttributions
   );
-  return getDisplayAttributionsWithCount(
+  return getDisplayExternalAttributionsWithCount(
     attributionIdsWithCount,
     args.externalData.attributions,
     args.attributionsToHashes
   );
 }
 
-export function getDisplayAttributionsWithCount(
+export function getDisplayContainedManualPackagesWithCount(args: {
+  selectedResourceId: string;
+  manualData: Readonly<PanelAttributionData>;
+}): Array<DisplayAttributionWithCount> {
+  const attributionIdsWithCount = getContainedManualPackages(
+    args.selectedResourceId,
+    args.manualData
+  );
+
+  const displayAttributionIdsWithCount: Array<DisplayAttributionWithCount> = [];
+
+  attributionIdsWithCount.forEach(({ attributionId, count }): void => {
+    const packageInfo: PackageInfo =
+      args.manualData.attributions[attributionId];
+    displayAttributionIdsWithCount.push(
+      getDisplayAttributionWithCountFromAttributions([
+        [attributionId, packageInfo, count],
+      ])
+    );
+  });
+
+  return displayAttributionIdsWithCount;
+}
+
+export function getDisplayExternalAttributionsWithCount(
   attributionIdsWithCount: Array<AttributionIdWithCount>,
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes
@@ -50,18 +74,18 @@ export function getDisplayAttributionsWithCount(
   } = {};
 
   attributionIdsWithCount.forEach(({ attributionId, count }): void => {
-    const attribution: PackageInfo = attributions[attributionId];
+    const packageInfo: PackageInfo = attributions[attributionId];
     const savedHash = externalAttributionsToHashes[attributionId];
 
     if (savedHash) {
       if (!hashToAttributions[savedHash]) {
         hashToAttributions[savedHash] = [];
       }
-      hashToAttributions[savedHash].push([attributionId, attribution, count]);
+      hashToAttributions[savedHash].push([attributionId, packageInfo, count]);
     } else {
       displayAttributionIdsWithCount.push(
         getDisplayAttributionWithCountFromAttributions([
-          [attributionId, attribution, count],
+          [attributionId, packageInfo, count],
         ])
       );
     }
@@ -74,72 +98,4 @@ export function getDisplayAttributionsWithCount(
   });
 
   return displayAttributionIdsWithCount;
-}
-
-function getDisplayAttributionWithCountFromAttributions(
-  attributionsWithIdsAndCounts: Array<[string, PackageInfo, number | undefined]>
-): DisplayAttributionWithCount {
-  const displayAttributionConfidence: number = Math.min(
-    ...attributionsWithIdsAndCounts.map(
-      (attributionWithId): number =>
-        attributionWithId[1].attributionConfidence || 0
-    )
-  );
-
-  const counts: Array<number> = attributionsWithIdsAndCounts.reduce(
-    (filteredCounts, attributionWithIdAndCount) => {
-      const count = attributionWithIdAndCount[2];
-      if (count !== undefined) {
-        filteredCounts.push(count);
-      }
-      return filteredCounts;
-    },
-    Array<number>()
-  );
-
-  const comments: Array<string> = attributionsWithIdsAndCounts.reduce(
-    (filteredComments, attributionWithIdAndCount) => {
-      const comment = attributionWithIdAndCount[1].comment || '';
-      if (comment !== '') {
-        filteredComments.push(comment);
-      }
-      return filteredComments;
-    },
-    Array<string>()
-  );
-
-  const originIdsAsSet: Set<string> = attributionsWithIdsAndCounts.reduce(
-    (originIdSet, attributionWithId) => {
-      (attributionWithId[1].originIds ?? []).forEach((originId: string) =>
-        originIdSet.add(originId)
-      );
-      return originIdSet;
-    },
-    new Set<string>()
-  );
-  const originIds: Array<string> = [...originIdsAsSet];
-
-  const attributionIds = attributionsWithIdsAndCounts.map(
-    (attributionWithId) => attributionWithId[0]
-  );
-
-  const attributionToShow: DisplayPackageInfo = {
-    ...attributionsWithIdsAndCounts[0][1],
-    type: 'DisplayPackageInfo',
-    attributionConfidence: displayAttributionConfidence,
-    attributionIds,
-  };
-  delete attributionToShow.comment;
-  if (comments.length > 0) {
-    attributionToShow.comments = comments;
-  }
-  if (originIds.length > 0) {
-    attributionToShow.originIds = originIds;
-  }
-
-  return {
-    attributionId: attributionsWithIdsAndCounts[0][0],
-    count: counts.length > 0 ? sum(counts) : undefined,
-    attribution: attributionToShow,
-  };
 }
