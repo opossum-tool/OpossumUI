@@ -9,59 +9,69 @@ import {
   addSecondLineOfPackageLabelFromAttribute,
   getCardLabels,
 } from '../get-card-labels';
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 
 describe('Test getPackageLabel', () => {
-  const testProps: PackageInfo = {
+  const testProps: DisplayPackageInfo = {
     packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: '(c) Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    attributionIds: [],
   };
-  const testPropsWithoutVersion: PackageInfo = {
+  const testPropsWithoutVersion: DisplayPackageInfo = {
     packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    attributionIds: [],
   };
-  const testPropsWithUndefinedName: PackageInfo = {
+  const testPropsWithUndefinedName: DisplayPackageInfo = {
     packageName: undefined,
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    attributionIds: [],
   };
-  const testPropsWithoutName: PackageInfo = {
+  const testPropsWithoutName: DisplayPackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
+    attributionIds: [],
   };
-  const testPropsCopyrightLicenseTextAndComment: PackageInfo = {
+  const testPropsCopyrightLicenseTextAndComment: DisplayPackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
+    attributionIds: [],
   };
-  const testPropsWithLicenseTextAndComment: PackageInfo = {
+  const testPropsWithLicenseTextAndComment: DisplayPackageInfo = {
     licenseText: 'Test license text',
-    comment: 'Test comment',
+    comments: ['Test comment'],
+    attributionIds: [],
   };
-  const testPropsJustComment: PackageInfo = {
-    comment: 'Test comment',
+  const testPropsJustComment: DisplayPackageInfo = {
+    comments: ['Test comment'],
+    attributionIds: [],
   };
-  const testPropsJustUrlAndCopyright: PackageInfo = {
+  const testPropsJustUrlAndCopyright: DisplayPackageInfo = {
     copyright: 'Test copyright',
     url: 'Test url',
+    attributionIds: [],
   };
-  const testPropsJustFirstParty: PackageInfo = {
+  const testPropsJustFirstParty: DisplayPackageInfo = {
     firstParty: true,
+    attributionIds: [],
   };
 
   it('finds label for package', () => {
@@ -104,7 +114,7 @@ describe('Test getPackageLabel', () => {
     expect(getCardLabels(testPropsJustComment)).toEqual(['Test comment']);
   });
   it('finds label for empty package', () => {
-    expect(getCardLabels({})).toEqual([]);
+    expect(getCardLabels(EMPTY_DISPLAY_PACKAGE_INFO)).toEqual([]);
   });
   it('finds label for package with just url and copyright', () => {
     expect(getCardLabels(testPropsJustUrlAndCopyright)).toEqual([

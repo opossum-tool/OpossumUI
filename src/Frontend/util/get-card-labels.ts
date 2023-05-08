@@ -3,12 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  DisplayPackageInfo,
-  PackageInfo,
-  isDisplayPackageInfo,
-} from '../../shared/shared-types';
-import { convertPackageInfoToDisplayPackageInfo } from './convert-package-info';
+import { DisplayPackageInfo } from '../../shared/shared-types';
 
 type RelevantDisplayPackageInfoAttributes =
   | 'packageName'
@@ -24,11 +19,8 @@ const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES: Array<RelevantDisplayPackageI
 const FIRST_PARTY_TEXT = 'First party';
 
 export function getCardLabels(
-  packageInfo: PackageInfo | DisplayPackageInfo
+  displayPackageInfo: DisplayPackageInfo
 ): Array<string> {
-  const displayPackageInfo = isDisplayPackageInfo(packageInfo)
-    ? packageInfo
-    : convertPackageInfoToDisplayPackageInfo(packageInfo, ['']);
   const packageLabels: Array<string> = [];
 
   for (const attribute of PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES) {
