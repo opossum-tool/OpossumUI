@@ -8,10 +8,10 @@ import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
 import {
   getCurrentAttributionId,
+  getDisplayPackageInfoOfSelected,
   getExternalData,
   getManualAttributions,
   getManualData,
-  getDisplayPackageInfoOfSelected,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
@@ -127,44 +127,18 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
   };
 }
 
-export function selectAttributionInAccordionPanelOrOpenUnsavedPopup(
+export function selectPackageCardInAuditViewOrOpenUnsavedPopup(
   packagePanelTitle: PackagePanelTitle,
-  attributionId: string,
-  attribution?: DisplayPackageInfo
+  packageCardId: string,
+  displayPackageInfo: DisplayPackageInfo
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryDisplayPackageInfoModified(getState())) {
       dispatch(
         setTargetDisplayedPackage({
           panel: packagePanelTitle,
-          attributionId,
-        })
-      );
-      dispatch(openPopup(PopupType.NotSavedPopup));
-    } else {
-      dispatch(
-        setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
-          {
-            panel: packagePanelTitle,
-            attributionId,
-          },
-          attribution
-        )
-      );
-    }
-  };
-}
-
-export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
-  packagePanelTitle: PackagePanelTitle,
-  attributionId: string
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
-      dispatch(
-        setTargetDisplayedPackage({
-          panel: packagePanelTitle,
-          attributionId,
+          packageCardId,
+          displayPackageInfo,
         })
       );
       dispatch(openPopup(PopupType.NotSavedPopup));
@@ -172,7 +146,8 @@ export function selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
       dispatch(
         setDisplayedPackageAndResetTemporaryDisplayPackageInfo({
           panel: packagePanelTitle,
-          attributionId,
+          packageCardId,
+          displayPackageInfo,
         })
       );
     }

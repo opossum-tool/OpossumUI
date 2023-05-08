@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PanelAttributionData } from '../util/get-contained-packages';
-import { DisplayAttributionsWithCountAndResourceId } from '../types/types';
-import { getDisplayContainedExternalPackagesWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
+import { DisplayPackageInfosWithCountAndResourceId } from '../types/types';
+import { getContainedExternalDisplayPackageInfosWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
 import { AttributionsToHashes } from '../../shared/shared-types';
 
 let cachedExternalData: PanelAttributionData | null = null;
@@ -16,6 +16,7 @@ self.onmessage = ({
     externalData,
     resolvedExternalAttributions,
     attributionsToHashes,
+    panelTitle,
   },
 }): void => {
   // externalData = null is used to empty the cached data
@@ -29,16 +30,18 @@ self.onmessage = ({
 
   if (selectedResourceId) {
     if (cachedExternalData && cachedAttributionsToHashes) {
-      const displayAttributionIdsWithCount =
-        getDisplayContainedExternalPackagesWithCount({
+      const [sortedPackageCardIds, displayAttributionIdsWithCount] =
+        getContainedExternalDisplayPackageInfosWithCount({
           selectedResourceId,
           externalData: cachedExternalData,
           resolvedExternalAttributions,
           attributionsToHashes: cachedAttributionsToHashes,
+          panelTitle,
         });
-      const output: DisplayAttributionsWithCountAndResourceId = {
+      const output: DisplayPackageInfosWithCountAndResourceId = {
         resourceId: selectedResourceId,
-        displayAttributionsWithCount: displayAttributionIdsWithCount,
+        sortedPackageCardIds,
+        displayPackageInfosWithCount: displayAttributionIdsWithCount,
       };
 
       self.postMessage({

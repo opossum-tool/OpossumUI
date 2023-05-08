@@ -3,17 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  AttributionData,
-  DisplayPackageInfo,
-} from '../../../../shared/shared-types';
+import { AttributionData } from '../../../../shared/shared-types';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { PanelPackage, State } from '../../../types/types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { getSelectedView, getTargetView } from '../../selectors/view-selector';
 import {
   getManualData,
-  getDisplayPackageInfoOfSelectedAttribution,
+  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
 } from '../../selectors/all-views-resource-selectors';
 import { doNothing } from '../../../util/do-nothing';
 import { getParents } from '../../helpers/get-parents';
@@ -31,31 +28,28 @@ import {
 } from './audit-view-simple-actions';
 import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 import {
-  getDisplayPackageInfoOfDisplayedPackageInManualPanel,
+  getDisplayPackageInfoOfDisplayedPackage,
   getDisplayedPackage,
   getSelectedResourceId,
   getTargetDisplayedPackage,
   getTargetSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../shared-constants';
+import { isExternalPackagePanel } from '../../../util/is-external-package-panel';
 
-export function resetTemporaryDisplayPackageInfo(
-  attribution?: DisplayPackageInfo
-): AppThunkAction {
+export function resetTemporaryDisplayPackageInfo(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (attribution) {
-      dispatch(setTemporaryDisplayPackageInfo(attribution));
-      return;
-    }
-
     const view: View = getSelectedView(getState());
 
     switch (view) {
       case View.Audit:
         dispatch(
           setTemporaryDisplayPackageInfo(
-            getDisplayPackageInfoOfDisplayedPackageInManualPanel(getState()) ||
+            getDisplayPackageInfoOfDisplayedPackage(getState()) ||
               EMPTY_DISPLAY_PACKAGE_INFO
           )
         );
@@ -63,8 +57,9 @@ export function resetTemporaryDisplayPackageInfo(
       case View.Attribution:
         dispatch(
           setTemporaryDisplayPackageInfo(
-            getDisplayPackageInfoOfSelectedAttribution(getState()) ||
-              EMPTY_DISPLAY_PACKAGE_INFO
+            getDisplayPackageInfoOfSelectedAttributionInAttributionView(
+              getState()
+            ) || EMPTY_DISPLAY_PACKAGE_INFO
           )
         );
         break;
@@ -120,12 +115,11 @@ export function openResourceInResourceBrowser(
 }
 
 export function setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
-  panelPackage: PanelPackage,
-  attribution?: DisplayPackageInfo
+  panelPackage: PanelPackage
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));
-    dispatch(resetTemporaryDisplayPackageInfo(attribution));
+    dispatch(resetTemporaryDisplayPackageInfo());
   };
 }
 
@@ -133,19 +127,25 @@ export function resetSelectedPackagePanelIfContainedAttributionWasRemoved(): App
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId: string = getSelectedResourceId(getState());
     const manualData: AttributionData = getManualData(getState());
-    const AttributionIdsOfResource: Array<string> =
+    const attributionIdsOfResource: Array<string> =
       (selectedResourceId &&
         manualData.resourcesToAttributions[selectedResourceId]) ||
       [];
 
-    const selectedAttributionId: string =
-      getDisplayedPackage(getState())?.attributionId || '';
-
-    if (!AttributionIdsOfResource.includes(selectedAttributionId)) {
+    const displayedPanelPackage = getDisplayedPackage(getState());
+    const selectedAttributionId =
+      displayedPanelPackage?.displayPackageInfo.attributionIds[0] || '';
+    const panelTitle = displayedPanelPackage?.panel;
+    if (
+      panelTitle &&
+      !isExternalPackagePanel(panelTitle) &&
+      !attributionIdsOfResource.includes(selectedAttributionId)
+    ) {
       dispatch(
         setDisplayedPackage({
           panel: PackagePanelTitle.ManualPackages,
-          attributionId: '',
+          packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+          displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
         })
       );
     }

@@ -148,7 +148,7 @@ export function ResourceDetailsAttributionColumn(
   const showManualAttributionData: boolean =
     !shownDataIsFromExternalAttribution() || isShownDataEditable;
   const hideDeleteButtons =
-    attributionIdOfSelectedPackageInManualPanel === '' ||
+    attributionIdOfSelectedPackageInManualPanel === null ||
     props.showParentAttributions;
 
   const manualAttributionsOfBreakpointSelected =

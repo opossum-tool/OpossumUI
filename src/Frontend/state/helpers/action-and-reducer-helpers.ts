@@ -19,6 +19,10 @@ import {
   deleteChildrenFromAttributedResources,
 } from './save-action-helpers';
 import objectHash from 'object-hash';
+import { ResourceState } from '../reducers/resource-reducer';
+import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
+import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -200,4 +204,53 @@ export function createExternalAttributionsToHashes(
   );
 
   return externalAttributionsToHashes;
+}
+
+export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
+  attributionIds: Array<string> | undefined,
+  resourceId: string,
+  state: ResourceState
+): string {
+  let displayedAttributionId = '';
+  if (attributionIds && attributionIds.length > 0) {
+    displayedAttributionId = attributionIds.sort(
+      getAlphabeticalComparer(state.allViews.manualData.attributions)
+    )[0];
+  } else {
+    const closestParentAttributionIds: Array<string> =
+      getClosestParentAttributionIds(
+        resourceId,
+        state.allViews.manualData.resourcesToAttributions,
+        getAttributionBreakpointCheckForResourceState(state)
+      );
+    if (closestParentAttributionIds.length > 0) {
+      displayedAttributionId = closestParentAttributionIds.sort(
+        getAlphabeticalComparer(state.allViews.manualData.attributions)
+      )[0];
+    }
+  }
+  return displayedAttributionId;
+}
+
+export function getIndexOfAttributionInManualPackagePanel(
+  targetAttributionId: string,
+  resourceId: string,
+  manualData: AttributionData
+): number | null {
+  const manualAttributionIdsOnResource =
+    manualData.resourcesToAttributions[resourceId];
+
+  if (!manualAttributionIdsOnResource) {
+    return null;
+  }
+
+  const sortedAttributionIds = manualAttributionIdsOnResource.sort(
+    getAlphabeticalComparer(manualData.attributions)
+  );
+
+  const packageCardIndex = sortedAttributionIds.findIndex(
+    (attributionId) => attributionId === targetAttributionId
+  );
+
+  return packageCardIndex !== -1 ? packageCardIndex : null;
 }

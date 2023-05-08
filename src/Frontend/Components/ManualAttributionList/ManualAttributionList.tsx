@@ -7,27 +7,25 @@ import React, { ReactElement } from 'react';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { List } from '../List/List';
 import { PackageCard } from '../PackageCard/PackageCard';
-import {
-  DisplayAttributionWithCount,
-  PackageCardConfig,
-} from '../../types/types';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
   ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
+  EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../shared-constants';
-import { getAttributionFromDisplayAttributionsWithCount } from '../../util/get-attribution-from-display-attributions-with-count';
 
 const DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON: DisplayPackageInfo =
   {
+    ...EMPTY_DISPLAY_PACKAGE_INFO,
     packageName: ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
-    attributionIds: [''],
   };
 
 interface ManualAttributionListProps {
-  sortedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount>;
+  displayPackageInfos: DisplayPackageInfos;
+  sortedPackageCardIds: Array<string>;
   selectedResourceId: string;
-  selectedAttributionId: string | null;
-  onCardClick(attributionId: string, isButton?: boolean): void;
+  selectedPackageCardId?: string;
+  onCardClick(packageCardId: string, isButton?: boolean): void;
   isAddNewAttributionItemShown?: boolean;
   attributionsFromParent?: boolean;
 }
@@ -35,38 +33,24 @@ interface ManualAttributionListProps {
 export function ManualAttributionList(
   props: ManualAttributionListProps
 ): ReactElement {
-  const attributionIds: Array<string> =
-    props.sortedDisplayAttributionsWithCount.map(
-      ({ attributionId }) => attributionId
-    );
+  const sortedPackageCardIdsPotentiallyWithAddNewAttributionButton =
+    props.isAddNewAttributionItemShown
+      ? [...props.sortedPackageCardIds, ADD_NEW_ATTRIBUTION_BUTTON_ID]
+      : props.sortedPackageCardIds;
 
-  if (props.isAddNewAttributionItemShown) {
-    attributionIds.push(ADD_NEW_ATTRIBUTION_BUTTON_ID);
-  }
+  function getAttributionCard(packageCardId: string): ReactElement {
+    const isButton = packageCardId === ADD_NEW_ATTRIBUTION_BUTTON_ID;
 
-  function getAttributionCard(attributionId: string): ReactElement {
-    const isButton = attributionId === ADD_NEW_ATTRIBUTION_BUTTON_ID;
-
-    const displayPackageInfo: DisplayPackageInfo = isButton
+    const displayPackageInfo = isButton
       ? DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON
-      : getAttributionFromDisplayAttributionsWithCount(
-          attributionId,
-          props.sortedDisplayAttributionsWithCount
-        );
-
-    function isSelected(): boolean {
-      return (
-        attributionId === props.selectedAttributionId ||
-        Boolean(props.selectedAttributionId === '' && isButton)
-      );
-    }
+      : props.displayPackageInfos[packageCardId];
 
     function onClick(): void {
-      props.onCardClick(attributionId, isButton);
+      props.onCardClick(packageCardId, isButton);
     }
 
     const cardConfig: PackageCardConfig = {
-      isSelected: isSelected(),
+      isSelected: packageCardId === props.selectedPackageCardId,
       isPreSelected: Boolean(displayPackageInfo.preSelected),
     };
 
@@ -75,8 +59,8 @@ export function ManualAttributionList(
         onClick={onClick}
         hideContextMenuAndMultiSelect={isButton}
         cardConfig={cardConfig}
-        key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
-        cardId={`manual-${props.selectedResourceId}-${attributionId}`}
+        key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
+        cardId={`manual-${props.selectedResourceId}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
         showOpenResourcesIcon={!isButton}
         hideAttributionWizardContextMenuItem={props.attributionsFromParent}
@@ -87,9 +71,11 @@ export function ManualAttributionList(
   return (
     <List
       getListItem={(index: number): ReactElement =>
-        getAttributionCard(attributionIds[index])
+        getAttributionCard(
+          sortedPackageCardIdsPotentiallyWithAddNewAttributionButton[index]
+        )
       }
-      length={attributionIds.length}
+      length={sortedPackageCardIdsPotentiallyWithAddNewAttributionButton.length}
       max={{ numberOfDisplayedItems: 5 }}
       cardVerticalDistance={41}
     />

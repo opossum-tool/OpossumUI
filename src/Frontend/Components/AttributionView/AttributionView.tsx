@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { useFilters } from '../../util/use-filters';
 import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
@@ -25,7 +25,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { IconButton } from '../IconButton/IconButton';
 import { getActiveFilters } from '../../state/selectors/view-selector';
 import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
-import { DisplayAttributionWithCount } from '../../types/types';
+import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 
@@ -46,8 +46,8 @@ const classes = {
 export function AttributionView(): ReactElement {
   const dispatch = useAppDispatch();
   const attributions: Attributions = useAppSelector(getManualAttributions);
-  const selectedAttributionId: string = useAppSelector(
-    getSelectedAttributionId
+  const selectedPackageCardIdInAttributionView: string = useAppSelector(
+    getSelectedAttributionIdInAttributionView
   );
   const filteredAttributions = useFilters(attributions);
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
@@ -57,22 +57,14 @@ export function AttributionView(): ReactElement {
     setShowMultiselect(!showMultiSelect);
   }
 
-  const sortedAttributionIds = Object.keys(filteredAttributions).sort(
-    getAlphabeticalComparer(filteredAttributions)
-  );
+  const { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos } =
+    getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
+      filteredAttributions
+    );
 
-  const filteredAndSortedDisplayAttributions: Array<DisplayAttributionWithCount> =
-    sortedAttributionIds.map((attributionId) => {
-      return {
-        attributionId,
-        attribution: convertPackageInfoToDisplayPackageInfo(
-          filteredAttributions[attributionId],
-          [attributionId]
-        ),
-      };
-    });
-
-  function onCardClick(attributionId: string): void {
+  function onCardClick(packageCardId: string): void {
+    // In AttributionView, attribtionIds still serve as packageCardIds
+    const attributionId = packageCardId;
     dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
   }
 
@@ -82,8 +74,9 @@ export function AttributionView(): ReactElement {
   return (
     <MuiBox sx={classes.root}>
       <AttributionList
-        displayAttributions={filteredAndSortedDisplayAttributions}
-        selectedAttributionId={selectedAttributionId}
+        displayPackageInfos={filteredDisplayPackageInfos}
+        sortedPackageCardIds={filteredAndSortedPackageCardIds}
+        selectedPackageCardId={selectedPackageCardIdInAttributionView}
         onCardClick={onCardClick}
         sx={classes.attributionList}
         maxHeight={
@@ -115,4 +108,30 @@ export function AttributionView(): ReactElement {
       <AttributionDetailsViewer />
     </MuiBox>
   );
+}
+
+function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
+  filteredAttributions: Attributions
+): {
+  filteredAndSortedPackageCardIds: Array<string>;
+  filteredDisplayPackageInfos: DisplayPackageInfos;
+} {
+  const sortedAttributionIds = Object.keys(filteredAttributions).sort(
+    getAlphabeticalComparer(filteredAttributions)
+  );
+
+  const filteredAndSortedPackageCardIds: Array<string> = [];
+  const filteredDisplayPackageInfos: DisplayPackageInfos = {};
+
+  sortedAttributionIds.forEach((attributionId) => {
+    // In AttributionView, attribtionIds still serve as packageCardIds
+    const packageCardId = attributionId;
+    filteredAndSortedPackageCardIds.push(packageCardId);
+    filteredDisplayPackageInfos[packageCardId] =
+      convertPackageInfoToDisplayPackageInfo(
+        filteredAttributions[attributionId],
+        [attributionId]
+      );
+  });
+  return { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos };
 }

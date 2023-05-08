@@ -5,11 +5,11 @@
 
 import { sum } from 'lodash';
 import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
-import { DisplayAttributionWithCount } from '../types/types';
+import { DisplayPackageInfoWithCount } from '../types/types';
 
-export function getDisplayAttributionWithCountFromAttributions(
+export function getDisplayPackageInfoWithCountFromAttributions(
   attributionsWithIdsAndCounts: Array<[string, PackageInfo, number | undefined]>
-): DisplayAttributionWithCount {
+): DisplayPackageInfoWithCount {
   const displayAttributionConfidences: Array<number> =
     attributionsWithIdsAndCounts.reduce(
       (filteredConfidences, attributionWithIdAndCount) => {
@@ -80,8 +80,7 @@ export function getDisplayAttributionWithCountFromAttributions(
   }
 
   return {
-    attributionId: attributionsWithIdsAndCounts[0][0],
-    count: counts.length > 0 ? sum(counts) : undefined,
-    attribution: attributionToShow,
+    count: sum(counts),
+    displayPackageInfo: attributionToShow,
   };
 }

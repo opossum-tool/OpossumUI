@@ -19,14 +19,14 @@ import {
   deleteAttributionGloballyAndSave,
 } from '../../state/actions/resource-actions/save-actions';
 import { View } from '../../enums/enums';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 
 export function ConfirmDeletionPopup(): ReactElement {
   const view = useAppSelector(getSelectedView);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const targetAttributionId = useAppSelector(getPopupAttributionId);
   const selectedAttributionIdAttributionView = useAppSelector(
-    getSelectedAttributionId
+    getSelectedAttributionIdInAttributionView
   );
   const selectedAttributionIdAuditView =
     useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel) ??

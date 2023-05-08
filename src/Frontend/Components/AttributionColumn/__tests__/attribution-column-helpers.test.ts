@@ -3,10 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { View } from '../../../enums/enums';
+import { PackagePanelTitle, View } from '../../../enums/enums';
+import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../../shared-constants';
+import { PanelPackage } from '../../../types/types';
 import {
   getLicenseTextMaxRows,
   getMergeButtonsDisplayState,
+  getSelectedManualAttributionIdForAuditView,
   selectedPackagesAreResolved,
 } from '../attribution-column-helpers';
 
@@ -183,5 +186,59 @@ describe('getMergeButtonsDisplayState', () => {
       hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,
     });
+  });
+});
+
+describe('getSelectedManualAttributionIdForAuditView', () => {
+  it('yields correct attributionId if manual panel', () => {
+    const testSelectedPackage: PanelPackage = {
+      panel: PackagePanelTitle.ManualPackages,
+      packageCardId: 'somePackageCardId',
+      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid'] },
+    };
+    const expectedSelectedManaualAttributionId = 'uuid';
+    const testSelectedManualAttributionId =
+      getSelectedManualAttributionIdForAuditView(testSelectedPackage);
+    expect(testSelectedManualAttributionId).toEqual(
+      expectedSelectedManaualAttributionId
+    );
+  });
+
+  it('yields empty string if external panel', () => {
+    const testSelectedPackage: PanelPackage = {
+      panel: PackagePanelTitle.ContainedExternalPackages,
+      packageCardId: 'somePackageCardId',
+      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid'] },
+    };
+    const expectedSelectedManaualAttributionId = '';
+    const testSelectedManualAttributionId =
+      getSelectedManualAttributionIdForAuditView(testSelectedPackage);
+    expect(testSelectedManualAttributionId).toEqual(
+      expectedSelectedManaualAttributionId
+    );
+  });
+
+  it('yields empty string if packageCardId is from addNewAttribution button', () => {
+    const testSelectedPackage: PanelPackage = {
+      panel: PackagePanelTitle.ManualPackages,
+      packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid'] },
+    };
+    const expectedSelectedManaualAttributionId = '';
+    const testSelectedManualAttributionId =
+      getSelectedManualAttributionIdForAuditView(testSelectedPackage);
+    expect(testSelectedManualAttributionId).toEqual(
+      expectedSelectedManaualAttributionId
+    );
+  });
+
+  it('yields empty string if panel package is null', () => {
+    const testSelectedPackage = null;
+    const expectedSelectedManaualAttributionId = '';
+    const testSelectedManualAttributionId =
+      getSelectedManualAttributionIdForAuditView(testSelectedPackage);
+    expect(testSelectedManualAttributionId).toEqual(
+      expectedSelectedManaualAttributionId
+    );
   });
 });

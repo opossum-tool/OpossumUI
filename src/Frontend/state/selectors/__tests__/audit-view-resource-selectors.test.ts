@@ -12,7 +12,7 @@ import {
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../types/types';
-import { getDisplayPackageInfoOfSelected } from '../all-views-resource-selectors';
+import { getManualDisplayPackageInfoOfSelected } from '../all-views-resource-selectors';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
 import {
   setDisplayedPackage,
@@ -29,6 +29,10 @@ import {
 } from '../audit-view-resource-selectors';
 import { PackagePanelTitle } from '../../../enums/enums';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../shared-constants';
 
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
@@ -67,13 +71,15 @@ describe('The audit view resource selectors', () => {
       licenseText: ' test License text',
       attributionIds: [testManualAttributionUuid_1],
     };
-    expect(getDisplayPackageInfoOfSelected(testStore.getState())).toBeNull();
+    expect(
+      getManualDisplayPackageInfoOfSelected(testStore.getState())
+    ).toBeNull();
 
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions)
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(getDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
       expectedDisplayPackageInfo
     );
   });
@@ -105,18 +111,21 @@ describe('The audit view resource selectors', () => {
     });
   });
 
-  it('gets getSelectedPackageAttributionIdIfManualPackagePanel', () => {
+  it('gets getAttributionIdOfDisplayedPackageInManualPanel', () => {
     const manualPackagesSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
-      attributionId: 'uuid1',
+      packageCardId: 'Attributions-0',
+      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid1'] },
     };
     const manualPackagesDefaultSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
-      attributionId: '',
+      packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+      displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     };
     const containedSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ContainedManualPackages,
-      attributionId: '',
+      packageCardId: 'Signals in Folder Content-0',
+      displayPackageInfo: { packageName: 'Vue', attributionIds: ['uuid2'] },
     };
 
     const testStore = createTestAppStore();
@@ -134,7 +143,7 @@ describe('The audit view resource selectors', () => {
     );
     expect(
       getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
-    ).toBe('');
+    ).toBe(null);
 
     testStore.dispatch(setDisplayedPackage(containedSelectedPackage));
     expect(

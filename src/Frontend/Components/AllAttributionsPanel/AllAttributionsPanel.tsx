@@ -6,18 +6,14 @@
 import MuiPaper from '@mui/material/Paper';
 import React, { ReactElement } from 'react';
 import { PackagePanelTitle } from '../../enums/enums';
-import { selectAttributionInAccordionPanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { OpossumColors } from '../../shared-styles';
-import {
-  DisplayAttributionWithCount,
-  PackageCardConfig,
-} from '../../types/types';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
 import { PackageList } from '../PackageList/PackageList';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
-import { getAttributionFromDisplayAttributionsWithCount } from '../../util/get-attribution-from-display-attributions-with-count';
 
 const classes = {
   root: {
@@ -27,8 +23,8 @@ const classes = {
 };
 
 interface AllAttributionsPanelProps {
-  displayAttributions: Array<DisplayAttributionWithCount>;
-  selectedAttributionId: string | null;
+  displayPackageInfos: DisplayPackageInfos;
+  selectedPackageCardId: string | null;
   isAddToPackageEnabled: boolean;
 }
 
@@ -37,17 +33,14 @@ export function AllAttributionsPanel(
 ): ReactElement {
   const dispatch = useAppDispatch();
 
-  function getPackageCard(attributionId: string): ReactElement | null {
-    const displayPackageInfo = getAttributionFromDisplayAttributionsWithCount(
-      attributionId,
-      props.displayAttributions
-    );
+  function getPackageCard(packageCardId: string): ReactElement | null {
+    const displayPackageInfo = props.displayPackageInfos[packageCardId];
 
     function onCardClick(): void {
       dispatch(
-        selectAttributionInAccordionPanelOrOpenUnsavedPopup(
+        selectPackageCardInAuditViewOrOpenUnsavedPopup(
           PackagePanelTitle.AllAttributions,
-          attributionId,
+          packageCardId,
           displayPackageInfo
         )
       );
@@ -60,17 +53,17 @@ export function AllAttributionsPanel(
     }
 
     const cardConfig: PackageCardConfig = {
-      isSelected: attributionId === props.selectedAttributionId,
+      isSelected: packageCardId === props.selectedPackageCardId,
       isPreSelected: Boolean(displayPackageInfo.preSelected),
     };
 
     return (
       <PackageCard
-        cardId={`all-attributions-${attributionId}`}
+        cardId={`all-attributions-${packageCardId}`}
         onClick={onCardClick}
         onIconClick={props.isAddToPackageEnabled ? onAddClick : undefined}
         cardConfig={cardConfig}
-        key={`PackageCard-${displayPackageInfo.packageName}-${attributionId}`}
+        key={`PackageCard-${displayPackageInfo.packageName}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
         hideResourceSpecificButtons={true}
         showOpenResourcesIcon={true}
@@ -81,7 +74,8 @@ export function AllAttributionsPanel(
   return (
     <MuiPaper sx={classes.root} elevation={0} square={true}>
       <PackageList
-        displayAttributionsWithCount={props.displayAttributions}
+        displayPackageInfos={props.displayPackageInfos}
+        sortedPackageCardIds={Object.keys(props.displayPackageInfos)}
         getAttributionCard={getPackageCard}
         maxNumberOfDisplayedItems={20}
         listTitle={PackagePanelTitle.AllAttributions}

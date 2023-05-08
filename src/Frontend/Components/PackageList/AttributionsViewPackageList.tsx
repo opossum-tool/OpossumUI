@@ -5,19 +5,20 @@
 
 import React, { ReactElement, useMemo, useState } from 'react';
 import {
-  DisplayAttributionWithCount,
+  DisplayPackageInfos,
   Height,
   NumberOfDisplayedItems,
 } from '../../types/types';
 import { List } from '../List/List';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getFilteredPackageIdsFromDisplayAttributions } from './package-list-helpers';
+import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list-helpers';
 
 const CARD_VERTICAL_DISTANCE = 41;
 
 interface AttributionsViewPackageListProps {
-  displayAttributions: Array<DisplayAttributionWithCount>;
-  getAttributionCard(attributionId: string): ReactElement | null;
+  displayPackageInfos: DisplayPackageInfos;
+  sortedPackageCardIds: Array<string>;
+  getAttributionCard(packageCardId: string): ReactElement | null;
   max: NumberOfDisplayedItems | Height;
 }
 
@@ -26,13 +27,14 @@ export function AttributionsViewPackageList(
 ): ReactElement {
   const [search, setSearch] = useState('');
 
-  const filteredPackageIds: Array<string> = useMemo(
+  const filteredAndSortedPackageCardIds: Array<string> = useMemo(
     () =>
-      getFilteredPackageIdsFromDisplayAttributions(
-        props.displayAttributions,
+      getFilteredPackageCardIdsFromDisplayPackageInfos(
+        props.displayPackageInfos,
+        props.sortedPackageCardIds,
         search
       ),
-    [props.displayAttributions, search]
+    [props.displayPackageInfos, props.sortedPackageCardIds, search]
   );
 
   return (
@@ -44,10 +46,10 @@ export function AttributionsViewPackageList(
       />
       <List
         getListItem={(index: number): ReactElement | null =>
-          props.getAttributionCard(filteredPackageIds[index])
+          props.getAttributionCard(filteredAndSortedPackageCardIds[index])
         }
         max={props.max}
-        length={filteredPackageIds.length}
+        length={filteredAndSortedPackageCardIds.length}
         cardVerticalDistance={CARD_VERTICAL_DISTANCE}
       />
     </div>

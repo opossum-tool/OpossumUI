@@ -3,89 +3,59 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { DisplayAttributionWithCount } from '../../../types/types';
-import { getFilteredPackageIdsFromDisplayAttributions } from '../package-list-helpers';
+import { DisplayPackageInfos } from '../../../types/types';
+import { getFilteredPackageCardIdsFromDisplayPackageInfos } from '../package-list-helpers';
 
-describe('The PackageListHelper', () => {
-  it('filters Attributions', () => {
-    const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
-        attribution: {
-          packageName: 'Search_term package',
-          attributionIds: ['uuid1'],
-        },
-      },
-      {
-        attributionId: 'uuid2',
-        attribution: {
-          copyright: '(c) Search_term 2022',
-          attributionIds: ['uuid2'],
-        },
-      },
-      {
-        attributionId: 'uuid3',
-        attribution: {
-          licenseName: 'Search_term licence',
-          attributionIds: ['uuid3'],
-        },
-      },
-      {
-        attributionId: 'uuid4',
-        attribution: {
-          packageVersion: 'version search_term',
-          attributionIds: ['uuid4'],
-        },
-      },
-      {
-        attributionId: 'uuid5',
-        attribution: {
-          comments: ['comment search_term'],
-          licenseText: 'text search_term',
-          url: 'www.search_term.com',
-          attributionIds: ['uuid5'],
-        },
-      },
+describe('getFilteredPackageCardIdsFromDisplayPackageInfos', () => {
+  it('filters PackageCardIds', () => {
+    const testSortedPackageCardIds = [
+      'Signals-0',
+      'Signals-1',
+      'Signals-2',
+      'Signals-3',
+      'Signals-4',
     ];
-    const filteredTestAttributions =
-      getFilteredPackageIdsFromDisplayAttributions(
-        testDisplayAttributions,
+
+    /* eslint-disable @typescript-eslint/no-magic-numbers */
+    const testDisplayPackageInfos: DisplayPackageInfos = {
+      [testSortedPackageCardIds[0]]: {
+        packageName: 'Search_term package',
+        attributionIds: ['uuid1'],
+      },
+      [testSortedPackageCardIds[1]]: {
+        copyright: '(c) Search_term 2022',
+        attributionIds: ['uuid2'],
+      },
+      [testSortedPackageCardIds[2]]: {
+        licenseName: 'Search_term licence',
+        attributionIds: ['uuid3'],
+      },
+      [testSortedPackageCardIds[3]]: {
+        packageVersion: 'version search_term',
+        attributionIds: ['uuid4'],
+      },
+      [testSortedPackageCardIds[4]]: {
+        comments: ['comment search_term'],
+        licenseText: 'text search_term',
+        url: 'www.search_term.com',
+        attributionIds: ['uuid5'],
+      },
+    };
+
+    const testFilteredPackageCardIds =
+      getFilteredPackageCardIdsFromDisplayPackageInfos(
+        testDisplayPackageInfos,
+        testSortedPackageCardIds,
         'SeArCh_TeRm'
       );
 
-    expect(filteredTestAttributions).toContain('uuid1');
-    expect(filteredTestAttributions).toContain('uuid2');
-    expect(filteredTestAttributions).toContain('uuid3');
-    expect(filteredTestAttributions).toContain('uuid4');
-    expect(filteredTestAttributions).not.toContain('uuid5');
-  });
-
-  it('sorts Attributions', () => {
-    const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
-        attribution: {
-          packageName: 'package 3',
-          attributionIds: ['uuid1'],
-        },
-      },
-      {
-        attributionId: 'uuid2',
-        attribution: {
-          packageName: 'package 1',
-          attributionIds: ['uuid2'],
-        },
-      },
-      {
-        attributionId: 'uuid3',
-        attribution: {
-          packageName: 'package 2',
-          attributionIds: ['uuid3'],
-        },
-      },
-    ];
-    const filteredTestAttributions =
-      getFilteredPackageIdsFromDisplayAttributions(testDisplayAttributions, '');
-    expect(filteredTestAttributions).toEqual(['uuid1', 'uuid2', 'uuid3']);
+    expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[0]);
+    expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[1]);
+    expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[2]);
+    expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[3]);
+    expect(testFilteredPackageCardIds).not.toContain(
+      testSortedPackageCardIds[4]
+    );
+    /* eslint-enable @typescript-eslint/no-magic-numbers */
   });
 });

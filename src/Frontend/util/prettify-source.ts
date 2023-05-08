@@ -6,8 +6,11 @@
 import { ExternalAttributionSources } from '../../shared/shared-types';
 
 export function prettifySource(
-  source: string,
+  source: string | null,
   attributionSources: ExternalAttributionSources
 ): string {
+  if (source === null) {
+    return '';
+  }
   return attributionSources[source] ? attributionSources[source].name : source;
 }

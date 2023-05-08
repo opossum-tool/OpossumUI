@@ -61,7 +61,8 @@ describe('The audit view simple actions', () => {
   it('sets and gets displayedPackage', () => {
     const testSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.AllAttributions,
-      attributionId: 'uuid',
+      packageCardId: 'All Attributions-0',
+      displayPackageInfo: { packageName: 'react', attributionIds: ['uuid'] },
     };
 
     const testStore = createTestAppStore();
@@ -76,7 +77,8 @@ describe('The audit view simple actions', () => {
   it('sets and gets targetDisplayedPackage', () => {
     const testTargetSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.AllAttributions,
-      attributionId: 'uuid',
+      packageCardId: 'All Attributions-0',
+      displayPackageInfo: { packageName: 'react', attributionIds: ['uuid'] },
     };
 
     const testStore = createTestAppStore();

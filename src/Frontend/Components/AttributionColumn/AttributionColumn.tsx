@@ -11,7 +11,7 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import {
   getAttributionIdMarkedForReplacement,
   getIsSavingDisabled,
-  getDisplayPackageInfoOfSelected,
+  getManualDisplayPackageInfoOfSelected,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -35,6 +35,7 @@ import {
   selectedPackagesAreResolved,
   usePurl,
   useRows,
+  getSelectedManualAttributionIdForAuditView,
 } from './attribution-column-helpers';
 import { PackageSubPanel } from './PackageSubPanel';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
@@ -42,7 +43,7 @@ import { LicenseSubPanel } from './LicenseSubPanel';
 import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
 import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
-import { getSelectedAttributionId } from '../../state/selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
@@ -82,8 +83,8 @@ interface AttributionColumnProps {
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const dispatch = useAppDispatch();
-  const initialDisplayPackageInfo =
-    useAppSelector(getDisplayPackageInfoOfSelected, isEqual) ||
+  const initialManualDisplayPackageInfo =
+    useAppSelector(getManualDisplayPackageInfoOfSelected, isEqual) ||
     EMPTY_DISPLAY_PACKAGE_INFO;
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useAppSelector(
@@ -97,16 +98,13 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const selectedAttributionIdInAttributionView = useAppSelector(
-    getSelectedAttributionId
+    getSelectedAttributionIdInAttributionView
   );
   const attributionIdMarkedForReplacement = useAppSelector(
     getAttributionIdMarkedForReplacement
   );
   const view = useAppSelector(getSelectedView);
 
-  const selectedAttributionIdInAuditView = selectedPackage
-    ? selectedPackage.attributionId
-    : '';
   const {
     isLicenseTextShown,
     setIsLicenseTextShown,
@@ -127,15 +125,15 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       selectedAttributionIdInAttributionView
     );
   const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
-  const selectedAttributionIdInCurrentView =
+  const selectedManualAttributionIdInCurrentView =
     view === View.Attribution
       ? selectedAttributionIdInAttributionView
-      : selectedAttributionIdInAuditView;
+      : getSelectedManualAttributionIdForAuditView(selectedPackage);
 
   const mergeButtonDisplayState = getMergeButtonsDisplayState({
     attributionIdMarkedForReplacement,
-    targetAttributionId: selectedAttributionIdInCurrentView,
-    selectedAttributionId: selectedAttributionIdInCurrentView,
+    targetAttributionId: selectedManualAttributionIdInCurrentView,
+    selectedAttributionId: selectedManualAttributionIdInCurrentView,
     packageInfoWereModified,
     targetAttributionIsPreSelected: Boolean(
       temporaryDisplayPackageInfo.preSelected
@@ -178,8 +176,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.Undo,
       disabled: !packageInfoWereModified,
       onClick: (): void => {
-        updatePurl(initialDisplayPackageInfo);
-        dispatch(setTemporaryDisplayPackageInfo(initialDisplayPackageInfo));
+        updatePurl(initialManualDisplayPackageInfo);
+        dispatch(
+          setTemporaryDisplayPackageInfo(initialManualDisplayPackageInfo)
+        );
       },
     },
     {
@@ -187,7 +187,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       onClick: (): void => {
         dispatch(
           setAttributionIdMarkedForReplacement(
-            selectedAttributionIdInCurrentView
+            selectedManualAttributionIdInCurrentView
           )
         );
       },
@@ -207,7 +207,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         dispatch(
           openPopup(
             PopupType.ReplaceAttributionPopup,
-            selectedAttributionIdInCurrentView
+            selectedManualAttributionIdInCurrentView
           )
         );
       },

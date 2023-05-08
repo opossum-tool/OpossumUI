@@ -6,7 +6,9 @@
 import { State } from '../../types/types';
 import { getManualAttributionsToResources } from './all-views-resource-selectors';
 
-export function getSelectedAttributionId(state: State): string {
+export function getSelectedAttributionIdInAttributionView(
+  state: State
+): string {
   return state.resourceState.attributionView.selectedAttributionId;
 }
 
@@ -17,7 +19,7 @@ export function getTargetSelectedAttributionId(state: State): string | null {
 export function getResourceIdsOfSelectedAttribution(
   state: State
 ): Array<string> | null {
-  const attributionId = getSelectedAttributionId(state);
+  const attributionId = getSelectedAttributionIdInAttributionView(state);
   const manualAttributionsToResources = getManualAttributionsToResources(state);
 
   if (attributionId in manualAttributionsToResources) {

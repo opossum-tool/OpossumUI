@@ -66,13 +66,13 @@ export function createManualAttribution(
 export function updateManualAttribution(
   attributionToUpdateId: string,
   manualData: AttributionData,
-  strippedTemporaryDisplayPackageInfo: PackageInfo
+  strippedPackageInfo: PackageInfo
 ): AttributionData {
   return {
     ...manualData,
     attributions: {
       ...manualData.attributions,
-      [attributionToUpdateId]: strippedTemporaryDisplayPackageInfo,
+      [attributionToUpdateId]: strippedPackageInfo,
     },
   };
 }

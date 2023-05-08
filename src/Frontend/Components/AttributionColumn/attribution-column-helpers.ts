@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { View } from '../../enums/enums';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   DisplayPackageInfo,
@@ -27,6 +26,9 @@ import {
   parsePurl,
 } from '../../util/handle-purl';
 import { PanelPackage } from '../../types/types';
+import { View } from '../../enums/enums';
+import { isExternalPackagePanel } from '../../util/is-external-package-panel';
+import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../shared-constants';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
 const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
@@ -268,7 +270,7 @@ export function usePurl(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedPackage?.panel,
-      selectedPackage?.attributionId,
+      selectedPackage?.packageCardId,
       selectedAttributionId,
       temporaryDisplayPackageInfo.packageType,
       temporaryDisplayPackageInfo.packageNamespace,
@@ -346,4 +348,17 @@ export function useRows(
     copyrightRows,
     commentBoxHeight,
   };
+}
+
+export function getSelectedManualAttributionIdForAuditView(
+  selectedPackage: PanelPackage | null
+): string {
+  if (
+    selectedPackage &&
+    !isExternalPackagePanel(selectedPackage.panel) &&
+    selectedPackage.packageCardId !== ADD_NEW_ATTRIBUTION_BUTTON_ID
+  ) {
+    return selectedPackage.displayPackageInfo.attributionIds[0];
+  }
+  return '';
 }

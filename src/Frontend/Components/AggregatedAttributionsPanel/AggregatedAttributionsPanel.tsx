@@ -24,8 +24,8 @@ import {
 } from '../../util/get-contained-packages';
 import { AttributionIdWithCount } from '../../types/types';
 import {
-  getDisplayContainedExternalPackagesWithCount,
-  getDisplayContainedManualPackagesWithCount,
+  getContainedExternalDisplayPackageInfosWithCount,
+  getContainedManualDisplayPackageInfosWithCount,
 } from './accordion-panel-helpers';
 
 interface AggregatedAttributionsPanelProps {
@@ -48,6 +48,7 @@ export function AggregatedAttributionsPanel(
     () => ({
       selectedResourceId,
       resolvedExternalAttributions,
+      panelTitle: PackagePanelTitle.ContainedExternalPackages,
     }),
     [selectedResourceId, resolvedExternalAttributions]
   );
@@ -57,6 +58,7 @@ export function AggregatedAttributionsPanel(
       externalData,
       resolvedExternalAttributions,
       attributionsToHashes,
+      panelTitle: PackagePanelTitle.ContainedExternalPackages,
     }),
     [
       selectedResourceId,
@@ -75,6 +77,7 @@ export function AggregatedAttributionsPanel(
     () => ({
       selectedResourceId,
       manualData: manualPanelData,
+      panelTitle: PackagePanelTitle.ContainedManualPackages,
     }),
 
     //  manualData is excluded from dependencies on purpose to avoid recalculation
@@ -107,16 +110,16 @@ export function AggregatedAttributionsPanel(
             title={PackagePanelTitle.ContainedExternalPackages}
             workerArgs={containedExternalPackagesWorkerArgs}
             syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-            getDisplayAttributionsWithCount={
-              getDisplayContainedExternalPackagesWithCount
+            getDisplayPackageInfosWithCount={
+              getContainedExternalDisplayPackageInfosWithCount
             }
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
-            getDisplayAttributionsWithCount={
-              getDisplayContainedManualPackagesWithCount
+            getDisplayPackageInfosWithCount={
+              getContainedManualDisplayPackageInfosWithCount
             }
             isAddToPackageEnabled={props.isAddToPackageEnabled}
           />

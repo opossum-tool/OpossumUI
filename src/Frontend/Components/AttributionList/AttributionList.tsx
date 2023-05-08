@@ -4,17 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { ReactElement } from 'react';
-import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PackageCard } from '../PackageCard/PackageCard';
-import {
-  DisplayAttributionWithCount,
-  PackageCardConfig,
-} from '../../types/types';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { checkboxClass } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
-import { getAttributionFromDisplayAttributionsWithCount } from '../../util/get-attribution-from-display-attributions-with-count';
 
 const classes = {
   ...checkboxClass,
@@ -27,9 +22,10 @@ const classes = {
 };
 
 interface AttributionListProps {
-  displayAttributions: Array<DisplayAttributionWithCount>;
-  selectedAttributionId: string | null;
-  onCardClick(attributionId: string, isButton?: boolean): void;
+  displayPackageInfos: DisplayPackageInfos;
+  sortedPackageCardIds: Array<string>;
+  selectedPackageCardId: string | null;
+  onCardClick(packageCardId: string, isButton?: boolean): void;
   sx?: SxProps;
   maxHeight: number;
   title: string | JSX.Element;
@@ -38,19 +34,15 @@ interface AttributionListProps {
 }
 
 export function AttributionList(props: AttributionListProps): ReactElement {
-  function getAttributionCard(attributionId: string): ReactElement {
-    const displayPackageInfo: DisplayPackageInfo =
-      getAttributionFromDisplayAttributionsWithCount(
-        attributionId,
-        props.displayAttributions
-      );
+  function getAttributionCard(packageCardId: string): ReactElement {
+    const displayPackageInfo = props.displayPackageInfos[packageCardId];
 
     function isSelected(): boolean {
-      return attributionId === props.selectedAttributionId;
+      return packageCardId === props.selectedPackageCardId;
     }
 
     function onClick(): void {
-      props.onCardClick(attributionId);
+      props.onCardClick(packageCardId);
     }
 
     const cardConfig: PackageCardConfig = {
@@ -60,10 +52,10 @@ export function AttributionList(props: AttributionListProps): ReactElement {
 
     return (
       <PackageCard
-        cardId={`attribution-list-${attributionId}`}
+        cardId={`attribution-list-${packageCardId}`}
         onClick={onClick}
         cardConfig={cardConfig}
-        key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
+        key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
         hideResourceSpecificButtons={true}
         showCheckBox={true}
@@ -79,7 +71,8 @@ export function AttributionList(props: AttributionListProps): ReactElement {
       </MuiBox>
       {props.filterElement}
       <AttributionsViewPackageList
-        displayAttributions={props.displayAttributions}
+        displayPackageInfos={props.displayPackageInfos}
+        sortedPackageCardIds={props.sortedPackageCardIds}
         getAttributionCard={getAttributionCard}
         max={{ height: props.maxHeight }}
       />

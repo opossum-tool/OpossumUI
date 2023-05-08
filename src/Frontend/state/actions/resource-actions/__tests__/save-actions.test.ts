@@ -23,7 +23,7 @@ import {
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
-  getDisplayPackageInfoOfSelected,
+  getManualDisplayPackageInfoOfSelected,
   getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
@@ -31,7 +31,7 @@ import {
 } from '../../../selectors/all-views-resource-selectors';
 import {
   getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionId,
+  getSelectedAttributionIdInAttributionView,
 } from '../../../selectors/attribution-view-resource-selectors';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/audit-view-resource-selectors';
 import {
@@ -241,7 +241,7 @@ describe('The savePackageInfo action', () => {
       savePackageInfo('/root/src/', null, testTemporaryDisplayPackageInfo)
     );
     expectDisplayPackageInfosMatchExceptAttributionIds(
-      getDisplayPackageInfoOfSelected(testStore.getState()),
+      getManualDisplayPackageInfoOfSelected(testStore.getState()),
       expectedTemporaryDisplayPackageInfo
     );
     expect(
@@ -316,7 +316,7 @@ describe('The savePackageInfo action', () => {
     );
 
     expectDisplayPackageInfosMatchExceptAttributionIds(
-      getDisplayPackageInfoOfSelected(testStore.getState()),
+      getManualDisplayPackageInfoOfSelected(testStore.getState()),
       testTemporaryDisplayPackageInfo
     );
     expect(
@@ -451,7 +451,9 @@ describe('The savePackageInfo action', () => {
         '/root/src/something.js'
       ]
     ).toBe(undefined);
-    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toBe('');
     expect(
       getResourcesWithManualAttributedChildren(testStore.getState())
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
@@ -498,7 +500,8 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,
-        attributionId: 'uuid1',
+        packageCardId: 'Attributions-0',
+        displayPackageInfo: { packageName: 'react', attributionIds: ['uuid1'] },
       })
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
@@ -512,7 +515,9 @@ describe('The savePackageInfo action', () => {
         emptyTestTemporaryDisplayPackageInfo
       )
     );
-    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toBe('uuid2');
   });
 
   it('cleans up multiSelectSelectedAttributionIds if attribution was removed', () => {
@@ -662,6 +667,7 @@ describe('The savePackageInfo action', () => {
       )
     );
 
+    testStore.dispatch(setSelectedAttributionId('uuid1'));
     testStore.dispatch(
       setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1'])
     );
@@ -674,7 +680,9 @@ describe('The savePackageInfo action', () => {
       )
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-    expect(getSelectedAttributionId(testStore.getState())).toEqual('uuid1');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toEqual('uuid1');
     expect(
       getMultiSelectSelectedAttributionIds(testStore.getState())
     ).toStrictEqual(['uuid1']);
@@ -852,7 +860,9 @@ describe('The savePackageInfo action', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       testTemporaryDisplayPackageInfo
     );
-    expect(getSelectedAttributionId(testStore.getState())).toBe('uuid2');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toBe('uuid2');
   });
 
   it('creates a new attribution, keeps temporary package info for selected attribution and stay at selected attribution', () => {
@@ -895,7 +905,8 @@ describe('The savePackageInfo action', () => {
     testStore.dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,
-        attributionId: 'uuid1',
+        packageCardId: 'Attributions-0',
+        displayPackageInfo: { ...testPackageInfo, attributionIds: ['uuid1'] },
       })
     );
     testStore.dispatch(
@@ -1216,7 +1227,9 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO
     );
-    expect(getSelectedAttributionId(testStore.getState())).toEqual('');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toEqual('');
     expect(getAttributionIdMarkedForReplacement(testStore.getState())).toEqual(
       ''
     );
@@ -1250,7 +1263,7 @@ describe('The addToSelectedResource action', () => {
     expect(
       manualData.attributionsToResources[testManualAttributionUuid_1]
     ).toEqual(['/root/']);
-    expect(getDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
       testTemporaryDisplayPackageInfo
     );
     expect(getOpenPopup(testStore.getState())).toBe(null);
@@ -1340,7 +1353,7 @@ describe('The addToSelectedResource action', () => {
     expect(manualData.attributions[uuidNewAttribution]).toEqual(
       expectedModifiedPackageInfo
     );
-    expect(getDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
+    expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
       expectedModifiedDisplayPackageInfo
     );
     expect(getOpenPopup(testStore.getState())).toBe(null);
