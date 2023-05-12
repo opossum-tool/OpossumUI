@@ -18,6 +18,8 @@ import {
 } from './notice-document-helpers';
 import { ExportType } from '../../shared/shared-types';
 import { isFileLoaded } from '../utils/getLoadedFile';
+import { getBasePathOfAssets } from './getPath';
+import path from 'path';
 
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
@@ -27,6 +29,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'File',
       submenu: [
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/open.png'),
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click(): void {
@@ -34,6 +37,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/save.png'),
           label: 'Save',
           accelerator: 'CmdOrCtrl+S',
           click(): void {
@@ -44,9 +48,11 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         {
           label: 'Export',
+          icon: path.join(getBasePathOfAssets(), 'icons/export.png'),
           submenu: [
             {
               label: 'Follow-Up',
+              icon: path.join(getBasePathOfAssets(), 'icons/follow-up.png'),
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
                 webContents.send(
@@ -56,6 +62,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
+              icon: path.join(getBasePathOfAssets(), 'icons/com-list.png'),
               label: 'Compact component list',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
@@ -66,6 +73,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
+              icon: path.join(getBasePathOfAssets(), 'icons/det-list.png'),
               label: 'Detailed component list',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
@@ -76,6 +84,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
+              icon: path.join(getBasePathOfAssets(), 'icons/yaml.png'),
               label: 'SPDX (yaml)',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
@@ -86,6 +95,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
+              icon: path.join(getBasePathOfAssets(), 'icons/json-file.png'),
               label: 'SPDX (json)',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
@@ -98,6 +108,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           ],
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/metadata.png'),
           label: 'Project Metadata',
           click(): void {
             if (isFileLoaded(getGlobalBackendState())) {
@@ -111,6 +122,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/statictics.png'),
           label: 'Project Statistics',
           click(): void {
             if (isFileLoaded(getGlobalBackendState())) {
@@ -124,12 +136,14 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/path.png'),
           label: 'Set Path to Sources',
           click(): void {
             getSelectBaseURLListener(mainWindow)();
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/quit.png'),
           label: 'Quit',
           accelerator: 'CmdOrCtrl+Q',
           click(): void {
@@ -141,15 +155,46 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
     {
       label: 'Edit',
       submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', role: 'undo' },
-        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
-        { label: 'Select All', accelerator: 'CmdOrCtrl+A', role: 'selectAll' },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/undo.png'),
+          label: 'Undo',
+          accelerator: 'CmdOrCtrl+Z',
+          role: 'undo',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/redo.png'),
+          label: 'Redo',
+          accelerator: 'Shift+CmdOrCtrl+Z',
+          role: 'redo',
+        },
         { type: 'separator' },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/cut.png'),
+          label: 'Cut',
+          accelerator: 'CmdOrCtrl+X',
+          role: 'cut',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/copy.png'),
+          label: 'Copy',
+          accelerator: 'CmdOrCtrl+C',
+          role: 'copy',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/paste.png'),
+          label: 'Paste',
+          accelerator: 'CmdOrCtrl+V',
+          role: 'paste',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/select-all.png'),
+          label: 'Select All',
+          accelerator: 'CmdOrCtrl+A',
+          role: 'selectAll',
+        },
+        { type: 'separator' },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/search.png'),
           label: 'Search for Files and Directories',
           accelerator: 'CmdOrCtrl+F',
           click(): void {
@@ -165,16 +210,33 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
     {
       label: 'View',
       submenu: [
-        { label: 'Show Developer Tools', role: 'toggleDevTools' },
-        { label: 'Full Screen', role: 'togglefullscreen' },
-        { label: 'Zoom In', role: 'zoomIn' },
-        { label: 'Zoom Out', role: 'zoomOut' },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/developer-tool.png'),
+          label: 'Show Developer Tools',
+          role: 'toggleDevTools',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/full-screen.png'),
+          label: 'Full Screen',
+          role: 'togglefullscreen',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/zoom-in.png'),
+          label: 'Zoom In',
+          role: 'zoomIn',
+        },
+        {
+          icon: path.join(getBasePathOfAssets(), 'icons/zoom-out.png'),
+          label: 'Zoom Out',
+          role: 'zoomOut',
+        },
       ],
     },
     {
       label: 'About',
       submenu: [
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/github.png'),
           label: 'Open on GitHub',
           click: async (): Promise<void> => {
             await shell.openExternal(
@@ -183,12 +245,14 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/notice.png'),
           label: 'OpossumUI Notices',
           click: async (): Promise<void> => {
             await shell.openPath(getPathOfNoticeDocument());
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/chromium.png'),
           label: 'Chromium Notices',
           click: async (): Promise<void> => {
             await shell.openPath(getPathOfChromiumNoticeDocument());
@@ -200,6 +264,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'Help',
       submenu: [
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/user-guide.png'),
           label: "User's Guide",
           click: async (): Promise<void> => {
             await shell.openExternal(
@@ -208,12 +273,14 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/log.png'),
           label: 'Open log files folder',
           click: async (): Promise<void> => {
             await shell.openPath(app.getPath('logs'));
           },
         },
         {
+          icon: path.join(getBasePathOfAssets(), 'icons/updated.png'),
           label: 'Check for updates',
           click(): void {
             webContents.send(AllowedFrontendChannels.ShowUpdateAppPopup, {
