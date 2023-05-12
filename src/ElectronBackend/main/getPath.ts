@@ -1,5 +1,4 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
-// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+// SPDX-FileCopyrightText: Tarun Samanta <tarunsamanta77@gmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 
