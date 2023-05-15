@@ -86,7 +86,7 @@
     "start-server-and-test": "^2.0.0",
     "ts-jest": "^29.0.5",
     "typescript": "^5.0.4",
-    "vite": "^4.3.5",
+    "vite": "^4.3.6",
     "vite-plugin-electron": "^0.11.1",
     "vite-plugin-svgr": "^3.2.0",
     "vite-tsconfig-paths": "^4.0.7"
