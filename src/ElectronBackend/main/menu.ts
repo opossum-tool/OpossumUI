@@ -29,7 +29,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'File',
       submenu: [
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/open-white.png')
             : path.join(getBasePathOfAssets(), 'icons/open-black.png'),
           label: 'Open File',
@@ -39,7 +39,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/save-white.png')
             : path.join(getBasePathOfAssets(), 'icons/save-black.png'),
           label: 'Save',
@@ -52,13 +52,13 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         {
           label: 'Export',
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/export-white.png')
             : path.join(getBasePathOfAssets(), 'icons/export-black.png'),
           submenu: [
             {
               label: 'Follow-Up',
-              icon: nativeTheme.shouldUseDarkColors
+              icon: nativeTheme?.shouldUseDarkColors
                 ? path.join(getBasePathOfAssets(), 'icons/follow-up-white.png')
                 : path.join(getBasePathOfAssets(), 'icons/follow-up-black.png'),
               click(): void {
@@ -70,7 +70,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
-              icon: nativeTheme.shouldUseDarkColors
+              icon: nativeTheme?.shouldUseDarkColors
                 ? path.join(getBasePathOfAssets(), 'icons/com-list-white.png')
                 : path.join(getBasePathOfAssets(), 'icons/com-list-black.png'),
               label: 'Compact component list',
@@ -83,7 +83,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
-              icon: nativeTheme.shouldUseDarkColors
+              icon: nativeTheme?.shouldUseDarkColors
                 ? path.join(getBasePathOfAssets(), 'icons/det-list-white.png')
                 : path.join(getBasePathOfAssets(), 'icons/det-list-black.png'),
               label: 'Detailed component list',
@@ -96,7 +96,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
-              icon: nativeTheme.shouldUseDarkColors
+              icon: nativeTheme?.shouldUseDarkColors
                 ? path.join(getBasePathOfAssets(), 'icons/yaml-white.png')
                 : path.join(getBasePathOfAssets(), 'icons/yaml-black.png'),
               label: 'SPDX (yaml)',
@@ -109,7 +109,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               },
             },
             {
-              icon: nativeTheme.shouldUseDarkColors
+              icon: nativeTheme?.shouldUseDarkColors
                 ? path.join(getBasePathOfAssets(), 'icons/json-white.png')
                 : path.join(getBasePathOfAssets(), 'icons/json-black.png'),
               label: 'SPDX (json)',
@@ -124,7 +124,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           ],
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/about-white.png')
             : path.join(getBasePathOfAssets(), 'icons/about-black.png'),
           label: 'Project Metadata',
@@ -140,7 +140,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/statictics-white.png')
             : path.join(getBasePathOfAssets(), 'icons/statictics-black.png'),
           label: 'Project Statistics',
@@ -156,7 +156,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/restore-white.png')
             : path.join(getBasePathOfAssets(), 'icons/restore-black.png'),
           label: 'Set Path to Sources',
@@ -165,7 +165,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/quit-white.png')
             : path.join(getBasePathOfAssets(), 'icons/quit-black.png'),
           label: 'Quit',
@@ -180,7 +180,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'Edit',
       submenu: [
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/undo-white.png')
             : path.join(getBasePathOfAssets(), 'icons/undo-black.png'),
           label: 'Undo',
@@ -188,7 +188,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           role: 'undo',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/redo-white.png')
             : path.join(getBasePathOfAssets(), 'icons/redo-black.png'),
           label: 'Redo',
@@ -197,7 +197,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         { type: 'separator' },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/cut-white.png')
             : path.join(getBasePathOfAssets(), 'icons/cut-black.png'),
           label: 'Cut',
@@ -205,7 +205,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           role: 'cut',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/copy-white.png')
             : path.join(getBasePathOfAssets(), 'icons/copy-black.png'),
           label: 'Copy',
@@ -213,7 +213,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           role: 'copy',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/paste-white.png')
             : path.join(getBasePathOfAssets(), 'icons/paste-black.png'),
           label: 'Paste',
@@ -221,7 +221,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           role: 'paste',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/select-all-white.png')
             : path.join(getBasePathOfAssets(), 'icons/select-all-black.png'),
           label: 'Select All',
@@ -230,7 +230,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
         },
         { type: 'separator' },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/search-white.png')
             : path.join(getBasePathOfAssets(), 'icons/search-black.png'),
           label: 'Search for Files and Directories',
@@ -249,7 +249,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'View',
       submenu: [
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/developer-tool-white.png')
             : path.join(
                 getBasePathOfAssets(),
@@ -259,21 +259,21 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           role: 'toggleDevTools',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/full-screen-white.png')
             : path.join(getBasePathOfAssets(), 'icons/full-screen-black.png'),
           label: 'Full Screen',
           role: 'togglefullscreen',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/zoom-in-white.png')
             : path.join(getBasePathOfAssets(), 'icons/zoom-in-black.png'),
           label: 'Zoom In',
           role: 'zoomIn',
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/zoom-out-white.png')
             : path.join(getBasePathOfAssets(), 'icons/zoom-out-black.png'),
           label: 'Zoom Out',
@@ -285,7 +285,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'About',
       submenu: [
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/github-white.png')
             : path.join(getBasePathOfAssets(), 'icons/github-black.png'),
           label: 'Open on GitHub',
@@ -296,7 +296,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/notice-white.png')
             : path.join(getBasePathOfAssets(), 'icons/notice-black.png'),
           label: 'OpossumUI Notices',
@@ -305,7 +305,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/chromium-white.png')
             : path.join(getBasePathOfAssets(), 'icons/chromium-black.png'),
           label: 'Chromium Notices',
@@ -319,7 +319,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
       label: 'Help',
       submenu: [
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/user-guide-white.png')
             : path.join(getBasePathOfAssets(), 'icons/user-guide-black.png'),
           label: "User's Guide",
@@ -330,7 +330,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/log-white.png')
             : path.join(getBasePathOfAssets(), 'icons/log-black.png'),
           label: 'Open log files folder',
@@ -339,7 +339,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           },
         },
         {
-          icon: nativeTheme.shouldUseDarkColors
+          icon: nativeTheme?.shouldUseDarkColors
             ? path.join(getBasePathOfAssets(), 'icons/update-white.png')
             : path.join(getBasePathOfAssets(), 'icons/update-black.png'),
           label: 'Check for updates',
