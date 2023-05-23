@@ -29,7 +29,10 @@ import { getAttributionBreakpoints } from '../../state/selectors/all-views-resou
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { FolderProgressBar } from '../ProgressBar/FolderProgressBar';
 import MuiBox from '@mui/material/Box';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../shared-constants';
 
 const classes = {
   root: {
@@ -98,7 +101,8 @@ export function ResourceDetailsViewer(): ReactElement | null {
     dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,
-        attributionId: '',
+        packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+        displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
       })
     );
   }

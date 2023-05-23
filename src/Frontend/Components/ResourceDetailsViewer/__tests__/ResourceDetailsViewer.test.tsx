@@ -34,6 +34,8 @@ import {
   ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
   EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../../shared-constants';
+import { PanelPackage } from '../../../types/types';
+import { PackagePanelTitle } from '../../../enums/enums';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
@@ -115,6 +117,15 @@ describe('The ResourceDetailsViewer', () => {
           licenseName: 'MIT',
         },
       };
+      const expectedPanelPackage: PanelPackage = {
+        panel: PackagePanelTitle.ManualPackages,
+        packageCardId: 'Attributions-0',
+        displayPackageInfo: {
+          packageName: 'aaaaa',
+          licenseName: 'MIT',
+          attributionIds: ['alphabetically_first'],
+        },
+      };
       const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
       act(() => {
         store.dispatch(
@@ -134,19 +145,17 @@ describe('The ResourceDetailsViewer', () => {
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
         'aaaaa'
       );
-      expect(getDisplayedPackage(store.getState())).toEqual({
-        attributionId: 'alphabetically_first',
-        panel: 'Attributions',
-      });
+      expect(getDisplayedPackage(store.getState())).toEqual(
+        expectedPanelPackage
+      );
 
       store.dispatch(setSelectedResourceId('/file'));
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
         'aaaaa'
       );
-      expect(getDisplayedPackage(store.getState())).toEqual({
-        attributionId: 'alphabetically_first',
-        panel: 'Attributions',
-      });
+      expect(getDisplayedPackage(store.getState())).toEqual(
+        expectedPanelPackage
+      );
     }
   );
 

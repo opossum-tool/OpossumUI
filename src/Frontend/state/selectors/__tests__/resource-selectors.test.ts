@@ -24,7 +24,7 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../actions/resource-actions/all-views-simple-actions';
 
-describe('getWerePackageInfoModified', () => {
+describe('wereTemporaryDisplayPackageInfoModified', () => {
   const testResources: Resources = {
     thirdParty: {
       'package_1.tr.gz': 1,
@@ -156,7 +156,8 @@ describe('getWerePackageInfoModified', () => {
     testStore.dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,
-        attributionId: testManualAttributionUuid_1,
+        packageCardId: 'Attributions-0',
+        displayPackageInfo: testTemporaryDisplayPackageInfo,
       })
     );
     testStore.dispatch(

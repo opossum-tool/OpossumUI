@@ -5,7 +5,7 @@
 
 import {
   AttributionIdWithCount,
-  DisplayAttributionWithCount,
+  DisplayPackageInfosWithCount,
 } from '../../../types/types';
 import {
   Attributions,
@@ -14,16 +14,18 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
 import {
-  getDisplayContainedManualPackagesWithCount,
-  getDisplayExternalAttributionsWithCount,
+  getContainedManualDisplayPackageInfosWithCount,
+  getExternalDisplayPackageInfosWithCount,
 } from '../accordion-panel-helpers';
 import { PanelAttributionData } from '../../../util/get-contained-packages';
+import { PackagePanelTitle } from '../../../enums/enums';
 
-describe('getDisplayExternalAttributionsWithCount', () => {
-  const testAttributionsWithIdCount: Array<AttributionIdWithCount> = [
+describe('getExternalDisplayPackageInfosWithCount', () => {
+  const testAttributionIdsWithCount: Array<AttributionIdWithCount> = [
     { attributionId: 'uuid1', count: 3 },
     { attributionId: 'uuid2', count: 2 },
   ];
+  const testPackagePanelTitle = PackagePanelTitle.ContainedExternalPackages;
 
   it('merges attributions with same hash', () => {
     const testAttributions: Attributions = {
@@ -35,24 +37,25 @@ describe('getDisplayExternalAttributionsWithCount', () => {
       uuid2: 'a',
     };
 
-    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
+    const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
         count: 5,
-        attribution: {
+        displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2'],
           packageName: 'Typescript',
         },
       },
-    ];
+    };
 
     expect(
-      getDisplayExternalAttributionsWithCount(
-        testAttributionsWithIdCount,
+      getExternalDisplayPackageInfosWithCount(
+        testAttributionIdsWithCount,
         testAttributions,
-        testExternalAttributionsToHashes
+        testExternalAttributionsToHashes,
+        testPackagePanelTitle
       )
-    ).toEqual(expectedDisplayAttributions);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
   it('does not merge attributions without hash', () => {
@@ -62,32 +65,35 @@ describe('getDisplayExternalAttributionsWithCount', () => {
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {};
 
-    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
+    const expectedPackageCardIds = [
+      `${testPackagePanelTitle}-0`,
+      `${testPackagePanelTitle}-1`,
+    ];
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
         count: 3,
-        attribution: {
+        displayPackageInfo: {
           packageName: 'Typescript',
           attributionIds: ['uuid1'],
         },
       },
-      {
-        attributionId: 'uuid2',
+      [expectedPackageCardIds[1]]: {
         count: 2,
-        attribution: {
+        displayPackageInfo: {
           packageName: 'Typescript',
           attributionIds: ['uuid2'],
         },
       },
-    ];
+    };
 
     expect(
-      getDisplayExternalAttributionsWithCount(
-        testAttributionsWithIdCount,
+      getExternalDisplayPackageInfosWithCount(
+        testAttributionIdsWithCount,
         testAttributions,
-        testExternalAttributionsToHashes
+        testExternalAttributionsToHashes,
+        testPackagePanelTitle
       )
-    ).toEqual(expectedDisplayAttributions);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
   it('keeps the minimum confidence in the merged attribution', () => {
@@ -99,29 +105,29 @@ describe('getDisplayExternalAttributionsWithCount', () => {
       uuid1: 'a',
       uuid2: 'a',
     };
-
-    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
+    const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
         count: 5,
-        attribution: {
+        displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 20,
         },
       },
-    ];
+    };
 
     expect(
-      getDisplayExternalAttributionsWithCount(
-        testAttributionsWithIdCount,
+      getExternalDisplayPackageInfosWithCount(
+        testAttributionIdsWithCount,
         testAttributions,
-        testExternalAttributionsToHashes
+        testExternalAttributionsToHashes,
+        testPackagePanelTitle
       )
-    ).toEqual(expectedDisplayAttributions);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
   it('appends comments, skipping empty ones', () => {
-    const testAttributionsWithIdCount: Array<AttributionIdWithCount> = [
+    const testAttributionIdsWithCount: Array<AttributionIdWithCount> = [
       { attributionId: 'uuid1' },
       { attributionId: 'uuid2' },
       { attributionId: 'uuid3' },
@@ -139,24 +145,25 @@ describe('getDisplayExternalAttributionsWithCount', () => {
       uuid3: 'a',
       uuid4: 'a',
     };
-
-    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
-        attribution: {
+    const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
+        count: 0,
+        displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
           comments: ['comment A', 'comment B'],
         },
       },
-    ];
+    };
 
     expect(
-      getDisplayExternalAttributionsWithCount(
-        testAttributionsWithIdCount,
+      getExternalDisplayPackageInfosWithCount(
+        testAttributionIdsWithCount,
         testAttributions,
-        testExternalAttributionsToHashes
+        testExternalAttributionsToHashes,
+        testPackagePanelTitle
       )
-    ).toEqual(expectedDisplayAttributions);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
   it('merges originIds, de-duplicating them', () => {
@@ -168,29 +175,30 @@ describe('getDisplayExternalAttributionsWithCount', () => {
       uuid1: 'a',
       uuid2: 'a',
     };
-
-    const expectedDisplayAttributions: Array<DisplayAttributionWithCount> = [
-      {
-        attributionId: 'uuid1',
+    const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
         count: 5,
-        attribution: {
+        displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2'],
           originIds: ['uuid3', 'uuid4', 'uuid5'],
         },
       },
-    ];
+    };
 
     expect(
-      getDisplayExternalAttributionsWithCount(
-        testAttributionsWithIdCount,
+      getExternalDisplayPackageInfosWithCount(
+        testAttributionIdsWithCount,
         testAttributions,
-        testExternalAttributionsToHashes
+        testExternalAttributionsToHashes,
+        testPackagePanelTitle
       )
-    ).toEqual(expectedDisplayAttributions);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 });
 
-describe('getDisplayContainedManualPackagesWithCount', () => {
+describe('getContainedManualDisplayPackageInfosWithCount', () => {
+  const testPackagePanelTitle = PackagePanelTitle.ContainedManualPackages;
   it('yields correct results', () => {
     const selectedResourceId = 'folder/';
     const testAttributions: Attributions = {
@@ -219,33 +227,41 @@ describe('getDisplayContainedManualPackagesWithCount', () => {
       resourcesToAttributions: testResourcesToAttributions,
       resourcesWithAttributedChildren: testResourcesWithAttributedChildren,
     };
-    const expectedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
-      [
-        {
-          attributionId: 'uuid_2',
-          attribution: { packageName: 'Vue', attributionIds: ['uuid_2'] },
-          count: 2,
+    const expectedPackageCardIds = [
+      `${testPackagePanelTitle}-0`,
+      `${testPackagePanelTitle}-1`,
+      `${testPackagePanelTitle}-2`,
+    ];
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
+        displayPackageInfo: {
+          packageName: 'Vue',
+          attributionIds: ['uuid_2'],
         },
-        {
-          attributionId: 'uuid_3',
-          attribution: { packageName: 'Angular', attributionIds: ['uuid_3'] },
-          count: 1,
+        count: 2,
+      },
+      [expectedPackageCardIds[1]]: {
+        displayPackageInfo: {
+          packageName: 'Angular',
+          attributionIds: ['uuid_3'],
         },
-        {
-          attributionId: 'uuid_1',
-          attribution: { packageName: 'React', attributionIds: ['uuid_1'] },
-          count: 1,
+        count: 1,
+      },
+      [expectedPackageCardIds[2]]: {
+        displayPackageInfo: {
+          packageName: 'React',
+          attributionIds: ['uuid_1'],
         },
-      ];
+        count: 1,
+      },
+    };
 
-    const testDisplayAttributionsWithCount =
-      getDisplayContainedManualPackagesWithCount({
+    expect(
+      getContainedManualDisplayPackageInfosWithCount({
         selectedResourceId,
         manualData,
-      });
-
-    expect(testDisplayAttributionsWithCount).toEqual(
-      expectedDisplayAttributionsWithCount
-    );
+        panelTitle: testPackagePanelTitle,
+      })
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 });

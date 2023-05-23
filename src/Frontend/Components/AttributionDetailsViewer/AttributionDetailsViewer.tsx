@@ -17,7 +17,7 @@ import {
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getResourceIdsOfSelectedAttribution,
-  getSelectedAttributionId,
+  getSelectedAttributionIdInAttributionView,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { OpossumColors, treeClasses } from '../../shared-styles';
 import { useWindowHeight } from '../../util/use-window-height';
@@ -54,7 +54,9 @@ const classes = {
 };
 
 export function AttributionDetailsViewer(): ReactElement | null {
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const selectedAttributionId = useAppSelector(
+    getSelectedAttributionIdInAttributionView
+  );
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo
   );

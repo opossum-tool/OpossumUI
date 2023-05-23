@@ -27,8 +27,11 @@ import {
   toggleAccordionSearchField,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getDisplayAttributionWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
-import { DisplayAttributionWithCount } from '../../types/types';
+import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { DisplayPackageInfos } from '../../types/types';
+import { PackagePanelTitle } from '../../enums/enums';
+import { createPackageCardId } from '../../util/create-package-card-id';
+import { Attributions } from '../../../shared/shared-types';
 
 const classes = {
   tabsRoot: {
@@ -102,17 +105,10 @@ export function ResourceDetailsTabs(
     setSelectedTab(Tabs.Local);
   }, [selectedResourceId, Tabs.Local]);
 
-  const assignableAttributionIds: Array<string> = remove(
-    Object.keys(manualData.attributions),
-    (attributionId: string): boolean =>
-      !attributionIdsOfSelectedResource.includes(attributionId)
-  );
-
-  const displayAttributions: Array<DisplayAttributionWithCount> =
-    assignableAttributionIds.map((attributionId) =>
-      getDisplayAttributionWithCountFromAttributions([
-        [attributionId, manualData.attributions[attributionId], undefined],
-      ])
+  const { assignableManualAttributionIds, displayPackageInfos } =
+    getAssignableManualAttributionIdsAndDisplayPackageInfos(
+      manualData.attributions,
+      attributionIdsOfSelectedResource
     );
 
   const isAddToPackageEnabled: boolean =
@@ -161,7 +157,8 @@ export function ResourceDetailsTabs(
           aria-label={'Global Tab'}
           id={`tab-${Tabs.Global}`}
           disabled={
-            !props.isGlobalTabEnabled || assignableAttributionIds.length < 1
+            !props.isGlobalTabEnabled ||
+            assignableManualAttributionIds.length < 1
           }
           sx={classes.tab}
         />
@@ -186,9 +183,9 @@ export function ResourceDetailsTabs(
         aggregatedAttributionsPanel
       ) : (
         <AllAttributionsPanel
-          displayAttributions={displayAttributions}
-          selectedAttributionId={
-            selectedPackage && selectedPackage.attributionId
+          displayPackageInfos={displayPackageInfos}
+          selectedPackageCardId={
+            selectedPackage && selectedPackage.packageCardId
           }
           isAddToPackageEnabled={
             props.isGlobalTabEnabled && props.isAddToPackageEnabled
@@ -197,4 +194,32 @@ export function ResourceDetailsTabs(
       )}
     </div>
   );
+}
+
+function getAssignableManualAttributionIdsAndDisplayPackageInfos(
+  manualAttributions: Attributions,
+  attributionIdsOfSelectedResource: Array<string>
+): {
+  assignableManualAttributionIds: Array<string>;
+  displayPackageInfos: DisplayPackageInfos;
+} {
+  const assignableManualAttributionIds: Array<string> = remove(
+    Object.keys(manualAttributions),
+    (attributionId: string): boolean =>
+      !attributionIdsOfSelectedResource.includes(attributionId)
+  );
+
+  const displayPackageInfos: DisplayPackageInfos = {};
+  assignableManualAttributionIds.forEach((attributionId, index) => {
+    const packageCardId = createPackageCardId(
+      PackagePanelTitle.AllAttributions,
+      index
+    );
+    displayPackageInfos[packageCardId] =
+      getDisplayPackageInfoWithCountFromAttributions([
+        [attributionId, manualAttributions[attributionId], undefined],
+      ]).displayPackageInfo;
+  });
+
+  return { assignableManualAttributionIds, displayPackageInfos };
 }

@@ -45,9 +45,12 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../selectors/audit-view-resource-selectors';
-import { getSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/attribution-view-resource-selectors';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../../shared-constants';
 
 describe('resetTemporaryDisplayPackageInfo', () => {
   it('works correctly on audit view', () => {
@@ -69,7 +72,8 @@ describe('resetTemporaryDisplayPackageInfo', () => {
     };
     const initialSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
-      attributionId: 'uuid1',
+      packageCardId: 'Attributions-0',
+      displayPackageInfo: testDisplayPackageInfo,
     };
     const initialTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'Vue',
@@ -153,7 +157,9 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     const state = testStore.getState();
     expect(getSelectedView(state)).toBe(View.Audit);
     expect(getSelectedResourceId(state)).toBe('newResourceId');
-    expect(getSelectedAttributionId(state)).toBe('previousAttributionId');
+    expect(getSelectedAttributionIdInAttributionView(state)).toBe(
+      'previousAttributionId'
+    );
   });
 
   it('setSelectedAttributionId in case of attribution view and targetView Resource', () => {
@@ -169,7 +175,9 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     const state = testStore.getState();
     expect(getSelectedView(state)).toBe(View.Attribution);
     expect(getSelectedResourceId(state)).toBe('newResourceId');
-    expect(getSelectedAttributionId(state)).toBe('newAttributionId');
+    expect(getSelectedAttributionIdInAttributionView(state)).toBe(
+      'newAttributionId'
+    );
   });
 
   it('setSelectedAttributionId in case of attribution view and stay on attribution view', () => {
@@ -186,7 +194,9 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     const state = testStore.getState();
     expect(getSelectedView(state)).toBe(View.Attribution);
     expect(getSelectedResourceId(state)).toBe('previousResourceId');
-    expect(getSelectedAttributionId(state)).toBe('newAttributionId');
+    expect(getSelectedAttributionIdInAttributionView(state)).toBe(
+      'newAttributionId'
+    );
   });
 
   it('setDisplayedPackage in case of audit view', () => {
@@ -195,13 +205,18 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     testStore.dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.AllAttributions,
-        attributionId: 'previousAttributionId',
+        packageCardId: 'previousPackageCardId',
+        displayPackageInfo: {
+          packageName: 'react',
+          attributionIds: ['uuid_1'],
+        },
       })
     );
     testStore.dispatch(
       setTargetDisplayedPackage({
         panel: PackagePanelTitle.AllAttributions,
-        attributionId: 'newAttributionId',
+        packageCardId: 'newPackageCardId',
+        displayPackageInfo: { packageName: 'vue', attributionIds: ['uuid_2'] },
       })
     );
 
@@ -209,7 +224,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
 
     const state = testStore.getState();
     expect(getSelectedView(state)).toBe(View.Audit);
-    expect(getDisplayedPackage(state)?.attributionId).toBe('newAttributionId');
+    expect(getDisplayedPackage(state)?.packageCardId).toBe('newPackageCardId');
   });
 });
 
@@ -253,7 +268,8 @@ describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
     };
     const expectedDisplayedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
-      attributionId: 'uuid',
+      packageCardId: 'Attributions-0',
+      displayPackageInfo: testDisplayPackageInfo,
     };
 
     const testStore = createTestAppStore();
@@ -286,10 +302,14 @@ describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
 });
 
 describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
-  it('resets the selectedPackage attributionId if the attribution has been removed from the resource', () => {
+  it('resets the selectedPackage if the attribution has been removed from the resource', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
+    };
+    const testDisplayPackageInfo: DisplayPackageInfo = {
+      ...testReact,
+      attributionIds: ['uuid1'],
     };
     const testResources: Resources = {
       parent: { child: 1 },
@@ -302,7 +322,8 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
     };
     const initialSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
-      attributionId: 'uuid1',
+      packageCardId: 'Attributions-0',
+      displayPackageInfo: testDisplayPackageInfo,
     };
 
     const expectedResourcesToManualAttributions: ResourcesToAttributions = {
@@ -310,7 +331,8 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
     };
     const expectedSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
-      attributionId: '',
+      packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+      displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     };
 
     const testStore = createTestAppStore();

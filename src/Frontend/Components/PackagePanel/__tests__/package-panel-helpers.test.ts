@@ -5,126 +5,137 @@
 
 import { ExternalAttributionSources } from '../../../../shared/shared-types';
 import {
-  getAttributionIdsWithCountForSource,
-  getSortedSources,
+  getPackageCardIdsAndDisplayPackageInfosForSource,
+  getSortedSourcesFromDisplayPackageInfosWithCount,
 } from '../package-panel-helpers';
-import { DisplayAttributionWithCount } from '../../../types/types';
+import {
+  DisplayPackageInfos,
+  DisplayPackageInfosWithCount,
+} from '../../../types/types';
 
-const testAttributionSources: ExternalAttributionSources = {
-  MERGER: { name: 'Suggested', priority: 11 },
-  HHC: { name: 'High High Compute', priority: 10 },
-  MS: { name: 'Metadata Scanner', priority: 9 },
-  'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 8 },
-  'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 7 },
-  'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
-  'REUSER:HC': { name: 'High Compute (old scan)', priority: 5 },
-  'REUSER:MERGER': { name: 'Suggested (old scan)', priority: 4 },
-  SC: { name: 'ScanCode', priority: 3 },
-  HC: { name: 'High Compute', priority: 2 },
-  HINT: { name: 'Hint', priority: 1 },
+const testSortedPackageCardIds = [
+  'Signals-0',
+  'Signals-1',
+  'Signals-2',
+  'Signals-3',
+  'Signals-4',
+  'Signals-5',
+  'Signals-6',
+];
+
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+  [testSortedPackageCardIds[0]]: {
+    count: 5,
+    displayPackageInfo: {
+      source: { name: 'MERGER', documentConfidence: 100 },
+      packageName: 'React',
+      packageVersion: '16.5.0',
+      attributionIds: ['react'],
+    },
+  },
+  [testSortedPackageCardIds[1]]: {
+    count: 1,
+    displayPackageInfo: {
+      source: { name: 'HC', documentConfidence: 100 },
+      packageName: 'JQuery',
+      attributionIds: ['jquery'],
+    },
+  },
+  [testSortedPackageCardIds[2]]: {
+    count: 1,
+    displayPackageInfo: {
+      source: { name: 'HINT', documentConfidence: 10 },
+      packageName: 'Blub',
+      attributionIds: ['blub'],
+    },
+  },
+  [testSortedPackageCardIds[3]]: {
+    count: 5,
+    displayPackageInfo: {
+      source: { name: 'a_unknown', documentConfidence: 100 },
+      attributionIds: ['b_unknown'],
+    },
+  },
+  [testSortedPackageCardIds[4]]: {
+    count: 500,
+    displayPackageInfo: {
+      source: { name: 'SC', documentConfidence: 100 },
+      packageName: 'Vue',
+      attributionIds: ['vue'],
+    },
+  },
+  [testSortedPackageCardIds[5]]: {
+    count: 3,
+    displayPackageInfo: {
+      source: { name: 'b_unknown', documentConfidence: 100 },
+      attributionIds: ['a_unknown'],
+    },
+  },
+  [testSortedPackageCardIds[6]]: {
+    count: 3,
+    displayPackageInfo: {
+      source: { name: 'REUSER:HHC', documentConfidence: 100 },
+      attributionIds: ['reuser'],
+    },
+  },
 };
+// eslint-enable @typescript-eslint/no-magic-numbers
 
-describe('PackagePanel helpers', () => {
-  const testDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> = [
-    {
-      attributionId: 'react',
-      count: 5,
-      attribution: {
-        source: { name: 'MERGER', documentConfidence: 100 },
+describe('getPackageCardIdsAndDisplayPackageInfosForSource', () => {
+  it('filters for source correctly', () => {
+    const sourceName = 'MERGER';
+    const expectedPackageCardIdsForSource = [testSortedPackageCardIds[0]];
+    const expectedDisplayPackageInfosForSource: DisplayPackageInfos = {
+      [expectedPackageCardIdsForSource[0]]: {
+        source: {
+          name: 'MERGER',
+          documentConfidence: 100,
+        },
         packageName: 'React',
         packageVersion: '16.5.0',
         attributionIds: ['react'],
       },
-    },
-    {
-      attributionId: 'jquery',
-      attribution: {
-        source: { name: 'HC', documentConfidence: 100 },
-        packageName: 'JQuery',
-        attributionIds: ['jquery'],
-      },
-    },
-    {
-      attributionId: 'blub',
-      count: 1,
-      attribution: {
-        source: { name: 'HINT', documentConfidence: 10 },
-        packageName: 'Blub',
-        attributionIds: ['blub'],
-      },
-    },
-    {
-      attributionId: 'b_unknown',
-      count: 5,
-      attribution: {
-        source: { name: 'a_unknown', documentConfidence: 100 },
-        attributionIds: ['b_unknown'],
-      },
-    },
-    {
-      attributionId: 'vue',
-      count: 500,
-      attribution: {
-        source: { name: 'SC', documentConfidence: 100 },
-        packageName: 'Vue',
-        attributionIds: ['vue'],
-      },
-    },
-    {
-      attributionId: 'a_unknown',
-      count: 3,
-      attribution: {
-        source: { name: 'b_unknown', documentConfidence: 100 },
-        attributionIds: ['a_unknown'],
-      },
-    },
-    {
-      attributionId: 'reuser',
-      count: 3,
-      attribution: {
-        source: { name: 'REUSER:HHC', documentConfidence: 100 },
-        attributionIds: ['reuser'],
-      },
-    },
-  ];
-
-  it('getAttributionIdsWithCountForSource returns attributionIdsWithCountForSource', () => {
-    const sourceName = 'MERGER';
-    const expectedAttributionIdsWithCountForSource: Array<DisplayAttributionWithCount> =
-      [
-        {
-          attributionId: 'react',
-          count: 5,
-          attribution: {
-            source: {
-              name: 'MERGER',
-              documentConfidence: 100,
-            },
-            packageName: 'React',
-            packageVersion: '16.5.0',
-            attributionIds: ['react'],
-          },
-        },
-      ];
+    };
 
     expect(
-      getAttributionIdsWithCountForSource(
-        testDisplayAttributionsWithCount,
+      getPackageCardIdsAndDisplayPackageInfosForSource(
+        testDisplayPackageInfosWithCount,
+        testSortedPackageCardIds,
         sourceName
       )
-    ).toEqual(expectedAttributionIdsWithCountForSource);
+    ).toEqual([
+      expectedPackageCardIdsForSource,
+      expectedDisplayPackageInfosForSource,
+    ]);
   });
 
-  it('getAttributionIdsWithCountForSource returns empty array', () => {
+  it('returns empty array and object if no source matches', () => {
     const sourceName = 'something';
     expect(
-      getAttributionIdsWithCountForSource(
-        testDisplayAttributionsWithCount,
+      getPackageCardIdsAndDisplayPackageInfosForSource(
+        testDisplayPackageInfosWithCount,
+        testSortedPackageCardIds,
         sourceName
       )
-    ).toEqual([]);
+    ).toEqual([[], {}]);
   });
+});
 
+describe('getSortedSourcesFromDisplayPackageInfosWithCount', () => {
+  const testAttributionSources: ExternalAttributionSources = {
+    MERGER: { name: 'Suggested', priority: 11 },
+    HHC: { name: 'High High Compute', priority: 10 },
+    MS: { name: 'Metadata Scanner', priority: 9 },
+    'REUSER:HHC': { name: 'High High Compute (old scan)', priority: 8 },
+    'REUSER:MS': { name: 'Metadata Scanner (old scan)', priority: 7 },
+    'REUSER:SC': { name: 'ScanCode (old scan)', priority: 6 },
+    'REUSER:HC': { name: 'High Compute (old scan)', priority: 5 },
+    'REUSER:MERGER': { name: 'Suggested (old scan)', priority: 4 },
+    SC: { name: 'ScanCode', priority: 3 },
+    HC: { name: 'High Compute', priority: 2 },
+    HINT: { name: 'Hint', priority: 1 },
+  };
   it('getSources returns sorted sources', () => {
     const expectedSortedSources = [
       'MERGER',
@@ -136,12 +147,20 @@ describe('PackagePanel helpers', () => {
       'b_unknown',
     ];
     expect(
-      getSortedSources(testDisplayAttributionsWithCount, testAttributionSources)
+      getSortedSourcesFromDisplayPackageInfosWithCount(
+        testDisplayPackageInfosWithCount,
+        testAttributionSources
+      )
     ).toEqual(expectedSortedSources);
   });
 
   it('getSources returns empty array for no displayAttributionsWithCount,', () => {
-    expect(getSortedSources([], testAttributionSources)).toEqual([]);
+    expect(
+      getSortedSourcesFromDisplayPackageInfosWithCount(
+        {},
+        testAttributionSources
+      )
+    ).toEqual([]);
   });
 
   it('getSources sorts alphabetically if priority is identical', () => {
@@ -158,8 +177,8 @@ describe('PackagePanel helpers', () => {
       HINT: { name: 'Hint', priority: 1 },
     };
     expect(
-      getSortedSources(
-        testDisplayAttributionsWithCount,
+      getSortedSourcesFromDisplayPackageInfosWithCount(
+        testDisplayPackageInfosWithCount,
         testAttributionSourcesEqualPrio
       )
     ).toEqual([

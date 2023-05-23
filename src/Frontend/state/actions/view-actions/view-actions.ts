@@ -6,11 +6,11 @@
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { FilterType, PopupType, View } from '../../../enums/enums';
 import { State } from '../../../types/types';
-import { getDisplayPackageInfoOfSelectedAttribution } from '../../selectors/all-views-resource-selectors';
+import { getDisplayPackageInfoOfSelectedAttributionInAttributionView } from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
-import { getDisplayPackageInfoOfDisplayedPackageInManualPanel } from '../../selectors/audit-view-resource-selectors';
+import { getDisplayPackageInfoOfDisplayedPackage } from '../../selectors/audit-view-resource-selectors';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -46,9 +46,10 @@ export function navigateToView(view: View): AppThunkAction {
 
     const updatedTemporaryDisplayPackageInfo: DisplayPackageInfo =
       (view === View.Audit
-        ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(getState())
-        : getDisplayPackageInfoOfSelectedAttribution(getState())) ||
-      EMPTY_DISPLAY_PACKAGE_INFO;
+        ? getDisplayPackageInfoOfDisplayedPackage(getState())
+        : getDisplayPackageInfoOfSelectedAttributionInAttributionView(
+            getState()
+          )) || EMPTY_DISPLAY_PACKAGE_INFO;
     dispatch(
       setTemporaryDisplayPackageInfo(updatedTemporaryDisplayPackageInfo)
     );

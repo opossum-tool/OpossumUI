@@ -27,8 +27,7 @@ import {
   navigateToTargetResourceOrAttribution,
   openAttributionWizardPopup,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetView,
-  selectAttributionInAccordionPanelOrOpenUnsavedPopup,
-  selectAttributionInManualPackagePanelOrOpenUnsavedPopup,
+  selectPackageCardInAuditViewOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
@@ -39,6 +38,7 @@ import {
   AttributionData,
   Attributions,
   DiscreteConfidence,
+  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -64,7 +64,7 @@ import {
   getTargetSelectedResourceId,
 } from '../../../selectors/audit-view-resource-selectors';
 import {
-  getSelectedAttributionId,
+  getSelectedAttributionIdInAttributionView,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
 import { act } from 'react-dom/test-utils';
@@ -146,7 +146,9 @@ describe('The actions checking for unsaved changes', () => {
         expect(getOpenPopup(testStore.getState())).toBe(
           PopupType.NotSavedPopup
         );
-        expect(getSelectedAttributionId(testStore.getState())).toBe('');
+        expect(
+          getSelectedAttributionIdInAttributionView(testStore.getState())
+        ).toBe('');
         expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
           packageName: 'Test 2',
           attributionIds: [],
@@ -193,7 +195,9 @@ describe('The actions checking for unsaved changes', () => {
 
       expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
       expect(getOpenPopup(testStore.getState())).toBeFalsy();
-      expect(getSelectedAttributionId(testStore.getState())).toBe('uuid_1');
+      expect(
+        getSelectedAttributionIdInAttributionView(testStore.getState())
+      ).toBe('uuid_1');
       expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
         packageName: 'React',
         attributionIds: ['uuid_1'],
@@ -313,9 +317,14 @@ describe('The actions checking for unsaved changes', () => {
     });
   });
 
-  describe('selectAttributionInAccordionPanelOrOpenUnsavedPopup', () => {
+  describe('selectPackageCardInAuditViewOrOpenUnsavedPopup', () => {
     it('selects an attribution in an accordion panel', () => {
       const testPackageInfo: PackageInfo = { packageName: 'test name' };
+      const testDisplayPackageInfo: DisplayPackageInfo = {
+        ...testPackageInfo,
+        attributionIds: ['uuid'],
+      };
+      const testPackageCardId = 'All Attributions-0';
       const testResources: Resources = {
         file1: 1,
       };
@@ -327,7 +336,8 @@ describe('The actions checking for unsaved changes', () => {
       };
       const testSelectedPackage: PanelPackage = {
         panel: PackagePanelTitle.AllAttributions,
-        attributionId: 'uuid',
+        packageCardId: testPackageCardId,
+        displayPackageInfo: testDisplayPackageInfo,
       };
 
       const testStore = createTestAppStore();
@@ -344,16 +354,17 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toBeNull();
 
       testStore.dispatch(
-        selectAttributionInAccordionPanelOrOpenUnsavedPopup(
+        selectPackageCardInAuditViewOrOpenUnsavedPopup(
           testSelectedPackage.panel,
-          testSelectedPackage.attributionId
+          testSelectedPackage.packageCardId,
+          testSelectedPackage.displayPackageInfo
         )
       );
       expect(getDisplayedPackage(testStore.getState())).toEqual(
         testSelectedPackage
       );
       expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-        EMPTY_DISPLAY_PACKAGE_INFO
+        testDisplayPackageInfo
       );
     });
   });
@@ -361,6 +372,11 @@ describe('The actions checking for unsaved changes', () => {
   describe('selectAttributionInManualPackagePanelOrOpenUnsavedPopup', () => {
     it('ss an attribution in the manual package panel', () => {
       const testPackageInfo: PackageInfo = { packageName: 'test name' };
+      const testPackageCardId = 'All Attributions-0';
+      const testDisplayPackageInfo: DisplayPackageInfo = {
+        ...testPackageInfo,
+        attributionIds: ['uuid'],
+      };
       const testResources: Resources = {
         file1: 1,
       };
@@ -372,7 +388,8 @@ describe('The actions checking for unsaved changes', () => {
       };
       const testSelectedPackage: PanelPackage = {
         panel: PackagePanelTitle.ManualPackages,
-        attributionId: 'uuid',
+        packageCardId: testPackageCardId,
+        displayPackageInfo: testDisplayPackageInfo,
       };
 
       const testStore = createTestAppStore();
@@ -389,9 +406,10 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toBeNull();
 
       testStore.dispatch(
-        selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
+        selectPackageCardInAuditViewOrOpenUnsavedPopup(
           testSelectedPackage.panel,
-          testSelectedPackage.attributionId
+          testSelectedPackage.packageCardId,
+          testSelectedPackage.displayPackageInfo
         )
       );
       expect(getDisplayedPackage(testStore.getState())).toEqual(
@@ -410,6 +428,11 @@ describe('The actions called from the unsaved popup', () => {
     it('unlinks and navigates to target view', () => {
       const testReact = {
         packageName: 'React',
+      };
+      const testPackageCardId = 'Attributions-0';
+      const testDisplayPackageInfo: DisplayPackageInfo = {
+        ...testReact,
+        attributionIds: ['reactUuid'],
       };
       const testResources: Resources = {
         'something.js': 1,
@@ -459,7 +482,8 @@ describe('The actions called from the unsaved popup', () => {
       testStore.dispatch(
         setDisplayedPackage({
           panel: PackagePanelTitle.ManualPackages,
-          attributionId: 'reactUuid',
+          packageCardId: testPackageCardId,
+          displayPackageInfo: testDisplayPackageInfo,
         })
       );
       testStore.dispatch(

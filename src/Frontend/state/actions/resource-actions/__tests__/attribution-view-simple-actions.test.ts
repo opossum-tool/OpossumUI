@@ -12,7 +12,7 @@ import {
 } from '../attribution-view-simple-actions';
 import {
   getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionId,
+  getSelectedAttributionIdInAttributionView,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
 import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
@@ -20,10 +20,14 @@ import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-vie
 describe('The load and navigation simple actions', () => {
   it('sets and gets selectedAttributionId', () => {
     const testStore = createTestAppStore();
-    expect(getSelectedAttributionId(testStore.getState())).toBe('');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toBe('');
 
     testStore.dispatch(setSelectedAttributionId('Test'));
-    expect(getSelectedAttributionId(testStore.getState())).toBe('Test');
+    expect(
+      getSelectedAttributionIdInAttributionView(testStore.getState())
+    ).toBe('Test');
   });
 
   it('sets and gets targetSelectedAttributionId', () => {

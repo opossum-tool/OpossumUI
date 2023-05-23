@@ -35,7 +35,8 @@ export interface ProgressBarData {
 
 export interface PanelPackage {
   panel: PackagePanelTitle;
-  attributionId: string;
+  packageCardId: string;
+  displayPackageInfo: DisplayPackageInfo;
 }
 
 export interface NumberOfDisplayedItems {
@@ -99,12 +100,14 @@ export interface ButtonConfig {
 
 export interface PanelData {
   title: PackagePanelTitle;
-  displayAttributionsWithCount: Array<DisplayAttributionWithCount>;
+  sortedPackageCardIds: Array<string>;
+  displayPackageInfosWithCount: DisplayPackageInfosWithCount;
 }
 
-export interface DisplayAttributionsWithCountAndResourceId {
+export interface DisplayPackageInfosWithCountAndResourceId {
   resourceId: string;
-  displayAttributionsWithCount: Array<DisplayAttributionWithCount>;
+  sortedPackageCardIds: Array<string>;
+  displayPackageInfosWithCount: DisplayPackageInfosWithCount;
 }
 
 export interface ProgressBarDataAndResourceId {
@@ -175,12 +178,15 @@ export interface AttributionIdWithCount {
   count?: number;
 }
 
-export interface DisplayAttributionWithCount extends AttributionIdWithCount {
-  attribution: DisplayPackageInfo;
+export interface DisplayPackageInfoWithCount {
+  displayPackageInfo: DisplayPackageInfo;
+  count: number;
 }
 
-export function isDisplayAttributionWithCount(
-  testObject: AttributionIdWithCount | DisplayAttributionWithCount
-): testObject is DisplayAttributionWithCount {
-  return 'attribution' in testObject;
+export interface DisplayPackageInfos {
+  [packageCardId: string]: DisplayPackageInfo;
+}
+
+export interface DisplayPackageInfosWithCount {
+  [packageCardId: string]: DisplayPackageInfoWithCount;
 }

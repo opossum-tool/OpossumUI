@@ -26,7 +26,7 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { ButtonText } from '../../../enums/enums';
-import { DisplayAttributionWithCount } from '../../../types/types';
+import { DisplayPackageInfos } from '../../../types/types';
 
 function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   const store = createTestAppStore();
@@ -41,21 +41,19 @@ function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
 }
 
 describe('The AttributionList', () => {
-  const testDisplayAttributions: Array<DisplayAttributionWithCount> = [
-    {
-      attributionId: 'uuid_1',
-      attribution: {
-        attributionConfidence: 0,
-        comments: ['Some comment'],
-        packageName: 'Test package',
-        packageVersion: '1.0',
-        copyright: 'Copyright John Doe',
-        licenseText: 'Some license text',
-        firstParty: true,
-        attributionIds: ['uuid_1'],
-      },
+  const testSortedPackageCardIds = ['packageCardId'];
+  const testDisplayPackageInfos: DisplayPackageInfos = {
+    [testSortedPackageCardIds[0]]: {
+      attributionConfidence: 0,
+      comments: ['Some comment'],
+      packageName: 'Test package',
+      packageVersion: '1.0',
+      copyright: 'Copyright John Doe',
+      licenseText: 'Some license text',
+      firstParty: true,
+      attributionIds: ['uuid_1'],
     },
-  ];
+  };
 
   const attributions: Attributions = {
     uuid_1: {
@@ -79,8 +77,9 @@ describe('The AttributionList', () => {
   it('renders', () => {
     renderComponentWithStore(
       <AttributionList
-        displayAttributions={testDisplayAttributions}
-        selectedAttributionId={''}
+        displayPackageInfos={testDisplayPackageInfos}
+        sortedPackageCardIds={testSortedPackageCardIds}
+        selectedPackageCardId={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
@@ -94,8 +93,9 @@ describe('The AttributionList', () => {
   it('renders first party icon', () => {
     renderComponentWithStore(
       <AttributionList
-        displayAttributions={testDisplayAttributions}
-        selectedAttributionId={''}
+        displayPackageInfos={testDisplayPackageInfos}
+        sortedPackageCardIds={testSortedPackageCardIds}
+        selectedPackageCardId={''}
         onCardClick={doNothing}
         maxHeight={1000}
         title={'title'}
@@ -109,8 +109,9 @@ describe('The AttributionList', () => {
   it('sets selectedAttributionId on click', () => {
     renderComponentWithStore(
       <AttributionList
-        displayAttributions={testDisplayAttributions}
-        selectedAttributionId={''}
+        displayPackageInfos={testDisplayPackageInfos}
+        sortedPackageCardIds={testSortedPackageCardIds}
+        selectedPackageCardId={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}
@@ -121,7 +122,7 @@ describe('The AttributionList', () => {
     expect(attributionCard).toBeInTheDocument();
     fireEvent.click(attributionCard);
     expect(mockCallback.mock.calls.length).toBe(1);
-    expect(mockCallback.mock.calls[0][0]).toBe('uuid_1');
+    expect(mockCallback.mock.calls[0][0]).toBe(testSortedPackageCardIds[0]);
   });
 
   it('shows correct replace attribution buttons in the context menu', () => {
@@ -129,37 +130,33 @@ describe('The AttributionList', () => {
       root: { src: { file_1: 1, file_2: 1 } },
       file: 1,
     };
-    const testDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
-      [
-        {
-          attributionId: 'uuid_1',
-          attribution: {
-            packageName: 'jQuery',
-            packageVersion: '16.0.0',
-            comments: ['ManualPackage'],
-            attributionIds: ['uuid_1'],
-          },
-        },
-        {
-          attributionId: 'uuid_2',
-          attribution: {
-            packageName: 'React',
-            packageVersion: '16.0.0',
-            comments: ['ManualPackage'],
-            attributionIds: ['uuid_2'],
-          },
-        },
-        {
-          attributionId: 'uuid_3',
-          attribution: {
-            packageName: 'Vue',
-            packageVersion: '16.0.0',
-            comments: ['ManualPackage'],
-            preSelected: true,
-            attributionIds: ['uuid_3'],
-          },
-        },
-      ];
+    const testSortedPackageCardIds = [
+      'packageCardId1',
+      'packageCardId2',
+      'packageCardId3',
+    ];
+    const testDisplayPackageInfos: DisplayPackageInfos = {
+      [testSortedPackageCardIds[0]]: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        comments: ['ManualPackage'],
+        attributionIds: ['uuid_1'],
+      },
+      [testSortedPackageCardIds[1]]: {
+        packageName: 'React',
+        packageVersion: '16.0.0',
+        comments: ['ManualPackage'],
+        attributionIds: ['uuid_2'],
+      },
+      [testSortedPackageCardIds[2]]: {
+        packageName: 'Vue',
+        packageVersion: '16.0.0',
+        comments: ['ManualPackage'],
+        preSelected: true,
+        attributionIds: ['uuid_3'],
+      },
+    };
+
     const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'jQuery',
@@ -195,8 +192,9 @@ describe('The AttributionList', () => {
     );
     renderComponentWithStore(
       <AttributionList
-        displayAttributions={testDisplayAttributionsWithCount}
-        selectedAttributionId={''}
+        displayPackageInfos={testDisplayPackageInfos}
+        sortedPackageCardIds={testSortedPackageCardIds}
+        selectedPackageCardId={''}
         onCardClick={mockCallback}
         maxHeight={1000}
         title={'title'}

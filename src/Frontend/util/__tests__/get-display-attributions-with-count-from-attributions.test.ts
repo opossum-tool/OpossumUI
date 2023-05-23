@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PackageInfo } from '../../../shared/shared-types';
-import { DisplayAttributionWithCount } from '../../types/types';
-import { getDisplayAttributionWithCountFromAttributions } from '../get-display-attributions-with-count-from-attributions';
+import { DisplayPackageInfoWithCount } from '../../types/types';
+import { getDisplayPackageInfoWithCountFromAttributions } from '../get-display-attributions-with-count-from-attributions';
 
 describe('getDisplayAttributionWithCountFromAttributions', () => {
   it('ignores empty comments', () => {
@@ -29,9 +29,8 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
         packageName: 'React',
         comments: ['comment A'],
         attributionIds: ['uuid_1', 'uuid_2'],
@@ -39,7 +38,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       count: 3,
     };
     const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
+      getDisplayPackageInfoWithCountFromAttributions(
         testAttributionsWithIdsAndCounts
       );
 
@@ -69,9 +68,8 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
         packageName: 'React',
         attributionConfidence: 20,
         attributionIds: ['uuid_1', 'uuid_2'],
@@ -79,7 +77,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       count: 3,
     };
     const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
+      getDisplayPackageInfoWithCountFromAttributions(
         testAttributionsWithIdsAndCounts
       );
 
@@ -109,9 +107,8 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
         packageName: 'React',
         attributionIds: ['uuid_1', 'uuid_2'],
         originIds: ['id_1', 'id_2', 'id_3'],
@@ -119,7 +116,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       count: 3,
     };
     const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
+      getDisplayPackageInfoWithCountFromAttributions(
         testAttributionsWithIdsAndCounts
       );
 
@@ -141,16 +138,15 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       ],
       ['uuid_2', { packageName: 'React' }, undefined],
     ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
         packageName: 'React',
         attributionIds: ['uuid_1', 'uuid_2'],
       },
       count: 1,
     };
     const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
+      getDisplayPackageInfoWithCountFromAttributions(
         testAttributionsWithIdsAndCounts
       );
 
@@ -178,52 +174,15 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
         packageName: 'React',
         attributionIds: ['uuid_1', 'uuid_2'],
       },
       count: 3,
     };
     const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
-      );
-
-    expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
-    );
-  });
-
-  it('ignores count when not provided', () => {
-    const testAttributionsWithIdsAndCounts: Array<
-      [string, PackageInfo, number | undefined]
-    > = [
-      [
-        'uuid_1',
-        {
-          packageName: 'React',
-        },
-        undefined,
-      ],
-      [
-        'uuid_2',
-        {
-          packageName: 'React',
-        },
-        undefined,
-      ],
-    ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
-        packageName: 'React',
-        attributionIds: ['uuid_1', 'uuid_2'],
-      },
-    };
-    const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
+      getDisplayPackageInfoWithCountFromAttributions(
         testAttributionsWithIdsAndCounts
       );
 
@@ -258,9 +217,8 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       ],
       ['uuid_3', { packageName: 'React', comment: '' }, undefined],
     ];
-    const expectedDisplayAttributionWithCount: DisplayAttributionWithCount = {
-      attributionId: 'uuid_1',
-      attribution: {
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
         packageName: 'React',
         comments: ['comment A', 'comment B'],
         attributionConfidence: 20,
@@ -270,7 +228,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       count: 3,
     };
     const testDisplayAttributionWithCount =
-      getDisplayAttributionWithCountFromAttributions(
+      getDisplayPackageInfoWithCountFromAttributions(
         testAttributionsWithIdsAndCounts
       );
 

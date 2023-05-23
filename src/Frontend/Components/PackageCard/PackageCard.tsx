@@ -37,7 +37,7 @@ import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import {
   getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionId,
+  getSelectedAttributionIdInAttributionView,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import {
   getMergeButtonsDisplayState,
@@ -93,7 +93,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const dispatch = useAppDispatch();
   const selectedView = useSelector(getSelectedView);
   const selectedAttributionIdAttributionView = useSelector(
-    getSelectedAttributionId
+    getSelectedAttributionIdInAttributionView
   );
   const selectedAttributionIdAuditView =
     useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';

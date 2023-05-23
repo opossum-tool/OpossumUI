@@ -9,11 +9,8 @@ import MuiTypography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { ReactElement, useMemo, useState } from 'react';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
-import {
-  AttributionIdWithCount,
-  DisplayAttributionWithCount,
-  PanelData,
-} from '../../types/types';
+import { PanelData } from '../../types/types';
+import { isEmpty } from 'lodash';
 
 const classes = {
   expansionPanelExpanded: {
@@ -47,8 +44,8 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   useMemo(() => {
-    setExpanded(props.panelData.displayAttributionsWithCount?.length > 0);
-  }, [props.panelData.displayAttributionsWithCount]);
+    setExpanded(!isEmpty(props.panelData.displayPackageInfosWithCount));
+  }, [props.panelData.displayPackageInfosWithCount]);
 
   function handleExpansionChange(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -69,7 +66,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       key={`PackagePanel-${props.panelData.title}`}
       expanded={expanded}
       onChange={handleExpansionChange}
-      disabled={isDisabled(props.panelData.displayAttributionsWithCount)}
+      disabled={isEmpty(props.panelData.displayPackageInfosWithCount)}
     >
       <MuiAccordionSummary
         sx={{
@@ -86,18 +83,13 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       >
         <PackagePanel
           title={props.panelData.title}
-          attributionIdsWithCount={props.panelData.displayAttributionsWithCount}
+          displayPackageInfosWithCount={
+            props.panelData.displayPackageInfosWithCount
+          }
+          sortedPackageCardIds={props.panelData.sortedPackageCardIds}
           isAddToPackageEnabled={props.isAddToPackageEnabled}
         />
       </MuiAccordionDetails>
     </MuiAccordion>
   );
-}
-
-function isDisabled(
-  attributionIdsWithCount: Array<
-    AttributionIdWithCount | DisplayAttributionWithCount
-  >
-): boolean {
-  return attributionIdsWithCount?.length === 0;
 }

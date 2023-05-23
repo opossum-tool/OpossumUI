@@ -9,20 +9,25 @@ import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { selectAttributionInManualPackagePanelOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionsOfSelectedResource,
   getAttributionsOfSelectedResourceOrClosestParent,
+  getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { Button } from '../Button/Button';
 import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
 import { OpossumColors } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
-import { DisplayAttributionWithCount } from '../../types/types';
+import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../shared-constants';
+import { createPackageCardId } from '../../util/create-package-card-id';
 
 const classes = {
   root: {
@@ -51,11 +56,7 @@ export function ManualPackagePanel(
   props: ManualPackagePanelProps
 ): ReactElement | null {
   const dispatch = useAppDispatch();
-
-  const selectedAttributionId: string | null = useAppSelector(
-    getAttributionIdOfDisplayedPackageInManualPanel
-  );
-
+  const selectedPackage = useAppSelector(getDisplayedPackage);
   const attributionsOfSelectedResource: Attributions = useAppSelector(
     getAttributionsOfSelectedResource
   );
@@ -68,29 +69,22 @@ export function ManualPackagePanel(
     ? attributionsOfSelectedResource
     : selectedResourceOrClosestParentAttributions;
 
-  const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
-    getAlphabeticalComparer(shownAttributionsOfResource)
-  );
-
-  const sortedDisplayAttributionsWithCount: Array<DisplayAttributionWithCount> =
-    sortedAttributionIds.map((attributionId) => {
-      return {
-        attributionId,
-        attribution: convertPackageInfoToDisplayPackageInfo(
-          shownAttributionsOfResource[attributionId],
-          [attributionId]
-        ),
-      };
-    });
+  const { sortedPackageCardIds, displayPackageInfos } =
+    getSortedPackageCardIdsAndDisplayPackageInfos(shownAttributionsOfResource);
 
   function onCardClick(
-    attributionId: string,
-    isAddNewAttributionItemShown: boolean
+    packageCardId: string,
+    isAddNewAttributionButton: boolean
   ): void {
     dispatch(
-      selectAttributionInManualPackagePanelOrOpenUnsavedPopup(
+      selectPackageCardInAuditViewOrOpenUnsavedPopup(
         PackagePanelTitle.ManualPackages,
-        isAddNewAttributionItemShown ? '' : attributionId
+        isAddNewAttributionButton
+          ? ADD_NEW_ATTRIBUTION_BUTTON_ID
+          : packageCardId,
+        isAddNewAttributionButton
+          ? EMPTY_DISPLAY_PACKAGE_INFO
+          : displayPackageInfos[packageCardId]
       )
     );
   }
@@ -106,9 +100,10 @@ export function ManualPackagePanel(
           : 'Attributions'}
       </MuiTypography>
       <ManualAttributionList
-        sortedDisplayAttributionsWithCount={sortedDisplayAttributionsWithCount}
+        displayPackageInfos={displayPackageInfos}
+        sortedPackageCardIds={sortedPackageCardIds}
         selectedResourceId={selectedResourceId}
-        selectedAttributionId={selectedAttributionId}
+        selectedPackageCardId={selectedPackage?.packageCardId}
         onCardClick={onCardClick}
         isAddNewAttributionItemShown={props.showAddNewAttributionButton}
         attributionsFromParent={showParentAttributions}
@@ -124,4 +119,30 @@ export function ManualPackagePanel(
       </MuiBox>
     </MuiPaper>
   );
+}
+
+function getSortedPackageCardIdsAndDisplayPackageInfos(
+  shownAttributionsOfResource: Attributions
+): {
+  sortedPackageCardIds: Array<string>;
+  displayPackageInfos: DisplayPackageInfos;
+} {
+  const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
+    getAlphabeticalComparer(shownAttributionsOfResource)
+  );
+
+  const sortedPackageCardIds: Array<string> = [];
+  const displayPackageInfos: DisplayPackageInfos = {};
+  sortedAttributionIds.forEach((attributionId, index) => {
+    const packageCardId = createPackageCardId(
+      PackagePanelTitle.ManualPackages,
+      index
+    );
+    sortedPackageCardIds.push(packageCardId);
+    displayPackageInfos[packageCardId] = convertPackageInfoToDisplayPackageInfo(
+      shownAttributionsOfResource[attributionId],
+      [attributionId]
+    );
+  });
+  return { sortedPackageCardIds, displayPackageInfos };
 }

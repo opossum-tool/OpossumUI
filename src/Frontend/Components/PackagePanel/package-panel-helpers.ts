@@ -3,46 +3,65 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { ExternalAttributionSources } from '../../../shared/shared-types';
 import {
-  ExternalAttributionSources,
-  Source,
-} from '../../../shared/shared-types';
-import { DisplayAttributionWithCount } from '../../types/types';
+  DisplayPackageInfos,
+  DisplayPackageInfosWithCount,
+} from '../../types/types';
 
-export function getSortedSources(
-  attributionIdsWithCount: Array<DisplayAttributionWithCount>,
+export function getPackageCardIdsAndDisplayPackageInfosForSource(
+  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
+  sortedPackageCardIds: Array<string>,
+  sourceName: string | null
+): [Array<string>, DisplayPackageInfos] {
+  const filteredAndSortedPackageCardIds: Array<string> = [];
+  const filteredDisplayPackageInfos: DisplayPackageInfos = {};
+
+  sortedPackageCardIds.forEach((packageCardId) => {
+    if (
+      sourceName ===
+      (displayPackageInfosWithCount[packageCardId].displayPackageInfo?.source
+        ?.name || null)
+    ) {
+      filteredAndSortedPackageCardIds.push(packageCardId);
+      filteredDisplayPackageInfos[packageCardId] =
+        displayPackageInfosWithCount[packageCardId].displayPackageInfo;
+    }
+  });
+
+  return [filteredAndSortedPackageCardIds, filteredDisplayPackageInfos];
+}
+
+export function getSortedSourcesFromDisplayPackageInfosWithCount(
+  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
   attributionSources: ExternalAttributionSources
-): Array<string> {
-  function reducer(
-    sources: Set<string>,
-    attributionIdWithCount: DisplayAttributionWithCount
-  ): Set<string> {
-    const source: Source | undefined =
-      attributionIdWithCount.attribution?.source;
-    sources.add(source ? source.name : '');
-
-    return sources;
-  }
-
-  const sources = Array.from(
-    attributionIdsWithCount.reduce(reducer, new Set())
+): Array<string | null> {
+  const sourceNames = new Set<string | null>();
+  Object.values(displayPackageInfosWithCount).forEach(
+    ({ displayPackageInfo }) => {
+      sourceNames.add(displayPackageInfo?.source?.name || null);
+    },
+    sourceNames
   );
-
-  return sortSources(sources, attributionSources);
+  return sortSources(Array.from(sourceNames), attributionSources);
 }
 
 function sortSources(
-  sources: Array<string>,
+  sources: Array<string | null>,
   attributionSources: ExternalAttributionSources
-): Array<string> {
+): Array<string | null> {
   const { knownSources, unknownSources } = sources.reduce(
     (
       encounteredSources: {
         knownSources: Array<string>;
-        unknownSources: Array<string>;
+        unknownSources: Array<string | null>;
       },
-      source: string
+      source: string | null
     ) => {
+      if (source === null) {
+        encounteredSources.unknownSources.push(source);
+        return encounteredSources;
+      }
       if (attributionSources.hasOwnProperty(source)) {
         encounteredSources.knownSources.push(source);
       } else {
@@ -53,32 +72,40 @@ function sortSources(
     { knownSources: [], unknownSources: [] }
   );
 
-  const sortedKnownSources = knownSources.sort((sourceA, sourceB) => {
-    return (
-      -(
-        attributionSources[sourceA]?.priority -
-        attributionSources[sourceB]?.priority
-      ) ||
-      (attributionSources[sourceA]?.name.toLowerCase() <
-      attributionSources[sourceB]?.name.toLowerCase()
-        ? -1
-        : 1)
-    );
-  });
+  const sortedKnownSources = knownSources.sort((sourceA, sourceB) =>
+    compareKnownSources(sourceA, sourceB, attributionSources)
+  );
+  const sortedUnknownSources = unknownSources.sort(compareUnknownSources);
 
-  return sortedKnownSources.concat(unknownSources.sort());
+  return [...sortedKnownSources, ...sortedUnknownSources];
 }
 
-export function getAttributionIdsWithCountForSource(
-  attributionIdsWithCount: Array<DisplayAttributionWithCount>,
-  sourceName: string
-): Array<DisplayAttributionWithCount> {
-  return attributionIdsWithCount.filter((attributionIdWithCount) => {
-    const source: Source | undefined =
-      attributionIdWithCount.attribution?.source;
+function compareKnownSources(
+  sourceA: string,
+  sourceB: string,
+  attributionSources: ExternalAttributionSources
+): number {
+  return (
+    -(
+      attributionSources[sourceA]?.priority -
+      attributionSources[sourceB]?.priority
+    ) ||
+    (attributionSources[sourceA]?.name.toLowerCase() <
+    attributionSources[sourceB]?.name.toLowerCase()
+      ? -1
+      : 1)
+  );
+}
 
-    return sourceName
-      ? Boolean(source?.name && source?.name === sourceName)
-      : !source;
-  });
+function compareUnknownSources(
+  sourceA: string | null,
+  sourceB: string | null
+): number {
+  if (sourceA === null) {
+    return 1;
+  }
+  if (sourceB === null) {
+    return -1;
+  }
+  return sourceA.toLowerCase() < sourceB.toLowerCase() ? -1 : 1;
 }

@@ -25,10 +25,11 @@ import { getPopupAttributionId, getSelectedView } from './view-selector';
 import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
+  getDisplayPackageInfoOfDisplayedPackage,
   getDisplayPackageInfoOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
 } from './audit-view-resource-selectors';
-import { getSelectedAttributionId } from './attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 
@@ -121,7 +122,7 @@ export function getProjectMetadata(state: State): ProjectMetadata {
 export function getCurrentAttributionId(state: State): string | null {
   switch (getSelectedView(state)) {
     case View.Attribution:
-      return getSelectedAttributionId(state);
+      return getSelectedAttributionIdInAttributionView(state);
     case View.Report:
       return getPopupAttributionId(state);
     case View.Audit:
@@ -129,30 +130,40 @@ export function getCurrentAttributionId(state: State): string | null {
   }
 }
 
-export function getDisplayPackageInfoOfSelectedAttribution(
+export function getDisplayPackageInfoOfSelectedAttributionInAttributionView(
   state: State
 ): DisplayPackageInfo | null {
-  const selectedAttributionId = getSelectedAttributionId(state);
+  const selectedAttributionIdInAttributionView =
+    getSelectedAttributionIdInAttributionView(state);
 
-  if (!selectedAttributionId) {
+  if (!selectedAttributionIdInAttributionView) {
     return null;
   }
   const attributions = getManualAttributions(state);
-  const selectedPackageInfo = attributions[selectedAttributionId];
+  const selectedPackageInfo =
+    attributions[selectedAttributionIdInAttributionView];
   return selectedPackageInfo
     ? convertPackageInfoToDisplayPackageInfo(
-        attributions[selectedAttributionId],
-        [selectedAttributionId]
+        attributions[selectedAttributionIdInAttributionView],
+        [selectedAttributionIdInAttributionView]
       )
     : null;
+}
+
+export function getManualDisplayPackageInfoOfSelected(
+  state: State
+): DisplayPackageInfo | null {
+  return getSelectedView(state) === View.Audit
+    ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(state)
+    : getDisplayPackageInfoOfSelectedAttributionInAttributionView(state);
 }
 
 export function getDisplayPackageInfoOfSelected(
   state: State
 ): DisplayPackageInfo | null {
   return getSelectedView(state) === View.Audit
-    ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(state)
-    : getDisplayPackageInfoOfSelectedAttribution(state);
+    ? getDisplayPackageInfoOfDisplayedPackage(state)
+    : getDisplayPackageInfoOfSelectedAttributionInAttributionView(state);
 }
 
 export function wereTemporaryDisplayPackageInfoModified(state: State): boolean {
@@ -165,29 +176,29 @@ export function wereTemporaryDisplayPackageInfoModified(state: State): boolean {
 
   const temporaryDisplayPackageInfo: DisplayPackageInfo =
     getTemporaryDisplayPackageInfo(state);
-  const packageInfoOfSelected: DisplayPackageInfo =
-    getDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
+  const displayPackageInfoOfSelected: DisplayPackageInfo =
+    getManualDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
 
   function hasPackageInfoChanged(): boolean {
     const strippedTemporaryDisplayPackageInfo = getStrippedDisplayPackageInfo(
       cloneDeep(temporaryDisplayPackageInfo)
     );
-    const strippedPackageInfoOfSelected = getStrippedDisplayPackageInfo(
-      cloneDeep(packageInfoOfSelected)
+    const strippedDisplayPackageInfoOfSelected = getStrippedDisplayPackageInfo(
+      cloneDeep(displayPackageInfoOfSelected)
     );
     delete strippedTemporaryDisplayPackageInfo.attributionConfidence;
-    delete strippedPackageInfoOfSelected.attributionConfidence;
+    delete strippedDisplayPackageInfoOfSelected.attributionConfidence;
 
     return !isEqual(
       strippedTemporaryDisplayPackageInfo,
-      strippedPackageInfoOfSelected
+      strippedDisplayPackageInfoOfSelected
     );
   }
 
   function hasConfidenceChanged(): boolean {
     return (
-      Boolean(packageInfoOfSelected.attributionConfidence) &&
-      packageInfoOfSelected.attributionConfidence !==
+      Boolean(displayPackageInfoOfSelected.attributionConfidence) &&
+      displayPackageInfoOfSelected.attributionConfidence !==
         temporaryDisplayPackageInfo.attributionConfidence
     );
   }

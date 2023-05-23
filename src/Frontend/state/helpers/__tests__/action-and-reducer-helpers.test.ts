@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  AttributionData,
   Attributions,
   PackageInfo,
   Resources,
@@ -17,7 +18,14 @@ import { NIL as uuidNil } from 'uuid';
 import {
   computeChildrenWithAttributions,
   createExternalAttributionsToHashes,
+  getAttributionIdOfFirstPackageCardInManualPackagePanel,
+  getIndexOfAttributionInManualPackagePanel,
 } from '../action-and-reducer-helpers';
+import {
+  ResourceState,
+  initialResourceState,
+} from '../../reducers/resource-reducer';
+import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 
 describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
@@ -194,5 +202,145 @@ describe('createExternalAttributionsToHashes', () => {
     expect(testExternalAttributionsToHashes.uuid4).toEqual(
       testExternalAttributionsToHashes.uuid5
     );
+  });
+});
+
+describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
+  it('yields correct results if all necessary data are available', () => {
+    const testAttributionIds = ['uuid_0', 'uuid_1'];
+    const testResourceId = 'file';
+    const testState: ResourceState = {
+      ...initialResourceState,
+      allViews: {
+        ...initialResourceState.allViews,
+        manualData: {
+          ...initialResourceState.allViews.manualData,
+          attributions: {
+            uuid_0: { packageName: 'Vue' },
+            uuid_1: { packageName: 'React' },
+          },
+          resourcesToAttributions: { file1: ['uuid_0', 'uuid_1'] },
+        },
+      },
+    };
+    const expectedAttributionIdOfFirstPackageCard = 'uuid_1';
+    const testAttributionIdOfFirstPackageCard =
+      getAttributionIdOfFirstPackageCardInManualPackagePanel(
+        testAttributionIds,
+        testResourceId,
+        testState
+      );
+    expect(testAttributionIdOfFirstPackageCard).toEqual(
+      expectedAttributionIdOfFirstPackageCard
+    );
+  });
+
+  it('yields empty string if attributionIds is empty and no closestParentAttributionIds', () => {
+    const testAttributionIds: Array<string> = [];
+    const testResourceId = 'file';
+    const testState: ResourceState = {
+      ...initialResourceState,
+      allViews: {
+        ...initialResourceState.allViews,
+        manualData: {
+          ...initialResourceState.allViews.manualData,
+          attributions: {
+            uuid_0: { packageName: 'Vue' },
+            uuid_1: { packageName: 'React' },
+          },
+          resourcesToAttributions: { file1: ['uuid_0', 'uuid_1'] },
+        },
+      },
+    };
+    const expectedAttributionIdOfFirstPackageCard = '';
+    const testAttributionIdOfFirstPackageCard =
+      getAttributionIdOfFirstPackageCardInManualPackagePanel(
+        testAttributionIds,
+        testResourceId,
+        testState
+      );
+    expect(testAttributionIdOfFirstPackageCard).toEqual(
+      expectedAttributionIdOfFirstPackageCard
+    );
+  });
+
+  it('yields first closesParentAttributionId if available', () => {
+    const testAttributionIds = ['uuid_0', 'uuid_1', 'uuid_2', 'uuid_3'];
+    const testResourceId = 'file';
+    const testState: ResourceState = {
+      ...initialResourceState,
+      allViews: {
+        ...initialResourceState.allViews,
+        manualData: {
+          ...initialResourceState.allViews.manualData,
+          attributions: {
+            uuid_0: { packageName: 'Vue' },
+            uuid_1: { packageName: 'React' },
+            uuid_2: { packageName: 'Jest' },
+            uuid_3: { packageName: 'Angular' },
+          },
+          resourcesToAttributions: {
+            folder: ['uuid_2', 'uuid_3'],
+            ['folder/file1']: ['uuid_0', 'uuid_1'],
+          },
+        },
+      },
+    };
+    const expectedAttributionIdOfFirstPackageCard = 'uuid_3';
+    const testAttributionIdOfFirstPackageCard =
+      getAttributionIdOfFirstPackageCardInManualPackagePanel(
+        testAttributionIds,
+        testResourceId,
+        testState
+      );
+    expect(testAttributionIdOfFirstPackageCard).toEqual(
+      expectedAttributionIdOfFirstPackageCard
+    );
+  });
+});
+
+describe('getIndexOfAttributionInManualPackagePanel', () => {
+  const testManualData: AttributionData = {
+    ...EMPTY_ATTRIBUTION_DATA,
+    attributions: {
+      uuid_0: { packageName: 'Vue' },
+      uuid_1: { packageName: 'React' },
+    },
+    resourcesToAttributions: { file: ['uuid_0', 'uuid_1'] },
+  };
+  it('yields correct result if all necessary data are available', () => {
+    const testTargetAttributionId = 'uuid_0';
+    const testResourceId = 'file';
+    const expectedIndex = 1;
+    const testIndex = getIndexOfAttributionInManualPackagePanel(
+      testTargetAttributionId,
+      testResourceId,
+      testManualData
+    );
+    expect(testIndex).toEqual(expectedIndex);
+  });
+
+  it('yields null if targetAttributionId is not on resource', () => {
+    const testTargetAttributionId = 'uuid_42';
+    const testResourceId = 'file';
+    const expectedIndex = null;
+    const testIndex = getIndexOfAttributionInManualPackagePanel(
+      testTargetAttributionId,
+      testResourceId,
+      testManualData
+    );
+    expect(testIndex).toEqual(expectedIndex);
+  });
+
+  it('yields null if resource does not have attributions', () => {
+    const testTargetAttributionId = 'uuid_0';
+    const testResourceId = 'anotherFile';
+    const expectedIndex = null;
+    const testIndex = getIndexOfAttributionInManualPackagePanel(
+      testTargetAttributionId,
+      testResourceId,
+      testManualData
+    );
+    expect(testIndex).toEqual(expectedIndex);
   });
 });

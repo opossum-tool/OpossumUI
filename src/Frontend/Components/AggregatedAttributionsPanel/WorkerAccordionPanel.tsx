@@ -7,17 +7,18 @@ import { AttributionsToHashes } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
-  DisplayAttributionsWithCountAndResourceId,
-  DisplayAttributionWithCount,
+  DisplayPackageInfosWithCount,
+  DisplayPackageInfosWithCountAndResourceId,
   PanelData,
 } from '../../types/types';
 import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { PanelAttributionData } from '../../util/get-contained-packages';
 
-const EMPTY_DISPLAY_ATTRIBUTIONS_WITH_COUNT_AND_RESOURCE_ID: DisplayAttributionsWithCountAndResourceId =
+const EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID: DisplayPackageInfosWithCountAndResourceId =
   {
     resourceId: '',
-    displayAttributionsWithCount: [],
+    sortedPackageCardIds: [],
+    displayPackageInfosWithCount: {},
   };
 
 type ContainedAttributionsAccordionWorkerArgs =
@@ -29,11 +30,13 @@ interface ContainedExternalAttributionsAccordionWorkerArgs {
   externalData?: PanelAttributionData;
   attributionsToHashes?: AttributionsToHashes;
   resolvedExternalAttributions: Set<string>;
+  panelTitle: PackagePanelTitle;
 }
 
 interface ContainedManualAttributionsAccordionWorkerArgs {
   selectedResourceId: string;
   manualData: PanelAttributionData;
+  panelTitle: PackagePanelTitle;
 }
 
 interface WorkerAccordionPanelProps {
@@ -42,9 +45,9 @@ interface WorkerAccordionPanelProps {
     | PackagePanelTitle.ContainedManualPackages;
   workerArgs: ContainedAttributionsAccordionWorkerArgs;
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
-  getDisplayAttributionsWithCount(
+  getDisplayPackageInfosWithCount(
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ): Array<DisplayAttributionWithCount>;
+  ): [Array<string>, DisplayPackageInfosWithCount];
   isAddToPackageEnabled: boolean;
 }
 
@@ -52,10 +55,10 @@ export function WorkerAccordionPanel(
   props: WorkerAccordionPanelProps
 ): ReactElement {
   const [
-    displayAttributionsWithCountAndResourceId,
-    setDisplayAttributionsWithCountAndResourceId,
-  ] = useState<DisplayAttributionsWithCountAndResourceId>(
-    EMPTY_DISPLAY_ATTRIBUTIONS_WITH_COUNT_AND_RESOURCE_ID
+    displayPackageInfosWithCountAndResourceId,
+    setDisplayPackageInfosWithCountAndResourceId,
+  ] = useState<DisplayPackageInfosWithCountAndResourceId>(
+    EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID
   );
   const resourceDetailsTabsWorkers = useContext(AccordionWorkersContext);
 
@@ -72,12 +75,12 @@ export function WorkerAccordionPanel(
   }
 
   useMemo(() => {
-    loadAttributionIdsWithCount(
+    loadDisplayPackageInfosWithCount(
       props.workerArgs,
       worker,
       props.title,
-      setDisplayAttributionsWithCountAndResourceId,
-      props.getDisplayAttributionsWithCount,
+      setDisplayPackageInfosWithCountAndResourceId,
+      props.getDisplayPackageInfosWithCount,
       props.syncFallbackArgs
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,17 +89,20 @@ export function WorkerAccordionPanel(
   let panelData: PanelData;
   if (
     props.workerArgs.selectedResourceId ===
-    displayAttributionsWithCountAndResourceId.resourceId
+    displayPackageInfosWithCountAndResourceId.resourceId
   ) {
     panelData = {
       title: props.title,
-      displayAttributionsWithCount:
-        displayAttributionsWithCountAndResourceId.displayAttributionsWithCount,
+      sortedPackageCardIds:
+        displayPackageInfosWithCountAndResourceId.sortedPackageCardIds,
+      displayPackageInfosWithCount:
+        displayPackageInfosWithCountAndResourceId.displayPackageInfosWithCount,
     };
   } else {
     panelData = {
       title: props.title,
-      displayAttributionsWithCount: [],
+      sortedPackageCardIds: [],
+      displayPackageInfosWithCount: {},
     };
   }
 
@@ -109,20 +115,20 @@ export function WorkerAccordionPanel(
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await
-async function loadAttributionIdsWithCount(
+async function loadDisplayPackageInfosWithCount(
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
   worker: Worker,
   panelTitle: string,
-  setDisplayAttributionsWithCountAndResourceId: (
-    attributionIdsWithCountAndResourceId: DisplayAttributionsWithCountAndResourceId
+  setDisplayPackageInfosWithCountAndResourceId: (
+    displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId
   ) => void,
-  getDisplayAttributionsWithCount: (
+  getDisplayPackageInfosWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ) => Array<DisplayAttributionWithCount>,
+  ) => [Array<string>, DisplayPackageInfosWithCount],
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): Promise<void> {
-  setDisplayAttributionsWithCountAndResourceId(
-    EMPTY_DISPLAY_ATTRIBUTIONS_WITH_COUNT_AND_RESOURCE_ID
+  setDisplayPackageInfosWithCountAndResourceId(
+    EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID
   );
 
   // WebWorkers can fail for different reasons, e.g. because they run out
@@ -137,21 +143,21 @@ async function loadAttributionIdsWithCount(
         logErrorAndComputeInMainProcess(
           panelTitle,
           Error('Web Worker execution error.'),
-          setDisplayAttributionsWithCountAndResourceId,
-          getDisplayAttributionsWithCount,
+          setDisplayPackageInfosWithCountAndResourceId,
+          getDisplayPackageInfosWithCount,
           workerArgs,
           syncFallbackArgs
         );
       } else {
-        setDisplayAttributionsWithCountAndResourceId(output);
+        setDisplayPackageInfosWithCountAndResourceId(output);
       }
     };
   } catch (error) {
     logErrorAndComputeInMainProcess(
       panelTitle,
       error,
-      setDisplayAttributionsWithCountAndResourceId,
-      getDisplayAttributionsWithCount,
+      setDisplayPackageInfosWithCountAndResourceId,
+      getDisplayPackageInfosWithCount,
       workerArgs,
       syncFallbackArgs
     );
@@ -161,23 +167,23 @@ async function loadAttributionIdsWithCount(
 function logErrorAndComputeInMainProcess(
   panelTitle: string,
   error: unknown,
-  setDisplayAttributionsWithCountAndResourceId: (
-    attributionIdsWithCountAndResourceId: DisplayAttributionsWithCountAndResourceId
+  setDisplayPackageInfosWithCountAndResourceId: (
+    displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId
   ) => void,
-  getDisplayAttributionsWithCount: (
+  getDisplayPackageInfosWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs
-  ) => Array<DisplayAttributionWithCount>,
+  ) => [Array<string>, DisplayPackageInfosWithCount],
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
 ): void {
   console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
 
-  const displayAttributionIdsWithCount = getDisplayAttributionsWithCount(
-    syncFallbackArgs || workerArgs
-  );
+  const [sortedPackageCardIds, displayAttributionIdsWithCount] =
+    getDisplayPackageInfosWithCount(syncFallbackArgs || workerArgs);
 
-  setDisplayAttributionsWithCountAndResourceId({
+  setDisplayPackageInfosWithCountAndResourceId({
     resourceId: workerArgs.selectedResourceId,
-    displayAttributionsWithCount: displayAttributionIdsWithCount,
+    sortedPackageCardIds,
+    displayPackageInfosWithCount: displayAttributionIdsWithCount,
   });
 }

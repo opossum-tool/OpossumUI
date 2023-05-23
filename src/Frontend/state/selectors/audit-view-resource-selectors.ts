@@ -101,10 +101,16 @@ export function getAttributionsOfSelectedResourceOrClosestParent(
 export function getAttributionIdOfDisplayedPackageInManualPanel(
   state: State
 ): string | null {
-  return state.resourceState.auditView.displayedPanelPackage?.panel ===
+  if (
+    state.resourceState.auditView.displayedPanelPackage?.panel ===
     PackagePanelTitle.ManualPackages
-    ? state.resourceState.auditView.displayedPanelPackage.attributionId
-    : null;
+  ) {
+    return (
+      state.resourceState.auditView.displayedPanelPackage.displayPackageInfo
+        .attributionIds[0] || null
+    );
+  }
+  return null;
 }
 
 export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
@@ -120,6 +126,13 @@ export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
     );
   }
   return null;
+}
+
+export function getDisplayPackageInfoOfDisplayedPackage(
+  state: State
+): DisplayPackageInfo | null {
+  const displayedPackage = state.resourceState.auditView.displayedPanelPackage;
+  return displayedPackage ? displayedPackage.displayPackageInfo : null;
 }
 
 export function getIsAccordionSearchFieldDisplayed(state: State): boolean {
