@@ -6,6 +6,7 @@
 import {
   Attributions,
   AttributionsToHashes,
+  DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -68,6 +69,12 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
     }
   );
 
+  packageCardIds.sort(
+    sortDisplayPackageInfosWithCountByCountAndPackageName(
+      displayPackageInfosWithCount
+    )
+  );
+
   return [packageCardIds, displayPackageInfosWithCount];
 }
 
@@ -112,6 +119,12 @@ export function getExternalDisplayPackageInfosWithCount(
     indexCounter
   );
 
+  packageCardIds.sort(
+    sortDisplayPackageInfosWithCountByCountAndPackageName(
+      displayPackageInfosWithCount
+    )
+  );
+
   return [packageCardIds, displayPackageInfosWithCount];
 }
 
@@ -131,4 +144,36 @@ function addMergedSignals(
       getDisplayPackageInfoWithCountFromAttributions(hashToAttributions[hash]);
     indexCounter++;
   });
+}
+
+//exported for testing
+export function sortDisplayPackageInfosWithCountByCountAndPackageName(
+  displayPackageInfosWithCount: DisplayPackageInfosWithCount
+) {
+  return function (id1: string, id2: string): number {
+    if (
+      displayPackageInfosWithCount[id1].count !==
+      displayPackageInfosWithCount[id2].count
+    ) {
+      return (
+        displayPackageInfosWithCount[id2].count -
+        displayPackageInfosWithCount[id1].count
+      );
+    }
+
+    const p1: DisplayPackageInfo =
+      displayPackageInfosWithCount[id1].displayPackageInfo;
+    const p2: DisplayPackageInfo =
+      displayPackageInfosWithCount[id2].displayPackageInfo;
+    if (p1?.packageName && p2?.packageName) {
+      return p1.packageName.toLowerCase() < p2.packageName.toLowerCase()
+        ? -1
+        : 1;
+    } else if (p1?.packageName) {
+      return -1;
+    } else if (p2?.packageName) {
+      return 1;
+    }
+    return 0;
+  };
 }

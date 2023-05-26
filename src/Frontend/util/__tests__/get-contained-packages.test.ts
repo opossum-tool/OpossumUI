@@ -7,10 +7,7 @@ import {
   Attributions,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import {
-  computeAggregatedAttributionsFromChildren,
-  sortByCountAndPackageName,
-} from '../get-contained-packages';
+import { computeAggregatedAttributionsFromChildren } from '../get-contained-packages';
 import { AttributionIdWithCount } from '../../types/types';
 
 describe('computeAggregatedAttributionsFromChildren', () => {
@@ -29,15 +26,15 @@ describe('computeAggregatedAttributionsFromChildren', () => {
     .add('samplepath/subfolder')
     .add('samplepath2/subfolder/subsubfolder');
 
-  it('selects aggregated children and sorts correctly', () => {
+  it('selects aggregated children', () => {
     const expectedResult: Array<AttributionIdWithCount> = [
-      {
-        count: 2,
-        attributionId: 'uuid_2',
-      },
       {
         count: 1,
         attributionId: 'uuid_1',
+      },
+      {
+        count: 2,
+        attributionId: 'uuid_2',
       },
       {
         count: 1,
@@ -77,85 +74,5 @@ describe('computeAggregatedAttributionsFromChildren', () => {
         testResolvedExternalAttributions
       );
     expect(result).toEqual(expectedResult);
-  });
-});
-
-describe('sortByCountAndPackageName', () => {
-  it('sorts items correctly', () => {
-    const initialAttributionIdsWithCount: Array<AttributionIdWithCount> = [
-      {
-        attributionId: 'uuid1',
-        count: 10,
-      },
-      {
-        attributionId: 'uuid2',
-        count: 11,
-      },
-      {
-        attributionId: 'uuid3',
-        count: 10,
-      },
-      {
-        attributionId: 'uuid4',
-        count: 1,
-      },
-      {
-        attributionId: 'uuid5',
-        count: 10,
-      },
-      {
-        attributionId: 'uuid6',
-        count: 1,
-      },
-    ];
-    const testAttributions: Attributions = {
-      uuid1: {},
-      uuid2: {
-        packageName: 'c',
-      },
-      uuid3: {
-        packageName: 'b',
-      },
-      uuid4: {
-        packageName: 'e',
-      },
-      uuid5: {
-        packageName: 'z',
-      },
-      uuid6: {
-        packageName: 'd',
-      },
-    };
-    const expectedAttributionIdsWithCount: Array<AttributionIdWithCount> = [
-      {
-        attributionId: 'uuid2',
-        count: 11,
-      },
-      {
-        attributionId: 'uuid3',
-        count: 10,
-      },
-      {
-        attributionId: 'uuid5',
-        count: 10,
-      },
-      {
-        attributionId: 'uuid1',
-        count: 10,
-      },
-      {
-        attributionId: 'uuid6',
-        count: 1,
-      },
-      {
-        attributionId: 'uuid4',
-        count: 1,
-      },
-    ];
-
-    const result = initialAttributionIdsWithCount.sort(
-      sortByCountAndPackageName(testAttributions)
-    );
-    expect(result).toEqual(expectedAttributionIdsWithCount);
   });
 });

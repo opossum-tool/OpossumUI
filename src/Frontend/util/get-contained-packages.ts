@@ -5,7 +5,6 @@
 import {
   AttributionData,
   Attributions,
-  PackageInfo,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../shared/shared-types';
@@ -81,36 +80,8 @@ export function computeAggregatedAttributionsFromChildren(
     });
   });
 
-  return Object.keys(attributionCount)
-    .map((attributionId: string) => ({
-      attributionId,
-      count: attributionCount[attributionId],
-    }))
-    .sort(sortByCountAndPackageName(attributions));
-}
-
-export function sortByCountAndPackageName(
-  attributions: Readonly<Attributions>
-) {
-  return function (
-    a1: AttributionIdWithCount,
-    a2: AttributionIdWithCount
-  ): number {
-    if (a1.count && a2.count && a1.count !== a2.count) {
-      return a2.count - a1.count;
-    }
-
-    const p1: PackageInfo = attributions[a1.attributionId];
-    const p2: PackageInfo = attributions[a2.attributionId];
-    if (p1?.packageName && p2?.packageName) {
-      return p1.packageName.toLowerCase() < p2.packageName.toLowerCase()
-        ? -1
-        : 1;
-    } else if (p1?.packageName) {
-      return -1;
-    } else if (p2?.packageName) {
-      return 1;
-    }
-    return 0;
-  };
+  return Object.keys(attributionCount).map((attributionId: string) => ({
+    attributionId,
+    count: attributionCount[attributionId],
+  }));
 }
