@@ -16,6 +16,7 @@ import {
 import {
   getContainedManualDisplayPackageInfosWithCount,
   getExternalDisplayPackageInfosWithCount,
+  sortDisplayPackageInfosWithCountByCountAndPackageName,
 } from '../accordion-panel-helpers';
 import { PanelAttributionData } from '../../../util/get-contained-packages';
 import { PackagePanelTitle } from '../../../enums/enums';
@@ -195,6 +196,54 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       )
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
+
+  it('sorts ordinary and merged attributions according to the count', () => {
+    const testAttributionIdsWithCount: Array<AttributionIdWithCount> = [
+      { attributionId: 'uuidToMerge1', count: 3 },
+      { attributionId: 'uuidToMerge2', count: 2 },
+      { attributionId: 'uuidNotToMerge', count: 1 },
+    ];
+    const testAttributions: Attributions = {
+      uuidToMerge1: { packageName: 'Typescript' },
+      uuidToMerge2: { packageName: 'Typescript' },
+      uuidNotToMerge: { packageName: 'React' },
+    };
+    const testExternalAttributionsToHashes: AttributionsToHashes = {
+      uuidToMerge1: 'a',
+      uuidToMerge2: 'a',
+    };
+
+    const expectedPackageCardIds = [
+      `${testPackagePanelTitle}-1`,
+      `${testPackagePanelTitle}-0`,
+    ];
+
+    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      [expectedPackageCardIds[0]]: {
+        count: 5,
+        displayPackageInfo: {
+          attributionIds: ['uuidToMerge1', 'uuidToMerge2'],
+          packageName: 'Typescript',
+        },
+      },
+      [expectedPackageCardIds[1]]: {
+        count: 1,
+        displayPackageInfo: {
+          attributionIds: ['uuidNotToMerge'],
+          packageName: 'React',
+        },
+      },
+    };
+
+    expect(
+      getExternalDisplayPackageInfosWithCount(
+        testAttributionIdsWithCount,
+        testAttributions,
+        testExternalAttributionsToHashes,
+        testPackagePanelTitle
+      )
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+  });
 });
 
 describe('getContainedManualDisplayPackageInfosWithCount', () => {
@@ -227,11 +276,13 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
       resourcesToAttributions: testResourcesToAttributions,
       resourcesWithAttributedChildren: testResourcesWithAttributedChildren,
     };
+
     const expectedPackageCardIds = [
-      `${testPackagePanelTitle}-0`,
       `${testPackagePanelTitle}-1`,
       `${testPackagePanelTitle}-2`,
+      `${testPackagePanelTitle}-0`,
     ];
+
     const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
       [expectedPackageCardIds[0]]: {
         displayPackageInfo: {
@@ -263,5 +314,59 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
         panelTitle: testPackagePanelTitle,
       })
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+  });
+});
+
+describe('sortDisplayPackageInfosWithCountByCountAndPackageName', () => {
+  it('sorts items correctly', () => {
+    const initialPackageCardIds: Array<string> = [
+      'pcid1',
+      'pcid2',
+      'pcid3',
+      'pcid4',
+      'pcid5',
+      'pcid6',
+    ];
+    const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      pcid1: {
+        displayPackageInfo: { attributionIds: ['uuid1'] },
+        count: 10,
+      },
+      pcid2: {
+        displayPackageInfo: { attributionIds: ['uuid2'], packageName: 'c' },
+        count: 11,
+      },
+      pcid3: {
+        displayPackageInfo: { attributionIds: ['uuid3'], packageName: 'b' },
+        count: 10,
+      },
+      pcid4: {
+        displayPackageInfo: { attributionIds: ['uuid4'], packageName: 'e' },
+        count: 1,
+      },
+      pcid5: {
+        displayPackageInfo: { attributionIds: ['uuid5'], packageName: 'z' },
+        count: 10,
+      },
+      pcid6: {
+        displayPackageInfo: { attributionIds: ['uuid6'], packageName: 'd' },
+        count: 1,
+      },
+    };
+    const expectedPackageCardIds: Array<string> = [
+      'pcid2',
+      'pcid3',
+      'pcid5',
+      'pcid1',
+      'pcid6',
+      'pcid4',
+    ];
+
+    const result = initialPackageCardIds.sort(
+      sortDisplayPackageInfosWithCountByCountAndPackageName(
+        testDisplayPackageInfosWithCount
+      )
+    );
+    expect(result).toEqual(expectedPackageCardIds);
   });
 });

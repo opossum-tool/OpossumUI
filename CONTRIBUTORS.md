@@ -25,5 +25,6 @@ SPDX-License-Identifier: CC0-1.0
 - **[Ruiyun Xie](https://github.com/mayayunx)**
 - **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
 - **[Vasily Pozdnyakov](https://github.com/vasily-pozdnyakov)** (<vasily.pozdnyakov@tngtech.com>)
+- **[David Mundelius](https://github.com/davidmundelius)** (<david.mundelius@tngtech.com>)
 
 [Contributors list on GitHub](https://github.com/opossum-tool/OpossumUI/contributors).
