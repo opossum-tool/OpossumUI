@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ElectronApplication, Page } from 'playwright';
 import {
   E2E_TEST_TIMEOUT,
   EXPECT_TIMEOUT,
@@ -11,7 +10,7 @@ import {
   getElementWithText,
   LOAD_TIMEOUT,
 } from '../test-helpers/test-helpers';
-import { expect, test } from '@playwright/test';
+import { ElectronApplication, expect, Page, test } from '@playwright/test';
 
 test.setTimeout(E2E_TEST_TIMEOUT);
 

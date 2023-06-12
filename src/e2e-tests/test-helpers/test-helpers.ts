@@ -3,9 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { _electron, ElectronApplication, Locator, Page } from 'playwright';
 import {
+  _electron,
+  ElectronApplication,
   expect,
+  Locator,
+  Page,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,

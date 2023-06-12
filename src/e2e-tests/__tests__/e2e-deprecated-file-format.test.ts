@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ElectronApplication, Page } from 'playwright';
 import {
   conditionalTest,
   E2E_TEST_TIMEOUT,
@@ -16,7 +15,7 @@ import {
 } from '../test-helpers/test-helpers';
 import * as os from 'os';
 import fs from 'fs';
-import { expect, test } from '@playwright/test';
+import { ElectronApplication, expect, Page, test } from '@playwright/test';
 
 test.setTimeout(E2E_TEST_TIMEOUT);
 
