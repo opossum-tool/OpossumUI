@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.5",
-    "@playwright/test": "^1.33.0",
+    "@playwright/test": "^1.35.0",
     "@testing-library/dom": "^9.3.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
@@ -79,7 +79,6 @@
     "lint-staged": "^13.2.2",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.4",
-    "playwright": "^1.33.0",
     "prettier": "^2.8.8",
     "redux-devtools-extension": "^2.13.9",
     "run-script-os": "^1.1.6",
