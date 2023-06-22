@@ -17,5 +17,6 @@ export function packageInfoHasNoSignificantFields(
   delete packageInfoWithSignificantFields.excludeFromNotice;
   delete packageInfoWithSignificantFields.criticality;
   delete packageInfoWithSignificantFields.source;
+  delete packageInfoWithSignificantFields.needsReview;
   return isEmpty(packageInfoWithSignificantFields);
 }

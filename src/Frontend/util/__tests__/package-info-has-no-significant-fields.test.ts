@@ -20,6 +20,7 @@ describe('The test package', () => {
     { followUp: FollowUp },
     { excludeFromNotice: true },
     { criticality: Criticality.Medium },
+    { needsReview: true },
     {
       source: {
         name: 'test name',
