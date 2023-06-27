@@ -1953,18 +1953,17 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@tanstack/query-core@4.29.17":
-  version "4.29.17"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.29.17.tgz#bbef3a30190732ae3554187702f6e34c5caaefd8"
-  integrity sha512-iDbO8yZOpm1lqgq6L8mpxGbKaoiyZSjthxEB3WGU7mNPYss9q4H3Q67+e2xXGwkemEVmtEX/WwvtFitrvVU8TA==
+"@tanstack/query-core@4.29.19":
+  version "4.29.19"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.29.19.tgz#49ccbd0606633d1e55baf3b91ab7cc7aef411b1d"
+  integrity sha512-uPe1DukeIpIHpQi6UzIgBcXsjjsDaLnc7hF+zLBKnaUlh7jFE/A+P8t4cU4VzKPMFB/C970n/9SxtpO5hmIRgw==
 
-"@tanstack/react-query@^4.29.17":
-  version "4.29.17"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.29.17.tgz#bfd5da849bb7fd1b66eb9d47853ee030864a435e"
-  integrity sha512-udOy/jgqiBHBAP93YPAU3QoVYO+Rtx9HT/10xGDQzC8iQU/wIxcIaT/usX+1NSzoUFYU5hUcPaNErPWZnR7XgA==
+"@tanstack/react-query@^4.29.19":
+  version "4.29.19"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.29.19.tgz#6ba187f2d0ea36ae83ff1f67068f53c88ce7b228"
+  integrity sha512-XiTIOHHQ5Cw1WUlHaD4fmVUMhoWjuNJlAeJGq7eM4BraI5z7y8WkZO+NR8PSuRnQGblpuVdjClQbDFtwxTtTUw==
   dependencies:
-    "@tanstack/query-core" "4.29.17"
-    client-only "0.0.1"
+    "@tanstack/query-core" "4.29.19"
     use-sync-external-store "^1.2.0"
 
 "@testing-library/dom@^9.0.0", "@testing-library/dom@^9.3.1":
@@ -3211,11 +3210,6 @@ cli-truncate@^3.1.0:
   dependencies:
     slice-ansi "^5.0.0"
     string-width "^5.0.0"
-
-client-only@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
-  integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
 
 cliui@^8.0.1:
   version "8.0.1"
