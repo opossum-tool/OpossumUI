@@ -7,12 +7,18 @@
 import '@testing-library/jest-dom';
 
 const TEST_TIMEOUT = 15000;
+//We suppress webworker errors that are due to jest not supporting these.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
   'Web worker error in workers context',
   'Error in rendering folder progress bar',
   'Error in rendering top progress bar',
   'Error in ResourceDetailsTab',
 ];
+//We supress recharts warning that is due to our mocking in tests.
+const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN = [
+  'The width(0) and height(0) of chart should be greater than 0,',
+];
+
 // this is a quick fix for #938
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
@@ -23,8 +29,18 @@ jest.setTimeout(TEST_TIMEOUT);
 jest.mock('./src/Frontend/web-workers/get-new-accordion-workers');
 jest.mock('./src/Frontend/web-workers/get-new-progress-bar-workers');
 
+const originalResizeObserver = window.ResizeObserver;
 const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
 const originalConsoleInfo = console.info;
+
+function mockResizeObserver(): void {
+  window.ResizeObserver = jest.fn().mockImplementation(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+  }));
+}
 
 beforeAll(() => {
   global.window.electronAPI = {
@@ -42,20 +58,26 @@ beforeAll(() => {
     removeListener: jest.fn(),
   };
 
+  mockResizeObserver();
+
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO, 'info');
+  mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN, 'warn');
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR, 'error');
 });
 
 beforeEach(() => jest.clearAllMocks());
 
 afterAll(() => {
+  window.ResizeObserver = originalResizeObserver;
   console.error = originalConsoleError;
-  console.error = originalConsoleInfo;
+  console.warn = originalConsoleWarn;
+  console.info = originalConsoleInfo;
+  jest.restoreAllMocks();
 });
 
 function mockConsoleImplementation(
   selectors: Array<string>,
-  type: 'info' | 'error'
+  type: 'info' | 'warn' | 'error'
 ): void {
   jest
     .spyOn(console, type)
@@ -64,7 +86,7 @@ function mockConsoleImplementation(
 
 function getMockConsoleImplementation(
   selectors: Array<string>,
-  type: 'info' | 'error'
+  type: 'info' | 'warn' | 'error'
 ) {
   return (...args: Array<unknown>): void => {
     if (
@@ -74,8 +96,16 @@ function getMockConsoleImplementation(
     ) {
       return;
     }
-    return type === 'error'
-      ? originalConsoleError.call(console, args)
-      : originalConsoleInfo.call(console, args);
+    switch (type) {
+      case 'error': {
+        return originalConsoleError.call(console, args);
+      }
+      case 'warn': {
+        return originalConsoleWarn.call(console, args);
+      }
+      case 'info': {
+        return originalConsoleInfo.call(console, args);
+      }
+    }
   };
 }

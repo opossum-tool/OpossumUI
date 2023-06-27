@@ -250,6 +250,11 @@ export function clickOnFilter(screen: Screen, label: string): void {
   fireEvent.click(screen.getByLabelText(label) as Element);
 }
 
+export function closeProjectStatisticsPopup(screen: Screen): void {
+  expect(screen.getByText('Project Statistics')).toBeInTheDocument();
+  fireEvent.click(getButton(screen, ButtonText.Close));
+}
+
 export function expectElementsInAutoCompleteAndSelectFirst(
   screen: Screen,
   elements: Array<string>,

@@ -8,6 +8,7 @@ import {
   clickOnButton,
   clickOnCheckbox,
   clickOnFilter,
+  closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
   mockElectronBackend,
@@ -70,7 +71,7 @@ describe('The App integration', () => {
     mockElectronBackend(mockChannelReturn);
 
     renderComponentWithStore(<App />);
-
+    closeProjectStatisticsPopup(screen);
     goToView(screen, View.Attribution);
     screen.getByText('JQuery');
     screen.getByText('Angular');

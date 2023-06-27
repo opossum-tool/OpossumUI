@@ -36,6 +36,12 @@ test.describe('Open .opossum file via command line', () => {
   test('should open file when provided as command line arg', async () => {
     await getElementWithText(window, 'Frontend');
 
+    const closeProjectStatisticsPopupButton = await getElementWithText(
+      window,
+      'Close',
+    );
+    await closeProjectStatisticsPopupButton.click();
+
     const electronBackendEntry = await getElementWithText(
       window,
       'ElectronBackend',
@@ -44,6 +50,12 @@ test.describe('Open .opossum file via command line', () => {
   });
 
   test('should show signals and attributions in accordions', async () => {
+    const closeProjectStatisticsPopupButton = await getElementWithText(
+      window,
+      'Close',
+    );
+    await closeProjectStatisticsPopupButton.click();
+
     const electronBackendEntry = await getElementWithText(
       window,
       'ElectronBackend',

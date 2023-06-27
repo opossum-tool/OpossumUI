@@ -42,6 +42,12 @@ test.describe('Open outdated .json file via command line', () => {
 
     await getElementWithText(window, 'Frontend');
 
+    const closeProjectStatisticsPopupButton = await getElementWithText(
+      window,
+      'Close',
+    );
+    await closeProjectStatisticsPopupButton.click();
+
     const electronBackendEntry = await getElementWithText(
       window,
       'ElectronBackend',
@@ -56,6 +62,12 @@ test.describe('Open outdated .json file via command line', () => {
   test('should show signals and attributions in accordions', async () => {
     const keepOldFileFormatButton = await getButtonWithName(window, 'Keep');
     await keepOldFileFormatButton.click();
+
+    const closeProjectStatisticsPopupButton = await getElementWithText(
+      window,
+      'Close',
+    );
+    await closeProjectStatisticsPopupButton.click();
 
     const electronBackendEntry = await getElementWithText(
       window,
@@ -91,6 +103,12 @@ test.describe('Open outdated .json file via command line', () => {
     async () => {
       const keepOldFileFormatButton = await getButtonWithName(window, 'Keep');
       await keepOldFileFormatButton.click();
+
+      const closeProjectStatisticsPopupButton = await getElementWithText(
+        window,
+        'Close',
+      );
+      await closeProjectStatisticsPopupButton.click();
 
       const electronBackendEntry = await getElementWithText(
         window,

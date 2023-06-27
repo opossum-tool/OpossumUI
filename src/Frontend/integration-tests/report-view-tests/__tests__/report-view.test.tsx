@@ -8,6 +8,7 @@ import {
   clickOnButton,
   clickOnEditIconForElement,
   clickOnOpenFileIcon,
+  closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
   mockElectronBackend,
@@ -113,6 +114,7 @@ describe('The report view', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'something.js');
 

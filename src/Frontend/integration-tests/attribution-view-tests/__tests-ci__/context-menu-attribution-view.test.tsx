@@ -38,6 +38,7 @@ import { clickOnCardInAttributionList } from '../../../test-helpers/package-pane
 import {
   clickOnButton,
   clickOnMultiSelectCheckboxInPackageCard,
+  closeProjectStatisticsPopup,
   expectSelectCheckboxInPackageCardIsChecked,
   getParsedInputFileEnrichedWithTestData,
   goToView,
@@ -238,6 +239,7 @@ describe('In Attribution View the ContextMenu', () => {
       }),
     );
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     goToView(screen, View.Attribution);
     expectGlobalOnlyContextMenuForPreselectedAttribution(

@@ -5,6 +5,7 @@
 
 import {
   clickOnButton,
+  closeProjectStatisticsPopup,
   getParsedInputFileEnrichedWithTestData,
   mockElectronBackend,
 } from '../../../test-helpers/general-test-helpers';
@@ -79,6 +80,7 @@ describe('Add to attribution', () => {
       );
 
       renderComponentWithStore(<App />);
+      closeProjectStatisticsPopup(screen);
 
       clickOnElementInResourceBrowser(screen, 'folder1');
       clickOnElementInResourceBrowser(screen, 'firstResource.js');
@@ -216,6 +218,7 @@ describe('Add to attribution', () => {
     );
 
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'folder1');
     clickOnTab(screen, 'Global Tab');
