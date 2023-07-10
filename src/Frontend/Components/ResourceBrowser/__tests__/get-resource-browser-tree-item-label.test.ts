@@ -3,8 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Criticality } from '../../../../shared/shared-types';
-import { getCriticality } from '../get-resource-browser-tree-item-label';
+import {
+  Criticality,
+  ResourcesWithAttributedChildren,
+} from '../../../../shared/shared-types';
+import {
+  containsManualAttribution,
+  getCriticality,
+} from '../get-resource-browser-tree-item-label';
 
 describe('Tree item labels', () => {
   it('checks resource getCriticality', () => {
@@ -35,4 +41,27 @@ describe('Tree item labels', () => {
       expect(criticality).toEqual(expectedCriticalities[nodeId]);
     }
   });
+});
+
+describe('Manual attributions', () => {
+  it.each`
+    nodeId     | expectedReturn
+    ${'path1'} | ${true}
+    ${'path2'} | ${true}
+    ${'path3'} | ${false}
+    ${'path4'} | ${false}
+  `(
+    'checks if $nodeId containsManualAttribution: $expectedReturn',
+    ({ nodeId, expectedReturn }) => {
+      const resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren =
+        {
+          paths: ['path1', 'path2'],
+          pathsToIndices: { path1: 1, path3: 3 },
+          attributedChildren: { 1: new Set([]) },
+        };
+      expect(
+        containsManualAttribution(nodeId, resourcesWithManualAttributedChildren)
+      ).toEqual(expectedReturn);
+    }
+  );
 });
