@@ -159,13 +159,13 @@ function containsExternalAttribution(
   );
 }
 
-function containsManualAttribution(
+export function containsManualAttribution(
   nodeId: string,
   resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren
 ): boolean {
   return (
     resourcesWithManualAttributedChildren &&
-    nodeId in resourcesWithManualAttributedChildren.pathsToIndices
+    resourcesWithManualAttributedChildren.paths.includes(nodeId)
   );
 }
 
