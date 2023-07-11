@@ -77,13 +77,13 @@ describe('FolderProgressBar', () => {
 
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(setResolvedExternalAttributions(new Set()));
     testStore.dispatch(setAttributionBreakpoints(new Set()));
@@ -102,7 +102,7 @@ describe('FolderProgressBar', () => {
     expect(
       screen.getByText(/Files with attributions: 1/) &&
         screen.getByText(/Files with only pre-selected attributions: 0/) &&
-        screen.getByText(/Files with only signals: 1/)
+        screen.getByText(/Files with only signals: 1/),
     ).toBeDefined();
   });
 
@@ -155,13 +155,13 @@ describe('FolderProgressBar', () => {
 
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(setResolvedExternalAttributions(new Set()));
     testStore.dispatch(setAttributionBreakpoints(new Set()));
@@ -180,7 +180,7 @@ describe('FolderProgressBar', () => {
     expect(
       screen.getByText(/Files with attributions: 2/) &&
         screen.getByText(/Files with only pre-selected attributions: 0/) &&
-        screen.getByText(/Files with only signals: 0/)
+        screen.getByText(/Files with only signals: 0/),
     ).toBeDefined();
   });
 });

@@ -25,9 +25,9 @@ import { getPopupAttributionId, getSelectedView } from './view-selector';
 import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
+  getDisplayedPackage,
   getDisplayPackageInfoOfDisplayedPackage,
   getDisplayPackageInfoOfDisplayedPackageInManualPanel,
-  getDisplayedPackage,
 } from './audit-view-resource-selectors';
 import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
@@ -46,19 +46,19 @@ export function getManualAttributions(state: State): Attributions {
 }
 
 export function getResourcesToManualAttributions(
-  state: State
+  state: State,
 ): ResourcesToAttributions {
   return state.resourceState.allViews.manualData.resourcesToAttributions;
 }
 
 export function getManualAttributionsToResources(
-  state: State
+  state: State,
 ): AttributionsToResources {
   return state.resourceState.allViews.manualData.attributionsToResources;
 }
 
 export function getResourcesWithManualAttributedChildren(
-  state: State
+  state: State,
 ): ResourcesWithAttributedChildren {
   return state.resourceState.allViews.manualData
     .resourcesWithAttributedChildren;
@@ -73,26 +73,26 @@ export function getExternalAttributions(state: State): Attributions {
 }
 
 export function getResourcesToExternalAttributions(
-  state: State
+  state: State,
 ): ResourcesToAttributions {
   return state.resourceState.allViews.externalData.resourcesToAttributions;
 }
 
 export function getExternalAttributionsToResources(
-  state: State
+  state: State,
 ): AttributionsToResources {
   return state.resourceState.allViews.externalData.attributionsToResources;
 }
 
 export function getResourcesWithExternalAttributedChildren(
-  state: State
+  state: State,
 ): ResourcesWithAttributedChildren {
   return state.resourceState.allViews.externalData
     .resourcesWithAttributedChildren;
 }
 
 export function getFrequentLicensesNameOrder(
-  state: State
+  state: State,
 ): Array<FrequentLicenseName> {
   return state.resourceState.allViews.frequentLicenses.nameOrder;
 }
@@ -102,7 +102,7 @@ export function getFrequentLicensesTexts(state: State): LicenseTexts {
 }
 
 export function getTemporaryDisplayPackageInfo(
-  state: State
+  state: State,
 ): DisplayPackageInfo {
   return state.resourceState.allViews.temporaryDisplayPackageInfo;
 }
@@ -131,7 +131,7 @@ export function getCurrentAttributionId(state: State): string | null {
 }
 
 export function getDisplayPackageInfoOfSelectedAttributionInAttributionView(
-  state: State
+  state: State,
 ): DisplayPackageInfo | null {
   const selectedAttributionIdInAttributionView =
     getSelectedAttributionIdInAttributionView(state);
@@ -145,13 +145,13 @@ export function getDisplayPackageInfoOfSelectedAttributionInAttributionView(
   return selectedPackageInfo
     ? convertPackageInfoToDisplayPackageInfo(
         attributions[selectedAttributionIdInAttributionView],
-        [selectedAttributionIdInAttributionView]
+        [selectedAttributionIdInAttributionView],
       )
     : null;
 }
 
 export function getManualDisplayPackageInfoOfSelected(
-  state: State
+  state: State,
 ): DisplayPackageInfo | null {
   return getSelectedView(state) === View.Audit
     ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(state)
@@ -159,7 +159,7 @@ export function getManualDisplayPackageInfoOfSelected(
 }
 
 export function getDisplayPackageInfoOfSelected(
-  state: State
+  state: State,
 ): DisplayPackageInfo | null {
   return getSelectedView(state) === View.Audit
     ? getDisplayPackageInfoOfDisplayedPackage(state)
@@ -181,17 +181,17 @@ export function wereTemporaryDisplayPackageInfoModified(state: State): boolean {
 
   function hasPackageInfoChanged(): boolean {
     const strippedTemporaryDisplayPackageInfo = getStrippedDisplayPackageInfo(
-      cloneDeep(temporaryDisplayPackageInfo)
+      cloneDeep(temporaryDisplayPackageInfo),
     );
     const strippedDisplayPackageInfoOfSelected = getStrippedDisplayPackageInfo(
-      cloneDeep(displayPackageInfoOfSelected)
+      cloneDeep(displayPackageInfoOfSelected),
     );
     delete strippedTemporaryDisplayPackageInfo.attributionConfidence;
     delete strippedDisplayPackageInfoOfSelected.attributionConfidence;
 
     return !isEqual(
       strippedTemporaryDisplayPackageInfo,
-      strippedDisplayPackageInfoOfSelected
+      strippedDisplayPackageInfoOfSelected,
     );
   }
 
@@ -215,7 +215,7 @@ export function getBaseUrlsForSources(state: State): BaseUrlsForSources {
 }
 
 export function getExternalAttributionSources(
-  state: State
+  state: State,
 ): ExternalAttributionSources {
   return state.resourceState.allViews.externalAttributionSources;
 }
@@ -225,7 +225,7 @@ export function getAttributionIdMarkedForReplacement(state: State): string {
 }
 
 export function getExternalAttributionsToHashes(
-  state: State
+  state: State,
 ): AttributionsToHashes {
   return state.resourceState.allViews.externalAttributionsToHashes;
 }

@@ -25,8 +25,8 @@ describe('The table helpers', () => {
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo,
-        testIsFileWithChildren
-      )
+        testIsFileWithChildren,
+      ),
     ).toEqual('');
   });
 
@@ -42,8 +42,8 @@ describe('The table helpers', () => {
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo,
-        testIsFileWithChildren
-      )
+        testIsFileWithChildren,
+      ),
     ).toEqual(testPathOfFileWithChildren.slice(0, -1) + '\nb');
   });
 
@@ -67,22 +67,22 @@ describe('The table helpers', () => {
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo1,
-        testIsFileWithChildren
-      )
+        testIsFileWithChildren,
+      ),
     ).toEqual('Yes');
     expect(
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo2,
-        testIsFileWithChildren
-      )
+        testIsFileWithChildren,
+      ),
     ).toEqual('No');
     expect(
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo3,
-        testIsFileWithChildren
-      )
+        testIsFileWithChildren,
+      ),
     ).toEqual('No');
   });
 
@@ -107,10 +107,10 @@ describe('The table helpers', () => {
         getFormattedCellData(
           testTableConfig,
           testAttributionInfo,
-          testIsFileWithChildren
-        )
+          testIsFileWithChildren,
+        ),
       ).toEqual(expected);
-    }
+    },
   );
 
   test.each`
@@ -136,8 +136,8 @@ describe('The table helpers', () => {
       expect(
         isImportantAttributionInformationMissing(
           testTableConfig.attributionProperty,
-          testAttributionInfo
-        )
+          testAttributionInfo,
+        ),
       ).toEqual(true);
 
       testAttributionInfo = {
@@ -147,8 +147,8 @@ describe('The table helpers', () => {
       expect(
         isImportantAttributionInformationMissing(
           testTableConfig.attributionProperty,
-          testAttributionInfo
-        )
+          testAttributionInfo,
+        ),
       ).toEqual(true);
 
       testAttributionInfo = {
@@ -159,10 +159,10 @@ describe('The table helpers', () => {
       expect(
         isImportantAttributionInformationMissing(
           testTableConfig.attributionProperty,
-          testAttributionInfo
-        )
+          testAttributionInfo,
+        ),
       ).toEqual(false);
-    }
+    },
   );
 
   it('isImportantAttributionInformationMissing does not mark first party or excluded attributions', () => {
@@ -177,8 +177,8 @@ describe('The table helpers', () => {
     expect(
       isImportantAttributionInformationMissing(
         testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(true);
 
     testAttributionInfo = {
@@ -188,8 +188,8 @@ describe('The table helpers', () => {
     expect(
       isImportantAttributionInformationMissing(
         testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(false);
 
     testAttributionInfo = {
@@ -199,8 +199,8 @@ describe('The table helpers', () => {
     expect(
       isImportantAttributionInformationMissing(
         testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(false);
 
     testAttributionInfo = {
@@ -211,8 +211,8 @@ describe('The table helpers', () => {
     expect(
       isImportantAttributionInformationMissing(
         testTableConfig.attributionProperty,
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(true);
   });
 });

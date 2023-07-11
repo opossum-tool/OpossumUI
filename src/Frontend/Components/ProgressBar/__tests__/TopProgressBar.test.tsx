@@ -19,11 +19,11 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import { TopProgressBar } from '../TopProgressBar';
 import {
-  setResources,
-  setManualData,
-  setExternalData,
   setAttributionBreakpoints,
+  setExternalData,
   setFilesWithChildren,
+  setManualData,
+  setResources,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setResolvedExternalAttributions } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 
@@ -78,13 +78,13 @@ describe('TopProgressBar', () => {
 
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(setResolvedExternalAttributions(new Set()));
     testStore.dispatch(setAttributionBreakpoints(new Set()));
@@ -103,7 +103,7 @@ describe('TopProgressBar', () => {
     expect(
       screen.getByText(/Files with attributions: 3/) &&
         screen.getByText(/Files with only pre-selected attributions: 1/) &&
-        screen.getByText(/Files with only signals: 1/)
+        screen.getByText(/Files with only signals: 1/),
     ).toBeDefined();
   });
 
@@ -202,13 +202,13 @@ describe('TopProgressBar', () => {
 
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(setResolvedExternalAttributions(new Set()));
     testStore.dispatch(setAttributionBreakpoints(new Set()));
@@ -218,7 +218,7 @@ describe('TopProgressBar', () => {
       store: testStore,
     });
     const criticalityStateSwitch = screen.getByLabelText(
-      'CriticalityStateSwitch'
+      'CriticalityStateSwitch',
     ).children[0] as HTMLElement;
     fireEvent.click(criticalityStateSwitch);
     const progressBar = screen.getByLabelText('TopProgressBar');
@@ -230,7 +230,7 @@ describe('TopProgressBar', () => {
     expect(
       screen.getByText(/Files with only highly critical signals: 1/) &&
         screen.getByText(/Files with only medium critical signals: 1/) &&
-        screen.getByText(/Files with only non-critical signals: 1/)
+        screen.getByText(/Files with only non-critical signals: 1/),
     ).toBeDefined();
   });
 });

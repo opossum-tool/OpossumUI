@@ -51,7 +51,7 @@ describe('ResourcePathPopup', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
 
     expect(
-      screen.getByText('Resources for selected attribution')
+      screen.getByText('Resources for selected attribution'),
     ).toBeInTheDocument();
     expect(screen.getByText('thirdParty')).toBeInTheDocument();
   });
@@ -60,7 +60,7 @@ describe('ResourcePathPopup', () => {
     renderComponentWithStore(<HelperComponent isExternalAttribution={true} />);
 
     expect(
-      screen.getByText('Resources for selected signal')
+      screen.getByText('Resources for selected signal'),
     ).toBeInTheDocument();
     expect(screen.getByText('firstParty')).toBeInTheDocument();
   });

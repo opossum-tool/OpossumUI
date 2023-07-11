@@ -10,7 +10,7 @@ import upath from 'upath';
 
 export function getFilePathWithAppendix(
   resourceFilePath: fs.PathLike,
-  appendix: string
+  appendix: string,
 ): string {
   const { baseFileName, basePath } = getBasePaths(resourceFilePath);
 
@@ -24,7 +24,7 @@ function getBasePaths(resourceFilePath: string | Buffer | URL): {
 } {
   const baseFileName: string = path.basename(
     resourceFilePath.toString(),
-    getFileExtension(resourceFilePath)
+    getFileExtension(resourceFilePath),
   );
   const parent_folder = path.dirname(resourceFilePath.toString());
   const basePath = path.join(upath.toUnix(parent_folder), '/');
@@ -38,7 +38,7 @@ function getFileExtension(resourceFilePath: string | Buffer | URL): string {
 
   return fileIsGziped
     ? path.extname(
-        path.basename(resourceFilePath.toString(), gzipFileExtension)
+        path.basename(resourceFilePath.toString(), gzipFileExtension),
       ) + gzipFileExtension
     : path.extname(resourceFilePath.toString());
 }

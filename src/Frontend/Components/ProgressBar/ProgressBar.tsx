@@ -49,16 +49,16 @@ interface ProgressBarProps {
 
 export function ProgressBar(props: ProgressBarProps): ReactElement {
   const onProgressBarClick = useOnProgressBarClick(
-    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+    props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
   const resourcesWithCriticalExternalAttributions =
     props.progressBarData.resourcesWithHighlyCriticalExternalAttributions.concat(
-      props.progressBarData.resourcesWithMediumCriticalExternalAttributions
+      props.progressBarData.resourcesWithMediumCriticalExternalAttributions,
     );
   const onCriticalityBarClick = useOnProgressBarClick(
     resourcesWithCriticalExternalAttributions.length > 0
       ? resourcesWithCriticalExternalAttributions
-      : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+      : props.progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
   );
   return (
     <MuiBox sx={props.sx}>
@@ -83,7 +83,7 @@ export function ProgressBar(props: ProgressBarProps): ReactElement {
               ? getCriticalityBarBackground(props.progressBarData)
               : getProgressBarBackground(
                   props.progressBarData,
-                  props.progressBarType
+                  props.progressBarType,
                 ),
           }}
           onClick={

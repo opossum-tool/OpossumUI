@@ -29,13 +29,13 @@ import {
   getExcludeFromNoticeChangeHandler,
   getFirstPartyChangeHandler,
   getFollowUpChangeHandler,
-  getNeedsReviewChangeHandler,
   getMergeButtonsDisplayState,
+  getNeedsReviewChangeHandler,
   getResolvedToggleHandler,
+  getSelectedManualAttributionIdForAuditView,
   selectedPackagesAreResolved,
   usePurl,
   useRows,
-  getSelectedManualAttributionIdForAuditView,
 } from './attribution-column-helpers';
 import { PackageSubPanel } from './PackageSubPanel';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
@@ -69,7 +69,7 @@ interface AttributionColumnProps {
   showManualAttributionData: boolean;
   resetViewIfThisIdChanges?: string;
   setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string
+    propertyToUpdate: string,
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSaveButtonClick?(): void;
   onSaveGloballyButtonClick?(): void;
@@ -88,20 +88,20 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     EMPTY_DISPLAY_PACKAGE_INFO;
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
   const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo
+    getTemporaryDisplayPackageInfo,
   );
   const packageInfoWereModified = useAppSelector(
-    wereTemporaryDisplayPackageInfoModified
+    wereTemporaryDisplayPackageInfoModified,
   );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const selectedAttributionIdInAttributionView = useAppSelector(
-    getSelectedAttributionIdInAttributionView
+    getSelectedAttributionIdInAttributionView,
   );
   const attributionIdMarkedForReplacement = useAppSelector(
-    getAttributionIdMarkedForReplacement
+    getAttributionIdMarkedForReplacement,
   );
   const view = useAppSelector(getSelectedView);
 
@@ -114,7 +114,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   } = useRows(
     view,
     props.resetViewIfThisIdChanges,
-    props.smallerLicenseTextOrCommentField
+    props.smallerLicenseTextOrCommentField,
   );
   const { temporaryPurl, isDisplayedPurlValid, handlePurlChange, updatePurl } =
     usePurl(
@@ -122,7 +122,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       packageInfoWereModified,
       temporaryDisplayPackageInfo,
       selectedPackage,
-      selectedAttributionIdInAttributionView
+      selectedAttributionIdInAttributionView,
     );
   const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
   const selectedManualAttributionIdInCurrentView =
@@ -136,7 +136,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     selectedAttributionId: selectedManualAttributionIdInCurrentView,
     packageInfoWereModified,
     targetAttributionIsPreSelected: Boolean(
-      temporaryDisplayPackageInfo.preSelected
+      temporaryDisplayPackageInfo.preSelected,
     ),
     targetAttributionIsExternalAttribution: false,
   });
@@ -178,7 +178,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       onClick: (): void => {
         updatePurl(initialManualDisplayPackageInfo);
         dispatch(
-          setTemporaryDisplayPackageInfo(initialManualDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(initialManualDisplayPackageInfo),
         );
       },
     },
@@ -187,8 +187,8 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       onClick: (): void => {
         dispatch(
           setAttributionIdMarkedForReplacement(
-            selectedManualAttributionIdInCurrentView
-          )
+            selectedManualAttributionIdInCurrentView,
+          ),
         );
       },
       hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
@@ -207,8 +207,8 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         dispatch(
           openPopup(
             PopupType.ReplaceAttributionPopup,
-            selectedManualAttributionIdInCurrentView
-          )
+            selectedManualAttributionIdInCurrentView,
+          ),
         );
       },
       hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
@@ -237,7 +237,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     temporaryDisplayPackageInfo,
     selectedAttributionIdInAttributionView,
     attributionIdMarkedForReplacement,
-    view
+    view,
   );
 
   function listener(event: IpcRendererEvent, resetState: boolean): void {
@@ -304,19 +304,19 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         displayPackageInfo={temporaryDisplayPackageInfo}
         firstPartyChangeHandler={getFirstPartyChangeHandler(
           temporaryDisplayPackageInfo,
-          dispatch
+          dispatch,
         )}
         discreteConfidenceChangeHandler={getDiscreteConfidenceChangeHandler(
           temporaryDisplayPackageInfo,
-          dispatch
+          dispatch,
         )}
         followUpChangeHandler={getFollowUpChangeHandler(
           temporaryDisplayPackageInfo,
-          dispatch
+          dispatch,
         )}
         excludeFromNoticeChangeHandler={getExcludeFromNoticeChangeHandler(
           temporaryDisplayPackageInfo,
-          dispatch
+          dispatch,
         )}
         showManualAttributionData={props.showManualAttributionData}
         showHighlight={showHighlight}
@@ -326,11 +326,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         resolvedToggleHandler={getResolvedToggleHandler(
           attributionIdsToResolveOrUnresolve,
           resolvedExternalAttributions,
-          dispatch
+          dispatch,
         )}
         selectedPackageIsResolved={selectedPackagesAreResolved(
           attributionIdsToResolveOrUnresolve,
-          resolvedExternalAttributions
+          resolvedExternalAttributions,
         )}
         areButtonsHidden={props.areButtonsHidden}
         mainButtonConfigs={mainButtonConfigs}
@@ -340,7 +340,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         displayPackageInfo={temporaryDisplayPackageInfo}
         needsReviewChangeHandler={getNeedsReviewChangeHandler(
           temporaryDisplayPackageInfo,
-          dispatch
+          dispatch,
         )}
         addMarginForNeedsReviewCheckbox={props.addMarginForNeedsReviewCheckbox}
       />

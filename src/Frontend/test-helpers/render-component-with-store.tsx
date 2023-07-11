@@ -24,7 +24,7 @@ export function createTestAppStore(): EnhancedTestStore {
 
 export const renderComponentWithStore = (
   component: ReactElement,
-  { store = createTestAppStore(), ...renderOptions } = {}
+  { store = createTestAppStore(), ...renderOptions } = {},
 ): RenderResultWithStore => {
   const Wrapper: React.FC<{ children: ReactNode | null }> = ({ children }) => {
     return <Provider store={store as Store}>{children}</Provider>;

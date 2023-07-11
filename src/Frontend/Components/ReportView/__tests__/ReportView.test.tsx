@@ -72,8 +72,8 @@ describe('The ReportView', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(setFrequentLicenses(testFrequentLicenses));
     });
@@ -93,8 +93,8 @@ describe('The ReportView', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
     expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));
@@ -117,8 +117,8 @@ describe('The ReportView', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
     expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));
@@ -145,8 +145,8 @@ describe('The ReportView', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
     expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));

@@ -39,11 +39,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
+        testAttributionsWithIdsAndCounts,
       );
 
     expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
+      expectedDisplayAttributionWithCount,
     );
   });
 
@@ -78,11 +78,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
+        testAttributionsWithIdsAndCounts,
       );
 
     expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
+      expectedDisplayAttributionWithCount,
     );
   });
 
@@ -117,11 +117,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
+        testAttributionsWithIdsAndCounts,
       );
 
     expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
+      expectedDisplayAttributionWithCount,
     );
   });
 
@@ -147,11 +147,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
+        testAttributionsWithIdsAndCounts,
       );
 
     expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
+      expectedDisplayAttributionWithCount,
     );
   });
 
@@ -183,11 +183,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
+        testAttributionsWithIdsAndCounts,
       );
 
     expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
+      expectedDisplayAttributionWithCount,
     );
   });
 
@@ -229,11 +229,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
-        testAttributionsWithIdsAndCounts
+        testAttributionsWithIdsAndCounts,
       );
 
     expect(testDisplayAttributionWithCount).toEqual(
-      expectedDisplayAttributionWithCount
+      expectedDisplayAttributionWithCount,
     );
   });
 });

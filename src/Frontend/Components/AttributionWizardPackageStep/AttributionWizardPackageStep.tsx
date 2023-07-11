@@ -12,8 +12,8 @@ import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 import { TextBox } from '../InputElements/TextBox';
 import { doNothing } from '../../util/do-nothing';
 import {
-  attributionWizardStepClasses,
   ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT,
+  attributionWizardStepClasses,
 } from '../../shared-styles';
 import { SxProps } from '@mui/system';
 import { sortAttributedPackageItems } from './attribution-wizard-package-step-helpers';
@@ -40,14 +40,14 @@ interface AttributionWizardPackageStepProps {
 }
 
 export function AttributionWizardPackageStep(
-  props: AttributionWizardPackageStepProps
+  props: AttributionWizardPackageStepProps,
 ): ReactElement {
   const selectedPackageInfoWithoutVersion = {
     ...props.selectedDisplayPackageInfo,
     packageVersion: undefined,
   };
   const temporaryPurl = generatePurlFromDisplayPackageInfo(
-    selectedPackageInfoWithoutVersion
+    selectedPackageInfoWithoutVersion,
   );
 
   return (

@@ -38,7 +38,7 @@ describe('FileSearch popup ', () => {
   it('renders', () => {
     renderComponentWithStore(<FileSearchPopup />);
     expect(
-      screen.getByText('Search for Files and Directories', { exact: false })
+      screen.getByText('Search for Files and Directories', { exact: false }),
     ).toBeInTheDocument();
   });
 
@@ -55,8 +55,8 @@ describe('FileSearch popup ', () => {
       const store = createTestAppStore();
       store.dispatch(
         loadFromFile(
-          getParsedInputFileEnrichedWithTestData({ resources: testResources })
-        )
+          getParsedInputFileEnrichedWithTestData({ resources: testResources }),
+        ),
       );
 
       renderComponentWithStore(<FileSearchPopup />, { store });
@@ -77,20 +77,20 @@ describe('FileSearch popup ', () => {
       });
 
       expect(screen.queryAllByText(search, { exact: false })).toHaveLength(
-        expected_results
+        expected_results,
       );
       expect(screen.queryAllByText('/', { exact: false })).toHaveLength(
-        expected_results
+        expected_results,
       );
-    }
+    },
   );
 
   it('has debounced search', () => {
     const store = createTestAppStore();
     store.dispatch(
       loadFromFile(
-        getParsedInputFileEnrichedWithTestData({ resources: testResources })
-      )
+        getParsedInputFileEnrichedWithTestData({ resources: testResources }),
+      ),
     );
 
     const smallWaitTimeInMs = 50;
@@ -121,8 +121,8 @@ describe('FileSearch popup ', () => {
     const store = createTestAppStore();
     store.dispatch(
       loadFromFile(
-        getParsedInputFileEnrichedWithTestData({ resources: testResources })
-      )
+        getParsedInputFileEnrichedWithTestData({ resources: testResources }),
+      ),
     );
 
     renderComponentWithStore(<FileSearchPopup />, { store });
@@ -142,7 +142,7 @@ describe('FileSearch popup ', () => {
     expect(screen.queryAllByText('/', { exact: false })).toHaveLength(4);
     expect(screen.queryAllByText('/eagleBlu/', { exact: false })).toHaveLength(
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      4
+      4,
     );
   });
 });

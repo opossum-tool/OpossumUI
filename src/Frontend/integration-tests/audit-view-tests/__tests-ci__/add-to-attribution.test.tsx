@@ -75,7 +75,7 @@ describe('Add to attribution', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
+        }),
       );
 
       renderComponentWithStore(<App />);
@@ -90,7 +90,7 @@ describe('Add to attribution', () => {
       expectValueNotInTextBox(
         screen,
         'Confidence',
-        `Low (${DiscreteConfidence.Low})`
+        `Low (${DiscreteConfidence.Low})`,
       );
 
       fireEvent.click(getCardInAttributionList(screen, 'Vue, 1.2.0'));
@@ -100,7 +100,7 @@ describe('Add to attribution', () => {
       expectValueInTextBox(
         screen,
         'License Text (to appear in attribution document)',
-        'Permission is not granted'
+        'Permission is not granted',
       );
       expectValueInTextBox(screen, 'Name', 'Vue');
       expectValueInConfidenceField(screen, `Low (${DiscreteConfidence.Low})`);
@@ -112,11 +112,11 @@ describe('Add to attribution', () => {
       expectValueInTextBox(
         screen,
         'License Text (to appear in attribution document)',
-        'Permission is maybe granted.'
+        'Permission is maybe granted.',
       );
       expectValueInTextBox(screen, 'Name', 'Angular');
       expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
-    }
+    },
   );
 
   it('AddToAttribution removes abandoned attributions', () => {
@@ -152,7 +152,7 @@ describe('Add to attribution', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
 
     renderComponentWithStore(<App />);
@@ -167,7 +167,7 @@ describe('Add to attribution', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      'Permission is not granted'
+      'Permission is not granted',
     );
     expectValueInTextBox(screen, 'Name', 'Vue');
 
@@ -212,7 +212,7 @@ describe('Add to attribution', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
 
     renderComponentWithStore(<App />);
@@ -226,7 +226,7 @@ describe('Add to attribution', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      'Permission is not granted'
+      'Permission is not granted',
     );
     expectValueInTextBox(screen, 'Name', 'Vue');
 
@@ -235,7 +235,7 @@ describe('Add to attribution', () => {
     insertValueIntoTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      ''
+      '',
     );
 
     clickOnButton(screen, ButtonText.Save);
@@ -244,7 +244,7 @@ describe('Add to attribution', () => {
     expectPackageInPackagePanel(
       screen,
       'Angular, 10',
-      'Attributions in Folder Content'
+      'Attributions in Folder Content',
     );
   });
 
@@ -295,7 +295,7 @@ describe('Add to attribution', () => {
         externalAttributions: testExternalAttributions,
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
         attributionBreakpoints,
-      })
+      }),
     );
 
     renderComponentWithStore(<App />);
@@ -336,7 +336,7 @@ describe('Add to attribution', () => {
         resources: testResources,
         externalAttributions: testExternalAttributions,
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
-      })
+      }),
     );
 
     renderComponentWithStore(<App />);

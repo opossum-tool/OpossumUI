@@ -58,7 +58,7 @@ describe('The resource actions', () => {
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
 
     expect(getResourceIdsOfSelectedAttribution(testStore.getState())).toEqual([
@@ -67,7 +67,7 @@ describe('The resource actions', () => {
 
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_2));
     expect(
-      getResourceIdsOfSelectedAttribution(testStore.getState())
+      getResourceIdsOfSelectedAttribution(testStore.getState()),
     ).toBeNull();
   });
 });

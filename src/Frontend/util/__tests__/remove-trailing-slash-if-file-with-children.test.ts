@@ -8,19 +8,19 @@ import { removeTrailingSlashIfFileWithChildren } from '../remove-trailing-slash-
 describe('removeTrailingSlashIfFileWithChildren', () => {
   it('removes last character', () => {
     expect(
-      removeTrailingSlashIfFileWithChildren('/path1/', () => true)
+      removeTrailingSlashIfFileWithChildren('/path1/', () => true),
     ).toEqual('/path1');
   });
 
   it('does no remove last character', () => {
     expect(
-      removeTrailingSlashIfFileWithChildren('/path1/', () => false)
+      removeTrailingSlashIfFileWithChildren('/path1/', () => false),
     ).toEqual('/path1/');
   });
 
   it('does nothing if last character is not /', () => {
     expect(
-      removeTrailingSlashIfFileWithChildren('/path1/test', () => true)
+      removeTrailingSlashIfFileWithChildren('/path1/test', () => true),
     ).toEqual('/path1/test');
   });
 });

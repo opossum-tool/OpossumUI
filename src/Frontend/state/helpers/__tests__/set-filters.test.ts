@@ -14,7 +14,7 @@ describe('The getUpdatedFilters function', () => {
       FilterType.HideFirstParty,
     ]);
     expect(getUpdatedFilters(activeFilters, FilterType.HideFirstParty)).toEqual(
-      expectedFilters
+      expectedFilters,
     );
   });
 
@@ -25,7 +25,7 @@ describe('The getUpdatedFilters function', () => {
     ]);
     const expectedFilters = new Set([FilterType.OnlyFollowUp]);
     expect(getUpdatedFilters(activeFilters, FilterType.HideFirstParty)).toEqual(
-      expectedFilters
+      expectedFilters,
     );
   });
 });
@@ -34,21 +34,21 @@ describe('The getFiltersToRemove function', () => {
   it('returns only first party filter when the new filter is hide first party', () => {
     const filtersToRemove = new Set([FilterType.OnlyFirstParty]);
     expect(getFiltersToRemove(FilterType.HideFirstParty)).toEqual(
-      filtersToRemove
+      filtersToRemove,
     );
   });
 
   it('returns hide first party filter when the new filter is only first party', () => {
     const filtersToRemove = new Set([FilterType.HideFirstParty]);
     expect(getFiltersToRemove(FilterType.OnlyFirstParty)).toEqual(
-      filtersToRemove
+      filtersToRemove,
     );
   });
 
   it('returns no filter when the new filter is only follow up', () => {
     const filtersToRemove = new Set();
     expect(getFiltersToRemove(FilterType.OnlyFollowUp)).toEqual(
-      filtersToRemove
+      filtersToRemove,
     );
   });
 });

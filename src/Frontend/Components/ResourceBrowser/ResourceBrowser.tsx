@@ -44,20 +44,20 @@ export function ResourceBrowser(): ReactElement | null {
 
   const manualAttributions = useAppSelector(getManualAttributions);
   const resourcesToManualAttributions = useAppSelector(
-    getResourcesToManualAttributions
+    getResourcesToManualAttributions,
   );
   const resourcesWithManualAttributedChildren = useAppSelector(
-    getResourcesWithManualAttributedChildren
+    getResourcesWithManualAttributedChildren,
   );
 
   const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions
+    getResourcesToExternalAttributions,
   );
   const resourcesWithExternalAttributedChildren = useAppSelector(
-    getResourcesWithExternalAttributedChildren
+    getResourcesWithExternalAttributedChildren,
   );
   const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
 
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
@@ -69,7 +69,7 @@ export function ResourceBrowser(): ReactElement | null {
     let newExpandedNodeIds = [...expandedIds];
     if (expandedIds.includes(nodeIdsToExpand[0])) {
       remove(newExpandedNodeIds, (nodeId: string): boolean =>
-        nodeId.startsWith(nodeIdsToExpand[0])
+        nodeId.startsWith(nodeIdsToExpand[0]),
       );
     } else {
       newExpandedNodeIds = newExpandedNodeIds.concat(nodeIdsToExpand);
@@ -79,7 +79,7 @@ export function ResourceBrowser(): ReactElement | null {
 
   function handleSelect(
     event: React.ChangeEvent<unknown>,
-    nodeId: string
+    nodeId: string,
   ): void {
     dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
   }
@@ -88,7 +88,7 @@ export function ResourceBrowser(): ReactElement | null {
     return (
       resourceName: string,
       resource: Resources | 1,
-      nodeId: string
+      nodeId: string,
     ): ReactElement =>
       getResourceBrowserTreeItemLabel(
         resourceName,
@@ -102,7 +102,7 @@ export function ResourceBrowser(): ReactElement | null {
         resolvedExternalAttributions,
         getAttributionBreakpointCheck(attributionBreakpoints),
         getFileWithChildrenCheck(filesWithChildren),
-        externalData
+        externalData,
       );
   }
 

@@ -73,10 +73,10 @@ describe('The helper getClosestParentAttribution', () => {
         path,
         testManualAttributions,
         resourcesToManualAttributions,
-        () => false
+        () => false,
       );
       expect(closest).toStrictEqual(expectedAttributions);
-    }
+    },
   );
 
   each([
@@ -109,10 +109,10 @@ describe('The helper getClosestParentAttribution', () => {
         path,
         testManualAttributions,
         resourcesToManualAttributions,
-        () => false
+        () => false,
       );
       expect(closest).toBeNull();
-    }
+    },
   );
 
   it('returns null for root folder', () => {
@@ -122,7 +122,7 @@ describe('The helper getClosestParentAttribution', () => {
         [otherPackageUuid]: otherPackage,
       },
       { '/': [otherPackageUuid] },
-      () => false
+      () => false,
     );
     expect(closest).toBe(null);
   });
@@ -140,8 +140,8 @@ describe('getClosestParentWithAttributions', () => {
       getClosestParentWithAttributions(
         childId,
         resourcesToAttributions,
-        () => false
-      )
+        () => false,
+      ),
     ).toBe('/parent1/parent2/');
   });
 
@@ -156,8 +156,8 @@ describe('getClosestParentWithAttributions', () => {
       getClosestParentWithAttributions(
         childId,
         resourcesToAttributions,
-        (path) => path === '/parent1/parent2/parent3/'
-      )
+        (path) => path === '/parent1/parent2/parent3/',
+      ),
     ).toBe(null);
   });
 });

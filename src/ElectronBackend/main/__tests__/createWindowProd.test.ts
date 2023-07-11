@@ -49,7 +49,7 @@ describe('createWindow', () => {
     const browserWindow = await createWindow();
     expect(browserWindow.webContents.openDevTools).not.toHaveBeenCalled();
     expect(browserWindow.loadURL).not.toHaveBeenCalledWith(
-      'http://localhost:3000'
+      'http://localhost:3000',
     );
   });
 });

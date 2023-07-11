@@ -31,6 +31,6 @@ export function getDisplayPackageInfoKeys(): Array<KeysOfDisplayPackageInfo> {
     attributionIds: true,
   };
   return Object.keys(
-    displayPackageInfoKeysObject
+    displayPackageInfoKeysObject,
   ) as Array<KeysOfDisplayPackageInfo>;
 }

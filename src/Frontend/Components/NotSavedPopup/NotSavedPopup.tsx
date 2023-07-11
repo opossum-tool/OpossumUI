@@ -31,7 +31,7 @@ export function NotSavedPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const currentAttributionId = useAppSelector(getCurrentAttributionId);
   const attributionsToResources = useAppSelector(
-    getManualAttributionsToResources
+    getManualAttributionsToResources,
   );
   const view = useAppSelector(getSelectedView);
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
@@ -39,7 +39,7 @@ export function NotSavedPopup(): ReactElement {
     view === View.Audit &&
     hasAttributionMultipleResources(
       currentAttributionId,
-      attributionsToResources
+      attributionsToResources,
     );
 
   function handleSaveClick(): void {

@@ -38,7 +38,7 @@ interface ResourceDetailsAttributionColumnProps {
 }
 
 export function ResourceDetailsAttributionColumn(
-  props: ResourceDetailsAttributionColumnProps
+  props: ResourceDetailsAttributionColumnProps,
 ): ReactElement | null {
   const manualData = useAppSelector(getManualData);
   const displayedPackage: PanelPackage | null =
@@ -47,11 +47,11 @@ export function ResourceDetailsAttributionColumn(
   const attributionIdOfSelectedPackageInManualPanel: string | null =
     useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel);
   const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo
+    getTemporaryDisplayPackageInfo,
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const selectedResourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
-    attributionBreakpoints
+    attributionBreakpoints,
   )(selectedResourceId);
   const dispatch = useAppDispatch();
 
@@ -61,8 +61,8 @@ export function ResourceDetailsAttributionColumn(
         unlinkAttributionAndSavePackageInfo(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
-        )
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+        ),
       );
     }
   }
@@ -72,8 +72,8 @@ export function ResourceDetailsAttributionColumn(
       savePackageInfo(
         selectedResourceId,
         attributionIdOfSelectedPackageInManualPanel,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
-      )
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+      ),
     );
   }
 
@@ -83,15 +83,15 @@ export function ResourceDetailsAttributionColumn(
       dispatch(
         deleteAttributionAndSave(
           selectedResourceId,
-          attributionIdOfSelectedPackageInManualPanel
-        )
+          attributionIdOfSelectedPackageInManualPanel,
+        ),
       );
     } else {
       dispatch(
         openPopup(
           PopupType.ConfirmDeletionPopup,
-          attributionIdOfSelectedPackageInManualPanel
-        )
+          attributionIdOfSelectedPackageInManualPanel,
+        ),
       );
     }
   }
@@ -102,15 +102,15 @@ export function ResourceDetailsAttributionColumn(
     if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(
         deleteAttributionGloballyAndSave(
-          attributionIdOfSelectedPackageInManualPanel
-        )
+          attributionIdOfSelectedPackageInManualPanel,
+        ),
       );
     } else {
       dispatch(
         openPopup(
           PopupType.ConfirmDeletionGloballyPopup,
-          attributionIdOfSelectedPackageInManualPanel
-        )
+          attributionIdOfSelectedPackageInManualPanel,
+        ),
       );
     }
   }
@@ -120,14 +120,14 @@ export function ResourceDetailsAttributionColumn(
       savePackageInfoIfSavingIsNotDisabled(
         selectedResourceId,
         attributionIdOfSelectedPackageInManualPanel,
-        temporaryDisplayPackageInfo
-      )
+        temporaryDisplayPackageInfo,
+      ),
     );
   }
 
   const showSaveGloballyButton: boolean = hasAttributionMultipleResources(
     attributionIdOfSelectedPackageInManualPanel,
-    manualData.attributionsToResources
+    manualData.attributionsToResources,
   );
 
   const isShownDataEditable: boolean =
@@ -141,7 +141,8 @@ export function ResourceDetailsAttributionColumn(
     ];
 
     return Boolean(
-      displayedPackage && externalPackagePanels.includes(displayedPackage.panel)
+      displayedPackage &&
+        externalPackagePanels.includes(displayedPackage.panel),
     );
   }
 
@@ -170,7 +171,7 @@ export function ResourceDetailsAttributionColumn(
       hideDeleteButtons={hideDeleteButtons}
       setUpdateTemporaryDisplayPackageInfoFor={setUpdateTemporaryDisplayPackageInfoForCreator(
         dispatch,
-        temporaryDisplayPackageInfo
+        temporaryDisplayPackageInfo,
       )}
       onSaveButtonClick={
         showSaveGloballyButton
@@ -179,7 +180,7 @@ export function ResourceDetailsAttributionColumn(
       }
       onSaveGloballyButtonClick={dispatchSavePackageInfo}
       setTemporaryDisplayPackageInfo={(
-        displayPackageInfo: DisplayPackageInfo
+        displayPackageInfo: DisplayPackageInfo,
       ): void => {
         dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
       }}

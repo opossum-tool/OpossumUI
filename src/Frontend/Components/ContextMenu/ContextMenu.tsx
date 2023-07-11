@@ -88,7 +88,7 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
   >(undefined);
 
   const displayedMenuItems = props.menuItems.filter(
-    (menuItem) => !menuItem.hidden
+    (menuItem) => !menuItem.hidden,
   );
 
   const isContextMenuOpen =

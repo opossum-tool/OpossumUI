@@ -40,7 +40,7 @@ export function getDisplayTexts(
   temporaryDisplayPackageInfo: DisplayPackageInfo,
   selectedAttributionId: string,
   attributionIdMarkedForReplacement: string,
-  view: View
+  view: View,
 ): Array<string> {
   const displayTexts = [];
   if (temporaryDisplayPackageInfo.preSelected) {
@@ -57,7 +57,7 @@ export function getDisplayTexts(
 
 export function getLicenseTextMaxRows(
   windowHeight: number,
-  view: View
+  view: View,
 ): number {
   const heightOfNonLicenseTextComponents =
     view === View.Audit
@@ -69,56 +69,56 @@ export function getLicenseTextMaxRows(
 
 export function getDiscreteConfidenceChangeHandler(
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch
+  dispatch: AppThunkDispatch,
 ): (event: React.ChangeEvent<{ value: unknown }>) => void {
   return (event): void => {
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...temporaryDisplayPackageInfo,
         attributionConfidence: Number(event.target.value),
-      })
+      }),
     );
   };
 }
 
 export function getFollowUpChangeHandler(
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch
+  dispatch: AppThunkDispatch,
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...temporaryDisplayPackageInfo,
         followUp: event.target.checked ? FollowUp : undefined,
-      })
+      }),
     );
   };
 }
 
 export function getExcludeFromNoticeChangeHandler(
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch
+  dispatch: AppThunkDispatch,
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...temporaryDisplayPackageInfo,
         excludeFromNotice: event.target.checked ? true : undefined,
-      })
+      }),
     );
   };
 }
 
 export function getFirstPartyChangeHandler(
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch
+  dispatch: AppThunkDispatch,
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...temporaryDisplayPackageInfo,
         firstParty: event.target.checked,
-      })
+      }),
     );
   };
 }
@@ -126,7 +126,7 @@ export function getFirstPartyChangeHandler(
 export function getResolvedToggleHandler(
   attributionIds: Array<string>,
   resolvedExternalAttributions: Set<string>,
-  dispatch: AppThunkDispatch
+  dispatch: AppThunkDispatch,
 ): () => void {
   return (): void => {
     if (
@@ -146,25 +146,25 @@ export function getResolvedToggleHandler(
 
 export function getNeedsReviewChangeHandler(
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch
+  dispatch: AppThunkDispatch,
 ): (event: React.ChangeEvent<HTMLInputElement>) => void {
   return (event): void => {
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...temporaryDisplayPackageInfo,
         needsReview: event.target.checked,
-      })
+      }),
     );
   };
 }
 
 export function selectedPackagesAreResolved(
   attributionIds: Array<string>,
-  resolvedExternalAttributions: Set<string>
+  resolvedExternalAttributions: Set<string>,
 ): boolean {
   return attributionIds.length > 0
     ? attributionIds.every((attributionId) =>
-        resolvedExternalAttributions.has(attributionId)
+        resolvedExternalAttributions.has(attributionId),
       )
     : false;
 }
@@ -172,7 +172,7 @@ export function selectedPackagesAreResolved(
 export function getLicenseTextLabelText(
   licenseName: string | undefined,
   isEditable: boolean,
-  frequentLicensesNameOrder: Array<FrequentLicenseName>
+  frequentLicensesNameOrder: Array<FrequentLicenseName>,
 ): string {
   return licenseName &&
     frequentLicensesNameOrder
@@ -237,7 +237,7 @@ export function usePurl(
   packageInfoWereModified: boolean,
   temporaryDisplayPackageInfo: DisplayPackageInfo,
   selectedPackage: PanelPackage | null,
-  selectedAttributionId: string | null
+  selectedAttributionId: string | null,
 ): {
   temporaryPurl: string;
   isDisplayedPurlValid: boolean;
@@ -251,8 +251,8 @@ export function usePurl(
     dispatch(
       setIsSavingDisabled(
         (!packageInfoWereModified || !isDisplayedPurlValid) &&
-          !temporaryDisplayPackageInfo.preSelected
-      )
+          !temporaryDisplayPackageInfo.preSelected,
+      ),
     );
   }, [
     dispatch,
@@ -264,7 +264,7 @@ export function usePurl(
   useEffect(
     () => {
       setTemporaryPurl(
-        generatePurlFromDisplayPackageInfo(temporaryDisplayPackageInfo) || ''
+        generatePurlFromDisplayPackageInfo(temporaryDisplayPackageInfo) || '',
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -276,7 +276,7 @@ export function usePurl(
       temporaryDisplayPackageInfo.packageNamespace,
       temporaryDisplayPackageInfo.packageName,
       temporaryDisplayPackageInfo.packageVersion,
-    ]
+    ],
   );
 
   function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
@@ -293,7 +293,7 @@ export function usePurl(
           packageNamespace: purl.packageNamespace,
           packageType: purl.packageType,
           packagePURLAppendix: purl.packagePURLAppendix,
-        })
+        }),
       );
     }
   }
@@ -314,7 +314,7 @@ export function usePurl(
 export function useRows(
   view: View,
   resetViewIfThisIdChanges = '',
-  smallerLicenseTextOrCommentField?: boolean
+  smallerLicenseTextOrCommentField?: boolean,
 ): {
   isLicenseTextShown: boolean;
   setIsLicenseTextShown: Dispatch<SetStateAction<boolean>>;
@@ -351,7 +351,7 @@ export function useRows(
 }
 
 export function getSelectedManualAttributionIdForAuditView(
-  selectedPackage: PanelPackage | null
+  selectedPackage: PanelPackage | null,
 ): string {
   if (
     selectedPackage &&

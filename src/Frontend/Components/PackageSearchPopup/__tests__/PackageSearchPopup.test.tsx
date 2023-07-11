@@ -23,7 +23,7 @@ describe('PackageSearchPopup', () => {
 
   const axiosMock = new MockAdapter(axios);
   const requestURLSearchEndpoint = RegExp(
-    '^https:\\/\\/api\\.clearlydefined\\.io\\/definitions\\?pattern='
+    '^https:\\/\\/api\\.clearlydefined\\.io\\/definitions\\?pattern=',
   );
   const baseURLDefinitionEndpoint =
     'https://api.clearlydefined.io/definitions/';
@@ -101,7 +101,7 @@ describe('PackageSearchPopup', () => {
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <PackageSearchPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
     const searchField = screen.getByLabelText('Search');
     fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
@@ -124,7 +124,7 @@ describe('PackageSearchPopup', () => {
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <PackageSearchPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     const searchField = screen.getByLabelText('Search');
@@ -136,8 +136,8 @@ describe('PackageSearchPopup', () => {
 
     expect(
       await screen.findByText(
-        'Failed while fetching data: Request failed with status code 404'
-      )
+        'Failed while fetching data: Request failed with status code 404',
+      ),
     );
   });
 
@@ -147,7 +147,7 @@ describe('PackageSearchPopup', () => {
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <PackageSearchPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     const searchField = screen.getByLabelText('Search');

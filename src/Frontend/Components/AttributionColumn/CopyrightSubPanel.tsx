@@ -15,7 +15,7 @@ interface CopyrightSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string
+    propertyToUpdate: string,
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   copyrightRows: number;
   showHighlight?: boolean;
@@ -34,13 +34,13 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
           maxRows={props.copyrightRows}
           multiline={true}
           handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-            'copyright'
+            'copyright',
           )}
           isHighlighted={
             props.showHighlight &&
             isImportantAttributionInformationMissing(
               'copyright',
-              props.displayPackageInfo
+              props.displayPackageInfo,
             )
           }
         />

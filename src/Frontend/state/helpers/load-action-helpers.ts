@@ -18,7 +18,7 @@ const FIELDS_TO_IGNORE_WHEN_HASHING_ATTRIBUTIONS = new Set<string>([
 ]);
 
 export function createExternalAttributionsToHashes(
-  externalAttributions: Attributions
+  externalAttributions: Attributions,
 ): AttributionsToHashes {
   const hashOptions = {
     excludeKeys: (key: string): boolean =>
@@ -29,7 +29,7 @@ export function createExternalAttributionsToHashes(
   const hashesToExternalAttributions: { [hash: string]: Array<string> } = {};
 
   for (const [attributionId, attribution] of Object.entries(
-    externalAttributions
+    externalAttributions,
   )) {
     if (attribution.firstParty || attribution.packageName) {
       const attributionKeys = Object.keys(attribution) as Array<
@@ -38,7 +38,7 @@ export function createExternalAttributionsToHashes(
       attributionKeys.forEach(
         (key) =>
           (attribution[key] === undefined || attribution[key] === '') &&
-          delete attribution[key]
+          delete attribution[key],
       );
 
       const hash = objectHash(attribution, hashOptions);
@@ -54,10 +54,10 @@ export function createExternalAttributionsToHashes(
       if (attributionIds.length > 1) {
         attributionIds.forEach(
           (attributionId) =>
-            (externalAttributionsToHashes[attributionId] = hash)
+            (externalAttributionsToHashes[attributionId] = hash),
         );
       }
-    }
+    },
   );
 
   return externalAttributionsToHashes;

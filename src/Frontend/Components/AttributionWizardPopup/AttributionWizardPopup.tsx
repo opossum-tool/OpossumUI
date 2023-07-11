@@ -24,9 +24,9 @@ import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
   getAttributionWizardPackageVersions,
-  getAttributionWizarOriginalDisplayPackageInfo,
   getAttributionWizardSelectedPackageAttributeIds,
   getAttributionWizardTotalAttributionCount,
+  getAttributionWizarOriginalDisplayPackageInfo,
 } from '../../state/selectors/attribution-wizard-selectors';
 import { v4 as uuid4 } from 'uuid';
 import {
@@ -77,18 +77,18 @@ const classes = {
 
 export function AttributionWizardPopup(): ReactElement {
   const originalDisplayPackageInfo = useAppSelector(
-    getAttributionWizarOriginalDisplayPackageInfo
+    getAttributionWizarOriginalDisplayPackageInfo,
   );
   const packageNamespaces = useAppSelector(
-    getAttributionWizardPackageNamespaces
+    getAttributionWizardPackageNamespaces,
   );
   const packageNames = useAppSelector(getAttributionWizardPackageNames);
   const packageVersions = useAppSelector(getAttributionWizardPackageVersions);
   const selectedPackageAttributeIds = useAppSelector(
-    getAttributionWizardSelectedPackageAttributeIds
+    getAttributionWizardSelectedPackageAttributeIds,
   );
   const totalAttributionCount = useAppSelector(
-    getAttributionWizardTotalAttributionCount
+    getAttributionWizardTotalAttributionCount,
   );
 
   const {
@@ -99,7 +99,7 @@ export function AttributionWizardPopup(): ReactElement {
     packageNamespaces,
     packageNames,
     packageVersions,
-    selectedPackageAttributeIds
+    selectedPackageAttributeIds,
   );
 
   const selectedPackageNameIsValid = selectedPackageName !== '';
@@ -114,11 +114,11 @@ export function AttributionWizardPopup(): ReactElement {
     ['packageVersion', 'version'],
   ];
   const wizardStepIds = wizardStepIdsToDisplayValues.map(
-    (idAndDisplayValue) => idAndDisplayValue[0]
+    (idAndDisplayValue) => idAndDisplayValue[0],
   );
 
   const [selectedWizardStepId, setSelectedWizardStepId] = useState<string>(
-    wizardStepIds[0]
+    wizardStepIds[0],
   );
 
   const {
@@ -129,7 +129,7 @@ export function AttributionWizardPopup(): ReactElement {
     packageNamespaces,
     packageNames,
     packageVersions,
-    totalAttributionCount || 1
+    totalAttributionCount || 1,
   );
 
   const selectedDisplayPackageInfo: DisplayPackageInfo = {
@@ -147,7 +147,7 @@ export function AttributionWizardPopup(): ReactElement {
       setAttributionWizardPackageNamespaces({
         [uuid4()]: { text: newNamespace, manuallyAdded: true },
         ...packageNamespaces,
-      })
+      }),
     );
   }
 
@@ -156,7 +156,7 @@ export function AttributionWizardPopup(): ReactElement {
       setAttributionWizardPackageNames({
         [uuid4()]: { text: newName, manuallyAdded: true },
         ...packageNames,
-      })
+      }),
     );
   }
 
@@ -165,7 +165,7 @@ export function AttributionWizardPopup(): ReactElement {
       setAttributionWizardPackageVersions({
         [uuid4()]: { text: newVersion, manuallyAdded: true },
         ...packageVersions,
-      })
+      }),
     );
   }
   const handleBreadcrumbsClick = function (wizardStepId: string): void {
@@ -174,14 +174,14 @@ export function AttributionWizardPopup(): ReactElement {
   function handleNextClick(): void {
     if (selectedWizardStepId !== wizardStepIds[wizardStepIds.length - 1]) {
       setSelectedWizardStepId(
-        wizardStepIds[wizardStepIds.indexOf(selectedWizardStepId) + 1]
+        wizardStepIds[wizardStepIds.indexOf(selectedWizardStepId) + 1],
       );
     }
   }
   function handleBackClick(): void {
     if (selectedWizardStepId !== wizardStepIds[0]) {
       setSelectedWizardStepId(
-        wizardStepIds[wizardStepIds.indexOf(selectedWizardStepId) - 1]
+        wizardStepIds[wizardStepIds.indexOf(selectedWizardStepId) - 1],
       );
     }
   }
@@ -190,7 +190,7 @@ export function AttributionWizardPopup(): ReactElement {
       setAttributionWizardSelectedPackageIds({
         ...selectedPackageAttributeIds,
         namespaceId: id,
-      })
+      }),
     );
   }
   function handlePackageNameListItemClick(id: string): void {
@@ -198,7 +198,7 @@ export function AttributionWizardPopup(): ReactElement {
       setAttributionWizardSelectedPackageIds({
         ...selectedPackageAttributeIds,
         nameId: id,
-      })
+      }),
     );
   }
   function handlePackageVersionListItemClick(id: string): void {
@@ -206,7 +206,7 @@ export function AttributionWizardPopup(): ReactElement {
       setAttributionWizardSelectedPackageIds({
         ...selectedPackageAttributeIds,
         versionId: id,
-      })
+      }),
     );
   }
   function handleApplyClick(): void {
@@ -214,7 +214,7 @@ export function AttributionWizardPopup(): ReactElement {
       setTemporaryDisplayPackageInfo({
         ...originalDisplayPackageInfo,
         ...selectedDisplayPackageInfo,
-      })
+      }),
     );
     closeAttributionWizardPopupHandler();
   }

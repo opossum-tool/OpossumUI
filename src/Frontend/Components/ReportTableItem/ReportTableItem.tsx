@@ -145,7 +145,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
 
   function getTableRow(
     attributionInfo: AttributionInfo,
-    attributionId: string
+    attributionId: string,
   ): ReactElement {
     return (
       <MuiBox
@@ -153,7 +153,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
         sx={reportTableItemClasses.tableRow}
       >
         {tableConfigs.map((config, index) =>
-          getTableCell(attributionInfo, attributionId, config, index)
+          getTableCell(attributionInfo, attributionId, config, index),
         )}
       </MuiBox>
     );
@@ -163,7 +163,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     attributionInfo: AttributionInfo,
     attributionId: string,
     config: TableConfig,
-    index: number
+    index: number,
   ): ReactElement {
     const hasFrequentLicenseName =
       attributionInfo.licenseName &&
@@ -181,7 +181,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
     const cellData = getFormattedCellData(
       config,
       displayAttributionInfo,
-      props.isFileWithChildren
+      props.isFileWithChildren,
     );
 
     return (
@@ -200,7 +200,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
                 ...classes.tableCell,
                 ...(isImportantAttributionInformationMissing(
                   config.attributionProperty,
-                  attributionInfo
+                  attributionInfo,
                 )
                   ? classes.markedTableCell
                   : {}),
@@ -246,7 +246,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
 
   function getCellData(
     cellData: string | number,
-    attributionProperty: keyof AttributionInfo
+    attributionProperty: keyof AttributionInfo,
   ): ReactElement {
     if (attributionProperty === 'resources' && typeof cellData === 'string') {
       return (
@@ -278,7 +278,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
 
   function getIcons(
     attributionInfo: AttributionInfo,
-    attributionId: string
+    attributionId: string,
   ): ReactElement {
     return (
       <MuiBox sx={reportTableItemClasses.iconTableData}>

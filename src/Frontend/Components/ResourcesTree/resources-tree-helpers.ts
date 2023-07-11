@@ -7,7 +7,7 @@ import { Resources } from '../../../shared/shared-types';
 
 export function splitResourceIdsToCurrentAndOtherFolder(
   allResourceIds: Array<string>,
-  folderPath: string
+  folderPath: string,
 ): {
   currentFolderResourceIds: Array<string>;
   otherFolderResourceIds: Array<string>;
@@ -27,7 +27,7 @@ export function splitResourceIdsToCurrentAndOtherFolder(
 }
 
 export function getResourcesFromResourcePaths(
-  resourcePaths: Array<string>
+  resourcePaths: Array<string>,
 ): Resources {
   const resources: Resources = {};
   for (const resourcePath of resourcePaths) {
@@ -52,7 +52,7 @@ function addPathToResources(resourcePath: string, resources: Resources): void {
       const returnValue = parent[childName];
       return returnValue !== 1 ? returnValue : {};
     },
-    resources
+    resources,
   );
 }
 
@@ -62,7 +62,7 @@ export function getInitialExpandedIds(allResourceIds: string[]): string[] {
     const resourceIdParents = resourceId.split('/').slice(1, -1);
     for (let i = 0; i < resourceIdParents.length; i++) {
       initialExpandedIdsSet.add(
-        '/' + resourceIdParents.slice(0, i + 1).join('/') + '/'
+        '/' + resourceIdParents.slice(0, i + 1).join('/') + '/',
       );
     }
   }

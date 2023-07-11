@@ -11,7 +11,7 @@ import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailin
 export function getFormattedCellData(
   config: TableConfig,
   attributionInfo: AttributionInfo,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): string | number {
   let cellData: string | number;
   switch (config.attributionProperty) {
@@ -20,8 +20,8 @@ export function getFormattedCellData(
         .map((resourcePath) =>
           removeTrailingSlashIfFileWithChildren(
             resourcePath,
-            isFileWithChildren
-          )
+            isFileWithChildren,
+          ),
         )
         .join('\n');
       break;

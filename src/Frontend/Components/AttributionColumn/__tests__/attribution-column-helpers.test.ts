@@ -19,44 +19,44 @@ describe('The AttributionColumn helpers', () => {
   it('getLicenseTextMaxRows in audit view', () => {
     const expectedLicenseTextMaxRows = 29;
     expect(getLicenseTextMaxRows(windowHeight, View.Audit)).toEqual(
-      expectedLicenseTextMaxRows
+      expectedLicenseTextMaxRows,
     );
   });
 
   it('getLicenseTextMaxRows in attribution view', () => {
     const expectedLicenseTextMaxRows = 31;
     expect(getLicenseTextMaxRows(windowHeight, View.Attribution)).toEqual(
-      expectedLicenseTextMaxRows
+      expectedLicenseTextMaxRows,
     );
   });
 
   it('selectedPackageIsResolved returns true', () => {
     expect(
-      selectedPackagesAreResolved(['123'], new Set<string>().add('123'))
+      selectedPackagesAreResolved(['123'], new Set<string>().add('123')),
     ).toEqual(true);
   });
 
   it('selectedPackageIsResolved returns false if empty attributionId', () => {
     expect(
-      selectedPackagesAreResolved([''], new Set<string>().add('123'))
+      selectedPackagesAreResolved([''], new Set<string>().add('123')),
     ).toEqual(false);
   });
 
   it('selectedPackageIsResolved returns false if empty array of attributionIds', () => {
     expect(
-      selectedPackagesAreResolved([], new Set<string>().add('123'))
+      selectedPackagesAreResolved([], new Set<string>().add('123')),
     ).toEqual(false);
   });
 
   it('selectedPackageIsResolved returns false if id does not match', () => {
     expect(
-      selectedPackagesAreResolved(['123'], new Set<string>().add('321'))
+      selectedPackagesAreResolved(['123'], new Set<string>().add('321')),
     ).toEqual(false);
   });
 
   it('selectedPackageIsResolved returns false if only a subset matches', () => {
     expect(
-      selectedPackagesAreResolved(['123', '456'], new Set<string>().add('123'))
+      selectedPackagesAreResolved(['123', '456'], new Set<string>().add('123')),
     ).toEqual(false);
   });
 });
@@ -71,7 +71,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: false,
         targetAttributionIsPreSelected: false,
         targetAttributionIsExternalAttribution: true,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: true,
       hideUnmarkForReplacementButton: true,
@@ -89,7 +89,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: false,
         targetAttributionIsPreSelected: false,
         targetAttributionIsExternalAttribution: false,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
@@ -107,7 +107,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: false,
         targetAttributionIsPreSelected: false,
         targetAttributionIsExternalAttribution: false,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: true,
       hideUnmarkForReplacementButton: false,
@@ -125,7 +125,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: false,
         targetAttributionIsPreSelected: false,
         targetAttributionIsExternalAttribution: false,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
@@ -143,7 +143,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: true,
         targetAttributionIsPreSelected: false,
         targetAttributionIsExternalAttribution: false,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
@@ -161,7 +161,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: true,
         targetAttributionIsPreSelected: false,
         targetAttributionIsExternalAttribution: false,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
@@ -179,7 +179,7 @@ describe('getMergeButtonsDisplayState', () => {
         packageInfoWereModified: false,
         targetAttributionIsPreSelected: true,
         targetAttributionIsExternalAttribution: false,
-      })
+      }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
       hideUnmarkForReplacementButton: true,
@@ -200,7 +200,7 @@ describe('getSelectedManualAttributionIdForAuditView', () => {
     const testSelectedManualAttributionId =
       getSelectedManualAttributionIdForAuditView(testSelectedPackage);
     expect(testSelectedManualAttributionId).toEqual(
-      expectedSelectedManaualAttributionId
+      expectedSelectedManaualAttributionId,
     );
   });
 
@@ -214,7 +214,7 @@ describe('getSelectedManualAttributionIdForAuditView', () => {
     const testSelectedManualAttributionId =
       getSelectedManualAttributionIdForAuditView(testSelectedPackage);
     expect(testSelectedManualAttributionId).toEqual(
-      expectedSelectedManaualAttributionId
+      expectedSelectedManaualAttributionId,
     );
   });
 
@@ -228,7 +228,7 @@ describe('getSelectedManualAttributionIdForAuditView', () => {
     const testSelectedManualAttributionId =
       getSelectedManualAttributionIdForAuditView(testSelectedPackage);
     expect(testSelectedManualAttributionId).toEqual(
-      expectedSelectedManaualAttributionId
+      expectedSelectedManaualAttributionId,
     );
   });
 
@@ -238,7 +238,7 @@ describe('getSelectedManualAttributionIdForAuditView', () => {
     const testSelectedManualAttributionId =
       getSelectedManualAttributionIdForAuditView(testSelectedPackage);
     expect(testSelectedManualAttributionId).toEqual(
-      expectedSelectedManaualAttributionId
+      expectedSelectedManaualAttributionId,
     );
   });
 });

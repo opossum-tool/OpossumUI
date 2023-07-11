@@ -57,8 +57,8 @@ describe('The PackageCard', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <PackageCard
@@ -70,7 +70,7 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expect(screen.getByText('packageName'));
@@ -78,17 +78,17 @@ describe('The PackageCard', () => {
     expect(
       testStore.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
-      ]
+      ],
     ).toEqual(testAttributions[testAttributionId]);
     clickOnButtonInPackageContextMenu(
       screen,
       'packageName',
-      ButtonText.Confirm
+      ButtonText.Confirm,
     );
     expect(
       testStore.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
-      ]
+      ],
     ).toEqual({
       ...testAttributions[testAttributionId],
       attributionConfidence: DiscreteConfidence.High,
@@ -109,8 +109,8 @@ describe('The PackageCard', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <PackageCard
@@ -122,7 +122,7 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expect(screen.getByText('packageName'));
@@ -130,17 +130,17 @@ describe('The PackageCard', () => {
     expect(
       testStore.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
-      ]
+      ],
     ).toEqual(testAttributions[testAttributionId]);
     clickOnButtonInPackageContextMenu(
       screen,
       'packageName',
-      ButtonText.ConfirmGlobally
+      ButtonText.ConfirmGlobally,
     );
     expect(
       testStore.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
-      ]
+      ],
     ).toEqual({
       ...testAttributions[testAttributionId],
       attributionConfidence: DiscreteConfidence.High,
@@ -161,8 +161,8 @@ describe('The PackageCard', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     const { store } = renderComponentWithStore(
       <PackageCard
@@ -175,25 +175,25 @@ describe('The PackageCard', () => {
         onClick={doNothing}
         showCheckBox={true}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expect(screen.getByText('packageName'));
     expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
     act(() => {
       store.dispatch(
-        setMultiSelectSelectedAttributionIds([anotherAttributionId])
+        setMultiSelectSelectedAttributionIds([anotherAttributionId]),
       );
     });
     fireEvent.click(screen.getByRole('checkbox') as Element);
     expect(
-      getMultiSelectSelectedAttributionIds(store.getState())
+      getMultiSelectSelectedAttributionIds(store.getState()),
     ).toStrictEqual([anotherAttributionId, testAttributionId]);
 
     fireEvent.click(screen.getByRole('checkbox') as Element);
 
     expect(
-      getMultiSelectSelectedAttributionIds(store.getState())
+      getMultiSelectSelectedAttributionIds(store.getState()),
     ).toStrictEqual([anotherAttributionId]);
   });
 
@@ -211,8 +211,8 @@ describe('The PackageCard', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <div>
@@ -238,27 +238,27 @@ describe('The PackageCard', () => {
           showCheckBox={true}
         />
       </div>,
-      { store: testStore }
+      { store: testStore },
     );
 
     expect(screen.getByText('packageName'));
 
     (screen.getAllByRole('checkbox') as Element[]).forEach((checkbox) =>
-      fireEvent.click(checkbox)
+      fireEvent.click(checkbox),
     );
     const attributions =
       testStore.getState().resourceState.allViews.manualData.attributions;
     expect(attributions[testAttributionId]).toEqual(
-      testAttributions[testAttributionId]
+      testAttributions[testAttributionId],
     );
     expect(attributions[anotherAttributionId]).toEqual(
-      testAttributions[anotherAttributionId]
+      testAttributions[anotherAttributionId],
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'packageName',
-      ButtonText.ConfirmSelectedGlobally
+      ButtonText.ConfirmSelectedGlobally,
     );
     const updatedAttributions =
       testStore.getState().resourceState.allViews.manualData.attributions;
@@ -296,11 +296,11 @@ describe('The PackageCard', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
+        testExternalResourcesToAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testManualResourcesToAttributions),
     );
 
     renderComponentWithStore(
@@ -315,17 +315,17 @@ describe('The PackageCard', () => {
         hideContextMenuAndMultiSelect={false}
         showCheckBox={false}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'testPackage',
-      ButtonText.OpenAttributionWizardPopup
+      ButtonText.OpenAttributionWizardPopup,
     );
 
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.AttributionWizardPopup
+      PopupType.AttributionWizardPopup,
     );
   });
 });

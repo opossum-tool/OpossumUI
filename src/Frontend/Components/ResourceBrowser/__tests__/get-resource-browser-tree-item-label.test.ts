@@ -36,7 +36,7 @@ describe('Tree item labels', () => {
       const criticality = getCriticality(
         nodeId,
         resourcesToExternalAttributions,
-        externalAttributions
+        externalAttributions,
       );
       expect(criticality).toEqual(expectedCriticalities[nodeId]);
     }
@@ -60,8 +60,11 @@ describe('Manual attributions', () => {
           attributedChildren: { 1: new Set([]) },
         };
       expect(
-        containsManualAttribution(nodeId, resourcesWithManualAttributedChildren)
+        containsManualAttribution(
+          nodeId,
+          resourcesWithManualAttributedChildren,
+        ),
       ).toEqual(expectedReturn);
-    }
+    },
   );
 });

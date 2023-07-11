@@ -19,10 +19,10 @@ describe('FileSupportPopup', () => {
   it('sends correct signal to backend when clicking createAndProceedButton', () => {
     renderComponentWithStore(<FileSupportPopup />);
     fireEvent.click(
-      screen.getByRole('button', { name: ButtonText.CreateAndProceed })
+      screen.getByRole('button', { name: ButtonText.CreateAndProceed }),
     );
     expect(
-      global.window.electronAPI.convertInputFileToDotOpossum
+      global.window.electronAPI.convertInputFileToDotOpossum,
     ).toHaveBeenCalled();
   });
 
@@ -30,7 +30,7 @@ describe('FileSupportPopup', () => {
     renderComponentWithStore(<FileSupportPopup />);
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Keep }));
     expect(
-      global.window.electronAPI.useOutdatedInputFileFormat
+      global.window.electronAPI.useOutdatedInputFileFormat,
     ).toHaveBeenCalled();
   });
 });

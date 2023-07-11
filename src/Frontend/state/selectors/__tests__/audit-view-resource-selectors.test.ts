@@ -52,10 +52,10 @@ describe('The audit view resource selectors', () => {
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     ),
     [testManualAttributionUuid_2]: convertDisplayPackageInfoToPackageInfo(
-      secondTestTemporaryDisplayPackageInfo
+      secondTestTemporaryDisplayPackageInfo,
     ),
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -72,15 +72,15 @@ describe('The audit view resource selectors', () => {
       attributionIds: [testManualAttributionUuid_1],
     };
     expect(
-      getManualDisplayPackageInfoOfSelected(testStore.getState())
+      getManualDisplayPackageInfoOfSelected(testStore.getState()),
     ).toBeNull();
 
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
-      expectedDisplayPackageInfo
+      expectedDisplayPackageInfo,
     );
   });
 
@@ -96,8 +96,8 @@ describe('The audit view resource selectors', () => {
             uuid2: { packageName: 'Angular' },
           },
           resourcesToManualAttributions: { '/file': ['uuid1'] },
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(setSelectedResourceId('/file'));
@@ -105,7 +105,7 @@ describe('The audit view resource selectors', () => {
       'uuid1',
     ]);
     expect(
-      getAttributionsOfSelectedResourceOrClosestParent(testStore.getState())
+      getAttributionsOfSelectedResourceOrClosestParent(testStore.getState()),
     ).toEqual({
       uuid1: reactPackage,
     });
@@ -130,24 +130,24 @@ describe('The audit view resource selectors', () => {
 
     const testStore = createTestAppStore();
     expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
+      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
     ).toBeNull();
 
     testStore.dispatch(setDisplayedPackage(manualPackagesSelectedPackage));
     expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
+      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
     ).toBe('uuid1');
 
     testStore.dispatch(
-      setDisplayedPackage(manualPackagesDefaultSelectedPackage)
+      setDisplayedPackage(manualPackagesDefaultSelectedPackage),
     );
     expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
+      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
     ).toBe(null);
 
     testStore.dispatch(setDisplayedPackage(containedSelectedPackage));
     expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
+      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
     ).toBeNull();
   });
 
@@ -159,14 +159,14 @@ describe('The audit view resource selectors', () => {
       .add('d3a7565e-5100-11eb-ae93-0242ac130002');
 
     expect(getResolvedExternalAttributions(testStore.getState())).toMatchObject(
-      new Set()
+      new Set(),
     );
 
     testStore.dispatch(
-      setResolvedExternalAttributions(testResolvedExternalAttributions)
+      setResolvedExternalAttributions(testResolvedExternalAttributions),
     );
     expect(getResolvedExternalAttributions(testStore.getState())).toMatchObject(
-      testResolvedExternalAttributions
+      testResolvedExternalAttributions,
     );
   });
 });

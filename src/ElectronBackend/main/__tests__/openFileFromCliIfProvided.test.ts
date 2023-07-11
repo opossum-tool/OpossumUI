@@ -40,7 +40,7 @@ describe('openFileFromCli', () => {
       process.argv.push(inputFileName);
 
       await openFileFromCliIfProvided(
-        'mockBrowserWindow' as unknown as BrowserWindow
+        'mockBrowserWindow' as unknown as BrowserWindow,
       );
       expect(mockHandleOpeningFile).toHaveBeenCalledWith([
         'mockBrowserWindow',
@@ -48,7 +48,7 @@ describe('openFileFromCli', () => {
       ]);
 
       process.argv = oldProcessArgv;
-    }
+    },
   );
 
   it.each`
@@ -65,11 +65,11 @@ describe('openFileFromCli', () => {
       }
 
       await openFileFromCliIfProvided(
-        'mockBrowserWindow' as unknown as BrowserWindow
+        'mockBrowserWindow' as unknown as BrowserWindow,
       );
       expect(mockHandleOpeningFile).not.toHaveBeenCalled();
 
       process.argv = oldProcessArgv;
-    }
+    },
   );
 });

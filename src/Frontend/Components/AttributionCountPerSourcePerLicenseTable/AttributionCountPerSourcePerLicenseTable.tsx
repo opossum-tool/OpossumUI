@@ -25,17 +25,17 @@ interface AttributionCountPerSourcePerLicenseTableProps {
 }
 
 export function AttributionCountPerSourcePerLicenseTable(
-  props: AttributionCountPerSourcePerLicenseTableProps
+  props: AttributionCountPerSourcePerLicenseTableProps,
 ): ReactElement {
   const sourceNames = Object.keys(
-    props.licenseCounts.totalAttributionsPerSource
+    props.licenseCounts.totalAttributionsPerSource,
   );
 
   const totalNumberOfAttributionsPerSource = sourceNames.map((sourceName) =>
-    props.licenseCounts.totalAttributionsPerSource[sourceName].toString()
+    props.licenseCounts.totalAttributionsPerSource[sourceName].toString(),
   );
   const totalNumberOfAttributions = Object.values(
-    props.licenseCounts.totalAttributionsPerSource
+    props.licenseCounts.totalAttributionsPerSource,
   )
     .reduce((partialSum, num) => partialSum + num, 0)
     .toString();
@@ -47,15 +47,15 @@ export function AttributionCountPerSourcePerLicenseTable(
     .concat(sourceNames)
     .concat(TOTAL_SOURCES_TITLE)
     .map(
-      (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1)
+      (sourceName) => sourceName.charAt(0).toUpperCase() + sourceName.slice(1),
     );
 
   Object.entries(
-    props.licenseCounts.attributionCountPerSourcePerLicense
+    props.licenseCounts.attributionCountPerSourcePerLicense,
   ).forEach(
     ([licenseName, value]) =>
       (value[TOTAL_SOURCES_TITLE] =
-        props.licenseCounts.totalAttributionsPerLicense[licenseName])
+        props.licenseCounts.totalAttributionsPerLicense[licenseName]),
   );
 
   return (

@@ -45,7 +45,7 @@ describe('The GoToLinkButton', () => {
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.openLink).toHaveBeenCalledWith(expected_link);
-    }
+    },
   );
 
   it('does not show link if base url of parent is null ', () => {
@@ -58,7 +58,7 @@ describe('The GoToLinkButton', () => {
     store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 
     expect(screen.getByLabelText('link to open')).toHaveStyle(
-      'visibility: hidden'
+      'visibility: hidden',
     );
   });
 });

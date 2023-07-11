@@ -87,7 +87,7 @@ describe('In Audit View the ContextMenu', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
 
     renderComponentWithStore(<App />);
@@ -127,7 +127,7 @@ describe('In Audit View the ContextMenu', () => {
         resources: testResources,
         manualAttributions: testManualAttributionsPreSelected,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
     renderComponentWithStore(<App />);
 
@@ -138,13 +138,13 @@ describe('In Audit View the ContextMenu', () => {
     expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
     expectContextMenuForPreSelectedAttributionMultipleResources(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'React, 16.5.0',
-      ButtonText.Confirm
+      ButtonText.Confirm,
     );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
@@ -157,17 +157,17 @@ describe('In Audit View the ContextMenu', () => {
     expectValueInConfidenceField(screen, '10');
     expectValueNotInConfidenceField(
       screen,
-      `High (${DiscreteConfidence.High})`
+      `High (${DiscreteConfidence.High})`,
     );
     expectContextMenuForPreSelectedAttributionMultipleResources(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'React, 16.5.0',
-      ButtonText.ConfirmGlobally
+      ButtonText.ConfirmGlobally,
     );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
@@ -175,7 +175,7 @@ describe('In Audit View the ContextMenu', () => {
     expectValuesInTopProgressbarTooltip(screen, 4, 3, 1, 0);
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
@@ -183,7 +183,7 @@ describe('In Audit View the ContextMenu', () => {
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
 
     clickOnTab(screen, 'Global Tab');
@@ -191,7 +191,7 @@ describe('In Audit View the ContextMenu', () => {
     clickOnButtonInPackageContextMenu(
       screen,
       'Vue, 1.2.0',
-      ButtonText.ConfirmGlobally
+      ButtonText.ConfirmGlobally,
     );
 
     clickOnElementInResourceBrowser(screen, 'fourthResource.js');
@@ -203,7 +203,7 @@ describe('In Audit View the ContextMenu', () => {
 
     expectContextMenuForNotPreSelectedAttributionSingleResource(
       screen,
-      'Vue, 1.2.0'
+      'Vue, 1.2.0',
     );
   });
 
@@ -222,7 +222,7 @@ describe('In Audit View the ContextMenu', () => {
         resources: testResources,
         externalAttributions: testManualAttributions,
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
-      })
+      }),
     );
     const { store } = renderComponentWithStore(<App />);
     store.dispatch(addResolvedExternalAttribution('uuid_1'));
@@ -233,19 +233,19 @@ describe('In Audit View the ContextMenu', () => {
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals'
+      'Signals',
     );
 
     clickOnButtonInPackageInPackagePanelContextMenu(
       screen,
       'Vue, 1.2.0',
       'Signals',
-      ButtonText.Hide
+      ButtonText.Hide,
     );
     expectContextMenuForHiddenExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals'
+      'Signals',
     );
     expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
     expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
@@ -258,12 +258,12 @@ describe('In Audit View the ContextMenu', () => {
       screen,
       'Vue, 1.2.0',
       'Signals',
-      ButtonText.Unhide
+      ButtonText.Unhide,
     );
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals'
+      'Signals',
     );
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
   });
@@ -301,11 +301,11 @@ describe('In Audit View the ContextMenu', () => {
         resources: testResources,
         externalAttributions: testExternalAttributions,
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
-      })
+      }),
     );
     const { store } = renderComponentWithStore(<App />);
     store.dispatch(
-      setExternalAttributionsToHashes(testExternalAttributionsToHashes)
+      setExternalAttributionsToHashes(testExternalAttributionsToHashes),
     );
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
@@ -316,19 +316,19 @@ describe('In Audit View the ContextMenu', () => {
       screen,
       'React, 16.5.0',
       'Signals',
-      ButtonText.Hide
+      ButtonText.Hide,
     );
     expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
     expectContextMenuForHiddenExternalAttributionInPackagePanel(
       screen,
       'React, 16.5.0',
-      'Signals'
+      'Signals',
     );
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals'
+      'Signals',
     );
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
@@ -337,31 +337,31 @@ describe('In Audit View the ContextMenu', () => {
     expectContextMenuForHiddenExternalAttributionInPackagePanel(
       screen,
       'React, 16.5.0',
-      'Signals'
+      'Signals',
     );
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals'
+      'Signals',
     );
 
     clickOnButtonInPackageInPackagePanelContextMenu(
       screen,
       'React, 16.5.0',
       'Signals',
-      ButtonText.Unhide
+      ButtonText.Unhide,
     );
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'React, 16.5.0');
     expectAddIconInAddToAttributionCardIsNotHidden(screen, 'Vue, 1.2.0');
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'React, 16.5.0',
-      'Signals'
+      'Signals',
     );
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      'Signals'
+      'Signals',
     );
   });
 
@@ -424,7 +424,7 @@ describe('In Audit View the ContextMenu', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
+        }),
       );
       renderComponentWithStore(<App />);
 
@@ -436,14 +436,14 @@ describe('In Audit View the ContextMenu', () => {
       clickOnButtonInPackageContextMenu(
         screen,
         'jQuery, 16.0.0',
-        ButtonText.MarkForReplacement
+        ButtonText.MarkForReplacement,
       );
       clickOnElementInResourceBrowser(screen, 'file_2');
 
       handleReplaceMarkedAttributionViaContextMenu(
         screen,
         'React, 16.0.0',
-        ButtonText.Cancel
+        ButtonText.Cancel,
       );
 
       clickOnElementInResourceBrowser(screen, 'file_1');
@@ -453,12 +453,12 @@ describe('In Audit View the ContextMenu', () => {
       handleReplaceMarkedAttributionViaContextMenu(
         screen,
         'React, 16.0.0',
-        ButtonText.Replace
+        ButtonText.Replace,
       );
       expectValueInTextBox(screen, 'Name', 'React');
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
-        'React, 16.0.0'
+        'React, 16.0.0',
       );
 
       clickOnElementInResourceBrowser(screen, 'file_1');
@@ -468,7 +468,7 @@ describe('In Audit View the ContextMenu', () => {
       // make sure resources are now linked to React attribution
       expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-        expectedSaveFileArgs
+        expectedSaveFileArgs,
       );
     });
 
@@ -478,7 +478,7 @@ describe('In Audit View the ContextMenu', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
+        }),
       );
       renderComponentWithStore(<App />);
 
@@ -487,13 +487,13 @@ describe('In Audit View the ContextMenu', () => {
       clickOnButtonInPackageContextMenu(
         screen,
         'jQuery, 16.0.0',
-        ButtonText.MarkForReplacement
+        ButtonText.MarkForReplacement,
       );
 
       handleReplaceMarkedAttributionViaContextMenu(
         screen,
         'React, 16.0.0',
-        ButtonText.Cancel
+        ButtonText.Cancel,
       );
 
       expect(screen.queryByText('jQuery, 16.0.0'));
@@ -501,19 +501,19 @@ describe('In Audit View the ContextMenu', () => {
       handleReplaceMarkedAttributionViaContextMenu(
         screen,
         'React, 16.0.0',
-        ButtonText.Replace
+        ButtonText.Replace,
       );
 
       expectGlobalOnlyContextMenuForNotPreselectedAttribution(
         screen,
-        'React, 16.0.0'
+        'React, 16.0.0',
       );
       expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
 
       // make sure resources are now linked to React attribution
       expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-        expectedSaveFileArgs
+        expectedSaveFileArgs,
       );
     });
   });

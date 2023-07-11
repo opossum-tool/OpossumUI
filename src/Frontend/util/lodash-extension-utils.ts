@@ -9,7 +9,7 @@ import { isIdOfResourceWithChildren } from './can-resource-have-children';
 export function replaceInArray<T>(
   array: Array<T>,
   itemToReplace: T,
-  replacement: T
+  replacement: T,
 ): Array<T> {
   for (let index = 0; index < array.length; index++) {
     if (array[index] === itemToReplace) {
@@ -23,7 +23,7 @@ export function replaceInArray<T>(
 export function removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty<T>(
   object: Record<string, Array<T>>,
   arrayKey: string,
-  elementToRemove: T
+  elementToRemove: T,
 ): void {
   if (!object[arrayKey]) {
     return;
@@ -42,17 +42,17 @@ export function removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty<T>(
 export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
   object: Record<number, Set<T>>,
   setKey: number,
-  element: T
+  element: T,
 ): void;
 export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
   object: Record<string, Set<T>>,
   setKey: string,
-  element: T
+  element: T,
 ): void;
 export function removeFromSetCloneAndDeleteKeyFromObjectIfEmpty<T>(
   object: Record<string | number, Set<T>>,
   setKey: string | number,
-  element: T
+  element: T,
 ): void {
   if (!object[setKey]) {
     return;

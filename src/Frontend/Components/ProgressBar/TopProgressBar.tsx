@@ -7,6 +7,7 @@ import MuiBox from '@mui/material/Box';
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
   getAttributionBreakpoints,
+  getExternalAttributions,
   getFilesWithChildren,
   getManualAttributions,
   getResources,
@@ -19,7 +20,6 @@ import { ProgressBar } from './ProgressBar';
 import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
-import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
 
 const classes = {
@@ -39,13 +39,13 @@ export function TopProgressBar(): ReactElement {
   const manualAttributions = useAppSelector(getManualAttributions);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const resourcesToManualAttributions = useAppSelector(
-    getResourcesToManualAttributions
+    getResourcesToManualAttributions,
   );
   const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions
+    getResourcesToExternalAttributions,
   );
   const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
@@ -54,7 +54,7 @@ export function TopProgressBar(): ReactElement {
     useState<ProgressBarData | null>(null);
 
   const topProgressBarWorker = useContext(
-    ProgressBarWorkersContext
+    ProgressBarWorkersContext,
   ).TopProgressBarWorker;
 
   const topProgressBarWorkerArgs = useMemo(
@@ -70,7 +70,7 @@ export function TopProgressBar(): ReactElement {
       externalAttributions,
       resourcesToManualAttributions,
       resolvedExternalAttributions,
-    ]
+    ],
   );
 
   const topProgressBarSyncFallbackArgs = useMemo(
@@ -94,7 +94,7 @@ export function TopProgressBar(): ReactElement {
       resolvedExternalAttributions,
       attributionBreakpoints,
       filesWithChildren,
-    ]
+    ],
   );
 
   const [progressBarCriticalityState, setProgressBarCriticalityState] =
@@ -112,7 +112,7 @@ export function TopProgressBar(): ReactElement {
       topProgressBarWorker,
       topProgressBarWorkerArgs,
       setTopProgressBarData,
-      topProgressBarSyncFallbackArgs
+      topProgressBarSyncFallbackArgs,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topProgressBarWorker, topProgressBarWorkerArgs]);
@@ -141,7 +141,7 @@ export function TopProgressBar(): ReactElement {
     worker: Worker,
     workerArgs: Partial<ProgressBarWorkerArgs>,
     setTopProgressBarData: (progressBarData: ProgressBarData | null) => void,
-    syncFallbackArgs: ProgressBarWorkerArgs
+    syncFallbackArgs: ProgressBarWorkerArgs,
   ): Promise<void> {
     try {
       worker.postMessage(workerArgs);
@@ -151,7 +151,7 @@ export function TopProgressBar(): ReactElement {
           logErrorAndComputeInMainProcess(
             Error('Web Worker execution error.'),
             setTopProgressBarData,
-            syncFallbackArgs
+            syncFallbackArgs,
           );
         } else {
           setTopProgressBarData(output.progressBarData);
@@ -161,7 +161,7 @@ export function TopProgressBar(): ReactElement {
       logErrorAndComputeInMainProcess(
         error,
         setTopProgressBarData,
-        syncFallbackArgs
+        syncFallbackArgs,
       );
     }
   }
@@ -169,7 +169,7 @@ export function TopProgressBar(): ReactElement {
   function logErrorAndComputeInMainProcess(
     error: unknown,
     setTopProgressBarData: (topProgressBarData: ProgressBarData | null) => void,
-    syncFallbackArgs: ProgressBarWorkerArgs
+    syncFallbackArgs: ProgressBarWorkerArgs,
   ): void {
     console.info('Error in rendering top progress bar: ', error);
     const progressBarData = getUpdatedProgressBarData(syncFallbackArgs);

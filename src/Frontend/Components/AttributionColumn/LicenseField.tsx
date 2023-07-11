@@ -10,7 +10,7 @@ import { AutoComplete } from '../InputElements/AutoComplete';
 
 function isPresentInOptions(
   inputValue: string,
-  frequentLicenseNames: Array<FrequentLicenseName>
+  frequentLicenseNames: Array<FrequentLicenseName>,
 ): boolean {
   const matchesValue = (licenseName: FrequentLicenseName): boolean =>
     licenseName.shortName === inputValue || licenseName.fullName === inputValue;
@@ -18,7 +18,7 @@ function isPresentInOptions(
 }
 
 function getFormattedLicenseNamesToShortNameMapping(
-  frequentLicenseNames: Array<FrequentLicenseName>
+  frequentLicenseNames: Array<FrequentLicenseName>,
 ): {
   [key: string]: string;
 } {
@@ -30,7 +30,7 @@ function getFormattedLicenseNamesToShortNameMapping(
     frequentLicenseNames.map((option: FrequentLicenseName) => [
       formatLicenseName(option),
       option.shortName,
-    ])
+    ]),
   );
 }
 
@@ -43,9 +43,9 @@ export function LicenseField(props: LicenseFieldProps): ReactElement {
   const formattedLicenseNamesToShortNameMapping =
     getFormattedLicenseNamesToShortNameMapping(props.frequentLicenseNames);
   const sortedLicenses = Object.keys(
-    formattedLicenseNamesToShortNameMapping
+    formattedLicenseNamesToShortNameMapping,
   ).sort((license, otherLicense) =>
-    license.toLowerCase() < otherLicense.toLowerCase() ? -1 : 1
+    license.toLowerCase() < otherLicense.toLowerCase() ? -1 : 1,
   );
 
   function formatOptionForDisplay(option: string): string {
@@ -57,7 +57,7 @@ export function LicenseField(props: LicenseFieldProps): ReactElement {
   const inputValue = props.text || '';
   const inputValueIsInOptions = isPresentInOptions(
     inputValue,
-    props.frequentLicenseNames
+    props.frequentLicenseNames,
   );
 
   return (

@@ -28,7 +28,7 @@ describe('The TextFieldStack', () => {
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
         handleChange={(): (() => void) => doNothing}
-      />
+      />,
     );
     comments.forEach((comment, index) => {
       expect(screen.getByLabelText(`Comment ${index + 1}`));
@@ -54,7 +54,7 @@ describe('The TextFieldStack', () => {
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
         handleChange={(): (() => void) => doNothing}
-      />
+      />,
     );
     expect(screen.getByLabelText('4 comments (collapsed)'));
   });
@@ -72,7 +72,7 @@ describe('The TextFieldStack', () => {
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
         handleChange={(): (() => void) => doNothing}
-      />
+      />,
     );
     expect(screen.getByLabelText('1 comment (collapsed)'));
   });
@@ -90,7 +90,7 @@ describe('The TextFieldStack', () => {
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
         handleChange={(): (() => void) => doNothing}
-      />
+      />,
     );
     expect(screen.getByLabelText('No comments'));
   });

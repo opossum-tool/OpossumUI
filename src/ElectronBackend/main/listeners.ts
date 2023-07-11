@@ -61,7 +61,7 @@ const dotOpossumFileInputJson = 'input.json';
 const dotOpossumFileOutputJson = 'output.json';
 
 export function getSaveFileListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): (_: unknown, args: SaveFileArgs) => Promise<void> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
@@ -71,7 +71,7 @@ export function getSaveFileListener(
       if (globalBackendState.projectId === undefined) {
         throw new Error(
           'Failed to save data. The projectId is incorrect.' +
-            `\nprojectId: ${globalBackendState.projectId}`
+            `\nprojectId: ${globalBackendState.projectId}`,
         );
       }
 
@@ -84,12 +84,12 @@ export function getSaveFileListener(
         manualAttributions: args.manualAttributions,
         resourcesToAttributions: args.resourcesToAttributions,
         resolvedExternalAttributions: Array.from(
-          args.resolvedExternalAttributions
+          args.resolvedExternalAttributions,
         ),
       };
 
       writeOutputJsonToFile(outputFileContent);
-    }
+    },
   );
 }
 
@@ -99,18 +99,18 @@ function writeOutputJsonToFile(outputFileContent: OpossumOutputFile): void {
   if (fileLoadedType === LoadedFileFormat.Opossum) {
     writeOutputJsonToOpossumFile(
       globalBackendState.opossumFilePath as string,
-      outputFileContent
+      outputFileContent,
     );
   } else {
     writeJsonToFile(
       globalBackendState.attributionFilePath as string,
-      outputFileContent
+      outputFileContent,
     );
   }
 }
 
 export function getOpenFileListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     const filePaths = openFileDialog();
@@ -129,7 +129,7 @@ export function getOpenFileListener(
 
 export async function handleOpeningFile(
   mainWindow: BrowserWindow,
-  filePath: string
+  filePath: string,
 ): Promise<void> {
   const isOpossumFormat = isOpossumFileFormat(filePath);
   log.info('Initializing global backend state');
@@ -157,7 +157,7 @@ function getActualAndParsedChecksums(resourceFilePath: string): {
 } {
   const manualAttributionFilePath = getFilePathWithAppendix(
     resourceFilePath,
-    outputFileEnding
+    outputFileEnding,
   );
   const inputFileContent = fs.readFileSync(resourceFilePath, 'utf8');
   const actualInputFileChecksum = hash.MD5(inputFileContent);
@@ -174,7 +174,7 @@ function getActualAndParsedChecksums(resourceFilePath: string): {
 function initializeGlobalBackendState(
   filePath: string,
   isOpossumFormat: boolean,
-  inputFileChecksum?: string
+  inputFileChecksum?: string,
 ): void {
   const newGlobalBackendState: GlobalBackendState = {
     resourceFilePath: isOpossumFormat ? undefined : filePath,
@@ -185,11 +185,11 @@ function initializeGlobalBackendState(
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(
       filePath,
-      '_compact_component_list.csv'
+      '_compact_component_list.csv',
     ),
     detailedBomFilePath: getFilePathWithAppendix(
       filePath,
-      '_detailed_component_list.csv'
+      '_detailed_component_list.csv',
     ),
     spdxYamlFilePath: getFilePathWithAppendix(filePath, '.spdx.yaml'),
     spdxJsonFilePath: getFilePathWithAppendix(filePath, '.spdx.json'),
@@ -199,7 +199,7 @@ function initializeGlobalBackendState(
 }
 
 export function getKeepFileListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     const filePath = getGlobalBackendState().resourceFilePath as string;
@@ -209,7 +209,7 @@ export function getKeepFileListener(
 }
 
 export function getDeleteAndCreateNewAttributionFileListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     const globalBackendState = getGlobalBackendState();
@@ -217,14 +217,14 @@ export function getDeleteAndCreateNewAttributionFileListener(
 
     log.info(
       'Deleting attribution file and opening input file: ',
-      resourceFilePath
+      resourceFilePath,
     );
     if (globalBackendState.attributionFilePath) {
       fs.unlinkSync(globalBackendState.attributionFilePath);
     } else {
       throw new Error(
         'Failed to delete output file. Attribution file path is incorrect:' +
-          `\n${globalBackendState.attributionFilePath}`
+          `\n${globalBackendState.attributionFilePath}`,
       );
     }
     await openFile(mainWindow, resourceFilePath);
@@ -232,7 +232,7 @@ export function getDeleteAndCreateNewAttributionFileListener(
 }
 
 export function getSelectBaseURLListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => void {
   return createListenerCallbackWithErrorHandling(mainWindow, () => {
     const baseURLs = selectBaseURLDialog();
@@ -265,7 +265,7 @@ function tryToGetInputFileFromOutputFile(filePath: string): string {
 
 export async function openFile(
   mainWindow: BrowserWindow,
-  filePath: string
+  filePath: string,
 ): Promise<void> {
   setLoadingState(mainWindow.webContents, true);
 
@@ -285,13 +285,13 @@ function setTitle(mainWindow: BrowserWindow, filePath: string): void {
   mainWindow.setTitle(
     getGlobalBackendState().projectTitle ||
       decodeURIComponent(
-        upath.toUnix(filePath).split('/').pop() || defaultTitle
-      )
+        upath.toUnix(filePath).split('/').pop() || defaultTitle,
+      ),
   );
 }
 
 export function getSendErrorInformationListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): (_: unknown, args: SendErrorInformationArgs) => Promise<void> {
   return async (_, args: SendErrorInformationArgs): Promise<void> => {
     log.error(args.error.message + args.errorInfo.componentStack);
@@ -299,7 +299,7 @@ export function getSendErrorInformationListener(
       args.error.message,
       args.errorInfo.componentStack,
       mainWindow,
-      false
+      false,
     );
   };
 }
@@ -311,7 +311,7 @@ export function linkHasHttpSchema(link: string): boolean {
 
 export function getOpenLinkListener(): (
   _: unknown,
-  args: OpenLinkArgs
+  args: OpenLinkArgs,
 ) => Promise<Error | void> {
   return async (_, args: OpenLinkArgs): Promise<Error | void> => {
     try {
@@ -339,7 +339,7 @@ interface FileExporterAndExportedFilePath<T> {
 }
 
 export function getExportedFilePathAndFileExporter(
-  exportType: ExportType
+  exportType: ExportType,
 ): FileExporterAndExportedFilePath<
   | ExportFollowUpArgs
   | ExportCompactBomArgs
@@ -348,7 +348,7 @@ export function getExportedFilePathAndFileExporter(
   | ExportSpdxDocumentJsonArgs
 >;
 export function getExportedFilePathAndFileExporter(
-  exportType: ExportType
+  exportType: ExportType,
 ):
   | FileExporterAndExportedFilePath<ExportFollowUpArgs>
   | FileExporterAndExportedFilePath<ExportCompactBomArgs>
@@ -396,7 +396,7 @@ export function _exportFileAndOpenFolder(mainWindow: BrowserWindow) {
     try {
       if (exportedFilePath) {
         log.info(
-          `Starting to create ${exportArgs.type} export to ${exportedFilePath}`
+          `Starting to create ${exportArgs.type} export to ${exportedFilePath}`,
         );
         await fileExporter(exportedFilePath, exportArgs);
       } else {
@@ -415,17 +415,17 @@ export function _exportFileAndOpenFolder(mainWindow: BrowserWindow) {
 }
 
 export function getExportFileListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): (_: unknown, args: ExportArgsType) => Promise<void> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
-    _exportFileAndOpenFolder(mainWindow)
+    _exportFileAndOpenFolder(mainWindow),
   );
 }
 
 async function createFollowUp(
   followUpFilePath: string,
-  args: ExportFollowUpArgs
+  args: ExportFollowUpArgs,
 ): Promise<void> {
   const followUpColumnOrder: Array<KeysOfAttributionInfo> = [
     'packageName',
@@ -440,13 +440,13 @@ async function createFollowUp(
     followUpFilePath,
     args.followUpAttributionsWithResources,
     followUpColumnOrder,
-    true
+    true,
   );
 }
 
 async function createCompactBom(
   compactBomFilePath: string,
-  args: ExportCompactBomArgs
+  args: ExportCompactBomArgs,
 ): Promise<void> {
   const miniBomColumnOrder: Array<KeysOfAttributionInfo> = [
     'packageName',
@@ -459,13 +459,13 @@ async function createCompactBom(
   await writeCsvToFile(
     compactBomFilePath,
     args.bomAttributions,
-    miniBomColumnOrder
+    miniBomColumnOrder,
   );
 }
 
 async function createDetailedBom(
   detailedBomFilePath: string,
-  args: ExportDetailedBomArgs
+  args: ExportDetailedBomArgs,
 ): Promise<void> {
   const detailedBomColumnOrder: Array<KeysOfAttributionInfo> = [
     'packageName',
@@ -483,13 +483,13 @@ async function createDetailedBom(
   await writeCsvToFile(
     detailedBomFilePath,
     args.bomAttributionsWithResources,
-    detailedBomColumnOrder
+    detailedBomColumnOrder,
   );
 }
 
 export function setLoadingState(
   webContents: WebContents,
-  isLoading: boolean
+  isLoading: boolean,
 ): void {
   webContents.send(AllowedFrontendChannels.FileLoading, {
     isLoading,
@@ -497,7 +497,7 @@ export function setLoadingState(
 }
 
 export function getConvertInputFileToDotOpossumAndOpenListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     log.info('Converting file with outdated format to .opossum format');
@@ -545,7 +545,7 @@ function getDotOpossumFilePath(resourceFilePath: string): string {
   }
   const resourceFilePathWithoutFileExtension = resourceFilePath.slice(
     0,
-    -fileExtension.length
+    -fileExtension.length,
   );
 
   return resourceFilePathWithoutFileExtension + OPOSSUM_FILE_EXTENSION;
@@ -567,11 +567,11 @@ function getInputJson(resourceFilePath: string): string {
 
 function addOutputJsonFileToDotOpossum(
   resourceFilePath: string,
-  dotOpossumArchive: JSZip
+  dotOpossumArchive: JSZip,
 ): void {
   const expectedAssociatedAttributionFilePath = getFilePathWithAppendix(
     resourceFilePath,
-    outputFileEnding
+    outputFileEnding,
   );
   if (fs.existsSync(expectedAssociatedAttributionFilePath)) {
     const outputJson = fs.readFileSync(expectedAssociatedAttributionFilePath, {
@@ -582,7 +582,7 @@ function addOutputJsonFileToDotOpossum(
 }
 
 export function getOpenOutdatedInputFileListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     const isOpossumFormat = false;
@@ -599,7 +599,7 @@ export function getOpenOutdatedInputFileListener(
     initializeGlobalBackendState(
       resourceFilePath,
       isOpossumFormat,
-      checksums?.actualInputFileChecksum
+      checksums?.actualInputFileChecksum,
     );
 
     const inputFileChanged =
@@ -614,7 +614,7 @@ export function getOpenOutdatedInputFileListener(
         AllowedFrontendChannels.ShowChangedInputFilePopup,
         {
           showChangedInputFilePopup: true,
-        }
+        },
       );
     } else {
       log.info('Checksum of the input file has not changed.');
@@ -625,7 +625,7 @@ export function getOpenOutdatedInputFileListener(
 }
 
 export function getOpenDotOpossumFileInsteadListener(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     const globalBackendState = getGlobalBackendState();

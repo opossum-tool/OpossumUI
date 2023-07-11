@@ -55,11 +55,11 @@ describe('error handling', () => {
 
       await createListenerCallbackWithErrorHandling(
         mainWindow,
-        testFunction
+        testFunction,
       )(testArgs);
       expect(testFunction).toHaveBeenCalledTimes(1);
       expect(testFunction).toHaveBeenCalledWith(
-        expect.objectContaining(testArgs)
+        expect.objectContaining(testArgs),
       );
     });
 
@@ -79,7 +79,7 @@ describe('error handling', () => {
           type: 'error',
           message: 'Error in app backend: TEST_ERROR',
           buttons: ['Reload File', 'Quit'],
-        })
+        }),
       );
     });
   });
@@ -90,13 +90,13 @@ describe('error handling', () => {
       const messageBoxContentForBackendErrors =
         getMessageBoxContentForErrorsWrapper(
           true,
-          testError.stack
+          testError.stack,
         )(testError.message);
       expect(messageBoxContentForBackendErrors.detail).toContain(
-        'Error: TEST_ERROR'
+        'Error: TEST_ERROR',
       );
       expect(messageBoxContentForBackendErrors.message).toEqual(
-        'Error in app backend: TEST_ERROR'
+        'Error in app backend: TEST_ERROR',
       );
     });
 
@@ -105,13 +105,13 @@ describe('error handling', () => {
       const messageBoxContentForBackendErrors =
         getMessageBoxContentForErrorsWrapper(
           false,
-          testError.stack
+          testError.stack,
         )(testError.message);
       expect(messageBoxContentForBackendErrors.detail).toContain(
-        'Error: TEST_ERROR'
+        'Error: TEST_ERROR',
       );
       expect(messageBoxContentForBackendErrors.message).toEqual(
-        'Error in app frontend: TEST_ERROR'
+        'Error in app frontend: TEST_ERROR',
       );
     });
   });
@@ -132,7 +132,7 @@ describe('error handling', () => {
         sendErrorInformationArgs.error.message,
         sendErrorInformationArgs.errorInfo.componentStack,
         mainWindow,
-        false
+        false,
       );
 
       expect(dialog.showMessageBox).toBeCalledWith(
@@ -141,12 +141,12 @@ describe('error handling', () => {
           message: 'Error in app frontend: errorMessage',
           detail: 'Stack trace: componentStack',
           buttons: ['Reload File', 'Quit'],
-        })
+        }),
       );
 
       expect(mockCallback.mock.calls.length).toBe(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
-        AllowedFrontendChannels.RestoreFrontend
+        AllowedFrontendChannels.RestoreFrontend,
       );
       expect(loadInputAndOutputFromFilePath).toBeCalled();
     });
@@ -158,10 +158,10 @@ describe('error handling', () => {
       const messageBoxContentForParsingErrors =
         getMessageBoxContentForParsingError(testMessage);
       expect(messageBoxContentForParsingErrors.detail).toContain(
-        'Test error message'
+        'Test error message',
       );
       expect(messageBoxContentForParsingErrors.message).toEqual(
-        'Error parsing the input file.'
+        'Error parsing the input file.',
       );
     });
   });
@@ -181,7 +181,7 @@ describe('error handling', () => {
           message: 'Error parsing the input file.',
           detail: 'parsingErrorMessage',
           buttons: ['Ok'],
-        })
+        }),
       );
       expect(app.exit).toBeCalledWith(0);
     });
@@ -196,7 +196,7 @@ describe('error handling', () => {
 
       await getMessageBoxForInvalidDotOpossumFileError(
         testFilesInArchive,
-        mainWindow
+        mainWindow,
       );
 
       expect(dialog.showMessageBox).toBeCalledWith(
@@ -208,7 +208,7 @@ describe('error handling', () => {
             `Actual files in the archive: ${testFilesInArchive}. ` +
             'Either open another file or quit the application.',
           buttons: ['Open New File', 'Quit'],
-        })
+        }),
       );
 
       expect(getOpenFileListener).toBeCalledWith(mainWindow);
@@ -222,7 +222,7 @@ describe('error handling', () => {
 
       await getMessageBoxForInvalidDotOpossumFileError(
         testFilesInArchive,
-        mainWindow
+        mainWindow,
       );
       expect(getOpenFileListener).toBeCalledWith(mainWindow);
     });

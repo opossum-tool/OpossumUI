@@ -38,7 +38,7 @@ export function parsePurl(potentialPurl: string): ParsedPurl {
 }
 
 export function generatePurlFromDisplayPackageInfo(
-  displayPackageInfo: DisplayPackageInfo
+  displayPackageInfo: DisplayPackageInfo,
 ): string {
   return (displayPackageInfo.packageNamespace ||
     displayPackageInfo.packageType ||
@@ -52,14 +52,14 @@ export function generatePurlFromDisplayPackageInfo(
         displayPackageInfo.packageName,
         displayPackageInfo?.packageVersion,
         undefined,
-        undefined
+        undefined,
       ).toString() + (displayPackageInfo.packagePURLAppendix || '')
     : '';
 }
 
 export function generatePurlAppendix(
   purl: PackageURL,
-  potentialPurl: string
+  potentialPurl: string,
 ): string {
   const purlWithoutQualifiersAndSubpath = new PackageURL(
     purl.type,
@@ -67,7 +67,7 @@ export function generatePurlAppendix(
     purl.name,
     purl.version,
     undefined,
-    undefined
+    undefined,
   );
   const purlWithoutAppendix: string =
     purlWithoutQualifiersAndSubpath.toString();

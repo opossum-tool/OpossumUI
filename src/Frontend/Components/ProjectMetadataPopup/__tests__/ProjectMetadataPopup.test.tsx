@@ -59,7 +59,7 @@ describe('The ProjectMetadataPopup', () => {
     expect(screen.getByText('foo', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('bar', { exact: false })).toBeInTheDocument();
     expect(
-      screen.getByText('testObject', { exact: false })
+      screen.getByText('testObject', { exact: false }),
     ).toBeInTheDocument();
   });
 });

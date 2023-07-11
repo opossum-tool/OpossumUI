@@ -100,10 +100,10 @@ const clearlyDefinedSchema: Schema = {
 };
 
 export async function fetchFromClearlyDefined(
-  coordinate: string
+  coordinate: string,
 ): Promise<DisplayPackageInfo> {
   const response = await axios.get(
-    `https://api.clearlydefined.io/definitions/${coordinate}`
+    `https://api.clearlydefined.io/definitions/${coordinate}`,
   );
   const payload = response.data as Payload;
   jsonSchemaValidator.validate(payload, clearlyDefinedSchema, {

@@ -20,13 +20,13 @@ export function getTreeNodeProps(
   getTreeNodeLabel: (
     nodeName: string,
     node: NodesForTree | 1,
-    nodeId: string
+    nodeId: string,
   ) => ReactElement,
   cardHeight: number,
-  breakpoints?: Set<string>
+  breakpoints?: Set<string>,
 ): Array<VirtualizedTreeNodeData> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
-    getSortFunction(nodes, isFileWithChildren, parentPath)
+    getSortFunction(nodes, isFileWithChildren, parentPath),
   );
 
   let treeNodes: Array<VirtualizedTreeNodeData> = [];
@@ -79,8 +79,8 @@ export function getTreeNodeProps(
           onToggle,
           getTreeNodeLabel,
           nodeHeight,
-          breakpoints
-        )
+          breakpoints,
+        ),
       );
     }
   }
@@ -90,7 +90,7 @@ export function getTreeNodeProps(
 
 export function getNodeIdsToExpand(
   nodeId: string,
-  node: NodesForTree | 1
+  node: NodesForTree | 1,
 ): Array<string> {
   const nodeIdsToExpand: Array<string> = [nodeId];
   addNodeIdsToExpand(nodeIdsToExpand, node);
@@ -99,12 +99,12 @@ export function getNodeIdsToExpand(
 
 function addNodeIdsToExpand(
   nodeIdsToExpand: Array<string>,
-  node: NodesForTree | 1
+  node: NodesForTree | 1,
 ): void {
   const containedNodes = Object.keys(node);
   if (node !== 1 && containsExactlyOneFolder(node, containedNodes)) {
     nodeIdsToExpand.push(
-      getNodeIdOfFirstContainedNode(containedNodes, nodeIdsToExpand, node)
+      getNodeIdOfFirstContainedNode(containedNodes, nodeIdsToExpand, node),
     );
     addNodeIdsToExpand(nodeIdsToExpand, node[containedNodes[0]]);
   }
@@ -112,7 +112,7 @@ function addNodeIdsToExpand(
 
 function containsExactlyOneFolder(
   node: NodesForTree,
-  containedNodes: Array<string>
+  containedNodes: Array<string>,
 ): boolean {
   return (
     containedNodes.length === 1 && canNodeHaveChildren(node[containedNodes[0]])
@@ -122,13 +122,13 @@ function containsExactlyOneFolder(
 function getNodeIdOfFirstContainedNode(
   containedNodes: Array<string>,
   nodeIdsToExpand: Array<string>,
-  node: NodesForTree
+  node: NodesForTree,
 ): string {
   const latestNodeIdToExpand = nodeIdsToExpand[nodeIdsToExpand.length - 1];
   return getNodeId(
     containedNodes[0],
     latestNodeIdToExpand,
-    canNodeHaveChildren(node[containedNodes[0]])
+    canNodeHaveChildren(node[containedNodes[0]]),
   );
 }
 
@@ -165,7 +165,7 @@ export function isChildOfSelected(nodeId: string, selectedId: string): boolean {
 export function isBreakpointOrChildOfBreakpoint(
   nodeId: string,
   selectedId: string,
-  breakpoints?: Set<string>
+  breakpoints?: Set<string>,
 ): boolean {
   if (!breakpoints || isEmpty(breakpoints)) {
     return false;
@@ -181,7 +181,7 @@ export function isBreakpointOrChildOfBreakpoint(
 function getSortFunction(
   nodes: NodesForTree,
   isFakeNonExpandableNode: NodeIdPredicateForTree,
-  path: string
+  path: string,
 ) {
   return (left: string, right: string): number => {
     const leftNode = nodes[left];

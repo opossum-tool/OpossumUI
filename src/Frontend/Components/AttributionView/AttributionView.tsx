@@ -47,7 +47,7 @@ export function AttributionView(): ReactElement {
   const dispatch = useAppDispatch();
   const attributions: Attributions = useAppSelector(getManualAttributions);
   const selectedPackageCardIdInAttributionView: string = useAppSelector(
-    getSelectedAttributionIdInAttributionView
+    getSelectedAttributionIdInAttributionView,
   );
   const filteredAttributions = useFilters(attributions);
   const activeFilters = Array.from(useAppSelector(getActiveFilters));
@@ -59,7 +59,7 @@ export function AttributionView(): ReactElement {
 
   const { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos } =
     getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-      filteredAttributions
+      filteredAttributions,
     );
 
   function onCardClick(packageCardId: string): void {
@@ -111,13 +111,13 @@ export function AttributionView(): ReactElement {
 }
 
 function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-  filteredAttributions: Attributions
+  filteredAttributions: Attributions,
 ): {
   filteredAndSortedPackageCardIds: Array<string>;
   filteredDisplayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(filteredAttributions).sort(
-    getAlphabeticalComparer(filteredAttributions)
+    getAlphabeticalComparer(filteredAttributions),
   );
 
   const filteredAndSortedPackageCardIds: Array<string> = [];
@@ -130,7 +130,7 @@ function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
     filteredDisplayPackageInfos[packageCardId] =
       convertPackageInfoToDisplayPackageInfo(
         filteredAttributions[attributionId],
-        [attributionId]
+        [attributionId],
       );
   });
   return { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos };

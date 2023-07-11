@@ -7,17 +7,17 @@ import {
   AttributionData,
   AttributionsToHashes,
   BaseUrlsForSources,
+  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
-  DisplayPackageInfo,
   ProjectMetadata,
   Resources,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
-  PanelPackage,
   PackageAttributeIds,
   PackageAttributes,
+  PanelPackage,
 } from '../../types/types';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
@@ -36,17 +36,25 @@ import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
+  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
+  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
+  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
+  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
+  ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
+  ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
+  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
   ACTION_SET_FILE_SEARCH,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_IS_SAVING_DISABLED,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
+  ACTION_SET_PACKAGE_SEARCH_TERM,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_RESOURCES,
@@ -56,18 +64,10 @@ import {
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
+  ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
-  ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
-  ACTION_SET_PACKAGE_SEARCH_TERM,
   ResourceAction,
-  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
-  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
-  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
-  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
-  ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
-  ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
-  ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -186,7 +186,7 @@ export type ResourceState = {
 
 export const resourceState = (
   state: ResourceState = initialResourceState,
-  action: ResourceAction
+  action: ResourceAction,
 ): ResourceState => {
   switch (action.type) {
     case ACTION_RESET_RESOURCE_STATE:
@@ -240,7 +240,7 @@ export const resourceState = (
         getAttributionIdOfFirstPackageCardInManualPackagePanel(
           linkedAttributionIds,
           action.payload,
-          state
+          state,
         );
 
       const packageCardId = displayedAttributionId
@@ -250,7 +250,7 @@ export const resourceState = (
       const displayPackageInfoForNewResource = displayedAttributionId
         ? convertPackageInfoToDisplayPackageInfo(
             state.allViews.manualData.attributions[displayedAttributionId],
-            [displayedAttributionId]
+            [displayedAttributionId],
           )
         : EMPTY_DISPLAY_PACKAGE_INFO;
 
@@ -366,20 +366,20 @@ export const resourceState = (
       const { newManualData, newAttributionId } = createManualAttribution(
         state.allViews.manualData,
         selectedResourceId,
-        action.payload.strippedPackageInfo
+        action.payload.strippedPackageInfo,
       );
 
       const packageCardIndex = getIndexOfAttributionInManualPackagePanel(
         newAttributionId,
         selectedResourceId,
-        newManualData
+        newManualData,
       );
 
       const packageCardIdOfNewAttribution =
         packageCardIndex !== null
           ? createPackageCardId(
               PackagePanelTitle.ManualPackages,
-              packageCardIndex
+              packageCardIndex,
             )
           : null;
 
@@ -388,7 +388,7 @@ export const resourceState = (
         packageCardIdOfNewAttribution !== null
           ? convertPackageInfoToDisplayPackageInfo(
               newManualData.attributions[newAttributionId],
-              [newAttributionId]
+              [newAttributionId],
             )
           : EMPTY_DISPLAY_PACKAGE_INFO;
 
@@ -418,28 +418,28 @@ export const resourceState = (
       const updatedManualData = updateManualAttribution(
         action.payload.attributionId,
         state.allViews.manualData,
-        action.payload.strippedPackageInfo
+        action.payload.strippedPackageInfo,
       );
 
       const packageCardIndexAfterUpdate =
         getIndexOfAttributionInManualPackagePanel(
           action.payload.attributionId,
           state.auditView.selectedResourceId,
-          updatedManualData
+          updatedManualData,
         );
 
       const packageCardIdAfterUpdate =
         packageCardIndexAfterUpdate !== null
           ? createPackageCardId(
               PackagePanelTitle.ManualPackages,
-              packageCardIndexAfterUpdate
+              packageCardIndexAfterUpdate,
             )
           : null;
 
       const temporaryDisplayPackageInfoAfterUpdate =
         convertPackageInfoToDisplayPackageInfo(
           action.payload.strippedPackageInfo,
-          [action.payload.attributionId]
+          [action.payload.attributionId],
         );
 
       return {
@@ -468,7 +468,7 @@ export const resourceState = (
       const manualDataAfterDeletion: AttributionData = deleteManualAttribution(
         state.allViews.manualData,
         attributionToDeleteId,
-        getAttributionBreakpointCheckForResourceState(state)
+        getAttributionBreakpointCheckForResourceState(state),
       );
 
       const displayedDisplayPackageInfo =
@@ -520,7 +520,7 @@ export const resourceState = (
     case ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING:
       const matchingAttributionIdForReplace = getMatchingAttributionId(
         action.payload.strippedPackageInfo,
-        state.allViews.manualData.attributions
+        state.allViews.manualData.attributions,
       );
 
       const manualDataForReplace: AttributionData =
@@ -528,21 +528,21 @@ export const resourceState = (
           state.allViews.manualData,
           matchingAttributionIdForReplace,
           action.payload.attributionId,
-          getAttributionBreakpointCheckForResourceState(state)
+          getAttributionBreakpointCheckForResourceState(state),
         );
 
       const packageCardIndexForReplaceAttribution =
         getIndexOfAttributionInManualPackagePanel(
           matchingAttributionIdForReplace,
           state.auditView.selectedResourceId,
-          manualDataForReplace
+          manualDataForReplace,
         );
 
       const packageCardIdForReplaceAttribution =
         packageCardIndexForReplaceAttribution !== null
           ? createPackageCardId(
               PackagePanelTitle.ManualPackages,
-              packageCardIndexForReplaceAttribution
+              packageCardIndexForReplaceAttribution,
             )
           : null;
 
@@ -553,7 +553,7 @@ export const resourceState = (
               manualDataForReplace.attributions[
                 matchingAttributionIdForReplace
               ],
-              [matchingAttributionIdForReplace]
+              [matchingAttributionIdForReplace],
             )
           : EMPTY_DISPLAY_PACKAGE_INFO;
 
@@ -590,7 +590,7 @@ export const resourceState = (
     case ACTION_LINK_TO_ATTRIBUTION:
       const matchingAttributionIdForLinking = getMatchingAttributionId(
         action.payload.strippedPackageInfo,
-        state.allViews.manualData.attributions
+        state.allViews.manualData.attributions,
       );
 
       const manualDataAfterForLinking: AttributionData =
@@ -598,21 +598,21 @@ export const resourceState = (
           state.allViews.manualData,
           action.payload.resourceId,
           matchingAttributionIdForLinking,
-          getAttributionBreakpointCheckForResourceState(state)
+          getAttributionBreakpointCheckForResourceState(state),
         );
 
       const packageCardIndexOfLinkingAttribution =
         getIndexOfAttributionInManualPackagePanel(
           matchingAttributionIdForLinking,
           action.payload.resourceId,
-          manualDataAfterForLinking
+          manualDataAfterForLinking,
         );
 
       const packageCardIdOfLinkingAttribution =
         packageCardIndexOfLinkingAttribution !== null
           ? createPackageCardId(
               PackagePanelTitle.ManualPackages,
-              packageCardIndexOfLinkingAttribution
+              packageCardIndexOfLinkingAttribution,
             )
           : ADD_NEW_ATTRIBUTION_BUTTON_ID;
 
@@ -631,7 +631,7 @@ export const resourceState = (
               manualDataAfterForLinking.attributions[
                 matchingAttributionIdForLinking
               ],
-              [matchingAttributionIdForLinking]
+              [matchingAttributionIdForLinking],
             ),
           },
         },
@@ -641,7 +641,7 @@ export const resourceState = (
         unlinkResourceFromAttributionId(
           state.allViews.manualData,
           action.payload.resourceId,
-          action.payload.attributionId
+          action.payload.attributionId,
         );
 
       return {
@@ -669,7 +669,7 @@ export const resourceState = (
         ...state.allViews.externalData.resourcesWithAttributedChildren,
       };
       resolvedExternalAttributionsWithAddedAttribution.add(
-        resolvedAttributionId
+        resolvedAttributionId,
       );
 
       const resourcesWithOnlyHiddenAttributions = (
@@ -683,12 +683,12 @@ export const resourceState = (
           return true;
         }
         return resourceAttributionIds.every((attributionId) =>
-          resolvedExternalAttributionsWithAddedAttribution.has(attributionId)
+          resolvedExternalAttributionsWithAddedAttribution.has(attributionId),
         );
       });
       removeResolvedAttributionsFromResourcesWithAttributedChildren(
         resourcesWithAttributedChildren,
-        resourcesWithOnlyHiddenAttributions
+        resourcesWithOnlyHiddenAttributions,
       );
 
       return {
@@ -710,7 +710,7 @@ export const resourceState = (
       const resolvedExternalAttributionsWithRemovedAttributions: Set<string> =
         new Set(state.auditView.resolvedExternalAttributions);
       resolvedExternalAttributionsWithRemovedAttributions.delete(
-        action.payload
+        action.payload,
       );
 
       return {
@@ -727,7 +727,7 @@ export const resourceState = (
                 },
                 state.allViews.externalData.attributionsToResources[
                   action.payload
-                ]
+                ],
               ),
           },
         },

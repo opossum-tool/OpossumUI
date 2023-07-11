@@ -17,7 +17,7 @@ describe('The ListCard', () => {
         secondLineText={'card text of second line'}
         onClick={doNothing}
         cardConfig={{}}
-      />
+      />,
     );
 
     expect(screen.getByText('card text'));
@@ -32,7 +32,7 @@ describe('The ListCard', () => {
         count={13}
         onClick={doNothing}
         cardConfig={{}}
-      />
+      />,
     );
 
     expect(screen.getByText('card text'));
@@ -48,7 +48,7 @@ describe('The ListCard', () => {
         count={13000}
         onClick={doNothing}
         cardConfig={{}}
-      />
+      />,
     );
 
     expect(screen.getByText('card text'));
@@ -64,7 +64,7 @@ describe('The ListCard', () => {
         count={1300000}
         onClick={doNothing}
         cardConfig={{}}
-      />
+      />,
     );
 
     expect(screen.getByText('card text'));
@@ -81,7 +81,7 @@ describe('The ListCard', () => {
         onClick={doNothing}
         cardConfig={{}}
         leftElement={leftElement}
-      />
+      />,
     );
 
     expect(screen.getByText('card text'));

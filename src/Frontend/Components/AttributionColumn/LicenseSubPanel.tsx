@@ -63,7 +63,7 @@ interface LicenseSubPanelProps {
   licenseTextRows: number;
   showHighlight?: boolean;
   setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string
+    propertyToUpdate: string,
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   setIsLicenseTextShown(isLicenseTextShown: boolean): void;
 }
@@ -72,7 +72,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
   const licenseSubPanelClasses = { ...attributionColumnClasses, ...classes };
 
   const frequentLicensesNameOrder = useAppSelector(
-    getFrequentLicensesNameOrder
+    getFrequentLicensesNameOrder,
   );
 
   function toggleIsLicenseTextShown(): void {
@@ -111,7 +111,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             text={props.displayPackageInfo.licenseName}
             frequentLicenseNames={frequentLicensesNameOrder}
             handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-              'licenseName'
+              'licenseName',
             )}
             endAdornmentText={
               props.displayPackageInfo.licenseText
@@ -122,7 +122,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
               props.showHighlight &&
               isImportantAttributionInformationMissing(
                 'licenseName',
-                props.displayPackageInfo
+                props.displayPackageInfo,
               )
             }
           />
@@ -140,11 +140,11 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             title={getLicenseTextLabelText(
               props.displayPackageInfo.licenseName,
               props.isEditable,
-              frequentLicensesNameOrder
+              frequentLicensesNameOrder,
             )}
             text={props.displayPackageInfo.licenseText}
             handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-              'licenseText'
+              'licenseText',
             )}
           />
         </MuiAccordionDetails>

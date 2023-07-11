@@ -93,7 +93,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const dispatch = useAppDispatch();
   const selectedView = useSelector(getSelectedView);
   const selectedAttributionIdAttributionView = useSelector(
-    getSelectedAttributionIdInAttributionView
+    getSelectedAttributionIdInAttributionView,
   );
   const selectedAttributionIdAuditView =
     useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
@@ -101,16 +101,16 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const selectedResourceId = useSelector(getSelectedResourceId);
   const attributionsToResources = useSelector(getManualAttributionsToResources);
   const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
   const packageInfoWereModified = useAppSelector(
-    wereTemporaryDisplayPackageInfoModified
+    wereTemporaryDisplayPackageInfoModified,
   );
   const attributionIdMarkedForReplacement = useAppSelector(
-    getAttributionIdMarkedForReplacement
+    getAttributionIdMarkedForReplacement,
   );
   const multiSelectSelectedAttributionIds = useAppSelector(
-    getMultiSelectSelectedAttributionIds
+    getMultiSelectSelectedAttributionIds,
   );
 
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -172,8 +172,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           deleteAttributionAndSave(
             selectedResourceId,
             attributionId,
-            selectedAttributionId
-          )
+            selectedAttributionId,
+          ),
         );
       } else {
         dispatch(openPopup(PopupType.ConfirmDeletionPopup, attributionId));
@@ -183,11 +183,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     function openConfirmDeletionGloballyPopup(): void {
       if (isPreselected) {
         dispatch(
-          deleteAttributionGloballyAndSave(attributionId, selectedAttributionId)
+          deleteAttributionGloballyAndSave(
+            attributionId,
+            selectedAttributionId,
+          ),
         );
       } else {
         dispatch(
-          openPopup(PopupType.ConfirmDeletionGloballyPopup, attributionId)
+          openPopup(PopupType.ConfirmDeletionGloballyPopup, attributionId),
         );
       }
     }
@@ -202,8 +205,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             selectedResourceId,
             attributionId,
             packageInfo,
-            selectedAttributionId
-          )
+            selectedAttributionId,
+          ),
         );
       }
     }
@@ -214,8 +217,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           null,
           currentAttributionId,
           manualAttributions[currentAttributionId],
-          currentAttributionId !== selectedAttributionId
-        )
+          currentAttributionId !== selectedAttributionId,
+        ),
       );
     }
 
@@ -231,17 +234,17 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     const someSelectedAttributionsArePreSelected =
       multiSelectSelectedAttributionIds.some(
         (currentAttributionId) =>
-          manualAttributions[currentAttributionId].preSelected
+          manualAttributions[currentAttributionId].preSelected,
       );
 
     const hideResourceSpecificButtons = Boolean(
-      props.hideResourceSpecificButtons
+      props.hideResourceSpecificButtons,
     );
     const showGlobalButtons =
       !isExternalAttribution &&
       (hasAttributionMultipleResources(
         attributionId,
-        attributionsToResources
+        attributionsToResources,
       ) ||
         hideResourceSpecificButtons);
     const mergeButtonDisplayState: MergeButtonDisplayState =
@@ -317,7 +320,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
             onClick: (): void => {
               dispatch(
-                openPopup(PopupType.ReplaceAttributionPopup, attributionId)
+                openPopup(PopupType.ReplaceAttributionPopup, attributionId),
               );
             },
             hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
@@ -346,14 +349,14 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           {
             buttonText: selectedPackagesAreResolved(
               displayAttributionIds,
-              resolvedExternalAttributions
+              resolvedExternalAttributions,
             )
               ? ButtonText.Unhide
               : ButtonText.Hide,
             onClick: getResolvedToggleHandler(
               displayAttributionIds,
               resolvedExternalAttributions,
-              dispatch
+              dispatch,
             ),
             hidden: !isExternalAttribution,
           },
@@ -368,18 +371,18 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     const attributionId = attributionIds[0];
 
     function handleMultiSelectAttributionSelected(
-      event: React.ChangeEvent<HTMLInputElement>
+      event: React.ChangeEvent<HTMLInputElement>,
     ): void {
       const newMultiSelectSelectedAttributionIds = event.target.checked
         ? multiSelectSelectedAttributionIds.concat([attributionId])
         : multiSelectSelectedAttributionIds.filter(
-            (id) => id !== attributionId
+            (id) => id !== attributionId,
           );
 
       dispatch(
         setMultiSelectSelectedAttributionIds(
-          newMultiSelectSelectedAttributionIds
-        )
+          newMultiSelectSelectedAttributionIds,
+        ),
       );
     }
 
@@ -439,7 +442,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
             closePopup={(): void => setShowAssociatedResourcesPopup(false)}
             attributionIds={displayAttributionIds}
             isExternalAttribution={Boolean(
-              props.cardConfig.isExternalAttribution
+              props.cardConfig.isExternalAttribution,
             )}
           />
         )}
@@ -463,7 +466,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           rightIcons={getRightIcons(
             listCardConfig,
             props.cardId,
-            openResourcesIcon
+            openResourcesIcon,
           )}
           leftElement={leftElement}
           highlighting={highlighting}

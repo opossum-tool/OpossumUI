@@ -102,7 +102,7 @@ interface ListWithAttributesItemProps {
 }
 
 export function ListWithAttributesListItem(
-  props: ListWithAttributesItemProps
+  props: ListWithAttributesItemProps,
 ): ReactElement {
   const listItemButtonStyle = props.listContainsSingleItem
     ? {
@@ -152,7 +152,7 @@ export function ListWithAttributesListItem(
                         size={'small'}
                         sx={getChipStyling(
                           props.highlightedAttributeIds,
-                          attribute.id
+                          attribute.id,
                         )}
                       />
                     ) : (
@@ -177,7 +177,7 @@ export function ListWithAttributesListItem(
 
 function getChipStyling(
   highlightedAttributeIds?: Array<string>,
-  attributeId?: string
+  attributeId?: string,
 ): SxProps {
   const highlightedSx =
     attributeId !== undefined

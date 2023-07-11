@@ -34,7 +34,7 @@ interface VirtualizedTreeProps {
   getTreeNodeLabel: (
     nodeName: string,
     node: NodesForTree | 1,
-    nodeId: string
+    nodeId: string,
   ) => ReactElement;
   expandedIds: Array<string>;
   selectedNodeId: string;
@@ -53,7 +53,7 @@ interface VirtualizedTreeProps {
 }
 
 export function VirtualizedTree(
-  props: VirtualizedTreeProps
+  props: VirtualizedTreeProps,
 ): ReactElement | null {
   // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
@@ -66,7 +66,7 @@ export function VirtualizedTree(
     props.onToggle,
     props.getTreeNodeLabel,
     props.cardHeight,
-    props.breakpoints
+    props.breakpoints,
   );
 
   const maxListLength: NumberOfDisplayedNodesForTree | HeightForTree =
@@ -80,7 +80,7 @@ export function VirtualizedTree(
         };
 
   const indexToScrollTo = treeNodeProps.findIndex(
-    (itemData) => itemData.nodeId === props.selectedNodeId
+    (itemData) => itemData.nodeId === props.selectedNodeId,
   );
 
   return props.nodes ? (

@@ -19,7 +19,7 @@ import {
 export function expectGlobalOnlyContextMenuForNotPreselectedAttribution(
   screen: Screen,
   cardLabel: string,
-  showReplaceMarked = false
+  showReplaceMarked = false,
 ): void {
   const shownButtons = [
     ButtonText.ShowResources,
@@ -46,13 +46,13 @@ export function expectGlobalOnlyContextMenuForNotPreselectedAttribution(
     screen,
     cardLabel,
     shownButtons,
-    hiddenButtons
+    hiddenButtons,
   );
 }
 
 export function expectGlobalOnlyContextMenuForPreselectedAttribution(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   expectCorrectButtonsInContextMenu(
     screen,
@@ -71,14 +71,14 @@ export function expectGlobalOnlyContextMenuForPreselectedAttribution(
       ButtonText.UnmarkForReplacement,
       ButtonText.ReplaceMarked,
       ButtonText.DeleteSelectedGlobally,
-    ]
+    ],
   );
 }
 
 export function expectContextMenuForNotPreSelectedAttributionMultipleResources(
   screen: Screen,
   cardLabel: string,
-  showReplaceMarked = false
+  showReplaceMarked = false,
 ): void {
   const shownButtons = [
     ButtonText.ShowResources,
@@ -105,13 +105,13 @@ export function expectContextMenuForNotPreSelectedAttributionMultipleResources(
     screen,
     cardLabel,
     shownButtons,
-    hiddenButtons
+    hiddenButtons,
   );
 }
 
 export function expectContextMenuForPreSelectedAttributionMultipleResources(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   expectCorrectButtonsInContextMenu(
     screen,
@@ -130,14 +130,14 @@ export function expectContextMenuForPreSelectedAttributionMultipleResources(
       ButtonText.UnmarkForReplacement,
       ButtonText.ReplaceMarked,
       ButtonText.DeleteSelectedGlobally,
-    ]
+    ],
   );
 }
 
 export function expectContextMenuForNotPreSelectedAttributionSingleResource(
   screen: Screen,
   cardLabel: string,
-  showReplaceMarked = false
+  showReplaceMarked = false,
 ): void {
   const shownButtons = [
     ButtonText.ShowResources,
@@ -164,14 +164,14 @@ export function expectContextMenuForNotPreSelectedAttributionSingleResource(
     screen,
     cardLabel,
     shownButtons,
-    hiddenButtons
+    hiddenButtons,
   );
 }
 
 export function expectContextMenuForExternalAttributionInPackagePanel(
   screen: Screen,
   packageName: string,
-  packagePanelName: string
+  packagePanelName: string,
 ): void {
   expectCorrectButtonsInPackageInPackagePanelContextMenu(
     screen,
@@ -188,14 +188,14 @@ export function expectContextMenuForExternalAttributionInPackagePanel(
       ButtonText.ReplaceMarked,
       ButtonText.MarkForReplacement,
       ButtonText.DeleteSelectedGlobally,
-    ]
+    ],
   );
 }
 
 export function expectContextMenuForHiddenExternalAttributionInPackagePanel(
   screen: Screen,
   packageName: string,
-  packagePanelName: string
+  packagePanelName: string,
 ): void {
   expectCorrectButtonsInPackageInPackagePanelContextMenu(
     screen,
@@ -212,57 +212,57 @@ export function expectContextMenuForHiddenExternalAttributionInPackagePanel(
       ButtonText.ReplaceMarked,
       ButtonText.UnmarkForReplacement,
       ButtonText.DeleteSelectedGlobally,
-    ]
+    ],
   );
 }
 
 export function testCorrectMarkAndUnmarkForReplacementInContextMenu(
   screen: Screen,
-  packageName: string
+  packageName: string,
 ): void {
   clickOnButtonInPackageContextMenu(
     screen,
     packageName,
-    ButtonText.MarkForReplacement
+    ButtonText.MarkForReplacement,
   );
   expectUnmarkForReplacementInContextMenu(screen, packageName);
   clickOnButtonInPackageContextMenu(
     screen,
     packageName,
-    ButtonText.UnmarkForReplacement
+    ButtonText.UnmarkForReplacement,
   );
   expectButtonInPackageContextMenu(
     screen,
     packageName,
-    ButtonText.MarkForReplacement
+    ButtonText.MarkForReplacement,
   );
 }
 
 export function expectUnmarkForReplacementInContextMenu(
   screen: Screen,
-  packageName: string
+  packageName: string,
 ): void {
   expectButtonInPackageContextMenu(
     screen,
     packageName,
-    ButtonText.UnmarkForReplacement
+    ButtonText.UnmarkForReplacement,
   );
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     packageName,
-    ButtonText.MarkForReplacement
+    ButtonText.MarkForReplacement,
   );
 }
 
 export function handleReplaceMarkedAttributionViaContextMenu(
   screen: Screen,
   packageName: string,
-  responseButtonText: ButtonText.Cancel | ButtonText.Replace
+  responseButtonText: ButtonText.Cancel | ButtonText.Replace,
 ): void {
   clickOnButtonInPackageContextMenu(
     screen,
     packageName,
-    ButtonText.ReplaceMarked
+    ButtonText.ReplaceMarked,
   );
   expectReplaceAttributionPopupIsShown(screen);
   clickOnButton(screen, responseButtonText);
@@ -271,43 +271,43 @@ export function handleReplaceMarkedAttributionViaContextMenu(
 
 export function expectContextMenuIsNotShown(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
 
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     cardLabel,
-    ButtonText.ShowResources
+    ButtonText.ShowResources,
   );
 
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     cardLabel,
-    ButtonText.Hide
+    ButtonText.Hide,
   );
 
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     cardLabel,
-    ButtonText.Delete
+    ButtonText.Delete,
   );
   closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
 
 export function expectNoConfirmationButtonsShown(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     cardLabel,
-    ButtonText.Confirm
+    ButtonText.Confirm,
   );
   expectButtonInPackageContextMenuIsNotShown(
     screen,
     cardLabel,
-    ButtonText.ConfirmGlobally
+    ButtonText.ConfirmGlobally,
   );
 
   expectButtonIsNotShown(screen, ButtonText.Confirm);
@@ -318,7 +318,7 @@ export function expectCorrectButtonsInContextMenu(
   screen: Screen,
   cardLabel: string,
   shownButtons: Array<ButtonText>,
-  hiddenButtons: Array<ButtonText>
+  hiddenButtons: Array<ButtonText>,
 ): void {
   shownButtons.forEach((buttonText) => {
     expectButtonInPackageContextMenu(screen, cardLabel, buttonText);
@@ -332,7 +332,7 @@ export function expectCorrectButtonsInContextMenu(
 export function expectButtonInPackageContextMenu(
   screen: Screen,
   cardLabel: string,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
   getButton(screen, buttonLabel);
@@ -342,11 +342,11 @@ export function expectButtonInPackageContextMenu(
 function expectButtonInPackageContextMenuIsNotShown(
   screen: Screen,
   cardLabel: string,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
   expect(
-    screen.queryByRole('button', { name: buttonLabel })
+    screen.queryByRole('button', { name: buttonLabel }),
   ).not.toBeInTheDocument();
   closeContextMenuOnCardPackageCard(screen, cardLabel);
 }
@@ -354,7 +354,7 @@ function expectButtonInPackageContextMenuIsNotShown(
 export function clickOnButtonInPackageContextMenu(
   screen: Screen,
   cardLabel: string,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   openContextMenuOnCardPackageCard(screen, cardLabel);
   const button = getButton(screen, buttonLabel);
@@ -365,14 +365,14 @@ export function clickOnButtonInPackageContextMenu(
 
 function openContextMenuOnCardPackageCard(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   fireEvent.contextMenu(screen.getByText(cardLabel) as Element);
 }
 
 function closeContextMenuOnCardPackageCard(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   fireEvent.contextMenu(screen.getByText(cardLabel) as Element);
 }
@@ -382,14 +382,14 @@ export function expectCorrectButtonsInPackageInPackagePanelContextMenu(
   packageName: string,
   packagePanelName: string,
   shownButtons: Array<ButtonText>,
-  hiddenButtons: Array<ButtonText>
+  hiddenButtons: Array<ButtonText>,
 ): void {
   shownButtons.forEach((buttonText) => {
     expectButtonInPackageInPackagePanelContextMenu(
       screen,
       packageName,
       packagePanelName,
-      buttonText
+      buttonText,
     );
   });
 
@@ -398,7 +398,7 @@ export function expectCorrectButtonsInPackageInPackagePanelContextMenu(
       screen,
       packageName,
       packagePanelName,
-      buttonText
+      buttonText,
     );
   });
 }
@@ -407,7 +407,7 @@ export function expectButtonInPackageInPackagePanelContextMenu(
   screen: Screen,
   packageName: string,
   packagePanelName: string,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   openContextMenuOnPackageInPackagePanel(screen, packageName, packagePanelName);
   const button = getButton(screen, buttonLabel);
@@ -417,7 +417,7 @@ export function expectButtonInPackageInPackagePanelContextMenu(
   closeContextMenuOnPackageInPackagePanel(
     screen,
     packageName,
-    packagePanelName
+    packagePanelName,
   );
 }
 
@@ -425,16 +425,16 @@ function expectButtonInPackageInPackagePanelContextMenuIsNotShown(
   screen: Screen,
   packageName: string,
   packagePanelName: string,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   openContextMenuOnPackageInPackagePanel(screen, packageName, packagePanelName);
   expect(
-    screen.queryByRole('button', { name: buttonLabel })
+    screen.queryByRole('button', { name: buttonLabel }),
   ).not.toBeInTheDocument();
   closeContextMenuOnPackageInPackagePanel(
     screen,
     packageName,
-    packagePanelName
+    packagePanelName,
   );
 }
 
@@ -442,7 +442,7 @@ export function clickOnButtonInPackageInPackagePanelContextMenu(
   screen: Screen,
   packageName: string,
   packagePanelName: string,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   openContextMenuOnPackageInPackagePanel(screen, packageName, packagePanelName);
   const button = getButton(screen, buttonLabel);
@@ -452,7 +452,7 @@ export function clickOnButtonInPackageInPackagePanelContextMenu(
 function openContextMenuOnPackageInPackagePanel(
   screen: Screen,
   packageName: string,
-  packagePanelName: string
+  packagePanelName: string,
 ): void {
   const packagesPanel = getPackagePanel(screen, packagePanelName);
   // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -462,7 +462,7 @@ function openContextMenuOnPackageInPackagePanel(
 function closeContextMenuOnPackageInPackagePanel(
   screen: Screen,
   packageName: string,
-  packagePanelName: string
+  packagePanelName: string,
 ): void {
   const packagesPanel = getPackagePanel(screen, packagePanelName);
   // eslint-disable-next-line testing-library/prefer-screen-queries

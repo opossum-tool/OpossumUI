@@ -40,7 +40,7 @@ describe('The Table', () => {
         isFileWithChildren={(path: string): boolean =>
           path === '/file/with/children'
         }
-      />
+      />,
     );
 
     expect(screen.getByText('Name'));

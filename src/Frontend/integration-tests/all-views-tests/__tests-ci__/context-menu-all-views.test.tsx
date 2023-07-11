@@ -97,7 +97,7 @@ describe('The ContextMenu', () => {
           resources: testResources,
           manualAttributions: testExpandedManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
+        }),
       );
       renderComponentWithStore(<App />);
 
@@ -107,12 +107,12 @@ describe('The ContextMenu', () => {
       expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
-        'Angular, 12.2.8'
+        'Angular, 12.2.8',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'Angular, 12.2.8',
-        ButtonText.DeleteGlobally
+        ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
@@ -122,12 +122,12 @@ describe('The ContextMenu', () => {
       expectValueInTextBox(screen, 'Name', 'React');
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
-        'React, 16.5.0'
+        'React, 16.5.0',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'React, 16.5.0',
-        ButtonText.Delete
+        ButtonText.Delete,
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
@@ -139,7 +139,7 @@ describe('The ContextMenu', () => {
       expectValueInTextBox(screen, 'Name', 'React');
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
-        'React, 16.5.0'
+        'React, 16.5.0',
       );
 
       clickOnElementInResourceBrowser(screen, 'fourthResource.js');
@@ -148,12 +148,12 @@ describe('The ContextMenu', () => {
 
       expectGlobalOnlyContextMenuForNotPreselectedAttribution(
         screen,
-        'React, 16.5.0'
+        'React, 16.5.0',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'React, 16.5.0',
-        ButtonText.DeleteGlobally
+        ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
@@ -171,12 +171,12 @@ describe('The ContextMenu', () => {
 
       expectGlobalOnlyContextMenuForNotPreselectedAttribution(
         screen,
-        'Vue, 1.2.0'
+        'Vue, 1.2.0',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'Vue, 1.2.0',
-        ButtonText.DeleteGlobally
+        ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
@@ -206,7 +206,7 @@ describe('The ContextMenu', () => {
           resources: testResources,
           manualAttributions: testManualAttributionsPreSelected,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
+        }),
       );
       renderComponentWithStore(<App />);
 
@@ -214,12 +214,12 @@ describe('The ContextMenu', () => {
       expectValueInTextBox(screen, 'Name', 'Angular');
       expectContextMenuForPreSelectedAttributionMultipleResources(
         screen,
-        'Angular, 12.2.8'
+        'Angular, 12.2.8',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'Angular, 12.2.8',
-        ButtonText.DeleteGlobally
+        ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupNotVisible(screen);
       expectValueNotInTextBox(screen, 'Name', 'Angular');
@@ -228,12 +228,12 @@ describe('The ContextMenu', () => {
       expectValueInTextBox(screen, 'Name', 'React');
       expectContextMenuForPreSelectedAttributionMultipleResources(
         screen,
-        'React, 16.5.0'
+        'React, 16.5.0',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'React, 16.5.0',
-        ButtonText.Delete
+        ButtonText.Delete,
       );
       expectConfirmDeletionPopupNotVisible(screen);
       expectValueNotInTextBox(screen, 'Name', 'React');
@@ -244,7 +244,7 @@ describe('The ContextMenu', () => {
       expectValueInTextBox(screen, 'Name', 'React');
       expectContextMenuForPreSelectedAttributionMultipleResources(
         screen,
-        'React, 16.5.0'
+        'React, 16.5.0',
       );
 
       clickOnElementInResourceBrowser(screen, 'fourthResource.js');
@@ -252,12 +252,12 @@ describe('The ContextMenu', () => {
       clickOnTab(screen, 'Global Tab');
       expectGlobalOnlyContextMenuForPreselectedAttribution(
         screen,
-        'React, 16.5.0'
+        'React, 16.5.0',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'React, 16.5.0',
-        ButtonText.DeleteGlobally
+        ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupNotVisible(screen);
 
@@ -274,12 +274,12 @@ describe('The ContextMenu', () => {
 
       expectGlobalOnlyContextMenuForPreselectedAttribution(
         screen,
-        'Vue, 1.2.0'
+        'Vue, 1.2.0',
       );
       clickOnButtonInPackageContextMenu(
         screen,
         'Vue, 1.2.0',
-        ButtonText.DeleteGlobally
+        ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupNotVisible(screen);
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -336,7 +336,7 @@ describe('The ContextMenu', () => {
         resourcesToManualAttributions: testResourcesToManualAttributions,
         externalAttributions: testExternalAttributions,
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
-      })
+      }),
     );
     renderComponentWithStore(<App />);
 
@@ -345,19 +345,19 @@ describe('The ContextMenu', () => {
     expectPackageInPackagePanel(
       screen,
       'JQuery, 16.5.0',
-      'Signals in Folder Content'
+      'Signals in Folder Content',
     );
     expectContextMenuForExternalAttributionInPackagePanel(
       screen,
       'JQuery, 16.5.0',
-      'Signals in Folder Content'
+      'Signals in Folder Content',
     );
 
     clickOnButtonInPackageInPackagePanelContextMenu(
       screen,
       'JQuery, 16.5.0',
       'Signals in Folder Content',
-      ButtonText.ShowResources
+      ButtonText.ShowResources,
     );
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'folder1');
@@ -366,12 +366,12 @@ describe('The ContextMenu', () => {
 
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
     clickOnButtonInPackageContextMenu(
       screen,
       'React, 16.5.0',
-      ButtonText.ShowResources
+      ButtonText.ShowResources,
     );
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'thirdResource.js');
@@ -381,12 +381,12 @@ describe('The ContextMenu', () => {
     clickOnTab(screen, 'Global Tab');
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'Vue, 1.2.0'
+      'Vue, 1.2.0',
     );
     clickOnButtonInPackageContextMenu(
       screen,
       'Vue, 1.2.0',
-      ButtonText.ShowResources
+      ButtonText.ShowResources,
     );
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'secondResource.js');
@@ -398,12 +398,12 @@ describe('The ContextMenu', () => {
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'Vue, 1.2.0'
+      'Vue, 1.2.0',
     );
     clickOnButtonInPackageContextMenu(
       screen,
       'Vue, 1.2.0',
-      ButtonText.ShowResources
+      ButtonText.ShowResources,
     );
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'secondResource.js');

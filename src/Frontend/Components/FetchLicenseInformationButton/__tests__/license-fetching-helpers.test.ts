@@ -19,7 +19,7 @@ describe('getLicenseFetchingInformation', () => {
 
   it('recognizes pypi urls', () => {
     expect(
-      getLicenseFetchingInformation('https://pypi.org/project/numpy')
+      getLicenseFetchingInformation('https://pypi.org/project/numpy'),
     ).toMatchObject({
       url: 'https://pypi.org/pypi/numpy/json',
       convertPayload: convertPypiPayload,
@@ -28,7 +28,7 @@ describe('getLicenseFetchingInformation', () => {
 
   it('recognizes npm urls', () => {
     expect(
-      getLicenseFetchingInformation('https://npmjs.com/package/react')
+      getLicenseFetchingInformation('https://npmjs.com/package/react'),
     ).toMatchObject({
       url: 'https://registry.npmjs.org/react',
       convertPayload: convertNpmPayload,
@@ -37,7 +37,7 @@ describe('getLicenseFetchingInformation', () => {
 
   it('recognizes npm urls starting with www', () => {
     expect(
-      getLicenseFetchingInformation('https://www.npmjs.com/package/react')
+      getLicenseFetchingInformation('https://www.npmjs.com/package/react'),
     ).toMatchObject({
       url: 'https://registry.npmjs.org/react',
       convertPayload: convertNpmPayload,
@@ -47,8 +47,8 @@ describe('getLicenseFetchingInformation', () => {
   it('recognizes npm urls with complicated package names', () => {
     expect(
       getLicenseFetchingInformation(
-        'https://npmjs.com/package/@angular/animations/'
-      )
+        'https://npmjs.com/package/@angular/animations/',
+      ),
     ).toMatchObject({
       url: 'https://registry.npmjs.org/@angular/animations',
       convertPayload: convertNpmPayload,
@@ -58,14 +58,16 @@ describe('getLicenseFetchingInformation', () => {
   it('rejects npm urls with version in url', () => {
     expect(
       getLicenseFetchingInformation(
-        'https://npmjs.com/package/@angular/animations/1.0'
-      )
+        'https://npmjs.com/package/@angular/animations/1.0',
+      ),
     ).toBeNull();
   });
 
   it('recognizes github urls', () => {
     expect(
-      getLicenseFetchingInformation('https://github.com/opossum-tool/OpossumUI')
+      getLicenseFetchingInformation(
+        'https://github.com/opossum-tool/OpossumUI',
+      ),
     ).toMatchObject({
       url: 'https://api.github.com/repos/opossum-tool/OpossumUI/license',
       convertPayload: convertGithubPayload,
@@ -74,7 +76,7 @@ describe('getLicenseFetchingInformation', () => {
 
   it('recognizes github urls', () => {
     expect(
-      getLicenseFetchingInformation('https://github.com/opossum-tool/')
+      getLicenseFetchingInformation('https://github.com/opossum-tool/'),
     ).toBeNull();
   });
 });

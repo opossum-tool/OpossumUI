@@ -40,7 +40,7 @@ describe('NotificationPopup', () => {
         centerLeftButtonConfig={centerLeftButtonConfig}
         centerRightButtonConfig={centerRightButtonConfig}
         isOpen={true}
-      />
+      />,
     );
 
     expect(screen.getByText('header text')).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('NotificationPopup', () => {
         content={<div>{'test component'}</div>}
         header={'header text'}
         isOpen={true}
-      />
+      />,
     );
 
     expect(screen.getByText('header text')).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('NotificationPopup', () => {
         header={'header text'}
         isOpen={true}
         onEscapeKeyDown={onEscapeKeyDown}
-      />
+      />,
     );
 
     fireEvent.keyDown(screen.getByText('test component'), {

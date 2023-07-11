@@ -13,10 +13,10 @@ import {
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import {
   getAttributionBreakpoints,
-  getFilesWithChildren,
-  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
-  getProjectMetadata,
   getDisplayPackageInfoOfSelected,
+  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
+  getFilesWithChildren,
+  getProjectMetadata,
 } from '../all-views-resource-selectors';
 import {
   setAttributionBreakpoints,
@@ -43,7 +43,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     ),
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
@@ -53,26 +53,26 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   it('returns temporary package info of selected attribution', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     expect(
       getDisplayPackageInfoOfSelectedAttributionInAttributionView(
-        testStore.getState()
-      )
+        testStore.getState(),
+      ),
     ).toEqual(testTemporaryDisplayPackageInfo);
   });
 
   it('returns empty temporary package info if no selected attribution', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
 
     expect(
       getDisplayPackageInfoOfSelectedAttributionInAttributionView(
-        testStore.getState()
-      )
+        testStore.getState(),
+      ),
     ).toBeNull();
   });
 });
@@ -90,7 +90,7 @@ describe('Attribution breakpoints', () => {
     testStore.dispatch(setAttributionBreakpoints(testAttributionBreakpoints));
 
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(
-      testAttributionBreakpoints
+      testAttributionBreakpoints,
     );
   });
 });
@@ -98,7 +98,7 @@ describe('Attribution breakpoints', () => {
 describe('Files with children', () => {
   const testFileWithChildren = '/package.json/';
   const testFilesWithChildren: Set<string> = new Set<string>().add(
-    testFileWithChildren
+    testFileWithChildren,
   );
 
   it('can be created, listed and checked.', () => {
@@ -109,7 +109,7 @@ describe('Files with children', () => {
     testStore.dispatch(setFilesWithChildren(testFilesWithChildren));
 
     expect(getFilesWithChildren(testStore.getState())).toEqual(
-      testFilesWithChildren
+      testFilesWithChildren,
     );
   });
 });
@@ -124,7 +124,7 @@ describe('ProjectMetadata', () => {
   it('can be set and get from store.', () => {
     const testStore = createTestAppStore();
     expect(getProjectMetadata(testStore.getState())).toEqual(
-      EMPTY_PROJECT_METADATA
+      EMPTY_PROJECT_METADATA,
     );
 
     testStore.dispatch(setProjectMetadata(testMetadata));
@@ -148,7 +148,7 @@ describe('get displayPackageInfo', () => {
       attributionIds: ['uuid_0'],
     };
     const testDisplayPackageInfo = getDisplayPackageInfoOfSelected(
-      testStore.getState()
+      testStore.getState(),
     );
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
   });
@@ -167,7 +167,7 @@ describe('get displayPackageInfo', () => {
       attributionIds: ['uuid_0'],
     };
     const testDisplayPackageInfo = getDisplayPackageInfoOfSelected(
-      testStore.getState()
+      testStore.getState(),
     );
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
   });
@@ -182,7 +182,7 @@ describe('get displayPackageInfo', () => {
     };
     const testStore = createTestAppStore();
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedAttributionId(testSelectedAttributionId));
     testStore.dispatch(navigateToView(View.Attribution));
@@ -191,7 +191,7 @@ describe('get displayPackageInfo', () => {
       attributionIds: ['uuid_0'],
     };
     const testDisplayPackageInfo = getDisplayPackageInfoOfSelected(
-      testStore.getState()
+      testStore.getState(),
     );
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
   });

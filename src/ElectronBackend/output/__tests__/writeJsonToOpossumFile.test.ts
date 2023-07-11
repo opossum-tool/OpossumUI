@@ -134,7 +134,7 @@ describe('writeOutputJsonToOpossumFile', () => {
     await writeOutputJsonToOpossumFile(opossumPath, outputFileContent);
 
     const parsingResult = (await parseOpossumFile(
-      opossumPath
+      opossumPath,
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(inputFileContent);
     expect(parsingResult.output).toStrictEqual(parsedOutputFileContent);
@@ -149,13 +149,13 @@ describe('writeOutputJsonToOpossumFile', () => {
     await writeOpossumFile(
       opossumPath,
       inputFileContent,
-      outputToBeOverwritten
+      outputToBeOverwritten,
     );
 
     await writeOutputJsonToOpossumFile(opossumPath, outputFileContent);
 
     const parsingResult = (await parseOpossumFile(
-      opossumPath
+      opossumPath,
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(inputFileContent);
     expect(parsingResult.output).toStrictEqual(parsedOutputFileContent);

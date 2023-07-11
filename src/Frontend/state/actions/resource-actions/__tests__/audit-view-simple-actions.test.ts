@@ -41,10 +41,10 @@ describe('The audit view simple actions', () => {
     const testTargetSelectedResourceId = 'test_id';
     const testStore = createTestAppStore();
     testStore.dispatch(
-      setTargetSelectedResourceId(testTargetSelectedResourceId)
+      setTargetSelectedResourceId(testTargetSelectedResourceId),
     );
     expect(getTargetSelectedResourceId(testStore.getState())).toBe(
-      testTargetSelectedResourceId
+      testTargetSelectedResourceId,
     );
   });
 
@@ -70,7 +70,7 @@ describe('The audit view simple actions', () => {
 
     testStore.dispatch(setDisplayedPackage(testSelectedPackage));
     expect(getDisplayedPackage(testStore.getState())).toEqual(
-      testSelectedPackage
+      testSelectedPackage,
     );
   });
 
@@ -86,7 +86,7 @@ describe('The audit view simple actions', () => {
 
     testStore.dispatch(setTargetDisplayedPackage(testTargetSelectedPackage));
     expect(getTargetDisplayedPackage(testStore.getState())).toEqual(
-      testTargetSelectedPackage
+      testTargetSelectedPackage,
     );
   });
 
@@ -107,12 +107,12 @@ describe('The audit view simple actions', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
 
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toMatchObject({
       attributedChildren: {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -133,25 +133,25 @@ describe('The audit view simple actions', () => {
     testStore.dispatch(setResources({}));
 
     expect(getResolvedExternalAttributions(testStore.getState())).toMatchObject(
-      new Set()
+      new Set(),
     );
 
     testStore.dispatch(addResolvedExternalAttribution(uuid1));
     testStore.dispatch(addResolvedExternalAttribution(uuid2));
     expect(getResolvedExternalAttributions(testStore.getState())).toMatchObject(
-      expectedResolvedExternalAttributions
+      expectedResolvedExternalAttributions,
     );
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toMatchObject({});
 
     // Test that external attributions are deduplicated
     testStore.dispatch(addResolvedExternalAttribution(uuid1));
     expect(getResolvedExternalAttributions(testStore.getState())).toMatchObject(
-      expectedResolvedExternalAttributions
+      expectedResolvedExternalAttributions,
     );
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toMatchObject({});
   });
 
@@ -173,8 +173,8 @@ describe('The audit view simple actions', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
 
     testStore.dispatch(setResources({}));
@@ -182,10 +182,10 @@ describe('The audit view simple actions', () => {
     testStore.dispatch(addResolvedExternalAttribution(uuid1));
     testStore.dispatch(addResolvedExternalAttribution(uuid2));
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
-      new Set([uuid1, uuid2])
+      new Set([uuid1, uuid2]),
     );
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {
         '1': new Set<number>().add(0),
@@ -202,10 +202,10 @@ describe('The audit view simple actions', () => {
 
     testStore.dispatch(addResolvedExternalAttribution(uuid3));
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
-      new Set([uuid1, uuid2, uuid3])
+      new Set([uuid1, uuid2, uuid3]),
     );
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {},
       pathsToIndices: {
@@ -219,11 +219,11 @@ describe('The audit view simple actions', () => {
 
     testStore.dispatch(removeResolvedExternalAttribution(uuid2));
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
-      new Set([uuid1, uuid3])
+      new Set([uuid1, uuid3]),
     );
 
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers

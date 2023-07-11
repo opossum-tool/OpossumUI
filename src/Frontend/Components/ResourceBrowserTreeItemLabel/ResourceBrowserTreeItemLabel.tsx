@@ -32,7 +32,7 @@ interface ResourceBrowserTreeItemLabelProps {
 }
 
 export function ResourceBrowserTreeItemLabel(
-  props: ResourceBrowserTreeItemLabelProps
+  props: ResourceBrowserTreeItemLabelProps,
 ): ReactElement {
   let iconSx: SxProps | undefined;
   let labelDetail: string | undefined;

@@ -22,8 +22,8 @@ export function ConfirmDeletionGloballyPopup(): ReactElement {
       dispatch(
         deleteAttributionGloballyAndSave(
           targetAttributionId,
-          selectedAttributionId
-        )
+          selectedAttributionId,
+        ),
       );
   }
 

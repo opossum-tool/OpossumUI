@@ -16,10 +16,10 @@ describe('The NumberBox', () => {
         value={13}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     expect(screen.queryAllByText('Test Title')).toHaveLength(2);

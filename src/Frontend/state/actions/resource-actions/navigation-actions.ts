@@ -9,8 +9,8 @@ import { PanelPackage, State } from '../../../types/types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { getSelectedView, getTargetView } from '../../selectors/view-selector';
 import {
-  getManualData,
   getDisplayPackageInfoOfSelectedAttributionInAttributionView,
+  getManualData,
 } from '../../selectors/all-views-resource-selectors';
 import { doNothing } from '../../../util/do-nothing';
 import { getParents } from '../../helpers/get-parents';
@@ -28,8 +28,8 @@ import {
 } from './audit-view-simple-actions';
 import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 import {
-  getDisplayPackageInfoOfDisplayedPackage,
   getDisplayedPackage,
+  getDisplayPackageInfoOfDisplayedPackage,
   getSelectedResourceId,
   getTargetDisplayedPackage,
   getTargetSelectedResourceId,
@@ -50,17 +50,17 @@ export function resetTemporaryDisplayPackageInfo(): AppThunkAction {
         dispatch(
           setTemporaryDisplayPackageInfo(
             getDisplayPackageInfoOfDisplayedPackage(getState()) ||
-              EMPTY_DISPLAY_PACKAGE_INFO
-          )
+              EMPTY_DISPLAY_PACKAGE_INFO,
+          ),
         );
         break;
       case View.Attribution:
         dispatch(
           setTemporaryDisplayPackageInfo(
             getDisplayPackageInfoOfSelectedAttributionInAttributionView(
-              getState()
-            ) || EMPTY_DISPLAY_PACKAGE_INFO
-          )
+              getState(),
+            ) || EMPTY_DISPLAY_PACKAGE_INFO,
+          ),
         );
         break;
       default:
@@ -79,8 +79,8 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       if (targetDisplayedPackage) {
         dispatch(
           setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
-            targetDisplayedPackage
-          )
+            targetDisplayedPackage,
+          ),
         );
         dispatch(setTargetDisplayedPackage(null));
       }
@@ -90,7 +90,7 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       }
     } else if (selectedView === View.Attribution) {
       const targetSelectedAttributionId = getTargetSelectedAttributionId(
-        getState()
+        getState(),
       );
       if (targetSelectedAttributionId) {
         dispatch(setSelectedAttributionId(targetSelectedAttributionId));
@@ -105,7 +105,7 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
 }
 
 export function openResourceInResourceBrowser(
-  resourceId: string
+  resourceId: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setExpandedIds(getParents(resourceId).concat([resourceId])));
@@ -115,7 +115,7 @@ export function openResourceInResourceBrowser(
 }
 
 export function setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
-  panelPackage: PanelPackage
+  panelPackage: PanelPackage,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setDisplayedPackage(panelPackage));
@@ -146,7 +146,7 @@ export function resetSelectedPackagePanelIfContainedAttributionWasRemoved(): App
           panel: PackagePanelTitle.ManualPackages,
           packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
           displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
-        })
+        }),
       );
     }
   };

@@ -70,7 +70,7 @@ export interface InputElementProps {
   text?: string;
   sx?: SxProps;
   handleChange(
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void;
   isHighlighted?: boolean;
 }

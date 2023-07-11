@@ -20,7 +20,7 @@ describe('The Checkbox', () => {
         onChange={(event): void => {
           mockOnChange(event.target.checked);
         }}
-      />
+      />,
     );
     expect(mockOnChange).toHaveBeenCalledTimes(0);
 

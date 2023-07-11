@@ -180,7 +180,7 @@ describe('Test of loading function', () => {
     const temporaryPath: string = createTempFolder();
     const corruptJsonPath = path.join(
       upath.toUnix(temporaryPath),
-      'corrupt_test.json'
+      'corrupt_test.json',
     );
     const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
     writeJsonToFile(jsonPath, inputFileContent);
@@ -193,7 +193,7 @@ describe('Test of loading function', () => {
         return Promise.resolve({
           response: 0,
         });
-      })
+      }),
     );
 
     setGlobalBackendState({});
@@ -206,7 +206,7 @@ describe('Test of loading function', () => {
 
     const expectedNumberOfCalls = 3;
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(
-      expectedNumberOfCalls
+      expectedNumberOfCalls,
     );
 
     expect(getMessageBoxForParsingError).toHaveBeenCalled();
@@ -244,13 +244,13 @@ describe('Test of loading function', () => {
 
     assertFileLoadedCorrectly(testUuid);
     expect(getGlobalBackendState().projectTitle).toBe(
-      inputFileContent.metadata.projectTitle
+      inputFileContent.metadata.projectTitle,
     );
     expect(getGlobalBackendState().projectId).toBe(
-      inputFileContent.metadata.projectId
+      inputFileContent.metadata.projectId,
     );
     expect(
-      getGlobalBackendState().inputContainsCriticalExternalAttributions
+      getGlobalBackendState().inputContainsCriticalExternalAttributions,
     ).toBeTruthy();
     deleteFolder(temporaryPath);
   });
@@ -271,7 +271,7 @@ describe('Test of loading function', () => {
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
     expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
       AllowedFrontendChannels.FileLoaded,
-      expectedFileContent
+      expectedFileContent,
     );
 
     expect(dialog.showMessageBox).not.toBeCalled();
@@ -292,7 +292,7 @@ describe('Test of loading function', () => {
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
         AllowedFrontendChannels.FileLoaded,
-        expectedFileContent
+        expectedFileContent,
       );
 
       expect(dialog.showMessageBox).not.toBeCalled();
@@ -304,7 +304,7 @@ describe('Test of loading function', () => {
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json.gz');
       fs.writeFileSync(
         jsonPath,
-        zlib.gzipSync(JSON.stringify(inputFileContent))
+        zlib.gzipSync(JSON.stringify(inputFileContent)),
       );
 
       Date.now = jest.fn(() => 1);
@@ -315,7 +315,7 @@ describe('Test of loading function', () => {
       expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
       expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
         AllowedFrontendChannels.FileLoaded,
-        expectedFileContent
+        expectedFileContent,
       );
       expect(dialog.showMessageBox).not.toBeCalled();
       deleteFolder(temporaryPath);
@@ -329,7 +329,7 @@ describe('Test of loading function', () => {
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
     const attributionJsonPath = path.join(
       upath.toUnix(temporaryPath),
-      'test_attributions.json'
+      'test_attributions.json',
     );
 
     writeJsonToFile(jsonPath, inputFileContent);
@@ -357,13 +357,13 @@ describe('Test of loading function', () => {
 
     assertFileLoadedCorrectly(testUuid);
     expect(getGlobalBackendState().projectTitle).toBe(
-      inputFileContent.metadata.projectTitle
+      inputFileContent.metadata.projectTitle,
     );
     expect(getGlobalBackendState().projectId).toBe(
-      inputFileContent.metadata.projectId
+      inputFileContent.metadata.projectId,
     );
     expect(
-      getGlobalBackendState().inputContainsCriticalExternalAttributions
+      getGlobalBackendState().inputContainsCriticalExternalAttributions,
     ).toBeTruthy();
     deleteFolder(temporaryPath);
   });
@@ -497,12 +497,12 @@ describe('Test of loading function', () => {
 
       expect(mainWindow.webContents.send).lastCalledWith(
         AllowedFrontendChannels.FileLoaded,
-        expectedLoadedFile
+        expectedLoadedFile,
       );
       expect(dialog.showMessageBox).not.toBeCalled();
 
       deleteFolder(temporaryPath);
-    }
+    },
   );
 
   it('loads file and parses json successfully, custom metadata', async () => {
@@ -537,7 +537,7 @@ describe('Test of loading function', () => {
 
     expect(mainWindow.webContents.send).lastCalledWith(
       AllowedFrontendChannels.FileLoaded,
-      expectedLoadedFile
+      expectedLoadedFile,
     );
     expect(dialog.showMessageBox).not.toBeCalled();
     deleteFolder(temporaryPath);
@@ -593,7 +593,7 @@ describe('Test of loading function', () => {
     expect(mainWindow.webContents.send).toBeCalledTimes(2);
     expect(mainWindow.webContents.send).lastCalledWith(
       AllowedFrontendChannels.FileLoaded,
-      expectedLoadedFile
+      expectedLoadedFile,
     );
     deleteFolder(temporaryPath);
   });
@@ -619,7 +619,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
 
   expect(mainWindow.webContents.send).toBeCalledWith(
     AllowedFrontendChannels.FileLoaded,
-    expectedLoadedFile
+    expectedLoadedFile,
   );
   expect(dialog.showMessageBox).not.toBeCalled();
 }

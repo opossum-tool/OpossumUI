@@ -20,7 +20,7 @@ describe('FilterMultiSelect', () => {
     render(
       <Provider store={store}>
         <FilterMultiSelect />
-      </Provider>
+      </Provider>,
     );
     openDropDown(screen);
     expectFilterIsShown(screen, FilterType.OnlyFirstParty);

@@ -53,7 +53,7 @@ describe('The App backend', () => {
       expect.objectContaining({
         type: 'error',
         title: 'Error',
-      })
+      }),
     );
 
     expect(ipcMain.handle).toHaveBeenCalledTimes(0);

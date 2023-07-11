@@ -67,11 +67,11 @@ describe('sortAttributedPackageVersions', () => {
 
     const testSortedAttributedPackageVersions = sortAttributedPackageVersions(
       testAttributedPackageVersions,
-      testHighlightedPackageNameIds
+      testHighlightedPackageNameIds,
     );
 
     expect(testSortedAttributedPackageVersions).toEqual(
-      expectedSortedAttributedPackageVersions
+      expectedSortedAttributedPackageVersions,
     );
   });
 });

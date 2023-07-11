@@ -28,27 +28,27 @@ import { canResourceHaveChildren } from '../util/can-resource-have-children';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 
 export function mockElectronBackend(
-  mockChannelReturn: ParsedFileContent
+  mockChannelReturn: ParsedFileContent,
 ): void {
   window.electronAPI.on
     // @ts-ignore
     .mockImplementation(
       mockElectronIpcRendererOn(
         AllowedFrontendChannels.FileLoaded,
-        mockChannelReturn
-      )
+        mockChannelReturn,
+      ),
     );
 }
 
 export function mockElectronIpcRendererOn(
   mockChannel: string,
-  mockChannelReturn: unknown
+  mockChannelReturn: unknown,
 ): unknown {
   return (channel: unknown, listenerCallback: unknown): unknown =>
     // @ts-ignore
     listenerCallback(
       null,
-      channel === mockChannel ? mockChannelReturn : undefined
+      channel === mockChannel ? mockChannelReturn : undefined,
     );
 }
 
@@ -93,12 +93,12 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
   const testResourcesToManualAttributions = getResourcesToAttributions(
     testData.manualAttributions,
     testData.resourcesToManualAttributions,
-    resourceIdOfRoot
+    resourceIdOfRoot,
   );
   const testResourcesToExternalAttributions = getResourcesToAttributions(
     testData.externalAttributions,
     testData.resourcesToExternalAttributions,
-    resourceIdOfRoot
+    resourceIdOfRoot,
   );
 
   return {
@@ -128,7 +128,7 @@ function getResourceIdOfRoot(resources: Resources): string {
 function getResourcesToAttributions(
   attributions: Attributions | undefined,
   resourcesToAttributions: ResourcesToAttributions | undefined,
-  resourceIdOfRoot: string
+  resourceIdOfRoot: string,
 ): ResourcesToAttributions {
   let testResourcesToExternalAttributions: ResourcesToAttributions =
     resourcesToAttributions || {};
@@ -152,7 +152,7 @@ export function clickOnButton(screen: Screen, buttonLabel: string): void {
 export function expectButton(
   screen: Screen,
   buttonLabel: ButtonText,
-  disabled?: boolean
+  disabled?: boolean,
 ): void {
   const button = getButton(screen, buttonLabel);
   const buttonDisabledAttribute = button.attributes.getNamedItem('disabled');
@@ -166,10 +166,10 @@ export function expectButton(
 
 export function expectButtonIsNotShown(
   screen: Screen,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   expect(
-    screen.queryByRole('button', { name: buttonLabel })
+    screen.queryByRole('button', { name: buttonLabel }),
   ).not.toBeInTheDocument();
 }
 
@@ -187,7 +187,7 @@ export function getOpenFileIcon(screen: Screen): HTMLElement {
 
 export function clickOnEditIconForElement(
   screen: Screen,
-  element: string
+  element: string,
 ): void {
   fireEvent.click(screen.getByLabelText(`edit ${element}`) as Element);
 }
@@ -198,7 +198,7 @@ export function clickOnTopProgressBar(screen: Screen): void {
 
 export function clickOnCheckbox(screen: Screen, label: string): void {
   fireEvent.click(
-    screen.getByRole('checkbox', { name: `checkbox ${label}` }) as Element
+    screen.getByRole('checkbox', { name: `checkbox ${label}` }) as Element,
   );
 }
 
@@ -210,7 +210,7 @@ export function getCheckbox(screen: Screen, label: string): HTMLInputElement {
 
 function getMultiSelectCheckboxInPackageCard(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): Element {
   const packageCard = (
     (screen.getByText(cardLabel).parentElement as HTMLElement)
@@ -224,21 +224,21 @@ function getMultiSelectCheckboxInPackageCard(
 
 export function clickOnMultiSelectCheckboxInPackageCard(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   fireEvent.click(getMultiSelectCheckboxInPackageCard(screen, cardLabel));
 }
 
 export function expectSelectCheckboxInPackageCardIsChecked(
   screen: Screen,
-  cardLabel: string
+  cardLabel: string,
 ): void {
   expect(getMultiSelectCheckboxInPackageCard(screen, cardLabel)).toBeChecked();
 }
 
 export function openDropDown(screen: Screen): void {
   fireEvent.mouseDown(
-    screen.getByTestId('test-id-filter-multi-select').childNodes[0] as Element
+    screen.getByTestId('test-id-filter-multi-select').childNodes[0] as Element,
   );
 }
 
@@ -252,7 +252,7 @@ export function clickOnFilter(screen: Screen, label: string): void {
 
 export function expectElementsInAutoCompleteAndSelectFirst(
   screen: Screen,
-  elements: Array<string>
+  elements: Array<string>,
 ): void {
   const autoComplete = screen.getByRole('combobox');
   autoComplete.focus();
@@ -268,7 +268,7 @@ export function expectValuesInTopProgressbarTooltip(
   numberOfFiles: number,
   filesWithAttribution: number,
   filesWithOnlyPreSelectedAttributions: number,
-  filesWithOnlyExternalAttributions: number
+  filesWithOnlyExternalAttributions: number,
 ): void {
   jest.useFakeTimers();
   const progressBar = screen.getByLabelText('TopProgressBar');
@@ -277,28 +277,28 @@ export function expectValuesInTopProgressbarTooltip(
     jest.runAllTimers();
   });
   expect(
-    screen.getByText(new RegExp(`Number of files: ${numberOfFiles}`))
+    screen.getByText(new RegExp(`Number of files: ${numberOfFiles}`)),
   ).toBeInTheDocument();
   expect(
     screen.getByText(
-      new RegExp(`Files with attributions: ${filesWithAttribution}`)
+      new RegExp(`Files with attributions: ${filesWithAttribution}`),
     ) &&
       screen.getByText(
         new RegExp(
-          `Files with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`
-        )
+          `Files with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
+        ),
       ) &&
       screen.getByText(
         new RegExp(
-          `Files with only signals: ${filesWithOnlyExternalAttributions}`
-        )
-      )
+          `Files with only signals: ${filesWithOnlyExternalAttributions}`,
+        ),
+      ),
   ).toBeDefined();
 }
 
 export function getPackagePanel(
   screen: Screen,
-  packagePanelName: string
+  packagePanelName: string,
 ): HTMLElement {
   return (
     (screen.getByText(packagePanelName).parentElement as HTMLElement)
@@ -308,7 +308,7 @@ export function getPackagePanel(
 
 export function getOpenResourcesButtonForPackagePanel(
   screen: Screen,
-  packageName: string
+  packageName: string,
 ): HTMLElement {
   // eslint-disable-next-line testing-library/prefer-screen-queries
   return getByRole(getPackagePanel(screen, packageName), 'button', {

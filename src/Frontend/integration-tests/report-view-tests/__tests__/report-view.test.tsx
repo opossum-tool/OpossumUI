@@ -73,7 +73,7 @@ describe('The report view', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      'MIT'
+      'MIT',
     );
     insertValueIntoTextBox(screen, 'Comment', 'Test comment');
     clickOnButton(screen, ButtonText.Save);

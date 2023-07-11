@@ -93,7 +93,7 @@ describe('getLoadedFileType', () => {
     const globalBackendState: GlobalBackendState = {};
 
     expect(() => getLoadedFileType(globalBackendState)).toThrow(
-      'Tried to get file type when no file is loaded'
+      'Tried to get file type when no file is loaded',
     );
   });
 });

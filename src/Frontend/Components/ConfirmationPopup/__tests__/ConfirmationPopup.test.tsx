@@ -19,7 +19,7 @@ describe('The ConfirmationPopup', () => {
         onConfirmation={onClick}
         content={content}
         header={header}
-      />
+      />,
     );
     expect(screen.getByText(content)).toBeInTheDocument();
     expect(screen.getByText(header)).toBeInTheDocument();

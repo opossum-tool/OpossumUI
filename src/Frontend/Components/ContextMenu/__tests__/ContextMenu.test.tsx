@@ -51,7 +51,7 @@ describe('The ContextMenu', () => {
     render(
       <ContextMenu menuItems={testMenuItems} activation={'onLeftClick'}>
         <p>{testElementText}</p>
-      </ContextMenu>
+      </ContextMenu>,
     );
 
     expectContextMenuIsNotShown();
@@ -72,7 +72,7 @@ describe('The ContextMenu', () => {
     render(
       <ContextMenu menuItems={testMenuItems} activation={'onRightClick'}>
         <p>{testElementText}</p>
-      </ContextMenu>
+      </ContextMenu>,
     );
 
     expectContextMenuIsNotShown();
@@ -93,7 +93,7 @@ describe('The ContextMenu', () => {
     render(
       <ContextMenu menuItems={testMenuItems} activation={'both'}>
         <p>{testElementText}</p>
-      </ContextMenu>
+      </ContextMenu>,
     );
 
     expectContextMenuIsNotShown();
@@ -110,7 +110,7 @@ describe('The ContextMenu', () => {
     render(
       <ContextMenu menuItems={testMenuItems} activation={'both'}>
         <p>{testElementText}</p>
-      </ContextMenu>
+      </ContextMenu>,
     );
 
     expectContextMenuIsNotShown();
@@ -134,7 +134,7 @@ describe('The ContextMenu', () => {
         onOpen={onOpenMock}
       >
         <p>{testElementText}</p>
-      </ContextMenu>
+      </ContextMenu>,
     );
 
     expectContextMenuIsNotShown();

@@ -36,9 +36,9 @@ export function PackageList(props: PackageListProps): ReactElement {
       getFilteredPackageCardIdsFromDisplayPackageInfos(
         props.displayPackageInfos,
         props.sortedPackageCardIds,
-        searchTerm
+        searchTerm,
       ),
-    [props.displayPackageInfos, props.sortedPackageCardIds, searchTerm]
+    [props.displayPackageInfos, props.sortedPackageCardIds, searchTerm],
   );
 
   const currentHeight =

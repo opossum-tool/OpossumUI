@@ -23,7 +23,7 @@ describe('getAllResourcePathsForAttributions', () => {
 
     const resourcesPaths = getAllResourcePathsForAttributions(
       attributionIds,
-      attributionsToResources
+      attributionsToResources,
     );
 
     expect(resourcesPaths.sort()).toEqual(expectedResourcesPaths.sort());
@@ -40,7 +40,7 @@ describe('getAllResourcePathsForAttributions', () => {
 
     const resourcesPaths = getAllResourcePathsForAttributions(
       attributionIds,
-      attributionsToResources
+      attributionsToResources,
     );
 
     const expectedResourcesPaths = ['/some/path'];

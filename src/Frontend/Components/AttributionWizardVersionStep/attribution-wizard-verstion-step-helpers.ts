@@ -8,22 +8,22 @@ import { ListWithAttributesItem } from '../../types/types';
 
 export function sortAttributedPackageVersions(
   attributedPackageVersions: Array<ListWithAttributesItem>,
-  highlightedPackageNameIds: Array<string>
+  highlightedPackageNameIds: Array<string>,
 ): Array<ListWithAttributesItem> {
   return attributedPackageVersions.sort(
     (attributedPackageVersionA, attributedPackageVersionB) =>
       compareVersionAttributeHighlighting(
         attributedPackageVersionA,
         attributedPackageVersionB,
-        highlightedPackageNameIds
-      )
+        highlightedPackageNameIds,
+      ),
   );
 }
 
 function compareVersionAttributeHighlighting(
   attributedPackageVersionA: ListWithAttributesItem,
   attributedPackageVersionB: ListWithAttributesItem,
-  highlightedPackageNameIds: Array<string>
+  highlightedPackageNameIds: Array<string>,
 ): number {
   const manuallyAddedA = Boolean(attributedPackageVersionA.manuallyAdded);
   const manuallyAddedB = Boolean(attributedPackageVersionB.manuallyAdded);
@@ -38,30 +38,30 @@ function compareVersionAttributeHighlighting(
   }
 
   const attributeIdsA = attributedPackageVersionA.attributes?.map(
-    (attribute) => attribute.id
+    (attribute) => attribute.id,
   );
   const attributeIdsB = attributedPackageVersionB.attributes?.map(
-    (attribute) => attribute.id
+    (attribute) => attribute.id,
   );
 
   const numMatchesA =
     attributeIdsA?.filter((attributeIdA) =>
       attributeIdA !== undefined
         ? highlightedPackageNameIds.includes(attributeIdA)
-        : false
+        : false,
     ).length ?? 0;
   const numMatchesB =
     attributeIdsB?.filter((attributeIdB) =>
       attributeIdB !== undefined
         ? highlightedPackageNameIds.includes(attributeIdB)
-        : false
+        : false,
     ).length ?? 0;
 
   return numMatchesA !== numMatchesB
     ? numMatchesB - numMatchesA
     : compareSemanticVersion(
         attributedPackageVersionA.text,
-        attributedPackageVersionB.text
+        attributedPackageVersionB.text,
       );
 }
 

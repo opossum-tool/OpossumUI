@@ -49,10 +49,10 @@ describe('The PackageCardHelper', () => {
     'for %s packageInfo gives %s highlighting',
     (
       displayPackageInfo: DisplayPackageInfo,
-      expected_highlighting: HighlightingColor | undefined
+      expected_highlighting: HighlightingColor | undefined,
     ) => {
       const actualHighlighting = getPackageCardHighlighting(displayPackageInfo);
       expect(actualHighlighting).toEqual(expected_highlighting);
-    }
+    },
   );
 });

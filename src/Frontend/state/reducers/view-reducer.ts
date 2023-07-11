@@ -36,7 +36,7 @@ export const initialViewState: ViewState = {
 
 export function viewState(
   state: ViewState = initialViewState,
-  action: ViewAction
+  action: ViewAction,
 ): ViewState {
   switch (action.type) {
     case ACTION_RESET_VIEW_STATE:

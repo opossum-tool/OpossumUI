@@ -57,7 +57,7 @@ const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
 function getTestTemporaryAndExternalStateWithParentAttribution(
   store: EnhancedTestStore,
   selectedResourceId: string,
-  temporaryDisplayPackageInfo: DisplayPackageInfo
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
 ): void {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryDisplayPackageInfo,
@@ -73,8 +73,8 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
         getParsedInputFileEnrichedWithTestData({
           manualAttributions,
           resourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     store.dispatch(setSelectedResourceId(selectedResourceId));
     store.dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
@@ -91,15 +91,15 @@ describe('The ResourceDetailsViewer', () => {
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(screen.queryAllByText('Name'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string
-      )
+        testTemporaryDisplayPackageInfo.packageName as string,
+      ),
     );
   });
 
@@ -136,27 +136,27 @@ describe('The ResourceDetailsViewer', () => {
               resourcesToManualAttributions: {
                 '/': ['alphabetically_second', 'alphabetically_first'],
               },
-            })
-          )
+            }),
+          ),
         );
         store.dispatch(setSelectedResourceId('/'));
       });
 
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
-        'aaaaa'
+        'aaaaa',
       );
       expect(getDisplayedPackage(store.getState())).toEqual(
-        expectedPanelPackage
+        expectedPanelPackage,
       );
 
       store.dispatch(setSelectedResourceId('/file'));
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
-        'aaaaa'
+        'aaaaa',
       );
       expect(getDisplayedPackage(store.getState())).toEqual(
-        expectedPanelPackage
+        expectedPanelPackage,
       );
-    }
+    },
   );
 
   it('renders a ExternalPackageCard', () => {
@@ -177,14 +177,14 @@ describe('The ResourceDetailsViewer', () => {
           getParsedInputFileEnrichedWithTestData({
             externalAttributions,
             resourcesToExternalAttributions,
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(
-        setExternalData(externalAttributions, resourcesToExternalAttributions)
+        setExternalData(externalAttributions, resourcesToExternalAttributions),
       );
       store.dispatch(
-        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO)
+        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
       );
     });
 
@@ -214,12 +214,12 @@ describe('The ResourceDetailsViewer', () => {
             resources: { test_id: { subdirectory: 1 } },
             externalAttributions,
             resourcesToExternalAttributions,
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(setSelectedResourceId('/test_id/'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO)
+        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
       );
     });
 
@@ -251,8 +251,8 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToManualAttributions,
             externalAttributions,
             resourcesToExternalAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
 
@@ -263,39 +263,39 @@ describe('The ResourceDetailsViewer', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
 
     fireEvent.click(screen.getByText('React') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
     expect(
-      screen.queryByRole('button', { name: 'Save' })
+      screen.queryByRole('button', { name: 'Save' }),
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
@@ -329,8 +329,8 @@ describe('The ResourceDetailsViewer', () => {
             resources: { a: { b: 1 } },
             externalAttributions,
             resourcesToExternalAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
 
@@ -341,7 +341,7 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByDisplayValue('Comment 2'));
     expect(screen.getByDisplayValue('40'));
     expect(
-      screen.queryByRole('button', { name: 'Save' })
+      screen.queryByRole('button', { name: 'Save' }),
     ).not.toBeInTheDocument();
   });
 
@@ -373,8 +373,8 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToManualAttributions,
             externalAttributions,
             resourcesToExternalAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
 
@@ -383,36 +383,36 @@ describe('The ResourceDetailsViewer', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
 
     fireEvent.click(screen.getByText('JQuery') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
 
     fireEvent.click(screen.getByLabelText('add JQuery') as Element);
@@ -420,12 +420,12 @@ describe('The ResourceDetailsViewer', () => {
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
   });
 
@@ -463,8 +463,8 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToManualAttributions,
             externalAttributions,
             resourcesToExternalAttributions,
-          })
-        )
+          }),
+        ),
       );
     });
 
@@ -472,34 +472,34 @@ describe('The ResourceDetailsViewer', () => {
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense2
+      testExternalLicense2,
     );
 
     fireEvent.click(screen.getByLabelText('add JQuery') as Element);
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense
+      testExternalLicense,
     );
     expectValueNotInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense2
+      testExternalLicense2,
     );
   });
 
@@ -508,7 +508,7 @@ describe('The ResourceDetailsViewer', () => {
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
 
     expect(screen.getByDisplayValue('jQuery'));
@@ -516,7 +516,7 @@ describe('The ResourceDetailsViewer', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense
+      testManualLicense,
     );
   });
 
@@ -525,7 +525,7 @@ describe('The ResourceDetailsViewer', () => {
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child_with_own_attr',
-      testTemporaryDisplayPackageInfo2
+      testTemporaryDisplayPackageInfo2,
     );
 
     expect(screen.getByDisplayValue('Vue.js'));
@@ -533,7 +533,7 @@ describe('The ResourceDetailsViewer', () => {
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testManualLicense2
+      testManualLicense2,
     );
   });
 
@@ -557,8 +557,8 @@ describe('The ResourceDetailsViewer', () => {
           resources: testResources,
           manualAttributions,
           resourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(setSelectedResourceId('/root/'));
@@ -592,8 +592,8 @@ describe('The ResourceDetailsViewer', () => {
           resources: testResources,
           manualAttributions,
           resourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(setSelectedResourceId('/fileWithAttribution'));
@@ -623,11 +623,11 @@ describe('The ResourceDetailsViewer', () => {
             resources: testResources,
             manualAttributions,
             resourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(
-        setSelectedResourceId('/folderWithAttribution/childrenFile')
+        setSelectedResourceId('/folderWithAttribution/childrenFile'),
       );
     });
 
@@ -664,24 +664,24 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToExternalAttributions,
           }),
           attributionBreakpoints: new Set(['/test_id']),
-        })
+        }),
       );
     });
 
     expect(screen.queryByText('Attributions')).not.toBeInTheDocument();
     expect(
-      screen.queryByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT)
+      screen.queryByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT),
     ).not.toBeInTheDocument();
     expect(screen.queryByText('1st party')).not.toBeInTheDocument();
     expect(
-      screen.queryByText('License Text (to appear in attribution document)')
+      screen.queryByText('License Text (to appear in attribution document)'),
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Other package') as Element);
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      testExternalLicense2
+      testExternalLicense2,
     );
   });
 });

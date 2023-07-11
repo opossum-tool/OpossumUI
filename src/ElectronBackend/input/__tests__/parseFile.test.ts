@@ -142,12 +142,12 @@ describe('parseOpossumFile', () => {
     const temporaryPath: string = createTempFolder();
     const opossumFilePath = path.join(
       upath.toUnix(temporaryPath),
-      'test.opossum'
+      'test.opossum',
     );
     await writeOpossumFile(opossumFilePath, testInputContent, null);
 
     const parsingResult = (await parseOpossumFile(
-      opossumFilePath
+      opossumFilePath,
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(testInputContent);
     expect(parsingResult.output).toBeNull;
@@ -161,16 +161,16 @@ describe('parseOpossumFile', () => {
     const temporaryPath: string = createTempFolder();
     const opossumFilePath = path.join(
       upath.toUnix(temporaryPath),
-      'test.opossum'
+      'test.opossum',
     );
     await writeOpossumFile(
       opossumFilePath,
       testInputContent,
-      testOutputContent
+      testOutputContent,
     );
 
     const parsingResult = (await parseOpossumFile(
-      opossumFilePath
+      opossumFilePath,
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(testInputContent);
     expect(parsingResult.output).toStrictEqual(correctParsedOuput);
@@ -184,13 +184,13 @@ describe('parseOpossumFile', () => {
     const temporaryPath: string = createTempFolder();
     const opossumFilePath = path.join(
       upath.toUnix(temporaryPath),
-      'test.opossum'
+      'test.opossum',
     ); //test
 
     await writeOpossumFile(
       opossumFilePath,
       testInputContent,
-      testOutputContent
+      testOutputContent,
     );
 
     const result = await parseOpossumFile(opossumFilePath);
@@ -212,7 +212,7 @@ describe('parseInputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
-      'resources.json'
+      'resources.json',
     );
     fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
 
@@ -237,7 +237,7 @@ describe('parseInputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
-      'resources.json'
+      'resources.json',
     );
     fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
 
@@ -252,7 +252,7 @@ describe('parseInputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
-      'resources.json'
+      'resources.json',
     );
     fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
 
@@ -269,7 +269,7 @@ describe('parseInputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
-      'resources.json.gz'
+      'resources.json.gz',
     );
     fs.writeFileSync(resourcesPath, testFileContent);
 
@@ -283,7 +283,7 @@ describe('parseInputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const resourcesPath = path.join(
       upath.toUnix(temporaryPath),
-      'resources.json.gz'
+      'resources.json.gz',
     );
     fs.writeFileSync(resourcesPath, testFileContent);
 
@@ -305,7 +305,7 @@ describe('parseOutputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
-      'test_attributions.json'
+      'test_attributions.json',
     );
     fs.writeFileSync(attributionPath, JSON.stringify(correctOutput));
 
@@ -319,15 +319,15 @@ describe('parseOutputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
-      'test_attributions.json'
+      'test_attributions.json',
     );
     fs.writeFileSync(
       attributionPath,
-      JSON.stringify({ test: 'Invalid file.' })
+      JSON.stringify({ test: 'Invalid file.' }),
     );
 
     expect(() => parseOutputJsonFile(attributionPath)).toThrow(
-      `Error: ${attributionPath} is not a valid attribution file.`
+      `Error: ${attributionPath} is not a valid attribution file.`,
     );
     deleteFolder(temporaryPath);
   });
@@ -336,22 +336,22 @@ describe('parseOutputJsonFile', () => {
     const temporaryPath: string = createTempFolder();
     const attributionPath = path.join(
       upath.toUnix(temporaryPath),
-      'test_attributions.json'
+      'test_attributions.json',
     );
     const fileContentWithWrongProjectId: OpossumOutputFile = set(
       cloneDeep(correctOutput),
       'metadata.projectId',
-      'cff9095a-5c24-46e6-b84d-cc8596b17c58'
+      'cff9095a-5c24-46e6-b84d-cc8596b17c58',
     );
     const parsedFileContentWithWrongProjectId: ParsedOpossumOutputFile = set(
       cloneDeep(correctParsedOuput),
       'metadata.projectId',
-      'cff9095a-5c24-46e6-b84d-cc8596b17c58'
+      'cff9095a-5c24-46e6-b84d-cc8596b17c58',
     );
 
     fs.writeFileSync(
       attributionPath,
-      JSON.stringify(fileContentWithWrongProjectId)
+      JSON.stringify(fileContentWithWrongProjectId),
     );
 
     const attributions = parseOutputJsonFile(attributionPath);

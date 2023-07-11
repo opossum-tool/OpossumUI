@@ -21,14 +21,14 @@ interface SyncAccordionPanelProps {
 }
 
 export function SyncAccordionPanel(
-  props: SyncAccordionPanelProps
+  props: SyncAccordionPanelProps,
 ): ReactElement {
   const [sortedPackageCardIds, displayPackageInfosWithCount] =
     getExternalDisplayPackageInfosWithCount(
       props.getAttributionIdsWithCount(),
       props.attributions,
       props.attributionsToHashes,
-      props.title
+      props.title,
     );
   const panelData: PanelData = {
     title: props.title,

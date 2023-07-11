@@ -57,14 +57,14 @@ export function BackendCommunication(): ReactElement | null {
 
   function fileLoadedListener(
     event: IpcRendererEvent,
-    parsedFileContent: ParsedFileContent
+    parsedFileContent: ParsedFileContent,
   ): void {
     dispatch(loadFromFile(parsedFileContent));
   }
 
   function getExportFileRequestListener(
     event: IpcRendererEvent,
-    exportType: ExportType
+    exportType: ExportType,
   ): void {
     switch (exportType) {
       case ExportType.SpdxDocumentJson:
@@ -83,8 +83,8 @@ export function BackendCommunication(): ReactElement | null {
     const followUpAttributions = pick(
       manualData.attributions,
       Object.keys(manualData.attributions).filter(
-        (attributionId) => manualData.attributions[attributionId].followUp
-      )
+        (attributionId) => manualData.attributions[attributionId].followUp,
+      ),
     );
 
     const followUpAttributionsWithResources =
@@ -94,12 +94,12 @@ export function BackendCommunication(): ReactElement | null {
         manualData.resourcesToAttributions,
         resources || {},
         getAttributionBreakpointCheck(attributionBreakpoints),
-        getFileWithChildrenCheck(filesWithChildren)
+        getFileWithChildrenCheck(filesWithChildren),
       );
     const followUpAttributionsWithFormattedResources =
       removeSlashesFromFilesWithChildren(
         followUpAttributionsWithResources,
-        getFileWithChildrenCheck(filesWithChildren)
+        getFileWithChildrenCheck(filesWithChildren),
       );
 
     window.electronAPI.exportFile({
@@ -110,7 +110,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function getSpdxDocumentExportListener(
-    exportType: ExportType.SpdxDocumentYaml | ExportType.SpdxDocumentJson
+    exportType: ExportType.SpdxDocumentYaml | ExportType.SpdxDocumentJson,
   ): void {
     const attributions = Object.fromEntries(
       Object.entries(manualData.attributions).map((entry) => {
@@ -130,7 +130,7 @@ export function BackendCommunication(): ReactElement | null {
             licenseText,
           },
         ];
-      })
+      }),
     );
 
     const args: ExportSpdxDocumentYamlArgs | ExportSpdxDocumentJsonArgs = {
@@ -144,18 +144,18 @@ export function BackendCommunication(): ReactElement | null {
   function getDetailedBomExportListener(): void {
     const bomAttributions = getBomAttributions(
       manualData.attributions,
-      ExportType.DetailedBom
+      ExportType.DetailedBom,
     );
 
     const bomAttributionsWithResources = getAttributionsWithResources(
       bomAttributions,
-      manualData.attributionsToResources
+      manualData.attributionsToResources,
     );
 
     const bomAttributionsWithFormattedResources =
       removeSlashesFromFilesWithChildren(
         bomAttributionsWithResources,
-        getFileWithChildrenCheck(filesWithChildren)
+        getFileWithChildrenCheck(filesWithChildren),
       );
 
     window.electronAPI.exportFile({
@@ -169,14 +169,14 @@ export function BackendCommunication(): ReactElement | null {
       type: ExportType.CompactBom,
       bomAttributions: getBomAttributions(
         manualData.attributions,
-        ExportType.CompactBom
+        ExportType.CompactBom,
       ),
     });
   }
 
   function resetLoadedFileListener(
     event: IpcRendererEvent,
-    resetState: boolean
+    resetState: boolean,
   ): void {
     if (resetState) {
       dispatch(resetResourceState());
@@ -191,7 +191,7 @@ export function BackendCommunication(): ReactElement | null {
 
   function showSearchPopupListener(
     event: IpcRendererEvent,
-    showSearchPopUp: boolean
+    showSearchPopUp: boolean,
   ): void {
     if (showSearchPopUp) {
       dispatch(openPopup(PopupType.FileSearchPopup));
@@ -200,7 +200,7 @@ export function BackendCommunication(): ReactElement | null {
 
   function showProjectMetadataPopupListener(
     event: IpcRendererEvent,
-    showProjectMetadataPopup: boolean
+    showProjectMetadataPopup: boolean,
   ): void {
     if (showProjectMetadataPopup) {
       dispatch(openPopup(PopupType.ProjectMetadataPopup));
@@ -209,7 +209,7 @@ export function BackendCommunication(): ReactElement | null {
 
   function showProjectStatisticsPopupListener(
     event: IpcRendererEvent,
-    showProjectStatisticsPopup: boolean
+    showProjectStatisticsPopup: boolean,
   ): void {
     if (showProjectStatisticsPopup) {
       dispatch(openPopup(PopupType.ProjectStatisticsPopup));
@@ -218,7 +218,7 @@ export function BackendCommunication(): ReactElement | null {
 
   function showChangedInputFilePopupListener(
     event: IpcRendererEvent,
-    showChangedInputFilePopup: boolean
+    showChangedInputFilePopup: boolean,
   ): void {
     if (showChangedInputFilePopup) {
       dispatch(openPopup(PopupType.ChangedInputFilePopup));
@@ -227,7 +227,7 @@ export function BackendCommunication(): ReactElement | null {
 
   function showUpdateAppPopupListener(
     event: IpcRendererEvent,
-    showUpdateAppPopup: boolean
+    showUpdateAppPopup: boolean,
   ): void {
     if (showUpdateAppPopup) {
       dispatch(openPopup(PopupType.UpdateAppPopup));
@@ -236,21 +236,21 @@ export function BackendCommunication(): ReactElement | null {
 
   function setBaseURLForRootListener(
     event: IpcRendererEvent,
-    baseURLForRootArgs: BaseURLForRootArgs
+    baseURLForRootArgs: BaseURLForRootArgs,
   ): void {
     if (baseURLForRootArgs?.baseURLForRoot) {
       dispatch(
         setBaseUrlsForSources({
           ...baseUrlsForSources,
           '/': baseURLForRootArgs.baseURLForRoot,
-        })
+        }),
       );
     }
   }
 
   function setFileLoadingListener(
     event: IpcRendererEvent,
-    isLoadingArgs: IsLoadingArgs
+    isLoadingArgs: IsLoadingArgs,
   ): void {
     if (isLoadingArgs) {
       dispatch(setIsLoading(isLoadingArgs.isLoading));
@@ -259,7 +259,7 @@ export function BackendCommunication(): ReactElement | null {
 
   function showFileSupportPopupListener(
     event: IpcRendererEvent,
-    fileSupportPopupArgs: FileSupportPopupArgs
+    fileSupportPopupArgs: FileSupportPopupArgs,
   ): void {
     if (fileSupportPopupArgs && fileSupportPopupArgs.showFileSupportPopup) {
       if (fileSupportPopupArgs.dotOpossumFileAlreadyExists) {
@@ -276,33 +276,33 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(
     AllowedFrontendChannels.ResetLoadedFile,
     resetLoadedFileListener,
-    [dispatch]
+    [dispatch],
   );
   useIpcRenderer(AllowedFrontendChannels.Logging, loggingListener, [dispatch]);
   useIpcRenderer(
     AllowedFrontendChannels.ShowSearchPopup,
     showSearchPopupListener,
-    [dispatch]
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowProjectMetadataPopup,
     showProjectMetadataPopupListener,
-    [dispatch]
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowChangedInputFilePopup,
     showChangedInputFilePopupListener,
-    [dispatch]
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowProjectStatisticsPopup,
     showProjectStatisticsPopupListener,
-    [dispatch]
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.SetBaseURLForRoot,
     setBaseURLForRootListener,
-    [dispatch, baseUrlsForSources]
+    [dispatch, baseUrlsForSources],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ExportFileRequest,
@@ -312,7 +312,7 @@ export function BackendCommunication(): ReactElement | null {
       attributionBreakpoints,
       frequentLicenseTexts,
       filesWithChildren,
-    ]
+    ],
   );
   useIpcRenderer(AllowedFrontendChannels.FileLoading, setFileLoadingListener, [
     dispatch,
@@ -320,12 +320,12 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(
     AllowedFrontendChannels.ShowFileSupportPopup,
     showFileSupportPopupListener,
-    [dispatch]
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowUpdateAppPopup,
     showUpdateAppPopupListener,
-    [dispatch]
+    [dispatch],
   );
 
   return null;
@@ -333,7 +333,7 @@ export function BackendCommunication(): ReactElement | null {
 
 export function getBomAttributions(
   attributions: Attributions,
-  exportType: ExportType
+  exportType: ExportType,
 ): Attributions {
   return pick(
     attributions,
@@ -344,7 +344,7 @@ export function getBomAttributions(
         !(
           exportType == ExportType.CompactBom &&
           attributions[attributionId].excludeFromNotice
-        )
-    )
+        ),
+    ),
   );
 }

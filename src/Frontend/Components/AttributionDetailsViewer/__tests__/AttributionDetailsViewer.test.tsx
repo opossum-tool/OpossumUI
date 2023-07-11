@@ -37,7 +37,7 @@ describe('The AttributionDetailsViewer', () => {
     act(() => {
       store.dispatch(setSelectedAttributionId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
@@ -46,37 +46,39 @@ describe('The AttributionDetailsViewer', () => {
       screen.getByDisplayValue(
         (
           testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
-        ).toString()
-      )
+        ).toString(),
+      ),
     );
     expect(screen.queryAllByText('Comment'));
 
     testTemporaryDisplayPackageInfo.comments?.forEach((comment) =>
-      expect(screen.getByDisplayValue(comment))
+      expect(screen.getByDisplayValue(comment)),
     );
     expect(screen.queryAllByText('Name'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string
-      )
+        testTemporaryDisplayPackageInfo.packageName as string,
+      ),
     );
     expect(screen.queryAllByText('Version'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageVersion as string
-      )
+        testTemporaryDisplayPackageInfo.packageVersion as string,
+      ),
     );
     expect(screen.queryAllByText('Copyright'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.copyright as string
-      )
+        testTemporaryDisplayPackageInfo.copyright as string,
+      ),
     );
     expect(
-      screen.queryAllByText('License Text (to appear in attribution document)')
+      screen.queryAllByText('License Text (to appear in attribution document)'),
     );
     expect(
-      screen.getByDisplayValue('Permission is hereby granted', { exact: false })
+      screen.getByDisplayValue('Permission is hereby granted', {
+        exact: false,
+      }),
     );
   });
 
@@ -96,8 +98,8 @@ describe('The AttributionDetailsViewer', () => {
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             manualAttributions: testManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(navigateToView(View.Attribution));
       store.dispatch(setSelectedAttributionId('uuid_1'));
@@ -105,15 +107,15 @@ describe('The AttributionDetailsViewer', () => {
         setTemporaryDisplayPackageInfo(
           convertPackageInfoToDisplayPackageInfo(expectedPackageInfo, [
             'uuid_1',
-          ])
-        )
+          ]),
+        ),
       );
     });
     expect(screen.getByDisplayValue('React'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }) as Element);
     expect(getManualAttributions(store.getState())?.uuid_1).toEqual(
-      expectedPackageInfo
+      expectedPackageInfo,
     );
   });
 });

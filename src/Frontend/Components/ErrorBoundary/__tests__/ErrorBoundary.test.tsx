@@ -25,7 +25,7 @@ describe('ErrorBoundary', () => {
     renderComponentWithStore(
       <ErrorBoundary>
         <TestComponent throws={false} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(0);
@@ -41,18 +41,18 @@ describe('ErrorBoundary', () => {
     const { store } = renderComponentWithStore(
       <ErrorBoundary>
         <TestComponent throws={true} />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     const expectedNumberOfCalls = 3;
     expect(window.electronAPI.sendErrorInformation).toHaveBeenCalledTimes(
-      expectedNumberOfCalls
+      expectedNumberOfCalls,
     );
 
     expect(window.electronAPI.on).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.RestoreFrontend,
-      expect.anything()
+      expect.anything(),
     );
 
     expect(store.getState().resourceState).toMatchObject(initialResourceState);

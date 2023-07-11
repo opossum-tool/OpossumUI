@@ -17,7 +17,7 @@ export type PanelAttributionData = Pick<
 >;
 
 export function getExternalAttributionIdsWithCount(
-  attributionIds: Array<string>
+  attributionIds: Array<string>,
 ): Array<AttributionIdWithCount> {
   return attributionIds.map((attributionId) => ({
     attributionId,
@@ -29,34 +29,34 @@ export function getContainedExternalPackages(
   resourcesWithAttributedChildren: Readonly<ResourcesWithAttributedChildren>,
   externalAttributions: Readonly<Attributions>,
   resourcesToExternalAttributions: Readonly<ResourcesToAttributions>,
-  resolvedExternalAttributions: Readonly<Set<string>>
+  resolvedExternalAttributions: Readonly<Set<string>>,
 ): Array<AttributionIdWithCount> {
   const externalAttributedChildren = getAttributedChildren(
     resourcesWithAttributedChildren,
-    selectedResourceId
+    selectedResourceId,
   );
 
   return computeAggregatedAttributionsFromChildren(
     externalAttributions,
     resourcesToExternalAttributions,
     externalAttributedChildren,
-    resolvedExternalAttributions
+    resolvedExternalAttributions,
   );
 }
 
 export function getContainedManualPackages(
   selectedResourceId: string,
-  manualData: Readonly<PanelAttributionData>
+  manualData: Readonly<PanelAttributionData>,
 ): Array<AttributionIdWithCount> {
   const manualAttributedChildren = getAttributedChildren(
     manualData.resourcesWithAttributedChildren,
-    selectedResourceId
+    selectedResourceId,
   );
 
   return computeAggregatedAttributionsFromChildren(
     manualData.attributions,
     manualData.resourcesToAttributions,
-    manualAttributedChildren
+    manualAttributedChildren,
   );
 }
 
@@ -65,7 +65,7 @@ export function computeAggregatedAttributionsFromChildren(
   attributions: Readonly<Attributions>,
   resourcesToAttributions: Readonly<ResourcesToAttributions>,
   attributedChildren: Readonly<Set<string>>,
-  resolvedExternalAttributions?: Readonly<Set<string>>
+  resolvedExternalAttributions?: Readonly<Set<string>>,
 ): Array<AttributionIdWithCount> {
   const attributionCount: { [attributionId: string]: number } = {};
   attributedChildren.forEach((child: string) => {

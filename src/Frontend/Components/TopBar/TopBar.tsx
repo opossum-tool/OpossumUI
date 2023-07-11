@@ -66,7 +66,7 @@ export function TopBar(): ReactElement {
 
   function handleClick(
     event: React.MouseEvent<HTMLElement>,
-    selectedView: View
+    selectedView: View,
   ): void {
     dispatch(setViewOrOpenUnsavedPopup(selectedView));
   }

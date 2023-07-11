@@ -96,12 +96,12 @@ describe('The App in Audit View', () => {
     insertValueIntoTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      'new license'
+      'new license',
     );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
-      'new license'
+      'new license',
     );
   });
 
@@ -155,7 +155,7 @@ describe('The App in Audit View', () => {
     expectPackageInPackagePanel(
       screen,
       'React',
-      'Attributions in Folder Content'
+      'Attributions in Folder Content',
     );
     clickOnElementInResourceBrowser(screen, 'subdirectory_manual');
     expectValueInManualPackagePanel(screen, 'React');
@@ -222,7 +222,7 @@ describe('The App in Audit View', () => {
     expect(screen.queryAllByDisplayValue('10').length).toEqual(1);
     expectValueNotInConfidenceField(
       screen,
-      `High (${DiscreteConfidence.High})`
+      `High (${DiscreteConfidence.High})`,
     );
 
     clickAddIconOnCardInAttributionList(screen, 'React, 16.5.0');
@@ -351,24 +351,24 @@ describe('The App in Audit View', () => {
     expectPackageInPackagePanel(
       screen,
       'JQuery, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
     expectPackageNotInPackagePanel(
       screen,
       'React, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
 
     clickOnPackageInPackagePanel(
       screen,
       'JQuery, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
     clickOnButton(screen, 'resolve attribution');
     expectPackageNotInPackagePanel(
       screen,
       'JQuery, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
@@ -378,7 +378,7 @@ describe('The App in Audit View', () => {
     clickOnPackageInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      PackagePanelTitle.ExternalPackages
+      PackagePanelTitle.ExternalPackages,
     );
     clickOnButton(screen, 'resolve attribution');
     expectAddIconInAddToAttributionCardIsHidden(screen, 'React, 16.5.0');
@@ -388,7 +388,7 @@ describe('The App in Audit View', () => {
     clickOnPackageInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      PackagePanelTitle.ExternalPackages
+      PackagePanelTitle.ExternalPackages,
     );
     expectAddIconInAddToAttributionCardIsHidden(screen, 'Vue, 1.2.0');
 
@@ -436,24 +436,24 @@ describe('The App in Audit View', () => {
     expectPackageInPackagePanel(
       screen,
       'React, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
     expectPackageInPackagePanel(
       screen,
       'Vue, 1.2.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
 
     clickOnPackageInPackagePanel(
       screen,
       'React, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
     clickOnButton(screen, 'resolve attribution');
     expectPackageNotInPackagePanel(
       screen,
       'React, 16.5.0',
-      PackagePanelTitle.ContainedExternalPackages
+      PackagePanelTitle.ContainedExternalPackages,
     );
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
@@ -463,7 +463,7 @@ describe('The App in Audit View', () => {
     clickOnPackageInPackagePanel(
       screen,
       'React, 16.5.0',
-      PackagePanelTitle.ExternalPackages
+      PackagePanelTitle.ExternalPackages,
     );
     clickOnButton(screen, 'resolve attribution');
 
@@ -515,7 +515,7 @@ describe('The App in Audit View', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
     renderComponentWithStore(<App />);
 
@@ -526,17 +526,17 @@ describe('The App in Audit View', () => {
 
     expectButtonInHamburgerMenuIsNotShown(
       screen,
-      ButtonText.UnmarkForReplacement
+      ButtonText.UnmarkForReplacement,
     );
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
     expectButtonInHamburgerMenuIsNotShown(
       screen,
-      ButtonText.MarkForReplacement
+      ButtonText.MarkForReplacement,
     );
     clickOnButtonInHamburgerMenu(screen, ButtonText.UnmarkForReplacement);
     expectButtonInHamburgerMenuIsNotShown(
       screen,
-      ButtonText.UnmarkForReplacement
+      ButtonText.UnmarkForReplacement,
     );
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
 
@@ -565,7 +565,7 @@ describe('The App in Audit View', () => {
     // make sure resources are now linked to React attribution
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 });

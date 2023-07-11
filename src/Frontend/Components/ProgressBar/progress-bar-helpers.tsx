@@ -24,7 +24,7 @@ export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
     const newNumberOfClicks = (numberOfClicks + 1) % resourceIds.length;
     setNumberOfClicks(newNumberOfClicks);
     dispatch(
-      navigateToSelectedPathOrOpenUnsavedPopup(resourceIds[newNumberOfClicks])
+      navigateToSelectedPathOrOpenUnsavedPopup(resourceIds[newNumberOfClicks]),
     );
   }
 
@@ -32,7 +32,7 @@ export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
 }
 
 export function getProgressBarTooltipText(
-  progressBarData: ProgressBarData
+  progressBarData: ProgressBarData,
 ): React.ReactNode {
   return (
     <MuiBox>
@@ -50,7 +50,7 @@ export function getProgressBarTooltipText(
 }
 
 export function getCriticalityBarTooltipText(
-  progressBarData: ProgressBarData
+  progressBarData: ProgressBarData,
 ): React.ReactNode {
   const filesWithNonCriticalExternalAttributions =
     progressBarData.filesWithOnlyExternalAttributionCount -
@@ -75,7 +75,7 @@ export function getCriticalityBarTooltipText(
 
 export function getProgressBarBackground(
   progressBarData: ProgressBarData,
-  progressBarType: ProgressBarType
+  progressBarType: ProgressBarType,
 ): string {
   let filesWithManualAttributions: number =
     (progressBarData.filesWithManualAttributionCount /
@@ -128,7 +128,7 @@ export function getProgressBarBackground(
 }
 
 export function getCriticalityBarBackground(
-  progressBarData: ProgressBarData
+  progressBarData: ProgressBarData,
 ): string {
   if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
     return (
@@ -175,10 +175,10 @@ export function getCriticalityBarBackground(
 // other files.
 // Only segments with 0 files should not be there.
 export function roundToAtLeastOnePercentAndNormalize(
-  numbers: Array<number>
+  numbers: Array<number>,
 ): Array<number> {
   const roundedNumbers = numbers.map((n) =>
-    n > 0 && n < 1 ? 1 : Math.round(n)
+    n > 0 && n < 1 ? 1 : Math.round(n),
   );
   const differenceToExpectedSum = sum(roundedNumbers) - 100;
   if (differenceToExpectedSum !== 0) {

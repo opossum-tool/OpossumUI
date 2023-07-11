@@ -13,7 +13,7 @@ export function getSelectedPackageAttributes(
   packageNamespaces: PackageAttributes,
   packageNames: PackageAttributes,
   packageVersions: PackageAttributes,
-  selectedPackageIds: PackageAttributeIds
+  selectedPackageIds: PackageAttributeIds,
 ): {
   selectedPackageNamespace: string;
   selectedPackageName: string;
@@ -36,14 +36,14 @@ export function getAttributionWizardListItems(
   packageNamespaces: PackageAttributes,
   packageNames: PackageAttributes,
   packageVersions: PackageAttributes,
-  totalAttributionCount: number
+  totalAttributionCount: number,
 ): {
   attributedPackageNamespacesWithManuallyAddedOnes: Array<ListWithAttributesItem>;
   attributedPackageNamesWithManuallyAddedOnes: Array<ListWithAttributesItem>;
   attributedPackageVersionsWithManuallyAddedOnes: Array<ListWithAttributesItem>;
 } {
   const attributedPackageNamespacesWithManuallyAddedOnes = Object.entries(
-    packageNamespaces
+    packageNamespaces,
   ).map(([uuid, textAndCountAndManuallyAddedFlag]) => ({
     text: textAndCountAndManuallyAddedFlag.text,
     id: uuid,
@@ -54,14 +54,14 @@ export function getAttributionWizardListItems(
           {
             text: getCountText(
               textAndCountAndManuallyAddedFlag.count || 0,
-              totalAttributionCount
+              totalAttributionCount,
             ),
           },
         ],
   }));
 
   const attributedPackageNamesWithManuallyAddedOnes = Object.entries(
-    packageNames
+    packageNames,
   ).map(([uuid, textAndCountAndManuallyAddedFlag]) => ({
     text: textAndCountAndManuallyAddedFlag.text,
     id: uuid,
@@ -72,14 +72,14 @@ export function getAttributionWizardListItems(
           {
             text: getCountText(
               textAndCountAndManuallyAddedFlag.count || 0,
-              totalAttributionCount
+              totalAttributionCount,
             ),
           },
         ],
   }));
 
   const attributedPackageVersionsWithManuallyAddedOnes = Object.entries(
-    packageVersions
+    packageVersions,
   ).map(([uuid, textAndRelatedIdsAndManuallyAddedFlag]) => ({
     text: textAndRelatedIdsAndManuallyAddedFlag.text,
     id: uuid,
@@ -90,7 +90,7 @@ export function getAttributionWizardListItems(
           (relatedPackageNameIds) => ({
             text: packageNames[relatedPackageNameIds].text,
             id: relatedPackageNameIds,
-          })
+          }),
         ),
   }));
 

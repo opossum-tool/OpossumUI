@@ -7,7 +7,7 @@ import { PackagePanelTitle } from '../enums/enums';
 
 export function createPackageCardId(
   panelTitle: PackagePanelTitle,
-  index: number
+  index: number,
 ): string {
   return `${panelTitle}-${index}`;
 }

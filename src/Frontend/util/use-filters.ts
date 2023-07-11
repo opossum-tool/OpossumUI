@@ -14,11 +14,11 @@ import { useAppSelector } from '../state/hooks';
 import { getActiveFilters } from '../state/selectors/view-selector';
 
 export function useFilters(
-  attributions: AttributionsWithResources
+  attributions: AttributionsWithResources,
 ): AttributionsWithResources;
 export function useFilters(attributions: Attributions): Attributions;
 export function useFilters(
-  attributions: AttributionsWithResources | Attributions
+  attributions: AttributionsWithResources | Attributions,
 ): AttributionsWithResources | Attributions {
   const activeFilters = useAppSelector(getActiveFilters);
 

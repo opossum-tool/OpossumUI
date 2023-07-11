@@ -54,11 +54,11 @@ describe('getExternalAndManualAttributionIdsWithCountsFromResourceAndChildren', 
         testResourcesWithExternallyAttributedChildren,
         testResourcesToManualAttributions,
         testResourcesWithManuallyAttributedChildren,
-        testResolvedExternalAttributions
+        testResolvedExternalAttributions,
       );
 
     expect(testAttributionsWithCounts).toEqual(
-      expectedTestAttributionsWithCounts
+      expectedTestAttributionsWithCounts,
     );
   });
 });
@@ -111,16 +111,16 @@ describe('getAttributionWizardInitialState', () => {
       totalAttributionCount: testTotalAttributionCount,
     } = getAttributionWizardInitialState(
       testExternalAndManualAttributionIdsWithCounts,
-      testExternalAndManualAttributions
+      testExternalAndManualAttributions,
     );
 
     expect(Object.values(testPackageNamespaces)).toEqual(
-      expectedPackageNamespacesValues
+      expectedPackageNamespacesValues,
     );
     expect(Object.values(testPackageNames)).toEqual(expectedPackageNamesValues);
     Object.values(testPackageVersions).forEach((packageVersion, index) => {
       expect(packageVersion.text).toBe(
-        expectedPackageVersionsValues[index].text
+        expectedPackageVersionsValues[index].text,
       );
       expect(packageVersion).toHaveProperty('relatedIds');
     });
@@ -146,11 +146,11 @@ describe('getPackageVersionsWithRelatedPackageNameIds', () => {
 
     const testPackageVersions = getPackageVersionsWithRelatedPackageNameIds(
       testPackageVersionsToNames,
-      testPackageNames
+      testPackageNames,
     );
 
     expect(Object.values(testPackageVersions)).toEqual(
-      expectedPackageVersionsValues
+      expectedPackageVersionsValues,
     );
   });
 });
@@ -186,11 +186,11 @@ describe('getPreSelectedPackageAttributeIds', () => {
         testStartingDisplayPackageInfo,
         testPackageNamespaces,
         testPackageNames,
-        testPackageVersions
+        testPackageVersions,
       );
 
     expect(testPreSelectedPackageAttributeIds).toEqual(
-      expectedPreSelectedPackageAttributeIds
+      expectedPreSelectedPackageAttributeIds,
     );
   });
 });

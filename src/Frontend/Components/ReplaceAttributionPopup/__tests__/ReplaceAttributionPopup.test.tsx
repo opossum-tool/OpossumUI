@@ -51,7 +51,7 @@ function setupTestState(store: EnhancedTestStore): void {
   store.dispatch(setSelectedAttributionId('test_selected_id'));
   store.dispatch(setAttributionIdMarkedForReplacement('test_marked_id'));
   store.dispatch(
-    openPopup(PopupType.ReplaceAttributionPopup, 'test_selected_id')
+    openPopup(PopupType.ReplaceAttributionPopup, 'test_selected_id'),
   );
   store.dispatch(
     loadFromFile(
@@ -59,8 +59,8 @@ function setupTestState(store: EnhancedTestStore): void {
         resources: testResources,
         manualAttributions: testAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
-    )
+      }),
+    ),
   );
 }
 
@@ -97,14 +97,14 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.queryByText(ButtonText.Delete)).not.toBeInTheDocument();
     expect(screen.queryByText(ButtonText.Hide)).not.toBeInTheDocument();
     expect(
-      screen.queryByText(ButtonText.ShowResources)
+      screen.queryByText(ButtonText.ShowResources),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(ButtonText.Confirm)).not.toBeInTheDocument();
     expect(
-      screen.queryByText(ButtonText.ConfirmGlobally)
+      screen.queryByText(ButtonText.ConfirmGlobally),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(ButtonText.DeleteGlobally)
+      screen.queryByText(ButtonText.DeleteGlobally),
     ).not.toBeInTheDocument();
   });
 
@@ -112,7 +112,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     const testStore = createTestAppStore();
     setupTestState(testStore);
     testStore.dispatch(
-      setMultiSelectSelectedAttributionIds(['test_marked_id'])
+      setMultiSelectSelectedAttributionIds(['test_marked_id']),
     );
 
     renderComponentWithStore(<ReplaceAttributionPopup />, {

@@ -11,21 +11,21 @@ import {
 describe('getGithubAPIUrl', () => {
   it('handles a normal github url', () => {
     expect(getGithubAPIUrl('https://github.com/opossum-tool/OpossumUI')).toBe(
-      'https://api.github.com/repos/opossum-tool/OpossumUI/license'
+      'https://api.github.com/repos/opossum-tool/OpossumUI/license',
     );
   });
 
   it('handles a trailing slash', () => {
     expect(getGithubAPIUrl('https://github.com/opossum-tool/OpossumUI/')).toBe(
-      'https://api.github.com/repos/opossum-tool/OpossumUI/license'
+      'https://api.github.com/repos/opossum-tool/OpossumUI/license',
     );
   });
 
   it('handles additional parts at the end of the url', () => {
     expect(
       getGithubAPIUrl(
-        'https://github.com/opossum-tool/OpossumUI/some/more/suffixes'
-      )
+        'https://github.com/opossum-tool/OpossumUI/some/more/suffixes',
+      ),
     ).toBe('https://api.github.com/repos/opossum-tool/OpossumUI/license');
   });
 });
@@ -35,7 +35,7 @@ describe('convertGithubPayload', () => {
     const payload = { license: {} };
 
     expect(() => convertGithubPayload(payload)).toThrow(
-      'requires property "spdx_id"'
+      'requires property "spdx_id"',
     );
   });
 

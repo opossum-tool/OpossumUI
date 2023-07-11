@@ -51,7 +51,7 @@ describe('The go to link button', () => {
     clickGoToLinkIcon(screen, 'link to open');
     expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(
-      expectedLinkForParent
+      expectedLinkForParent,
     );
 
     clickOnElementInResourceBrowser(screen, 'something_else.js');
@@ -59,7 +59,7 @@ describe('The go to link button', () => {
     clickGoToLinkIcon(screen, 'link to open');
     expect(window.electronAPI.openLink).toHaveBeenCalledTimes(2);
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(
-      expectedLinkForFile
+      expectedLinkForFile,
     );
   });
 });

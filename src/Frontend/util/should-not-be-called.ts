@@ -5,6 +5,6 @@
 
 export function shouldNotBeCalled(variableOfInterest: never): never {
   throw Error(
-    `There is a typing problem with respect to ${variableOfInterest}.`
+    `There is a typing problem with respect to ${variableOfInterest}.`,
   );
 }

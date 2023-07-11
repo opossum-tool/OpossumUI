@@ -23,7 +23,7 @@ describe('The ManualPackagePanel', () => {
         overrideParentMode={false}
         showAddNewAttributionButton={true}
         onOverrideParentClick={mockOnOverride}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
@@ -35,8 +35,8 @@ describe('The ManualPackagePanel', () => {
               uuid2: { packageName: 'Angular' },
             },
             resourcesToManualAttributions: { '/file': ['uuid1'] },
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(setSelectedResourceId('/file'));
     });
@@ -53,7 +53,7 @@ describe('The ManualPackagePanel', () => {
         overrideParentMode={false}
         showAddNewAttributionButton={true}
         onOverrideParentClick={mockOnOverride}
-      />
+      />,
     );
     const overrideButton = screen.queryByText('Override parent');
     expect(overrideButton).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('The ManualPackagePanel', () => {
         overrideParentMode={false}
         showAddNewAttributionButton={true}
         onOverrideParentClick={mockOnOverride}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
@@ -100,8 +100,8 @@ describe('The ManualPackagePanel', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       store.dispatch(setSelectedResourceId('/file'));
     });

@@ -41,8 +41,8 @@ import { v4 as uuid4 } from 'uuid';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import {
   parseInputJsonFile,
-  parseOutputJsonFile,
   parseOpossumFile,
+  parseOutputJsonFile,
 } from './parseFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
@@ -53,7 +53,7 @@ function isJsonParsingError(object: unknown): object is JsonParsingError {
 }
 
 function isInvalidDotOpossumFileError(
-  object: unknown
+  object: unknown,
 ): object is InvalidDotOpossumFileError {
   return (
     (object as InvalidDotOpossumFileError).type === 'invalidDotOpossumFileError'
@@ -62,7 +62,7 @@ function isInvalidDotOpossumFileError(
 
 export async function loadInputAndOutputFromFilePath(
   mainWindow: BrowserWindow,
-  filePath: string
+  filePath: string,
 ): Promise<void> {
   mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
     resetState: true,
@@ -84,7 +84,7 @@ export async function loadInputAndOutputFromFilePath(
       setLoadingState(mainWindow.webContents, false);
       await getMessageBoxForInvalidDotOpossumFileError(
         parsingResult.filesInArchive,
-        mainWindow
+        mainWindow,
       );
       return;
     }
@@ -115,12 +115,12 @@ export async function loadInputAndOutputFromFilePath(
         filePath,
         externalAttributions,
         resourcesToAttributions,
-        projectId
+        projectId,
       );
     } else {
       const outputJsonPath = getFilePathWithAppendix(
         filePath,
-        '_attributions.json'
+        '_attributions.json',
       );
       const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
       parsedOutputData = parseOrCreateOutputJsonFile(
@@ -128,24 +128,24 @@ export async function loadInputAndOutputFromFilePath(
         externalAttributions,
         resourcesToAttributions,
         projectId,
-        inputFileMD5Checksum
+        inputFileMD5Checksum,
       );
     }
   }
 
   const [manualAttributions] = parseRawAttributions(
-    parsedOutputData.manualAttributions
+    parsedOutputData.manualAttributions,
   );
 
   log.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
-    parsedInputData.frequentLicenses
+    parsedInputData.frequentLicenses,
   );
 
   log.info('Sanitizing external resources to attributions');
   const resourcesToExternalAttributions = sanitizeResourcesToAttributions(
     parsedInputData.resources,
-    parsedInputData.resourcesToAttributions
+    parsedInputData.resourcesToAttributions,
   );
   log.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
@@ -158,7 +158,7 @@ export async function loadInputAndOutputFromFilePath(
       resourcesToAttributions: cleanNonExistentAttributions(
         mainWindow.webContents,
         parsedOutputData.resourcesToAttributions ?? {},
-        manualAttributions
+        manualAttributions,
       ),
     },
     externalAttributions: {
@@ -169,14 +169,14 @@ export async function loadInputAndOutputFromFilePath(
     resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
       mainWindow.webContents,
       parsedOutputData.resolvedExternalAttributions,
-      externalAttributions
+      externalAttributions,
     ),
     attributionBreakpoints: new Set(
-      parsedInputData.attributionBreakpoints ?? []
+      parsedInputData.attributionBreakpoints ?? [],
     ),
     filesWithChildren: new Set(parsedInputData.filesWithChildren ?? []),
     baseUrlsForSources: sanitizeRawBaseUrlsForSources(
-      parsedInputData.baseUrlsForSources
+      parsedInputData.baseUrlsForSources,
     ),
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
@@ -184,7 +184,7 @@ export async function loadInputAndOutputFromFilePath(
   log.info('Sending data to electron frontend');
   mainWindow.webContents.send(
     AllowedFrontendChannels.FileLoaded,
-    parsedFileContent
+    parsedFileContent,
   );
 
   log.info('Updating global backend state');
@@ -201,23 +201,23 @@ async function createOutputInOpossumFile(
   filePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
-  projectId: string
+  projectId: string,
 ): Promise<ParsedOpossumOutputFile> {
   log.info(
-    `Starting to create output in .opossum file, project ID is ${projectId}`
+    `Starting to create output in .opossum file, project ID is ${projectId}`,
   );
 
   const attributionJSON = createJsonOutputFile(
     externalAttributions,
     resourcesToExternalAttributions,
-    projectId
+    projectId,
   );
   await writeOutputJsonToOpossumFile(filePath, attributionJSON);
   log.info('... Successfully wrote output in .opssum file.');
 
   log.info(`Starting to parse output file in ${filePath} ...`);
   const parsingResult = (await parseOpossumFile(
-    filePath
+    filePath,
   )) as ParsedOpossumInputAndOutput;
   const parsedOutputFile = parsingResult.output as ParsedOpossumOutputFile;
   log.info('... Successfully parsed output file.');
@@ -229,7 +229,7 @@ function parseOrCreateOutputJsonFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string,
-  inputFileMD5Checksum?: string
+  inputFileMD5Checksum?: string,
 ): ParsedOpossumOutputFile {
   if (!fs.existsSync(filePath)) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
@@ -237,7 +237,7 @@ function parseOrCreateOutputJsonFile(
       externalAttributions,
       resourcesToExternalAttributions,
       projectId,
-      inputFileMD5Checksum
+      inputFileMD5Checksum,
     );
     writeJsonToFile(filePath, attributionJSON);
     log.info('... Successfully created output file.');
@@ -253,26 +253,26 @@ function createJsonOutputFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string,
-  inputFileMD5Checksum?: string
+  inputFileMD5Checksum?: string,
 ): OpossumOutputFile {
   const externalAttributionsCopy = cloneDeep(externalAttributions);
   const preselectedExternalAttributions = Object.fromEntries(
     Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
       delete packageInfo.source;
       return Boolean(packageInfo.preSelected);
-    })
+    }),
   );
   const preselectedAttributionIdsToExternalAttributionIds = Object.fromEntries(
     Object.keys(preselectedExternalAttributions).map((attributionId) => [
       attributionId,
       uuid4(),
-    ])
+    ]),
   );
   const preselectedAttributionsToResources = Object.fromEntries(
     Object.entries(resourcesToExternalAttributions).map(
       ([resourceId, attributionIds]) => {
         const filteredAttributionIds = attributionIds.filter((attributionId) =>
-          Object.keys(preselectedExternalAttributions).includes(attributionId)
+          Object.keys(preselectedExternalAttributions).includes(attributionId),
         );
         return filteredAttributionIds.length
           ? [
@@ -281,20 +281,20 @@ function createJsonOutputFile(
                 (attributionId) =>
                   preselectedAttributionIdsToExternalAttributionIds[
                     attributionId
-                  ]
+                  ],
               ),
             ]
           : [];
-      }
-    )
+      },
+    ),
   );
   const preselectedAttributions = Object.fromEntries(
     Object.entries(preselectedExternalAttributions).map(
       ([attributionId, packageInfo]) => [
         preselectedAttributionIdsToExternalAttributionIds[attributionId],
         packageInfo,
-      ]
-    )
+      ],
+    ),
   );
 
   for (const attributionId of Object.keys(preselectedAttributions)) {

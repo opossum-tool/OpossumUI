@@ -21,12 +21,12 @@ import { removeTrailingSlashIfFileWithChildren } from './remove-trailing-slash-i
 
 export function getAttributionsWithResources(
   attributions: Attributions,
-  attributionsToResources: AttributionsToResources
+  attributionsToResources: AttributionsToResources,
 ): AttributionsWithResources {
   return getAttributionsWithResourcePaths(
     attributions,
     attributionsToResources,
-    getResources
+    getResources,
   );
 }
 
@@ -36,26 +36,26 @@ export function getAttributionsWithAllChildResourcesWithoutFolders(
   resourcesToAttributions: ResourcesToAttributions,
   resources: Resources,
   isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): AttributionsWithResources {
   function getGetResourcesRecursively() {
     return (
       attributionsToResources: AttributionsToResources,
-      attributionId: string
+      attributionId: string,
     ): Array<string> =>
       getResourcesRecursively(
         attributionsToResources[attributionId] || [],
         resources,
         resourcesToAttributions,
         isAttributionBreakpoint,
-        isFileWithChildren
+        isFileWithChildren,
       );
   }
 
   return getAttributionsWithResourcePaths(
     attributions,
     attributionsToResources,
-    getGetResourcesRecursively()
+    getGetResourcesRecursively(),
   );
 }
 
@@ -64,12 +64,12 @@ function getAttributionsWithResourcePaths(
   attributionsToResources: AttributionsToResources,
   getResources: (
     attributionsToResources: AttributionsToResources,
-    attributionId: string
-  ) => Array<string>
+    attributionId: string,
+  ) => Array<string>,
 ): AttributionsWithResources {
   const reducer = (
     attributionsWithResources: AttributionsWithResources,
-    attributionId: string
+    attributionId: string,
   ): AttributionsWithResources => ({
     ...attributionsWithResources,
     [attributionId]: {
@@ -83,7 +83,7 @@ function getAttributionsWithResourcePaths(
 
 function getResources(
   attributionsToResources: AttributionsToResources,
-  attributionId: string
+  attributionId: string,
 ): Array<string> {
   return attributionsToResources[attributionId] || [];
 }
@@ -93,7 +93,7 @@ function getResourcesRecursively(
   resources: Resources,
   resourcesToAttributions: ResourcesToAttributions,
   isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): Array<string> {
   return resourcePaths.flatMap((path) => {
     if (isIdOfResourceWithChildren(path)) {
@@ -102,7 +102,7 @@ function getResourcesRecursively(
         getSubtree(resources, path),
         resourcesToAttributions,
         isAttributionBreakpoint,
-        isFileWithChildren
+        isFileWithChildren,
       );
       return isFileWithChildren(path) ? childPaths.concat(path) : childPaths;
     } else {
@@ -128,7 +128,7 @@ function getAllChildPathsOfFolder(
   childTree: Resources,
   resourcesToAttributions: ResourcesToAttributions,
   isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): Array<string> {
   let childPaths: Array<string> = [];
 
@@ -147,8 +147,8 @@ function getAllChildPathsOfFolder(
             childSubtree,
             resourcesToAttributions,
             isAttributionBreakpoint,
-            isFileWithChildren
-          )
+            isFileWithChildren,
+          ),
         );
         if (isFileWithChildren(directChildPath)) {
           childPaths.push(directChildPath);
@@ -168,7 +168,7 @@ function getAllChildPathsOfFolder(
 
 export function removeSlashesFromFilesWithChildren(
   attributionsWithResources: AttributionsWithResources,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): AttributionsWithResources {
   return Object.fromEntries(
     Object.entries(attributionsWithResources).map(([id, attributionInfo]) => {
@@ -177,10 +177,10 @@ export function removeSlashesFromFilesWithChildren(
         {
           ...attributionInfo,
           resources: attributionInfo.resources.map((path) =>
-            removeTrailingSlashIfFileWithChildren(path, isFileWithChildren)
+            removeTrailingSlashIfFileWithChildren(path, isFileWithChildren),
           ),
         },
       ];
-    })
+    }),
   );
 }

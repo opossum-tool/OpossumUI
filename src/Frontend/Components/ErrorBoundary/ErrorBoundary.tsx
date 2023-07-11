@@ -100,5 +100,5 @@ function mapDispatchToProps(dispatch: Dispatch<AnyAction>): DispatchProps {
 
 export const ErrorBoundary = connect(
   null,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(ProtoErrorBoundary);

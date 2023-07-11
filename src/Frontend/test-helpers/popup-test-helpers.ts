@@ -11,7 +11,7 @@ export function expectShowResourcesPopupVisible(screen: Screen): void {
 
 export function clickOnNodeInPopupWithResources(
   screen: Screen,
-  nodeLabel: string
+  nodeLabel: string,
 ): void {
   const popupWithResources = getPopupWithResources(screen);
   // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -38,7 +38,7 @@ export function expectReplaceAttributionPopupIsShown(screen: Screen): void {
 
 export function expectReplaceAttributionPopupIsNotShown(screen: Screen): void {
   expect(
-    screen.queryByText('This removes the following attribution')
+    screen.queryByText('This removes the following attribution'),
   ).not.toBeInTheDocument();
 }
 
@@ -60,17 +60,17 @@ export function expectConfirmDeletionPopupNotVisible(screen: Screen): void {
 
 export function expectConfirmMultiSelectDeletionPopupVisible(
   screen: Screen,
-  numberOfSelectedAttributions: number
+  numberOfSelectedAttributions: number,
 ): void {
   expect(
     screen.getByText(
-      `Do you really want to delete the selected attributions for all files? This action will delete ${numberOfSelectedAttributions} attributions.`
-    )
+      `Do you really want to delete the selected attributions for all files? This action will delete ${numberOfSelectedAttributions} attributions.`,
+    ),
   ).toBeInTheDocument();
 }
 
 export function expectConfirmMultiSelectDeletionPopupNotVisible(
-  screen: Screen
+  screen: Screen,
 ): void {
   expect(screen.queryByText('Confirm Deletion')).not.toBeInTheDocument();
 }

@@ -11,8 +11,10 @@ import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { generatePurlFromDisplayPackageInfo } from '../../util/handle-purl';
 import { doNothing } from '../../util/do-nothing';
 import { TextBox } from '../InputElements/TextBox';
-import { attributionWizardStepClasses } from '../../shared-styles';
-import { ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT } from '../../shared-styles';
+import {
+  ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT,
+  attributionWizardStepClasses,
+} from '../../shared-styles';
 import { SxProps } from '@mui/system';
 import { sortAttributedPackageVersions } from './attribution-wizard-verstion-step-helpers';
 
@@ -33,10 +35,10 @@ interface AttributionWizardVersionStepProps {
 }
 
 export function AttributionWizardVersionStep(
-  props: AttributionWizardVersionStepProps
+  props: AttributionWizardVersionStepProps,
 ): ReactElement {
   const temporaryPurl = generatePurlFromDisplayPackageInfo(
-    props.selectedDisplayPackageInfo
+    props.selectedDisplayPackageInfo,
   );
 
   return (

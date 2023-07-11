@@ -54,8 +54,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributionIdsWithCount,
         testAttributions,
         testExternalAttributionsToHashes,
-        testPackagePanelTitle
-      )
+        testPackagePanelTitle,
+      ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
@@ -92,8 +92,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributionIdsWithCount,
         testAttributions,
         testExternalAttributionsToHashes,
-        testPackagePanelTitle
-      )
+        testPackagePanelTitle,
+      ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
@@ -122,8 +122,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributionIdsWithCount,
         testAttributions,
         testExternalAttributionsToHashes,
-        testPackagePanelTitle
-      )
+        testPackagePanelTitle,
+      ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
@@ -162,8 +162,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributionIdsWithCount,
         testAttributions,
         testExternalAttributionsToHashes,
-        testPackagePanelTitle
-      )
+        testPackagePanelTitle,
+      ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
@@ -192,8 +192,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributionIdsWithCount,
         testAttributions,
         testExternalAttributionsToHashes,
-        testPackagePanelTitle
-      )
+        testPackagePanelTitle,
+      ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 
@@ -240,8 +240,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributionIdsWithCount,
         testAttributions,
         testExternalAttributionsToHashes,
-        testPackagePanelTitle
-      )
+        testPackagePanelTitle,
+      ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 });
@@ -312,7 +312,7 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
         selectedResourceId,
         manualData,
         panelTitle: testPackagePanelTitle,
-      })
+      }),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 });
@@ -364,8 +364,8 @@ describe('sortDisplayPackageInfosWithCountByCountAndPackageName', () => {
 
     const result = initialPackageCardIds.sort(
       sortDisplayPackageInfosWithCountByCountAndPackageName(
-        testDisplayPackageInfosWithCount
-      )
+        testDisplayPackageInfosWithCount,
+      ),
     );
     expect(result).toEqual(expectedPackageCardIds);
   });

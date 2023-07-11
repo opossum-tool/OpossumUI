@@ -15,8 +15,8 @@ describe('isImportantAttributionInformationMissing', () => {
     expect(
       isImportantAttributionInformationMissing(
         'packageNamespace',
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(true);
   });
 
@@ -28,8 +28,8 @@ describe('isImportantAttributionInformationMissing', () => {
     expect(
       isImportantAttributionInformationMissing(
         'excludeFromNotice',
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(false);
   });
 
@@ -40,8 +40,8 @@ describe('isImportantAttributionInformationMissing', () => {
     expect(
       isImportantAttributionInformationMissing(
         'packageName',
-        testAttributionInfo
-      )
+        testAttributionInfo,
+      ),
     ).toEqual(true);
   });
 
@@ -51,7 +51,10 @@ describe('isImportantAttributionInformationMissing', () => {
       resources: ['1'],
     };
     expect(
-      isImportantAttributionInformationMissing('copyright', testAttributionInfo)
+      isImportantAttributionInformationMissing(
+        'copyright',
+        testAttributionInfo,
+      ),
     ).toEqual(false);
   });
 });

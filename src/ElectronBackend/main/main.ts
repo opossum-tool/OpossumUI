@@ -14,16 +14,16 @@ import { IpcChannel } from '../../shared/ipc-channels';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
 import {
+  getConvertInputFileToDotOpossumAndOpenListener,
+  getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
+  getKeepFileListener,
+  getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
   getOpenLinkListener,
-  getDeleteAndCreateNewAttributionFileListener,
+  getOpenOutdatedInputFileListener,
   getSaveFileListener,
   getSendErrorInformationListener,
-  getKeepFileListener,
-  getConvertInputFileToDotOpossumAndOpenListener,
-  getOpenOutdatedInputFileListener,
-  getOpenDotOpossumFileInsteadListener,
 } from './listeners';
 import { installExtensionsForDev } from './installExtensionsForDev';
 import os from 'os';
@@ -37,7 +37,7 @@ export async function main(): Promise<void> {
       systemPreferences.setUserDefault(
         'AppleShowScrollBars',
         'string',
-        'Always'
+        'Always',
       );
     }
 
@@ -45,26 +45,26 @@ export async function main(): Promise<void> {
 
     ipcMain.handle(
       IpcChannel.ConvertInputFile,
-      getConvertInputFileToDotOpossumAndOpenListener(mainWindow)
+      getConvertInputFileToDotOpossumAndOpenListener(mainWindow),
     );
     ipcMain.handle(
       IpcChannel.UseOutdatedInputFile,
-      getOpenOutdatedInputFileListener(mainWindow)
+      getOpenOutdatedInputFileListener(mainWindow),
     );
     ipcMain.handle(
       IpcChannel.OpenDotOpossumFile,
-      getOpenDotOpossumFileInsteadListener(mainWindow)
+      getOpenDotOpossumFileInsteadListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.OpenFile, getOpenFileListener(mainWindow));
     ipcMain.handle(IpcChannel.SaveFile, getSaveFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.DeleteFile,
-      getDeleteAndCreateNewAttributionFileListener(mainWindow)
+      getDeleteAndCreateNewAttributionFileListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.KeepFile, getKeepFileListener(mainWindow));
     ipcMain.handle(
       IpcChannel.SendErrorInformation,
-      getSendErrorInformationListener(mainWindow)
+      getSendErrorInformationListener(mainWindow),
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());
@@ -79,11 +79,11 @@ export async function main(): Promise<void> {
   } catch (error) {
     if (error instanceof Error) {
       await dialog.showMessageBox(
-        getMessageBoxContentForErrorsWrapper(true, error.stack)(error.message)
+        getMessageBoxContentForErrorsWrapper(true, error.stack)(error.message),
       );
     } else {
       await dialog.showMessageBox(
-        getMessageBoxContentForErrorsWrapper(true)('Unexpected internal error')
+        getMessageBoxContentForErrorsWrapper(true)('Unexpected internal error'),
       );
     }
   }

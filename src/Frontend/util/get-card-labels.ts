@@ -19,7 +19,7 @@ const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES: Array<RelevantDisplayPackageI
 const FIRST_PARTY_TEXT = 'First party';
 
 export function getCardLabels(
-  displayPackageInfo: DisplayPackageInfo
+  displayPackageInfo: DisplayPackageInfo,
 ): Array<string> {
   const packageLabels: Array<string> = [];
 
@@ -37,20 +37,20 @@ export function getCardLabels(
 function addPackageLabelsFromAttribute(
   packageInfo: DisplayPackageInfo,
   attribute: RelevantDisplayPackageInfoAttributes,
-  packageLabels: Array<string>
+  packageLabels: Array<string>,
 ): void {
   if (packageInfo[attribute]) {
     if (packageLabels.length === 0) {
       addFirstLineOfPackageLabelFromAttribute(
         attribute,
         packageInfo,
-        packageLabels
+        packageLabels,
       );
     } else {
       addSecondLineOfPackageLabelFromAttribute(
         attribute,
         packageInfo,
-        packageLabels
+        packageLabels,
       );
     }
   } else if (
@@ -65,7 +65,7 @@ function addPackageLabelsFromAttribute(
 export function addFirstLineOfPackageLabelFromAttribute(
   attribute: RelevantDisplayPackageInfoAttributes,
   packageInfo: DisplayPackageInfo,
-  packageLabels: Array<string>
+  packageLabels: Array<string>,
 ): void {
   let firstLinePackageLabel;
   if (attribute === 'packageName') {
@@ -85,7 +85,7 @@ export function addFirstLineOfPackageLabelFromAttribute(
 export function addSecondLineOfPackageLabelFromAttribute(
   attribute: RelevantDisplayPackageInfoAttributes,
   packageInfo: DisplayPackageInfo,
-  packageLabels: Array<string>
+  packageLabels: Array<string>,
 ): void {
   let secondLinePackageLabel;
   if (attribute === 'copyright') {
@@ -117,7 +117,7 @@ export function addPreambleToCopyright(originalCopyright: string): string {
 
 function addFirstPartyTextIfNoOtherTextPresent(
   packageLabels: Array<string>,
-  packageInfo: DisplayPackageInfo
+  packageInfo: DisplayPackageInfo,
 ): void {
   if (packageLabels.length === 0 && packageInfo.firstParty) {
     packageLabels.push(FIRST_PARTY_TEXT);

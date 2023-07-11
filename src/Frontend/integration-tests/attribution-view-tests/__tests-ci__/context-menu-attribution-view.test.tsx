@@ -88,23 +88,23 @@ describe('In Attribution View the ContextMenu', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
     renderComponentWithStore(<App />);
 
     goToView(screen, View.Attribution);
     expectGlobalOnlyContextMenuForPreselectedAttribution(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
     clickOnButtonInPackageContextMenu(
       screen,
       'React, 16.5.0',
-      ButtonText.ConfirmGlobally
+      ButtonText.ConfirmGlobally,
     );
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
     clickOnCardInAttributionList(screen, 'React, 16.5.0');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -116,7 +116,7 @@ describe('In Attribution View the ContextMenu', () => {
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
     expectValueInTextBox(screen, 'Name', 'React');
     expectValueNotInConfidenceField(screen, '10');
@@ -180,7 +180,7 @@ describe('In Attribution View the ContextMenu', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
     renderComponentWithStore(<App />);
 
@@ -194,7 +194,7 @@ describe('In Attribution View the ContextMenu', () => {
     clickOnButtonInPackageContextMenu(
       screen,
       'jQuery, 16.0.0',
-      ButtonText.MarkForReplacement
+      ButtonText.MarkForReplacement,
     );
 
     fireEvent.click(screen.getByText('React, 16.0.0') as Element);
@@ -202,7 +202,7 @@ describe('In Attribution View the ContextMenu', () => {
     handleReplaceMarkedAttributionViaContextMenu(
       screen,
       'React, 16.0.0',
-      ButtonText.Cancel
+      ButtonText.Cancel,
     );
 
     expect(screen.getByText('jQuery, 16.0.0')).toBeInTheDocument();
@@ -210,12 +210,12 @@ describe('In Attribution View the ContextMenu', () => {
     handleReplaceMarkedAttributionViaContextMenu(
       screen,
       'React, 16.0.0',
-      ButtonText.Replace
+      ButtonText.Replace,
     );
     expectValueInTextBox(screen, 'Name', 'React');
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'React, 16.0.0'
+      'React, 16.0.0',
     );
 
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
@@ -225,7 +225,7 @@ describe('In Attribution View the ContextMenu', () => {
     // make sure resources are now linked to React attribution
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 
@@ -235,14 +235,14 @@ describe('In Attribution View the ContextMenu', () => {
         resources: testResources,
         manualAttributions: testManualAttributions,
         resourcesToManualAttributions: testResourcesToManualAttributions,
-      })
+      }),
     );
     renderComponentWithStore(<App />);
 
     goToView(screen, View.Attribution);
     expectGlobalOnlyContextMenuForPreselectedAttribution(
       screen,
-      'React, 16.5.0'
+      'React, 16.5.0',
     );
 
     clickOnMultiSelectCheckboxInPackageCard(screen, 'React, 16.5.0');
@@ -252,18 +252,18 @@ describe('In Attribution View the ContextMenu', () => {
     expectButtonInPackageContextMenu(
       screen,
       'React, 16.5.0',
-      ButtonText.DeleteSelectedGlobally
+      ButtonText.DeleteSelectedGlobally,
     );
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 1.2.0',
-      ButtonText.DeleteSelectedGlobally
+      ButtonText.DeleteSelectedGlobally,
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'Vue, 1.2.0',
-      ButtonText.DeleteSelectedGlobally
+      ButtonText.DeleteSelectedGlobally,
     );
     expectConfirmMultiSelectDeletionPopupVisible(screen, 2);
     clickOnButton(screen, ButtonText.Confirm);

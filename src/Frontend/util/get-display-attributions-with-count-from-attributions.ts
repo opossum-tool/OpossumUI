@@ -8,7 +8,9 @@ import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
 import { DisplayPackageInfoWithCount } from '../types/types';
 
 export function getDisplayPackageInfoWithCountFromAttributions(
-  attributionsWithIdsAndCounts: Array<[string, PackageInfo, number | undefined]>
+  attributionsWithIdsAndCounts: Array<
+    [string, PackageInfo, number | undefined]
+  >,
 ): DisplayPackageInfoWithCount {
   const displayAttributionConfidences: Array<number> =
     attributionsWithIdsAndCounts.reduce(
@@ -19,7 +21,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
         }
         return filteredConfidences;
       },
-      Array<number>()
+      Array<number>(),
     );
 
   const counts: Array<number> = attributionsWithIdsAndCounts.reduce(
@@ -30,7 +32,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
       }
       return filteredCounts;
     },
-    Array<number>()
+    Array<number>(),
   );
 
   const comments: Array<string> = attributionsWithIdsAndCounts.reduce(
@@ -41,22 +43,22 @@ export function getDisplayPackageInfoWithCountFromAttributions(
       }
       return filteredComments;
     },
-    Array<string>()
+    Array<string>(),
   );
 
   const originIdsAsSet: Set<string> = attributionsWithIdsAndCounts.reduce(
     (originIdSet, attributionWithIdAndCount) => {
       (attributionWithIdAndCount[1].originIds ?? []).forEach(
-        (originId: string) => originIdSet.add(originId)
+        (originId: string) => originIdSet.add(originId),
       );
       return originIdSet;
     },
-    new Set<string>()
+    new Set<string>(),
   );
   const originIds: Array<string> = [...originIdsAsSet];
 
   const attributionIds = attributionsWithIdsAndCounts.map(
-    (attributionWithIdAndCount) => attributionWithIdAndCount[0]
+    (attributionWithIdAndCount) => attributionWithIdAndCount[0],
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -69,7 +71,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
   };
   if (displayAttributionConfidences.length > 0) {
     attributionToShow.attributionConfidence = Math.min(
-      ...displayAttributionConfidences
+      ...displayAttributionConfidences,
     );
   }
   if (comments.length > 0) {

@@ -22,7 +22,7 @@ export function createListenerCallbackWithErrorHandling(
   mainWindow: BrowserWindow,
   // @ts-nocheck
   // eslint-disable-next-line @typescript-eslint/ban-types
-  func: Function
+  func: Function,
 ): (...args: Array<unknown>) => Promise<void> {
   return async (...args: Array<unknown>): Promise<void> => {
     try {
@@ -34,7 +34,7 @@ export function createListenerCallbackWithErrorHandling(
           error.message,
           error.stack ?? '',
           mainWindow,
-          true
+          true,
         );
       } else {
         log.info('Failed executing callback function.');
@@ -42,7 +42,7 @@ export function createListenerCallbackWithErrorHandling(
           'Unexpected internal error',
           '',
           mainWindow,
-          true
+          true,
         );
       }
     }
@@ -53,20 +53,20 @@ export function getMessageBoxForErrors(
   errorMessage: string,
   errorStack: string,
   mainWindow: BrowserWindow,
-  isBackendError: boolean
+  isBackendError: boolean,
 ): Promise<void> {
   return getErrorDialog(
     getMessageBoxContentForErrorsWrapper(isBackendError, errorStack),
     errorMessage,
     (value: MessageBoxReturnValue) =>
-      performButtonAction(mainWindow, value.response)
+      performButtonAction(mainWindow, value.response),
   );
 }
 
 function getErrorDialog(
   getMessageBoxContent: (errorMessage: string) => MessageBoxOptions,
   errorMessage: string,
-  performButtonActionCallback: (value: MessageBoxReturnValue) => void
+  performButtonActionCallback: (value: MessageBoxReturnValue) => void,
 ): Promise<void> {
   return dialog
     .showMessageBox(getMessageBoxContent(errorMessage))
@@ -75,7 +75,7 @@ function getErrorDialog(
 
 export function getMessageBoxContentForErrorsWrapper(
   isBackendError: boolean,
-  errorStack?: string
+  errorStack?: string,
 ): (message: string) => MessageBoxOptions {
   return (errorMessage: string): MessageBoxOptions => {
     return {
@@ -93,7 +93,7 @@ export function getMessageBoxContentForErrorsWrapper(
 
 function performButtonAction(
   mainWindow: BrowserWindow,
-  buttonIndex: number
+  buttonIndex: number,
 ): void {
   const globalBackendState = getGlobalBackendState();
   switch (buttonIndex) {
@@ -101,7 +101,7 @@ function performButtonAction(
       mainWindow.webContents.send(AllowedFrontendChannels.RestoreFrontend);
       loadInputAndOutputFromFilePath(
         mainWindow,
-        getLoadedFilePath(globalBackendState) as string
+        getLoadedFilePath(globalBackendState) as string,
       );
       break;
     case 1:
@@ -113,19 +113,19 @@ function performButtonAction(
 }
 
 export function getMessageBoxForParsingError(
-  errorMessage: string
+  errorMessage: string,
 ): Promise<void> {
   return getErrorDialog(
     getMessageBoxContentForParsingError,
     errorMessage,
     () => {
       app.exit(0);
-    }
+    },
   );
 }
 
 export function getMessageBoxContentForParsingError(
-  errorMessage: string
+  errorMessage: string,
 ): MessageBoxOptions {
   return {
     type: 'error',
@@ -139,7 +139,7 @@ export function getMessageBoxContentForParsingError(
 
 export async function getMessageBoxForInvalidDotOpossumFileError(
   filesInArchive: string,
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): Promise<void> {
   log.info("Error loading '.opossum' file. No 'input.json' found.");
   return getErrorDialog(
@@ -148,13 +148,13 @@ export async function getMessageBoxForInvalidDotOpossumFileError(
     (value: MessageBoxReturnValue) =>
       performButtonActionForInvalidDotOpossumFileError(
         mainWindow,
-        value.response
-      )
+        value.response,
+      ),
   );
 }
 
 function getMessageBoxContentForInvalidDotOpossumFileError(
-  filesInArchive: string
+  filesInArchive: string,
 ): MessageBoxOptions {
   return {
     type: 'error',
@@ -171,7 +171,7 @@ function getMessageBoxContentForInvalidDotOpossumFileError(
 
 async function performButtonActionForInvalidDotOpossumFileError(
   mainWindow: BrowserWindow,
-  buttonIndex: number
+  buttonIndex: number,
 ): Promise<void> {
   switch (buttonIndex) {
     case 0:

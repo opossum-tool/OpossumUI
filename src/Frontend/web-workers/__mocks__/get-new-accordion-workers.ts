@@ -17,7 +17,7 @@ function getNewContainedExternalAttributionsAccordionWorker(): Worker {
   return {
     postMessage: () => {
       throw new Error(
-        'JEST-MOCK-GET-NEW-CONTAINED-EXTERNAL-ATTRIBUTIONS-ACCORDION-WORKER'
+        'JEST-MOCK-GET-NEW-CONTAINED-EXTERNAL-ATTRIBUTIONS-ACCORDION-WORKER',
       );
     },
   } as unknown as Worker;
@@ -27,7 +27,7 @@ function getNewContainedManualAttributionsAccordionWorker(): Worker {
   return {
     postMessage: () => {
       throw new Error(
-        'JEST-MOCK-GET-NEW-CONTAINED-MANUAL-ATTRIBUTIONS-ACCORDION-WORKER'
+        'JEST-MOCK-GET-NEW-CONTAINED-MANUAL-ATTRIBUTIONS-ACCORDION-WORKER',
       );
     },
   } as unknown as Worker;

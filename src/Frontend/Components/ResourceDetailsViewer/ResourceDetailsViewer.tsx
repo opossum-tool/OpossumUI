@@ -71,11 +71,11 @@ export function ResourceDetailsViewer(): ReactElement | null {
   const attributionIdsOfSelectedResourceClosestParent: Array<string> =
     useAppSelector(getAttributionIdsOfSelectedResourceClosestParent, isEqual);
   const attributionIdsOfSelectedResource: Array<string> | null = useAppSelector(
-    getAttributionIdsOfSelectedResource
+    getAttributionIdsOfSelectedResource,
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const resourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
-    attributionBreakpoints
+    attributionBreakpoints,
   )(selectedResourceId);
   const dispatch = useAppDispatch();
 
@@ -84,10 +84,10 @@ export function ResourceDetailsViewer(): ReactElement | null {
   }, [selectedResourceId, attributionIdsOfSelectedResource]);
 
   const parentOfSelectedResourceHasAttributions = Boolean(
-    attributionIdsOfSelectedResourceClosestParent.length
+    attributionIdsOfSelectedResourceClosestParent.length,
   );
   const selectedResourceHasAttributions = Boolean(
-    attributionIdsOfSelectedResource?.length
+    attributionIdsOfSelectedResource?.length,
   );
 
   const showParentAttributions: boolean =
@@ -103,7 +103,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
         panel: PackagePanelTitle.ManualPackages,
         packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
         displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
-      })
+      }),
     );
   }
 

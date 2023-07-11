@@ -37,7 +37,7 @@ const classes = {
 export function ReportView(): ReactElement {
   const attributions: Attributions = useAppSelector(getManualAttributions);
   const attributionsToResources: AttributionsToResources = useAppSelector(
-    getManualAttributionsToResources
+    getManualAttributionsToResources,
   );
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
@@ -45,7 +45,7 @@ export function ReportView(): ReactElement {
 
   const attributionsWithResources = getAttributionsWithResources(
     attributions,
-    attributionsToResources
+    attributionsToResources,
   );
 
   function getOnIconClick(): (attributionId: string) => void {

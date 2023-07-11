@@ -70,7 +70,7 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
 } {
   const dispatch = useAppDispatch();
   const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo
+    getTemporaryDisplayPackageInfo,
   );
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>(FetchStatus.Idle);
@@ -107,7 +107,7 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
         setTemporaryDisplayPackageInfo({
           ...temporaryDisplayPackageInfo,
           ...fetchedPackageInfo.packageInfo,
-        })
+        }),
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,7 +139,7 @@ function DisabledFetchLicenseInformationButton(): ReactElement {
 }
 
 export function EnabledFetchLicenseInformationButton(
-  props: LicenseFetchingInformation
+  props: LicenseFetchingInformation,
 ): ReactElement {
   const { fetchStatus, errorMessage, fetchData } = useFetchPackageInfo(props);
 
@@ -192,7 +192,7 @@ export function FetchLicenseInformationButton(props: {
 }): ReactElement {
   const licenseFetchingInformation = getLicenseFetchingInformation(
     props.url,
-    props.version
+    props.version,
   );
   return !props.disabled && licenseFetchingInformation ? (
     <EnabledFetchLicenseInformationButton

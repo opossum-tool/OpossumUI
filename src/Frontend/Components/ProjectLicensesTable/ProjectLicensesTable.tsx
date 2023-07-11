@@ -35,7 +35,7 @@ interface ProjectLicensesTableProps {
 }
 
 export function ProjectLicensesTable(
-  props: ProjectLicensesTableProps
+  props: ProjectLicensesTableProps,
 ): ReactElement {
   return (
     <MuiBox>

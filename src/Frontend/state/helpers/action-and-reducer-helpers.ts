@@ -26,17 +26,17 @@ import { getAttributionBreakpointCheckForResourceState } from '../../util/is-att
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
-  attributions: Attributions
+  attributions: Attributions,
 ): string {
   return (
     Object.keys(attributions).find((id) =>
-      isEqual(attributions[id], packageInfoToMatch)
+      isEqual(attributions[id], packageInfoToMatch),
     ) || ''
   );
 }
 
 export function computeChildrenWithAttributions(
-  resourcesToAttributions: ResourcesToAttributions
+  resourcesToAttributions: ResourcesToAttributions,
 ): ResourcesWithAttributedChildren {
   const childrenWithAttributions: ResourcesWithAttributedChildren = {
     paths: [],
@@ -46,7 +46,7 @@ export function computeChildrenWithAttributions(
   for (const path of Object.keys(resourcesToAttributions)) {
     _addPathAndParentsToResourcesWithAttributedChildren(
       path,
-      childrenWithAttributions
+      childrenWithAttributions,
     );
   }
 
@@ -55,19 +55,19 @@ export function computeChildrenWithAttributions(
 
 export function _addPathAndParentsToResourcesWithAttributedChildren(
   attributedPath: string,
-  childrenWithAttributions: ResourcesWithAttributedChildren
+  childrenWithAttributions: ResourcesWithAttributedChildren,
 ): void {
   const attributedPathIndex =
     addPathToIndexesIfMissingInResourcesWithAttributedChildren(
       childrenWithAttributions,
-      attributedPath
+      attributedPath,
     );
 
   getParents(attributedPath).forEach((parent) => {
     const parentIndex =
       addPathToIndexesIfMissingInResourcesWithAttributedChildren(
         childrenWithAttributions,
-        parent
+        parent,
       );
 
     if (
@@ -77,14 +77,14 @@ export function _addPathAndParentsToResourcesWithAttributedChildren(
     }
 
     childrenWithAttributions.attributedChildren[parentIndex].add(
-      attributedPathIndex
+      attributedPathIndex,
     );
   });
 }
 
 export function addPathToIndexesIfMissingInResourcesWithAttributedChildren(
   childrenWithAttributions: ResourcesWithAttributedChildren,
-  path: string
+  path: string,
 ): number {
   if (childrenWithAttributions.pathsToIndices[path] === undefined) {
     const newLength = childrenWithAttributions.paths.push(path);
@@ -102,16 +102,16 @@ export function getAttributionDataFromSetAttributionDataPayload(payload: {
     attributions: payload.attributions,
     resourcesToAttributions: payload.resourcesToAttributions,
     attributionsToResources: getAttributionsToResources(
-      payload.resourcesToAttributions
+      payload.resourcesToAttributions,
     ),
     resourcesWithAttributedChildren: computeChildrenWithAttributions(
-      payload.resourcesToAttributions
+      payload.resourcesToAttributions,
     ),
   };
 }
 
 function getAttributionsToResources(
-  resourcesToAttributions: ResourcesToAttributions
+  resourcesToAttributions: ResourcesToAttributions,
 ): AttributionsToResources {
   const attributionsToResources: AttributionsToResources = {};
 
@@ -130,12 +130,12 @@ function getAttributionsToResources(
 
 export function addUnresolvedAttributionsToResourcesWithAttributedChildren(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
-  paths: Array<string>
+  paths: Array<string>,
 ): ResourcesWithAttributedChildren {
   paths.forEach((path) => {
     _addParentsToResourcesWithAttributedChildrenNoMutation(
       path,
-      resourcesWithAttributedChildren
+      resourcesWithAttributedChildren,
     );
   });
   return resourcesWithAttributedChildren;
@@ -143,18 +143,18 @@ export function addUnresolvedAttributionsToResourcesWithAttributedChildren(
 
 export function removeResolvedAttributionsFromResourcesWithAttributedChildren(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
-  resourceIds: Array<string>
+  resourceIds: Array<string>,
 ): void {
   resourceIds.forEach((resourceId) => {
     deleteChildrenFromAttributedResources(
       resourcesWithAttributedChildren,
-      resourceId
+      resourceId,
     );
   });
 }
 
 export function createExternalAttributionsToHashes(
-  externalAttributions: Attributions
+  externalAttributions: Attributions,
 ): AttributionsToHashes {
   const excludeKeys = function (key: string): boolean {
     return [
@@ -172,7 +172,7 @@ export function createExternalAttributionsToHashes(
   const hashesToExternalAttributions: { [hash: string]: Array<string> } = {};
 
   for (const [attributionId, attribution] of Object.entries(
-    externalAttributions
+    externalAttributions,
   )) {
     if (attribution.firstParty || attribution.packageName) {
       const attributionKeys = Object.keys(attribution) as Array<
@@ -181,7 +181,7 @@ export function createExternalAttributionsToHashes(
       attributionKeys.forEach(
         (key) =>
           (attribution[key] == null || attribution[key] === '') &&
-          delete attribution[key]
+          delete attribution[key],
       );
 
       const hash = objectHash(attribution, hashOptions);
@@ -197,10 +197,10 @@ export function createExternalAttributionsToHashes(
       if (attributionIds.length > 1) {
         attributionIds.forEach(
           (attributionId) =>
-            (externalAttributionsToHashes[attributionId] = hash)
+            (externalAttributionsToHashes[attributionId] = hash),
         );
       }
-    }
+    },
   );
 
   return externalAttributionsToHashes;
@@ -209,23 +209,23 @@ export function createExternalAttributionsToHashes(
 export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
   attributionIds: Array<string> | undefined,
   resourceId: string,
-  state: ResourceState
+  state: ResourceState,
 ): string {
   let displayedAttributionId = '';
   if (attributionIds && attributionIds.length > 0) {
     displayedAttributionId = attributionIds.sort(
-      getAlphabeticalComparer(state.allViews.manualData.attributions)
+      getAlphabeticalComparer(state.allViews.manualData.attributions),
     )[0];
   } else {
     const closestParentAttributionIds: Array<string> =
       getClosestParentAttributionIds(
         resourceId,
         state.allViews.manualData.resourcesToAttributions,
-        getAttributionBreakpointCheckForResourceState(state)
+        getAttributionBreakpointCheckForResourceState(state),
       );
     if (closestParentAttributionIds.length > 0) {
       displayedAttributionId = closestParentAttributionIds.sort(
-        getAlphabeticalComparer(state.allViews.manualData.attributions)
+        getAlphabeticalComparer(state.allViews.manualData.attributions),
       )[0];
     }
   }
@@ -235,7 +235,7 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
 export function getIndexOfAttributionInManualPackagePanel(
   targetAttributionId: string,
   resourceId: string,
-  manualData: AttributionData
+  manualData: AttributionData,
 ): number | null {
   const manualAttributionIdsOnResource =
     manualData.resourcesToAttributions[resourceId];
@@ -245,11 +245,11 @@ export function getIndexOfAttributionInManualPackagePanel(
   }
 
   const sortedAttributionIds = manualAttributionIdsOnResource.sort(
-    getAlphabeticalComparer(manualData.attributions)
+    getAlphabeticalComparer(manualData.attributions),
   );
 
   const packageCardIndex = sortedAttributionIds.findIndex(
-    (attributionId) => attributionId === targetAttributionId
+    (attributionId) => attributionId === targetAttributionId,
   );
 
   return packageCardIndex !== -1 ? packageCardIndex : null;

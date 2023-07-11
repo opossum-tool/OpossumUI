@@ -26,7 +26,7 @@ describe('The helper getFilteredAttributionsById', () => {
   it('return correct attributions', () => {
     const filteredAttributions = getFilteredAttributionsById(
       [firstExpectedPackageUuid, secondExpectedPackageUuid],
-      testManualAttributions
+      testManualAttributions,
     );
 
     expect(filteredAttributions).toStrictEqual(expectedAttributions);

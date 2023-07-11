@@ -13,7 +13,7 @@ export function getGeneralTreeItemLabel(
   resource: Resources | 1,
   nodeId: string,
   isAttributionBreakpoint: PathPredicate,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): ReactElement {
   const canHaveChildren = resource !== 1;
 

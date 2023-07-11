@@ -22,7 +22,7 @@ interface TextFieldStackProps {
   isEditable: boolean;
   comments: string[];
   handleChange(
-    propertyToUpdate: string
+    propertyToUpdate: string,
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   showHighlight?: boolean;
   commentBoxHeight: number;
@@ -30,7 +30,7 @@ interface TextFieldStackProps {
 
 export function TextFieldStack(props: TextFieldStackProps): ReactElement {
   const filteredComments = props.comments.filter(
-    (comment) => comment.replace(/\s/g, '') != ''
+    (comment) => comment.replace(/\s/g, '') != '',
   );
   if (filteredComments.length == 0) {
     filteredComments.push('');

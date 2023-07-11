@@ -26,7 +26,7 @@ export const EXPECT_TIMEOUT = 50000;
 export const LOAD_TIMEOUT = 100000;
 
 export async function getApp(
-  commandLineArg?: string
+  commandLineArg?: string,
 ): Promise<ElectronApplication> {
   const app = 'build/ElectronBackend/app.js';
 
@@ -49,7 +49,7 @@ export function conditionalTest(condition: boolean):
 
 export async function getElementWithText(
   window: Page,
-  text: string
+  text: string,
 ): Promise<Locator> {
   const element = window.locator(`text=${text}`);
   await expect(element).toHaveCount(1, { timeout: EXPECT_TIMEOUT });
@@ -59,7 +59,7 @@ export async function getElementWithText(
 
 export async function getElementWithAriaLabel(
   window: Page,
-  ariaLabel: string
+  ariaLabel: string,
 ): Promise<Locator> {
   const element = window.locator(`[aria-label="${ariaLabel}"]`);
   await expect(element).toHaveCount(1, { timeout: EXPECT_TIMEOUT });
@@ -69,7 +69,7 @@ export async function getElementWithAriaLabel(
 
 export async function getButtonWithName(
   window: Page,
-  name: string
+  name: string,
 ): Promise<Locator> {
   const element = window.locator(`//button[text()='${name}']`);
   await expect(element).toHaveCount(1, { timeout: EXPECT_TIMEOUT });

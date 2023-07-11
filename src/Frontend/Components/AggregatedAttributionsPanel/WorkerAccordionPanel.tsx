@@ -46,19 +46,19 @@ interface WorkerAccordionPanelProps {
   workerArgs: ContainedAttributionsAccordionWorkerArgs;
   syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
   getDisplayPackageInfosWithCount(
-    workerArgs: ContainedAttributionsAccordionWorkerArgs
+    workerArgs: ContainedAttributionsAccordionWorkerArgs,
   ): [Array<string>, DisplayPackageInfosWithCount];
   isAddToPackageEnabled: boolean;
 }
 
 export function WorkerAccordionPanel(
-  props: WorkerAccordionPanelProps
+  props: WorkerAccordionPanelProps,
 ): ReactElement {
   const [
     displayPackageInfosWithCountAndResourceId,
     setDisplayPackageInfosWithCountAndResourceId,
   ] = useState<DisplayPackageInfosWithCountAndResourceId>(
-    EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID
+    EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID,
   );
   const resourceDetailsTabsWorkers = useContext(AccordionWorkersContext);
 
@@ -81,7 +81,7 @@ export function WorkerAccordionPanel(
       props.title,
       setDisplayPackageInfosWithCountAndResourceId,
       props.getDisplayPackageInfosWithCount,
-      props.syncFallbackArgs
+      props.syncFallbackArgs,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.syncFallbackArgs, worker, props.workerArgs]);
@@ -120,15 +120,15 @@ async function loadDisplayPackageInfosWithCount(
   worker: Worker,
   panelTitle: string,
   setDisplayPackageInfosWithCountAndResourceId: (
-    displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId
+    displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId,
   ) => void,
   getDisplayPackageInfosWithCount: (
-    workerArgs: ContainedAttributionsAccordionWorkerArgs
+    workerArgs: ContainedAttributionsAccordionWorkerArgs,
   ) => [Array<string>, DisplayPackageInfosWithCount],
-  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
+  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs,
 ): Promise<void> {
   setDisplayPackageInfosWithCountAndResourceId(
-    EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID
+    EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID,
   );
 
   // WebWorkers can fail for different reasons, e.g. because they run out
@@ -146,7 +146,7 @@ async function loadDisplayPackageInfosWithCount(
           setDisplayPackageInfosWithCountAndResourceId,
           getDisplayPackageInfosWithCount,
           workerArgs,
-          syncFallbackArgs
+          syncFallbackArgs,
         );
       } else {
         setDisplayPackageInfosWithCountAndResourceId(output);
@@ -159,7 +159,7 @@ async function loadDisplayPackageInfosWithCount(
       setDisplayPackageInfosWithCountAndResourceId,
       getDisplayPackageInfosWithCount,
       workerArgs,
-      syncFallbackArgs
+      syncFallbackArgs,
     );
   }
 }
@@ -168,13 +168,13 @@ function logErrorAndComputeInMainProcess(
   panelTitle: string,
   error: unknown,
   setDisplayPackageInfosWithCountAndResourceId: (
-    displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId
+    displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId,
   ) => void,
   getDisplayPackageInfosWithCount: (
-    workerArgs: ContainedAttributionsAccordionWorkerArgs
+    workerArgs: ContainedAttributionsAccordionWorkerArgs,
   ) => [Array<string>, DisplayPackageInfosWithCount],
   workerArgs: ContainedAttributionsAccordionWorkerArgs,
-  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs
+  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs,
 ): void {
   console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
 

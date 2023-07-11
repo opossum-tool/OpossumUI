@@ -34,8 +34,8 @@ function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
         manualAttributions,
-      })
-    )
+      }),
+    ),
   );
   return store;
 }
@@ -84,7 +84,7 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: getTestStore(attributions) }
+      { store: getTestStore(attributions) },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
@@ -100,7 +100,7 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: getTestStore(attributions) }
+      { store: getTestStore(attributions) },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
@@ -116,7 +116,7 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: getTestStore(attributions) }
+      { store: getTestStore(attributions) },
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
@@ -187,8 +187,8 @@ describe('The AttributionList', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <AttributionList
@@ -199,35 +199,35 @@ describe('The AttributionList', () => {
         maxHeight={1000}
         title={'title'}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     testCorrectMarkAndUnmarkForReplacementInContextMenu(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'jQuery, 16.0.0',
-      ButtonText.MarkForReplacement
+      ButtonText.MarkForReplacement,
     );
 
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 16.0.0',
-      ButtonText.ReplaceMarked
+      ButtonText.ReplaceMarked,
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
       'React, 16.0.0',
-      true
+      true,
     );
   });
 });

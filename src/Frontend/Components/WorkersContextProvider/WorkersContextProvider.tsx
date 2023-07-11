@@ -20,7 +20,7 @@ import { PanelAttributionData } from '../../util/get-contained-packages';
 const resourceDetailsTabsWorkers = getNewAccordionWorkers();
 
 export const AccordionWorkersContext = React.createContext(
-  resourceDetailsTabsWorkers
+  resourceDetailsTabsWorkers,
 );
 
 export const AccordionWorkersContextProvider: FC<{
@@ -36,17 +36,17 @@ export const AccordionWorkersContextProvider: FC<{
       resourcesWithAttributedChildren:
         externalAttributionData.resourcesWithAttributedChildren,
     }),
-    [externalAttributionData]
+    [externalAttributionData],
   );
 
   useMemo(() => {
     try {
       // remove data from previous file or empty data from app just opened
       resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker.postMessage(
-        { externalData: null }
+        { externalData: null },
       );
       resourceDetailsTabsWorkers.containedExternalAttributionsAccordionWorker.postMessage(
-        { externalData, attributionsToHashes }
+        { externalData, attributionsToHashes },
       );
     } catch (error) {
       console.info('Web worker error in workers context provider: ', error);
@@ -69,7 +69,7 @@ export const ProgressBarWorkersContextProvider: FC<{
 }> = ({ children }) => {
   const resources = useAppSelector(getResources);
   const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions
+    getResourcesToExternalAttributions,
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);

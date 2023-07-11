@@ -70,18 +70,18 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       attributionIds: [],
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
   });
 
@@ -95,48 +95,48 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       attributionIds: [],
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
   });
 
   it('returns false when only confidence is set and true when attribution is created', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
-      loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
+      loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         attributionConfidence: DiscreteConfidence.Low,
         attributionIds: [],
-      })
+      }),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         attributionConfidence: DiscreteConfidence.Low,
         packageName: 'test Package',
         attributionIds: [],
-      })
+      }),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
   });
 
@@ -150,7 +150,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       attributionIds: [testManualAttributionUuid_1],
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(
@@ -158,14 +158,14 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
         panel: PackagePanelTitle.ManualPackages,
         packageCardId: 'Attributions-0',
         displayPackageInfo: testTemporaryDisplayPackageInfo,
-      })
+      }),
     );
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
   });
 });

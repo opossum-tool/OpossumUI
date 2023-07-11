@@ -7,13 +7,13 @@ import { PathPredicate } from '../types/types';
 import { ResourceState } from '../state/reducers/resource-reducer';
 
 export function getFileWithChildrenCheckForResourceState(
-  resourceState: ResourceState
+  resourceState: ResourceState,
 ): PathPredicate {
   return getFileWithChildrenCheck(resourceState.allViews.filesWithChildren);
 }
 
 export function getFileWithChildrenCheck(
-  filesWithChildren: Set<string>
+  filesWithChildren: Set<string>,
 ): PathPredicate {
   return (path: string): boolean => filesWithChildren.has(path);
 }

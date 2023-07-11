@@ -14,7 +14,7 @@ export function getPathsFromResources(resources: Resources): Array<string> {
 
 function getPathsFromResourcesHelper(
   resources: Resources,
-  parentPath = '/'
+  parentPath = '/',
 ): Array<string> {
   const paths = new Array<string>();
   Object.keys(resources).forEach((resourceName) => {
@@ -26,7 +26,7 @@ function getPathsFromResourcesHelper(
     if (canResourceHaveChildren(resource)) {
       const newPaths: Array<string> = getPathsFromResourcesHelper(
         resource,
-        path
+        path,
       );
       // Do not replace with spread operator (can lead to stack overflow exception)
       newPaths.forEach((path) => {

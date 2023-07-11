@@ -53,12 +53,12 @@ interface ManualPackagePanelProps {
 }
 
 export function ManualPackagePanel(
-  props: ManualPackagePanelProps
+  props: ManualPackagePanelProps,
 ): ReactElement | null {
   const dispatch = useAppDispatch();
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const attributionsOfSelectedResource: Attributions = useAppSelector(
-    getAttributionsOfSelectedResource
+    getAttributionsOfSelectedResource,
   );
   const selectedResourceOrClosestParentAttributions: Attributions =
     useAppSelector(getAttributionsOfSelectedResourceOrClosestParent);
@@ -74,7 +74,7 @@ export function ManualPackagePanel(
 
   function onCardClick(
     packageCardId: string,
-    isAddNewAttributionButton: boolean
+    isAddNewAttributionButton: boolean,
   ): void {
     dispatch(
       selectPackageCardInAuditViewOrOpenUnsavedPopup(
@@ -84,8 +84,8 @@ export function ManualPackagePanel(
           : packageCardId,
         isAddNewAttributionButton
           ? EMPTY_DISPLAY_PACKAGE_INFO
-          : displayPackageInfos[packageCardId]
-      )
+          : displayPackageInfos[packageCardId],
+      ),
     );
   }
 
@@ -122,13 +122,13 @@ export function ManualPackagePanel(
 }
 
 function getSortedPackageCardIdsAndDisplayPackageInfos(
-  shownAttributionsOfResource: Attributions
+  shownAttributionsOfResource: Attributions,
 ): {
   sortedPackageCardIds: Array<string>;
   displayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
-    getAlphabeticalComparer(shownAttributionsOfResource)
+    getAlphabeticalComparer(shownAttributionsOfResource),
   );
 
   const sortedPackageCardIds: Array<string> = [];
@@ -136,12 +136,12 @@ function getSortedPackageCardIdsAndDisplayPackageInfos(
   sortedAttributionIds.forEach((attributionId, index) => {
     const packageCardId = createPackageCardId(
       PackagePanelTitle.ManualPackages,
-      index
+      index,
     );
     sortedPackageCardIds.push(packageCardId);
     displayPackageInfos[packageCardId] = convertPackageInfoToDisplayPackageInfo(
       shownAttributionsOfResource[attributionId],
-      [attributionId]
+      [attributionId],
     );
   });
   return { sortedPackageCardIds, displayPackageInfos };

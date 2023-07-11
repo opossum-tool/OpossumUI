@@ -15,7 +15,7 @@ interface HamburgerMenuProps {
 
 export function HamburgerMenu(props: HamburgerMenuProps): ReactElement | null {
   const displayedMenuItems = props.menuItems.filter(
-    (menuItem) => !menuItem.hidden
+    (menuItem) => !menuItem.hidden,
   );
 
   const contextMenuIsDisabled =

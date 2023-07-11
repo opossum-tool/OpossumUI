@@ -35,7 +35,7 @@ import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 function setupTestState(
   store: EnhancedTestStore,
   targetView?: View,
-  popupAttributionId?: string
+  popupAttributionId?: string,
 ): void {
   store.dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
   store.dispatch(setTargetSelectedResourceId('test_id'));
@@ -74,7 +74,7 @@ describe('NotSavedPopup and do not change view', () => {
       setTemporaryDisplayPackageInfo({
         packageName: 'test name',
         attributionIds: [],
-      })
+      }),
     );
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('NotSavedPopup and do not change view', () => {
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO
+      EMPTY_DISPLAY_PACKAGE_INFO,
     );
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
@@ -96,7 +96,7 @@ describe('NotSavedPopup and do not change view', () => {
     const { store } = renderComponentWithStore(<NotSavedPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
-      openPopup(PopupType.EditAttributionPopup, 'test_selected_id')
+      openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
     );
     setupTestState(store, undefined, 'test_selected_id');
 
@@ -136,7 +136,7 @@ describe('NotSavedPopup and change view', () => {
       setTemporaryDisplayPackageInfo({
         packageName: 'test name',
         attributionIds: [],
-      })
+      }),
     );
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('NotSavedPopup and change view', () => {
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO
+      EMPTY_DISPLAY_PACKAGE_INFO,
     );
     expect(isAttributionViewSelected(store.getState())).toBe(true);
   });

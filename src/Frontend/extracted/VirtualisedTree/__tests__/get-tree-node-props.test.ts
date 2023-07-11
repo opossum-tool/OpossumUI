@@ -5,9 +5,9 @@
 
 import {
   getNodeIdsToExpand,
+  isBreakpointOrChildOfBreakpoint,
   isChildOfSelected,
   isSelected,
-  isBreakpointOrChildOfBreakpoint,
 } from '../utils/get-tree-node-props';
 import { NodesForTree } from '../types';
 
@@ -39,31 +39,31 @@ describe('renderTree', () => {
     const breakpoints = new Set<string>().add(firstChildNodeId);
 
     expect(
-      isBreakpointOrChildOfBreakpoint(firstChildNodeId, parentNodeId)
+      isBreakpointOrChildOfBreakpoint(firstChildNodeId, parentNodeId),
     ).toBe(false);
     expect(
       isBreakpointOrChildOfBreakpoint(
         firstChildNodeId,
         parentNodeId,
-        new Set<string>()
-      )
+        new Set<string>(),
+      ),
     ).toBe(false);
     expect(
-      isBreakpointOrChildOfBreakpoint(parentNodeId, parentNodeId, breakpoints)
+      isBreakpointOrChildOfBreakpoint(parentNodeId, parentNodeId, breakpoints),
     ).toBe(false);
     expect(
       isBreakpointOrChildOfBreakpoint(
         firstChildNodeId,
         parentNodeId,
-        breakpoints
-      )
+        breakpoints,
+      ),
     ).toBe(true);
     expect(
       isBreakpointOrChildOfBreakpoint(
         secondChildNodeId,
         parentNodeId,
-        breakpoints
-      )
+        breakpoints,
+      ),
     ).toBe(true);
   });
 

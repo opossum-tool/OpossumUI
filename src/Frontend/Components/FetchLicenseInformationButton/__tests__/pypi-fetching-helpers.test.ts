@@ -27,7 +27,7 @@ describe('convertPypiPayload', () => {
       info: { packageName: 'test' },
     };
     expect(() => convertPypiPayload(payload)).toThrow(
-      'requires property "license"'
+      'requires property "license"',
     );
   });
 

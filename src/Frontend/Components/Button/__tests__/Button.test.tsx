@@ -16,7 +16,7 @@ describe('Button', () => {
         disabled={false}
         isDark={false}
         onClick={doNothing}
-      />
+      />,
     );
 
     screen.getByText('Test');
@@ -32,7 +32,7 @@ describe('Button', () => {
         onClick={doNothing}
         tooltipText={testTooltipText}
         tooltipPlacement={'left'}
-      />
+      />,
     );
 
     fireEvent.mouseOver(screen.getByRole('button'));
@@ -40,7 +40,7 @@ describe('Button', () => {
     expect(
       waitFor(() => {
         screen.getByLabelText(testTooltipText);
-      })
+      }),
     ).resolves.toBeInTheDocument();
   });
 
@@ -54,14 +54,14 @@ describe('Button', () => {
         onClick={doNothing}
         tooltipText={testTooltipText}
         tooltipPlacement={'left'}
-      />
+      />,
     );
     fireEvent.mouseOver(screen.getByRole('button'));
 
     expect(
       waitFor(() => {
         screen.getByLabelText(testTooltipText);
-      })
+      }),
     ).resolves.toBeInTheDocument();
   });
 });

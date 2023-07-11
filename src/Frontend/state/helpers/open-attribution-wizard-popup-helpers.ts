@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  ResourcesToAttributions,
   Attributions,
-  ResourcesWithAttributedChildren,
   DisplayPackageInfo,
+  ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { getAttributedChildren } from '../../util/get-attributed-children';
 import { shouldNotBeCalled } from '../../util/should-not-be-called';
@@ -24,11 +24,11 @@ export function getAllAttributionIdsWithCountsFromResourceAndChildren(
   resourcesWithExternallyAttributedChildren: ResourcesWithAttributedChildren,
   resourcesToManualAttributions: ResourcesToAttributions,
   resourcesWithManuallyAttributedChildren: ResourcesWithAttributedChildren,
-  resolvedExternalAttributions: Set<string>
+  resolvedExternalAttributions: Set<string>,
 ): Array<AttributionIdWithCount> {
   const externalAttributedChildren: Set<string> = getAttributedChildren(
     resourcesWithExternallyAttributedChildren,
-    selectedResourceId
+    selectedResourceId,
   );
   if (selectedResourceId in resourcesToExternalAttributions) {
     externalAttributedChildren.add(selectedResourceId);
@@ -36,7 +36,7 @@ export function getAllAttributionIdsWithCountsFromResourceAndChildren(
 
   const manualAttributedChildren: Set<string> = getAttributedChildren(
     resourcesWithManuallyAttributedChildren,
-    selectedResourceId
+    selectedResourceId,
   );
   if (selectedResourceId in resourcesToManualAttributions) {
     manualAttributedChildren.add(selectedResourceId);
@@ -45,11 +45,11 @@ export function getAllAttributionIdsWithCountsFromResourceAndChildren(
   const externalAttributionsWithCounts = getAggregatedAttributionIdsAndCounts(
     resourcesToExternalAttributions,
     externalAttributedChildren,
-    resolvedExternalAttributions
+    resolvedExternalAttributions,
   );
   const manualAttributionsWithCounts = getAggregatedAttributionIdsAndCounts(
     resourcesToManualAttributions,
-    manualAttributedChildren
+    manualAttributedChildren,
   );
 
   return externalAttributionsWithCounts.concat(manualAttributionsWithCounts);
@@ -58,7 +58,7 @@ export function getAllAttributionIdsWithCountsFromResourceAndChildren(
 function getAggregatedAttributionIdsAndCounts(
   resourcesToAttributions: ResourcesToAttributions,
   attributedChildren: Set<string>,
-  resolvedExternalAttributions?: Set<string>
+  resolvedExternalAttributions?: Set<string>,
 ): Array<AttributionIdWithCount> {
   const attributionCount: { [attributionId: string]: number } = {};
   attributedChildren.forEach((child: string) => {
@@ -81,7 +81,7 @@ function getAggregatedAttributionIdsAndCounts(
 
 export function getAttributionWizardInitialState(
   externalAndManualAttributionIdsWithCounts: Array<AttributionIdWithCount>,
-  externalAndManualAttributions: Attributions
+  externalAndManualAttributions: Attributions,
 ): {
   packageNamespaces: PackageAttributes;
   packageNames: PackageAttributes;
@@ -92,28 +92,28 @@ export function getAttributionWizardInitialState(
     .map((attributionIdWithCount) => attributionIdWithCount.count ?? 0)
     .reduce(
       (accumulatedCounts, currentCount) => accumulatedCounts + currentCount,
-      0
+      0,
     );
 
   const packageNamespaces = getPackageAttributes(
     externalAndManualAttributionIdsWithCounts,
     externalAndManualAttributions,
-    'namespace'
+    'namespace',
   );
   const packageNames = getPackageAttributes(
     externalAndManualAttributionIdsWithCounts,
     externalAndManualAttributions,
-    'name'
+    'name',
   );
 
   const packageVersionsToNames = getPackageVersionsToNames(
     externalAndManualAttributionIdsWithCounts,
-    externalAndManualAttributions
+    externalAndManualAttributions,
   );
 
   const packageVersions = getPackageVersionsWithRelatedPackageNameIds(
     packageVersionsToNames,
-    packageNames
+    packageNames,
   );
 
   return {
@@ -127,7 +127,7 @@ export function getAttributionWizardInitialState(
 function getPackageAttributes(
   externalAndManualAttributionIdsWithCounts: Array<AttributionIdWithCount>,
   externalAndManualAttributions: Attributions,
-  packageAttributeKey: 'namespace' | 'name'
+  packageAttributeKey: 'namespace' | 'name',
 ): PackageAttributes {
   const packageAttributesAndCounts: NamesWithCounts = {};
   for (const attributionIdWithCount of externalAndManualAttributionIdsWithCounts) {
@@ -149,7 +149,7 @@ function getPackageAttributes(
   }
 
   const sortedPackageAttributes = Object.entries(
-    packageAttributesAndCounts
+    packageAttributesAndCounts,
   ).map(([attributeName, count]) => ({
     text: attributeName,
     count,
@@ -160,13 +160,13 @@ function getPackageAttributes(
       ...accumulatedAttributes,
       [uuid4()]: currentAttribute,
     }),
-    {}
+    {},
   );
 }
 
 function getPackageVersionsToNames(
   attributionIdsWithCounts: Array<AttributionIdWithCount>,
-  attributions: Attributions
+  attributions: Attributions,
 ): { [version: string]: Set<string> } {
   const packageVersionsToNames: { [version: string]: Set<string> } = {};
   for (const attributionIdWithCount of attributionIdsWithCounts) {
@@ -185,7 +185,7 @@ function getPackageVersionsToNames(
 
 export function getPackageVersionsWithRelatedPackageNameIds(
   packageVersionsToNames: { [version: string]: Set<string> },
-  packageNames: PackageAttributes
+  packageNames: PackageAttributes,
 ): PackageAttributes {
   const versions = Object.keys(packageVersionsToNames);
   const packageVersions: PackageAttributes = {};
@@ -194,8 +194,8 @@ export function getPackageVersionsWithRelatedPackageNameIds(
 
     const relatedPackageNameIds = new Set<string>(
       Object.entries(packageNames).flatMap(([uuid, textAndCount]) =>
-        relatedPackageNames.has(textAndCount.text) ? [uuid] : []
-      )
+        relatedPackageNames.has(textAndCount.text) ? [uuid] : [],
+      ),
     );
 
     packageVersions[uuid4()] = {
@@ -211,7 +211,7 @@ export function getPreSelectedPackageAttributeIds(
   originalDisplayPackageInfo: DisplayPackageInfo,
   packageNamespaces: PackageAttributes,
   packageNames: PackageAttributes,
-  packageVersions: PackageAttributes
+  packageVersions: PackageAttributes,
 ): {
   preSelectedPackageNamespaceId: string;
   preSelectedPackageNameId: string;
@@ -222,16 +222,16 @@ export function getPreSelectedPackageAttributeIds(
   const version = originalDisplayPackageInfo.packageVersion || '';
 
   const preSelectedPackageNamespaceId = Object.entries(
-    packageNamespaces
+    packageNamespaces,
   ).flatMap(([uuid, textAndCount]) =>
-    textAndCount.text === namespace ? [uuid] : []
+    textAndCount.text === namespace ? [uuid] : [],
   )[0];
   const preSelectedPackageNameId = Object.entries(packageNames).flatMap(
-    ([uuid, textAndCount]) => (textAndCount.text === name ? [uuid] : [])
+    ([uuid, textAndCount]) => (textAndCount.text === name ? [uuid] : []),
   )[0];
   const preSelectedPackageVersionId = Object.entries(packageVersions).flatMap(
     ([uuid, textAndRelatedId]) =>
-      textAndRelatedId.text === version ? [uuid] : []
+      textAndRelatedId.text === version ? [uuid] : [],
   )[0];
 
   return {

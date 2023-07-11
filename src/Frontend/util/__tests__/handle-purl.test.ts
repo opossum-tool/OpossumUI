@@ -50,7 +50,7 @@ describe('generatePurlFromPackageInfo', () => {
     const expectedPurl = 'pkg:type/namespace/name@version?appendix';
 
     expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe(
-      expectedPurl
+      expectedPurl,
     );
   });
 
@@ -65,7 +65,7 @@ describe('generatePurlFromPackageInfo', () => {
     const expectedPurl = 'pkg:type/namespace/name@version';
 
     expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe(
-      expectedPurl
+      expectedPurl,
     );
   });
 
@@ -90,7 +90,7 @@ describe('generatePurlFromPackageInfo', () => {
     const expectedPurl = 'pkg:generic/namespace/name@version';
 
     expect(generatePurlFromDisplayPackageInfo(testDisplayPackageInfo)).toBe(
-      expectedPurl
+      expectedPurl,
     );
   });
 });
@@ -105,15 +105,15 @@ describe('generatePurlAppendix', () => {
       {
         qualifiers: '',
       },
-      undefined
+      undefined,
     );
     const expectedPurlAppendix = '?qualifiers';
 
     expect(
       generatePurlAppendix(
         testPackageUrl,
-        'pkg:type/namespace/name@version?qualifiers'
-      )
+        'pkg:type/namespace/name@version?qualifiers',
+      ),
     ).toBe(expectedPurlAppendix);
   });
 
@@ -124,15 +124,15 @@ describe('generatePurlAppendix', () => {
       'name',
       'version',
       undefined,
-      'subpath'
+      'subpath',
     );
     const expectedPurlAppendix = '#subpath';
 
     expect(
       generatePurlAppendix(
         testPackageUrl,
-        'pkg:type/namespace/name@version?qualifiers'
-      )
+        'pkg:type/namespace/name@version?qualifiers',
+      ),
     ).toBe(expectedPurlAppendix);
   });
 
@@ -146,15 +146,15 @@ describe('generatePurlAppendix', () => {
         key: 'value',
         key2: 'value2',
       },
-      '/path/to/submodule'
+      '/path/to/submodule',
     );
     const expectedPurlAppendix = '?key=value&key2=value2#/path/to/submodule';
 
     expect(
       generatePurlAppendix(
         testPackageUrl,
-        'pkg:type/namespace/name@version?key=value&key2=value2#/path/to/submodule'
-      )
+        'pkg:type/namespace/name@version?key=value&key2=value2#/path/to/submodule',
+      ),
     ).toBe(expectedPurlAppendix);
   });
 });

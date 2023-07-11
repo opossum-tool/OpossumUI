@@ -10,11 +10,11 @@ import { setTemporaryDisplayPackageInfo } from '../state/actions/resource-action
 
 export function setUpdateTemporaryDisplayPackageInfoForCreator(
   dispatch: AppThunkDispatch,
-  temporaryDisplayPackageInfo: DisplayPackageInfo
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
 ) {
   return (propertyToUpdate: string) => {
     return (
-      event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ): void => {
       const newValueOfTemporaryDisplayPackageInfoProperty =
         event.target.type === 'number'
@@ -27,7 +27,7 @@ export function setUpdateTemporaryDisplayPackageInfoForCreator(
         setTemporaryDisplayPackageInfo({
           ...temporaryDisplayPackageInfo,
           [propertyToUpdate]: newValueOfTemporaryDisplayPackageInfoProperty,
-        })
+        }),
       );
     };
   };

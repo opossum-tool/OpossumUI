@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo, DisplayPackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 import { getPackageInfoKeys } from '../../../shared/shared-util';
 import {
   convertDisplayPackageInfoToPackageInfo,
@@ -25,7 +25,7 @@ describe('convertPackageInfoToDisplayPackageInfo', () => {
     };
     const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
       testPackageInfo,
-      [testAttributionId]
+      [testAttributionId],
     );
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
   });
@@ -71,7 +71,7 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       comment: 'React comment',
     };
     const testPackageInfo = convertDisplayPackageInfoToPackageInfo(
-      testDisplayPackageInfo
+      testDisplayPackageInfo,
     );
     expect(testPackageInfo).toEqual(expectedPackageInfo);
   });
@@ -88,7 +88,7 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       packageName: 'React',
     };
     const testPackageInfo = convertDisplayPackageInfoToPackageInfo(
-      testDisplayPackageInfo
+      testDisplayPackageInfo,
     );
     expect(testPackageInfo).toEqual(expectedPackageInfo);
   });
@@ -104,7 +104,7 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       comment: 'React comment 1',
     };
     const testPackageInfo = convertDisplayPackageInfoToPackageInfo(
-      testDisplayPackageInfo
+      testDisplayPackageInfo,
     );
     expect(testPackageInfo).toEqual(expectedPackageInfo);
   });
@@ -135,7 +135,7 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       'attributionIds',
     ];
     expect(testKeysOfDisplayPackageInfo).toEqual(
-      expectedKeysOfDisplayPackageInfo
+      expectedKeysOfDisplayPackageInfo,
     );
   });
 });

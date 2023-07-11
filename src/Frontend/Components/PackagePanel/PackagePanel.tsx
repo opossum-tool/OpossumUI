@@ -47,16 +47,16 @@ interface PackagePanelProps {
 }
 
 export function PackagePanel(
-  props: PackagePanelProps
+  props: PackagePanelProps,
 ): React.ReactElement | null {
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributionIds = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions
+    getResourcesToExternalAttributions,
   );
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const dispatch = useAppDispatch();
@@ -82,8 +82,8 @@ export function PackagePanel(
       selectPackageCardInAuditViewOrOpenUnsavedPopup(
         props.title,
         packageCardId,
-        props.displayPackageInfosWithCount[packageCardId].displayPackageInfo
-      )
+        props.displayPackageInfosWithCount[packageCardId].displayPackageInfo,
+      ),
     );
   }
 
@@ -109,7 +109,7 @@ export function PackagePanel(
 
     const isPreselected = isExternalAttribution
       ? getPreSelectedExternalAttributionIdsForSelectedResource().includes(
-          packageCardId
+          packageCardId,
         )
       : displayPackageInfo.preSelected;
 
@@ -122,7 +122,7 @@ export function PackagePanel(
       isSelected: packageCardId === selectedPackageCardId,
       isPreSelected: isPreselected,
       isResolved: displayPackageInfo.attributionIds.every((attributionId) =>
-        resolvedExternalAttributionIds.has(attributionId)
+        resolvedExternalAttributionIds.has(attributionId),
       ),
       isExternalAttribution,
     };
@@ -148,7 +148,7 @@ export function PackagePanel(
 
   const sortedSources = getSortedSourcesFromDisplayPackageInfosWithCount(
     props.displayPackageInfosWithCount,
-    attributionSources
+    attributionSources,
   );
 
   function getPackageListForSource(sourceName: string | null): ReactElement {
@@ -156,7 +156,7 @@ export function PackagePanel(
       getPackageCardIdsAndDisplayPackageInfosForSource(
         props.displayPackageInfosWithCount,
         props.sortedPackageCardIds,
-        sourceName
+        sourceName,
       );
 
     return (

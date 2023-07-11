@@ -36,7 +36,7 @@ describe('The ResourcesList', () => {
 
   it('component renders', () => {
     renderComponentWithStore(
-      <ResourcesList resourcesListBatches={resourcesListBatches} />
+      <ResourcesList resourcesListBatches={resourcesListBatches} />,
     );
     expect(screen.getByText('/folder1/folder2/resource_1')).toBeInTheDocument();
     expect(screen.getByText('resource_2')).toBeInTheDocument();
@@ -44,7 +44,7 @@ describe('The ResourcesList', () => {
 
   it('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
     const { store } = renderComponentWithStore(
-      <ResourcesList resourcesListBatches={resourcesListBatches} />
+      <ResourcesList resourcesListBatches={resourcesListBatches} />,
     );
     store.dispatch(navigateToView(View.Attribution));
     const examplePath = '/folder1/folder2/resource_1';
@@ -62,7 +62,7 @@ describe('The ResourcesList', () => {
       <ResourcesList
         resourcesListBatches={resourcesListBatches}
         onClickCallback={onClickCallback}
-      />
+      />,
     );
     store.dispatch(navigateToView(View.Attribution));
     const examplePath = '/folder1/folder2/resource_1';
@@ -91,7 +91,7 @@ describe('The ResourcesList', () => {
       <ResourcesList
         resourcesListBatches={resourcesListBatchesWithHeader}
         onClickCallback={onClickCallback}
-      />
+      />,
     );
 
     store.dispatch(navigateToView(View.Attribution));

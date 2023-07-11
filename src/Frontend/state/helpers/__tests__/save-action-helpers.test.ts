@@ -34,10 +34,10 @@ describe('The createManualAttribution function', () => {
     const { newManualData, newAttributionId } = createManualAttribution(
       testManualData,
       testSelectedResourceId,
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
     expect(newManualData.attributions[newAttributionId]).toEqual(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
     expect(newManualData.attributionsToResources[newAttributionId]).toEqual([
       '/something.js',
@@ -75,7 +75,7 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       testUuid,
-      () => false
+      () => false,
     );
     expect(isEmpty(newManualData.attributions)).toBe(true);
     expect(isEmpty(newManualData.resourcesToAttributions)).toBe(true);
@@ -124,7 +124,7 @@ describe('The deleteManualAttribution function', () => {
     const newManualData: AttributionData = deleteManualAttribution(
       testManualData,
       testUuid,
-      () => false
+      () => false,
     );
     expect(newManualData.attributions).toEqual({
       '000': { packageName: 'another testpackage' },
@@ -178,17 +178,17 @@ describe('The updateManualAttribution function', () => {
     const newManualData: AttributionData = updateManualAttribution(
       testUuid,
       testManualData,
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
 
     expect(newManualData.attributions).toEqual({
       [testUuid]: expectedPackageInfo,
     });
     expect(newManualData.resourcesToAttributions).toEqual(
-      testResourcesToManualAttributions
+      testResourcesToManualAttributions,
     );
     expect(newManualData.attributionsToResources).toEqual(
-      expectedManualAttributionsToResources
+      expectedManualAttributionsToResources,
     );
   });
 });
@@ -257,7 +257,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
     _removeManualAttributionFromChildrenIfAllAreIdentical(
       testManualData,
       ['/first/second/', '/first/second/third/'],
-      () => false
+      () => false,
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -381,7 +381,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
         '/first/second/third/',
         '/first/second/third/fourth',
       ],
-      () => false
+      () => false,
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -504,7 +504,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],
-      () => false
+      () => false,
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -605,7 +605,7 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
     _removeAttributionsFromChildrenAndParents(
       testManualData,
       [testSelectedResourceId],
-      () => false
+      () => false,
     );
     expect(testManualData).toEqual(expectedStrippedManualData);
   });
@@ -624,8 +624,8 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
       _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions(
         testAttributionsToResources,
         testResourceId,
-        testAttributionId
-      )
+        testAttributionId,
+      ),
     ).toEqual(expectedOutput);
   });
 
@@ -635,7 +635,7 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
     const expectedOutput = ['/parent/', testResourceId];
     const testAttributionsToResources = {
       [testAttributionId]: expectedOutput.concat(
-        '/parent/resourceIncludeFakeChild'
+        '/parent/resourceIncludeFakeChild',
       ),
     };
 
@@ -643,8 +643,8 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
       _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions(
         testAttributionsToResources,
         testResourceId,
-        testAttributionId
-      )
+        testAttributionId,
+      ),
     ).toEqual(expectedOutput);
   });
 
@@ -665,8 +665,8 @@ describe('_getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions', () =>
       _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions(
         testAttributionsToResources,
         testResourceId,
-        testAttributionId
-      )
+        testAttributionId,
+      ),
     ).toEqual(expectedOutput);
   });
 });

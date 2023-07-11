@@ -51,7 +51,7 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
   const ids: Array<string> = props.idsToDisplayValues.map(
-    (idToDisplayValue) => idToDisplayValue[0]
+    (idToDisplayValue) => idToDisplayValue[0],
   );
 
   return (

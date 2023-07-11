@@ -8,37 +8,37 @@ import { convertNpmPayload, getNpmAPIUrl } from '../npm-fetching-helpers';
 describe('getNpmAPIUrl', () => {
   it('handles a simple package name', () => {
     expect(getNpmAPIUrl('https://npmjs.com/package/react')).toBe(
-      'https://registry.npmjs.org/react'
+      'https://registry.npmjs.org/react',
     );
   });
 
   it('handles a simple package name without package in the url', () => {
     expect(getNpmAPIUrl('https://npmjs.com/react')).toBe(
-      'https://registry.npmjs.org/react'
+      'https://registry.npmjs.org/react',
     );
   });
 
   it('handles a simple package name with version', () => {
     expect(getNpmAPIUrl('https://npmjs.com/package/react', '1.0')).toBe(
-      'https://registry.npmjs.org/react/1.0'
+      'https://registry.npmjs.org/react/1.0',
     );
   });
 
   it('handles a simple package name with trailing slash', () => {
     expect(getNpmAPIUrl('https://npmjs.com/package/react/', '1.0')).toBe(
-      'https://registry.npmjs.org/react/1.0'
+      'https://registry.npmjs.org/react/1.0',
     );
   });
 
   it('handles a complicated package name', () => {
     expect(getNpmAPIUrl('https://npmjs.com/package/@angular/animation')).toBe(
-      'https://registry.npmjs.org/@angular/animation'
+      'https://registry.npmjs.org/@angular/animation',
     );
   });
 
   it('handles a complicated package name with version', () => {
     expect(
-      getNpmAPIUrl('https://npmjs.com/package/@angular/animation', '1.0')
+      getNpmAPIUrl('https://npmjs.com/package/@angular/animation', '1.0'),
     ).toBe('https://registry.npmjs.org/@angular/animation/1.0');
   });
 });
@@ -48,7 +48,7 @@ describe('convertNpmPayload', () => {
     const payload = { name: 'test' };
 
     expect(() => convertNpmPayload(payload)).toThrow(
-      'requires property "license"'
+      'requires property "license"',
     );
   });
 

@@ -12,10 +12,10 @@ import {
 } from './github-fetching-helpers';
 
 const PYPI_REGEX = new RegExp(
-  '^https://(www.)?pypi.org/(pypi|project)/[\\w-+,_]+/?$'
+  '^https://(www.)?pypi.org/(pypi|project)/[\\w-+,_]+/?$',
 );
 const NPM_REGEX = new RegExp(
-  '^https://(www.)?npmjs.com/(package/)?[\\w-+,_@/]+/?$'
+  '^https://(www.)?npmjs.com/(package/)?[\\w-+,_@/]+/?$',
 );
 const GITHUB_REGEX = new RegExp('^https://(www.)?github.com/[^/]+/[^/]+');
 
@@ -26,7 +26,7 @@ export interface LicenseFetchingInformation {
 
 export function getLicenseFetchingInformation(
   url?: string,
-  version?: string
+  version?: string,
 ): LicenseFetchingInformation | null {
   if (!url) {
     return null;

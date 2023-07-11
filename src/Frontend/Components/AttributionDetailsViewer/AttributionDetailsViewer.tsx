@@ -55,10 +55,10 @@ const classes = {
 
 export function AttributionDetailsViewer(): ReactElement | null {
   const selectedAttributionId = useAppSelector(
-    getSelectedAttributionIdInAttributionView
+    getSelectedAttributionIdInAttributionView,
   );
   const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo
+    getTemporaryDisplayPackageInfo,
   );
   const resourceIdsOfSelectedAttributionId: Array<string> =
     useAppSelector(getResourceIdsOfSelectedAttribution) || [];
@@ -70,8 +70,8 @@ export function AttributionDetailsViewer(): ReactElement | null {
       savePackageInfoIfSavingIsNotDisabled(
         null,
         selectedAttributionId,
-        temporaryDisplayPackageInfo
-      )
+        temporaryDisplayPackageInfo,
+      ),
     );
   }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
@@ -80,15 +80,15 @@ export function AttributionDetailsViewer(): ReactElement | null {
       savePackageInfo(
         null,
         selectedAttributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
-      )
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+      ),
     );
   }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
   const setUpdateTemporaryDisplayPackageInfoFor =
     setUpdateTemporaryDisplayPackageInfoForCreator(
       dispatch,
-      temporaryDisplayPackageInfo
+      temporaryDisplayPackageInfo,
     );
 
   function deleteAttribution(): void {
@@ -96,7 +96,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
       dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
     } else {
       dispatch(
-        openPopup(PopupType.ConfirmDeletionPopup, selectedAttributionId)
+        openPopup(PopupType.ConfirmDeletionPopup, selectedAttributionId),
       );
     }
   }
@@ -129,7 +129,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         onSaveButtonClick={dispatchSavePackageInfo}
         onDeleteButtonClick={deleteAttribution}
         setTemporaryDisplayPackageInfo={(
-          displayPackageInfo: DisplayPackageInfo
+          displayPackageInfo: DisplayPackageInfo,
         ): void => {
           dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
         }}

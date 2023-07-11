@@ -20,7 +20,7 @@ export function getParents(pathToBeSplit: string): Array<string> {
 
 export function getParentsUpToNextAttributionBreakpoint(
   path: string,
-  isAttributionBreakpoint: PathPredicate
+  isAttributionBreakpoint: PathPredicate,
 ): Array<string> {
   // A breakpoint has no parents.
   if (isAttributionBreakpoint(path)) {

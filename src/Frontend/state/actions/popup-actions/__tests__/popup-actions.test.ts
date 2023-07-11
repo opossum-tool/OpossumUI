@@ -69,12 +69,12 @@ import {
 } from '../../../selectors/attribution-view-resource-selectors';
 import { act } from 'react-dom/test-utils';
 import {
-  getAttributionWizarOriginalDisplayPackageInfo,
-  getAttributionWizardPackageNamespaces,
   getAttributionWizardPackageNames,
+  getAttributionWizardPackageNamespaces,
   getAttributionWizardPackageVersions,
   getAttributionWizardSelectedPackageAttributeIds,
   getAttributionWizardTotalAttributionCount,
+  getAttributionWizarOriginalDisplayPackageInfo,
 } from '../../../selectors/attribution-wizard-selectors';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
@@ -85,11 +85,11 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createTestAppStore();
       testStore.dispatch(navigateToView(View.Attribution));
       testStore.dispatch(
-        navigateToSelectedPathOrOpenUnsavedPopup('/folder1/folder2/test_file')
+        navigateToSelectedPathOrOpenUnsavedPopup('/folder1/folder2/test_file'),
       );
 
       expect(getSelectedResourceId(testStore.getState())).toBe(
-        '/folder1/folder2/test_file'
+        '/folder1/folder2/test_file',
       );
       expect(getExpandedIds(testStore.getState())).toMatchObject([
         '/',
@@ -119,41 +119,41 @@ describe('The actions checking for unsaved changes', () => {
             getParsedInputFileEnrichedWithTestData({
               resources: testResources,
               manualAttributions: testManualAttributions,
-            })
-          )
+            }),
+          ),
         );
 
         testStore.dispatch(setSelectedResourceId('selectedResource'));
         testStore.dispatch(navigateToView(View.Attribution));
         testStore.dispatch(
-          savePackageInfo(null, null, { packageName: 'Test' })
+          savePackageInfo(null, null, { packageName: 'Test' }),
         );
         testStore.dispatch(
           setTemporaryDisplayPackageInfo({
             packageName: 'Test 2',
             attributionIds: [],
-          })
+          }),
         );
 
         testStore.dispatch(
-          changeSelectedAttributionIdOrOpenUnsavedPopup('uuid_1')
+          changeSelectedAttributionIdOrOpenUnsavedPopup('uuid_1'),
         );
 
         expect(getTargetSelectedAttributionId(testStore.getState())).toBe(
-          'uuid_1'
+          'uuid_1',
         );
         expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
         expect(getOpenPopup(testStore.getState())).toBe(
-          PopupType.NotSavedPopup
+          PopupType.NotSavedPopup,
         );
         expect(
-          getSelectedAttributionIdInAttributionView(testStore.getState())
+          getSelectedAttributionIdInAttributionView(testStore.getState()),
         ).toBe('');
         expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
           packageName: 'Test 2',
           attributionIds: [],
         });
-      }
+      },
     );
 
     it('setSelectedAttributionId and temporaryDisplayPackageInfo if packageInfo were not modified', () => {
@@ -170,8 +170,8 @@ describe('The actions checking for unsaved changes', () => {
           getParsedInputFileEnrichedWithTestData({
             resources: testResources,
             manualAttributions: testManualAttributions,
-          })
-        )
+          }),
+        ),
       );
 
       testStore.dispatch(setSelectedResourceId('selectedResource'));
@@ -181,22 +181,22 @@ describe('The actions checking for unsaved changes', () => {
         setTemporaryDisplayPackageInfo({
           packageName: 'Test',
           attributionIds: [],
-        })
+        }),
       );
       testStore.dispatch(
         savePackageInfo('selectedResource', 'selectedAttributionId', {
           packageName: 'Test',
-        })
+        }),
       );
 
       testStore.dispatch(
-        changeSelectedAttributionIdOrOpenUnsavedPopup('uuid_1')
+        changeSelectedAttributionIdOrOpenUnsavedPopup('uuid_1'),
       );
 
       expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
       expect(getOpenPopup(testStore.getState())).toBeFalsy();
       expect(
-        getSelectedAttributionIdInAttributionView(testStore.getState())
+        getSelectedAttributionIdInAttributionView(testStore.getState()),
       ).toBe('uuid_1');
       expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
         packageName: 'React',
@@ -221,13 +221,13 @@ describe('The actions checking for unsaved changes', () => {
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
           attributionIds: [],
-        })
+        }),
       );
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
       expect(getTargetView(testStore.getState())).toBe(View.Attribution);
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(
-        '/testId/'
+        '/testId/',
       );
       expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
     });
@@ -276,13 +276,13 @@ describe('The actions checking for unsaved changes', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/')
+        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/thirdParty/');
     });
@@ -295,23 +295,23 @@ describe('The actions checking for unsaved changes', () => {
             resources: testResources,
             manualAttributions: testManualAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       testStore.dispatch(setSelectedResourceId('/root/'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
           attributionIds: [],
-        })
+        }),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/')
+        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(
-        '/thirdParty/'
+        '/thirdParty/',
       );
       expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
     });
@@ -347,8 +347,8 @@ describe('The actions checking for unsaved changes', () => {
             resources: testResources,
             manualAttributions: testAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
 
       expect(getDisplayedPackage(testStore.getState())).toBeNull();
@@ -357,14 +357,14 @@ describe('The actions checking for unsaved changes', () => {
         selectPackageCardInAuditViewOrOpenUnsavedPopup(
           testSelectedPackage.panel,
           testSelectedPackage.packageCardId,
-          testSelectedPackage.displayPackageInfo
-        )
+          testSelectedPackage.displayPackageInfo,
+        ),
       );
       expect(getDisplayedPackage(testStore.getState())).toEqual(
-        testSelectedPackage
+        testSelectedPackage,
       );
       expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-        testDisplayPackageInfo
+        testDisplayPackageInfo,
       );
     });
   });
@@ -399,8 +399,8 @@ describe('The actions checking for unsaved changes', () => {
             resources: testResources,
             manualAttributions: testAttributions,
             resourcesToManualAttributions: testResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
 
       expect(getDisplayedPackage(testStore.getState())).toBeNull();
@@ -409,11 +409,11 @@ describe('The actions checking for unsaved changes', () => {
         selectPackageCardInAuditViewOrOpenUnsavedPopup(
           testSelectedPackage.panel,
           testSelectedPackage.packageCardId,
-          testSelectedPackage.displayPackageInfo
-        )
+          testSelectedPackage.displayPackageInfo,
+        ),
       );
       expect(getDisplayedPackage(testStore.getState())).toEqual(
-        testSelectedPackage
+        testSelectedPackage,
       );
       expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
         ...testPackageInfo,
@@ -475,8 +475,8 @@ describe('The actions called from the unsaved popup', () => {
             manualAttributions: testInitialManualAttributions,
             resourcesToManualAttributions:
               testInitialResourcesToManualAttributions,
-          })
-        )
+          }),
+        ),
       );
       testStore.dispatch(setSelectedResourceId('/something.js'));
       testStore.dispatch(
@@ -484,16 +484,16 @@ describe('The actions called from the unsaved popup', () => {
           panel: PackagePanelTitle.ManualPackages,
           packageCardId: testPackageCardId,
           displayPackageInfo: testDisplayPackageInfo,
-        })
+        }),
       );
       testStore.dispatch(
-        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO)
+        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
       );
       testStore.dispatch(setTargetView(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
 
       testStore.dispatch(
-        unlinkAttributionAndSavePackageInfoAndNavigateToTargetView()
+        unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(),
       );
       expect(getManualData(testStore.getState())).toEqual(expectedManualData);
       expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
@@ -508,21 +508,21 @@ describe('The actions called from the unsaved popup', () => {
         newSelectedResource: 1,
       };
       testStore.dispatch(
-        loadFromFile(getParsedInputFileEnrichedWithTestData(testResources))
+        loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
       );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'Test',
           attributionIds: [],
-        })
+        }),
       );
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
       testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
       testStore.dispatch(
-        saveTemporaryDisplayPackageInfoAndNavigateToTargetView()
+        saveTemporaryDisplayPackageInfoAndNavigateToTargetView(),
       );
 
       return testStore.getState();
@@ -553,14 +553,14 @@ describe('The actions called from the unsaved popup', () => {
     function prepareTestState(): State {
       const testStore = createTestAppStore();
       testStore.dispatch(
-        setResources({ selectedResource: 1, newSelectedResource: 1 })
+        setResources({ selectedResource: 1, newSelectedResource: 1 }),
       );
       testStore.dispatch(setSelectedResourceId('selectedResource'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'Test',
           attributionIds: [],
-        })
+        }),
       );
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setTargetView(View.Attribution));
@@ -628,11 +628,11 @@ describe('openAttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
+        testExternalResourcesToAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testManualResourcesToAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -660,36 +660,36 @@ describe('openAttributionWizardPopup', () => {
     const testOriginalDisplayPackageInfo =
       getAttributionWizarOriginalDisplayPackageInfo(testStore.getState());
     const testPackageNamespaces = getAttributionWizardPackageNamespaces(
-      testStore.getState()
+      testStore.getState(),
     );
     const testPackageNames = getAttributionWizardPackageNames(
-      testStore.getState()
+      testStore.getState(),
     );
     const testPackageVersions = getAttributionWizardPackageVersions(
-      testStore.getState()
+      testStore.getState(),
     );
     const testSelectedPackageAttributeIds =
       getAttributionWizardSelectedPackageAttributeIds(testStore.getState());
     const testTotalAttributionCount = getAttributionWizardTotalAttributionCount(
-      testStore.getState()
+      testStore.getState(),
     );
 
     expect(
-      convertDisplayPackageInfoToPackageInfo(testOriginalDisplayPackageInfo)
+      convertDisplayPackageInfoToPackageInfo(testOriginalDisplayPackageInfo),
     ).toEqual(expectedOriginalAttribution);
     expect(Object.values(testPackageNamespaces)).toEqual(
-      expectedPackageNamespacesValues
+      expectedPackageNamespacesValues,
     );
     expect(Object.values(testPackageNames)).toEqual(expectedPackageNamesValues);
     Object.values(testPackageVersions).forEach((packageVersion, index) => {
       expect(packageVersion.text).toBe(
-        expectedPackageVersionsValues[index].text
+        expectedPackageVersionsValues[index].text,
       );
       expect(packageVersion).toHaveProperty('relatedIds');
     });
     expect(testTotalAttributionCount).toBe(expectedTotalAttributionCount);
     expect(testSelectedPackageAttributeIds.namespaceId.length).toBeGreaterThan(
-      0
+      0,
     );
     expect(testSelectedPackageAttributeIds.nameId.length).toBeGreaterThan(0);
     expect(testSelectedPackageAttributeIds.versionId.length).toBeGreaterThan(0);
@@ -701,17 +701,17 @@ describe('openAttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
+        testExternalResourcesToAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testManualResourcesToAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
     });
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.AttributionWizardPopup
+      PopupType.AttributionWizardPopup,
     );
   });
 });

@@ -42,7 +42,7 @@ interface AccordionProps {
 
 export function getColorsForPieChart(
   pieChartData: Array<PieChartData>,
-  pieChartTitle: string
+  pieChartTitle: string,
 ): Array<string> | undefined {
   const pieChartColors = [];
 
@@ -69,7 +69,7 @@ export function getColorsForPieChart(
 }
 
 export function AccordionWithPieChart(
-  props: AccordionProps
+  props: AccordionProps,
 ): ReactElement | null {
   if (props.data.length === 0) {
     return null;

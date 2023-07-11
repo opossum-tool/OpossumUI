@@ -86,17 +86,17 @@ describe('getAttributionWizardListItems', () => {
       testPackageNamespaces,
       testPackageNames,
       testPackageVersions,
-      testTotalAttributionCount
+      testTotalAttributionCount,
     );
 
     expect(testAttributedPackageNamespacesWithManuallyAddedOnes).toEqual(
-      expectedAttributedPackageNamespacesWithManuallyAddedOnes
+      expectedAttributedPackageNamespacesWithManuallyAddedOnes,
     );
     expect(testAttributedPackageNamesWithManuallyAddedOnes).toEqual(
-      expectedAttributedPackageNamesWithManuallyAddedOnes
+      expectedAttributedPackageNamesWithManuallyAddedOnes,
     );
     expect(testAttributedPackageVersionsWithManuallyAddedOnes).toEqual(
-      expectedAttributedPackageVersionsWithManuallyAddedOnes
+      expectedAttributedPackageVersionsWithManuallyAddedOnes,
     );
   });
 });

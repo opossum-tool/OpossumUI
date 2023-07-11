@@ -31,10 +31,10 @@ interface CriticalLicensesTableProps {
 }
 
 export function CriticalLicensesTable(
-  props: CriticalLicensesTableProps
+  props: CriticalLicensesTableProps,
 ): ReactElement {
   const allLicensesWithCriticality = Object.entries(
-    props.licenseNamesWithCriticality
+    props.licenseNamesWithCriticality,
   ).map((licenseNameAndCriticality) => {
     return {
       licenseName: licenseNameAndCriticality[0],
@@ -43,25 +43,25 @@ export function CriticalLicensesTable(
   });
   const highCriticalityLicenseNames = getLicenseNamesByCriticality(
     allLicensesWithCriticality,
-    Criticality.High
+    Criticality.High,
   );
   const mediumCriticalityLicenseNames = getLicenseNamesByCriticality(
     allLicensesWithCriticality,
-    Criticality.Medium
+    Criticality.Medium,
   );
   const highCriticalityLicensesTotalAttributions =
     getCriticalLicenseNamesWithTheirTotalAttributions(
       props.totalAttributionsPerLicense,
-      highCriticalityLicenseNames
+      highCriticalityLicenseNames,
     );
   const mediumCriticalityLicensesTotalAttributions =
     getCriticalLicenseNamesWithTheirTotalAttributions(
       props.totalAttributionsPerLicense,
-      mediumCriticalityLicenseNames
+      mediumCriticalityLicenseNames,
     );
   const criticalLicensesTotalAttributions =
     highCriticalityLicensesTotalAttributions.concat(
-      mediumCriticalityLicensesTotalAttributions
+      mediumCriticalityLicensesTotalAttributions,
     );
 
   return (
@@ -71,20 +71,20 @@ export function CriticalLicensesTable(
       columnHeaders={TABLE_COLUMN_NAMES}
       columnNames={TABLE_COLUMN_NAMES}
       rowNames={criticalLicensesTotalAttributions.map(
-        (attribution) => attribution.licenseName
+        (attribution) => attribution.licenseName,
       )}
       tableContent={Object.fromEntries(
         criticalLicensesTotalAttributions.map(
           ({ licenseName, totalNumberOfAttributions }) => [
             licenseName,
             { [COUNT_COLUMN_NAME_IN_TABLE]: totalNumberOfAttributions },
-          ]
-        )
+          ],
+        ),
       )}
       tableFooter={[FOOTER_TITLE].concat(
         getTotalNumberOfAttributions(
-          criticalLicensesTotalAttributions
-        ).toString()
+          criticalLicensesTotalAttributions,
+        ).toString(),
       )}
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}
     />
@@ -96,20 +96,20 @@ function getLicenseNamesByCriticality(
     licenseName: string;
     criticality: Criticality | undefined;
   }>,
-  criticality: Criticality
+  criticality: Criticality,
 ): Array<string> {
   return allLicensesWithCriticality
     .map((licenseNameAndCriticality) =>
       licenseNameAndCriticality.criticality === criticality
         ? licenseNameAndCriticality.licenseName
-        : ''
+        : '',
     )
     .filter((licenseName) => licenseName !== '');
 }
 
 function getCriticalLicenseNamesWithTheirTotalAttributions(
   totalAttributionsPerLicense: { [licenseName: string]: number },
-  criticalLicenseNames: Array<string>
+  criticalLicenseNames: Array<string>,
 ): Array<{ licenseName: string; totalNumberOfAttributions: number }> {
   const licenseNamesAndTheirTotalAttributions = criticalLicenseNames.map(
     (criticalLicenseName) => {
@@ -118,7 +118,7 @@ function getCriticalLicenseNamesWithTheirTotalAttributions(
         totalNumberOfAttributions:
           totalAttributionsPerLicense[criticalLicenseName],
       };
-    }
+    },
   );
   return licenseNamesAndTheirTotalAttributions.sort();
 }
@@ -127,12 +127,12 @@ function getTotalNumberOfAttributions(
   licenseNamesAndTheirTotalAttributions: Array<{
     licenseName: string;
     totalNumberOfAttributions: number;
-  }>
+  }>,
 ): number {
   return licenseNamesAndTheirTotalAttributions
     .map(
       (licenseNameAndTotalAttributions) =>
-        licenseNameAndTotalAttributions.totalNumberOfAttributions
+        licenseNameAndTotalAttributions.totalNumberOfAttributions,
     )
     .reduce((total, value) => total + value, 0);
 }
