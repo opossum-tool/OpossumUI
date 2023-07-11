@@ -227,7 +227,7 @@ export interface IElectronAPI {
   useOutdatedInputFileFormat: () => void;
   openDotOpossumFile: () => void;
   sendErrorInformation: (
-    errorInformationArgs: SendErrorInformationArgs
+    errorInformationArgs: SendErrorInformationArgs,
   ) => void;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;

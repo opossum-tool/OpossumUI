@@ -10,7 +10,7 @@ describe('openUrl', () => {
     const urlString = 'www.google.com';
     openUrl(urlString);
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(
-      'https://' + urlString
+      'https://' + urlString,
     );
   });
 

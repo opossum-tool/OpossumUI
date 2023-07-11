@@ -11,7 +11,7 @@ const mutuallyExclusiveFilters = [
 
 export function getUpdatedFilters(
   activeFilters: Set<FilterType>,
-  newFilter: FilterType
+  newFilter: FilterType,
 ): Set<FilterType> {
   const currentFilters = new Set(activeFilters);
   if (currentFilters.has(newFilter)) {
@@ -31,7 +31,7 @@ export function getFiltersToRemove(newFilter: FilterType): Set<FilterType> {
     mutuallyExclusiveFilters
       .filter((filterPair) => filterPair.includes(newFilter))
       .map((filterPair) =>
-        filterPair.indexOf(newFilter) ? filterPair[0] : filterPair[1]
-      )
+        filterPair.indexOf(newFilter) ? filterPair[0] : filterPair[1],
+      ),
   );
 }

@@ -10,7 +10,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { GlobalPopup } from '../../../Components/GlobalPopup/GlobalPopup';
-import { PopupType, ButtonText } from '../../../enums/enums';
+import { ButtonText, PopupType } from '../../../enums/enums';
 import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
 import {
   setExternalData,
@@ -57,11 +57,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
+        testExternalResourcesToAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testManualResourcesToAttributions),
     );
 
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
@@ -71,7 +71,7 @@ describe('AttributionWizardPopup', () => {
     });
 
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.AttributionWizardPopup
+      PopupType.AttributionWizardPopup,
     );
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Cancel }));
@@ -87,7 +87,7 @@ describe('AttributionWizardPopup', () => {
     const expectedChangedTemporaryDisplayPackageInfo =
       convertPackageInfoToDisplayPackageInfo(
         testExternalAttributions.uuid_1,
-        []
+        [],
       );
 
     const testStore = createTestAppStore();
@@ -95,11 +95,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testExternalResourcesToAttributions
-      )
+        testExternalResourcesToAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions)
+      setManualData(testManualAttributions, testManualResourcesToAttributions),
     );
 
     renderComponentWithStore(<GlobalPopup />, { store: testStore });
@@ -108,7 +108,7 @@ describe('AttributionWizardPopup', () => {
     });
 
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo),
     );
 
     fireEvent.click(screen.getByText('pip'));
@@ -118,10 +118,10 @@ describe('AttributionWizardPopup', () => {
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Apply }));
 
     const changedTemporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
-      testStore.getState()
+      testStore.getState(),
     );
     expect(changedTemporaryDisplayPackageInfo).toEqual(
-      expectedChangedTemporaryDisplayPackageInfo
+      expectedChangedTemporaryDisplayPackageInfo,
     );
   });
 });

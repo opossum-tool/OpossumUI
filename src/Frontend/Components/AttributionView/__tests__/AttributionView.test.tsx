@@ -59,8 +59,8 @@ describe('The Attribution View', () => {
           resources: { ['test resource']: 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(navigateToView(View.Attribution));
@@ -84,8 +84,8 @@ describe('The Attribution View', () => {
           resources: { ['test resource']: 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(navigateToView(View.Attribution));
@@ -110,8 +110,8 @@ describe('The Attribution View', () => {
           resources: { ['test resource']: 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(navigateToView(View.Attribution));
@@ -126,7 +126,7 @@ describe('The Attribution View', () => {
 
     expect(screen.getByText('Test package, 1.0'));
     expect(
-      screen.queryByText('Test other package, 2.0')
+      screen.queryByText('Test other package, 2.0'),
     ).not.toBeInTheDocument();
   });
 
@@ -138,8 +138,8 @@ describe('The Attribution View', () => {
           resources: { ['test resource']: 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(navigateToView(View.Attribution));
@@ -155,7 +155,7 @@ describe('The Attribution View', () => {
 
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
     expect(
-      screen.queryByText('Test other package, 2.0')
+      screen.queryByText('Test other package, 2.0'),
     ).not.toBeInTheDocument();
 
     clickOnFilter(screen, FilterType.HideFirstParty);
@@ -192,8 +192,8 @@ describe('The Attribution View', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(navigateToView(View.Attribution));

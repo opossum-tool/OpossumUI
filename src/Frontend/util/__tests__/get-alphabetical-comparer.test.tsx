@@ -34,7 +34,7 @@ describe('getAlphabeticalComparer', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparer(testAttributions)
+      getAlphabeticalComparer(testAttributions),
     );
 
     expect(sortedAttributionIds).toEqual(['3', '5', '4', '2', '1']);
@@ -54,7 +54,7 @@ describe('getAlphabeticalComparer', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparer(testAttributions)
+      getAlphabeticalComparer(testAttributions),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '3', '1']);
@@ -77,7 +77,7 @@ describe('getAlphabeticalComparer', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparer(testAttributions)
+      getAlphabeticalComparer(testAttributions),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '1', '3']);

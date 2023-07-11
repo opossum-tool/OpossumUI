@@ -20,7 +20,7 @@ export async function writeCsvToFile(
   filePath: string,
   attributionsToWrite: AttributionsWithResources | Attributions,
   columns: Array<KeysOfAttributionInfo>,
-  shortenResources = false
+  shortenResources = false,
 ): Promise<unknown> {
   try {
     const writeStream = fs.createWriteStream(filePath);
@@ -39,7 +39,7 @@ export async function writeCsvToFile(
       attributionsToWrite,
       columns,
       shortenResources,
-      csvStream
+      csvStream,
     );
 
     csvStream.end();
@@ -57,7 +57,7 @@ function writeHeaders(
   csvStream: CsvFormatterStream<
     Record<string, unknown>,
     Record<string, unknown>
-  >
+  >,
 ): void {
   const headers = getHeadersFromColumns(columns);
   csvStream.write({
@@ -108,7 +108,7 @@ function writeAttributionsWithResourceToCsv(
   csvStream: CsvFormatterStream<
     Record<string, unknown>,
     Record<string, unknown>
-  >
+  >,
 ): void {
   let attributionNumber = 0;
   Object.values(attributionsToWrite).forEach((attributionToWrite) => {
@@ -122,7 +122,7 @@ function writeAttributionsWithResourceToCsv(
         attributionToWrite,
         attributionNumber,
         shortenResources,
-        csvStream
+        csvStream,
       );
     } else {
       writeAttribution(attributionToWrite, attributionNumber, csvStream);
@@ -131,7 +131,7 @@ function writeAttributionsWithResourceToCsv(
 }
 
 function isAttributionInfo(
-  attribution: AttributionInfo | PackageInfo
+  attribution: AttributionInfo | PackageInfo,
 ): attribution is AttributionInfo {
   return 'resources' in attribution;
 }
@@ -143,13 +143,13 @@ function writeAttributionWithResources(
   csvStream: CsvFormatterStream<
     Record<string, unknown>,
     Record<string, unknown>
-  >
+  >,
 ): void {
   const shortenedLicenseText = getShortenedLicenseText(attributionWithResource);
 
   if (shortenResources) {
     const shortenedResources = getShortenedResources(
-      attributionWithResource.resources
+      attributionWithResource.resources,
     );
     csvStream.write({
       ...attributionWithResource,
@@ -185,7 +185,7 @@ function writeAttribution(
   csvStream: CsvFormatterStream<
     Record<string, unknown>,
     Record<string, unknown>
-  >
+  >,
 ): void {
   const shortenedLicenseText = getShortenedLicenseText(attributionWithResource);
 

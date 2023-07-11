@@ -28,7 +28,7 @@ interface ListProps {
 }
 
 function maxHeightWasGiven(
-  max: NumberOfDisplayedNodesForTree | HeightForTree
+  max: NumberOfDisplayedNodesForTree | HeightForTree,
 ): max is HeightForTree {
   return Boolean((max as HeightForTree).height);
 }

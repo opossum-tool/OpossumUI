@@ -148,13 +148,16 @@ describe('ResourceBrowser', () => {
     act(() => {
       store.dispatch(setResources(testResources));
       store.dispatch(
-        setManualData(testManualAttributions, testResourcesToManualAttributions)
+        setManualData(
+          testManualAttributions,
+          testResourcesToManualAttributions,
+        ),
       );
       store.dispatch(
         setExternalData(
           testExternalAttributions,
-          testResourcesToExternalAttributions
-        )
+          testResourcesToExternalAttributions,
+        ),
       );
     });
 
@@ -164,7 +167,7 @@ describe('ResourceBrowser', () => {
     expectResourceIconLabelToBe(
       screen,
       'root',
-      'Directory icon containing signals'
+      'Directory icon containing signals',
     );
     expect(screen.queryByText('src')).not.toBeInTheDocument();
 
@@ -179,7 +182,7 @@ describe('ResourceBrowser', () => {
     expectResourceIconLabelToBe(
       screen,
       'something.js',
-      'File icon without information'
+      'File icon without information',
     );
     act(() => {
       store.dispatch(addResolvedExternalAttribution(testUuid));
@@ -188,13 +191,13 @@ describe('ResourceBrowser', () => {
     expectResourceIconLabelToBe(
       screen,
       'src',
-      'Directory icon without information'
+      'Directory icon without information',
     );
 
     expectResourceIconLabelToBe(
       screen,
       'root',
-      'Directory icon without information'
+      'Directory icon without information',
     );
   });
 
@@ -303,28 +306,28 @@ function expectIconToExist(
   screen: Screen,
   iconLabel: string,
   resourceName: string,
-  expectedToExist: boolean
+  expectedToExist: boolean,
 ): void {
   const treeItem = screen.getByText(resourceName);
   expectedToExist
     ? expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
-        getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+        getByLabelText(treeItem.parentElement as HTMLElement, iconLabel),
       ).toBeInTheDocument()
     : expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
-        queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+        queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel),
       ).not.toBeInTheDocument();
 }
 
 function expectResourceIconLabelToBe(
   screen: Screen,
   resourceName: string,
-  iconLabel: string
+  iconLabel: string,
 ): void {
   const treeItem = screen.getByText(resourceName);
   expect(
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    getByLabelText(treeItem.parentElement as HTMLElement, iconLabel)
+    getByLabelText(treeItem.parentElement as HTMLElement, iconLabel),
   ).toBeInTheDocument();
 }

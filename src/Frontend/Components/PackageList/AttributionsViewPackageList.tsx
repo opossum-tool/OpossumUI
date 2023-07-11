@@ -23,7 +23,7 @@ interface AttributionsViewPackageListProps {
 }
 
 export function AttributionsViewPackageList(
-  props: AttributionsViewPackageListProps
+  props: AttributionsViewPackageListProps,
 ): ReactElement {
   const [search, setSearch] = useState('');
 
@@ -32,9 +32,9 @@ export function AttributionsViewPackageList(
       getFilteredPackageCardIdsFromDisplayPackageInfos(
         props.displayPackageInfos,
         props.sortedPackageCardIds,
-        search
+        search,
       ),
-    [props.displayPackageInfos, props.sortedPackageCardIds, search]
+    [props.displayPackageInfos, props.sortedPackageCardIds, search],
   );
 
   return (

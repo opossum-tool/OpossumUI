@@ -51,7 +51,7 @@ describe('useFollowUpFilter', () => {
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toEqual({
       [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],
@@ -62,7 +62,7 @@ describe('useFollowUpFilter', () => {
     const store = createTestAppStore();
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toBe(testManualAttributions);
   });
@@ -72,7 +72,7 @@ describe('useFollowUpFilter', () => {
     store.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toEqual({
       [testManualUuid]: testManualAttributions[testManualUuid],
@@ -84,7 +84,7 @@ describe('useFollowUpFilter', () => {
     store.dispatch(updateActiveFilters(FilterType.HideFirstParty));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toEqual({
       [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],
@@ -97,7 +97,7 @@ describe('useFollowUpFilter', () => {
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toEqual({});
   });
@@ -108,7 +108,7 @@ describe('useFollowUpFilter', () => {
     store.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toEqual({
       [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],
@@ -120,7 +120,7 @@ describe('useFollowUpFilter', () => {
     store.dispatch(updateActiveFilters(FilterType.OnlyNeedsReview));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
-      { store }
+      { store },
     );
     expect(filteredAttributions).toEqual({
       [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],

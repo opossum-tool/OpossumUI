@@ -32,7 +32,7 @@ describe('getColorsForPieChart', () => {
 
     const pieChartColors = getColorsForPieChart(
       criticalSignalsCount,
-      ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart
+      ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
     );
 
     expect(pieChartColors).toEqual(expectedPieChartColors);
@@ -53,7 +53,7 @@ describe('getColorsForPieChart', () => {
 
     const pieChartColors = getColorsForPieChart(
       sortedMostFrequentLicenses,
-      ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart
+      ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
     );
 
     expect(pieChartColors).toEqual(expectedPieChartColors);

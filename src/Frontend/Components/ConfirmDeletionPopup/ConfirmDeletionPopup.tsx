@@ -26,7 +26,7 @@ export function ConfirmDeletionPopup(): ReactElement {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const targetAttributionId = useAppSelector(getPopupAttributionId);
   const selectedAttributionIdAttributionView = useAppSelector(
-    getSelectedAttributionIdInAttributionView
+    getSelectedAttributionIdInAttributionView,
   );
   const selectedAttributionIdAuditView =
     useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel) ??
@@ -41,16 +41,16 @@ export function ConfirmDeletionPopup(): ReactElement {
           deleteAttributionAndSave(
             selectedResourceId,
             targetAttributionId,
-            selectedAttributionIdAuditView
-          )
+            selectedAttributionIdAuditView,
+          ),
         );
     } else {
       targetAttributionId &&
         dispatch(
           deleteAttributionGloballyAndSave(
             targetAttributionId,
-            selectedAttributionIdAttributionView
-          )
+            selectedAttributionIdAttributionView,
+          ),
         );
     }
   }

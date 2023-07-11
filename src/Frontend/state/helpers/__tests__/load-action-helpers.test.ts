@@ -42,7 +42,7 @@ describe('createExternalAttributionsToHashes', () => {
     };
 
     const testExternalAttributionsToHashes = createExternalAttributionsToHashes(
-      testExternalAttributions
+      testExternalAttributions,
     );
 
     expect(testExternalAttributionsToHashes.uuid1).toBeDefined();
@@ -54,16 +54,16 @@ describe('createExternalAttributionsToHashes', () => {
     expect(testExternalAttributionsToHashes.uuid7).toBeUndefined();
 
     expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid2
+      testExternalAttributionsToHashes.uuid2,
     );
     expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid3
+      testExternalAttributionsToHashes.uuid3,
     );
     expect(testExternalAttributionsToHashes.uuid1).not.toEqual(
-      testExternalAttributionsToHashes.uuid4
+      testExternalAttributionsToHashes.uuid4,
     );
     expect(testExternalAttributionsToHashes.uuid4).toEqual(
-      testExternalAttributionsToHashes.uuid5
+      testExternalAttributionsToHashes.uuid5,
     );
   });
 });

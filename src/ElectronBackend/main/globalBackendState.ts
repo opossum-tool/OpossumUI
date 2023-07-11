@@ -12,7 +12,7 @@ export function getGlobalBackendState(): GlobalBackendState {
 }
 
 export function setGlobalBackendState(
-  newGlobalBackendState: GlobalBackendState
+  newGlobalBackendState: GlobalBackendState,
 ): void {
   globalBackendState = newGlobalBackendState;
 }

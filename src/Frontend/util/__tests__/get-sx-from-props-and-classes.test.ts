@@ -16,7 +16,7 @@ describe('getSxFromPropsAndClasses', () => {
     const expectedSx: MuiSx = [testStyleClass, {}];
 
     expect(getSxFromPropsAndClasses({ styleClass: testStyleClass })).toEqual(
-      expectedSx
+      expectedSx,
     );
   });
 
@@ -25,7 +25,7 @@ describe('getSxFromPropsAndClasses', () => {
     const expectedSx: MuiSx = [{}, testSxProps];
 
     expect(getSxFromPropsAndClasses({ sxProps: testSxProps })).toEqual(
-      expectedSx
+      expectedSx,
     );
   });
 
@@ -34,7 +34,7 @@ describe('getSxFromPropsAndClasses', () => {
     const expectedSx: MuiSx = [{}, ...testSxProps];
 
     expect(getSxFromPropsAndClasses({ sxProps: testSxProps })).toEqual(
-      expectedSx
+      expectedSx,
     );
   });
 
@@ -47,7 +47,7 @@ describe('getSxFromPropsAndClasses', () => {
       getSxFromPropsAndClasses({
         styleClass: testStyleClass,
         sxProps: testSxProps,
-      })
+      }),
     ).toEqual(expectedSx);
   });
 });

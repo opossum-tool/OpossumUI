@@ -32,7 +32,7 @@ function enterWasPressed(event: KeyboardEvent): boolean {
 export function AutoComplete(props: AutoCompleteProps): ReactElement {
   function onInputChange(
     event: ChangeEvent<unknown> | KeyboardEvent,
-    value: string
+    value: string,
   ): void {
     if (
       value &&

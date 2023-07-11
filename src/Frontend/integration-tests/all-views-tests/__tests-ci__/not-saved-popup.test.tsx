@@ -250,7 +250,7 @@ describe('Not saved popup of the app', () => {
       clickOnTab(screen, 'Global Tab');
       clickAddIconOnCardInAttributionList(screen, 'React, 16.0.0');
       expectUnsavedChangesPopupIsShown(screen);
-    }
+    },
   );
 
   it('does not show NotSavedPopup when nothing was modified', () => {
@@ -361,7 +361,7 @@ describe('Not saved popup of the app', () => {
     expectPackageNotInPackagePanel(
       screen,
       'My great manual package',
-      'Attributions'
+      'Attributions',
     );
   });
 });

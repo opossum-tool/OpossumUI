@@ -56,17 +56,17 @@ interface ListWithAttributesProps {
   emptyTextFallback?: string;
   sortList?(
     items: Array<ListWithAttributesItem>,
-    highlightedAttributeIds?: Array<string>
+    highlightedAttributeIds?: Array<string>,
   ): Array<ListWithAttributesItem>;
 }
 
 export function ListWithAttributes(
-  props: ListWithAttributesProps
+  props: ListWithAttributesProps,
 ): ReactElement {
   const [textBoxInput, setTextBoxInput] = useState<string>('');
 
   function handleTextBoxInputChange(
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void {
     setTextBoxInput(event.target.value);
   }

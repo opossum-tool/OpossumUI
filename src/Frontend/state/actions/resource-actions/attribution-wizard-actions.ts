@@ -6,22 +6,22 @@
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { PackageAttributeIds, PackageAttributes } from '../../../types/types';
 import {
+  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
   ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
-  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
   ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
   ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
+  SetAttributionWizardOriginalAttribution,
   SetAttributionWizardPackageNames,
   SetAttributionWizardPackageNamespaces,
   SetAttributionWizardPackageVersions,
-  SetAttributionWizardOriginalAttribution,
   SetAttributionWizardSelectedPackageIds,
   SetAttributionWizardTotalAttributionCount,
 } from './types';
 
 export function setAttributionWizardOriginalAttribution(
-  originalDisplayPackageInfo: DisplayPackageInfo
+  originalDisplayPackageInfo: DisplayPackageInfo,
 ): SetAttributionWizardOriginalAttribution {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
@@ -30,7 +30,7 @@ export function setAttributionWizardOriginalAttribution(
 }
 
 export function setAttributionWizardPackageNamespaces(
-  sortedPackageNamespacesWithUuidsAndCounts: PackageAttributes
+  sortedPackageNamespacesWithUuidsAndCounts: PackageAttributes,
 ): SetAttributionWizardPackageNamespaces {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
@@ -39,7 +39,7 @@ export function setAttributionWizardPackageNamespaces(
 }
 
 export function setAttributionWizardPackageNames(
-  sortedPackageNamesWithUuidsAndCounts: PackageAttributes
+  sortedPackageNamesWithUuidsAndCounts: PackageAttributes,
 ): SetAttributionWizardPackageNames {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
@@ -48,7 +48,7 @@ export function setAttributionWizardPackageNames(
 }
 
 export function setAttributionWizardPackageVersions(
-  sortedPackageVersionsWithUuidsAndRelatedPackageNameIds: PackageAttributes
+  sortedPackageVersionsWithUuidsAndRelatedPackageNameIds: PackageAttributes,
 ): SetAttributionWizardPackageVersions {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
@@ -57,7 +57,7 @@ export function setAttributionWizardPackageVersions(
 }
 
 export function setAttributionWizardSelectedPackageIds(
-  packageIds: PackageAttributeIds
+  packageIds: PackageAttributeIds,
 ): SetAttributionWizardSelectedPackageIds {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
@@ -66,7 +66,7 @@ export function setAttributionWizardSelectedPackageIds(
 }
 
 export function setAttributionWizardTotalAttributionCount(
-  totalAttributionCount: number | null
+  totalAttributionCount: number | null,
 ): SetAttributionWizardTotalAttributionCount {
   return {
     type: ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,

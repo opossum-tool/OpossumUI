@@ -7,6 +7,7 @@ import MuiSkeleton from '@mui/material/Skeleton';
 import React, { ReactElement, useContext, useMemo, useState } from 'react';
 import {
   getAttributionBreakpoints,
+  getExternalAttributions,
   getFilesWithChildren,
   getManualAttributions,
   getResources,
@@ -23,7 +24,6 @@ import { getResolvedExternalAttributions } from '../../state/selectors/audit-vie
 import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBar } from './ProgressBar';
-import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
 
 const classes = {
   root: {
@@ -47,13 +47,13 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
   const manualAttributions = useAppSelector(getManualAttributions);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const resourcesToManualAttributions = useAppSelector(
-    getResourcesToManualAttributions
+    getResourcesToManualAttributions,
   );
   const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions
+    getResourcesToExternalAttributions,
   );
   const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
@@ -62,11 +62,11 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
     folderProgressBarDataAndResourceId,
     setFolderProgressBarDataAndResourceId,
   ] = useState<ProgressBarDataAndResourceId>(
-    EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID
+    EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID,
   );
 
   const folderProgressBarWorker = useContext(
-    ProgressBarWorkersContext
+    ProgressBarWorkersContext,
   ).FolderProgressBarWorker;
 
   const folderProgressBarWorkerArgs = useMemo(
@@ -83,7 +83,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
       externalAttributions,
       resourcesToManualAttributions,
       resolvedExternalAttributions,
-    ]
+    ],
   );
 
   const folderProgressBarSyncFallbackArgs = useMemo(
@@ -108,7 +108,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
       resolvedExternalAttributions,
       attributionBreakpoints,
       filesWithChildren,
-    ]
+    ],
   );
 
   useMemo(() => {
@@ -116,7 +116,7 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
       folderProgressBarWorker,
       folderProgressBarWorkerArgs,
       setFolderProgressBarDataAndResourceId,
-      folderProgressBarSyncFallbackArgs
+      folderProgressBarSyncFallbackArgs,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderProgressBarWorker, folderProgressBarWorkerArgs]);
@@ -148,12 +148,12 @@ async function loadProgressBarData(
   worker: Worker,
   workerArgs: Partial<ProgressBarWorkerArgs>,
   setFolderProgressBarDataAndResourceId: (
-    folderProgressBarDataAndResourceId: ProgressBarDataAndResourceId
+    folderProgressBarDataAndResourceId: ProgressBarDataAndResourceId,
   ) => void,
-  syncFallbackArgs: ProgressBarWorkerArgs
+  syncFallbackArgs: ProgressBarWorkerArgs,
 ): Promise<void> {
   setFolderProgressBarDataAndResourceId(
-    EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID
+    EMPTY_FOLDER_PROGRESS_BAR_AND_RESOURCE_ID,
   );
 
   try {
@@ -164,7 +164,7 @@ async function loadProgressBarData(
         logErrorAndComputeInMainProcess(
           Error('Web Worker execution error.'),
           setFolderProgressBarDataAndResourceId,
-          syncFallbackArgs
+          syncFallbackArgs,
         );
       } else {
         setFolderProgressBarDataAndResourceId(output);
@@ -174,7 +174,7 @@ async function loadProgressBarData(
     logErrorAndComputeInMainProcess(
       error,
       setFolderProgressBarDataAndResourceId,
-      syncFallbackArgs
+      syncFallbackArgs,
     );
   }
 }
@@ -182,9 +182,9 @@ async function loadProgressBarData(
 function logErrorAndComputeInMainProcess(
   error: unknown,
   setFolderProgressBarDataAndResourceId: (
-    folderProgressBarDataAndResourceId: ProgressBarDataAndResourceId
+    folderProgressBarDataAndResourceId: ProgressBarDataAndResourceId,
   ) => void,
-  syncFallbackArgs: ProgressBarWorkerArgs
+  syncFallbackArgs: ProgressBarWorkerArgs,
 ): void {
   console.info('Error in rendering folder progress bar: ', error);
   const progressBarData = getUpdatedProgressBarData(syncFallbackArgs);

@@ -71,30 +71,30 @@ describe('The AggregatedAttributionsPanel', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/'));
 
     renderComponentWithStore(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expectPackageInPackagePanel(
       screen,
       'React, 16.5.0',
-      'Attributions in Folder Content'
+      'Attributions in Folder Content',
     );
     expectPackageInPackagePanel(
       screen,
       'JQuery',
-      'Attributions in Folder Content'
+      'Attributions in Folder Content',
     );
     expectPackageInPackagePanel(
       screen,
       'React, 17.0.0',
-      'Signals in Folder Content'
+      'Signals in Folder Content',
     );
   });
 
@@ -133,42 +133,42 @@ describe('The AggregatedAttributionsPanel', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/'));
 
     renderComponentWithStore(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     testCorrectMarkAndUnmarkForReplacementInContextMenu(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'jQuery, 16.0.0',
-      ButtonText.MarkForReplacement
+      ButtonText.MarkForReplacement,
     );
 
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 16.0.0',
-      ButtonText.ReplaceMarked
+      ButtonText.ReplaceMarked,
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
       'React, 16.0.0',
-      true
+      true,
     );
   });
 
@@ -196,20 +196,20 @@ describe('The AggregatedAttributionsPanel', () => {
           resources: testResources,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
     testStore.dispatch(
       setExternalAttributionsToHashes({
         uuid_1: '1',
         uuid_2: '1',
-      })
+      }),
     );
 
     renderComponentWithStore(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore }
+      { store: testStore },
     );
 
     const signalsPanel = getPackagePanel(screen, 'Signals');
@@ -241,29 +241,29 @@ describe('The AggregatedAttributionsPanel', () => {
           resources: testResources,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/'));
     testStore.dispatch(
       setExternalAttributionsToHashes({
         uuid_1: '1',
         uuid_2: '1',
-      })
+      }),
     );
 
     renderComponentWithStore(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore }
+      { store: testStore },
     );
 
     const signalsInFolderContentPanel = getPackagePanel(
       screen,
-      'Signals in Folder Content'
+      'Signals in Folder Content',
     );
     expect(
       // eslint-disable-next-line testing-library/prefer-screen-queries
-      queryAllByText(signalsInFolderContentPanel, 'jQuery, 16.0.0')
+      queryAllByText(signalsInFolderContentPanel, 'jQuery, 16.0.0'),
       // eslint-disable-next-line jest-dom/prefer-in-document
     ).toHaveLength(1);
   });
@@ -292,15 +292,15 @@ describe('The AggregatedAttributionsPanel', () => {
           resources: testResources,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
     testStore.dispatch(setExternalAttributionsToHashes({}));
 
     renderComponentWithStore(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore }
+      { store: testStore },
     );
 
     const packagesPanel = getPackagePanel(screen, 'Signals');

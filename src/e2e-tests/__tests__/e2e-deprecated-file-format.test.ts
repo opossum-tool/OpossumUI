@@ -44,12 +44,12 @@ test.describe('Open outdated .json file via command line', () => {
 
     const electronBackendEntry = await getElementWithText(
       window,
-      'ElectronBackend'
+      'ElectronBackend',
     );
     await electronBackendEntry.click();
 
     fs.unlinkSync(
-      'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+      'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json',
     );
   });
 
@@ -59,7 +59,7 @@ test.describe('Open outdated .json file via command line', () => {
 
     const electronBackendEntry = await getElementWithText(
       window,
-      'ElectronBackend'
+      'ElectronBackend',
     );
     await electronBackendEntry.click();
 
@@ -74,14 +74,14 @@ test.describe('Open outdated .json file via command line', () => {
 
     const signalsInFolderContentEntry = await getElementWithText(
       window,
-      'Signals in Folder Content'
+      'Signals in Folder Content',
     );
     await signalsInFolderContentEntry.click();
 
     await expect(window.locator(`text=${'jQuery, 16.13.1'}`)).toBeHidden();
 
     fs.unlinkSync(
-      'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+      'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json',
     );
   });
 
@@ -94,12 +94,12 @@ test.describe('Open outdated .json file via command line', () => {
 
       const electronBackendEntry = await getElementWithText(
         window,
-        'ElectronBackend'
+        'ElectronBackend',
       );
       await electronBackendEntry.click();
       const openLinkIcon = await getElementWithAriaLabel(
         window,
-        'link to open'
+        'link to open',
       );
       await openLinkIcon.click();
 
@@ -110,15 +110,15 @@ test.describe('Open outdated .json file via command line', () => {
 
       const anotherOpenLinkIcon = await getElementWithAriaLabel(
         window,
-        'link to open'
+        'link to open',
       );
       await anotherOpenLinkIcon.click();
 
       await getElementWithText(window, 'Cannot open link.');
 
       fs.unlinkSync(
-        'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json'
+        'src/e2e-tests/test-resources/opossum_input_e2e_attributions.json',
       );
-    }
+    },
   );
 });

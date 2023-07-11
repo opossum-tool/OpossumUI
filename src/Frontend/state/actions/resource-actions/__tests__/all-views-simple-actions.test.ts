@@ -20,8 +20,8 @@ import {
   getBaseUrlsForSources,
   getExternalAttributions,
   getExternalAttributionSources,
-  getExternalAttributionsToResources,
   getExternalAttributionsToHashes,
+  getExternalAttributionsToResources,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
   getIsSavingDisabled,
@@ -92,17 +92,17 @@ describe('The load and navigation simple actions', () => {
       attributionIds: [],
     };
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
     testStore.dispatch(resetResourceState());
 
     expect(testStore.getState().resourceState).toMatchObject(
-      initialResourceState
+      initialResourceState,
     );
   });
 
@@ -147,7 +147,7 @@ describe('The load and navigation simple actions', () => {
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(getManualAttributionsToResources(testStore.getState())).toEqual({});
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {},
       pathsToIndices: {},
@@ -155,19 +155,19 @@ describe('The load and navigation simple actions', () => {
     });
 
     testStore.dispatch(
-      setManualData(testAttributions, testResourcesToAttributions)
+      setManualData(testAttributions, testResourcesToAttributions),
     );
     expect(getManualAttributions(testStore.getState())).toEqual(
-      testAttributions
+      testAttributions,
     );
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual(
-      testResourcesToAttributions
+      testResourcesToAttributions,
     );
     expect(getManualAttributionsToResources(testStore.getState())).toEqual(
-      expectedAttributionsToResources
+      expectedAttributionsToResources,
     );
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithAttributedChildren);
   });
 
@@ -204,13 +204,13 @@ describe('The load and navigation simple actions', () => {
     const testStore = createTestAppStore();
     expect(getExternalAttributions(testStore.getState())).toEqual({});
     expect(getResourcesToExternalAttributions(testStore.getState())).toEqual(
-      {}
+      {},
     );
     expect(getExternalAttributionsToResources(testStore.getState())).toEqual(
-      {}
+      {},
     );
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {},
       pathsToIndices: {},
@@ -218,19 +218,19 @@ describe('The load and navigation simple actions', () => {
     });
 
     testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions)
+      setExternalData(testAttributions, testResourcesToAttributions),
     );
     expect(getExternalAttributions(testStore.getState())).toEqual(
-      testAttributions
+      testAttributions,
     );
     expect(getResourcesToExternalAttributions(testStore.getState())).toEqual(
-      testResourcesToAttributions
+      testResourcesToAttributions,
     );
     expect(getExternalAttributionsToResources(testStore.getState())).toEqual(
-      expectedAttributionsToResources
+      expectedAttributionsToResources,
     );
     expect(
-      getResourcesWithExternalAttributedChildren(testStore.getState())
+      getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithAttributedChildren);
   });
 
@@ -248,10 +248,10 @@ describe('The load and navigation simple actions', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
     expect(getFrequentLicensesNameOrder(testStore.getState())).toMatchObject(
-      testFrequentLicenses.nameOrder
+      testFrequentLicenses.nameOrder,
     );
     expect(getFrequentLicensesTexts(testStore.getState())).toMatchObject(
-      testFrequentLicenses.texts
+      testFrequentLicenses.texts,
     );
   });
 
@@ -265,7 +265,7 @@ describe('The load and navigation simple actions', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setTemporaryDisplayPackageInfo(testDisplayPackageInfo));
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject(
-      testDisplayPackageInfo
+      testDisplayPackageInfo,
     );
   });
 
@@ -291,7 +291,7 @@ describe('The load and navigation simple actions', () => {
     testStore.dispatch(
       setExternalAttributionSources({
         SC: { name: 'Scancode', priority: 1 },
-      })
+      }),
     );
     expect(getExternalAttributionSources(testStore.getState())).toEqual({
       SC: { name: 'Scancode', priority: 1 },
@@ -302,10 +302,10 @@ describe('The load and navigation simple actions', () => {
     const testExternalAttributionsToHashes = { uuid: '0123-4567' };
     const testStore = createTestAppStore();
     testStore.dispatch(
-      setExternalAttributionsToHashes(testExternalAttributionsToHashes)
+      setExternalAttributionsToHashes(testExternalAttributionsToHashes),
     );
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
-      testExternalAttributionsToHashes
+      testExternalAttributionsToHashes,
     );
   });
 });

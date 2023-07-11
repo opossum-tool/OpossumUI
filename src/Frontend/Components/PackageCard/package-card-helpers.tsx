@@ -36,7 +36,7 @@ const classes = {
 export function getRightIcons(
   cardConfig: ListCardConfig,
   cardId: string,
-  openResourcesIcon?: JSX.Element
+  openResourcesIcon?: JSX.Element,
 ): Array<ReactElement> {
   const rightIcons: Array<JSX.Element> = [];
 
@@ -49,7 +49,7 @@ export function getRightIcons(
       <NeedsReviewIcon
         key={getKey('needs-review-icon', cardId)}
         sx={classes.needsReviewIcon}
-      />
+      />,
     );
   }
   if (cardConfig.followUp) {
@@ -57,12 +57,12 @@ export function getRightIcons(
       <FollowUpIcon
         key={getKey('follow-up-icon', cardId)}
         sx={classes.followUpIcon}
-      />
+      />,
     );
   }
   if (cardConfig.firstParty) {
     rightIcons.push(
-      <FirstPartyIcon key={getKey('first-party-icon', cardId)} />
+      <FirstPartyIcon key={getKey('first-party-icon', cardId)} />,
     );
   }
   if (cardConfig.excludeFromNotice) {
@@ -70,12 +70,12 @@ export function getRightIcons(
       <ExcludeFromNoticeIcon
         key={getKey('exclude-icon', cardId)}
         sx={classes.excludeFromNoticeIcon}
-      />
+      />,
     );
   }
   if (cardConfig.isPreSelected) {
     rightIcons.push(
-      <PreSelectedIcon key={getKey('pre-selected-icon', cardId)} />
+      <PreSelectedIcon key={getKey('pre-selected-icon', cardId)} />,
     );
   }
 
@@ -83,7 +83,7 @@ export function getRightIcons(
 }
 
 export function getPackageCardHighlighting(
-  packageInfo: DisplayPackageInfo
+  packageInfo: DisplayPackageInfo,
 ): HighlightingColor | undefined {
   if (packageInfo.excludeFromNotice || packageInfo.firstParty) return undefined;
   if (packageInfo.packageName === undefined)

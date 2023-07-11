@@ -62,8 +62,8 @@ describe('AttributionWizardPopup', () => {
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId(selectedResourceId));
     act(() => {
@@ -74,10 +74,10 @@ describe('AttributionWizardPopup', () => {
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
     expect(screen.getByText(selectedResourceId)).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: ButtonText.Cancel })
+      screen.getByRole('button', { name: ButtonText.Cancel }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: ButtonText.Next })
+      screen.getByRole('button', { name: ButtonText.Next }),
     ).toBeInTheDocument();
   });
 
@@ -87,11 +87,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -108,11 +108,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -123,7 +123,7 @@ describe('AttributionWizardPopup', () => {
     expect(screen.getByText(nameListTitle)).toBeInTheDocument();
     expect(screen.queryByText(versionListTitle)).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: ButtonText.Back })
+      screen.queryByRole('button', { name: ButtonText.Back }),
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
@@ -132,7 +132,7 @@ describe('AttributionWizardPopup', () => {
     expect(screen.queryByText(nameListTitle)).not.toBeInTheDocument();
     expect(screen.getByText(versionListTitle)).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: ButtonText.Next })
+      screen.queryByRole('button', { name: ButtonText.Next }),
     ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Back }));
@@ -141,7 +141,7 @@ describe('AttributionWizardPopup', () => {
     expect(screen.getByText(nameListTitle)).toBeInTheDocument();
     expect(screen.queryByText(versionListTitle)).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: ButtonText.Back })
+      screen.queryByRole('button', { name: ButtonText.Back }),
     ).not.toBeInTheDocument();
   });
 
@@ -151,11 +151,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -185,11 +185,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -199,7 +199,7 @@ describe('AttributionWizardPopup', () => {
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Next }));
 
     expect(
-      screen.getByRole('button', { name: ButtonText.Apply })
+      screen.getByRole('button', { name: ButtonText.Apply }),
     ).toBeInTheDocument();
   });
 
@@ -209,11 +209,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributions,
-        testResourcesToExternalAttributions
-      )
+        testResourcesToExternalAttributions,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -288,11 +288,11 @@ describe('AttributionWizardPopup', () => {
     testStore.dispatch(
       setExternalData(
         testExternalAttributionsExtended,
-        testResourcesToExternalAttributionsExtended
-      )
+        testResourcesToExternalAttributionsExtended,
+      ),
     );
     testStore.dispatch(
-      setManualData(testManualAttributions, testResourcesToManualAttributions)
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
     act(() => {
       testStore.dispatch(openAttributionWizardPopup('uuid_0'));
@@ -304,7 +304,7 @@ describe('AttributionWizardPopup', () => {
     fireEvent.click(screen.getByText('-'));
 
     expect(
-      screen.getByRole('button', { name: ButtonText.Next })
+      screen.getByRole('button', { name: ButtonText.Next }),
     ).toBeDisabled();
   });
 });

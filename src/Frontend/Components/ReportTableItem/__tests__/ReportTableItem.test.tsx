@@ -37,7 +37,7 @@ describe('The ReportTableItem', () => {
         isFileWithChildren={(path: string): boolean =>
           path === '/file/with/children'
         }
-      />
+      />,
     );
     expect(screen.getByText('1.0'));
 
@@ -101,7 +101,7 @@ describe('The ReportTableItem', () => {
             path === '/file/with/children'
           }
         />
-      </>
+      </>,
     );
 
     expect(screen.getByLabelText('Comment icon'));

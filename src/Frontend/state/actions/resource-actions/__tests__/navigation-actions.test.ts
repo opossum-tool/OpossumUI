@@ -87,22 +87,22 @@ describe('resetTemporaryDisplayPackageInfo', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setSelectedResourceId('/file'));
     testStore.dispatch(setDisplayedPackage(initialSelectedPackage));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo),
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      initialTemporaryDisplayPackageInfo
+      initialTemporaryDisplayPackageInfo,
     );
 
     testStore.dispatch(resetTemporaryDisplayPackageInfo());
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testDisplayPackageInfo
+      testDisplayPackageInfo,
     );
   });
 
@@ -123,23 +123,23 @@ describe('resetTemporaryDisplayPackageInfo', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           manualAttributions: testManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setSelectedAttributionId('uuid1'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(initialTemporaryDisplayPackageInfo),
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      initialTemporaryDisplayPackageInfo
+      initialTemporaryDisplayPackageInfo,
     );
 
     testStore.dispatch(resetTemporaryDisplayPackageInfo());
     expect(
       convertDisplayPackageInfoToPackageInfo(
-        getTemporaryDisplayPackageInfo(testStore.getState())
-      )
+        getTemporaryDisplayPackageInfo(testStore.getState()),
+      ),
     ).toEqual(testReact);
   });
 });
@@ -158,7 +158,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedView(state)).toBe(View.Audit);
     expect(getSelectedResourceId(state)).toBe('newResourceId');
     expect(getSelectedAttributionIdInAttributionView(state)).toBe(
-      'previousAttributionId'
+      'previousAttributionId',
     );
   });
 
@@ -176,7 +176,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedView(state)).toBe(View.Attribution);
     expect(getSelectedResourceId(state)).toBe('newResourceId');
     expect(getSelectedAttributionIdInAttributionView(state)).toBe(
-      'newAttributionId'
+      'newAttributionId',
     );
   });
 
@@ -195,7 +195,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
     expect(getSelectedView(state)).toBe(View.Attribution);
     expect(getSelectedResourceId(state)).toBe('previousResourceId');
     expect(getSelectedAttributionIdInAttributionView(state)).toBe(
-      'newAttributionId'
+      'newAttributionId',
     );
   });
 
@@ -210,14 +210,14 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
           packageName: 'react',
           attributionIds: ['uuid_1'],
         },
-      })
+      }),
     );
     testStore.dispatch(
       setTargetDisplayedPackage({
         panel: PackagePanelTitle.AllAttributions,
         packageCardId: 'newPackageCardId',
         displayPackageInfo: { packageName: 'vue', attributionIds: ['uuid_2'] },
-      })
+      }),
     );
 
     testStore.dispatch(setSelectedResourceOrAttributionIdToTargetValue());
@@ -279,24 +279,24 @@ describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     expect(getDisplayedPackage(testStore.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO
+      EMPTY_DISPLAY_PACKAGE_INFO,
     );
 
     testStore.dispatch(
       setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
-        expectedDisplayedPackage
-      )
+        expectedDisplayedPackage,
+      ),
     );
     expect(getDisplayedPackage(testStore.getState())).toEqual(
-      expectedDisplayedPackage
+      expectedDisplayedPackage,
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testDisplayPackageInfo
+      testDisplayPackageInfo,
     );
   });
 });
@@ -342,18 +342,18 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: initialResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/parent/child'));
     testStore.dispatch(setDisplayedPackage(initialSelectedPackage));
 
     testStore.dispatch(savePackageInfo('/parent/', null, testReact));
     expect(getManualData(testStore.getState()).resourcesToAttributions).toEqual(
-      expectedResourcesToManualAttributions
+      expectedResourcesToManualAttributions,
     );
     expect(getDisplayedPackage(testStore.getState())).toEqual(
-      expectedSelectedPackage
+      expectedSelectedPackage,
     );
   });
 });

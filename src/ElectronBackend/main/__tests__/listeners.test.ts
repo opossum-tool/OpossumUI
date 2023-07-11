@@ -25,17 +25,17 @@ import { createWindow } from '../createWindow';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   _exportFileAndOpenFolder,
+  getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
   getKeepFileListener,
+  getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
   getOpenLinkListener,
+  getOpenOutdatedInputFileListener,
   getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
-  getConvertInputFileToDotOpossumAndOpenListener,
-  getOpenOutdatedInputFileListener,
-  getOpenDotOpossumFileInsteadListener,
 } from '../listeners';
 
 import * as MockDate from 'mockdate';
@@ -151,7 +151,7 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false }
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
     deleteFolder(temporaryPath);
   });
@@ -172,7 +172,7 @@ describe('getOpenFileListener', () => {
     const dotOpossumFileName = 'resources_file.opossum';
     const dotOpossumPath = path.join(
       upath.toUnix(temporaryPath),
-      dotOpossumFileName
+      dotOpossumFileName,
     );
     fs.writeFileSync(dotOpossumPath, 'dummy resource data');
 
@@ -184,7 +184,7 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true }
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true },
     );
     deleteFolder(temporaryPath);
   });
@@ -199,13 +199,13 @@ describe('getOpenFileListener', () => {
 
     // @ts-ignore
     writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
     );
 
     const temporaryPath: string = createTempFolder();
     const attributionsPath = path.join(
       upath.toUnix(temporaryPath),
-      'path_attributions.json'
+      'path_attributions.json',
     );
 
     const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json');
@@ -219,7 +219,7 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false }
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
     deleteFolder(temporaryPath);
   });
@@ -234,13 +234,13 @@ describe('getOpenFileListener', () => {
 
     // @ts-ignore
     writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
     );
 
     const temporaryPath: string = createTempFolder();
     const attributionsPath = path.join(
       upath.toUnix(temporaryPath),
-      'path_attributions.json'
+      'path_attributions.json',
     );
 
     const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json.gz');
@@ -254,7 +254,7 @@ describe('getOpenFileListener', () => {
     expect(openFileDialog).toBeCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
-      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false }
+      { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
     deleteFolder(temporaryPath);
   });
@@ -287,23 +287,23 @@ describe('getUseOutdatedInputFileFormatListener', () => {
 
       expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
         expect.anything(),
-        jsonPath
+        jsonPath,
       );
       expect(getFilePathWithAppendix).toHaveBeenCalledWith(
         expect.anything(),
-        '_attributions.json'
+        '_attributions.json',
       );
       expect(getFilePathWithAppendix).toHaveBeenCalledWith(
         expect.anything(),
-        '_follow_up.csv'
+        '_follow_up.csv',
       );
       expect(getFilePathWithAppendix).toHaveBeenCalledWith(
         expect.anything(),
-        '_compact_component_list.csv'
+        '_compact_component_list.csv',
       );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
       deleteFolder(temporaryPath);
-    }
+    },
   );
 
   it('checks the case with non-matching checksums', async () => {
@@ -317,24 +317,24 @@ describe('getUseOutdatedInputFileFormatListener', () => {
     const temporaryPath: string = createTempFolder();
     const resourcesFilePath = path.join(
       upath.toUnix(temporaryPath),
-      'path.json'
+      'path.json',
     );
 
     // @ts-ignore
     getFilePathWithAppendix.mockImplementation(
       jest.requireActual('../../utils/getFilePathWithAppendix')
-        .getFilePathWithAppendix
+        .getFilePathWithAppendix,
     );
     // @ts-ignore
     writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
     );
 
     writeJsonToFile(resourcesFilePath, {});
 
     const attributionsFilePath = path.join(
       upath.toUnix(temporaryPath),
-      'path_attributions.json'
+      'path_attributions.json',
     );
     const validAttribution: PackageInfo = {
       packageName: 'Package',
@@ -359,7 +359,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
 
     // @ts-ignore
     writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
     );
 
     writeJsonToFile(attributionsFilePath, attributions_data);
@@ -374,7 +374,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       AllowedFrontendChannels.ShowChangedInputFilePopup,
       {
         showChangedInputFilePopup: true,
-      }
+      },
     );
     deleteFolder(temporaryPath);
   });
@@ -390,16 +390,16 @@ describe('getUseOutdatedInputFileFormatListener', () => {
     // @ts-ignore
     loadInputAndOutputFromFilePath.mockImplementationOnce(
       jest.requireActual('../../input/importFromFile')
-        .loadInputAndOutputFromFilePath
+        .loadInputAndOutputFromFilePath,
     );
     // @ts-ignore
     getFilePathWithAppendix.mockImplementation(
       jest.requireActual('../../utils/getFilePathWithAppendix')
-        .getFilePathWithAppendix
+        .getFilePathWithAppendix,
     );
     // @ts-ignore
     writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile
+      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
     );
 
     const temporaryPath: string = createTempFolder();
@@ -440,7 +440,7 @@ describe('getConvertInputFileToDotOpossumListener', () => {
     const resourceFileName = 'some_resource_file.json';
     const resourcesJsonPath = path.join(
       upath.toUnix(temporaryPath),
-      resourceFileName
+      resourceFileName,
     );
     const resourcesJson = 'dummy resource data';
     fs.writeFileSync(resourcesJsonPath, resourcesJson);
@@ -448,7 +448,7 @@ describe('getConvertInputFileToDotOpossumListener', () => {
     const attributionsFileName = 'some_resource_file_attributions.json';
     const attributionsJsonPath = path.join(
       upath.toUnix(temporaryPath),
-      attributionsFileName
+      attributionsFileName,
     );
     const attributionsJson = 'dummy attribution data';
     fs.writeFileSync(attributionsJsonPath, attributionsJson);
@@ -462,12 +462,12 @@ describe('getConvertInputFileToDotOpossumListener', () => {
     const expectedDotOpossumFileName = 'some_resource_file.opossum';
     const expectedDotOpossumFilePath = path.join(
       upath.toUnix(temporaryPath),
-      expectedDotOpossumFileName
+      expectedDotOpossumFileName,
     );
 
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      expectedDotOpossumFilePath
+      expectedDotOpossumFilePath,
     );
 
     let parsedInputJson: unknown;
@@ -513,7 +513,7 @@ describe('getOpenDotOpossumFileListener', () => {
     const dotOpossumFileName = 'some_resource_file.opossum';
     const dotOpossumFilePath = path.join(
       upath.toUnix(temporaryPath),
-      dotOpossumFileName
+      dotOpossumFileName,
     );
 
     setGlobalBackendState({
@@ -524,7 +524,7 @@ describe('getOpenDotOpossumFileListener', () => {
 
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      dotOpossumFilePath
+      dotOpossumFilePath,
     );
     deleteFolder(temporaryPath);
   });
@@ -543,7 +543,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
     const temporaryPath: string = createTempFolder();
     const jsonPath = path.join(
       upath.toUnix(temporaryPath),
-      attributionFilePath
+      attributionFilePath,
     );
     fs.writeFileSync(jsonPath, 'dummy data');
 
@@ -557,7 +557,7 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
     expect(fs.existsSync(jsonPath)).toBeFalsy();
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      '/somefile.json'
+      '/somefile.json',
     );
     deleteFolder(temporaryPath);
   });
@@ -580,7 +580,7 @@ describe('getKeepFileListener', () => {
 
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      '/somefile.json'
+      '/somefile.json',
     );
   });
 });
@@ -604,7 +604,7 @@ describe('getSelectBaseURLListener', () => {
       AllowedFrontendChannels.SetBaseURLForRoot,
       {
         baseURLForRoot: expectedFormattedBaseURL,
-      }
+      },
     );
   });
 });
@@ -628,7 +628,7 @@ describe('getSaveFileListener', () => {
         manualAttributions: {},
         resourcesToAttributions: {},
         resolvedExternalAttributions: new Set(),
-      }
+      },
     );
 
     expect(dialog.showMessageBox).toBeCalledWith(
@@ -638,7 +638,7 @@ describe('getSaveFileListener', () => {
           'Error in app backend: Failed to save data. ' +
           'The projectId is incorrect.\nprojectId: undefined',
         buttons: ['Reload File', 'Quit'],
-      })
+      }),
     );
     expect(writeJsonToFile).not.toBeCalled();
   });
@@ -660,7 +660,7 @@ describe('getSaveFileListener', () => {
         manualAttributions: {},
         resourcesToAttributions: {},
         resolvedExternalAttributions: new Set(),
-      }
+      },
     );
 
     expect(dialog.showMessageBox).toBeCalledWith(
@@ -669,7 +669,7 @@ describe('getSaveFileListener', () => {
         message:
           'Error in app backend: Tried to get file type when no file is loaded',
         buttons: ['Reload File', 'Quit'],
-      })
+      }),
     );
     expect(writeJsonToFile).not.toBeCalled();
   });
@@ -707,7 +707,7 @@ describe('getSaveFileListener', () => {
         resourcesToAttributions: {},
         resolvedExternalAttributions: ['id_1', 'id_2'],
       });
-    }
+    },
   );
 });
 
@@ -725,7 +725,7 @@ describe('getExportFollowUpListener', () => {
         type: 'error',
         message: 'Error in app backend: Failed to create FollowUp export.',
         buttons: ['Reload File', 'Quit'],
-      })
+      }),
     );
     expect(writeCsvToFile).not.toBeCalled();
   });
@@ -767,7 +767,7 @@ describe('getExportFollowUpListener', () => {
         'licenseName',
         'resources',
       ],
-      true
+      true,
     );
   });
 });
@@ -786,7 +786,7 @@ describe('getExportBomListener', () => {
         type: 'error',
         message: 'Error in app backend: Failed to create CompactBom export.',
         buttons: ['Reload File', 'Quit'],
-      })
+      }),
     );
     expect(writeCsvToFile).not.toBeCalled();
   });
@@ -820,7 +820,7 @@ describe('getExportBomListener', () => {
       1,
       '/somefile.csv',
       attributionsWithResources,
-      ['packageName', 'packageVersion', 'licenseName', 'copyright', 'url']
+      ['packageName', 'packageVersion', 'licenseName', 'copyright', 'url'],
     );
   });
 
@@ -866,7 +866,7 @@ describe('getExportBomListener', () => {
         'licenseName',
         'licenseText',
         'resources',
-      ]
+      ],
     );
   });
 });
@@ -889,7 +889,7 @@ describe('getExportSpdxDocumentListener', () => {
       expect.objectContaining({
         type: 'error',
         buttons: ['Reload File', 'Quit'],
-      })
+      }),
     );
 
     expect(writeSpdxFile).not.toBeCalled();
@@ -958,7 +958,7 @@ describe('_exportFileAndOpenFolder', () => {
     expect(writeSpdxFile).toHaveBeenNthCalledWith(
       1,
       testSpdxDocumentYamlFilePath,
-      testArgs
+      testArgs,
     );
     expect(shell.showItemInFolder).toBeCalledWith(testSpdxDocumentYamlFilePath);
   });
@@ -972,7 +972,7 @@ describe('_exportFileAndOpenFolder', () => {
     };
 
     await expect(
-      _exportFileAndOpenFolder(mainWindow)(undefined, testArgs)
+      _exportFileAndOpenFolder(mainWindow)(undefined, testArgs),
     ).rejects.toThrow('Failed to create SpdxDocumentYaml export.');
     expect(writeSpdxFile).not.toBeCalled();
     expect(shell.showItemInFolder).not.toBeCalled();

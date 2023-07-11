@@ -23,7 +23,7 @@ const CREATOR_TOOL = 'Opossum';
 
 export function writeSpdxFile(
   filePath: string,
-  args: ExportSpdxDocumentYamlArgs | ExportSpdxDocumentJsonArgs
+  args: ExportSpdxDocumentYamlArgs | ExportSpdxDocumentJsonArgs,
 ): void {
   const fileName = path.basename(filePath);
   const packageInfos = Object.values(args.spdxAttributions);
@@ -38,7 +38,7 @@ export function writeSpdxFile(
 
 function getSpdxDocument(
   packageInfos: Array<PackageInfo>,
-  fileName: string
+  fileName: string,
 ): SpdxDocument {
   const packages = packageInfos.map((packageInfo) =>
     createSpdxPackage(
@@ -52,8 +52,8 @@ function getSpdxDocument(
       packageInfo.packageType,
       packageInfo.packagePURLAppendix,
       packageInfo.url,
-      packageInfo.comment
-    )
+      packageInfo.comment,
+    ),
   );
 
   const rootPackage = createSpdxPackage(packages);

@@ -28,10 +28,10 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
       splitResourceIdsToCurrentAndOtherFolder(allResourceIds, folderPath);
 
     expect(currentFolderResourceIds).toStrictEqual(
-      expectedCurrentFolderResourceIds
+      expectedCurrentFolderResourceIds,
     );
     expect(otherFolderResourceIds).toStrictEqual(
-      expectedOtherFolderResourceIds
+      expectedOtherFolderResourceIds,
     );
   });
 
@@ -61,7 +61,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
 
   it('correctly converts a list of resource ids (paths) into a Resources object', () => {
     expect(getResourcesFromResourcePaths(testResourcesList)).toEqual(
-      expectedResources
+      expectedResources,
     );
   });
 });
@@ -92,6 +92,6 @@ const expectedResources: Resources = {
 
 it('correctly converts a list of resource ids (paths) into a Resources object', () => {
   expect(getResourcesFromResourcePaths(testResourcesList)).toEqual(
-    expectedResources
+    expectedResources,
   );
 });

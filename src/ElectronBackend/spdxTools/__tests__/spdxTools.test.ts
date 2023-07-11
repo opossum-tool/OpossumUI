@@ -74,7 +74,7 @@ describe('createSpdxDocument', () => {
       'Opossum',
       { dependencies: [] },
       'document.yaml',
-      'data license'
+      'data license',
     );
     expect(spdxDocument).toStrictEqual({
       ...expectedBaseSpdxDocument,

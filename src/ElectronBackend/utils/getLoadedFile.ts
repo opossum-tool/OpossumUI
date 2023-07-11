@@ -7,7 +7,7 @@ import { LoadedFileFormat } from '../enums/enums';
 import { GlobalBackendState } from '../types/types';
 
 export function getLoadedFilePath(
-  globalBackendState: GlobalBackendState
+  globalBackendState: GlobalBackendState,
 ): string | null {
   if (globalBackendState.resourceFilePath) {
     return globalBackendState.resourceFilePath;
@@ -25,7 +25,7 @@ export function isFileLoaded(globalBackendState: GlobalBackendState): boolean {
 }
 
 export function getLoadedFileType(
-  globalBackendState: GlobalBackendState
+  globalBackendState: GlobalBackendState,
 ): LoadedFileFormat {
   if (globalBackendState.resourceFilePath) {
     return LoadedFileFormat.Json;

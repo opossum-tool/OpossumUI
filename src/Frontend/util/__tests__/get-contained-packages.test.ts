@@ -46,7 +46,7 @@ describe('computeAggregatedAttributionsFromChildren', () => {
       computeAggregatedAttributionsFromChildren(
         testAttributions,
         testResourcesToAttributions,
-        testAttributedChildren
+        testAttributedChildren,
       );
     expect(result).toEqual(expectedResult);
   });
@@ -71,7 +71,7 @@ describe('computeAggregatedAttributionsFromChildren', () => {
         testAttributions,
         testResourcesToAttributions,
         testAttributedChildren,
-        testResolvedExternalAttributions
+        testResolvedExternalAttributions,
       );
     expect(result).toEqual(expectedResult);
   });

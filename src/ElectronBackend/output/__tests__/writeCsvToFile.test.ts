@@ -46,13 +46,13 @@ describe('writeCsvToFile', () => {
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"',
     );
     expect(content).toContain(
-      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm"'
+      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm"',
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/b"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/b"',
     );
     deleteFolder(temporaryPath);
   });
@@ -79,12 +79,12 @@ describe('writeCsvToFile', () => {
     await writeCsvToFile(
       csvPath,
       testFollowUpAttributionsWithResources,
-      columns
+      columns,
     );
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(
-      '"Index";"Package Name";"License Text (truncated)"'
+      '"Index";"Package Name";"License Text (truncated)"',
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
@@ -111,17 +111,17 @@ describe('writeCsvToFile', () => {
       csvPath,
       testFollowUpAttributionsWithResources,
       [...getPackageInfoKeys(), 'resources'],
-      true
+      true,
     );
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"',
     );
     expect(content).toContain(
       '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm\n' +
-        '/b"'
+        '/b"',
     );
     deleteFolder(temporaryPath);
   });
@@ -131,7 +131,7 @@ describe('writeCsvToFile', () => {
       { length: 250 },
       (_, i) =>
         '/core/target/classes/org/keycloak/representations/idm/authorization/' +
-        `PolicyEvaluationResponse$EvaluationResultRepresentation.class/${i}`
+        `PolicyEvaluationResponse$EvaluationResultRepresentation.class/${i}`,
     );
     const testFollowUpAttributionsWithResources: AttributionsWithResources = {
       key1: {
@@ -157,16 +157,16 @@ describe('writeCsvToFile', () => {
       csvPath,
       testFollowUpAttributionsWithResources,
       [...getPackageInfoKeys(), 'resources'],
-      true
+      true,
     );
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"',
     );
     expect(content).toContain(
-      `"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"${expectedResources}"`
+      `"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"${expectedResources}"`,
     );
     deleteFolder(temporaryPath);
   });
@@ -193,7 +193,7 @@ describe('writeCsvToFile', () => {
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(
-      '"Index";"Package Name";"License Text (truncated)"'
+      '"Index";"Package Name";"License Text (truncated)"',
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
@@ -453,25 +453,25 @@ describe('writeCsvToFile', () => {
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"'
+      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"/test.file"',
     );
     expect(content).toContain(
-      `"2";"";"";"Fancy name with long license";"";"";"";"";"";"";"";"${expectedLicenseText}";"";"";"";"";"";"";"";"";"/a"`
+      `"2";"";"";"Fancy name with long license";"";"";"";"";"";"";"";"${expectedLicenseText}";"";"";"";"";"";"";"";"";"/a"`,
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b"',
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c"',
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.bla"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.bla"',
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.blub"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.blub"',
     );
     expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/other"'
+      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/other"',
     );
     deleteFolder(temporaryPath);
   });

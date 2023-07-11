@@ -24,7 +24,7 @@ const iconClasses = { clickableIcon, disabledIcon };
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
   setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string
+    propertyToUpdate: string,
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   nameAndVersionAreEditable: boolean;
   isDisplayedPurlValid: boolean;
@@ -48,7 +48,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           title={'Name'}
           text={props.displayPackageInfo.packageName}
           handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-            'packageName'
+            'packageName',
           )}
           isEditable={props.nameAndVersionAreEditable}
           endIcon={
@@ -72,7 +72,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             props.showHighlight &&
             isImportantAttributionInformationMissing(
               'packageName',
-              props.displayPackageInfo
+              props.displayPackageInfo,
             )
           }
           highlightingColor={HighlightingColor.DarkOrange}
@@ -85,14 +85,14 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           title={'Version'}
           text={props.displayPackageInfo.packageVersion}
           handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-            'packageVersion'
+            'packageVersion',
           )}
           isEditable={props.nameAndVersionAreEditable}
           isHighlighted={
             props.showHighlight &&
             isImportantAttributionInformationMissing(
               'packageVersion',
-              props.displayPackageInfo
+              props.displayPackageInfo,
             )
           }
         />
@@ -112,7 +112,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           props.showHighlight &&
           isImportantAttributionInformationMissing(
             'packageNamespace',
-            props.displayPackageInfo
+            props.displayPackageInfo,
           )
         }
       />
@@ -154,7 +154,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           props.showHighlight &&
           isImportantAttributionInformationMissing(
             'url',
-            props.displayPackageInfo
+            props.displayPackageInfo,
           )
         }
       />

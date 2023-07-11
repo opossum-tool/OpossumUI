@@ -58,10 +58,10 @@ const definitionsSchema = {
 };
 
 async function searchPackagesOnClearlyDefined(
-  searchTerm: string
+  searchTerm: string,
 ): Promise<Array<string>> {
   const response = await axios.get(
-    `https://api.clearlydefined.io/definitions?pattern=${searchTerm}`
+    `https://api.clearlydefined.io/definitions?pattern=${searchTerm}`,
   );
   jsonSchemaValidator.validate(response.data, definitionsSchema, {
     throwError: true,
@@ -82,15 +82,15 @@ function getInitialSearchTerm(packageInfo: PackageInfo): string {
 export function PackageSearchPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo
+    getTemporaryDisplayPackageInfo,
   );
   const [currentSearchTerm, setCurrentSearchTerm] = useState<string>(
-    getInitialSearchTerm(temporaryDisplayPackageInfo)
+    getInitialSearchTerm(temporaryDisplayPackageInfo),
   );
   const debounceDelayInMs = 500;
   const debouncedSearchTerm = useDebounceInput(
     currentSearchTerm,
-    debounceDelayInMs
+    debounceDelayInMs,
   );
   const { isLoading, data, isError, error } = useQuery(
     ['clearlyDefinedPackageSearch', debouncedSearchTerm],
@@ -98,7 +98,7 @@ export function PackageSearchPopup(): ReactElement {
     {
       refetchOnWindowFocus: false,
       enabled: Boolean(currentSearchTerm),
-    }
+    },
   );
 
   function close(): void {

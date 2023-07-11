@@ -10,13 +10,13 @@ export function sortAttributedPackageItems(
   // required for easy invoking of sortList in ListWithAttributes
   // no logic to handle different numbers of input args necessary
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  highlightedPackageNameIds: Array<string>
+  highlightedPackageNameIds: Array<string>,
 ): Array<ListWithAttributesItem> {
   return attributedPackageItems.sort(compareAttributedPackageItems);
 }
 function compareAttributedPackageItems(
   attributedPackageItemA: ListWithAttributesItem,
-  attributedPackageItemB: ListWithAttributesItem
+  attributedPackageItemB: ListWithAttributesItem,
 ): number {
   const manuallyAddedA = Boolean(attributedPackageItemA.manuallyAdded);
   const manuallyAddedB = Boolean(attributedPackageItemB.manuallyAdded);

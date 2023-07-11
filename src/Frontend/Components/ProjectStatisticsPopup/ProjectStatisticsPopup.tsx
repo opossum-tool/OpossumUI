@@ -47,7 +47,7 @@ export function ProjectStatisticsPopup(): ReactElement {
     aggregateLicensesAndSourcesFromAttributions(
       externalAttributions,
       strippedLicenseNameToAttribution,
-      attributionSources
+      attributionSources,
     );
 
   const manualAttributionPropertyCounts =
@@ -57,7 +57,7 @@ export function ProjectStatisticsPopup(): ReactElement {
 
   const criticalSignalsCountData = getCriticalSignalsCount(
     licenseCounts,
-    licenseNamesWithCriticality
+    licenseNamesWithCriticality,
   );
 
   const incompleteAttributionsData =
@@ -80,7 +80,7 @@ export function ProjectStatisticsPopup(): ReactElement {
             <MuiBox style={classes.leftPanel}>
               <AttributionPropertyCountTable
                 attributionPropertyCountsEntries={Object.entries(
-                  manualAttributionPropertyCounts
+                  manualAttributionPropertyCounts,
                 )}
                 title={
                   ProjectStatisticsPopupTitle.AttributionPropertyCountTable

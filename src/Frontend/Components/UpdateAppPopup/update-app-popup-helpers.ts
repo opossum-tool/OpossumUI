@@ -10,7 +10,7 @@ export async function searchLatestReleaseNameAndUrl(): Promise<{
   url: string;
 } | null> {
   const response = await axios.get(
-    'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest'
+    'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
   );
   if (!response.data) {
     return null;

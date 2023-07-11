@@ -38,6 +38,6 @@ describe('prettifySource', () => {
     'transforms known sources and only those',
     (src: string, expectedResult: string) => {
       expect(prettifySource(src, testAttributionSources)).toBe(expectedResult);
-    }
+    },
   );
 });

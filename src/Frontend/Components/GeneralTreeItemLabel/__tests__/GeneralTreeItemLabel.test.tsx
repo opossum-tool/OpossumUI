@@ -15,13 +15,13 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={false}
         isAttributionBreakpoint={false}
         showFolderIcon={false}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.queryByLabelText('Attribution icon')).not.toBeInTheDocument();
     expect(
-      screen.getByLabelText('File icon without information')
+      screen.getByLabelText('File icon without information'),
     ).toBeInTheDocument();
   });
 
@@ -32,12 +32,12 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={false}
         showFolderIcon={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon without information')
+      screen.getByLabelText('Directory icon without information'),
     ).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe('StyledTreeItemLabel', () => {
         canHaveChildren={true}
         isAttributionBreakpoint={true}
         showFolderIcon={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();

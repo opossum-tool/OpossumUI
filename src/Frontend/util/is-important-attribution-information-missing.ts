@@ -21,13 +21,13 @@ interface ExtendedAttributionInfo extends AttributionInfo {
 export function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
   if (!packageInfo) return false;
   return getPackageInfoKeys().some((attributionProperty) =>
-    isImportantAttributionInformationMissing(attributionProperty, packageInfo)
+    isImportantAttributionInformationMissing(attributionProperty, packageInfo),
   );
 }
 
 export function isImportantAttributionInformationMissing(
   attributionProperty: keyof AttributionInfo | 'icons',
-  extendedAttributionInfo: Partial<ExtendedAttributionInfo>
+  extendedAttributionInfo: Partial<ExtendedAttributionInfo>,
 ): boolean {
   if (
     extendedAttributionInfo.excludeFromNotice ||
@@ -45,7 +45,7 @@ export function isImportantAttributionInformationMissing(
     case 'packageNamespace':
       return isNamespaceRequiredButMissing(
         extendedAttributionInfo['packageType'],
-        extendedAttributionInfo[attributionProperty]
+        extendedAttributionInfo[attributionProperty],
       );
     default:
       return false;
@@ -54,7 +54,7 @@ export function isImportantAttributionInformationMissing(
 
 function isNamespaceRequiredButMissing(
   packageType?: string,
-  packageNamespace?: string
+  packageNamespace?: string,
 ): boolean {
   if (
     packageType &&

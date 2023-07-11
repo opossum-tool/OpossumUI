@@ -51,7 +51,7 @@ function mockSaveFileRequestChannel(): void {
   window.electronAPI.on
     // @ts-ignore
     .mockImplementationOnce(
-      mockElectronIpcRendererOn(AllowedFrontendChannels.SaveFileRequest, true)
+      mockElectronIpcRendererOn(AllowedFrontendChannels.SaveFileRequest, true),
     );
 }
 
@@ -166,7 +166,7 @@ describe('Other popups of the app', () => {
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
     expectUnsavedChangesPopupIsNotShown(screen);
     expectValueNotInTextBox(screen, 'Name', testPackageName);
@@ -227,7 +227,7 @@ describe('Other popups of the app', () => {
     };
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
     expectUnsavedChangesPopupIsNotShown(screen);
     expectButton(screen, ButtonText.Save, true);
@@ -362,7 +362,7 @@ describe('Other popups of the app', () => {
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 });

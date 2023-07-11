@@ -47,7 +47,7 @@ describe('cleanNonExistentAttributions', () => {
     const result = cleanNonExistentAttributions(
       webContents,
       resourcesToAttributions,
-      attributions
+      attributions,
     );
     expect(result).toEqual({
       '/file1': ['attr2', 'attr4'],
@@ -74,12 +74,12 @@ describe('cleanNonExistentResolvedExternalAttributions', () => {
     const result = cleanNonExistentResolvedExternalAttributions(
       webContents,
       resolvedExternalAttributions,
-      externalAttributions
+      externalAttributions,
     );
     expect(result).toEqual(new Set<string>().add('attr2'));
     expect(mockCallback.mock.calls.length).toBe(1);
     expect(mockCallback.mock.calls[0][1]).toContain(
-      'WARNING: There was an abandoned resolved external attribution: invalid'
+      'WARNING: There was an abandoned resolved external attribution: invalid',
     );
   });
 });
@@ -253,7 +253,7 @@ describe('sanitizeRawBaseUrlsForSources', () => {
     };
 
     expect(sanitizeRawBaseUrlsForSources(rawBaseUrlsForSources)).toEqual(
-      expectedBaseUrlsForSources
+      expectedBaseUrlsForSources,
     );
   });
 
@@ -271,7 +271,7 @@ describe('parseFrequentLicenses', () => {
     };
 
     expect(parseFrequentLicenses(rawFrequentLicenses)).toEqual(
-      expectedFrequentLicenses
+      expectedFrequentLicenses,
     );
   });
 
@@ -283,7 +283,7 @@ describe('parseFrequentLicenses', () => {
     };
 
     expect(parseFrequentLicenses(rawFrequentLicenses)).toEqual(
-      expectedFrequentLicenses
+      expectedFrequentLicenses,
     );
   });
 
@@ -317,7 +317,7 @@ describe('parseFrequentLicenses', () => {
     };
 
     expect(parseFrequentLicenses(rawFrequentLicenses)).toEqual(
-      expectedFrequentLicenses
+      expectedFrequentLicenses,
     );
   });
 });
@@ -334,7 +334,7 @@ describe('getAllResourcePaths', () => {
       file2: 1,
     };
     expect(getAllResourcePaths(resources)).toStrictEqual(
-      new Set(['/', '/file1', '/file2'])
+      new Set(['/', '/file1', '/file2']),
     );
   });
 
@@ -358,7 +358,7 @@ describe('getAllResourcePaths', () => {
         '/folder2/subfolder2_1/',
         '/folder2/subfolder2_1/file2',
         '/folder2/subfolder2_1/subfolder2_1_1/',
-      ])
+      ]),
     );
   });
 });
@@ -369,7 +369,7 @@ describe('sanitizeResourcesToAttributions', () => {
     const attributionsToResources: AttributionsToResources = {};
 
     expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources)
+      sanitizeResourcesToAttributions(resources, attributionsToResources),
     ).toStrictEqual({});
   });
 
@@ -380,7 +380,7 @@ describe('sanitizeResourcesToAttributions', () => {
     };
 
     expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources)
+      sanitizeResourcesToAttributions(resources, attributionsToResources),
     ).toStrictEqual(attributionsToResources);
   });
 
@@ -398,7 +398,7 @@ describe('sanitizeResourcesToAttributions', () => {
     };
 
     expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources)
+      sanitizeResourcesToAttributions(resources, attributionsToResources),
     ).toStrictEqual(attributionsToResources);
   });
 
@@ -416,7 +416,7 @@ describe('sanitizeResourcesToAttributions', () => {
     };
 
     expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources)
+      sanitizeResourcesToAttributions(resources, attributionsToResources),
     ).toStrictEqual({
       '/file1': ['uuid1'],
       '/folder1/': ['uuid2', 'uuid3'],
@@ -439,7 +439,7 @@ describe('sanitizeResourcesToAttributions', () => {
     };
 
     expect(
-      sanitizeResourcesToAttributions(resources, attributionsToResources)
+      sanitizeResourcesToAttributions(resources, attributionsToResources),
     ).toStrictEqual({
       '/file1': ['uuid1'],
       '/folder1/': ['uuid2', 'uuid3'],

@@ -35,7 +35,7 @@ export function ReplaceAttributionPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const attributions = useAppSelector(getManualAttributions);
   const markedAttributionId = useAppSelector(
-    getAttributionIdMarkedForReplacement
+    getAttributionIdMarkedForReplacement,
   );
   const targetAttributionId = useAppSelector(getPopupAttributionId);
   const selectedAttributionId =
@@ -52,8 +52,8 @@ export function ReplaceAttributionPopup(): ReactElement {
           null,
           markedAttributionId,
           attributions[targetAttributionId],
-          markedAttributionId !== selectedAttributionId
-        )
+          markedAttributionId !== selectedAttributionId,
+        ),
       );
     dispatch(setAttributionIdMarkedForReplacement(''));
     dispatch(closePopup());
@@ -62,7 +62,7 @@ export function ReplaceAttributionPopup(): ReactElement {
   function getPackageCard(attributionId: string): ReactElement {
     const displayPackageInfo = convertPackageInfoToDisplayPackageInfo(
       attributions[attributionId],
-      [attributionId]
+      [attributionId],
     );
 
     return (

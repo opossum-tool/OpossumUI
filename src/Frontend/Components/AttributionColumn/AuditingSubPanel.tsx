@@ -46,14 +46,14 @@ interface AuditingSubPanelProps {
   commentBoxHeight: number;
   followUpChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
   excludeFromNoticeChangeHandler(
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ): void;
   discreteConfidenceChangeHandler(
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ): void;
   firstPartyChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
   setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string
+    propertyToUpdate: string,
   ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   showHighlight?: boolean;
 }
@@ -111,7 +111,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             sx={classes.confidenceDropDown}
             title={'Confidence'}
             handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-              'attributionConfidence'
+              'attributionConfidence',
             )}
             isEditable={props.isEditable}
             step={1}
@@ -122,7 +122,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
               props.showHighlight &&
               isImportantAttributionInformationMissing(
                 'attributionConfidence',
-                props.displayPackageInfo
+                props.displayPackageInfo,
               )
             }
           />
@@ -134,7 +134,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             title={'Source'}
             text={prettifySource(
               props.displayPackageInfo.source.name,
-              attributionSources
+              attributionSources,
             )}
             handleChange={doNothing}
           />

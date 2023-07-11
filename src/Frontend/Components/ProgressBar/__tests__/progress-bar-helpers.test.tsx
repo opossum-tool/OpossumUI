@@ -34,7 +34,7 @@ function TestComponent(props: { resourceIds: Array<string> }): JSX.Element {
 describe('ProgressBar helpers', () => {
   it('useOnProgressBarClickHook sets correct resourceId', () => {
     const { store } = renderComponentWithStore(
-      <TestComponent resourceIds={['id_1', 'id_2']} />
+      <TestComponent resourceIds={['id_1', 'id_2']} />,
     );
 
     expect(getSelectedResourceId(store.getState())).toEqual('');
@@ -55,7 +55,7 @@ describe('ProgressBar helpers', () => {
 
   it('useOnProgressBarClickHook selects audit view', () => {
     const { store } = renderComponentWithStore(
-      <TestComponent resourceIds={['id_1']} />
+      <TestComponent resourceIds={['id_1']} />,
     );
     store.dispatch(navigateToView(View.Attribution));
 
@@ -71,7 +71,7 @@ describe('ProgressBar helpers', () => {
 
   it('useOnProgressBarClickHook works with empty list', () => {
     const { store } = renderComponentWithStore(
-      <TestComponent resourceIds={[]} />
+      <TestComponent resourceIds={[]} />,
     );
     store.dispatch(setExpandedIds(['test_id']));
 
@@ -107,7 +107,7 @@ describe('ProgressBar helpers', () => {
       ` ${OpossumColors.lightestBlue} 99%)`;
     const actualProgressBarBackground = getProgressBarBackground(
       testProgressBarData,
-      'TopProgressBar'
+      'TopProgressBar',
     );
     expect(actualProgressBarBackground).toEqual(expectedProgressBarBackground);
   });
@@ -136,7 +136,7 @@ describe('ProgressBar helpers', () => {
     const actualCriticalityBarBackground =
       getCriticalityBarBackground(testProgressBarData);
     expect(actualCriticalityBarBackground).toEqual(
-      expectedCriticalityBarBackground
+      expectedCriticalityBarBackground,
     );
   });
 
@@ -170,8 +170,8 @@ describe('ProgressBar helpers', () => {
     'roundToAtLeastOnePercentAndNormalize rounds and subtracts difference from the maximum',
     (input: Array<number>, expectedOutput: Array<number>) => {
       expect(roundToAtLeastOnePercentAndNormalize(input)).toEqual(
-        expectedOutput
+        expectedOutput,
       );
-    }
+    },
   );
 });

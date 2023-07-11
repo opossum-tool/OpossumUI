@@ -29,7 +29,7 @@ export function UpdateAppPopup(): ReactElement {
     () => searchLatestReleaseNameAndUrl(),
     {
       refetchOnWindowFocus: false,
-    }
+    },
   );
 
   const content = !isError ? (

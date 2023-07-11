@@ -20,7 +20,7 @@ test.describe('Open .opossum file via command line', () => {
 
   test.beforeEach(async () => {
     app = await getApp(
-      'src/e2e-tests/test-resources/opossum_input_and_output_e2e.opossum'
+      'src/e2e-tests/test-resources/opossum_input_and_output_e2e.opossum',
     );
     window = await app.firstWindow();
     await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
@@ -38,7 +38,7 @@ test.describe('Open .opossum file via command line', () => {
 
     const electronBackendEntry = await getElementWithText(
       window,
-      'ElectronBackend'
+      'ElectronBackend',
     );
     await electronBackendEntry.click();
   });
@@ -46,7 +46,7 @@ test.describe('Open .opossum file via command line', () => {
   test('should show signals and attributions in accordions', async () => {
     const electronBackendEntry = await getElementWithText(
       window,
-      'ElectronBackend'
+      'ElectronBackend',
     );
     await electronBackendEntry.click();
 
@@ -60,7 +60,7 @@ test.describe('Open .opossum file via command line', () => {
 
     const signalsInFolderContentEntry = await getElementWithText(
       window,
-      'Signals in Folder Content'
+      'Signals in Folder Content',
     );
     await signalsInFolderContentEntry.click();
 

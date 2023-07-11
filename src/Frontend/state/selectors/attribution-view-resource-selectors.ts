@@ -7,7 +7,7 @@ import { State } from '../../types/types';
 import { getManualAttributionsToResources } from './all-views-resource-selectors';
 
 export function getSelectedAttributionIdInAttributionView(
-  state: State
+  state: State,
 ): string {
   return state.resourceState.attributionView.selectedAttributionId;
 }
@@ -17,7 +17,7 @@ export function getTargetSelectedAttributionId(state: State): string | null {
 }
 
 export function getResourceIdsOfSelectedAttribution(
-  state: State
+  state: State,
 ): Array<string> | null {
   const attributionId = getSelectedAttributionIdInAttributionView(state);
   const manualAttributionsToResources = getManualAttributionsToResources(state);
@@ -30,7 +30,7 @@ export function getResourceIdsOfSelectedAttribution(
 }
 
 export function getMultiSelectSelectedAttributionIds(
-  state: State
+  state: State,
 ): Array<string> {
   return state.resourceState.attributionView.multiSelectSelectedAttributionIds;
 }

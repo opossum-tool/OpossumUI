@@ -21,7 +21,7 @@ import { addResolvedExternalAttribution } from './audit-view-simple-actions';
 import { createExternalAttributionsToHashes } from '../../helpers/action-and-reducer-helpers';
 
 export function loadFromFile(
-  parsedFileContent: ParsedFileContent
+  parsedFileContent: ParsedFileContent,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(setResources(parsedFileContent.resources));
@@ -29,21 +29,21 @@ export function loadFromFile(
     dispatch(
       setManualData(
         parsedFileContent.manualAttributions.attributions,
-        parsedFileContent.manualAttributions.resourcesToAttributions
-      )
+        parsedFileContent.manualAttributions.resourcesToAttributions,
+      ),
     );
 
     dispatch(
       setExternalData(
         parsedFileContent.externalAttributions.attributions,
-        parsedFileContent.externalAttributions.resourcesToAttributions
-      )
+        parsedFileContent.externalAttributions.resourcesToAttributions,
+      ),
     );
 
     dispatch(setFrequentLicenses(parsedFileContent.frequentLicenses));
 
     dispatch(
-      setAttributionBreakpoints(parsedFileContent.attributionBreakpoints)
+      setAttributionBreakpoints(parsedFileContent.attributionBreakpoints),
     );
 
     dispatch(setFilesWithChildren(parsedFileContent.filesWithChildren));
@@ -54,16 +54,16 @@ export function loadFromFile(
 
     dispatch(
       setExternalAttributionSources(
-        parsedFileContent.externalAttributionSources
-      )
+        parsedFileContent.externalAttributionSources,
+      ),
     );
 
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
-      dispatch(addResolvedExternalAttribution(attribution))
+      dispatch(addResolvedExternalAttribution(attribution)),
     );
 
     const externalAttributionsToHashes = createExternalAttributionsToHashes(
-      parsedFileContent.externalAttributions.attributions
+      parsedFileContent.externalAttributions.attributions,
     );
 
     dispatch(setExternalAttributionsToHashes(externalAttributionsToHashes));

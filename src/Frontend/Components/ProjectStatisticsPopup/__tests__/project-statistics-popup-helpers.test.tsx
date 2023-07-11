@@ -150,20 +150,20 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
         strippedLicenseNameToAttribution,
-        attributionSources
+        attributionSources,
       );
 
     expect(licenseCounts.attributionCountPerSourcePerLicense).toEqual(
-      expectedAttributionCountPerSourcePerLicense
+      expectedAttributionCountPerSourcePerLicense,
     );
     expect(licenseCounts.totalAttributionsPerSource).toEqual(
-      expectedTotalAttributionsPerSource
+      expectedTotalAttributionsPerSource,
     );
     expect(licenseCounts.totalAttributionsPerLicense).toEqual(
-      expectedTotalAttributionsPerLicense
+      expectedTotalAttributionsPerLicense,
     );
     expect(licenseNamesWithCriticality).toEqual(
-      expectedLicenseNamesWithCriticality
+      expectedLicenseNamesWithCriticality,
     );
   });
 });
@@ -217,12 +217,12 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
       Object.entries(attributionPropertyCountsObject);
 
     expect(attributionPropertyCountsObject).toEqual(
-      expectedAttributionPropertyCounts
+      expectedAttributionPropertyCounts,
     );
     expect(
       attributionPropertyCountsArray[
         attributionPropertyCountsArray.length - 1
-      ][0]
+      ][0],
     ).toEqual(ATTRIBUTION_TOTAL);
   });
 
@@ -243,12 +243,12 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
       Object.entries(attributionPropertyCountsObject);
 
     expect(attributionPropertyCountsObject).toEqual(
-      expectedAttributionPropertyCounts
+      expectedAttributionPropertyCounts,
     );
     expect(
       attributionPropertyCountsArray[
         attributionPropertyCountsArray.length - 1
-      ][0]
+      ][0],
     ).toEqual(ATTRIBUTION_TOTAL);
   });
 });
@@ -284,7 +284,7 @@ describe('getMostFrequentLicenses', () => {
     const sortedMostFrequentLicenses = getMostFrequentLicenses(licenseCounts);
 
     expect(sortedMostFrequentLicenses).toEqual(
-      expectedSortedMostFrequentLicenses
+      expectedSortedMostFrequentLicenses,
     );
   });
 
@@ -338,7 +338,7 @@ describe('getMostFrequentLicenses', () => {
     const sortedMostFrequentLicenses = getMostFrequentLicenses(licenseCounts);
 
     expect(sortedMostFrequentLicenses).toEqual(
-      expectedSortedMostFrequentLicenses
+      expectedSortedMostFrequentLicenses,
     );
   });
 });
@@ -389,7 +389,7 @@ describe('getCriticalSignalsCount', () => {
 
     const criticalSignalsCount = getCriticalSignalsCount(
       licenseCounts,
-      licenseNamesWithCriticality
+      licenseNamesWithCriticality,
     );
 
     expect(criticalSignalsCount).toEqual(expectedCriticalSignalCount);
@@ -413,7 +413,7 @@ describe('getIncompleteAttributionsCount', () => {
       getIncompleteAttributionsCount(testAttributions_1);
 
     expect(incompleteAttributionCount).toEqual(
-      expectedIncompleteAttributionCount
+      expectedIncompleteAttributionCount,
     );
   });
 
@@ -429,7 +429,7 @@ describe('getIncompleteAttributionsCount', () => {
       getIncompleteAttributionsCount(testAttributions_2);
 
     expect(incompleteAttributionCount).toEqual(
-      expectedIncompleteAttributionCount
+      expectedIncompleteAttributionCount,
     );
   });
 });

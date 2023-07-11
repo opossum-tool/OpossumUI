@@ -18,7 +18,7 @@ describe('FileSupportDotOpossumAlreadyExistsPopup', () => {
   it('sends correct signal to backend when clicking openDotOpossumButton', () => {
     renderComponentWithStore(<FileSupportDotOpossumAlreadyExistsPopup />);
     fireEvent.click(
-      screen.getByRole('button', { name: ButtonText.OpenDotOpossumFile })
+      screen.getByRole('button', { name: ButtonText.OpenDotOpossumFile }),
     );
     expect(global.window.electronAPI.openDotOpossumFile).toHaveBeenCalled();
   });

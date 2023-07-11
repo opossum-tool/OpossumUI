@@ -102,8 +102,8 @@ describe('getPackageCardIdsAndDisplayPackageInfosForSource', () => {
       getPackageCardIdsAndDisplayPackageInfosForSource(
         testDisplayPackageInfosWithCount,
         testSortedPackageCardIds,
-        sourceName
-      )
+        sourceName,
+      ),
     ).toEqual([
       expectedPackageCardIdsForSource,
       expectedDisplayPackageInfosForSource,
@@ -116,8 +116,8 @@ describe('getPackageCardIdsAndDisplayPackageInfosForSource', () => {
       getPackageCardIdsAndDisplayPackageInfosForSource(
         testDisplayPackageInfosWithCount,
         testSortedPackageCardIds,
-        sourceName
-      )
+        sourceName,
+      ),
     ).toEqual([[], {}]);
   });
 });
@@ -149,8 +149,8 @@ describe('getSortedSourcesFromDisplayPackageInfosWithCount', () => {
     expect(
       getSortedSourcesFromDisplayPackageInfosWithCount(
         testDisplayPackageInfosWithCount,
-        testAttributionSources
-      )
+        testAttributionSources,
+      ),
     ).toEqual(expectedSortedSources);
   });
 
@@ -158,8 +158,8 @@ describe('getSortedSourcesFromDisplayPackageInfosWithCount', () => {
     expect(
       getSortedSourcesFromDisplayPackageInfosWithCount(
         {},
-        testAttributionSources
-      )
+        testAttributionSources,
+      ),
     ).toEqual([]);
   });
 
@@ -179,8 +179,8 @@ describe('getSortedSourcesFromDisplayPackageInfosWithCount', () => {
     expect(
       getSortedSourcesFromDisplayPackageInfosWithCount(
         testDisplayPackageInfosWithCount,
-        testAttributionSourcesEqualPrio
-      )
+        testAttributionSourcesEqualPrio,
+      ),
     ).toEqual([
       'HC', // High Compute
       'REUSER:HHC', // High High Compute (old scan)

@@ -8,7 +8,7 @@ import { getFileWithChildrenCheck } from '../is-file-with-children';
 describe('getFileWithChildrenCheck', () => {
   it('returns a function that correctly checks the path', () => {
     const isFileWithChildren = getFileWithChildrenCheck(
-      new Set(['/path1', '/path2'])
+      new Set(['/path1', '/path2']),
     );
     expect(isFileWithChildren('/path1')).toEqual(true);
     expect(isFileWithChildren('/path3')).toEqual(false);

@@ -51,26 +51,28 @@ interface AttributionCountsPanelProps {
 }
 
 export function AttributionCountsPanel(
-  props: AttributionCountsPanelProps
+  props: AttributionCountsPanelProps,
 ): ReactElement {
   const attributions: Attributions = useAppSelector(getManualAttributions);
   const numberOfAttributions = Object.keys(attributions).length;
   const numberOfAttributionsThatNeedReview = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => value.needsReview)
+    pickBy(attributions, (value: PackageInfo) => value.needsReview),
   ).length;
   const numberOfFollowUps = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => value.followUp)
+    pickBy(attributions, (value: PackageInfo) => value.followUp),
   ).length;
   const numberOfPreselectedAttributions = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => value.preSelected)
+    pickBy(attributions, (value: PackageInfo) => value.preSelected),
   ).length;
 
   const numberOfIncompleteAttributions = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => isPackageInfoIncomplete(value))
+    pickBy(attributions, (value: PackageInfo) =>
+      isPackageInfoIncomplete(value),
+    ),
   ).length;
 
   const numberOfAttributionsWithoutPackageName = Object.keys(
-    pickBy(attributions, (value: PackageInfo) => !value.packageName)
+    pickBy(attributions, (value: PackageInfo) => !value.packageName),
   ).length;
 
   return (

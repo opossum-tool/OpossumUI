@@ -41,7 +41,7 @@ describe('The VirtualizedTree', () => {
         breakpoints={new Set()}
         cardHeight={20}
         maxHeight={5000}
-      />
+      />,
     );
 
     for (const label of [

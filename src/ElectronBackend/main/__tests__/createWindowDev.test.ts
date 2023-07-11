@@ -44,7 +44,7 @@ describe('createWindow', () => {
     const browserWindow = await createWindow();
     expect(browserWindow.webContents.openDevTools).toHaveBeenCalled();
     expect(browserWindow.loadURL).toHaveBeenCalledWith(
-      'http://localhost:5173/'
+      'http://localhost:5173/',
     );
   });
 });

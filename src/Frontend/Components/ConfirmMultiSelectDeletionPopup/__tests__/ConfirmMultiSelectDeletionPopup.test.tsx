@@ -31,11 +31,11 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     const expectedHeader = 'Confirm Deletion';
 
     const { store } = renderComponentWithStore(
-      <ConfirmMultiSelectDeletionPopup />
+      <ConfirmMultiSelectDeletionPopup />,
     );
     act(() => {
       store.dispatch(
-        setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2'])
+        setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']),
       );
     });
 
@@ -72,18 +72,18 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(
-      setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2'])
+      setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']),
     );
 
     const { store } = renderComponentWithStore(
       <ConfirmMultiSelectDeletionPopup />,
       {
         store: testStore,
-      }
+      },
     );
     act(() => {
       store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));

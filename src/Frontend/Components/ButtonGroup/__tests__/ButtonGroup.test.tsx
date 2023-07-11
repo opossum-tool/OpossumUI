@@ -59,7 +59,7 @@ describe('Button group', () => {
       <ButtonGroup
         mainButtonConfigs={mainButtonConfigs}
         hamburgerMenuButtonConfigs={contextMenuItems}
-      />
+      />,
     );
     fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
 

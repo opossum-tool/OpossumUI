@@ -16,7 +16,7 @@ describe('ToggleButton', () => {
         selected={false}
         handleChange={doNothing}
         disabled={false}
-      />
+      />,
     );
 
     fireEvent.click(screen.queryByText('Test') as Element);

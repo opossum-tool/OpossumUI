@@ -34,13 +34,13 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
     args.externalData.resourcesWithAttributedChildren,
     args.externalData.attributions,
     args.externalData.resourcesToAttributions,
-    args.resolvedExternalAttributions
+    args.resolvedExternalAttributions,
   );
   return getExternalDisplayPackageInfosWithCount(
     externalAttributionIdsWithCount,
     args.externalData.attributions,
     args.attributionsToHashes,
-    args.panelTitle
+    args.panelTitle,
   );
 }
 
@@ -51,7 +51,7 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
 }): [Array<string>, DisplayPackageInfosWithCount] {
   const manualAttributionIdsWithCount = getContainedManualPackages(
     args.selectedResourceId,
-    args.manualData
+    args.manualData,
   );
   const packageCardIds: Array<string> = [];
   const displayPackageInfosWithCount: DisplayPackageInfosWithCount = {};
@@ -66,13 +66,13 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
         getDisplayPackageInfoWithCountFromAttributions([
           [attributionId, packageInfo, count],
         ]);
-    }
+    },
   );
 
   packageCardIds.sort(
     sortDisplayPackageInfosWithCountByCountAndPackageName(
-      displayPackageInfosWithCount
-    )
+      displayPackageInfosWithCount,
+    ),
   );
 
   return [packageCardIds, displayPackageInfosWithCount];
@@ -82,7 +82,7 @@ export function getExternalDisplayPackageInfosWithCount(
   attributionIdsWithCount: Array<AttributionIdWithCount>,
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes,
-  panelTitle: PackagePanelTitle
+  panelTitle: PackagePanelTitle,
 ): [Array<string>, DisplayPackageInfosWithCount] {
   const packageCardIds: Array<string> = [];
   const displayPackageInfosWithCount: DisplayPackageInfosWithCount = {};
@@ -116,13 +116,13 @@ export function getExternalDisplayPackageInfosWithCount(
     displayPackageInfosWithCount,
     hashToAttributions,
     panelTitle,
-    indexCounter
+    indexCounter,
   );
 
   packageCardIds.sort(
     sortDisplayPackageInfosWithCountByCountAndPackageName(
-      displayPackageInfosWithCount
-    )
+      displayPackageInfosWithCount,
+    ),
   );
 
   return [packageCardIds, displayPackageInfosWithCount];
@@ -135,7 +135,7 @@ function addMergedSignals(
     [hash: string]: Array<[string, PackageInfo, number | undefined]>;
   },
   panelTitle: PackagePanelTitle,
-  indexCounter: number
+  indexCounter: number,
 ): void {
   Object.keys(hashToAttributions).forEach((hash: string): void => {
     const packageCardId = createPackageCardId(panelTitle, indexCounter);
@@ -148,7 +148,7 @@ function addMergedSignals(
 
 //exported for testing
 export function sortDisplayPackageInfosWithCountByCountAndPackageName(
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount
+  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
 ) {
   return function (id1: string, id2: string): number {
     if (

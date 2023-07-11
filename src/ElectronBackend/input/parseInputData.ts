@@ -29,7 +29,7 @@ function addTrailingSlashIfAbsent(resourcePath: string): string {
 function getListOfResourcePaths(
   basePath: string,
   resourceName: string,
-  resources: Resources
+  resources: Resources,
 ): Array<string> {
   const fullResourcePath =
     basePath + resourceName + (canResourceHaveChildren(resources) ? '/' : '');
@@ -40,10 +40,10 @@ function getListOfResourcePaths(
         getListOfResourcePaths(
           fullResourcePath,
           childPath,
-          resources[childPath] as Resources
-        )
+          resources[childPath] as Resources,
+        ),
       )
-      .flat()
+      .flat(),
   );
 }
 
@@ -53,7 +53,7 @@ export function getAllResourcePaths(resources: Resources): Set<string> {
 
 export function sanitizeResourcesToAttributions(
   resources: Resources,
-  rawResourcesToAttributions: ResourcesToAttributions
+  rawResourcesToAttributions: ResourcesToAttributions,
 ): ResourcesToAttributions {
   const allResourcePaths = getAllResourcePaths(resources);
 
@@ -61,7 +61,7 @@ export function sanitizeResourcesToAttributions(
     Object.entries(rawResourcesToAttributions).reduce(
       (
         accumulatedResult: Array<[string, Array<string>]>,
-        [path, attributions]
+        [path, attributions],
       ) => {
         const pathWithSlashes = addTrailingSlashIfAbsent(path);
 
@@ -73,15 +73,15 @@ export function sanitizeResourcesToAttributions(
 
         return accumulatedResult;
       },
-      []
-    )
+      [],
+    ),
   );
 }
 
 export function cleanNonExistentAttributions(
   webContents: WebContents,
   resourcesToAttributions: ResourcesToAttributions,
-  attributions: Attributions
+  attributions: Attributions,
 ): ResourcesToAttributions {
   const attributionIds = new Set(Object.keys(attributions));
 
@@ -90,25 +90,25 @@ export function cleanNonExistentAttributions(
       .map((entry) => {
         const [path, entryAttributionIds] = entry;
         const filteredAttributionIds = entryAttributionIds.filter(
-          (attributionId) => attributionIds.has(attributionId)
+          (attributionId) => attributionIds.has(attributionId),
         );
         if (filteredAttributionIds.length < entryAttributionIds.length) {
           webContents.send(
             AllowedFrontendChannels.Logging,
             `WARNING: There were abandoned attributions for path ${path}.` +
-              ' The import from the attribution file was cleaned up.'
+              ' The import from the attribution file was cleaned up.',
           );
         }
         return [path, filteredAttributionIds];
       })
-      .filter((entry) => entry[1].length > 0)
+      .filter((entry) => entry[1].length > 0),
   );
 }
 
 export function cleanNonExistentResolvedExternalAttributions(
   webContents: WebContents,
   resolvedExternalAttributions: Set<string>,
-  externalAttributions: Attributions
+  externalAttributions: Attributions,
 ): Set<string> {
   const externalAttributionIds = new Set(Object.keys(externalAttributions));
 
@@ -118,7 +118,7 @@ export function cleanNonExistentResolvedExternalAttributions(
       webContents.send(
         AllowedFrontendChannels.Logging,
         `WARNING: There was an abandoned resolved external attribution: ${resolvedExternalAttributionId}.` +
-          ' The import from the attribution file was cleaned up.'
+          ' The import from the attribution file was cleaned up.',
       );
     }
   });
@@ -127,7 +127,7 @@ export function cleanNonExistentResolvedExternalAttributions(
 }
 
 export function parseRawAttributions(
-  rawAttributions: RawAttributions
+  rawAttributions: RawAttributions,
 ): [Attributions, boolean] {
   let inputContainsCriticalExternalAttributions = false;
 
@@ -162,7 +162,7 @@ export function parseRawAttributions(
 }
 
 export function parseFrequentLicenses(
-  rawFrequentLicenses: Array<RawFrequentLicense> | undefined
+  rawFrequentLicenses: Array<RawFrequentLicense> | undefined,
 ): FrequentLicenses {
   const parsedFrequentLicenses: FrequentLicenses = { nameOrder: [], texts: {} };
   if (!rawFrequentLicenses) {
@@ -184,13 +184,13 @@ export function parseFrequentLicenses(
 }
 
 export function sanitizeRawBaseUrlsForSources(
-  rawBaseUrlsForSources: RawBaseUrlsForSources | undefined
+  rawBaseUrlsForSources: RawBaseUrlsForSources | undefined,
 ): BaseUrlsForSources {
   return rawBaseUrlsForSources
     ? Object.fromEntries(
         Object.entries(rawBaseUrlsForSources).map(([path, url]) => {
           return [path.endsWith('/') ? path : path + '/', url];
-        })
+        }),
       )
     : {};
 }

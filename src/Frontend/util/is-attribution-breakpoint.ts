@@ -7,23 +7,23 @@ import { ResourceState } from '../state/reducers/resource-reducer';
 import { PathPredicate, State } from '../types/types';
 
 export function getAttributionBreakpointCheckForState(
-  state: State
+  state: State,
 ): PathPredicate {
   return getAttributionBreakpointCheck(
-    state.resourceState.allViews.attributionBreakpoints
+    state.resourceState.allViews.attributionBreakpoints,
   );
 }
 
 export function getAttributionBreakpointCheckForResourceState(
-  resourceState: ResourceState
+  resourceState: ResourceState,
 ): PathPredicate {
   return getAttributionBreakpointCheck(
-    resourceState.allViews.attributionBreakpoints
+    resourceState.allViews.attributionBreakpoints,
   );
 }
 
 export function getAttributionBreakpointCheck(
-  breakpoints: Set<string>
+  breakpoints: Set<string>,
 ): PathPredicate {
   return (path: string): boolean => breakpoints.has(path);
 }

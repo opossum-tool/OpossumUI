@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfo, DisplayPackageInfo } from '../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
 
 export function convertPackageInfoToDisplayPackageInfo(
   packageInfo: PackageInfo,
-  attributionIds: Array<string>
+  attributionIds: Array<string>,
 ): DisplayPackageInfo {
   const { comment, ...packageInfoWithoutComment } = packageInfo;
   const displayPackageInfo: DisplayPackageInfo = {
@@ -22,7 +22,7 @@ export function convertPackageInfoToDisplayPackageInfo(
 }
 
 export function convertDisplayPackageInfoToPackageInfo(
-  displayPackageInfo: DisplayPackageInfo
+  displayPackageInfo: DisplayPackageInfo,
 ): PackageInfo {
   const { comments, attributionIds, ...packageInfoWithoutComment } =
     displayPackageInfo;

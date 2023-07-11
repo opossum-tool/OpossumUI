@@ -187,7 +187,7 @@ describe('loadFromFile', () => {
 
     const testStore = createTestAppStore();
     expect(testStore.getState().resourceState).toMatchObject(
-      initialResourceState
+      initialResourceState,
     );
 
     testStore.dispatch(loadFromFile(testParsedFileContent));
@@ -195,29 +195,29 @@ describe('loadFromFile', () => {
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getExternalData(testStore.getState())).toEqual(expectedExternalData);
     expect(getFrequentLicensesNameOrder(testStore.getState())).toEqual(
-      testFrequentLicenses.nameOrder
+      testFrequentLicenses.nameOrder,
     );
     expect(getFrequentLicensesTexts(testStore.getState())).toEqual(
-      testFrequentLicenses.texts
+      testFrequentLicenses.texts,
     );
     expect(getResolvedExternalAttributions(testStore.getState())).toEqual(
-      new Set(['test_id'])
+      new Set(['test_id']),
     );
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(
-      new Set(['/third-party/package/'])
+      new Set(['/third-party/package/']),
     );
     expect(getFilesWithChildren(testStore.getState())).toEqual(
-      new Set(['/third-party/package.json/'])
+      new Set(['/third-party/package.json/']),
     );
 
     expect(getBaseUrlsForSources(testStore.getState())).toEqual(
-      testBaseUrlsForSources
+      testBaseUrlsForSources,
     );
     expect(getExternalAttributionSources(testStore.getState())).toEqual({
       SC: { name: 'ScanCode', priority: 1 },
     });
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
-      expectedExternalAttributionsToHashes
+      expectedExternalAttributionsToHashes,
     );
   });
 });

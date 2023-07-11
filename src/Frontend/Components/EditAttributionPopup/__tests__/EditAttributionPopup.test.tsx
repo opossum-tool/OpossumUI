@@ -49,7 +49,7 @@ describe('The EditAttributionPopup', () => {
   };
   const testAttributions: Attributions = {
     test_selected_id: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     ),
     test_marked_id: { packageName: 'Vue' },
   };
@@ -63,7 +63,7 @@ describe('The EditAttributionPopup', () => {
     const { store } = renderComponentWithStore(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
-      openPopup(PopupType.EditAttributionPopup, 'test_selected_id')
+      openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
     );
     store.dispatch(
       loadFromFile(
@@ -71,8 +71,8 @@ describe('The EditAttributionPopup', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
@@ -80,7 +80,7 @@ describe('The EditAttributionPopup', () => {
         setTemporaryDisplayPackageInfo({
           ...testTemporaryDisplayPackageInfo,
           attributionIds: ['test_selected_id'],
-        })
+        }),
       );
     });
 
@@ -96,7 +96,7 @@ describe('The EditAttributionPopup', () => {
     const { store } = renderComponentWithStore(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
-      openPopup(PopupType.EditAttributionPopup, 'test_selected_id')
+      openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
     );
     store.dispatch(
       loadFromFile(
@@ -104,8 +104,8 @@ describe('The EditAttributionPopup', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     const changedTestTemporaryDisplayPackageInfo = {
       ...testTemporaryDisplayPackageInfo,
@@ -115,7 +115,7 @@ describe('The EditAttributionPopup', () => {
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(changedTestTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(changedTestTemporaryDisplayPackageInfo),
       );
     });
 
@@ -131,7 +131,7 @@ describe('The EditAttributionPopup', () => {
     const { store } = renderComponentWithStore(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
-      openPopup(PopupType.EditAttributionPopup, 'test_selected_id')
+      openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
     );
     store.dispatch(
       loadFromFile(
@@ -139,8 +139,8 @@ describe('The EditAttributionPopup', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     const changedTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       ...testTemporaryDisplayPackageInfo,
@@ -150,7 +150,7 @@ describe('The EditAttributionPopup', () => {
     act(() => {
       store.dispatch(setSelectedAttributionId('test_selected_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(changedTestTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(changedTestTemporaryDisplayPackageInfo),
       );
     });
 
@@ -160,11 +160,11 @@ describe('The EditAttributionPopup', () => {
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
     expect(getOpenPopup(store.getState())).toBe(null);
     const resultingTemporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
-      store.getState()
+      store.getState(),
     );
 
     expect(resultingTemporaryDisplayPackageInfo.comments).toEqual(
-      changedTestTemporaryDisplayPackageInfo.comments
+      changedTestTemporaryDisplayPackageInfo.comments,
     );
   });
 });

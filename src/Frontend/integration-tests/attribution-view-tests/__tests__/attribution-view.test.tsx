@@ -182,12 +182,12 @@ describe('The App in attribution view', () => {
     insertValueIntoTextBox(
       screen,
       'PURL',
-      'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed'
+      'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed',
     );
     expectValueInTextBox(
       screen,
       'PURL',
-      'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed'
+      'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed',
     );
     expectValueInTextBox(screen, 'Name', 'curl');
     expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
@@ -202,7 +202,7 @@ describe('The App in attribution view', () => {
     expectValueInTextBox(
       screen,
       'PURL',
-      'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed'
+      'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed',
     );
     expectValueInTextBox(screen, 'Name', 'curl');
     expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
@@ -246,7 +246,7 @@ describe('The App in attribution view', () => {
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(2);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 
@@ -335,7 +335,7 @@ describe('The App in attribution view', () => {
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 
@@ -398,7 +398,7 @@ describe('The App in attribution view', () => {
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 
@@ -481,7 +481,7 @@ describe('The App in attribution view', () => {
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 });

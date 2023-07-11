@@ -36,7 +36,7 @@ describe('getAttributedChildren', () => {
   it('with existing attributed children', () => {
     const result = getAttributedChildren(
       testResourcesWithExternalAttributedChildren,
-      '/directory'
+      '/directory',
     );
     expect(result).toEqual(expectedResult);
   });
@@ -44,7 +44,7 @@ describe('getAttributedChildren', () => {
   it('without existing attributed children', () => {
     const result = getAttributedChildren(
       testResourcesWithExternalAttributedChildren,
-      'nonexistingdirectory'
+      'nonexistingdirectory',
     );
     expect(result).toEqual(new Set());
   });

@@ -8,11 +8,11 @@ import reduce from 'lodash/reduce';
 
 export function getFilteredAttributionsById(
   ids: Array<string>,
-  attributions: Attributions
+  attributions: Attributions,
 ): Attributions {
   function reducer(
     filteredAttributions: Attributions,
-    id: string
+    id: string,
   ): Attributions {
     filteredAttributions[id] = attributions[id];
 

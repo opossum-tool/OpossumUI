@@ -18,7 +18,7 @@ describe('replaceInArray', () => {
     const expectedArray: Array<string> = [replacement, 'x', replacement];
 
     expect(replaceInArray(testArray, toBeReplaced, replacement)).toEqual(
-      expectedArray
+      expectedArray,
     );
   });
 });
@@ -34,7 +34,7 @@ describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
     removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty(
       testObjectToMutate,
       'toModify',
-      'y'
+      'y',
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
@@ -49,7 +49,7 @@ describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
     removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty(
       testObjectToMutate,
       'toModify',
-      'y'
+      'y',
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
@@ -63,7 +63,7 @@ describe('removeFromArrayAndDeleteArrayFromObjectIfEmpty', () => {
     removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty(
       testObjectToMutate,
       'toModify',
-      'y'
+      'y',
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
@@ -83,7 +83,7 @@ describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
     removeFromSetCloneAndDeleteKeyFromObjectIfEmpty(
       testObjectToMutate,
       'toModify',
-      'y'
+      'y',
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
@@ -98,7 +98,7 @@ describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
     removeFromSetCloneAndDeleteKeyFromObjectIfEmpty(
       testObjectToMutate,
       'toModify',
-      'y'
+      'y',
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
@@ -112,7 +112,7 @@ describe('removeFromSetAndDeleteKeyFromObjectIfEmpty', () => {
     removeFromSetCloneAndDeleteKeyFromObjectIfEmpty(
       testObjectToMutate,
       'toModify',
-      'y'
+      'y',
     );
     expect(testObjectToMutate).toEqual(expectedObject);
   });
@@ -129,6 +129,6 @@ describe('isChildOf', () => {
     'returns $returnValue for $testedItem',
     ({ parentId, possibleChildId, expectedReturn }) => {
       expect(isChildOf(parentId, possibleChildId)).toEqual(expectedReturn);
-    }
+    },
   );
 });

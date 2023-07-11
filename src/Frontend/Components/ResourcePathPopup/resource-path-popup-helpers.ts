@@ -7,10 +7,10 @@ import { AttributionsToResources } from '../../../shared/shared-types';
 
 export function getAllResourcePathsForAttributions(
   attributionIds: Array<string>,
-  attributionsToResources: AttributionsToResources
+  attributionsToResources: AttributionsToResources,
 ): Array<string> {
   const resourceIds = attributionIds.flatMap(
-    (attributionId) => attributionsToResources[attributionId]
+    (attributionId) => attributionsToResources[attributionId],
   );
   const deduplicatedResourceIds = Array.from(new Set(resourceIds));
   return deduplicatedResourceIds;

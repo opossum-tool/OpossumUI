@@ -7,14 +7,14 @@ import { fireEvent, getByText, Screen } from '@testing-library/react';
 
 export function collapseFolderByClickingOnIcon(
   screen: Screen,
-  resourceId: string
+  resourceId: string,
 ): void {
   fireEvent.click(screen.getByLabelText(`collapse ${resourceId}`) as Element);
 }
 
 export function getElementInResourceBrowser(
   screen: Screen,
-  resourceId: string
+  resourceId: string,
 ): HTMLElement {
   const resourceBrowser = screen.getByLabelText('resource browser');
 
@@ -24,7 +24,7 @@ export function getElementInResourceBrowser(
 
 export function clickOnElementInResourceBrowser(
   screen: Screen,
-  resourceId: string
+  resourceId: string,
 ): void {
   fireEvent.click(getElementInResourceBrowser(screen, resourceId));
 }

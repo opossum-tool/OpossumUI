@@ -9,7 +9,7 @@ import { getPackageInfoKeys } from '../../shared/shared-util';
 import { getDisplayPackageInfoKeys } from './get-display-package-info-keys';
 
 export function getStrippedPackageInfo(
-  rawPackageInfo: PackageInfo
+  rawPackageInfo: PackageInfo,
 ): PackageInfo {
   const strippedPackageInfo = pickBy(rawPackageInfo, (value) => Boolean(value));
   delete strippedPackageInfo.source;
@@ -25,22 +25,22 @@ function removeExcessProperties(rawPackageInfo: PackageInfo): PackageInfo {
 }
 
 export function getStrippedDisplayPackageInfo(
-  rawDisplayPackageInfo: DisplayPackageInfo
+  rawDisplayPackageInfo: DisplayPackageInfo,
 ): DisplayPackageInfo {
   const strippedDisplayPackageInfo = pickBy(rawDisplayPackageInfo, (value) =>
-    Boolean(value)
+    Boolean(value),
   );
   delete strippedDisplayPackageInfo.source;
   delete strippedDisplayPackageInfo.preSelected;
   delete strippedDisplayPackageInfo.criticality;
 
   return removeExcessPropertiesOfDisplayPackageInfo(
-    strippedDisplayPackageInfo as DisplayPackageInfo
+    strippedDisplayPackageInfo as DisplayPackageInfo,
   );
 }
 
 function removeExcessPropertiesOfDisplayPackageInfo(
-  rawDisplayPackageInfo: DisplayPackageInfo
+  rawDisplayPackageInfo: DisplayPackageInfo,
 ): DisplayPackageInfo {
   const displayPackageInfoKeys = getDisplayPackageInfoKeys();
   return pick(rawDisplayPackageInfo, displayPackageInfoKeys);

@@ -24,10 +24,10 @@ describe('The LicenseField', () => {
         endAdornmentText={'Test Adornment Text'}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     expect(screen.queryAllByText('Test Title')).toHaveLength(2);
@@ -48,10 +48,10 @@ describe('The LicenseField', () => {
         text={'Public Lic'}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     expectElementsInAutoCompleteAndSelectFirst(screen, [
@@ -72,10 +72,10 @@ describe('The LicenseField', () => {
         endAdornmentText={'Test Adornment Text'}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     const autoComplete = screen.getByRole('combobox');
@@ -84,10 +84,10 @@ describe('The LicenseField', () => {
 
     const licenseDropdownList = screen.getByRole('listbox');
     expect(licenseDropdownList.children[0]).toHaveTextContent(
-      'GPL - General Public License'
+      'GPL - General Public License',
     );
     expect(licenseDropdownList.children[1]).toHaveTextContent(
-      'MIT - MIT license'
+      'MIT - MIT license',
     );
   });
 });

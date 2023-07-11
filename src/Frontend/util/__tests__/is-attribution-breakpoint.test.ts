@@ -8,7 +8,7 @@ import { getAttributionBreakpointCheck } from '../is-attribution-breakpoint';
 describe('getAttributionBreakpointCheck', () => {
   it('returns a function that correctly checks the path', () => {
     const isAttributionBreakpoint = getAttributionBreakpointCheck(
-      new Set(['/path1', '/path2'])
+      new Set(['/path1', '/path2']),
     );
     expect(isAttributionBreakpoint('/path1')).toEqual(true);
     expect(isAttributionBreakpoint('/path3')).toEqual(false);

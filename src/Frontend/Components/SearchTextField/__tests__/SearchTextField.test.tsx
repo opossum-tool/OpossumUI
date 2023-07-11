@@ -16,7 +16,7 @@ describe('The SearchTextField', () => {
         onInputChange={onInputchange}
         search={'test-search'}
         showIcon={true}
-      />
+      />,
     );
     screen.getAllByText('Search');
 

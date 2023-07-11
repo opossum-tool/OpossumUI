@@ -25,7 +25,7 @@ const validationOptions: Options = {
 };
 
 export async function parseOpossumFile(
-  opossumfilePath: string
+  opossumfilePath: string,
 ): Promise<
   ParsedOpossumInputAndOutput | JsonParsingError | InvalidDotOpossumFileError
 > {
@@ -52,7 +52,7 @@ export async function parseOpossumFile(
             .then((content) => {
               parsedInputData = parseAndValidateJson(
                 content,
-                OpossumInputFileSchema
+                OpossumInputFileSchema,
               );
             })
             .catch((err) => {
@@ -69,7 +69,7 @@ export async function parseOpossumFile(
                   .then((content) => {
                     parsedOutputData = parseOutputJsonContent(
                       content,
-                      opossumfilePath
+                      opossumfilePath,
                     );
                   })
                   .catch((err) => {
@@ -97,7 +97,7 @@ export async function parseOpossumFile(
 }
 
 export function parseInputJsonFile(
-  resourceFilePath: fs.PathLike
+  resourceFilePath: fs.PathLike,
 ): Promise<ParsedOpossumInputFile | JsonParsingError> {
   let pipeline: Parser;
   if (resourceFilePath.toString().endsWith('.json.gz')) {
@@ -110,7 +110,7 @@ export function parseInputJsonFile(
   }
 
   let resolveCallback: (
-    result: ParsedOpossumInputFile | JsonParsingError
+    result: ParsedOpossumInputFile | JsonParsingError,
   ) => void;
   const promise: Promise<ParsedOpossumInputFile | JsonParsingError> =
     new Promise((resolve) => {
@@ -132,7 +132,7 @@ export function parseInputJsonFile(
       jsonSchemaValidator.validate(
         opossumInputData,
         OpossumInputFileSchema,
-        validationOptions
+        validationOptions,
       );
       resolveCallback(opossumInputData as ParsedOpossumInputFile);
     } catch (err) {
@@ -147,7 +147,7 @@ export function parseInputJsonFile(
 }
 
 export function parseOutputJsonFile(
-  attributionFilePath: fs.PathLike
+  attributionFilePath: fs.PathLike,
 ): ParsedOpossumOutputFile {
   const content = fs.readFileSync(attributionFilePath, 'utf-8');
   return parseOutputJsonContent(content, attributionFilePath);
@@ -155,17 +155,17 @@ export function parseOutputJsonFile(
 
 export function parseOutputJsonContent(
   fileContent: string,
-  filePath: fs.PathLike
+  filePath: fs.PathLike,
 ): ParsedOpossumOutputFile {
   let outputJsonContent;
   try {
     outputJsonContent = parseAndValidateJson(
       fileContent,
-      OpossumOutputFileSchema
+      OpossumOutputFileSchema,
     );
   } catch (err) {
     throw new Error(
-      `Error: ${filePath} is not a valid attribution file.\n${err}`
+      `Error: ${filePath} is not a valid attribution file.\n${err}`,
     );
   }
 
@@ -182,7 +182,7 @@ export function parseOutputJsonContent(
 
 function parseAndValidateJson(
   content: string,
-  schema: typeof OpossumInputFileSchema | typeof OpossumOutputFileSchema
+  schema: typeof OpossumInputFileSchema | typeof OpossumOutputFileSchema,
 ): unknown {
   const jsonContent = JSON.parse(content);
   jsonSchemaValidator.validate(jsonContent, schema, validationOptions);

@@ -25,7 +25,7 @@ export function GoToLinkButton(): ReactElement {
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const isAttributionBreakpoint = getAttributionBreakpointCheck(
-    attributionBreakpoints
+    attributionBreakpoints,
   );
   const dispatch = useAppDispatch();
 
@@ -49,14 +49,14 @@ export function GoToLinkButton(): ReactElement {
       if (parent in baseUrlsForSources) {
         const pathWithoutParentWithUrl = path.replace(
           new RegExp(`^${parent}`),
-          ''
+          '',
         );
         const pathWithoutLeadingAndTrailingSlashes = pathWithoutParentWithUrl
           .replace(/^\//, '')
           .replace(/\/$/, '');
         link = baseUrlOfParent.replace(
           '{path}',
-          pathWithoutLeadingAndTrailingSlashes
+          pathWithoutLeadingAndTrailingSlashes,
         );
         break;
       }

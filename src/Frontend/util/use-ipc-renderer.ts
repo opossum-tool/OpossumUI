@@ -17,34 +17,34 @@ import {
 
 type ResetStateListener = (
   event: IpcRendererEvent,
-  resetState: boolean
+  resetState: boolean,
 ) => void;
 
 type SetStateListener = (
   event: IpcRendererEvent,
-  resourceStructure: ParsedFileContent
+  resourceStructure: ParsedFileContent,
 ) => void;
 
 type ExportFileRequestListener = (
   event: IpcRendererEvent,
-  exportType: ExportType
+  exportType: ExportType,
 ) => void;
 
 type LoggingListener = (event: IpcRendererEvent, logging: string) => void;
 
 type SetBaseURLForRootListener = (
   event: IpcRendererEvent,
-  baseURLForRootArgs: BaseURLForRootArgs
+  baseURLForRootArgs: BaseURLForRootArgs,
 ) => void;
 
 type IsLoadingListener = (
   event: IpcRendererEvent,
-  isLoadingArgs: IsLoadingArgs
+  isLoadingArgs: IsLoadingArgs,
 ) => void;
 
 type ShowFileSupportPopupListener = (
   event: IpcRendererEvent,
-  fileSupportPopupArgs: FileSupportPopupArgs
+  fileSupportPopupArgs: FileSupportPopupArgs,
 ) => void;
 
 type Listener =
@@ -59,7 +59,7 @@ type Listener =
 export function useIpcRenderer(
   channel: AllowedFrontendChannels,
   listener: Listener,
-  dependencies: Array<unknown>
+  dependencies: Array<unknown>,
 ): void {
   useEffect(() => {
     window.electronAPI.on(channel, listener);

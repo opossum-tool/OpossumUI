@@ -29,16 +29,16 @@ interface ResourcePathPopupProps {
 
 export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   const externalAttributionsToResources = useAppSelector(
-    getExternalAttributionsToResources
+    getExternalAttributionsToResources,
   );
   const manualAttributionsToResources = useAppSelector(
-    getManualAttributionsToResources
+    getManualAttributionsToResources,
   );
   const allResourcePaths = getAllResourcePathsForAttributions(
     props.attributionIds,
     props.isExternalAttribution
       ? externalAttributionsToResources
-      : manualAttributionsToResources
+      : manualAttributionsToResources,
   );
   const maxTreeHeight: number =
     useWindowHeight() - VERTICAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES;
@@ -59,7 +59,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       content={
         <MuiBox
           sx={treeClasses.treeContainer(
-            VERTICAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES
+            VERTICAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES,
           )}
         >
           <ResourcesTree
@@ -69,7 +69,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
             sx={treeClasses.tree(
               'popup',
               HORIZONTAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES,
-              POPUP_CONTENT_PADDING
+              POPUP_CONTENT_PADDING,
             )}
           />
         </MuiBox>

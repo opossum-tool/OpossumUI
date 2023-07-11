@@ -79,7 +79,7 @@ interface ResourceDetailsTabsProps {
 }
 
 export function ResourceDetailsTabs(
-  props: ResourceDetailsTabsProps
+  props: ResourceDetailsTabsProps,
 ): ReactElement | null {
   const manualData = useAppSelector(getManualData);
 
@@ -88,7 +88,7 @@ export function ResourceDetailsTabs(
   const attributionIdsOfSelectedResource: Array<string> =
     useAppSelector(getAttributionIdsOfSelectedResource) || [];
   const isAccordionSearchFieldDisplayed = useAppSelector(
-    getIsAccordionSearchFieldDisplayed
+    getIsAccordionSearchFieldDisplayed,
   );
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
@@ -108,7 +108,7 @@ export function ResourceDetailsTabs(
   const { assignableManualAttributionIds, displayPackageInfos } =
     getAssignableManualAttributionIdsAndDisplayPackageInfos(
       manualData.attributions,
-      attributionIdsOfSelectedResource
+      attributionIdsOfSelectedResource,
     );
 
   const isAddToPackageEnabled: boolean =
@@ -119,7 +119,7 @@ export function ResourceDetailsTabs(
         isAddToPackageEnabled={isAddToPackageEnabled}
       />
     ),
-    [isAddToPackageEnabled]
+    [isAddToPackageEnabled],
   );
 
   const tabLabels = {
@@ -198,7 +198,7 @@ export function ResourceDetailsTabs(
 
 function getAssignableManualAttributionIdsAndDisplayPackageInfos(
   manualAttributions: Attributions,
-  attributionIdsOfSelectedResource: Array<string>
+  attributionIdsOfSelectedResource: Array<string>,
 ): {
   assignableManualAttributionIds: Array<string>;
   displayPackageInfos: DisplayPackageInfos;
@@ -206,14 +206,14 @@ function getAssignableManualAttributionIdsAndDisplayPackageInfos(
   const assignableManualAttributionIds: Array<string> = remove(
     Object.keys(manualAttributions),
     (attributionId: string): boolean =>
-      !attributionIdsOfSelectedResource.includes(attributionId)
+      !attributionIdsOfSelectedResource.includes(attributionId),
   );
 
   const displayPackageInfos: DisplayPackageInfos = {};
   assignableManualAttributionIds.forEach((attributionId, index) => {
     const packageCardId = createPackageCardId(
       PackagePanelTitle.AllAttributions,
-      index
+      index,
     );
     displayPackageInfos[packageCardId] =
       getDisplayPackageInfoWithCountFromAttributions([

@@ -17,7 +17,7 @@ interface GeneralTreeItemLabelProps {
 }
 
 export function GeneralTreeItemLabel(
-  props: GeneralTreeItemLabelProps
+  props: GeneralTreeItemLabelProps,
 ): ReactElement {
   const iconSx = treeItemClasses.resourceWithoutInformation;
   const labelDetail = 'without information';

@@ -6,42 +6,42 @@
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import {
   PackageAttributeIds,
-  State,
   PackageAttributes,
+  State,
 } from '../../types/types';
 
 export function getAttributionWizarOriginalDisplayPackageInfo(
-  state: State
+  state: State,
 ): DisplayPackageInfo {
   return state.resourceState.attributionWizard.originalDisplayPackageInfo;
 }
 
 export function getAttributionWizardPackageNamespaces(
-  state: State
+  state: State,
 ): PackageAttributes {
   return state.resourceState.attributionWizard.packageNamespaces;
 }
 
 export function getAttributionWizardPackageNames(
-  state: State
+  state: State,
 ): PackageAttributes {
   return state.resourceState.attributionWizard.packageNames;
 }
 
 export function getAttributionWizardPackageVersions(
-  state: State
+  state: State,
 ): PackageAttributes {
   return state.resourceState.attributionWizard.packageVersions;
 }
 
 export function getAttributionWizardSelectedPackageAttributeIds(
-  state: State
+  state: State,
 ): PackageAttributeIds {
   return state.resourceState.attributionWizard.selectedPackageAttributeIds;
 }
 
 export function getAttributionWizardTotalAttributionCount(
-  state: State
+  state: State,
 ): number | null {
   return state.resourceState.attributionWizard.totalAttributionCount;
 }

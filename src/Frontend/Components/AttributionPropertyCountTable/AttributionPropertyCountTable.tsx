@@ -38,14 +38,14 @@ interface AttributionPropertyCountTableProps {
 }
 
 export function AttributionPropertyCountTable(
-  props: AttributionPropertyCountTableProps
+  props: AttributionPropertyCountTableProps,
 ): ReactElement {
   const attributionPropertyDisplayNames =
     props.attributionPropertyCountsEntries.map((entry) =>
-      _getAttributionPropertyDisplayNameFromId(entry[0].toString())
+      _getAttributionPropertyDisplayNameFromId(entry[0].toString()),
     );
   const attributionPropertyCounts = props.attributionPropertyCountsEntries.map(
-    (entry) => entry[1].toString()
+    (entry) => entry[1].toString(),
   );
 
   return (
@@ -64,7 +64,7 @@ export function AttributionPropertyCountTable(
                   >
                     {attributionPropertyDisplayName}
                   </MuiTableCell>
-                )
+                ),
               )}
             </MuiTableRow>
           </MuiTableHead>
@@ -79,7 +79,7 @@ export function AttributionPropertyCountTable(
                   >
                     {attributionPropertyCount}
                   </MuiTableCell>
-                )
+                ),
               )}
             </MuiTableRow>
           </MuiTableBody>
@@ -91,7 +91,7 @@ export function AttributionPropertyCountTable(
 
 //exported only for testing
 export function _getAttributionPropertyDisplayNameFromId(
-  attributionProperty: string
+  attributionProperty: string,
 ): string {
   if (attributionProperty in ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME) {
     return ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME[attributionProperty];

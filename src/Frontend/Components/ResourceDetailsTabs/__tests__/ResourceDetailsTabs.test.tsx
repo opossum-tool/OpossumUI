@@ -32,15 +32,15 @@ describe('The ResourceDetailsTabs', () => {
       <ResourceDetailsTabs
         isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
-      />
+      />,
     );
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           manualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     act(() => {
@@ -70,7 +70,7 @@ describe('The ResourceDetailsTabs', () => {
       <ResourceDetailsTabs
         isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
-      />
+      />,
     );
     store.dispatch(
       loadFromFile(
@@ -78,8 +78,8 @@ describe('The ResourceDetailsTabs', () => {
           resources: testResources,
           manualAttributions,
           resourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     act(() => {
@@ -125,7 +125,7 @@ describe('The ResourceDetailsTabs', () => {
       <ResourceDetailsTabs
         isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
-      />
+      />,
     );
     store.dispatch(
       loadFromFile(
@@ -133,8 +133,8 @@ describe('The ResourceDetailsTabs', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
@@ -148,8 +148,8 @@ describe('The ResourceDetailsTabs', () => {
 
     fireEvent.click(
       screen.getByLabelText(
-        'Search signals by name, license name, copyright text and version'
-      )
+        'Search signals by name, license name, copyright text and version',
+      ),
     );
 
     fireEvent.change(screen.getByRole('searchbox'), {

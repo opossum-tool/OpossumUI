@@ -7,7 +7,7 @@ import { AttributionsToResources } from '../../shared/shared-types';
 
 export function hasAttributionMultipleResources(
   attributionId: string | null,
-  attributionsToResources: AttributionsToResources
+  attributionsToResources: AttributionsToResources,
 ): boolean {
   if (attributionId) {
     return attributionsToResources[attributionId].length > 1;

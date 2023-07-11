@@ -16,7 +16,7 @@ describe('The FileSearchTextField', () => {
   it('renders', () => {
     const setFilteredPaths = jest.fn();
     renderComponentWithStore(
-      <FileSearchTextField setFilteredPaths={setFilteredPaths} />
+      <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
     screen.getAllByText('Search');
   });
@@ -24,7 +24,7 @@ describe('The FileSearchTextField', () => {
   it('calls callback after debounce time', () => {
     const setFilteredPaths = jest.fn();
     renderComponentWithStore(
-      <FileSearchTextField setFilteredPaths={setFilteredPaths} />
+      <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
 
     screen.getAllByText('Search');

@@ -28,10 +28,10 @@ describe('The Dropdown', () => {
         ]}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     expect(screen.getByText('High (80)'));
@@ -55,10 +55,10 @@ describe('The Dropdown', () => {
         ]}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     expect(screen.getByText('10'));

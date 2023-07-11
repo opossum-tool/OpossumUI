@@ -31,7 +31,7 @@ describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
     render(<FetchLicenseInformationButton disabled={true} url={''} />);
     expect(
-      screen.getByLabelText(FETCH_DATA_BUTTON_DISABLED_TOOLTIP)
+      screen.getByLabelText(FETCH_DATA_BUTTON_DISABLED_TOOLTIP),
     ).toBeInTheDocument();
   });
 
@@ -40,7 +40,7 @@ describe('FetchLicenseInformationButton', () => {
       <FetchLicenseInformationButton
         url={'https://pypi.org/pypi/pip'}
         disabled={false}
-      />
+      />,
     );
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
@@ -52,7 +52,7 @@ describe('FetchLicenseInformationButton', () => {
       axiosMock.onGet(MOCK_URL).networkErrorOnce();
 
       renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
+        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
       fireEvent.click(screen.getByRole('button'));
@@ -60,7 +60,7 @@ describe('FetchLicenseInformationButton', () => {
       expect(
         waitFor(() => {
           screen.getByLabelText('Network Error');
-        })
+        }),
       ).resolves.toBeInTheDocument();
     });
 
@@ -71,7 +71,7 @@ describe('FetchLicenseInformationButton', () => {
       axiosMock.onGet(MOCK_URL).replyOnce(notFoundStatus, {});
 
       renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
+        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
       fireEvent.click(screen.getByRole('button'));
@@ -79,7 +79,7 @@ describe('FetchLicenseInformationButton', () => {
       expect(
         waitFor(() => {
           screen.getByLabelText('Request failed with status code 404');
-        })
+        }),
       ).resolves.toBeInTheDocument();
     });
 
@@ -94,7 +94,7 @@ describe('FetchLicenseInformationButton', () => {
       });
 
       renderComponentWithStore(
-        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />
+        <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
       fireEvent.click(screen.getByRole('button'));
@@ -102,7 +102,7 @@ describe('FetchLicenseInformationButton', () => {
       expect(
         waitFor(() => {
           screen.getByLabelText(FETCH_DATA_TOOLTIP);
-        })
+        }),
       ).resolves.toBeInTheDocument();
     });
   });
@@ -140,7 +140,7 @@ describe('useFetchPackageInfo', () => {
         }),
       {
         wrapper,
-      }
+      },
     );
     expect(result.current.fetchStatus).toBe(FetchStatus.Idle);
   });
@@ -163,7 +163,7 @@ describe('useFetchPackageInfo', () => {
       getWrapper(store, children);
     const { result } = renderHook(
       () => useFetchPackageInfo(licenseFetchingInformation),
-      { wrapper }
+      { wrapper },
     );
     await act(async () => {
       await result.current.fetchData();
@@ -187,7 +187,7 @@ describe('useFetchPackageInfo', () => {
         }),
       {
         wrapper,
-      }
+      },
     );
     await act(async () => {
       await result.current.fetchData();

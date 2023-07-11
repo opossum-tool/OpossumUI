@@ -11,7 +11,7 @@ import { OPOSSUM_FILE_COMPRESSION_LEVEL } from '../shared-constants';
 export async function writeOpossumFile(
   opossumfilePath: string,
   inputfileData: unknown,
-  outputfileData: unknown | null
+  outputfileData: unknown | null,
 ): Promise<void> {
   const writeStream = fs.createWriteStream(opossumfilePath);
   const zip = new JSZip();
@@ -31,7 +31,7 @@ export async function writeOpossumFile(
 
 export async function writeOutputJsonToOpossumFile(
   opossumfilePath: string,
-  outputfileData: unknown
+  outputfileData: unknown,
 ): Promise<void> {
   const new_zip = new JSZip();
 

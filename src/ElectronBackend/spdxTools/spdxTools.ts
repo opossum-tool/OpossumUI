@@ -35,7 +35,7 @@ export function createSpdxPackage(
   type?: string,
   appendix?: string,
   url?: string,
-  comment?: string
+  comment?: string,
 ): Package {
   return {
     dependencies: dependencies || [],
@@ -66,7 +66,7 @@ export function createSpdxDocument(
   creatorTool: string,
   rootPackage: Package,
   documentName?: string,
-  dataLicense: string = SPDX_DEFAULT_DATA_LICENSE
+  dataLicense: string = SPDX_DEFAULT_DATA_LICENSE,
 ): SpdxDocument {
   const creationDate = new Date().toISOString();
   const documentNamespace = uuid4();
@@ -99,7 +99,7 @@ function parsePackages(rootPackage: Package): SpdxAttributions {
     rootPackage.dependencies,
     spdxLicenseInfos,
     spdxPackages,
-    spdxExternalRelationships
+    spdxExternalRelationships,
   );
 
   return {
@@ -111,7 +111,7 @@ function parsePackages(rootPackage: Package): SpdxAttributions {
 
 function addDefaultRootPackage(
   spdxExternalRelationships: Array<SpdxExternalRelationship>,
-  spdxPackages: Array<SpdxPackage>
+  spdxPackages: Array<SpdxPackage>,
 ): void {
   const spdxRootPackage: SpdxPackage = {
     SPDXID: ROOT_PACKAGE_SPDX_ID,
@@ -139,7 +139,7 @@ function addNonRootPackages(
   packages: Array<Package>,
   spdxLicenseInfos: Array<SpdxLicenseInfo>,
   spdxPackages: Array<SpdxPackage>,
-  spdxExternalRelationships: Array<SpdxExternalRelationship>
+  spdxExternalRelationships: Array<SpdxExternalRelationship>,
 ): void {
   const alreadyUsedLicenses = new Set<string>();
 
@@ -238,7 +238,7 @@ function generatePurlFromPackage(pkg: Package): string {
         pkg.name,
         pkg.version,
         undefined,
-        undefined
+        undefined,
       ).toString() + (pkg.appendix || '')
     : '';
 }
@@ -248,7 +248,7 @@ function isPackageEmpty(pkg: Package): boolean {
     throw new Error(`The case of key "${neverCalled}" is not handled.`);
   }
   function getIsValueNonEmpty(
-    key: keyof Package
+    key: keyof Package,
   ): ((arg: string) => boolean) | ((arg: Array<Package>) => boolean) {
     switch (key) {
       case 'appendix':
@@ -272,7 +272,7 @@ function isPackageEmpty(pkg: Package): boolean {
 
   return (
     Object.entries(pkg).filter((entry) =>
-      getIsValueNonEmpty(entry[0] as keyof Package)(entry[1])
+      getIsValueNonEmpty(entry[0] as keyof Package)(entry[1]),
     ).length === 0
   );
 }

@@ -6,7 +6,7 @@
 import { Resources } from '../../shared/shared-types';
 
 export function canResourceHaveChildren(
-  resource: Resources | 1
+  resource: Resources | 1,
 ): resource is Resources {
   return resource !== 1;
 }

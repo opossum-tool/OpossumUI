@@ -29,7 +29,7 @@ interface AllAttributionsPanelProps {
 }
 
 export function AllAttributionsPanel(
-  props: AllAttributionsPanelProps
+  props: AllAttributionsPanelProps,
 ): ReactElement {
   const dispatch = useAppDispatch();
 
@@ -41,8 +41,8 @@ export function AllAttributionsPanel(
         selectPackageCardInAuditViewOrOpenUnsavedPopup(
           PackagePanelTitle.AllAttributions,
           packageCardId,
-          displayPackageInfo
-        )
+          displayPackageInfo,
+        ),
       );
     }
 

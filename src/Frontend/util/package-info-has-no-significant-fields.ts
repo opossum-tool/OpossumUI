@@ -7,7 +7,7 @@ import { cloneDeep, isEmpty } from 'lodash';
 import { PackageInfo } from '../../shared/shared-types';
 
 export function packageInfoHasNoSignificantFields(
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
 ): boolean {
   const packageInfoWithSignificantFields = cloneDeep(packageInfo);
   delete packageInfoWithSignificantFields.attributionConfidence;

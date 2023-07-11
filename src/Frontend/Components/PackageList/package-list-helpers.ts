@@ -9,19 +9,19 @@ import { DisplayPackageInfos } from '../../types/types';
 export function getFilteredPackageCardIdsFromDisplayPackageInfos(
   displayPackageInfos: DisplayPackageInfos,
   sortedPackageCardIds: Array<string>,
-  searchTerm: string
+  searchTerm: string,
 ): Array<string> {
   return sortedPackageCardIds.filter((packageCardId) => {
     return displayPackageInfoContainsSearchTerm(
       displayPackageInfos[packageCardId],
-      searchTerm
+      searchTerm,
     );
   });
 }
 
 function displayPackageInfoContainsSearchTerm(
   attribution: DisplayPackageInfo,
-  searchTerm: string
+  searchTerm: string,
 ): boolean {
   return Boolean(
     attribution &&
@@ -41,6 +41,6 @@ function displayPackageInfoContainsSearchTerm(
         (attribution.packageVersion &&
           attribution.packageVersion
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())))
+            .includes(searchTerm.toLowerCase()))),
   );
 }

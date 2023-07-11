@@ -15,7 +15,7 @@ import { getButton } from './general-test-helpers';
 
 function getButtonInHamburgerMenu(
   screen: Screen,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): HTMLElement {
   fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
   const button = getButton(screen, buttonLabel);
@@ -26,7 +26,7 @@ function getButtonInHamburgerMenu(
 
 export function clickOnButtonInHamburgerMenu(
   screen: Screen,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   fireEvent.click(getButtonInHamburgerMenu(screen, buttonLabel));
 }
@@ -34,7 +34,7 @@ export function clickOnButtonInHamburgerMenu(
 export function expectButtonInHamburgerMenu(
   screen: Screen,
   buttonLabel: ButtonText,
-  disabled?: boolean
+  disabled?: boolean,
 ): void {
   const button = getButtonInHamburgerMenu(screen, buttonLabel);
   const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
@@ -48,11 +48,11 @@ export function expectButtonInHamburgerMenu(
 
 export function expectButtonInHamburgerMenuIsNotShown(
   screen: Screen,
-  buttonLabel: ButtonText
+  buttonLabel: ButtonText,
 ): void {
   fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
   expect(
-    screen.queryByRole('button', { name: buttonLabel })
+    screen.queryByRole('button', { name: buttonLabel }),
   ).not.toBeInTheDocument();
 
   if (screen.queryByRole('presentation')) {
@@ -63,7 +63,7 @@ export function expectButtonInHamburgerMenuIsNotShown(
 export function insertValueIntoTextBox(
   screen: Screen,
   textBoxLabel: string,
-  value: string
+  value: string,
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
   fireEvent.change(textBox, {
@@ -73,7 +73,7 @@ export function insertValueIntoTextBox(
 
 export function expectValueInConfidenceField(
   screen: Screen,
-  value: string
+  value: string,
 ): void {
   const numberBox = screen.getByLabelText('Confidence');
   // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -82,7 +82,7 @@ export function expectValueInConfidenceField(
 
 export function expectValueNotInConfidenceField(
   screen: Screen,
-  value: string
+  value: string,
 ): void {
   const numberBox = screen.getByLabelText('Confidence');
   // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -92,7 +92,7 @@ export function expectValueNotInConfidenceField(
 export function expectValueInTextBox(
   screen: Screen,
   textBoxLabel: string,
-  value: string
+  value: string,
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
   // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -102,7 +102,7 @@ export function expectValueInTextBox(
 export function expectValueNotInTextBox(
   screen: Screen,
   textBoxLabel: string,
-  value: string
+  value: string,
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
   // eslint-disable-next-line testing-library/prefer-screen-queries
@@ -111,7 +111,7 @@ export function expectValueNotInTextBox(
 
 export function selectConfidenceInDropdown(
   screen: Screen,
-  value: string
+  value: string,
 ): void {
   expect(screen.queryByText(value)).not.toBeInTheDocument();
   fireEvent.mouseDown(screen.getByLabelText('Confidence'));
@@ -129,7 +129,7 @@ export function expectGoToLinkIconIsVisible(screen: Screen): void {
 
 export function expectGoToLinkIconIsNotVisible(screen: Screen): void {
   expect(
-    getGoToLinkIcon(screen, 'link to open').parentElement
+    getGoToLinkIcon(screen, 'link to open').parentElement,
   ).not.toBeVisible();
 }
 

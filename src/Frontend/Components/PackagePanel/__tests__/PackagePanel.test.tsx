@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { act, screen } from '@testing-library/react';
+import { act, getByText, screen } from '@testing-library/react';
 import React from 'react';
 import {
   Attributions,
@@ -15,7 +15,6 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { PackagePanel } from '../PackagePanel';
-import { getByText } from '@testing-library/react';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -73,8 +72,8 @@ describe('The PackagePanel', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           externalAttributions: testAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <PackagePanel
@@ -83,7 +82,7 @@ describe('The PackagePanel', () => {
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expect(screen.getByText('React, 16.5.0'));
@@ -146,8 +145,8 @@ describe('The PackagePanel', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           externalAttributions: testAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <PackagePanel
@@ -156,7 +155,7 @@ describe('The PackagePanel', () => {
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore }
+      { store: testStore },
     );
     act(() => {
       testStore.dispatch(setExternalAttributionSources(testAttributionSources));

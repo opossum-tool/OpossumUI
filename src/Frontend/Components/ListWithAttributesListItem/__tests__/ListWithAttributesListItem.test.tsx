@@ -34,7 +34,7 @@ describe('ListWithAttributesListItem', () => {
         isLastItem={false}
         listContainsSingleItem={false}
         emptyTextFallback={'emptyTextFallback'}
-      />
+      />,
     );
     expect(screen.getByText('React')).toBeInTheDocument();
     expect(screen.getByText('attrib_00')).toBeInTheDocument();

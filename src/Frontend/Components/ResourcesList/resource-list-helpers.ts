@@ -7,7 +7,7 @@ import { ResourcesListItem } from './ResourcesList';
 import { ResourcesListBatch } from '../../types/types';
 
 export function convertResourcesListBatchesToResourcesListItems(
-  resourcesListBatches: Array<ResourcesListBatch>
+  resourcesListBatches: Array<ResourcesListBatch>,
 ): Array<ResourcesListItem> {
   const resourcesListItems: Array<ResourcesListItem> = [];
 

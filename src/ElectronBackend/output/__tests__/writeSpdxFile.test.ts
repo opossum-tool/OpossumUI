@@ -70,7 +70,7 @@ describe('writeSpdxFile', () => {
     expect(fileContent).toContain('extractedText: test license text');
     expect(fileContent).toContain('name: license name');
     expect(fileContent).toContain(
-      'referenceLocator: pkg:npm/second-test-Package@2.1'
+      'referenceLocator: pkg:npm/second-test-Package@2.1',
     );
     deleteFolder(temporaryPath);
   });

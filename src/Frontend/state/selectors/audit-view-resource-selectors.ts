@@ -40,7 +40,7 @@ export function getResolvedExternalAttributions(state: State): Set<string> {
 }
 
 export function getAttributionIdsOfSelectedResourceClosestParent(
-  state: State
+  state: State,
 ): Array<string> {
   const selectedResourceId = getSelectedResourceId(state);
   const resourcesToManualAttributions = getResourcesToManualAttributions(state);
@@ -48,12 +48,12 @@ export function getAttributionIdsOfSelectedResourceClosestParent(
   return getClosestParentAttributionIds(
     selectedResourceId,
     resourcesToManualAttributions,
-    getAttributionBreakpointCheckForState(state)
+    getAttributionBreakpointCheckForState(state),
   );
 }
 
 function getAttributionsOfSelectedResourceClosestParent(
-  state: State
+  state: State,
 ): Attributions {
   const attributionIdsOfClosestParent: Array<string> =
     getAttributionIdsOfSelectedResourceClosestParent(state);
@@ -61,12 +61,12 @@ function getAttributionsOfSelectedResourceClosestParent(
 
   return getFilteredAttributionsById(
     attributionIdsOfClosestParent,
-    manualAttributions
+    manualAttributions,
   );
 }
 
 export function getAttributionIdsOfSelectedResource(
-  state: State
+  state: State,
 ): Array<string> | null {
   const selectedResourceId = getSelectedResourceId(state);
   const resourcesToManualAttributions = getResourcesToManualAttributions(state);
@@ -84,12 +84,12 @@ export function getAttributionsOfSelectedResource(state: State): Attributions {
 
   return getFilteredAttributionsById(
     attributionIdsOfSelectedResource,
-    manualAttributions
+    manualAttributions,
   );
 }
 
 export function getAttributionsOfSelectedResourceOrClosestParent(
-  state: State
+  state: State,
 ): Attributions {
   const attributionsOfSelectedResource: Attributions =
     getAttributionsOfSelectedResource(state);
@@ -99,7 +99,7 @@ export function getAttributionsOfSelectedResourceOrClosestParent(
 }
 
 export function getAttributionIdOfDisplayedPackageInManualPanel(
-  state: State
+  state: State,
 ): string | null {
   if (
     state.resourceState.auditView.displayedPanelPackage?.panel ===
@@ -114,7 +114,7 @@ export function getAttributionIdOfDisplayedPackageInManualPanel(
 }
 
 export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
-  state: State
+  state: State,
 ): DisplayPackageInfo | null {
   const attributionId: string | null =
     getAttributionIdOfDisplayedPackageInManualPanel(state);
@@ -122,14 +122,14 @@ export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
     const manualAttributions: Attributions = getManualAttributions(state);
     return convertPackageInfoToDisplayPackageInfo(
       manualAttributions[attributionId],
-      [attributionId]
+      [attributionId],
     );
   }
   return null;
 }
 
 export function getDisplayPackageInfoOfDisplayedPackage(
-  state: State
+  state: State,
 ): DisplayPackageInfo | null {
   const displayedPackage = state.resourceState.auditView.displayedPanelPackage;
   return displayedPackage ? displayedPackage.displayPackageInfo : null;

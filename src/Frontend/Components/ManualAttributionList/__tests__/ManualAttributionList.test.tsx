@@ -36,8 +36,8 @@ function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
         manualAttributions,
-      })
-    )
+      }),
+    ),
   );
   return store;
 }
@@ -84,7 +84,7 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(packages) },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
@@ -99,7 +99,7 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={doNothing}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(packages) },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
@@ -116,7 +116,7 @@ describe('The ManualAttributionList', () => {
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(packages) },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT));
@@ -132,7 +132,7 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
-      { store: getTestStore(packages) }
+      { store: getTestStore(packages) },
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
@@ -205,8 +205,8 @@ describe('The ManualAttributionList', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <ManualAttributionList
@@ -216,35 +216,35 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expectContextMenuForNotPreSelectedAttributionSingleResource(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     testCorrectMarkAndUnmarkForReplacementInContextMenu(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'jQuery, 16.0.0',
-      ButtonText.MarkForReplacement
+      ButtonText.MarkForReplacement,
     );
 
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 16.0.0',
-      ButtonText.ReplaceMarked
+      ButtonText.ReplaceMarked,
     );
 
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
       'React, 16.0.0',
-      true
+      true,
     );
   });
 });

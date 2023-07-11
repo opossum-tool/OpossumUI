@@ -24,19 +24,19 @@ describe('Test getParents', () => {
   it('get parents with breakpoints', () => {
     let result = getParentsUpToNextAttributionBreakpoint(
       testResource,
-      (path) => path === '/first/'
+      (path) => path === '/first/',
     );
     expect(result).toEqual(['/first/second/', '/first/second/third/']);
 
     result = getParentsUpToNextAttributionBreakpoint(
       testResource,
-      (path) => path === '/first/' || path === '/first/second/'
+      (path) => path === '/first/' || path === '/first/second/',
     );
     expect(result).toEqual(['/first/second/third/']);
 
     result = getParentsUpToNextAttributionBreakpoint(
       testResource,
-      (path) => path === '/'
+      (path) => path === '/',
     );
     expect(result).toEqual([
       '/first/',
@@ -46,7 +46,7 @@ describe('Test getParents', () => {
 
     result = getParentsUpToNextAttributionBreakpoint(
       testResource,
-      (path) => path === '/first/second/third/fifth/'
+      (path) => path === '/first/second/third/fifth/',
     );
     expect(result).toEqual([
       '/',
@@ -67,7 +67,7 @@ describe('Test getParents', () => {
   it('get parents with breakpoints, resource itself is breakpoint', () => {
     const result = getParentsUpToNextAttributionBreakpoint(
       '/some/deep/folder/',
-      (path) => path === '/some/deep/folder/'
+      (path) => path === '/some/deep/folder/',
     );
     expect(result).toEqual([]);
   });

@@ -29,7 +29,7 @@ describe('The ResourcesTree', () => {
       <ResourcesTree
         resourcePaths={resourcePaths}
         highlightSelectedResources={true}
-      />
+      />,
     );
     expect(screen.getByText('resource_1')).toBeInTheDocument();
     expect(screen.getByText('resource_2')).toBeInTheDocument();
@@ -40,12 +40,12 @@ describe('The ResourcesTree', () => {
       <ResourcesTree
         resourcePaths={resourcePaths}
         highlightSelectedResources={true}
-      />
+      />,
     );
     fireEvent.click(screen.getByText('resource_1'));
 
     expect(getSelectedResourceId(store.getState())).toBe(
-      '/folder1/folder2/resource_1'
+      '/folder1/folder2/resource_1',
     );
     expect(getSelectedView(store.getState())).toBe(View.Audit);
     expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
@@ -56,7 +56,7 @@ describe('The ResourcesTree', () => {
       <ResourcesTree
         resourcePaths={resourcePaths}
         highlightSelectedResources={true}
-      />
+      />,
     );
     expect(screen.getByText('resource_1')).toBeInTheDocument();
 

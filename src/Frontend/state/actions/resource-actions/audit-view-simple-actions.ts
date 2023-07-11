@@ -28,13 +28,13 @@ import {
 } from './types';
 
 export function setSelectedResourceId(
-  resourceId: string
+  resourceId: string,
 ): SetSelectedResourceIdAction {
   return { type: ACTION_SET_SELECTED_RESOURCE_ID, payload: resourceId };
 }
 
 export function setTargetSelectedResourceId(
-  targetSelectedResourceId: string | null
+  targetSelectedResourceId: string | null,
 ): SetTargetSelectedResourceId {
   return {
     type: ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
@@ -43,13 +43,13 @@ export function setTargetSelectedResourceId(
 }
 
 export function setExpandedIds(
-  expandedIds: Array<string>
+  expandedIds: Array<string>,
 ): SetExpandedIdsAction {
   return { type: ACTION_SET_EXPANDED_IDS, payload: expandedIds };
 }
 
 export function setDisplayedPackage(
-  displayedPanel: PanelPackage | null
+  displayedPanel: PanelPackage | null,
 ): SetDisplayedPanelPackageAction {
   return {
     type: ACTION_SET_DISPLAYED_PANEL_PACKAGE,
@@ -58,7 +58,7 @@ export function setDisplayedPackage(
 }
 
 export function setTargetDisplayedPackage(
-  targetDisplayedPanel: PanelPackage | null
+  targetDisplayedPanel: PanelPackage | null,
 ): SetTargetDisplayedPanelPackageAction {
   return {
     type: ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
@@ -67,7 +67,7 @@ export function setTargetDisplayedPackage(
 }
 
 export function setResolvedExternalAttributions(
-  resolvedExternalAttributions: Set<string>
+  resolvedExternalAttributions: Set<string>,
 ): SetResolvedExternalAttributions {
   return {
     type: ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
@@ -76,7 +76,7 @@ export function setResolvedExternalAttributions(
 }
 
 export function addResolvedExternalAttribution(
-  resolvedExternalAttribution: string
+  resolvedExternalAttribution: string,
 ): AddResolvedExternalAttribution {
   return {
     type: ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION,
@@ -85,7 +85,7 @@ export function addResolvedExternalAttribution(
 }
 
 export function removeResolvedExternalAttribution(
-  resolvedExternalAttribution: string
+  resolvedExternalAttribution: string,
 ): RemoveResolvedExternalAttribution {
   return {
     type: ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,

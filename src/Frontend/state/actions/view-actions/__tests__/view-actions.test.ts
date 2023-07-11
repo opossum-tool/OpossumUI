@@ -108,7 +108,7 @@ describe('view actions', () => {
     expect(getTargetView(testStore.getState())).toBe(View.Audit);
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
     ).toBe(true);
 
     testStore.dispatch(resetViewState());
@@ -116,7 +116,7 @@ describe('view actions', () => {
     expect(getTargetView(testStore.getState())).toBe(null);
     expect(getOpenPopup(testStore.getState())).toBe(null);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
     ).toBe(false);
   });
 
@@ -124,30 +124,30 @@ describe('view actions', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
     ).toBe(true);
 
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
     ).toBe(false);
 
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     testStore.dispatch(updateActiveFilters(FilterType.HideFirstParty));
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
     ).toBe(false);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.HideFirstParty)
+      getActiveFilters(testStore.getState()).has(FilterType.HideFirstParty),
     ).toBe(true);
 
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
     ).toBe(true);
     expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp)
+      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
     ).toBe(true);
   });
 
@@ -184,13 +184,13 @@ describe('popup actions', () => {
     expect(getPopupAttributionId(testStore.getState())).toEqual(null);
     const testAttributionId = 'test';
     testStore.dispatch(
-      openPopup(PopupType.ConfirmDeletionPopup, testAttributionId)
+      openPopup(PopupType.ConfirmDeletionPopup, testAttributionId),
     );
     expect(getPopupAttributionId(testStore.getState())).toEqual(
-      testAttributionId
+      testAttributionId,
     );
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.ConfirmDeletionPopup
+      PopupType.ConfirmDeletionPopup,
     );
   });
 
@@ -198,27 +198,27 @@ describe('popup actions', () => {
     const testStore = createTestAppStore();
     const testAttributionId = 'test';
     testStore.dispatch(
-      openPopup(PopupType.EditAttributionPopup, testAttributionId)
+      openPopup(PopupType.EditAttributionPopup, testAttributionId),
     );
     expect(getPopupAttributionId(testStore.getState())).toEqual(
-      testAttributionId
+      testAttributionId,
     );
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.EditAttributionPopup
+      PopupType.EditAttributionPopup,
     );
 
     testStore.dispatch(openPopup(PopupType.PackageSearchPopup));
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.PackageSearchPopup
+      PopupType.PackageSearchPopup,
     );
 
     testStore.dispatch(closePopup());
     expect(getPopupAttributionId(testStore.getState())).toEqual(
-      testAttributionId
+      testAttributionId,
     );
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.EditAttributionPopup
+      PopupType.EditAttributionPopup,
     );
 
     testStore.dispatch(closePopup());

@@ -7,7 +7,7 @@ import { handleOpeningFile } from './listeners';
 import { BrowserWindow } from 'electron';
 
 export async function openFileFromCliIfProvided(
-  mainWindow: BrowserWindow
+  mainWindow: BrowserWindow,
 ): Promise<void> {
   let inputFileName: string | null = null;
   for (const arg of process.argv) {

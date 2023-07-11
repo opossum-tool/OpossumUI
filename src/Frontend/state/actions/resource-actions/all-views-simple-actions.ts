@@ -7,9 +7,9 @@ import {
   Attributions,
   AttributionsToHashes,
   BaseUrlsForSources,
+  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
-  DisplayPackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -52,7 +52,7 @@ export function setResources(resources: Resources | null): SetResourcesAction {
 
 export function setManualData(
   attributions: Attributions,
-  resourcesToAttributions: ResourcesToAttributions
+  resourcesToAttributions: ResourcesToAttributions,
 ): SetManualDataAction {
   return {
     type: ACTION_SET_MANUAL_ATTRIBUTION_DATA,
@@ -65,7 +65,7 @@ export function setManualData(
 
 export function setExternalData(
   attributions: Attributions,
-  resourcesToAttributions: ResourcesToAttributions
+  resourcesToAttributions: ResourcesToAttributions,
 ): SetExternalDataAction {
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
@@ -77,19 +77,19 @@ export function setExternalData(
 }
 
 export function setFrequentLicenses(
-  licenses: FrequentLicenses
+  licenses: FrequentLicenses,
 ): SetFrequentLicensesAction {
   return { type: ACTION_SET_FREQUENT_LICENSES, payload: licenses };
 }
 
 export function setTemporaryDisplayPackageInfo(
-  packageInfo: DisplayPackageInfo
+  packageInfo: DisplayPackageInfo,
 ): SetTemporaryDisplayPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
 }
 
 export function setAttributionBreakpoints(
-  attributionBreakpoints: Set<string>
+  attributionBreakpoints: Set<string>,
 ): SetAttributionBreakpoints {
   return {
     type: ACTION_SET_ATTRIBUTION_BREAKPOINTS,
@@ -98,7 +98,7 @@ export function setAttributionBreakpoints(
 }
 
 export function setFilesWithChildren(
-  filesWithChildren: Set<string>
+  filesWithChildren: Set<string>,
 ): SetFilesWithChildren {
   return {
     type: ACTION_SET_FILES_WITH_CHILDREN,
@@ -107,7 +107,7 @@ export function setFilesWithChildren(
 }
 
 export function setProjectMetadata(
-  metadata: ProjectMetadata
+  metadata: ProjectMetadata,
 ): SetProjectMetadata {
   return {
     type: ACTION_SET_PROJECT_METADATA,
@@ -116,7 +116,7 @@ export function setProjectMetadata(
 }
 
 export function setBaseUrlsForSources(
-  baseUrlsForSources: BaseUrlsForSources
+  baseUrlsForSources: BaseUrlsForSources,
 ): SetBaseUrlsForSources {
   return {
     type: ACTION_SET_BASE_URLS_FOR_SOURCES,
@@ -125,7 +125,7 @@ export function setBaseUrlsForSources(
 }
 
 export function setExternalAttributionSources(
-  externalAttributionSources: ExternalAttributionSources
+  externalAttributionSources: ExternalAttributionSources,
 ): SetExternalAttributionSources {
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
@@ -134,7 +134,7 @@ export function setExternalAttributionSources(
 }
 
 export function setExternalAttributionsToHashes(
-  externalAttributionsToHashes: AttributionsToHashes
+  externalAttributionsToHashes: AttributionsToHashes,
 ): SetExternalAttributionsToHashes {
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,

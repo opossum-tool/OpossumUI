@@ -9,15 +9,15 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import { Resources } from '../../../shared/shared-types';
 import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import {
-  treeClasses,
   TREE_ROOT_FOLDER_LABEL,
   TREE_ROW_HEIGHT,
+  treeClasses,
 } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { useAppSelector, useAppDispatch } from '../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getFilesWithChildren,
   getAttributionBreakpoints,
+  getFilesWithChildren,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
@@ -55,7 +55,7 @@ export function ResourcesTree(props: ResourcesTreeProps): ReactElement {
     let newExpandedNodeIds = [...expandedIds];
     if (expandedIds.includes(nodeIdsToExpand[0])) {
       remove(newExpandedNodeIds, (nodeId: string): boolean =>
-        nodeId.startsWith(nodeIdsToExpand[0])
+        nodeId.startsWith(nodeIdsToExpand[0]),
       );
     } else {
       newExpandedNodeIds = newExpandedNodeIds.concat(nodeIdsToExpand);
@@ -65,7 +65,7 @@ export function ResourcesTree(props: ResourcesTreeProps): ReactElement {
 
   function handleSelect(
     event: React.ChangeEvent<unknown>,
-    nodeId: string
+    nodeId: string,
   ): void {
     dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId));
   }
@@ -74,14 +74,14 @@ export function ResourcesTree(props: ResourcesTreeProps): ReactElement {
     return (
       resourceName: string,
       resource: Resources | 1,
-      nodeId: string
+      nodeId: string,
     ): ReactElement =>
       getGeneralTreeItemLabel(
         resourceName,
         resource,
         nodeId,
         getAttributionBreakpointCheck(attributionBreakpoints),
-        getFileWithChildrenCheck(filesWithChildren)
+        getFileWithChildrenCheck(filesWithChildren),
       );
   }
 

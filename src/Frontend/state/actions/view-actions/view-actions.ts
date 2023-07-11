@@ -48,10 +48,10 @@ export function navigateToView(view: View): AppThunkAction {
       (view === View.Audit
         ? getDisplayPackageInfoOfDisplayedPackage(getState())
         : getDisplayPackageInfoOfSelectedAttributionInAttributionView(
-            getState()
+            getState(),
           )) || EMPTY_DISPLAY_PACKAGE_INFO;
     dispatch(
-      setTemporaryDisplayPackageInfo(updatedTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(updatedTemporaryDisplayPackageInfo),
     );
   };
 }
@@ -72,7 +72,7 @@ export function setTargetView(targetView: View | null): SetTargetView {
 
 export function openPopup(
   popup: PopupType,
-  attributionId?: string
+  attributionId?: string,
 ): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
@@ -88,7 +88,7 @@ export function closePopup(): ClosePopupAction {
 }
 
 export function updateActiveFilters(
-  filterType: FilterType
+  filterType: FilterType,
 ): UpdateActiveFilters {
   return {
     type: ACTION_UPDATE_ACTIVE_FILTERS,

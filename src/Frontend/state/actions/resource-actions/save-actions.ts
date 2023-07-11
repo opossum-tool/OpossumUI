@@ -58,7 +58,7 @@ import { getMultiSelectSelectedAttributionIds } from '../../selectors/attributio
 import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
 
 export function setIsSavingDisabled(
-  isSavingDisabled: boolean
+  isSavingDisabled: boolean,
 ): SetIsSavingDisabled {
   return {
     type: ACTION_SET_IS_SAVING_DISABLED,
@@ -69,7 +69,7 @@ export function setIsSavingDisabled(
 export function savePackageInfoIfSavingIsNotDisabled(
   resourceId: string | null,
   attributionId: string | null,
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (getIsSavingDisabled(getState())) {
@@ -84,11 +84,11 @@ export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
   packageInfo: PackageInfo,
-  applyContextMenuActionOnDifferentAttribution?: boolean
+  applyContextMenuActionOnDifferentAttribution?: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const strippedPackageInfo: PackageInfo = getStrippedPackageInfo(
-      getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(packageInfo)
+      getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(packageInfo),
     );
     const state = getState();
 
@@ -103,7 +103,7 @@ export function savePackageInfo(
       attributionId,
       resourceId,
       strippedPackageInfo,
-      state
+      state,
     );
 
     switch (saveOperation) {
@@ -111,8 +111,8 @@ export function savePackageInfo(
         dispatch(
           createAttributionForSelectedResource(
             strippedPackageInfo,
-            !applyContextMenuActionOnDifferentAttribution
-          )
+            !applyContextMenuActionOnDifferentAttribution,
+          ),
         );
         break;
       case SavePackageInfoOperation.Update:
@@ -121,8 +121,8 @@ export function savePackageInfo(
             updateAttribution(
               attributionId,
               strippedPackageInfo,
-              !applyContextMenuActionOnDifferentAttribution
-            )
+              !applyContextMenuActionOnDifferentAttribution,
+            ),
           );
         break;
       case SavePackageInfoOperation.Delete:
@@ -134,8 +134,8 @@ export function savePackageInfo(
             replaceAttributionWithMatchingAttribution(
               attributionId,
               strippedPackageInfo,
-              !applyContextMenuActionOnDifferentAttribution
-            )
+              !applyContextMenuActionOnDifferentAttribution,
+            ),
           );
         break;
       case SavePackageInfoOperation.Link:
@@ -150,8 +150,8 @@ export function savePackageInfo(
     }
     dispatch(
       filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
-        attributionId
-      )
+        attributionId,
+      ),
     );
 
     dispatch(saveManualAndResolvedAttributionsToFile());
@@ -162,7 +162,7 @@ function getSavePackageInfoOperation(
   attributionId: string | null,
   resourceId: string | null,
   strippedPackageInfo: PackageInfo,
-  state: State
+  state: State,
 ): SavePackageInfoOperation {
   if (packageInfoHasNoSignificantFields(strippedPackageInfo)) {
     return SavePackageInfoOperation.Delete;
@@ -199,7 +199,7 @@ export function unlinkAttributionAndSavePackageInfo(
   resourceId: string,
   attributionId: string,
   packageInfo: PackageInfo,
-  selectedAttributionId?: string
+  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
@@ -216,14 +216,14 @@ export function unlinkAttributionAndSavePackageInfo(
         packageInfo,
         selectedAttributionId
           ? attributionId !== selectedAttributionId
-          : undefined
-      )
+          : undefined,
+      ),
     );
   };
 }
 
 export function addToSelectedResource(
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryDisplayPackageInfoModified(getState())) {
@@ -233,8 +233,8 @@ export function addToSelectedResource(
         savePackageInfo(
           getSelectedResourceId(getState()),
           null,
-          getPackageInfoWithDefaultConfidence(packageInfo)
-        )
+          getPackageInfoWithDefaultConfidence(packageInfo),
+        ),
       );
     }
   };
@@ -242,7 +242,7 @@ export function addToSelectedResource(
 
 export function deleteAttributionGloballyAndSave(
   attributionId: string,
-  selectedAttributionId?: string
+  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     dispatch(
@@ -252,8 +252,8 @@ export function deleteAttributionGloballyAndSave(
         {},
         selectedAttributionId
           ? attributionId !== selectedAttributionId
-          : undefined
-      )
+          : undefined,
+      ),
     );
   };
 }
@@ -261,7 +261,7 @@ export function deleteAttributionGloballyAndSave(
 export function deleteAttributionAndSave(
   resourceId: string,
   attributionId: string,
-  selectedAttributionId?: string
+  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsToResources: AttributionsToResources =
@@ -272,19 +272,19 @@ export function deleteAttributionAndSave(
         unlinkResourceFromAttributionAndSave(
           resourceId,
           attributionId,
-          selectedAttributionId
-        )
+          selectedAttributionId,
+        ),
       );
     } else {
       dispatch(
-        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId)
+        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId),
       );
     }
   };
 }
 
 function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
-  attributionId: string | null
+  attributionId: string | null,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const multiSelectSelectedAttributionIds =
@@ -297,8 +297,10 @@ function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
     ) {
       dispatch(
         setMultiSelectSelectedAttributionIds(
-          multiSelectSelectedAttributionIds.filter((id) => id !== attributionId)
-        )
+          multiSelectSelectedAttributionIds.filter(
+            (id) => id !== attributionId,
+          ),
+        ),
       );
     }
   };
@@ -307,7 +309,7 @@ function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
 function unlinkResourceFromAttributionAndSave(
   resourceId: string,
   attributionId: string,
-  selectedAttributionId?: string
+  selectedAttributionId?: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch): void => {
     const differentAttributionIsDeleted = selectedAttributionId
@@ -325,18 +327,18 @@ function unlinkResourceFromAttributionAndSave(
 }
 
 function unlinkAttribtionsIfParentAttributionsAreIdentical(
-  resourceId: string
+  resourceId: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const attributionsIdsForResource = getAttributionIdsOfSelectedResource(
-      getState()
+      getState(),
     );
     const attributionIdsForClosestParent =
       getAttributionIdsOfSelectedResourceClosestParent(getState());
     if (
       isEqual(
         sortBy(attributionsIdsForResource),
-        sortBy(attributionIdsForClosestParent)
+        sortBy(attributionIdsForClosestParent),
       )
     ) {
       attributionIdsForClosestParent.forEach((attributionId) => {
@@ -348,7 +350,7 @@ function unlinkAttribtionsIfParentAttributionsAreIdentical(
 
 function createAttributionForSelectedResource(
   strippedPackageInfo: PackageInfo,
-  jumpToCreatedAttribution = true
+  jumpToCreatedAttribution = true,
 ): CreateAttributionForSelectedResource {
   return {
     type: ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
@@ -359,7 +361,7 @@ function createAttributionForSelectedResource(
 function updateAttribution(
   attributionId: string,
   strippedPackageInfo: PackageInfo,
-  jumpToUpdatedAttribution = true
+  jumpToUpdatedAttribution = true,
 ): UpdateAttribution {
   return {
     type: ACTION_UPDATE_ATTRIBUTION,
@@ -377,7 +379,7 @@ function deleteAttribution(attributionIdToDelete: string): DeleteAttribution {
 function replaceAttributionWithMatchingAttribution(
   attributionId: string,
   strippedPackageInfo: PackageInfo,
-  jumpToMatchingAttribution = true
+  jumpToMatchingAttribution = true,
 ): ReplaceAttributionWithMatchingAttributionAction {
   return {
     type: ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
@@ -387,7 +389,7 @@ function replaceAttributionWithMatchingAttribution(
 
 function linkToAttribution(
   resourceId: string,
-  strippedPackageInfo: PackageInfo
+  strippedPackageInfo: PackageInfo,
 ): LinkToAttributionAction {
   return {
     type: ACTION_LINK_TO_ATTRIBUTION,
@@ -397,7 +399,7 @@ function linkToAttribution(
 
 function unlinkResourceFromAttribution(
   resourceId: string,
-  attributionId: string
+  attributionId: string,
 ): UnlinkResourceFromAttributionAction {
   return {
     type: ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
@@ -406,7 +408,7 @@ function unlinkResourceFromAttribution(
 }
 
 function getPackageInfoWithDefaultConfidence(
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
 ): PackageInfo {
   return isEmpty(packageInfo)
     ? packageInfo
@@ -417,7 +419,7 @@ function getPackageInfoWithDefaultConfidence(
 }
 
 function getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(
-  packageInfo: PackageInfo
+  packageInfo: PackageInfo,
 ): PackageInfo {
   return packageInfo.attributionConfidence &&
     [

@@ -54,8 +54,8 @@ describe('The Attribution Counts Panel', () => {
           resources: { ['test resource']: 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     act(() => {
       store.dispatch(navigateToView(View.Attribution));
@@ -63,7 +63,7 @@ describe('The Attribution Counts Panel', () => {
     expect(
       screen.getByText(/Attributions \(2 total, 0, 1, 0, 1, 1\)/, {
         exact: true,
-      })
+      }),
     );
   });
 });

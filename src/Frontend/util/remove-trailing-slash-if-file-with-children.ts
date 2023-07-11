@@ -7,7 +7,7 @@ import { PathPredicate } from '../types/types';
 
 export function removeTrailingSlashIfFileWithChildren(
   path: string,
-  isFileWithChildren: PathPredicate
+  isFileWithChildren: PathPredicate,
 ): string {
   return isFileWithChildren(path) ? path.replace(/\/$/, '') : path;
 }

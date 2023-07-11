@@ -64,12 +64,12 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
@@ -78,45 +78,47 @@ describe('The AttributionColumn', () => {
       screen.getByDisplayValue(
         (
           testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
-        ).toString()
-      )
+        ).toString(),
+      ),
     );
     expect(screen.queryAllByText('Name')).toHaveLength(2);
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string
-      )
+        testTemporaryDisplayPackageInfo.packageName as string,
+      ),
     );
     expect(screen.queryAllByText('Version')).toHaveLength(2);
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageVersion as string
-      )
+        testTemporaryDisplayPackageInfo.packageVersion as string,
+      ),
     );
     expect(
-      screen.queryByText('(Defined in parent folder)')
+      screen.queryByText('(Defined in parent folder)'),
     ).not.toBeInTheDocument();
     expect(screen.queryByText('Override parent')).not.toBeInTheDocument();
     expect(screen.queryByText('Source')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Copyright'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.copyright as string
-      )
+        testTemporaryDisplayPackageInfo.copyright as string,
+      ),
     );
     expect(screen.getByLabelText('License Name'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.licenseName as string
-      )
+        testTemporaryDisplayPackageInfo.licenseName as string,
+      ),
     );
     expect(screen.getByLabelText('URL'));
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url as string)
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url as string),
     );
     expect(screen.getByLabelText(/License Text/));
     expect(
-      screen.getByDisplayValue('Permission is hereby granted', { exact: false })
+      screen.getByDisplayValue('Permission is hereby granted', {
+        exact: false,
+      }),
     );
     expect(screen.getByLabelText('Comment'));
     const testComment = testTemporaryDisplayPackageInfo.comments
@@ -125,7 +127,7 @@ describe('The AttributionColumn', () => {
     expect(screen.getByDisplayValue(testComment));
     expect(screen.queryAllByText('PURL')).toHaveLength(2);
     expect(
-      screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix')
+      screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix'),
     );
   });
 
@@ -155,25 +157,25 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     insertValueIntoTextBox(
       screen,
       'PURL',
-      'pkg:type/namespace/jQuery@16.5.0?appendix&#test'
+      'pkg:type/namespace/jQuery@16.5.0?appendix&#test',
     );
     clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(
       screen,
       'PURL',
-      'pkg:type/namespace/jQuery@16.5.0?appendix=#test'
+      'pkg:type/namespace/jQuery@16.5.0?appendix=#test',
     );
   });
 
@@ -203,25 +205,25 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     insertValueIntoTextBox(
       screen,
       'PURL',
-      'pkg:type/namespace/jQuery@16.5.0?test=appendix&appendix=test#test'
+      'pkg:type/namespace/jQuery@16.5.0?test=appendix&appendix=test#test',
     );
     clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(
       screen,
       'PURL',
-      'pkg:type/namespace/jQuery@16.5.0?appendix=test&test=appendix#test'
+      'pkg:type/namespace/jQuery@16.5.0?appendix=test&test=appendix#test',
     );
   });
 
@@ -251,12 +253,12 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
@@ -281,19 +283,19 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(
       screen.getByDisplayValue(
-        (testTemporaryDisplayPackageInfo.source as Source).name
-      )
+        (testTemporaryDisplayPackageInfo.source as Source).name,
+      ),
     );
   });
 
@@ -313,21 +315,21 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(
-      getTemporaryDisplayPackageInfo(store.getState()).followUp
+      getTemporaryDisplayPackageInfo(store.getState()).followUp,
     ).toBeUndefined();
 
     clickOnCheckbox(screen, CheckboxLabel.FollowUp);
     expect(getTemporaryDisplayPackageInfo(store.getState()).followUp).toBe(
-      FollowUp
+      FollowUp,
     );
   });
 
@@ -347,21 +349,21 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(
-      getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice
+      getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice,
     ).toBeUndefined();
 
     clickOnCheckbox(screen, CheckboxLabel.ExcludeFromNotice);
     expect(
-      getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice
+      getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice,
     ).toBe(true);
   });
 
@@ -381,21 +383,21 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(
-      getTemporaryDisplayPackageInfo(store.getState()).needsReview
+      getTemporaryDisplayPackageInfo(store.getState()).needsReview,
     ).toBeUndefined();
 
     clickOnCheckbox(screen, CheckboxLabel.NeedsReview);
     expect(getTemporaryDisplayPackageInfo(store.getState()).needsReview).toBe(
-      true
+      true,
     );
   });
 
@@ -415,18 +417,18 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(screen.getByLabelText('Url icon'));
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      testTemporaryDisplayPackageInfo.url
+      testTemporaryDisplayPackageInfo.url,
     );
   });
 
@@ -446,17 +448,17 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      'https://' + testTemporaryDisplayPackageInfo.url
+      'https://' + testTemporaryDisplayPackageInfo.url,
     );
   });
 
@@ -476,11 +478,11 @@ describe('The AttributionColumn', () => {
         saveFileRequestListener={doNothing}
         onDeleteButtonClick={doNothing}
         onDeleteGloballyButtonClick={doNothing}
-      />
+      />,
     );
     act(() => {
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
@@ -508,18 +510,18 @@ describe('The AttributionColumn', () => {
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
           onDeleteGloballyButtonClick={doNothing}
-        />
+        />,
       );
       act(() => {
         store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
         );
       });
 
       expect(
         screen.getByLabelText(
-          'License Text (to appear in attribution document)'
-        )
+          'License Text (to appear in attribution document)',
+        ),
       );
     });
 
@@ -542,11 +544,11 @@ describe('The AttributionColumn', () => {
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
           onDeleteGloballyButtonClick={doNothing}
-        />
+        />,
       );
       act(() => {
         store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
         );
       });
       const testFrequentLicenses: FrequentLicenses = {
@@ -579,11 +581,11 @@ describe('The AttributionColumn', () => {
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
           onDeleteGloballyButtonClick={doNothing}
-        />
+        />,
       );
       act(() => {
         store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
         );
       });
       const testFrequentLicenses: FrequentLicenses = {
@@ -596,8 +598,8 @@ describe('The AttributionColumn', () => {
 
       expect(
         screen.getByLabelText(
-          'Standard license text implied. Insert notice text if necessary.'
-        )
+          'Standard license text implied. Insert notice text if necessary.',
+        ),
       );
     });
   });
@@ -619,21 +621,21 @@ describe('The AttributionColumn', () => {
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
           onDeleteGloballyButtonClick={doNothing}
-        />
+        />,
       );
       act(() => {
         store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
         );
       });
 
       expect(
-        getTemporaryDisplayPackageInfo(store.getState()).copyright
+        getTemporaryDisplayPackageInfo(store.getState()).copyright,
       ).toBeUndefined();
 
       clickOnCheckbox(screen, CheckboxLabel.FirstParty);
       expect(getTemporaryDisplayPackageInfo(store.getState()).firstParty).toBe(
-        true
+        true,
       );
     });
 
@@ -657,21 +659,21 @@ describe('The AttributionColumn', () => {
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
           onDeleteGloballyButtonClick={doNothing}
-        />
+        />,
       );
       act(() => {
         store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
         );
       });
 
       expect(getTemporaryDisplayPackageInfo(store.getState()).copyright).toBe(
-        testCopyright
+        testCopyright,
       );
 
       clickOnCheckbox(screen, CheckboxLabel.FirstParty);
       expect(getTemporaryDisplayPackageInfo(store.getState()).copyright).toBe(
-        testCopyright
+        testCopyright,
       );
     });
   });
@@ -699,18 +701,18 @@ describe('The AttributionColumn', () => {
           saveFileRequestListener={doNothing}
           onDeleteButtonClick={doNothing}
           onDeleteGloballyButtonClick={doNothing}
-        />
+        />,
       );
       act(() => {
         store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
         );
       });
 
       clickOnButton(screen, 'resolve attribution');
       expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-        expectedSaveFileArgs
+        expectedSaveFileArgs,
       );
     });
   });

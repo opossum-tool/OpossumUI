@@ -41,7 +41,7 @@ describe('ListWithAttributes', () => {
         showChipsForAttributes={true}
         showAddNewListItem={false}
         title={testListTitle}
-      />
+      />,
     );
 
     expect(screen.getByText(testListTitle)).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('ListWithAttributes', () => {
         showChipsForAttributes={false}
         showAddNewListItem={true}
         title={testListTitle}
-      />
+      />,
     );
 
     expect(screen.queryAllByText('Add new item')).toHaveLength(2);

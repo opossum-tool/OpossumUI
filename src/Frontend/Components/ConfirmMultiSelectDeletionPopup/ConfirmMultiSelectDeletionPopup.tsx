@@ -12,7 +12,7 @@ import { getCurrentAttributionId } from '../../state/selectors/all-views-resourc
 
 export function ConfirmMultiSelectDeletionPopup(): ReactElement {
   const multiSelectSelectedAttributionIds = useAppSelector(
-    getMultiSelectSelectedAttributionIds
+    getMultiSelectSelectedAttributionIds,
   );
 
   const dispatch = useAppDispatch();
@@ -23,7 +23,7 @@ export function ConfirmMultiSelectDeletionPopup(): ReactElement {
   function deleteMultiSelectSelectedAttributionIds(): void {
     multiSelectSelectedAttributionIds.forEach((attributionId) => {
       dispatch(
-        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId)
+        deleteAttributionGloballyAndSave(attributionId, selectedAttributionId),
       );
     });
   }

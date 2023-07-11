@@ -18,7 +18,7 @@ interface FileSearchTextFieldProps {
 }
 
 export function FileSearchTextField(
-  props: FileSearchTextFieldProps
+  props: FileSearchTextFieldProps,
 ): ReactElement {
   const dispatch = useAppDispatch();
   const search = useAppSelector(getFileSearch);
@@ -30,7 +30,7 @@ export function FileSearchTextField(
   }, [resources]);
 
   const filterPathsDebounced = useRef(
-    debounce((value: string) => filterPaths(value), debounceWaitTimeInMs)
+    debounce((value: string) => filterPaths(value), debounceWaitTimeInMs),
   ).current;
 
   useEffect(() => {

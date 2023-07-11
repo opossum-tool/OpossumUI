@@ -7,7 +7,7 @@ import { ResourcesWithAttributedChildren } from '../../shared/shared-types';
 
 export function getAttributedChildren(
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren,
-  resourceId: string
+  resourceId: string,
 ): Set<string> {
   const resourceIndex: number | undefined =
     resourcesWithAttributedChildren?.pathsToIndices[resourceId];
@@ -19,8 +19,8 @@ export function getAttributedChildren(
   resourcesWithAttributedChildren.attributedChildren[resourceIndex]?.forEach(
     (resourceIndex) =>
       attributedChildrenIds.add(
-        resourcesWithAttributedChildren.paths[resourceIndex]
-      )
+        resourcesWithAttributedChildren.paths[resourceIndex],
+      ),
   );
 
   return attributedChildrenIds;

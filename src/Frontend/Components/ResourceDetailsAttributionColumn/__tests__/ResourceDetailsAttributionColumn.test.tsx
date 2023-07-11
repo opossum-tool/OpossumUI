@@ -42,7 +42,7 @@ const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
 function getTestTemporaryAndExternalStateWithParentAttribution(
   store: EnhancedTestStore,
   selectedResourceId: string,
-  temporaryDisplayPackageInfo: DisplayPackageInfo
+  temporaryDisplayPackageInfo: DisplayPackageInfo,
 ): void {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryDisplayPackageInfo,
@@ -58,11 +58,11 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
         getParsedInputFileEnrichedWithTestData({
           manualAttributions,
           resourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     store.dispatch(
-      setManualData(manualAttributions, resourcesToManualAttributions)
+      setManualData(manualAttributions, resourcesToManualAttributions),
     );
     store.dispatch(setSelectedResourceId(selectedResourceId));
     store.dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
@@ -81,12 +81,12 @@ describe('The ResourceDetailsAttributionColumn', () => {
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
-      <ResourceDetailsAttributionColumn showParentAttributions={true} />
+      <ResourceDetailsAttributionColumn showParentAttributions={true} />,
     );
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
@@ -95,8 +95,8 @@ describe('The ResourceDetailsAttributionColumn', () => {
       screen.getByDisplayValue(
         (
           testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
-        ).toString()
-      )
+        ).toString(),
+      ),
     );
     expect(screen.queryAllByText('Comment'));
     const testComment =
@@ -107,37 +107,39 @@ describe('The ResourceDetailsAttributionColumn', () => {
     expect(screen.queryAllByText('Name'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string
-      )
+        testTemporaryDisplayPackageInfo.packageName as string,
+      ),
     );
     expect(screen.queryAllByText('Version'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageVersion as string
-      )
+        testTemporaryDisplayPackageInfo.packageVersion as string,
+      ),
     );
     expect(screen.queryAllByText('Copyright'));
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.copyright as string
-      )
+        testTemporaryDisplayPackageInfo.copyright as string,
+      ),
     );
     expect(
-      screen.queryAllByText('License Text (to appear in attribution document)')
+      screen.queryAllByText('License Text (to appear in attribution document)'),
     );
     expect(
-      screen.getByDisplayValue('Permission is hereby granted', { exact: false })
+      screen.getByDisplayValue('Permission is hereby granted', {
+        exact: false,
+      }),
     );
   });
 
   it('shows parent attribution if overrideParentMode is true', () => {
     const { store } = renderComponentWithStore(
-      <ResourceDetailsAttributionColumn showParentAttributions={true} />
+      <ResourceDetailsAttributionColumn showParentAttributions={true} />,
     );
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
 
     expect(screen.getByDisplayValue('React'));
@@ -147,12 +149,12 @@ describe('The ResourceDetailsAttributionColumn', () => {
 
   it('does not show parent attribution if overrideParentMode is false', () => {
     const { store } = renderComponentWithStore(
-      <ResourceDetailsAttributionColumn showParentAttributions={false} />
+      <ResourceDetailsAttributionColumn showParentAttributions={false} />,
     );
     getTestTemporaryAndExternalStateWithParentAttribution(
       store,
       '/test_parent/test_child',
-      testTemporaryDisplayPackageInfo2
+      testTemporaryDisplayPackageInfo2,
     );
 
     expect(screen.queryByText('React')).not.toBeInTheDocument();

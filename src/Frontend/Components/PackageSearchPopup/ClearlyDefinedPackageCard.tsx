@@ -46,7 +46,7 @@ const classes = {
 };
 
 export function ClearlyDefinedPackageCard(
-  props: ClearlyDefinedPackageCardProps
+  props: ClearlyDefinedPackageCardProps,
 ): ReactElement {
   const dispatch = useAppDispatch();
 
@@ -54,7 +54,7 @@ export function ClearlyDefinedPackageCard(
   const { isLoading, data, isError, error } = useQuery(
     ['clearlyDefinedDefinition', props.coordinate],
     () => fetchFromClearlyDefined(props.coordinate),
-    { refetchOnWindowFocus: false }
+    { refetchOnWindowFocus: false },
   );
 
   function handleExpansion(): void {
@@ -117,8 +117,8 @@ export function ClearlyDefinedPackageCard(
               onClick={(): void => {
                 dispatch(
                   setTemporaryDisplayPackageInfo(
-                    data ?? EMPTY_DISPLAY_PACKAGE_INFO
-                  )
+                    data ?? EMPTY_DISPLAY_PACKAGE_INFO,
+                  ),
                 );
                 dispatch(closePopup());
               }}

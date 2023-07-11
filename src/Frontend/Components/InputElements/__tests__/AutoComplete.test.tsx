@@ -20,10 +20,10 @@ describe('The AutoComplete', () => {
         showTextBold={false}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
-      />
+      />,
     );
 
     expect(screen.queryAllByText('Test Title')).toHaveLength(2);
@@ -41,11 +41,11 @@ describe('The AutoComplete', () => {
         showTextBold={false}
         handleChange={
           doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
           ) => void
         }
         endAdornmentText={'Adornment Text'}
-      />
+      />,
     );
 
     screen.getByText('Adornment Text');

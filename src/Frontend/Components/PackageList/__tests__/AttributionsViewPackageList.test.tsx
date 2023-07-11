@@ -46,7 +46,7 @@ describe('The AttributionsViewPackageList', () => {
           <div>{packageCardId}</div>
         )}
         max={{ numberOfDisplayedItems: 20 }}
-      />
+      />,
     );
     screen.getByText(testSortedPackageCardIds[0]);
     screen.getByText(testSortedPackageCardIds[1]);
@@ -57,10 +57,10 @@ describe('The AttributionsViewPackageList', () => {
     });
     screen.getByText(testSortedPackageCardIds[0]);
     expect(
-      screen.queryByText(testSortedPackageCardIds[1])
+      screen.queryByText(testSortedPackageCardIds[1]),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(testSortedPackageCardIds[2])
+      screen.queryByText(testSortedPackageCardIds[2]),
     ).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
@@ -69,18 +69,18 @@ describe('The AttributionsViewPackageList', () => {
     screen.getByText(testSortedPackageCardIds[0]);
     screen.getByText(testSortedPackageCardIds[1]);
     expect(
-      screen.queryByText(testSortedPackageCardIds[2])
+      screen.queryByText(testSortedPackageCardIds[2]),
     ).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: '(C)' },
     });
     expect(
-      screen.queryByText(testSortedPackageCardIds[0])
+      screen.queryByText(testSortedPackageCardIds[0]),
     ).not.toBeInTheDocument();
     screen.getByText(testSortedPackageCardIds[1]);
     expect(
-      screen.queryByText(testSortedPackageCardIds[2])
+      screen.queryByText(testSortedPackageCardIds[2]),
     ).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
@@ -89,20 +89,20 @@ describe('The AttributionsViewPackageList', () => {
     screen.getByText(testSortedPackageCardIds[0]);
     screen.getByText(testSortedPackageCardIds[1]);
     expect(
-      screen.queryByText(testSortedPackageCardIds[2])
+      screen.queryByText(testSortedPackageCardIds[2]),
     ).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'comment' },
     });
     expect(
-      screen.queryByText(testSortedPackageCardIds[0])
+      screen.queryByText(testSortedPackageCardIds[0]),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(testSortedPackageCardIds[1])
+      screen.queryByText(testSortedPackageCardIds[1]),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(testSortedPackageCardIds[2])
+      screen.queryByText(testSortedPackageCardIds[2]),
     ).not.toBeInTheDocument();
   });
 });

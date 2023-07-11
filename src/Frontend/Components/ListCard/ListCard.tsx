@@ -254,7 +254,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
 
 function getSx(
   cardConfig: ListCardConfig,
-  highlighting?: HighlightingColor
+  highlighting?: HighlightingColor,
 ): SxProps {
   let sxProps: SxProps = { ...classes.root };
 
@@ -297,7 +297,7 @@ function getSx(
       if (highlighting) {
         sxProps = merge(
           sxProps,
-          getHighlightedListCardStyle(highlighting, true)
+          getHighlightedListCardStyle(highlighting, true),
         );
       } else {
         sxProps = merge(sxProps, classes.selected);
@@ -312,7 +312,7 @@ function getSx(
 
 function getHighlightedListCardStyle(
   color: HighlightingColor,
-  selected: boolean
+  selected: boolean,
 ): SxProps {
   const highlightColor =
     color === HighlightingColor.LightOrange
@@ -334,7 +334,7 @@ function getHighlightedListCardStyle(
     backgroundColor,
     highlightColorOnHover,
     backgroundColorOnHover,
-    packageBorder
+    packageBorder,
   );
 }
 
@@ -343,7 +343,7 @@ function getHighlightedStyleClass(
   backgroundColor: string,
   highlightColorOnHover: string,
   backgroundColorOnHover: string,
-  border: string
+  border: string,
 ): SxProps {
   return {
     border,
@@ -351,7 +351,7 @@ function getHighlightedStyleClass(
     '&:hover': {
       background: getHighlightedBackground(
         highlightColorOnHover,
-        backgroundColorOnHover
+        backgroundColorOnHover,
       ),
     },
   };
@@ -359,7 +359,7 @@ function getHighlightedStyleClass(
 
 function getHighlightedBackground(
   highlightColor: string,
-  backgroundColor: string
+  backgroundColor: string,
 ): string {
   return (
     'linear-gradient(225deg, ' +

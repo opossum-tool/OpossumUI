@@ -78,7 +78,7 @@ describe('The AllAttributionsPanel', () => {
         displayPackageInfos={{}}
         selectedPackageCardId={null}
         isAddToPackageEnabled={true}
-      />
+      />,
     );
   });
 
@@ -103,8 +103,8 @@ describe('The AllAttributionsPanel', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           manualAttributions: testAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <AllAttributionsPanel
@@ -112,7 +112,7 @@ describe('The AllAttributionsPanel', () => {
         selectedPackageCardId={null}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore }
+      { store: testStore },
     );
     screen.getByText('name 1');
     screen.getByText('name 2');
@@ -124,8 +124,8 @@ describe('The AllAttributionsPanel', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           manualAttributions: testManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     const { store } = renderComponentWithStore(
       <AllAttributionsPanel
@@ -133,7 +133,7 @@ describe('The AllAttributionsPanel', () => {
         selectedPackageCardId={testManualAttributionUuid2}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
@@ -198,8 +198,8 @@ describe('The AllAttributionsPanel', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     renderComponentWithStore(
       <AllAttributionsPanel
@@ -207,35 +207,35 @@ describe('The AllAttributionsPanel', () => {
         selectedPackageCardId={null}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore }
+      { store: testStore },
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     testCorrectMarkAndUnmarkForReplacementInContextMenu(
       screen,
-      'jQuery, 16.0.0'
+      'jQuery, 16.0.0',
     );
 
     clickOnButtonInPackageContextMenu(
       screen,
       'jQuery, 16.0.0',
-      ButtonText.MarkForReplacement
+      ButtonText.MarkForReplacement,
     );
 
     expectButtonInPackageContextMenu(
       screen,
       'Vue, 16.0.0',
-      ButtonText.ReplaceMarked
+      ButtonText.ReplaceMarked,
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
       'React, 16.0.0',
-      true
+      true,
     );
   });
 });

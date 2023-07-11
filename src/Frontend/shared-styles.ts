@@ -127,7 +127,7 @@ export const treeClasses = {
     };
   },
   treeContainer: (
-    verticalSpaceBetweenTreeAndViewportEdges: number
+    verticalSpaceBetweenTreeAndViewportEdges: number,
   ): SxProps => {
     return {
       overflow: 'hidden',
@@ -137,7 +137,7 @@ export const treeClasses = {
   tree: (
     treeLocation: 'attributionView' | 'popup' | 'browser',
     horizontalSpaceBetweenTreeAndViewportEdges?: number,
-    popupContentPadding?: number
+    popupContentPadding?: number,
   ): SxProps => {
     switch (treeLocation) {
       case 'attributionView': {
@@ -168,7 +168,7 @@ export const treeClasses = {
           };
         } else {
           throw Error(
-            "horizontalSpaceBetweenTreeAndViewportEdges and popupContentPadding have to be provided if treeLocation='popup'"
+            "horizontalSpaceBetweenTreeAndViewportEdges and popupContentPadding have to be provided if treeLocation='popup'",
           );
         }
       }

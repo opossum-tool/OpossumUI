@@ -15,7 +15,7 @@ import {
 } from './types';
 
 export function setSelectedAttributionId(
-  selectedAttributionId: string
+  selectedAttributionId: string,
 ): SetSelectedAttributionId {
   return {
     type: ACTION_SET_SELECTED_ATTRIBUTION_ID,
@@ -24,7 +24,7 @@ export function setSelectedAttributionId(
 }
 
 export function setTargetSelectedAttributionId(
-  targetSelectedAttributionId: string | null
+  targetSelectedAttributionId: string | null,
 ): SetTargetSelectedAttributionIdAction {
   return {
     type: ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
@@ -33,7 +33,7 @@ export function setTargetSelectedAttributionId(
 }
 
 export function setAttributionIdMarkedForReplacement(
-  attributionIdMarkedForReplacement: string
+  attributionIdMarkedForReplacement: string,
 ): SetAttributionIdMarkedForReplacement {
   return {
     type: ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
@@ -42,7 +42,7 @@ export function setAttributionIdMarkedForReplacement(
 }
 
 export function setMultiSelectSelectedAttributionIds(
-  multiSelectSelectedAttributionIds: Array<string>
+  multiSelectSelectedAttributionIds: Array<string>,
 ): SetMultiSelectSelectedAttributionIds {
   return {
     type: ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,

@@ -21,12 +21,12 @@ describe('The load and navigation simple actions', () => {
   it('sets and gets selectedAttributionId', () => {
     const testStore = createTestAppStore();
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('');
 
     testStore.dispatch(setSelectedAttributionId('Test'));
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('Test');
   });
 
@@ -44,19 +44,19 @@ describe('The load and navigation simple actions', () => {
 
     testStore.dispatch(setAttributionIdMarkedForReplacement('test'));
     expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe(
-      'test'
+      'test',
     );
   });
 
   it('sets and gets multiSelectSelectedAttributionIds', () => {
     const testStore = createTestAppStore();
     expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
+      getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual([]);
 
     testStore.dispatch(setMultiSelectSelectedAttributionIds(['id_1']));
     expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
+      getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual(['id_1']);
   });
 });

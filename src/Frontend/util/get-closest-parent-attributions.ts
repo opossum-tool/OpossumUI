@@ -15,18 +15,18 @@ export function getClosestParentAttributions(
   path: string,
   manualAttributions: Attributions,
   resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
+  isAttributionBreakpoint: PathPredicate,
 ): Attributions | null {
   const closestParentAttributionIds: Array<string> =
     getClosestParentAttributionIds(
       path,
       resourcesToManualAttributions,
-      isAttributionBreakpoint
+      isAttributionBreakpoint,
     );
   if (closestParentAttributionIds.length > 0) {
     return getFilteredAttributionsById(
       closestParentAttributionIds,
-      manualAttributions
+      manualAttributions,
     );
   }
 
@@ -36,12 +36,12 @@ export function getClosestParentAttributions(
 export function getClosestParentAttributionIds(
   path: string,
   resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
+  isAttributionBreakpoint: PathPredicate,
 ): Array<string> {
   const parentId: string | null = getClosestParentWithAttributions(
     path,
     resourcesToManualAttributions,
-    isAttributionBreakpoint
+    isAttributionBreakpoint,
   );
 
   if (parentId) {
@@ -54,11 +54,11 @@ export function getClosestParentAttributionIds(
 export function getClosestParentWithAttributions(
   childId: string,
   resourcesToAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
+  isAttributionBreakpoint: PathPredicate,
 ): string | null {
   const parentIds: Array<string> = getParentsUpToNextAttributionBreakpoint(
     childId,
-    isAttributionBreakpoint
+    isAttributionBreakpoint,
   );
 
   for (const parentId of parentIds.reverse()) {

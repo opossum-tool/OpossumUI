@@ -65,7 +65,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
-                  ExportType.FollowUp
+                  ExportType.FollowUp,
                 );
               },
             },
@@ -78,7 +78,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
-                  ExportType.CompactBom
+                  ExportType.CompactBom,
                 );
               },
             },
@@ -91,7 +91,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
-                  ExportType.DetailedBom
+                  ExportType.DetailedBom,
                 );
               },
             },
@@ -104,7 +104,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
-                  ExportType.SpdxDocumentYaml
+                  ExportType.SpdxDocumentYaml,
                 );
               },
             },
@@ -117,7 +117,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 setLoadingState(mainWindow.webContents, true);
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
-                  ExportType.SpdxDocumentJson
+                  ExportType.SpdxDocumentJson,
                 );
               },
             },
@@ -134,7 +134,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 AllowedFrontendChannels.ShowProjectMetadataPopup,
                 {
                   showProjectMetadataPopup: true,
-                }
+                },
               );
             }
           },
@@ -150,7 +150,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
                 AllowedFrontendChannels.ShowProjectStatisticsPopup,
                 {
                   showProjectStatisticsPopup: true,
-                }
+                },
               );
             }
           },
@@ -253,7 +253,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
             ? path.join(getBasePathOfAssets(), 'icons/developer-tool-white.png')
             : path.join(
                 getBasePathOfAssets(),
-                'icons/developer-tool-black.png'
+                'icons/developer-tool-black.png',
               ),
           label: 'Show Developer Tools',
           role: 'toggleDevTools',
@@ -291,7 +291,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Open on GitHub',
           click: async (): Promise<void> => {
             await shell.openExternal(
-              'https://github.com/opossum-tool/opossumUI'
+              'https://github.com/opossum-tool/opossumUI',
             );
           },
         },
@@ -325,7 +325,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: "User's Guide",
           click: async (): Promise<void> => {
             await shell.openExternal(
-              'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md'
+              'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
             );
           },
         },

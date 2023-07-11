@@ -22,11 +22,11 @@ describe('sortAttributedPackageItems', () => {
 
     const testSortedAttributedPackageItems = sortAttributedPackageItems(
       testAttributedPackageItems,
-      ['']
+      [''],
     );
 
     expect(testSortedAttributedPackageItems).toEqual(
-      expectedSortedAttributedPackageItems
+      expectedSortedAttributedPackageItems,
     );
   });
 });

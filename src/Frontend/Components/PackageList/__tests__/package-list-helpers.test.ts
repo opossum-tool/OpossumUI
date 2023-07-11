@@ -46,7 +46,7 @@ describe('getFilteredPackageCardIdsFromDisplayPackageInfos', () => {
       getFilteredPackageCardIdsFromDisplayPackageInfos(
         testDisplayPackageInfos,
         testSortedPackageCardIds,
-        'SeArCh_TeRm'
+        'SeArCh_TeRm',
       );
 
     expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[0]);
@@ -54,7 +54,7 @@ describe('getFilteredPackageCardIdsFromDisplayPackageInfos', () => {
     expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[2]);
     expect(testFilteredPackageCardIds).toContain(testSortedPackageCardIds[3]);
     expect(testFilteredPackageCardIds).not.toContain(
-      testSortedPackageCardIds[4]
+      testSortedPackageCardIds[4],
     );
     /* eslint-enable @typescript-eslint/no-magic-numbers */
   });

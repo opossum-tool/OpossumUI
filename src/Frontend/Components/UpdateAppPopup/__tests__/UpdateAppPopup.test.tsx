@@ -27,7 +27,7 @@ describe('UpdateAppPopup', () => {
   it('shows the popup with a link to a new release', async () => {
     axiosMock
       .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest'
+        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       )
       .replyOnce(okStatus, {
         name: 'Latest release',
@@ -36,13 +36,13 @@ describe('UpdateAppPopup', () => {
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
     expect(screen.getByText('Check for updates'));
     expect(
       await screen.findByText(
-        'There is a new release! You can download it using the following link:'
-      )
+        'There is a new release! You can download it using the following link:',
+      ),
     );
     expect(await screen.findByText('Latest release'));
   });
@@ -50,7 +50,7 @@ describe('UpdateAppPopup', () => {
   it('shows the popup with no newer release', async () => {
     axiosMock
       .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest'
+        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       )
       .replyOnce(okStatus, {
         name: commitInfo.commitInfo,
@@ -59,7 +59,7 @@ describe('UpdateAppPopup', () => {
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
     expect(screen.getByText('Check for updates'));
     expect(await screen.findByText('You have the latest version of the app.'));
@@ -68,13 +68,13 @@ describe('UpdateAppPopup', () => {
   it('shows the popup with no info found', async () => {
     axiosMock
       .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest'
+        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       )
       .replyOnce(okStatus, null);
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
     expect(screen.getByText('Check for updates'));
     expect(await screen.findByText('No information found.'));
@@ -83,19 +83,19 @@ describe('UpdateAppPopup', () => {
   it('shows the popup with error', async () => {
     axiosMock
       .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest'
+        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       )
       .replyOnce(notFoundStatus);
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
     expect(screen.getByText('Check for updates'));
     expect(
       await screen.findByText(
-        'Failed while fetching release data: Request failed with status code 404'
-      )
+        'Failed while fetching release data: Request failed with status code 404',
+      ),
     );
   });
 });

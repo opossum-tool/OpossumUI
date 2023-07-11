@@ -28,7 +28,7 @@ interface ListProps {
 }
 
 function maxHeightWasGiven(
-  max: NumberOfDisplayedItems | Height
+  max: NumberOfDisplayedItems | Height,
 ): max is Height {
   return Boolean((max as Height).height);
 }

@@ -12,7 +12,7 @@ import {
 export function getPackageCardIdsAndDisplayPackageInfosForSource(
   displayPackageInfosWithCount: DisplayPackageInfosWithCount,
   sortedPackageCardIds: Array<string>,
-  sourceName: string | null
+  sourceName: string | null,
 ): [Array<string>, DisplayPackageInfos] {
   const filteredAndSortedPackageCardIds: Array<string> = [];
   const filteredDisplayPackageInfos: DisplayPackageInfos = {};
@@ -34,21 +34,21 @@ export function getPackageCardIdsAndDisplayPackageInfosForSource(
 
 export function getSortedSourcesFromDisplayPackageInfosWithCount(
   displayPackageInfosWithCount: DisplayPackageInfosWithCount,
-  attributionSources: ExternalAttributionSources
+  attributionSources: ExternalAttributionSources,
 ): Array<string | null> {
   const sourceNames = new Set<string | null>();
   Object.values(displayPackageInfosWithCount).forEach(
     ({ displayPackageInfo }) => {
       sourceNames.add(displayPackageInfo?.source?.name || null);
     },
-    sourceNames
+    sourceNames,
   );
   return sortSources(Array.from(sourceNames), attributionSources);
 }
 
 function sortSources(
   sources: Array<string | null>,
-  attributionSources: ExternalAttributionSources
+  attributionSources: ExternalAttributionSources,
 ): Array<string | null> {
   const { knownSources, unknownSources } = sources.reduce(
     (
@@ -56,7 +56,7 @@ function sortSources(
         knownSources: Array<string>;
         unknownSources: Array<string | null>;
       },
-      source: string | null
+      source: string | null,
     ) => {
       if (source === null) {
         encounteredSources.unknownSources.push(source);
@@ -69,11 +69,11 @@ function sortSources(
       }
       return encounteredSources;
     },
-    { knownSources: [], unknownSources: [] }
+    { knownSources: [], unknownSources: [] },
   );
 
   const sortedKnownSources = knownSources.sort((sourceA, sourceB) =>
-    compareKnownSources(sourceA, sourceB, attributionSources)
+    compareKnownSources(sourceA, sourceB, attributionSources),
   );
   const sortedUnknownSources = unknownSources.sort(compareUnknownSources);
 
@@ -83,7 +83,7 @@ function sortSources(
 function compareKnownSources(
   sourceA: string,
   sourceB: string,
-  attributionSources: ExternalAttributionSources
+  attributionSources: ExternalAttributionSources,
 ): number {
   return (
     -(
@@ -99,7 +99,7 @@ function compareKnownSources(
 
 function compareUnknownSources(
   sourceA: string | null,
-  sourceB: string | null
+  sourceB: string | null,
 ): number {
   if (sourceA === null) {
     return 1;

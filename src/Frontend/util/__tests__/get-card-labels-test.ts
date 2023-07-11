@@ -153,7 +153,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     addFirstLineOfPackageLabelFromAttribute(
       'packageName',
       testProps,
-      testPackageLabels
+      testPackageLabels,
     );
     expect(testPackageLabels).toEqual(['Test package name, 1.2']);
   });
@@ -162,7 +162,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     addFirstLineOfPackageLabelFromAttribute(
       'packageName',
       testPropsWithoutVersion,
-      testPackageLabels
+      testPackageLabels,
     );
     expect(testPackageLabels).toEqual(['Test package name']);
   });
@@ -171,7 +171,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     addFirstLineOfPackageLabelFromAttribute(
       'copyright',
       testProps,
-      testPackageLabels
+      testPackageLabels,
     );
     expect(testPackageLabels).toEqual(['(c) Test copyright']);
   });
@@ -180,7 +180,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     addFirstLineOfPackageLabelFromAttribute(
       'url',
       testProps,
-      testPackageLabels
+      testPackageLabels,
     );
     expect(testPackageLabels).toEqual(['Test url']);
   });
@@ -202,7 +202,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     addSecondLineOfPackageLabelFromAttribute(
       'copyright',
       testProps,
-      testPackageLabels
+      testPackageLabels,
     );
     expect(testPackageLabels).toEqual([
       'Test package name',
@@ -214,7 +214,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     addSecondLineOfPackageLabelFromAttribute(
       'url',
       testProps,
-      testPackageLabels
+      testPackageLabels,
     );
     expect(testPackageLabels).toEqual(['Test url']);
   });
@@ -223,18 +223,18 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
 describe('Test addPreambleToCopyright', () => {
   it('adds preamble to copyright', () => {
     expect(addPreambleToCopyright('Test copyright without preamble')).toEqual(
-      '(c) Test copyright without preamble'
+      '(c) Test copyright without preamble',
     );
   });
   it('does not add preamble to copyright', () => {
     expect(
-      addPreambleToCopyright('(C)Test copyright without preamble')
+      addPreambleToCopyright('(C)Test copyright without preamble'),
     ).toEqual('(C)Test copyright without preamble');
     expect(
-      addPreambleToCopyright('(c)Test copyright without preamble')
+      addPreambleToCopyright('(c)Test copyright without preamble'),
     ).toEqual('(c)Test copyright without preamble');
     expect(
-      addPreambleToCopyright('Copyright Test copyright without preamble')
+      addPreambleToCopyright('Copyright Test copyright without preamble'),
     ).toEqual('Copyright Test copyright without preamble');
   });
 });

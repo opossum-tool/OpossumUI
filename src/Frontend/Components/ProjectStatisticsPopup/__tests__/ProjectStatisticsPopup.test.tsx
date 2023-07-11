@@ -40,8 +40,8 @@ describe('The ProjectStatisticsPopup', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           externalAttributions: testExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
@@ -91,8 +91,8 @@ describe('The ProjectStatisticsPopup', () => {
         getParsedInputFileEnrichedWithTestData({
           manualAttributions: testManualAttributions,
           externalAttributions: testExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
@@ -108,13 +108,13 @@ describe('The ProjectStatisticsPopup', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           externalAttributions: testExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(
-      screen.queryByText('Most Frequent Licenses')
+      screen.queryByText('Most Frequent Licenses'),
     ).not.toBeInTheDocument();
     expect(screen.queryByText('Critical Signals')).not.toBeInTheDocument();
     expect(screen.getByText('Incomplete Attributions')).toBeInTheDocument();
@@ -145,8 +145,8 @@ describe('The ProjectStatisticsPopup', () => {
         getParsedInputFileEnrichedWithTestData({
           manualAttributions: testManualAttributions,
           externalAttributions: testExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
@@ -163,8 +163,8 @@ describe('The ProjectStatisticsPopup', () => {
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           externalAttributions: testExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });

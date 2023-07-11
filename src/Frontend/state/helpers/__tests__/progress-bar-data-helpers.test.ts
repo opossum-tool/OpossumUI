@@ -107,19 +107,19 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(2);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual(['/thirdParty/package_1.tr.gz', '/thirdParty/package_2.tr.gz']);
     expect(
-      progressBarData.filesWithHighlyCriticalExternalAttributionsCount
+      progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
     ).toEqual(1);
     expect(
-      progressBarData.resourcesWithHighlyCriticalExternalAttributions
+      progressBarData.resourcesWithHighlyCriticalExternalAttributions,
     ).toEqual(['/thirdParty/package_1.tr.gz']);
     expect(
-      progressBarData.filesWithMediumCriticalExternalAttributionsCount
+      progressBarData.filesWithMediumCriticalExternalAttributionsCount,
     ).toEqual(1);
     expect(
-      progressBarData.resourcesWithMediumCriticalExternalAttributions
+      progressBarData.resourcesWithMediumCriticalExternalAttributions,
     ).toEqual(['/thirdParty/package_2.tr.gz']);
   });
 
@@ -216,7 +216,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(1);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual(['/thirdParty/package_1.tr.gz']);
   });
 
@@ -321,7 +321,7 @@ describe('The getUpdatedProgressBarData function', () => {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(5);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([
       '/folder1/breakpoint1/file1',
       '/folder2/',
@@ -389,7 +389,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);
     expect(
-      progressBarData.resourcesWithNonInheritedExternalAttributionOnly
+      progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
   });
 
@@ -475,7 +475,7 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData?.filesWithManualAttributionCount).toEqual(1);
     expect(progressBarData?.filesWithOnlyExternalAttributionCount).toEqual(0);
     expect(
-      progressBarData?.resourcesWithNonInheritedExternalAttributionOnly
+      progressBarData?.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
   });
 });
@@ -488,8 +488,8 @@ describe('The resourceHasOnlyPreSelectedAttributions function', () => {
       resourceHasOnlyPreSelectedAttributions(
         '/fileWithOnlyPreSelectedAttributions',
         testResourcesToManualAttributions,
-        testManualAttributions
-      )
+        testManualAttributions,
+      ),
     ).toBeTruthy();
   });
 
@@ -500,8 +500,8 @@ describe('The resourceHasOnlyPreSelectedAttributions function', () => {
       resourceHasOnlyPreSelectedAttributions(
         '/fileWithPreselectedAndManualAttributions',
         testResourcesToManualAttributions,
-        testManualAttributions
-      )
+        testManualAttributions,
+      ),
     ).toBeFalsy();
   });
 });
@@ -554,7 +554,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
     const criticality = getHighestCriticalityOfExternalAttributions(
       '/folder1/file1',
       testResourcesToExternalAttributions,
-      testExternalAttributions
+      testExternalAttributions,
     );
 
     expect(criticality).toEqual(Criticality.High);
@@ -596,7 +596,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
     const criticality = getHighestCriticalityOfExternalAttributions(
       '/folder1/file1',
       testResourcesToExternalAttributions,
-      testExternalAttributions
+      testExternalAttributions,
     );
 
     expect(criticality).toEqual(Criticality.Medium);
@@ -623,7 +623,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
     const criticality = getHighestCriticalityOfExternalAttributions(
       '/folder1/file1',
       testResourcesToExternalAttributions,
-      testExternalAttributions
+      testExternalAttributions,
     );
 
     expect(criticality).toEqual(null);

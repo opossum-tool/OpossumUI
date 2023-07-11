@@ -20,43 +20,43 @@ describe('BackendCommunication', () => {
     expect(window.electronAPI.on).toHaveBeenCalledTimes(expectedNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.Logging,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ResetLoadedFile,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ExportFileRequest,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowSearchPopup,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowProjectMetadataPopup,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowChangedInputFilePopup,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowProjectStatisticsPopup,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
-      expect.anything()
+      expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoading,
-      expect.anything()
+      expect.anything(),
     );
   });
 
@@ -71,7 +71,7 @@ describe('BackendCommunication', () => {
 
     const detailedBomAttributions = getBomAttributions(
       testAttributions,
-      ExportType.DetailedBom
+      ExportType.DetailedBom,
     );
     expect(detailedBomAttributions).toEqual({
       genericAttrib: {},
@@ -80,7 +80,7 @@ describe('BackendCommunication', () => {
 
     const compactBomAttributions = getBomAttributions(
       testAttributions,
-      ExportType.CompactBom
+      ExportType.CompactBom,
     );
     expect(compactBomAttributions).toEqual({
       genericAttrib: {},
@@ -107,13 +107,13 @@ describe('BackendCommunication', () => {
 
     const compactBomCompleteAttributions = getBomAttributions(
       completeTestAttributions,
-      ExportType.CompactBom
+      ExportType.CompactBom,
     );
     expect(compactBomCompleteAttributions).toEqual(completeTestAttributions);
 
     const detailedBomCompleteAttributions = getBomAttributions(
       completeTestAttributions,
-      ExportType.DetailedBom
+      ExportType.DetailedBom,
     );
     expect(detailedBomCompleteAttributions).toEqual(completeTestAttributions);
   });

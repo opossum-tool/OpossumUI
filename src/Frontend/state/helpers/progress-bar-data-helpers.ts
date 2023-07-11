@@ -5,6 +5,7 @@
 
 import {
   Attributions,
+  Criticality,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
@@ -16,11 +17,10 @@ import {
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { Criticality } from '../../../shared/shared-types';
 
 export function filterResourcesToAttributions(
   resourcesToAttributions: ResourcesToAttributions,
-  attributionIdsToRemove: Set<string>
+  attributionIdsToRemove: Set<string>,
 ): ResourcesToAttributions {
   return Object.fromEntries(
     Object.entries(resourcesToAttributions)
@@ -28,11 +28,11 @@ export function filterResourcesToAttributions(
         return [
           resourceId,
           attributionIds.filter(
-            (attributionId) => !attributionIdsToRemove.has(attributionId)
+            (attributionId) => !attributionIdsToRemove.has(attributionId),
           ),
         ];
       })
-      .filter(([, filteredAttributionIds]) => filteredAttributionIds.length)
+      .filter(([, filteredAttributionIds]) => filteredAttributionIds.length),
   );
 }
 
@@ -48,7 +48,7 @@ function updateProgressBarDataForResources(
   parentPath = '',
   hasParentManualAttribution = false,
   hasParentOnlyPreselectedAttribution = false,
-  hasParentExternalAttribution = false
+  hasParentExternalAttribution = false,
 ): void {
   for (const resourceName of Object.keys(resources)) {
     const resource: Resources | 1 = resources[resourceName];
@@ -58,7 +58,7 @@ function updateProgressBarDataForResources(
 
     const hasOnlyPreselectedAttributionFromParent = Boolean(
       hasParentOnlyPreselectedAttribution &&
-        !resourcesToManualAttributions[path]
+        !resourcesToManualAttributions[path],
     );
 
     const hasOnlyPreselectedAttribution = Boolean(
@@ -66,22 +66,22 @@ function updateProgressBarDataForResources(
         resourceHasOnlyPreSelectedAttributions(
           path,
           resourcesToManualAttributions,
-          manualAttributions
-        )
+          manualAttributions,
+        ),
     );
 
     const hasManualAttribution: boolean =
       hasParentManualAttribution ||
       Boolean(resourcesToManualAttributions[path]);
     const hasNonInheritedExternalAttributions = Boolean(
-      resourcesToExternalAttributions[path]
+      resourcesToExternalAttributions[path],
     );
     const resourceCanHaveChildren = canResourceHaveChildren(resource);
 
     const highestCriticality = getHighestCriticalityOfExternalAttributions(
       path,
       resourcesToExternalAttributions,
-      externalAttributions
+      externalAttributions,
     );
 
     if (!resourceCanHaveChildren || isFileWithChildren(path)) {
@@ -93,17 +93,17 @@ function updateProgressBarDataForResources(
       } else if (hasNonInheritedExternalAttributions) {
         progressBarData.filesWithOnlyExternalAttributionCount++;
         progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
-          path
+          path,
         );
         if (highestCriticality === Criticality.High) {
           progressBarData.filesWithHighlyCriticalExternalAttributionsCount++;
           progressBarData.resourcesWithHighlyCriticalExternalAttributions.push(
-            path
+            path,
           );
         } else if (highestCriticality === Criticality.Medium) {
           progressBarData.filesWithMediumCriticalExternalAttributionsCount++;
           progressBarData.resourcesWithMediumCriticalExternalAttributions.push(
-            path
+            path,
           );
         }
       } else if (hasParentExternalAttribution) {
@@ -123,15 +123,15 @@ function updateProgressBarDataForResources(
         hasNonInheritedExternalAttributions
       ) {
         progressBarData.resourcesWithNonInheritedExternalAttributionOnly.push(
-          path
+          path,
         );
         if (highestCriticality === Criticality.High) {
           progressBarData.resourcesWithHighlyCriticalExternalAttributions.push(
-            path
+            path,
           );
         } else if (highestCriticality === Criticality.Medium) {
           progressBarData.resourcesWithMediumCriticalExternalAttributions.push(
-            path
+            path,
           );
         }
       }
@@ -149,7 +149,7 @@ function updateProgressBarDataForResources(
         path,
         hasManualAttribution && !isBreakpoint,
         hasOnlyPreselectedAttribution && !isBreakpoint,
-        hasNonInheritedExternalAttributions && !isBreakpoint
+        hasNonInheritedExternalAttributions && !isBreakpoint,
       );
     }
   }
@@ -158,7 +158,7 @@ function updateProgressBarDataForResources(
 export function getHighestCriticalityOfExternalAttributions(
   path: string,
   resourcesToExternalAttributions: ResourcesToAttributions,
-  externalAttributions: Attributions
+  externalAttributions: Attributions,
 ): Criticality | null {
   let hasMediumCriticality = false;
   const externalAttributionsOfCurrentResource =
@@ -181,7 +181,7 @@ export function getHighestCriticalityOfExternalAttributions(
 export function resourceHasOnlyPreSelectedAttributions(
   path: string,
   resourcesToManualAttributions: ResourcesToAttributions,
-  manualAttributions: Attributions
+  manualAttributions: Attributions,
 ): boolean {
   return (
     resourcesToManualAttributions[path] &&
@@ -189,18 +189,18 @@ export function resourceHasOnlyPreSelectedAttributions(
       (attributionId: string): boolean => {
         return Boolean(
           manualAttributions[attributionId] &&
-            manualAttributions[attributionId].preSelected
+            manualAttributions[attributionId].preSelected,
         );
-      }
+      },
     )
   );
 }
 
 export function getUpdatedProgressBarData(
-  args: ProgressBarWorkerArgs
+  args: ProgressBarWorkerArgs,
 ): ProgressBarData {
   const isAttributionBreakpoint = getAttributionBreakpointCheck(
-    args.attributionBreakpoints
+    args.attributionBreakpoints,
   );
   const isFileWithChildren = getFileWithChildrenCheck(args.filesWithChildren);
   const progressBarData = getEmptyProgressBarData();
@@ -221,10 +221,10 @@ export function getUpdatedProgressBarData(
     args.resourcesToManualAttributions,
     filterResourcesToAttributions(
       args.resourcesToExternalAttributions,
-      args.resolvedExternalAttributions
+      args.resolvedExternalAttributions,
     ),
     isAttributionBreakpoint,
-    isFileWithChildren
+    isFileWithChildren,
   );
 
   return progressBarData;
@@ -246,14 +246,14 @@ export function getEmptyProgressBarData(): ProgressBarData {
 
 function getCurrentSubTree(
   parentAndCurrentResources: string[],
-  resources: Resources
+  resources: Resources,
 ): Resources {
   const resource = parentAndCurrentResources.shift();
   if (resource) {
     return {
       [resource]: getCurrentSubTree(
         parentAndCurrentResources,
-        resources[resource] as Resources
+        resources[resource] as Resources,
       ),
     };
   } else {

@@ -22,8 +22,8 @@ import {
   getIndexOfAttributionInManualPackagePanel,
 } from '../action-and-reducer-helpers';
 import {
-  ResourceState,
   initialResourceState,
+  ResourceState,
 } from '../../reducers/resource-reducer';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 
@@ -84,21 +84,21 @@ describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     expect(
       attributionForTemporaryDisplayPackageInfoExists(
         testExistingPackageInfo,
-        testStore.getState()
-      )
+        testStore.getState(),
+      ),
     ).toBeTruthy();
     expect(
       attributionForTemporaryDisplayPackageInfoExists(
         testNotExistingPackageInfo,
-        testStore.getState()
-      )
+        testStore.getState(),
+      ),
     ).toBeFalsy();
   });
 });
@@ -111,7 +111,7 @@ describe('computeChildrenWithAttributions', () => {
       '/root/src/something.js/subfolder': [testUuid],
     };
     const result = computeChildrenWithAttributions(
-      mockResourcesWithAttributionsFromDb
+      mockResourcesWithAttributionsFromDb,
     );
 
     expect(result).toEqual({
@@ -179,7 +179,7 @@ describe('createExternalAttributionsToHashes', () => {
     };
 
     const testExternalAttributionsToHashes = createExternalAttributionsToHashes(
-      testExternalAttributions
+      testExternalAttributions,
     );
 
     expect(testExternalAttributionsToHashes.uuid1).toBeDefined();
@@ -191,16 +191,16 @@ describe('createExternalAttributionsToHashes', () => {
     expect(testExternalAttributionsToHashes.uuid7).toBeUndefined();
 
     expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid2
+      testExternalAttributionsToHashes.uuid2,
     );
     expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid3
+      testExternalAttributionsToHashes.uuid3,
     );
     expect(testExternalAttributionsToHashes.uuid1).not.toEqual(
-      testExternalAttributionsToHashes.uuid4
+      testExternalAttributionsToHashes.uuid4,
     );
     expect(testExternalAttributionsToHashes.uuid4).toEqual(
-      testExternalAttributionsToHashes.uuid5
+      testExternalAttributionsToHashes.uuid5,
     );
   });
 });
@@ -228,10 +228,10 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
       getAttributionIdOfFirstPackageCardInManualPackagePanel(
         testAttributionIds,
         testResourceId,
-        testState
+        testState,
       );
     expect(testAttributionIdOfFirstPackageCard).toEqual(
-      expectedAttributionIdOfFirstPackageCard
+      expectedAttributionIdOfFirstPackageCard,
     );
   });
 
@@ -257,10 +257,10 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
       getAttributionIdOfFirstPackageCardInManualPackagePanel(
         testAttributionIds,
         testResourceId,
-        testState
+        testState,
       );
     expect(testAttributionIdOfFirstPackageCard).toEqual(
-      expectedAttributionIdOfFirstPackageCard
+      expectedAttributionIdOfFirstPackageCard,
     );
   });
 
@@ -291,10 +291,10 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
       getAttributionIdOfFirstPackageCardInManualPackagePanel(
         testAttributionIds,
         testResourceId,
-        testState
+        testState,
       );
     expect(testAttributionIdOfFirstPackageCard).toEqual(
-      expectedAttributionIdOfFirstPackageCard
+      expectedAttributionIdOfFirstPackageCard,
     );
   });
 });
@@ -315,7 +315,7 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
     const testIndex = getIndexOfAttributionInManualPackagePanel(
       testTargetAttributionId,
       testResourceId,
-      testManualData
+      testManualData,
     );
     expect(testIndex).toEqual(expectedIndex);
   });
@@ -327,7 +327,7 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
     const testIndex = getIndexOfAttributionInManualPackagePanel(
       testTargetAttributionId,
       testResourceId,
-      testManualData
+      testManualData,
     );
     expect(testIndex).toEqual(expectedIndex);
   });
@@ -339,7 +339,7 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
     const testIndex = getIndexOfAttributionInManualPackagePanel(
       testTargetAttributionId,
       testResourceId,
-      testManualData
+      testManualData,
     );
     expect(testIndex).toEqual(expectedIndex);
   });

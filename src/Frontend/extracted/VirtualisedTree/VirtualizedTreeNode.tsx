@@ -47,7 +47,7 @@ export interface VirtualizedTreeNodeData {
   getTreeNodeLabel: (
     nodeName: string,
     node: NodesForTree | 1,
-    nodeId: string
+    nodeId: string,
   ) => ReactElement;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
@@ -57,7 +57,7 @@ export interface VirtualizedTreeNodeData {
 }
 
 export function VirtualizedTreeNode(
-  props: VirtualizedTreeNodeData
+  props: VirtualizedTreeNodeData,
 ): ReactElement | null {
   const marginRight =
     ((props.nodeId.match(/\//g) || []).length - 1) * INDENT_PER_DEPTH_LEVEL +
@@ -74,7 +74,7 @@ export function VirtualizedTreeNode(
             props.onToggle,
             props.treeNodeStyle?.treeExpandIcon || classes.clickableIcon,
             props.expandedNodeIcon,
-            props.nonExpandedNodeIcon
+            props.nonExpandedNodeIcon,
           )
         : null}
       <MuiBox
@@ -87,7 +87,7 @@ export function VirtualizedTreeNode(
               ? !isBreakpointOrChildOfBreakpoint(
                   props.nodeId,
                   props.selected,
-                  props.breakpoints
+                  props.breakpoints,
                 )
                 ? props.treeNodeStyle?.childrenOfSelected
                 : null
@@ -109,7 +109,7 @@ function getExpandableNodeIcon(
   onToggle: (nodeIdsToExpand: Array<string>) => void,
   sx: SxProps,
   expandedNodeIcon: ReactElement = <ExpandMoreIcon sx={sx} />,
-  nonExpandedNodeIcon: ReactElement = <ChevronRightIcon sx={sx} />
+  nonExpandedNodeIcon: ReactElement = <ChevronRightIcon sx={sx} />,
 ): ReactElement {
   const ariaLabel = isExpandedNode ? `collapse ${nodeId}` : `expand ${nodeId}`;
   const icon = isExpandedNode ? expandedNodeIcon : nonExpandedNodeIcon;

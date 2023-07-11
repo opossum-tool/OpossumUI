@@ -28,12 +28,12 @@ export function EditAttributionPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const popupAttributionId = useAppSelector(getPopupAttributionId);
   const temporaryDisplayPackageInfo = useAppSelector(
-    getTemporaryDisplayPackageInfo
+    getTemporaryDisplayPackageInfo,
   );
   const setUpdateTemporaryDisplayPackageInfoFor =
     setUpdateTemporaryDisplayPackageInfoForCreator(
       dispatch,
-      temporaryDisplayPackageInfo
+      temporaryDisplayPackageInfo,
     );
 
   const saveFileRequestListener = useCallback(() => {
@@ -41,8 +41,8 @@ export function EditAttributionPopup(): ReactElement {
       savePackageInfoIfSavingIsNotDisabled(
         null,
         popupAttributionId,
-        temporaryDisplayPackageInfo
-      )
+        temporaryDisplayPackageInfo,
+      ),
     );
   }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
@@ -51,8 +51,8 @@ export function EditAttributionPopup(): ReactElement {
       savePackageInfo(
         null,
         popupAttributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo)
-      )
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+      ),
     );
   }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
@@ -77,7 +77,7 @@ export function EditAttributionPopup(): ReactElement {
             setUpdateTemporaryDisplayPackageInfoFor
           }
           setTemporaryDisplayPackageInfo={(
-            displayPackageInfo: DisplayPackageInfo
+            displayPackageInfo: DisplayPackageInfo,
           ): void => {
             dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
           }}

@@ -10,7 +10,7 @@ import { convertPackageInfoToDisplayPackageInfo } from './convert-package-info';
 export function getAlphabeticalComparer(attributions: Attributions) {
   return function compareFunction(
     element: string,
-    otherElement: string
+    otherElement: string,
   ): number {
     const defaultName = '\u10FFFF'; // largest unicode character
 
@@ -20,13 +20,13 @@ export function getAlphabeticalComparer(attributions: Attributions) {
           packageName: attributions[element].packageName,
           ...attributions[element],
         },
-        []
-      )
+        [],
+      ),
     );
     const elementTitle = getElementTitle(elementCardLabels, defaultName);
     const elementTitleIsAlphabetical = isElementTitleAlphabetical(
       elementTitle,
-      defaultName
+      defaultName,
     );
 
     const otherElementCardLabels = getCardLabels(
@@ -35,16 +35,16 @@ export function getAlphabeticalComparer(attributions: Attributions) {
           packageName: attributions[otherElement].packageName,
           ...attributions[otherElement],
         },
-        []
-      )
+        [],
+      ),
     );
     const otherElementTitle = getElementTitle(
       otherElementCardLabels,
-      defaultName
+      defaultName,
     );
     const otherElementTitleIsAlphabetical = isElementTitleAlphabetical(
       otherElementTitle,
-      defaultName
+      defaultName,
     );
 
     if (!elementTitleIsAlphabetical && otherElementTitleIsAlphabetical)
@@ -60,14 +60,14 @@ export function getAlphabeticalComparer(attributions: Attributions) {
 
 function getElementTitle(
   elementCardLabels: Array<string>,
-  defaultName: string
+  defaultName: string,
 ): string {
   return elementCardLabels.length > 0 ? elementCardLabels[0] : defaultName;
 }
 
 function isElementTitleAlphabetical(
   elementTitle: string,
-  defaultName: string
+  defaultName: string,
 ): boolean {
   return elementTitle.toLowerCase() > 'a' && elementTitle !== defaultName;
 }

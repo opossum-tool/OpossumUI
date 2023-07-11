@@ -19,7 +19,7 @@ describe('Breadcrumbs', () => {
         selectedId={'package_id'}
         onClick={doNothing}
         idsToDisplayValues={testIdToSelectedValue}
-      />
+      />,
     );
 
     expect(screen.getByText('package')).toBeInTheDocument();

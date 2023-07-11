@@ -33,7 +33,7 @@ export async function createWindow(): Promise<BrowserWindow> {
 async function loadApplication(
   mainWindow: BrowserWindow,
   prodEntryPoint: string,
-  openDevTools: boolean
+  openDevTools: boolean,
 ): Promise<void> {
   const devURL = 'http://localhost:5173/';
 
@@ -44,7 +44,7 @@ async function loadApplication(
     }
   } else {
     await mainWindow.loadURL(
-      `file://${path.join(upath.toUnix(__dirname), prodEntryPoint)}`
+      `file://${path.join(upath.toUnix(__dirname), prodEntryPoint)}`,
     );
   }
 }

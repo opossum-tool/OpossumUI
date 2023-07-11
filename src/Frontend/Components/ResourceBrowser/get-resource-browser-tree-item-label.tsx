@@ -28,7 +28,7 @@ export function getResourceBrowserTreeItemLabel(
   resolvedExternalAttributions: Set<string>,
   isAttributionBreakpoint: PathPredicate,
   isFileWithChildren: PathPredicate,
-  externalData: AttributionData
+  externalData: AttributionData,
 ): ReactElement {
   const canHaveChildren = resource !== 1;
 
@@ -38,35 +38,35 @@ export function getResourceBrowserTreeItemLabel(
       canHaveChildren={canHaveChildren}
       hasManualAttribution={hasManualAttribution(
         nodeId,
-        resourcesToManualAttributions
+        resourcesToManualAttributions,
       )}
       hasExternalAttribution={hasExternalAttribution(
         nodeId,
-        resourcesToExternalAttributions
+        resourcesToExternalAttributions,
       )}
       hasUnresolvedExternalAttribution={hasUnresolvedExternalAttribution(
         nodeId,
         resourcesToExternalAttributions,
-        resolvedExternalAttributions
+        resolvedExternalAttributions,
       )}
       hasParentWithManualAttribution={hasParentWithManualAttributionAndNoOwnAttribution(
         nodeId,
         manualAttributions,
         resourcesToManualAttributions,
-        isAttributionBreakpoint
+        isAttributionBreakpoint,
       )}
       containsExternalAttribution={containsExternalAttribution(
         nodeId,
-        resourcesWithExternalAttributedChildren
+        resourcesWithExternalAttributedChildren,
       )}
       containsManualAttribution={containsManualAttribution(
         nodeId,
-        resourcesWithManualAttributedChildren
+        resourcesWithManualAttributedChildren,
       )}
       criticality={getCriticality(
         nodeId,
         resourcesToExternalAttributions,
-        externalData.attributions
+        externalData.attributions,
       )}
       isAttributionBreakpoint={isAttributionBreakpoint(nodeId)}
       showFolderIcon={canHaveChildren && !isFileWithChildren(nodeId)}
@@ -76,7 +76,7 @@ export function getResourceBrowserTreeItemLabel(
           nodeId,
           resourcesToManualAttributions,
           resourcesToExternalAttributions,
-          resource
+          resource,
         )
       }
     />
@@ -86,7 +86,7 @@ export function getResourceBrowserTreeItemLabel(
 export function getCriticality(
   nodeId: string,
   resourcesToExternalAttributions: ResourcesToAttributions,
-  externalAttributions: Attributions
+  externalAttributions: Attributions,
 ): Criticality | undefined {
   if (hasExternalAttribution(nodeId, resourcesToExternalAttributions)) {
     const attributionsForResource = resourcesToExternalAttributions[nodeId];
@@ -120,14 +120,14 @@ function getDisplayName(resourceName: string): string {
 
 function hasManualAttribution(
   nodeId: string,
-  resourcesToManualAttributions: ResourcesToAttributions
+  resourcesToManualAttributions: ResourcesToAttributions,
 ): boolean {
   return nodeId in resourcesToManualAttributions;
 }
 
 function hasExternalAttribution(
   nodeId: string,
-  resourcesToExternalAttributions: ResourcesToAttributions
+  resourcesToExternalAttributions: ResourcesToAttributions,
 ): boolean {
   return nodeId in resourcesToExternalAttributions;
 }
@@ -135,19 +135,19 @@ function hasExternalAttribution(
 function hasUnresolvedExternalAttribution(
   nodeId: string,
   resourcesToExternalAttributions: ResourcesToAttributions,
-  resolvedExternalAttributions: Set<string>
+  resolvedExternalAttributions: Set<string>,
 ): boolean {
   return (
     nodeId in resourcesToExternalAttributions &&
     resourcesToExternalAttributions[nodeId].filter(
-      (attribution) => !resolvedExternalAttributions.has(attribution)
+      (attribution) => !resolvedExternalAttributions.has(attribution),
     ).length > 0
   );
 }
 
 function containsExternalAttribution(
   nodeId: string,
-  resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren
+  resourcesWithExternalAttributedChildren: ResourcesWithAttributedChildren,
 ): boolean {
   const nodeIndex =
     resourcesWithExternalAttributedChildren.pathsToIndices[nodeId];
@@ -161,7 +161,7 @@ function containsExternalAttribution(
 
 export function containsManualAttribution(
   nodeId: string,
-  resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren
+  resourcesWithManualAttributedChildren: ResourcesWithAttributedChildren,
 ): boolean {
   return (
     resourcesWithManualAttributedChildren &&
@@ -173,14 +173,14 @@ function hasParentWithManualAttribution(
   nodeId: string,
   manualAttributions: Attributions,
   resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
+  isAttributionBreakpoint: PathPredicate,
 ): boolean {
   return (
     getClosestParentAttributions(
       nodeId,
       manualAttributions,
       resourcesToManualAttributions,
-      isAttributionBreakpoint
+      isAttributionBreakpoint,
     ) !== null
   );
 }
@@ -189,14 +189,14 @@ function hasParentWithManualAttributionAndNoOwnAttribution(
   nodeId: string,
   manualAttributions: Attributions,
   resourcesToManualAttributions: ResourcesToAttributions,
-  isAttributionBreakpoint: PathPredicate
+  isAttributionBreakpoint: PathPredicate,
 ): boolean {
   return (
     hasParentWithManualAttribution(
       nodeId,
       manualAttributions,
       resourcesToManualAttributions,
-      isAttributionBreakpoint
+      isAttributionBreakpoint,
     ) && !hasManualAttribution(nodeId, resourcesToManualAttributions)
   );
 }
@@ -205,7 +205,7 @@ function containsResourcesWithOnlyExternalAttribution(
   nodeId: string,
   resourcesToManualAttributions: ResourcesToAttributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
-  resource: Resources | 1
+  resource: Resources | 1,
 ): boolean {
   if (hasManualAttribution(nodeId, resourcesToManualAttributions)) return false;
   if (hasExternalAttribution(nodeId, resourcesToExternalAttributions))
@@ -216,7 +216,7 @@ function containsResourcesWithOnlyExternalAttribution(
       resource[node] === 1 ? nodeId + node : nodeId + node + '/',
       resourcesToManualAttributions,
       resourcesToExternalAttributions,
-      resource[node]
-    )
+      resource[node],
+    ),
   );
 }

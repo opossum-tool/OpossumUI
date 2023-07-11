@@ -125,7 +125,7 @@ describe('The App in Audit View', () => {
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
 
     expectButton(screen, ButtonText.Save, true);
@@ -261,7 +261,7 @@ describe('The App in Audit View', () => {
     expectValueInConfidenceField(screen, '10');
     expectValueNotInConfidenceField(
       screen,
-      `High (${DiscreteConfidence.High})`
+      `High (${DiscreteConfidence.High})`,
     );
     expectButton(screen, ButtonText.Confirm);
     expectButton(screen, ButtonText.ConfirmGlobally);
@@ -284,7 +284,7 @@ describe('The App in Audit View', () => {
     expectValueInConfidenceField(screen, '90');
     expectValueNotInConfidenceField(
       screen,
-      `High (${DiscreteConfidence.High})`
+      `High (${DiscreteConfidence.High})`,
     );
     expectValueInTextBox(screen, 'Name', 'Vue');
     expectButton(screen, ButtonText.Confirm);

@@ -57,7 +57,7 @@ describe('ClearlyDefinedPackageCard', () => {
     const { store } = renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <ClearlyDefinedPackageCard coordinate={testCoordinate} />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     expect(await screen.findByText('MIT'));
@@ -92,13 +92,13 @@ describe('ClearlyDefinedPackageCard', () => {
     renderComponentWithStore(
       <QueryClientProvider client={queryClient}>
         <ClearlyDefinedPackageCard coordinate={testCoordinate} />
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     expect(
       await screen.findByText(
-        `Failed while fetching data for ${testCoordinate}: Request failed with status code 404`
-      )
+        `Failed while fetching data for ${testCoordinate}: Request failed with status code 404`,
+      ),
     );
   });
 });

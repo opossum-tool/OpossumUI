@@ -33,7 +33,7 @@ interface AggregatedAttributionsPanelProps {
 }
 
 export function AggregatedAttributionsPanel(
-  props: AggregatedAttributionsPanelProps
+  props: AggregatedAttributionsPanelProps,
 ): ReactElement {
   const manualData = useAppSelector(getManualData);
   const externalData = useAppSelector(getExternalData);
@@ -41,7 +41,7 @@ export function AggregatedAttributionsPanel(
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const resolvedExternalAttributions: Set<string> = useAppSelector(
-    getResolvedExternalAttributions
+    getResolvedExternalAttributions,
   );
 
   const containedExternalPackagesWorkerArgs = useMemo(
@@ -50,7 +50,7 @@ export function AggregatedAttributionsPanel(
       resolvedExternalAttributions,
       panelTitle: PackagePanelTitle.ContainedExternalPackages,
     }),
-    [selectedResourceId, resolvedExternalAttributions]
+    [selectedResourceId, resolvedExternalAttributions],
   );
   const containedExternalPackagesSyncFallbackArgs = useMemo(
     () => ({
@@ -65,7 +65,7 @@ export function AggregatedAttributionsPanel(
       externalData,
       resolvedExternalAttributions,
       attributionsToHashes,
-    ]
+    ],
   );
 
   const manualPanelData: PanelAttributionData = {
@@ -88,7 +88,7 @@ export function AggregatedAttributionsPanel(
     //  relevant for manual attributions in the attributions in folder content panel.
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedResourceId, manualData.resourcesToAttributions]
+    [selectedResourceId, manualData.resourcesToAttributions],
   );
 
   return (
@@ -97,7 +97,7 @@ export function AggregatedAttributionsPanel(
         title={PackagePanelTitle.ExternalPackages}
         getAttributionIdsWithCount={(): Array<AttributionIdWithCount> =>
           getExternalAttributionIdsWithCount(
-            externalData.resourcesToAttributions[selectedResourceId] || []
+            externalData.resourcesToAttributions[selectedResourceId] || [],
           )
         }
         attributions={externalData.attributions}

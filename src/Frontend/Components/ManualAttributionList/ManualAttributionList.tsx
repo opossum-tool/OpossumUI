@@ -31,7 +31,7 @@ interface ManualAttributionListProps {
 }
 
 export function ManualAttributionList(
-  props: ManualAttributionListProps
+  props: ManualAttributionListProps,
 ): ReactElement {
   const sortedPackageCardIdsPotentiallyWithAddNewAttributionButton =
     props.isAddNewAttributionItemShown
@@ -72,7 +72,7 @@ export function ManualAttributionList(
     <List
       getListItem={(index: number): ReactElement =>
         getAttributionCard(
-          sortedPackageCardIdsPotentiallyWithAddNewAttributionButton[index]
+          sortedPackageCardIdsPotentiallyWithAddNewAttributionButton[index],
         )
       }
       length={sortedPackageCardIdsPotentiallyWithAddNewAttributionButton.length}

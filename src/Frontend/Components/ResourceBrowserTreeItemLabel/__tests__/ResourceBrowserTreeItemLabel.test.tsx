@@ -23,13 +23,13 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.queryByLabelText('Attribution icon')).not.toBeInTheDocument();
     expect(
-      screen.getByLabelText('File icon without information')
+      screen.getByLabelText('File icon without information'),
     ).toBeInTheDocument();
   });
 
@@ -47,12 +47,12 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon with attribution')
+      screen.getByLabelText('Directory icon with attribution'),
     ).toBeInTheDocument();
   });
 
@@ -70,13 +70,13 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Signal icon')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon with signal')
+      screen.getByLabelText('Directory icon with signal'),
     ).toBeInTheDocument();
   });
 
@@ -94,13 +94,13 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Signal icon')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon without information')
+      screen.getByLabelText('Directory icon without information'),
     ).toBeInTheDocument();
   });
 
@@ -118,13 +118,13 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={false}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Signal icon')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('File icon with attribution')
+      screen.getByLabelText('File icon with attribution'),
     ).toBeInTheDocument();
   });
 
@@ -142,12 +142,12 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon containing signals')
+      screen.getByLabelText('Directory icon containing signals'),
     ).toBeInTheDocument();
   });
 
@@ -165,12 +165,12 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon containing attributions')
+      screen.getByLabelText('Directory icon containing attributions'),
     ).toBeInTheDocument();
   });
 
@@ -188,12 +188,12 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon with parent attribution')
+      screen.getByLabelText('Directory icon with parent attribution'),
     ).toBeInTheDocument();
   });
 
@@ -211,12 +211,12 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
-      screen.getByLabelText('Directory icon without information')
+      screen.getByLabelText('Directory icon without information'),
     ).toBeInTheDocument();
   });
 
@@ -234,14 +234,14 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={false}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={false}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText(
-        'Directory icon with all children containing signal also containing attributions'
-      )
+        'Directory icon with all children containing signal also containing attributions',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -259,7 +259,7 @@ describe('StyledTreeItemLabel', () => {
         isAttributionBreakpoint={true}
         showFolderIcon={true}
         containsResourcesWithOnlyExternalAttribution={true}
-      />
+      />,
     );
 
     expect(screen.getByText('Test label')).toBeInTheDocument();

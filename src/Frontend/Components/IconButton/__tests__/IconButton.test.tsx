@@ -17,7 +17,7 @@ describe('IconButton', () => {
         disabled={false}
         onClick={doNothing}
         icon={<div>Test Icon</div>}
-      />
+      />,
     );
 
     expect(screen.getByLabelText('Test'));
@@ -33,7 +33,7 @@ describe('IconButton', () => {
         onClick={doNothing}
         icon={<div>Test Icon</div>}
         hidden={false}
-      />
+      />,
     );
 
     expect(screen.getByTitle('Test')).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('IconButton', () => {
         onClick={doNothing}
         icon={<div>Test Icon</div>}
         hidden={true}
-      />
+      />,
     );
 
     expect(screen.queryByTitle('Test')).not.toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('IconButton', () => {
         onClick={doNothing}
         icon={<div>Test Icon</div>}
         hidden={true}
-      />
+      />,
     );
 
     expect(screen.getByLabelText('Test')).toHaveStyle('visibility: hidden');

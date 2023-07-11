@@ -114,7 +114,7 @@ const testResourcesToExternalAttributions: ResourcesToAttributions = {
 
 function expectDisplayPackageInfosMatchExceptAttributionIds(
   displayPackageInfoA: DisplayPackageInfo | null,
-  displayPackageInfoB: DisplayPackageInfo | null
+  displayPackageInfoB: DisplayPackageInfo | null,
 ): void {
   const displayPackageInfoAWithoutAttributionIds = {
     ...displayPackageInfoA,
@@ -125,7 +125,7 @@ function expectDisplayPackageInfosMatchExceptAttributionIds(
     attributionIds: undefined,
   };
   expect(displayPackageInfoAWithoutAttributionIds).toEqual(
-    displayPackageInfoBWithoutAttributionIds
+    displayPackageInfoBWithoutAttributionIds,
   );
 }
 
@@ -138,15 +138,15 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
     testStore.dispatch(setIsSavingDisabled(true));
 
@@ -154,14 +154,14 @@ describe('The savePackageInfo action', () => {
       savePackageInfoIfSavingIsNotDisabled(
         '/root/src/something.js',
         getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-        testTemporaryDisplayPackageInfo
-      )
+        testTemporaryDisplayPackageInfo,
+      ),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
     expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.UnableToSavePopup
+      PopupType.UnableToSavePopup,
     );
   });
 
@@ -174,16 +174,16 @@ describe('The savePackageInfo action', () => {
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           attributionBreakpoints: testAttributionBreakpoints,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(setSelectedResourceId('/my/src/'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
 
     expect(() =>
@@ -191,12 +191,12 @@ describe('The savePackageInfo action', () => {
         savePackageInfo(
           '/my/src/',
           getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-          testTemporaryDisplayPackageInfo
-        )
-      )
+          testTemporaryDisplayPackageInfo,
+        ),
+      ),
     ).toThrow('/my/src/ is a breakpoint, saving not allowed');
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
   });
 
@@ -216,36 +216,36 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(setSelectedResourceId('/root/src/'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     expect(getManualAttributions(testStore.getState())).toEqual({});
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {},
       pathsToIndices: {},
       paths: [],
     });
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
 
     testStore.dispatch(
-      savePackageInfo('/root/src/', null, testTemporaryDisplayPackageInfo)
+      savePackageInfo('/root/src/', null, testTemporaryDisplayPackageInfo),
     );
     expectDisplayPackageInfosMatchExceptAttributionIds(
       getManualDisplayPackageInfoOfSelected(testStore.getState()),
-      expectedTemporaryDisplayPackageInfo
+      expectedTemporaryDisplayPackageInfo,
     );
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {
         '1': new Set<number>().add(0),
@@ -259,7 +259,7 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/', '/', '/root/'],
     });
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
   });
 
@@ -279,15 +279,15 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {
         '1': new Set().add(0),
@@ -304,23 +304,23 @@ describe('The savePackageInfo action', () => {
     });
 
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
 
     testStore.dispatch(
       savePackageInfo(
         '/root/src/something.js',
         getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-        testTemporaryDisplayPackageInfo
-      )
+        testTemporaryDisplayPackageInfo,
+      ),
     );
 
     expectDisplayPackageInfosMatchExceptAttributionIds(
       getManualDisplayPackageInfoOfSelected(testStore.getState()),
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {
         '1': new Set<number>().add(0),
@@ -336,7 +336,7 @@ describe('The savePackageInfo action', () => {
       paths: ['/root/src/something.js', '/', '/root/', '/root/src/'],
     });
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
   });
 
@@ -418,20 +418,20 @@ describe('The savePackageInfo action', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(setSelectedAttributionId(testUuidA));
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren1);
 
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(emptyTestTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(emptyTestTemporaryDisplayPackageInfo),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
 
     testStore.dispatch(
@@ -439,26 +439,26 @@ describe('The savePackageInfo action', () => {
         '/root/src/something.js',
         testUuidA,
         convertDisplayPackageInfoToPackageInfo(
-          emptyTestTemporaryDisplayPackageInfo
-        )
-      )
+          emptyTestTemporaryDisplayPackageInfo,
+        ),
+      ),
     );
     expect(getManualAttributions(testStore.getState())?.[testUuidA]).toBe(
-      undefined
+      undefined,
     );
     expect(
       getResourcesToManualAttributions(testStore.getState())[
         '/root/src/something.js'
-      ]
+      ],
     ).toBe(undefined);
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('');
     expect(
-      getResourcesWithManualAttributedChildren(testStore.getState())
+      getResourcesWithManualAttributedChildren(testStore.getState()),
     ).toEqual(expectedResourcesWithManualAttributedChildren2);
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false
+      false,
     );
   });
 
@@ -488,35 +488,35 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/something.js'));
     testStore.dispatch(setSelectedAttributionId('uuid2'));
 
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(emptyTestTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(emptyTestTemporaryDisplayPackageInfo),
     );
     testStore.dispatch(
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,
         packageCardId: 'Attributions-0',
         displayPackageInfo: { packageName: 'react', attributionIds: ['uuid1'] },
-      })
+      }),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      true
+      true,
     );
 
     testStore.dispatch(
       savePackageInfo(
         '/something.js',
         null,
-        emptyTestTemporaryDisplayPackageInfo
-      )
+        emptyTestTemporaryDisplayPackageInfo,
+      ),
     );
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('uuid2');
   });
 
@@ -528,15 +528,15 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(
-      setMultiSelectSelectedAttributionIds([testManualAttributionUuid_1])
+      setMultiSelectSelectedAttributionIds([testManualAttributionUuid_1]),
     );
     testStore.dispatch(savePackageInfo(null, testManualAttributionUuid_1, {}));
     expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
+      getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual([]);
   });
 
@@ -566,8 +566,8 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(savePackageInfo('/parent/child.js', 'uuid2', {}));
@@ -602,8 +602,8 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(savePackageInfo('/parent/', 'uuid2', {}));
@@ -663,28 +663,28 @@ describe('The savePackageInfo action', () => {
             testInitialResourcesToManualAttributions,
           externalAttributions: { uuid_1: { copyright: 'copyright' } },
           resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(setSelectedAttributionId('uuid1'));
     testStore.dispatch(
-      setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1'])
+      setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1']),
     );
     testStore.dispatch(
       savePackageInfo(
         '/somethingElse.js',
         'toReplaceUuid',
         testPackageInfo,
-        false
-      )
+        false,
+      ),
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toEqual('uuid1');
     expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
+      getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual(['uuid1']);
   });
 
@@ -740,12 +740,12 @@ describe('The savePackageInfo action', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(
-      savePackageInfo('/folder/somethingElse.js', null, testPackageInfo)
+      savePackageInfo('/folder/somethingElse.js', null, testPackageInfo),
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
   });
@@ -785,21 +785,21 @@ describe('The savePackageInfo action', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
     testStore.dispatch(setSelectedAttributionId(testUuidA));
 
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
     testStore.dispatch(
-      savePackageInfo('/root/src/something.js', testUuidB, {}, true)
+      savePackageInfo('/root/src/something.js', testUuidB, {}, true),
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
   });
 
@@ -839,29 +839,29 @@ describe('The savePackageInfo action', () => {
             testInitialResourcesToManualAttributions,
           externalAttributions: { uuid_1: { copyright: 'copyright' } },
           resourcesToExternalAttributions: { '/somethingElse.js': ['uuid_1'] },
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedAttributionId('uuid2'));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     testStore.dispatch(
-      setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1'])
+      setMultiSelectSelectedAttributionIds(['toReplaceUuid', 'uuid1']),
     );
     testStore.dispatch(
       savePackageInfo(
         '/somethingElse.js',
         'toReplaceUuid',
         testPackageInfo,
-        true
-      )
+        true,
+      ),
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('uuid2');
   });
 
@@ -897,8 +897,8 @@ describe('The savePackageInfo action', () => {
             testInitialResourcesToManualAttributions,
           externalAttributions: testExternalAttributions,
           resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(setSelectedResourceId('/something.js'));
@@ -907,17 +907,17 @@ describe('The savePackageInfo action', () => {
         panel: PackagePanelTitle.ManualPackages,
         packageCardId: 'Attributions-0',
         displayPackageInfo: { ...testPackageInfo, attributionIds: ['uuid1'] },
-      })
+      }),
     );
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
     testStore.dispatch(savePackageInfo('/something.js', null, {}, true));
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
     expect(
-      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState())
+      getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
     ).toBe('uuid1');
   });
 
@@ -937,12 +937,12 @@ describe('The savePackageInfo action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
     testStore.dispatch(
-      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo)
+      setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );
 
     testStore.dispatch(
@@ -950,12 +950,12 @@ describe('The savePackageInfo action', () => {
         null,
         testManualAttributionUuid_2,
         packageInfoToUpdate,
-        true
-      )
+        true,
+      ),
     );
 
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
   });
 });
@@ -1013,12 +1013,16 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
           manualAttributions: testInitialManualAttributions,
           resourcesToManualAttributions:
             testInitialResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(
-      unlinkAttributionAndSavePackageInfo('/something.js', 'reactUuid', testVue)
+      unlinkAttributionAndSavePackageInfo(
+        '/something.js',
+        'reactUuid',
+        testVue,
+      ),
     );
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
   });
@@ -1055,8 +1059,8 @@ describe('The deleteAttributionAndSave action', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(deleteAttributionAndSave('/file1', 'toUnlink'));
@@ -1093,15 +1097,15 @@ describe('The deleteAttributionAndSave action', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setMultiSelectSelectedAttributionIds(['toUnlink']));
 
     testStore.dispatch(deleteAttributionAndSave('/file1', 'toUnlink'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
+      getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual([]);
   });
 
@@ -1146,14 +1150,14 @@ describe('The deleteAttributionAndSave action', () => {
           resources: testResources,
           manualAttributions: testAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
 
     testStore.dispatch(deleteAttributionAndSave('/file1', 'toUnlink'));
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO
+      EMPTY_DISPLAY_PACKAGE_INFO,
     );
   });
 });
@@ -1212,8 +1216,8 @@ describe('The deleteAttributionGloballyAndSave action', () => {
           manualAttributions: testInitialManualAttributions,
           resourcesToManualAttributions:
             testInitialResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
     testStore.dispatch(setAttributionIdMarkedForReplacement('reactUuid'));
@@ -1221,17 +1225,17 @@ describe('The deleteAttributionGloballyAndSave action', () => {
 
     testStore.dispatch(deleteAttributionGloballyAndSave('reactUuid'));
     expect(
-      getMultiSelectSelectedAttributionIds(testStore.getState())
+      getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual([]);
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      EMPTY_DISPLAY_PACKAGE_INFO
+      EMPTY_DISPLAY_PACKAGE_INFO,
     );
     expect(
-      getSelectedAttributionIdInAttributionView(testStore.getState())
+      getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toEqual('');
     expect(getAttributionIdMarkedForReplacement(testStore.getState())).toEqual(
-      ''
+      '',
     );
   });
 });
@@ -1245,14 +1249,14 @@ describe('The addToSelectedResource action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
     expect(
       getManualAttributionsToResources(testStore.getState())[
         testManualAttributionUuid_1
-      ]
+      ],
     ).toEqual(['/root/src/something.js']);
 
     testStore.dispatch(addToSelectedResource(testTemporaryDisplayPackageInfo));
@@ -1261,10 +1265,10 @@ describe('The addToSelectedResource action', () => {
       testManualAttributionUuid_1,
     ]);
     expect(
-      manualData.attributionsToResources[testManualAttributionUuid_1]
+      manualData.attributionsToResources[testManualAttributionUuid_1],
     ).toEqual(['/root/']);
     expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
-      testTemporaryDisplayPackageInfo
+      testTemporaryDisplayPackageInfo,
     );
     expect(getOpenPopup(testStore.getState())).toBe(null);
   });
@@ -1277,21 +1281,21 @@ describe('The addToSelectedResource action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
     expect(
       getManualAttributionsToResources(testStore.getState())[
         testManualAttributionUuid_1
-      ]
+      ],
     ).toEqual(['/root/src/something.js']);
 
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         packageName: 'modified',
         attributionIds: [],
-      })
+      }),
     );
     testStore.dispatch(addToSelectedResource(testTemporaryDisplayPackageInfo));
     expect(getOpenPopup(testStore.getState())).toEqual('NotSavedPopup');
@@ -1305,8 +1309,8 @@ describe('The addToSelectedResource action', () => {
           resources: testResources,
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
-        })
-      )
+        }),
+      ),
     );
     testStore.dispatch(setSelectedResourceId('/root/'));
 
@@ -1351,10 +1355,10 @@ describe('The addToSelectedResource action', () => {
       attributionIds: [uuidNewAttribution],
     };
     expect(manualData.attributions[uuidNewAttribution]).toEqual(
-      expectedModifiedPackageInfo
+      expectedModifiedPackageInfo,
     );
     expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
-      expectedModifiedDisplayPackageInfo
+      expectedModifiedDisplayPackageInfo,
     );
     expect(getOpenPopup(testStore.getState())).toBe(null);
   });
@@ -1363,12 +1367,12 @@ describe('The addToSelectedResource action', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(setResources({}));
     testStore.dispatch(
-      addResolvedExternalAttribution('TestExternalAttribution')
+      addResolvedExternalAttribution('TestExternalAttribution'),
     );
     const expectedSaveFileArgs: SaveFileArgs = {
       manualAttributions: {},
       resolvedExternalAttributions: new Set<string>().add(
-        'TestExternalAttribution'
+        'TestExternalAttribution',
       ),
       resourcesToAttributions: {},
     };
@@ -1376,7 +1380,7 @@ describe('The addToSelectedResource action', () => {
     testStore.dispatch(saveManualAndResolvedAttributionsToFile());
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      expectedSaveFileArgs
+      expectedSaveFileArgs,
     );
   });
 });
