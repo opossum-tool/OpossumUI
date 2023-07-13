@@ -1834,13 +1834,13 @@
     picocolors "^1.0.0"
     tslib "^2.6.0"
 
-"@playwright/test@^1.35.0":
-  version "1.35.0"
-  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.35.0.tgz#532603399a0dd46731fbc31a0df5ce357dafa486"
-  integrity sha512-6qXdd5edCBynOwsz1YcNfgX8tNWeuS9fxy5o59D0rvHXxRtjXRebB4gE4vFVfEMXl/z8zTnAzfOs7aQDEs8G4Q==
+"@playwright/test@^1.36.0":
+  version "1.36.0"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.36.0.tgz#df2c0b09bbd27016adf1892b0c3502c4ce88d307"
+  integrity sha512-yN+fvMYtiyLFDCQos+lWzoX4XW3DNuaxjBu68G0lkgLgC6BP+m/iTxJQoSicz/x2G5EsrqlZTqTIP9sTgLQerg==
   dependencies:
     "@types/node" "*"
-    playwright-core "1.35.0"
+    playwright-core "1.36.0"
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -6820,10 +6820,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-playwright-core@1.35.0:
-  version "1.35.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.35.0.tgz#b7871b742b4a5c8714b7fa2f570c280a061cb414"
-  integrity sha512-muMXyPmIx/2DPrCHOD1H1ePT01o7OdKxKj2ebmCAYvqhUy+Y1bpal7B0rdoxros7YrXI294JT/DWw2LqyiqTPA==
+playwright-core@1.36.0:
+  version "1.36.0"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.36.0.tgz#35d1ed5f364a31e58bc8f06688ab02d538b96eb6"
+  integrity sha512-7RTr8P6YJPAqB+8j5ATGHqD6LvLLM39sYVNsslh78g8QeLcBs5750c6+msjrHUwwGt+kEbczBj1XB22WMwn+WA==
 
 plist@^3.0.4, plist@^3.0.5:
   version "3.0.6"
