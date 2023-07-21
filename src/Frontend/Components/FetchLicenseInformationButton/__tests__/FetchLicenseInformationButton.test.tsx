@@ -6,7 +6,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React, { ReactElement, ReactNode } from 'react';
 import {
-  FETCH_DATA_BUTTON_DISABLED_TOOLTIP,
+  FETCH_DATA_FOR_SIGNALS_TOOLTIP,
+  FETCH_DATA_INVALID_DOMAIN_TOOLTIP,
   FETCH_DATA_TOOLTIP,
   FetchLicenseInformationButton,
   FetchStatus,
@@ -29,9 +30,23 @@ const axiosMock = new MockAdapter(axios);
 
 describe('FetchLicenseInformationButton', () => {
   it('renders disabled button', () => {
-    render(<FetchLicenseInformationButton disabled={true} url={''} />);
+    render(
+      <FetchLicenseInformationButton
+        disabled={true}
+        url={'https://github.com/reactchartjs/react-chartjs-2/tree/d8c'}
+      />,
+    );
     expect(
-      screen.getByLabelText(FETCH_DATA_BUTTON_DISABLED_TOOLTIP),
+      screen.getByLabelText(FETCH_DATA_FOR_SIGNALS_TOOLTIP),
+    ).toBeInTheDocument();
+  });
+
+  it('renders tooltip vor invalid domain', () => {
+    render(
+      <FetchLicenseInformationButton disabled={false} url={'invalid url'} />,
+    );
+    expect(
+      screen.getByLabelText(FETCH_DATA_INVALID_DOMAIN_TOOLTIP),
     ).toBeInTheDocument();
   });
 
