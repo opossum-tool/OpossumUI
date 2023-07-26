@@ -11,6 +11,7 @@ import {
   AttributionsToResources,
   DiscreteConfidence,
   ParsedFileContent,
+  ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { getGlobalBackendState } from '../main/globalBackendState';
 import {
@@ -256,68 +257,54 @@ function createJsonOutputFile(
   inputFileMD5Checksum?: string,
 ): OpossumOutputFile {
   const externalAttributionsCopy = cloneDeep(externalAttributions);
-  const preselectedExternalAttributions = Object.fromEntries(
-    Object.entries(externalAttributionsCopy).filter(([, packageInfo]) => {
-      delete packageInfo.source;
-      return Boolean(packageInfo.preSelected);
-    }),
-  );
-  const preselectedAttributionIdsToExternalAttributionIds = Object.fromEntries(
-    Object.keys(preselectedExternalAttributions).map((attributionId) => [
-      attributionId,
-      uuid4(),
-    ]),
-  );
-  const preselectedAttributionsToResources = Object.fromEntries(
-    Object.entries(resourcesToExternalAttributions).map(
-      ([resourceId, attributionIds]) => {
-        const filteredAttributionIds = attributionIds.filter((attributionId) =>
-          Object.keys(preselectedExternalAttributions).includes(attributionId),
-        );
-        return filteredAttributionIds.length
-          ? [
-              resourceId,
-              filteredAttributionIds.map(
-                (attributionId) =>
-                  preselectedAttributionIdsToExternalAttributionIds[
-                    attributionId
-                  ],
-              ),
-            ]
-          : [];
-      },
-    ),
-  );
-  const preselectedAttributions = Object.fromEntries(
-    Object.entries(preselectedExternalAttributions).map(
-      ([attributionId, packageInfo]) => [
-        preselectedAttributionIdsToExternalAttributionIds[attributionId],
-        packageInfo,
-      ],
-    ),
-  );
 
-  for (const attributionId of Object.keys(preselectedAttributions)) {
-    const attributionConfidence =
-      preselectedAttributions[attributionId].attributionConfidence;
-    if (attributionConfidence !== undefined) {
-      preselectedAttributions[attributionId].attributionConfidence =
-        attributionConfidence >= DiscreteConfidence.High
-          ? DiscreteConfidence.High
-          : DiscreteConfidence.Low;
+  const manualAttributions: Attributions = {};
+  const manualAttributionIdsToExternalAttributionIds: {
+    [attributionId: string]: string;
+  } = {};
+  const manualAttributionIds = new Set<string>();
+  for (const attributionId of Object.keys(externalAttributionsCopy)) {
+    const packageInfo = externalAttributionsCopy[attributionId];
+    if (packageInfo.preSelected) {
+      delete packageInfo.source;
+      if (packageInfo.attributionConfidence !== undefined) {
+        packageInfo.attributionConfidence =
+          packageInfo.attributionConfidence >= DiscreteConfidence.High
+            ? DiscreteConfidence.High
+            : DiscreteConfidence.Low;
+      }
+
+      const newUUID = uuid4();
+      manualAttributions[newUUID] = packageInfo;
+      manualAttributionIdsToExternalAttributionIds[attributionId] = newUUID;
+
+      manualAttributionIds.add(attributionId);
     }
   }
 
-  const attributionJSON: OpossumOutputFile = {
+  const resourcesToAttributions: ResourcesToAttributions = {};
+  for (const resourceId of Object.keys(resourcesToExternalAttributions)) {
+    const attributionIds = resourcesToExternalAttributions[resourceId];
+    const filteredAttributionIds = attributionIds.filter((attributionId) =>
+      manualAttributionIds.has(attributionId),
+    );
+
+    if (filteredAttributionIds.length) {
+      resourcesToAttributions[resourceId] = filteredAttributionIds.map(
+        (attributionId) =>
+          manualAttributionIdsToExternalAttributionIds[attributionId],
+      );
+    }
+  }
+
+  return {
     metadata: {
       projectId,
       fileCreationDate: String(Date.now()),
       inputFileMD5Checksum,
     },
-    manualAttributions: preselectedAttributions,
-    resourcesToAttributions: preselectedAttributionsToResources,
+    manualAttributions,
+    resourcesToAttributions,
     resolvedExternalAttributions: [],
   };
-
-  return attributionJSON;
 }
