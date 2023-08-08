@@ -3995,10 +3995,10 @@ eslint-plugin-filenames@^1.3.2:
     lodash.snakecase "4.1.1"
     lodash.upperfirst "4.3.1"
 
-eslint-plugin-jest-dom@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jest-dom/-/eslint-plugin-jest-dom-5.0.1.tgz#48a0bec664665f206535c87a70d063a05e4189da"
-  integrity sha512-zD/BjNk12R5R9cxIu8oa2HfNeDSknI3ewtN8nygIUMQuieWDnTY9Np//6a1Z3G7Y3dx3l45hCUR4EphsgRmUtA==
+eslint-plugin-jest-dom@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jest-dom/-/eslint-plugin-jest-dom-5.0.2.tgz#4b354f7d6d8b205ec2ba37748bb40b063b3c9305"
+  integrity sha512-zfNOwQOrOOGcxb3tcOgB2fEiqmgEbXKcPrNC+NlNSWCi3wg/m+DWVqrrshp4gOjhpP1R/1X7kkHumnf8PLUFhw==
   dependencies:
     "@babel/runtime" "^7.16.3"
     requireindex "^1.2.0"
