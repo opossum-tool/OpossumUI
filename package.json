@@ -79,7 +79,7 @@
     "lint-staged": "^14.0.0",
     "mockdate": "^3.0.5",
     "nunjucks": "^3.2.4",
-    "prettier": "^3.0.1",
+    "prettier": "^3.0.2",
     "redux-devtools-extension": "^2.13.9",
     "run-script-os": "^1.1.6",
     "start-server-and-test": "^2.0.0",
