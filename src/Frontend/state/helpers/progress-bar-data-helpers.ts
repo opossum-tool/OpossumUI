@@ -149,7 +149,8 @@ function updateProgressBarDataForResources(
         path,
         hasManualAttribution && !isBreakpoint,
         hasOnlyPreselectedAttribution && !isBreakpoint,
-        hasNonInheritedExternalAttributions && !isBreakpoint,
+        (hasNonInheritedExternalAttributions || hasParentExternalAttribution) &&
+          !isBreakpoint,
       );
     }
   }
