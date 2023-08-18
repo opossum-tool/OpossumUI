@@ -21,6 +21,11 @@ describe('The getUpdatedProgressBarData function', () => {
   it('gets updated progress data', () => {
     const testResources: Resources = {
       thirdParty: {
+        package: {
+          contents: {
+            'readme.txt': 1,
+          },
+        },
         'package_1.tr.gz': 1,
         'package_2.tr.gz': 1,
       },
@@ -89,6 +94,7 @@ describe('The getUpdatedProgressBarData function', () => {
       '/thirdParty/package_2.tr.gz': [
         testMediumCriticalExternalAttributionUuid,
       ],
+      '/thirdParty/package/': [testMediumCriticalExternalAttributionUuid],
     };
 
     const progressBarData = getUpdatedProgressBarData({
@@ -102,13 +108,20 @@ describe('The getUpdatedProgressBarData function', () => {
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
     });
-    const expectedNumberOfFiles = 4;
+    const expectedNumberOfFiles = 5;
+    const expectedNumberOfFilesWithOnlyExternalAttribution = 3;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(2);
+    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(
+      expectedNumberOfFilesWithOnlyExternalAttribution,
+    );
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
-    ).toEqual(['/thirdParty/package_1.tr.gz', '/thirdParty/package_2.tr.gz']);
+    ).toEqual([
+      '/thirdParty/package/',
+      '/thirdParty/package_1.tr.gz',
+      '/thirdParty/package_2.tr.gz',
+    ]);
     expect(
       progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
     ).toEqual(1);
@@ -120,7 +133,7 @@ describe('The getUpdatedProgressBarData function', () => {
     ).toEqual(1);
     expect(
       progressBarData.resourcesWithMediumCriticalExternalAttributions,
-    ).toEqual(['/thirdParty/package_2.tr.gz']);
+    ).toEqual(['/thirdParty/package/', '/thirdParty/package_2.tr.gz']);
   });
 
   it('gets updated progress data without resolved external attributions', () => {
