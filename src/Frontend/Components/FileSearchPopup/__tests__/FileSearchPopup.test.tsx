@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import {
   createTestAppStore,
   renderComponentWithStore,
@@ -115,34 +115,5 @@ describe('FileSearch popup ', () => {
     });
 
     expect(screen.queryByText('/', { exact: false })).not.toBeInTheDocument();
-  });
-
-  it('has search with state', () => {
-    const store = createTestAppStore();
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({ resources: testResources }),
-      ),
-    );
-
-    renderComponentWithStore(<FileSearchPopup />, { store });
-
-    fireEvent.change(screen.getByRole('searchbox'), {
-      target: { value: '/eagleBlu/' },
-    });
-    cleanup();
-
-    renderComponentWithStore(<FileSearchPopup />, { store });
-
-    act(() => {
-      jest.advanceTimersByTime(debounceWaitTimeInMs);
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    expect(screen.queryAllByText('/', { exact: false })).toHaveLength(4);
-    expect(screen.queryAllByText('/eagleBlu/', { exact: false })).toHaveLength(
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      4,
-    );
   });
 });

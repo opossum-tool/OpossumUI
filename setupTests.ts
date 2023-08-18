@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 const TEST_TIMEOUT = 15000;
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
