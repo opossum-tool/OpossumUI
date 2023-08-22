@@ -92,7 +92,7 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData = parsingResult.input;
     parsedOutputData = parsingResult.output;
 
-    log.info('... Successfully read .opossum file.\n');
+    log.info('... Successfully read .opossum file.');
   } else {
     log.info(`Starting to parse input file ${filePath}`);
     const parsingResult = await parseInputJsonFile(filePath);
