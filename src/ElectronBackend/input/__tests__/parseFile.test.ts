@@ -21,8 +21,11 @@ import {
   parseOutputJsonFile,
 } from '../parseFile';
 import { cloneDeep, set } from 'lodash';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
-import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
+import {
+  createTempFolder,
+  deleteFolder,
+  writeOpossumFile,
+} from '../../test-helpers';
 
 const testUuid: string = uuidNil;
 const correctInput: ParsedOpossumInputFile = {
@@ -327,7 +330,7 @@ describe('parseOutputJsonFile', () => {
     );
 
     expect(() => parseOutputJsonFile(attributionPath)).toThrow(
-      `Error: ${attributionPath} is not a valid attribution file.`,
+      `Error: ${attributionPath} contains an invalid output file.\n Original error message: instance requires property \"metadata\"`,
     );
     deleteFolder(temporaryPath);
   });

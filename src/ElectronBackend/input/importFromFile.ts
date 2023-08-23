@@ -214,7 +214,7 @@ async function createOutputInOpossumFile(
     projectId,
   );
   await writeOutputJsonToOpossumFile(filePath, attributionJSON);
-  log.info('... Successfully wrote output in .opssum file.');
+  log.info('... Successfully wrote output in .opossum file.');
 
   log.info(`Starting to parse output file in ${filePath} ...`);
   const parsingResult = (await parseOpossumFile(

@@ -12,11 +12,12 @@ import {
   ParsedOpossumOutputFile,
 } from '../../types/types';
 import { Criticality, FollowUp } from '../../../shared/shared-types';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
 import {
+  createTempFolder,
+  deleteFolder,
   writeOpossumFile,
-  writeOutputJsonToOpossumFile,
-} from '../writeJsonToOpossumFile';
+} from '../../test-helpers';
+import { writeOutputJsonToOpossumFile } from '../writeJsonToOpossumFile';
 import { parseOpossumFile } from '../../input/parseFile';
 
 const metadata = {
