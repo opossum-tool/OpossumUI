@@ -3,57 +3,44 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import JSZip from 'jszip';
+import * as fflate from 'fflate';
 import fs from 'fs';
-import log from 'electron-log';
-import { OPOSSUM_FILE_COMPRESSION_LEVEL } from '../shared-constants';
-
-export async function writeOpossumFile(
-  opossumfilePath: string,
-  inputfileData: unknown,
-  outputfileData: unknown | null,
-): Promise<void> {
-  const writeStream = fs.createWriteStream(opossumfilePath);
-  const zip = new JSZip();
-  zip.file('input.json', JSON.stringify(inputfileData));
-  if (outputfileData) {
-    zip.file('output.json', JSON.stringify(outputfileData));
-  }
-  await zip
-    .generateAsync({
-      type: 'nodebuffer',
-      streamFiles: true,
-      compression: 'DEFLATE',
-      compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
-    })
-    .then((output) => writeStream.write(output));
-}
+import {
+  INPUT_FILE_NAME,
+  OPOSSUM_FILE_COMPRESSION_LEVEL,
+  OUTPUT_FILE_NAME,
+} from '../shared-constants';
+import { getGlobalBackendState } from '../main/globalBackendState';
 
 export async function writeOutputJsonToOpossumFile(
   opossumfilePath: string,
   outputfileData: unknown,
 ): Promise<void> {
-  const new_zip = new JSZip();
+  const unzipResult: fflate.Unzipped = {};
+  unzipResult[INPUT_FILE_NAME] = getGlobalBackendState()
+    .inputFileRaw as Uint8Array;
+  unzipResult[OUTPUT_FILE_NAME] = fflate.strToU8(
+    JSON.stringify(outputfileData),
+  );
 
-  await new Promise<void>((resolve) => {
-    fs.readFile(opossumfilePath, (err, data) => {
+  const zippedData: Uint8Array = await new Promise((resolve) => {
+    fflate.zip(
+      unzipResult,
+      {
+        level: OPOSSUM_FILE_COMPRESSION_LEVEL,
+      },
+      (err, data) => {
+        if (err) throw err;
+        resolve(data);
+      },
+    );
+  });
+
+  const writeStream = fs.createWriteStream(opossumfilePath);
+  return new Promise((resolve) => {
+    writeStream.write(zippedData, (err) => {
       if (err) throw err;
-      new_zip.loadAsync(data).then(() => {
-        new_zip.file('output.json', JSON.stringify(outputfileData));
-        const writeStream = fs.createWriteStream(opossumfilePath);
-        new_zip
-          .generateNodeStream({
-            type: 'nodebuffer',
-            streamFiles: true,
-            compression: 'DEFLATE',
-            compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
-          })
-          .pipe(writeStream)
-          .on('finish', () => {
-            log.info('opossum file was overwritten!');
-            resolve();
-          });
-      });
+      resolve();
     });
   });
 }

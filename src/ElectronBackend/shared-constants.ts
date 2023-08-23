@@ -5,3 +5,5 @@
 
 export const OPOSSUM_FILE_EXTENSION = '.opossum';
 export const OPOSSUM_FILE_COMPRESSION_LEVEL = 5;
+export const INPUT_FILE_NAME = 'input.json';
+export const OUTPUT_FILE_NAME = 'output.json';

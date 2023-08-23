@@ -37,6 +37,7 @@ export interface GlobalBackendState {
   projectId?: string;
   inputContainsCriticalExternalAttributions?: boolean;
   inputFileChecksum?: string;
+  inputFileRaw?: Uint8Array;
 }
 
 interface RawPackageInfo {

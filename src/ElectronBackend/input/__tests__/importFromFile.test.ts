@@ -27,8 +27,11 @@ import * as fs from 'fs';
 import * as zlib from 'zlib';
 import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling';
 import writeFileAtomic from 'write-file-atomic';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
-import { writeOpossumFile } from '../../output/writeJsonToOpossumFile';
+import {
+  createTempFolder,
+  deleteFolder,
+  writeOpossumFile,
+} from '../../test-helpers';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
@@ -263,16 +266,17 @@ describe('Test of loading function', () => {
 
     await writeOpossumFile(opossumPath, inputFileContent, null);
 
-    Date.now = jest.fn(() => 1);
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    Date.now = jest.fn(() => 1691761892037);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
 
-    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
     expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expectedFileContent,
     );
+    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
 
     expect(dialog.showMessageBox).not.toBeCalled();
     deleteFolder(temporaryPath);

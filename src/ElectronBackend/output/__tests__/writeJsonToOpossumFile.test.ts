@@ -12,12 +12,15 @@ import {
   ParsedOpossumOutputFile,
 } from '../../types/types';
 import { Criticality, FollowUp } from '../../../shared/shared-types';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
 import {
+  createTempFolder,
+  deleteFolder,
   writeOpossumFile,
-  writeOutputJsonToOpossumFile,
-} from '../writeJsonToOpossumFile';
+} from '../../test-helpers';
+import { writeOutputJsonToOpossumFile } from '../writeJsonToOpossumFile';
 import { parseOpossumFile } from '../../input/parseFile';
+import { getGlobalBackendState } from '../../main/globalBackendState';
+import * as fflate from 'fflate';
 
 const metadata = {
   projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',
@@ -126,10 +129,16 @@ const parsedOutputFileContent: ParsedOpossumOutputFile = {
 };
 
 describe('writeOutputJsonToOpossumFile', () => {
+  afterEach(() => {
+    delete getGlobalBackendState().inputFileRaw;
+  });
+
   it('writes new output', async () => {
     const temporaryPath: string = createTempFolder();
     const opossumPath = path.join(upath.toUnix(temporaryPath), 'test.opossum');
-    await writeOpossumFile(opossumPath, inputFileContent, null);
+    getGlobalBackendState().inputFileRaw = fflate.strToU8(
+      JSON.stringify(inputFileContent),
+    );
 
     await writeOutputJsonToOpossumFile(opossumPath, outputFileContent);
 
@@ -146,6 +155,9 @@ describe('writeOutputJsonToOpossumFile', () => {
     const temporaryPath: string = createTempFolder();
     const opossumPath = path.join(upath.toUnix(temporaryPath), 'test.opossum');
     const outputToBeOverwritten = { test: 'test' };
+    getGlobalBackendState().inputFileRaw = fflate.strToU8(
+      JSON.stringify(inputFileContent),
+    );
     await writeOpossumFile(
       opossumPath,
       inputFileContent,
