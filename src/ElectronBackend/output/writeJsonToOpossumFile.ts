@@ -6,28 +6,19 @@
 import * as fflate from 'fflate';
 import fs from 'fs';
 import {
+  INPUT_FILE_NAME,
   OPOSSUM_FILE_COMPRESSION_LEVEL,
   OUTPUT_FILE_NAME,
 } from '../shared-constants';
+import { getGlobalBackendState } from '../main/globalBackendState';
 
 export async function writeOutputJsonToOpossumFile(
   opossumfilePath: string,
   outputfileData: unknown,
 ): Promise<void> {
-  const originalZipBuffer: Buffer = await new Promise((resolve) => {
-    fs.readFile(opossumfilePath, (err, data) => {
-      if (err) throw err;
-      resolve(data);
-    });
-  });
-
-  const unzipResult: fflate.Unzipped = await new Promise((resolve) => {
-    fflate.unzip(new Uint8Array(originalZipBuffer), (err, data) => {
-      if (err) throw err;
-      resolve(data);
-    });
-  });
-
+  const unzipResult: fflate.Unzipped = {};
+  unzipResult[INPUT_FILE_NAME] = getGlobalBackendState()
+    .inputFileRaw as Uint8Array;
   unzipResult[OUTPUT_FILE_NAME] = fflate.strToU8(
     JSON.stringify(outputfileData),
   );

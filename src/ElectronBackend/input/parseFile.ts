@@ -19,6 +19,7 @@ import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
 import Asm from 'stream-json/Assembler';
 import { Parser, parser } from 'stream-json';
 import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from '../shared-constants';
+import { getGlobalBackendState } from '../main/globalBackendState';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {
@@ -44,6 +45,7 @@ export async function parseOpossumFile(
       type: 'invalidDotOpossumFileError',
     };
   } else {
+    getGlobalBackendState().inputFileRaw = zip[INPUT_FILE_NAME];
     const inputJson = fflate.strFromU8(zip[INPUT_FILE_NAME]);
     JSON.parse(inputJson);
     try {
