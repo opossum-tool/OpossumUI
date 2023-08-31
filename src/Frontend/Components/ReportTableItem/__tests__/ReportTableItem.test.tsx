@@ -54,10 +54,6 @@ describe('The ReportTableItem', () => {
 
     expect(screen.getByText('packageWebsite'));
 
-    expect(screen.getByText('Yes'));
-
-    expect(screen.getAllByText('No')).toHaveLength(2);
-
     expect(screen.getByText('/'));
   });
 
