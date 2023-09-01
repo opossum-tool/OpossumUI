@@ -90,21 +90,6 @@ export const tableConfigs: Array<TableConfig> = [
     width: 'small',
   },
   { attributionProperty: 'comment', displayName: 'Comment', width: 'small' },
-  {
-    attributionProperty: 'followUp',
-    displayName: 'Follow-up',
-    width: 'small',
-  },
-  {
-    attributionProperty: 'excludeFromNotice',
-    displayName: 'Excluded',
-    width: 'small',
-  },
-  {
-    attributionProperty: 'firstParty',
-    displayName: 'First Party',
-    width: 'small',
-  },
 ];
 
 interface TableProps {

@@ -20,9 +20,6 @@ describe('The report view table header', () => {
     expect(screen.getByText('Confidence'));
     expect(screen.getByText('Comment'));
     expect(screen.getByText('URL'));
-    expect(screen.getByText('First Party'));
-    expect(screen.getByText('Follow-up'));
     expect(screen.getByText('Resources'));
-    expect(screen.getByText('Excluded'));
   });
 });

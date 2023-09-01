@@ -68,12 +68,6 @@ describe('The Table', () => {
     expect(screen.getByText('URL'));
     expect(screen.getByText('packageWebsite'));
 
-    expect(screen.getByText('First Party'));
-    expect(screen.getByText('Yes'));
-
-    expect(screen.getByText('Follow-up'));
-    expect(screen.getAllByText('No'));
-
     expect(screen.getByText('Resources'));
     expect(screen.getByText('/'));
 
