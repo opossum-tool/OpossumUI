@@ -24,7 +24,7 @@ Example:
 ```
 Short summary of changes (72 characters or less)
 
-More detailed explanatory text, if necessary. This text can have 
+More detailed explanatory text, if necessary. This text can have
 several lines.
 
 Issue: #123  (optional; if there is a related issue)
@@ -107,4 +107,28 @@ To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn 
 systems run `yarn ship`.
 **Important:** wine must be installed to build a Windows installer on a non-Windows system.
 
-The built release(s) can be found under _/release_ 
+The built release(s) can be found under _/release_
+
+## Creating a new release
+
+Note: You will need Maintain permissions in order to create a new release.
+
+### Checklist
+1. **Test** on a large real-world example.
+    1. Create a build for your OS using either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`.
+    1. Check performances on a large .opossum file.
+    1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpussumUI and resize the window, don't need to change resolution).
+    1. Check that the performance of the save operation is good.
+    1. Check that the notices for the app itself and chromium are accessible via the menu.
+1. **Create** the release via UI (see next section for details).
+1. Optional: Notify users about a new release.
+    1. Wait until all the artifacts are shown on Github before sending a message.
+    1. Briefly mention the most important changes.
+
+### Creating a release
+1. Go to: https://github.com/opossum-tool/OpossumUI/releases/new
+1. Use the UI to create an new release. The tag should have the format "OpossumUI-2023-$MONTH-$DAY" (in case of a second release on the same day "OpossumUI-2023-$MONTH-$DAY.1").
+1. The title of the release equals the tag.
+1. Click the button "Generate release notes" to get the description for the release. Then, remove all the changes from dependabot (lines that include "Bump").
+
+![release](./docs/release_guide.png)
