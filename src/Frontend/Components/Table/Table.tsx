@@ -100,7 +100,7 @@ interface TableProps {
 }
 
 export function Table(props: TableProps): ReactElement | null {
-  const tableHeaderOffset = 110;
+  const tableHeaderOffset = 145;
   const maxHeight = useWindowHeight() - topBarHeight - tableHeaderOffset;
   const attributionsIds = useMemo(() => {
     return Object.keys(props.attributionsWithResources);
