@@ -68,15 +68,9 @@ export function AggregatedAttributionsPanel(
     ],
   );
 
-  const manualPanelData: PanelAttributionData = {
-    attributions: manualData.attributions,
-    resourcesToAttributions: manualData.resourcesToAttributions,
-    resourcesWithAttributedChildren: manualData.resourcesWithAttributedChildren,
-  };
   const containedManualPackagesWorkerArgs = useMemo(
     () => ({
       selectedResourceId,
-      manualData: manualPanelData,
       panelTitle: PackagePanelTitle.ContainedManualPackages,
     }),
 
@@ -89,6 +83,22 @@ export function AggregatedAttributionsPanel(
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedResourceId, manualData.resourcesToAttributions],
+  );
+
+  const manualPanelData: PanelAttributionData = {
+    attributions: manualData.attributions,
+    resourcesToAttributions: manualData.resourcesToAttributions,
+    resourcesWithAttributedChildren: manualData.resourcesWithAttributedChildren,
+  };
+  const containedManualPackagesSyncFallbackArgs = useMemo(
+    () => ({
+      selectedResourceId,
+      manualData: manualPanelData,
+      panelTitle: PackagePanelTitle.ContainedManualPackages,
+    }),
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedResourceId, manualData],
   );
 
   return (
@@ -118,6 +128,7 @@ export function AggregatedAttributionsPanel(
           <WorkerAccordionPanel
             title={PackagePanelTitle.ContainedManualPackages}
             workerArgs={containedManualPackagesWorkerArgs}
+            syncFallbackArgs={containedManualPackagesSyncFallbackArgs}
             getDisplayPackageInfosWithCount={
               getContainedManualDisplayPackageInfosWithCount
             }

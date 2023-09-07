@@ -35,7 +35,7 @@ interface ContainedExternalAttributionsAccordionWorkerArgs {
 
 interface ContainedManualAttributionsAccordionWorkerArgs {
   selectedResourceId: string;
-  manualData: PanelAttributionData;
+  manualData?: PanelAttributionData;
   panelTitle: PackagePanelTitle;
 }
 
@@ -44,7 +44,7 @@ interface WorkerAccordionPanelProps {
     | PackagePanelTitle.ContainedExternalPackages
     | PackagePanelTitle.ContainedManualPackages;
   workerArgs: ContainedAttributionsAccordionWorkerArgs;
-  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs;
+  syncFallbackArgs: ContainedAttributionsAccordionWorkerArgs;
   getDisplayPackageInfosWithCount(
     workerArgs: ContainedAttributionsAccordionWorkerArgs,
   ): [Array<string>, DisplayPackageInfosWithCount];
@@ -125,7 +125,7 @@ async function loadDisplayPackageInfosWithCount(
   getDisplayPackageInfosWithCount: (
     workerArgs: ContainedAttributionsAccordionWorkerArgs,
   ) => [Array<string>, DisplayPackageInfosWithCount],
-  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs,
+  syncFallbackArgs: ContainedAttributionsAccordionWorkerArgs,
 ): Promise<void> {
   setDisplayPackageInfosWithCountAndResourceId(
     EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID,
@@ -145,7 +145,6 @@ async function loadDisplayPackageInfosWithCount(
           Error('Web Worker execution error.'),
           setDisplayPackageInfosWithCountAndResourceId,
           getDisplayPackageInfosWithCount,
-          workerArgs,
           syncFallbackArgs,
         );
       } else {
@@ -158,7 +157,6 @@ async function loadDisplayPackageInfosWithCount(
       error,
       setDisplayPackageInfosWithCountAndResourceId,
       getDisplayPackageInfosWithCount,
-      workerArgs,
       syncFallbackArgs,
     );
   }
@@ -171,18 +169,17 @@ function logErrorAndComputeInMainProcess(
     displayPackageInfosWithCountAndResourceId: DisplayPackageInfosWithCountAndResourceId,
   ) => void,
   getDisplayPackageInfosWithCount: (
-    workerArgs: ContainedAttributionsAccordionWorkerArgs,
+    syncFallbackArgs: ContainedAttributionsAccordionWorkerArgs,
   ) => [Array<string>, DisplayPackageInfosWithCount],
-  workerArgs: ContainedAttributionsAccordionWorkerArgs,
-  syncFallbackArgs?: ContainedAttributionsAccordionWorkerArgs,
+  syncFallbackArgs: ContainedAttributionsAccordionWorkerArgs,
 ): void {
   console.info(`Error in ResourceDetailsTab ${panelTitle}: `, error);
 
   const [sortedPackageCardIds, displayAttributionIdsWithCount] =
-    getDisplayPackageInfosWithCount(syncFallbackArgs || workerArgs);
+    getDisplayPackageInfosWithCount(syncFallbackArgs);
 
   setDisplayPackageInfosWithCountAndResourceId({
-    resourceId: workerArgs.selectedResourceId,
+    resourceId: syncFallbackArgs.selectedResourceId,
     sortedPackageCardIds,
     displayPackageInfosWithCount: displayAttributionIdsWithCount,
   });

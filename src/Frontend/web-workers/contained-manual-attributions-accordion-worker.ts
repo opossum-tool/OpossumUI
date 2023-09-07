@@ -4,23 +4,38 @@
 
 import { DisplayPackageInfosWithCountAndResourceId } from '../types/types';
 import { getContainedManualDisplayPackageInfosWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
+import { PanelAttributionData } from '../util/get-contained-packages';
+
+let cachedManualData: PanelAttributionData | null = null;
 
 self.onmessage = ({
   data: { selectedResourceId, manualData, panelTitle },
 }): void => {
-  const [sortedPackageCardIds, displayPackageInfosWithCount] =
-    getContainedManualDisplayPackageInfosWithCount({
-      selectedResourceId,
-      manualData,
-      panelTitle,
-    });
-  const output: DisplayPackageInfosWithCountAndResourceId = {
-    resourceId: selectedResourceId,
-    sortedPackageCardIds,
-    displayPackageInfosWithCount,
-  };
+  if (manualData !== undefined) {
+    cachedManualData = manualData;
+  }
 
-  self.postMessage({
-    output,
-  });
+  if (selectedResourceId) {
+    if (cachedManualData) {
+      const [sortedPackageCardIds, displayPackageInfosWithCount] =
+        getContainedManualDisplayPackageInfosWithCount({
+          selectedResourceId,
+          manualData: cachedManualData,
+          panelTitle,
+        });
+      const output: DisplayPackageInfosWithCountAndResourceId = {
+        resourceId: selectedResourceId,
+        sortedPackageCardIds,
+        displayPackageInfosWithCount,
+      };
+
+      self.postMessage({
+        output,
+      });
+    } else {
+      self.postMessage({
+        output: null,
+      });
+    }
+  }
 };
