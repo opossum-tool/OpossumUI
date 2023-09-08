@@ -28,6 +28,7 @@ export enum PopupType {
   FileSupportPopup = 'FileSupportPopup',
   FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
   UpdateAppPopup = 'UpdateAppPopup',
+  LocatorPopup = 'LocatorPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -51,6 +52,7 @@ export enum ButtonText {
   Back = 'Back',
   Close = 'Close',
   Cancel = 'Cancel',
+  Clear = 'Clear',
   Confirm = 'Confirm',
   ConfirmGlobally = 'Confirm globally',
   ConfirmSelectedGlobally = 'Confirm selected globally',
