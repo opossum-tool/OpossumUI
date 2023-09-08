@@ -13,6 +13,7 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
 import { getAttributionDataFromSetAttributionDataPayload } from '../../helpers/action-and-reducer-helpers';
 import {
@@ -40,6 +41,8 @@ import {
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryDisplayPackageInfoAction,
+  SetResourcesWithLocatedAttributions,
+  ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {
@@ -139,5 +142,18 @@ export function setExternalAttributionsToHashes(
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
     payload: externalAttributionsToHashes,
+  };
+}
+
+export function setResourcesWithLocatedAttributions(
+  resourcesWithLocatedChildren: ResourcesWithAttributedChildren,
+  locatedResources: Set<string>,
+): SetResourcesWithLocatedAttributions {
+  return {
+    type: ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
+    payload: {
+      resourcesWithLocatedChildren,
+      locatedResources,
+    },
   };
 }

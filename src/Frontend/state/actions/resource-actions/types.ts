@@ -15,6 +15,7 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
 import {
   PanelPackage,
@@ -97,6 +98,8 @@ export const ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY =
   'ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY';
 export const ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES =
   'ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES';
+export const ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS =
+  'ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -140,7 +143,8 @@ export type ResourceAction =
   | SetAttributionWizardTotalAttributionCount
   | SetExternalAttributionsToHashes
   | SetLocatePopupSelectedCriticality
-  | SetLocatePopupSelectedLicenses;
+  | SetLocatePopupSelectedLicenses
+  | SetResourcesWithLocatedAttributions;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -368,4 +372,12 @@ export interface SetLocatePopupSelectedCriticality {
 export interface SetLocatePopupSelectedLicenses {
   type: typeof ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES;
   payload: Set<string>;
+}
+
+export interface SetResourcesWithLocatedAttributions {
+  type: typeof ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS;
+  payload: {
+    resourcesWithLocatedChildren: ResourcesWithAttributedChildren;
+    locatedResources: Set<string>;
+  };
 }

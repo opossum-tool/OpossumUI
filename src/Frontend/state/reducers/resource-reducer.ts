@@ -12,6 +12,7 @@ import {
   FrequentLicenses,
   ProjectMetadata,
   Resources,
+  ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
@@ -71,6 +72,7 @@ import {
   ResourceAction,
   ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
   ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
+  ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -106,6 +108,14 @@ export const initialResourceState: ResourceState = {
     externalAttributionSources: {},
     attributionIdMarkedForReplacement: '',
     externalAttributionsToHashes: {},
+    resourcesWithLocatedAttributions: {
+      resourcesWithLocatedChildren: {
+        paths: [],
+        pathsToIndices: {},
+        attributedChildren: {},
+      },
+      locatedResources: new Set(),
+    },
   },
   auditView: {
     selectedResourceId: '',
@@ -160,6 +170,10 @@ export type ResourceState = {
     externalAttributionSources: ExternalAttributionSources;
     attributionIdMarkedForReplacement: string;
     externalAttributionsToHashes: AttributionsToHashes;
+    resourcesWithLocatedAttributions: {
+      resourcesWithLocatedChildren: ResourcesWithAttributedChildren;
+      locatedResources: Set<string>;
+    };
   };
   auditView: {
     selectedResourceId: string;
@@ -850,6 +864,14 @@ export const resourceState = (
         locatePopup: {
           ...state.locatePopup,
           selectedLicenses: action.payload,
+        },
+      };
+    case ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS:
+      return {
+        ...state,
+        allViews: {
+          ...state.allViews,
+          resourcesWithLocatedAttributions: action.payload,
         },
       };
     default:
