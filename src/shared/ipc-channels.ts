@@ -32,4 +32,5 @@ export enum AllowedFrontendChannels {
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
+  ShowLocatorPopup = 'show-locator-pop-up',
 }

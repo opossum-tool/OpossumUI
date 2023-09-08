@@ -40,6 +40,9 @@ jest.mock('../iconHelpers', () => ({
   getIconPath: (): string => {
     return 'icon/path.png';
   },
+  getIconBasedOnTheme: (): string => {
+    return 'icon/path-black.png';
+  },
 }));
 
 describe('createWindow', () => {
