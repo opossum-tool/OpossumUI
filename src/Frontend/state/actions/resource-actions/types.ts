@@ -20,6 +20,7 @@ import {
   PanelPackage,
   PackageAttributeIds,
   PackageAttributes,
+  SelectedCriticality,
 } from '../../../types/types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
@@ -92,6 +93,10 @@ export const ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT =
   'ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT';
 export const ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES =
   'ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES';
+export const ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY =
+  'ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY';
+export const ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES =
+  'ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -133,7 +138,9 @@ export type ResourceAction =
   | SetAttributionWizardPackageVersions
   | SetAttributionWizardSelectedPackageIds
   | SetAttributionWizardTotalAttributionCount
-  | SetExternalAttributionsToHashes;
+  | SetExternalAttributionsToHashes
+  | SetLocatePopupSelectedCriticality
+  | SetLocatePopupSelectedLicenses;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -351,4 +358,14 @@ export interface SetAttributionWizardTotalAttributionCount {
 export interface SetExternalAttributionsToHashes {
   type: typeof ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES;
   payload: AttributionsToHashes;
+}
+
+export interface SetLocatePopupSelectedCriticality {
+  type: typeof ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY;
+  payload: SelectedCriticality;
+}
+
+export interface SetLocatePopupSelectedLicenses {
+  type: typeof ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES;
+  payload: Set<string>;
 }

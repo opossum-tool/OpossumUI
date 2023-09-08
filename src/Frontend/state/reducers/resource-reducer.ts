@@ -15,6 +15,7 @@ import {
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
+  SelectedCriticality,
   PackageAttributeIds,
   PackageAttributes,
   PanelPackage,
@@ -68,6 +69,8 @@ import {
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   ResourceAction,
+  ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
+  ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -136,6 +139,10 @@ export const initialResourceState: ResourceState = {
     },
     totalAttributionCount: null,
   },
+  locatePopup: {
+    selectedCriticality: 'any',
+    selectedLicenses: new Set(),
+  },
 };
 
 export type ResourceState = {
@@ -181,6 +188,10 @@ export type ResourceState = {
     packageVersions: PackageAttributes;
     selectedPackageAttributeIds: PackageAttributeIds;
     totalAttributionCount: number | null;
+  };
+  locatePopup: {
+    selectedCriticality: SelectedCriticality;
+    selectedLicenses: Set<string>;
   };
 };
 
@@ -823,6 +834,22 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           externalAttributionsToHashes: action.payload,
+        },
+      };
+    case ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY:
+      return {
+        ...state,
+        locatePopup: {
+          ...state.locatePopup,
+          selectedCriticality: action.payload,
+        },
+      };
+    case ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES:
+      return {
+        ...state,
+        locatePopup: {
+          ...state.locatePopup,
+          selectedLicenses: action.payload,
         },
       };
     default:
