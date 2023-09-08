@@ -24,6 +24,7 @@ import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWiz
 import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
 import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
 import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
+import { LocatorPopup } from '../LocatorPopup/LocatorPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {
@@ -61,6 +62,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <FileSupportDotOpossumAlreadyExistsPopup />;
     case PopupType.UpdateAppPopup:
       return <UpdateAppPopup />;
+    case PopupType.LocatorPopup:
+      return <LocatorPopup />;
     default:
       return null;
   }
