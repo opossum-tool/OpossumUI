@@ -32,6 +32,7 @@ import {
   getResourcesToManualAttributions,
   getResourcesWithExternalAttributedChildren,
   getResourcesWithManualAttributedChildren,
+  getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
@@ -43,6 +44,7 @@ import {
   setFrequentLicenses,
   setManualData,
   setResources,
+  setResourcesWithLocatedAttributions,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
@@ -307,5 +309,35 @@ describe('The load and navigation simple actions', () => {
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
       testExternalAttributionsToHashes,
     );
+  });
+
+  it('sets and gets resourcesWithLocatedAttributions', () => {
+    const testStore = createTestAppStore();
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: {
+        attributedChildren: {},
+        paths: [],
+        pathsToIndices: {},
+      },
+      locatedResources: new Set(),
+    });
+
+    const testResourcesWithLocatedChildren = {
+      paths: Array<string>('path/to/resource/1'),
+      pathsToIndices: { 'path/to/resource/1': 1 },
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      attributedChildren: { 1: new Set<number>([10, 11, 12]) },
+    };
+    const testLocatedResources = new Set<string>(['test resource']);
+    testStore.dispatch(
+      setResourcesWithLocatedAttributions(
+        testResourcesWithLocatedChildren,
+        testLocatedResources,
+      ),
+    );
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: testResourcesWithLocatedChildren,
+      locatedResources: testLocatedResources,
+    });
   });
 });

@@ -229,3 +229,10 @@ export function getExternalAttributionsToHashes(
 ): AttributionsToHashes {
   return state.resourceState.allViews.externalAttributionsToHashes;
 }
+
+export function getResourcesWithLocatedAttributions(state: State): {
+  resourcesWithLocatedChildren: ResourcesWithAttributedChildren;
+  locatedResources: Set<string>;
+} {
+  return state.resourceState.allViews.resourcesWithLocatedAttributions;
+}
