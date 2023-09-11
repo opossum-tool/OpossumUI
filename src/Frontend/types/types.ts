@@ -191,4 +191,11 @@ export interface DisplayPackageInfosWithCount {
   [packageCardId: string]: DisplayPackageInfoWithCount;
 }
 
-export type SelectedCriticality = Criticality | 'any';
+enum AnyCriticality {
+  Any = 'any',
+}
+export type SelectedCriticality = Criticality | AnyCriticality;
+export const SelectedCriticality = {
+  ...Criticality,
+  ...AnyCriticality,
+};

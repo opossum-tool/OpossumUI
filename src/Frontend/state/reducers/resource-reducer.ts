@@ -150,7 +150,7 @@ export const initialResourceState: ResourceState = {
     totalAttributionCount: null,
   },
   locatePopup: {
-    selectedCriticality: 'any',
+    selectedCriticality: SelectedCriticality.Any,
     selectedLicenses: new Set(),
   },
 };
