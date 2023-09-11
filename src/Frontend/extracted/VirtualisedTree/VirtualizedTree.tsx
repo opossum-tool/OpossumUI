@@ -20,10 +20,33 @@ import {
 import { getTreeNodeProps } from './utils/get-tree-node-props';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import { IconButton } from '../../Components/IconButton/IconButton';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
+import { OpossumColors } from '../../shared-styles';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  getLocatePopupSelectedCriticality,
+  getLocatePopupSelectedLicenses,
+} from '../../state/selectors/locate-popup-selectors';
+import { initialResourceState } from '../../state/reducers/resource-reducer';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { PopupType } from '../../enums/enums';
 
 const classes = {
   content: {
     height: '100%',
+  },
+  filterIcon: {
+    margin: '4px',
+    padding: '2px',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 1,
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
   },
 };
 
@@ -55,6 +78,8 @@ interface VirtualizedTreeProps {
 export function VirtualizedTree(
   props: VirtualizedTreeProps,
 ): ReactElement | null {
+  const dispatch = useAppDispatch();
+
   // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
     props.nodes,
@@ -83,8 +108,31 @@ export function VirtualizedTree(
     (itemData) => itemData.nodeId === props.selectedNodeId,
   );
 
+  const locatePopupSelectedCriticality = useAppSelector(
+    getLocatePopupSelectedCriticality,
+  );
+  const locatePopupSelectedLicenses = useAppSelector(
+    getLocatePopupSelectedLicenses,
+  );
+  const showFilterIcon =
+    locatePopupSelectedCriticality !==
+      initialResourceState.locatePopup.selectedCriticality ||
+    locatePopupSelectedLicenses.size > 0;
+
   return props.nodes ? (
     <MuiBox aria-label={props.ariaLabel} sx={props.sx}>
+      {showFilterIcon ? (
+        <IconButton
+          sx={classes.filterIcon}
+          // TODO figure out how to place the tooltip correctly
+          tooltipTitle=""
+          tooltipPlacement="right"
+          onClick={(): void => {
+            dispatch(openPopup(PopupType.LocatorPopup));
+          }}
+          icon={<MyLocationIcon aria-label={'filter attributions'} />}
+        />
+      ) : null}
       <MuiBox sx={classes.content}>
         <List
           length={treeNodeProps.length}
