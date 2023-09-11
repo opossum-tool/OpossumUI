@@ -12,7 +12,10 @@ import {
   isAuditViewSelected,
   isReportViewSelected,
 } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { TopBar } from '../TopBar';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
@@ -97,8 +100,9 @@ describe('TopBar', () => {
   });
 
   it('displays the TopProgressBar after a file has been opened', () => {
-    renderComponentWithStore(<TopBar />);
-    setResources({ '': 1 });
-    expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
+    const testStore = createTestAppStore();
+    testStore.dispatch(setResources({ '': 1 }));
+    renderComponentWithStore(<TopBar />, { store: testStore });
+    expect(screen.getByLabelText('TopProgressBar')).toBeInTheDocument();
   });
 });
