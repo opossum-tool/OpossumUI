@@ -13,10 +13,10 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesWithAttributedChildren,
+  SelectedCriticality,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
-  SelectedCriticality,
   PackageAttributeIds,
   PackageAttributes,
   PanelPackage,
@@ -150,7 +150,7 @@ export const initialResourceState: ResourceState = {
     totalAttributionCount: null,
   },
   locatePopup: {
-    selectedCriticality: 'any',
+    selectedCriticality: SelectedCriticality.Any,
     selectedLicenses: new Set(),
   },
 };

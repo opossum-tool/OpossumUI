@@ -11,12 +11,12 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
 interface DropdownProps extends InputElementProps {
-  value: number;
+  value: string;
   menuItems: Array<menuItem>;
 }
 
-interface menuItem {
-  value: number;
+export interface menuItem {
+  value: string;
   name: string;
 }
 

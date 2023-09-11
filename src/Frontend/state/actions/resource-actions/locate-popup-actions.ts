@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SelectedCriticality } from '../../../types/types';
+import { SelectedCriticality } from '../../../../shared/shared-types';
 import {
   SetLocatePopupSelectedCriticality,
   ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
