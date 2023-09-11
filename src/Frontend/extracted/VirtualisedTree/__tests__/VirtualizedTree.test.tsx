@@ -5,8 +5,10 @@
 
 import React, { ReactElement } from 'react';
 import { VirtualizedTree } from '../VirtualizedTree';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { NodesForTree } from '../types';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { Button } from '@mui/material';
 
 describe('The VirtualizedTree', () => {
   const testNodes: NodesForTree = {
@@ -25,8 +27,8 @@ describe('The VirtualizedTree', () => {
     docs: { 'readme.md': 1 },
   };
 
-  it('renders VirtualizedTree', () => {
-    render(
+  it('renders VirtualizedTree, no locator icon', () => {
+    renderComponentWithStore(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
         isFakeNonExpandableNode={(path: string): boolean => Boolean(path)}
@@ -58,5 +60,33 @@ describe('The VirtualizedTree', () => {
     ]) {
       expect(screen.getByText(label));
     }
+
+    expect(
+      screen.queryByLabelText('locate attributions'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders VirtualizedTree with the locator icon', () => {
+    const locatorIcon = <Button aria-label={'locator icon'} />;
+    renderComponentWithStore(
+      <VirtualizedTree
+        expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
+        isFakeNonExpandableNode={(path: string): boolean => Boolean(path)}
+        onSelect={(): void => {}}
+        onToggle={(): void => {}}
+        nodes={testNodes}
+        selectedNodeId={'/thirdParty/'}
+        getTreeNodeLabel={
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          (nodeName, node, nodeId): ReactElement => <div>{nodeName || '/'}</div>
+        }
+        breakpoints={new Set()}
+        cardHeight={20}
+        maxHeight={5000}
+        locatorIcon={locatorIcon}
+      />,
+    );
+
+    expect(screen.getByLabelText('locator icon')).toBeInTheDocument();
   });
 });

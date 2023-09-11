@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 import remove from 'lodash/remove';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -35,7 +36,29 @@ import {
   TREE_ROOT_FOLDER_LABEL,
   TREE_ROW_HEIGHT,
   treeClasses,
+  OpossumColors,
 } from '../../shared-styles';
+import { isLocateSignalActive } from '../../state/selectors/locate-popup-selectors';
+import { IconButton } from '../IconButton/IconButton';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { PopupType } from '../../enums/enums';
+
+const classes = {
+  locatorIconContainer: {
+    margin: '4px',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 1,
+  },
+  locatorIcon: {
+    padding: '2px',
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
+  },
+};
 
 export function ResourceBrowser(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -109,6 +132,20 @@ export function ResourceBrowser(): ReactElement | null {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const maxTreeHeight: number = useWindowHeight() - topBarHeight - 4;
 
+  const showLocatorIcon = useAppSelector(isLocateSignalActive);
+  const locatorIcon = showLocatorIcon ? (
+    <IconButton
+      iconSx={classes.locatorIcon}
+      containerSx={classes.locatorIconContainer}
+      tooltipTitle="filters active"
+      tooltipPlacement="right"
+      onClick={(): void => {
+        dispatch(openPopup(PopupType.LocatorPopup));
+      }}
+      icon={<MyLocationIcon aria-label={'locate attributions'} />}
+    />
+  ) : undefined;
+
   return resources ? (
     <VirtualizedTree
       expandedIds={expandedIds}
@@ -130,6 +167,7 @@ export function ResourceBrowser(): ReactElement | null {
         selected: treeClasses.treeItemLabelSelected,
         treeExpandIcon: treeClasses.treeExpandIcon,
       }}
+      locatorIcon={locatorIcon}
     />
   ) : null;
 }

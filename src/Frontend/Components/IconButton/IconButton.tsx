@@ -6,9 +6,9 @@
 import React, { ReactElement } from 'react';
 import MuiButtonBase from '@mui/material/ButtonBase';
 import MuiTooltip from '@mui/material/Tooltip';
-import { tooltipStyle } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import MuiBox from '@mui/material/Box';
 
 const classes = {
   hidden: {
@@ -19,7 +19,8 @@ const classes = {
 interface IconButtonProps {
   tooltipTitle: string;
   tooltipPlacement: 'left' | 'right';
-  sx?: SxProps;
+  iconSx?: SxProps;
+  containerSx?: SxProps;
   onClick(): void;
   icon: ReactElement;
   disabled?: boolean;
@@ -30,13 +31,12 @@ export function IconButton(props: IconButtonProps): ReactElement {
   return (
     <MuiTooltip
       describeChild={true}
-      sx={tooltipStyle}
       title={props.hidden ? '' : props.tooltipTitle}
       placement={props.tooltipPlacement}
     >
-      <span>
+      <MuiBox component="span" sx={props.containerSx}>
         {
-          // span is needed to enable tooltips for disabled buttons
+          // the container is needed to enable tooltips for disabled buttons
         }
         <MuiButtonBase
           aria-label={props.tooltipTitle}
@@ -44,9 +44,9 @@ export function IconButton(props: IconButtonProps): ReactElement {
             props.hidden
               ? getSxFromPropsAndClasses({
                   styleClass: classes.hidden,
-                  sxProps: props.sx,
+                  sxProps: props.iconSx,
                 })
-              : props.sx
+              : props.iconSx
           }
           onClick={(event): void => {
             event.stopPropagation();
@@ -56,7 +56,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
         >
           {props.icon}
         </MuiButtonBase>
-      </span>
+      </MuiBox>
     </MuiTooltip>
   );
 }

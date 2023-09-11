@@ -168,7 +168,7 @@ export function ResourceDetailsTabs(
         tooltipPlacement="right"
         onClick={onSearchToggleClick}
         icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
-        sx={classes.searchToggle}
+        iconSx={classes.searchToggle}
       />
       {isAccordionSearchFieldDisplayed ? (
         <SearchTextField
