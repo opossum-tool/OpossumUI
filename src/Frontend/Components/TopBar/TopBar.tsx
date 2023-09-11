@@ -8,7 +8,7 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { View } from '../../enums/enums';
+import { PopupType, View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
@@ -19,6 +19,13 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import MuiBox from '@mui/material/Box';
 import { getResources } from '../../state/selectors/all-views-resource-selectors';
+import { FilterAlt } from '@mui/icons-material';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  getLocatePopupSelectedCriticality,
+  getLocatePopupSelectedLicenses,
+} from '../../state/selectors/locate-popup-selectors';
+import { initialResourceState } from '../../state/reducers/resource-reducer';
 
 export const topBarHeight = 36;
 
@@ -32,6 +39,16 @@ const classes = {
     margin: '8px',
     width: '18px',
     height: '18px',
+    padding: '2px',
+    color: OpossumColors.white,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
+  },
+  filterIcon: {
+    margin: '4px',
+    width: '24px',
+    height: '24px',
     padding: '2px',
     color: OpossumColors.white,
     '&:hover': {
@@ -62,6 +79,18 @@ const classes = {
 export function TopBar(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
   const showTopProgressBar = useAppSelector(getResources) !== null;
+
+  const locatePopupSelectedCriticality = useAppSelector(
+    getLocatePopupSelectedCriticality,
+  );
+  const locatePopupSelectedLicenses = useAppSelector(
+    getLocatePopupSelectedLicenses,
+  );
+  const showFilterIcon =
+    locatePopupSelectedCriticality !==
+      initialResourceState.locatePopup.selectedCriticality ||
+    locatePopupSelectedLicenses.size > 0;
+
   const dispatch = useAppDispatch();
 
   function handleClick(
@@ -88,6 +117,18 @@ export function TopBar(): ReactElement {
         }
       />
       {showTopProgressBar ? <TopProgressBar /> : <MuiBox flex={1} />}
+      {showFilterIcon ? (
+        <IconButton
+          tooltipTitle="filter attributions"
+          tooltipPlacement="right"
+          onClick={(): void => {
+            dispatch(openPopup(PopupType.LocatorPopup));
+          }}
+          icon={
+            <FilterAlt sx={classes.filterIcon} aria-label={'open file icon'} />
+          }
+        />
+      ) : null}
       <MuiToggleButtonGroup
         size="small"
         value={selectedView}

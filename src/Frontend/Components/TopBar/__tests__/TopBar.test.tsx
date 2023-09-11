@@ -8,6 +8,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
+  getOpenPopup,
   isAttributionViewSelected,
   isAuditViewSelected,
   isReportViewSelected,
@@ -19,6 +20,8 @@ import {
 import { TopBar } from '../TopBar';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setLocatePopupSelectedCriticality } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { SelectedCriticality } from '../../../types/types';
 
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
@@ -104,5 +107,26 @@ describe('TopBar', () => {
     testStore.dispatch(setResources({ '': 1 }));
     renderComponentWithStore(<TopBar />, { store: testStore });
     expect(screen.getByLabelText('TopProgressBar')).toBeInTheDocument();
+  });
+
+  it('does not display the filter icon when no resources have been filtered', () => {
+    renderComponentWithStore(<TopBar />);
+    expect(
+      screen.queryByLabelText('filter attributions'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('displays the filter icon after resources have been filtered', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupSelectedCriticality(SelectedCriticality.Medium),
+    );
+    renderComponentWithStore(<TopBar />, { store: testStore });
+
+    expect(screen.getByLabelText('filter attributions')).toBeInTheDocument();
+
+    fireEvent.click(screen.queryByLabelText('filter attributions') as Element);
+
+    expect(getOpenPopup(testStore.getState())).toBe('LocatorPopup');
   });
 });
