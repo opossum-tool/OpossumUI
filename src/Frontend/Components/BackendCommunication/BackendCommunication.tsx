@@ -198,6 +198,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function showLocatorPopupListener(
+    event: IpcRendererEvent,
+    showLocatePopUp: boolean,
+  ): void {
+    if (showLocatePopUp) {
+      dispatch(openPopup(PopupType.LocatorPopup));
+    }
+  }
+
   function showProjectMetadataPopupListener(
     event: IpcRendererEvent,
     showProjectMetadataPopup: boolean,
@@ -282,6 +291,11 @@ export function BackendCommunication(): ReactElement | null {
   useIpcRenderer(
     AllowedFrontendChannels.ShowSearchPopup,
     showSearchPopupListener,
+    [dispatch],
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowLocatorPopup,
+    showLocatorPopupListener,
     [dispatch],
   );
   useIpcRenderer(

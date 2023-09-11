@@ -6,10 +6,21 @@
 import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
+import { getBasePathOfAssets } from './getPath';
+import electron from 'electron';
 
 export function getIconPath(): string {
   const basePath = isDev
     ? path.join(upath.toUnix(__dirname), '../../../public')
     : path.join(upath.toUnix(__dirname), '../..');
   return path.join(basePath, 'icons/icon_512x512.png');
+}
+
+export function getIconBasedOnTheme(
+  white_icon: string,
+  black_icon: string,
+): string {
+  return electron.nativeTheme?.shouldUseDarkColors
+    ? path.join(getBasePathOfAssets(), white_icon)
+    : path.join(getBasePathOfAssets(), black_icon);
 }
