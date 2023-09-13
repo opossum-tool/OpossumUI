@@ -91,17 +91,17 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             isEditable={props.isEditable}
             title={'Confidence'}
             handleChange={props.discreteConfidenceChangeHandler}
-            value={
+            value={(
               props.displayPackageInfo.attributionConfidence ||
               DiscreteConfidence.High
-            }
+            ).toString()}
             menuItems={[
               {
-                value: DiscreteConfidence.High,
+                value: DiscreteConfidence.High.toString(),
                 name: `High (${DiscreteConfidence.High})`,
               },
               {
-                value: DiscreteConfidence.Low,
+                value: DiscreteConfidence.Low.toString(),
                 name: `Low (${DiscreteConfidence.Low})`,
               },
             ]}

@@ -16,12 +16,12 @@ import {
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
+  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import {
   PanelPackage,
   PackageAttributeIds,
   PackageAttributes,
-  SelectedCriticality,
 } from '../../../types/types';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =

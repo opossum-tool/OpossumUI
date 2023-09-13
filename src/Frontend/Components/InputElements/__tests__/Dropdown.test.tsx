@@ -15,14 +15,14 @@ describe('The Dropdown', () => {
       <Dropdown
         isEditable={true}
         title={'Confidence'}
-        value={DiscreteConfidence.High}
+        value={DiscreteConfidence.High.toString()}
         menuItems={[
           {
-            value: DiscreteConfidence.High,
+            value: DiscreteConfidence.High.toString(),
             name: `High (${DiscreteConfidence.High})`,
           },
           {
-            value: DiscreteConfidence.Low,
+            value: DiscreteConfidence.Low.toString(),
             name: `Low (${DiscreteConfidence.Low})`,
           },
         ]}
@@ -42,14 +42,14 @@ describe('The Dropdown', () => {
       <Dropdown
         isEditable={true}
         title={'Confidence'}
-        value={10}
+        value={'10'}
         menuItems={[
           {
-            value: DiscreteConfidence.High,
+            value: DiscreteConfidence.High.toString(),
             name: `High (${DiscreteConfidence.High})`,
           },
           {
-            value: DiscreteConfidence.Low,
+            value: DiscreteConfidence.Low.toString(),
             name: `Low (${DiscreteConfidence.Low})`,
           },
         ]}

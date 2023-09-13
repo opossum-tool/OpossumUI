@@ -104,6 +104,7 @@ export enum CriticalityTypes {
   HighCriticality = 'High',
   MediumCriticality = 'Medium',
   NoCriticality = 'Not critical',
+  AnyCriticality = 'Any',
 }
 
 export enum HighlightingColor {

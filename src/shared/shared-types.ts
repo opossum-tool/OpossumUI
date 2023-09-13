@@ -20,6 +20,15 @@ export enum Criticality {
   Medium = 'medium',
 }
 
+enum AnyCriticality {
+  Any = 'any',
+}
+export type SelectedCriticality = Criticality | AnyCriticality;
+export const SelectedCriticality = {
+  ...Criticality,
+  ...AnyCriticality,
+};
+
 export enum DiscreteConfidence {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   High = 80,

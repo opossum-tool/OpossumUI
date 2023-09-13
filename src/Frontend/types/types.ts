@@ -190,5 +190,3 @@ export interface DisplayPackageInfos {
 export interface DisplayPackageInfosWithCount {
   [packageCardId: string]: DisplayPackageInfoWithCount;
 }
-
-export type SelectedCriticality = Criticality | 'any';
