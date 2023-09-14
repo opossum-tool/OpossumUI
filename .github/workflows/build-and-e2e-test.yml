@@ -59,8 +59,10 @@ jobs:
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         if: matrix.os == 'ubuntu-latest'
 
-      - name: Run end2end tests
-        run: ${{ matrix.E2E }}
+
+#   Disable e2e tests as we had many timeouts and issues with the caching of node modules
+#      - name: Run end2end tests
+#        run: ${{ matrix.E2E }}
 
       - name: Build app
         run: yarn ${{ matrix.SHIP }}
