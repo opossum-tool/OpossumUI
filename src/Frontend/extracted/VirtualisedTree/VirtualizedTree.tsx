@@ -53,7 +53,7 @@ interface VirtualizedTreeProps {
   locatorIcon?: ReactElement;
   locatedResourceIcon?: ReactElement;
   locatedResources?: Set<string>;
-  resourcesWithLocatedChildren?: Array<string>;
+  resourcesWithLocatedChildren?: Set<string>;
 }
 
 export function VirtualizedTree(

@@ -159,7 +159,7 @@ export function ResourceBrowser(): ReactElement | null {
     ? resourcesWithLocatedAttributions.locatedResources
     : undefined;
   const resourcesWithLocatedChildren = locateSignalActive
-    ? resourcesWithLocatedAttributions.resourcesWithLocatedChildren.paths
+    ? resourcesWithLocatedAttributions.resourcesWithLocatedChildren
     : undefined;
 
   const locatedResourceIcon = (

@@ -314,20 +314,13 @@ describe('The load and navigation simple actions', () => {
   it('sets and gets resourcesWithLocatedAttributions', () => {
     const testStore = createTestAppStore();
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
-      resourcesWithLocatedChildren: {
-        attributedChildren: {},
-        paths: [],
-        pathsToIndices: {},
-      },
+      resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
 
-    const testResourcesWithLocatedChildren = {
-      paths: Array<string>('path/to/resource/1'),
-      pathsToIndices: { 'path/to/resource/1': 1 },
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      attributedChildren: { 1: new Set<number>([10, 11, 12]) },
-    };
+    const testResourcesWithLocatedChildren = new Set<string>([
+      'test resource with located children',
+    ]);
     const testLocatedResources = new Set<string>(['test resource']);
     testStore.dispatch(
       setResourcesWithLocatedAttributions(

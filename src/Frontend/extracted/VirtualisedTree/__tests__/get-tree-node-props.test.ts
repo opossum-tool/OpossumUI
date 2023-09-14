@@ -96,7 +96,7 @@ describe('renderTree', () => {
   it('isLocatedSelected highlights unexpanded resources with located children', () => {
     const locatedParentId = '/locatedParent/';
     const notLocatedParentId = '/notLocatedParent/';
-    const resourcesWithLocatedChildren = ['/locatedParent/'];
+    const resourcesWithLocatedChildren = new Set(['/locatedParent/']);
 
     expect(
       isLocated(

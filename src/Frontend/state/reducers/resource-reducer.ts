@@ -12,7 +12,6 @@ import {
   FrequentLicenses,
   ProjectMetadata,
   Resources,
-  ResourcesWithAttributedChildren,
   SelectedCriticality,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -109,11 +108,7 @@ export const initialResourceState: ResourceState = {
     attributionIdMarkedForReplacement: '',
     externalAttributionsToHashes: {},
     resourcesWithLocatedAttributions: {
-      resourcesWithLocatedChildren: {
-        paths: [],
-        pathsToIndices: {},
-        attributedChildren: {},
-      },
+      resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     },
   },
@@ -171,7 +166,7 @@ export type ResourceState = {
     attributionIdMarkedForReplacement: string;
     externalAttributionsToHashes: AttributionsToHashes;
     resourcesWithLocatedAttributions: {
-      resourcesWithLocatedChildren: ResourcesWithAttributedChildren;
+      resourcesWithLocatedChildren: Set<string>;
       locatedResources: Set<string>;
     };
   };

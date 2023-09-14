@@ -24,7 +24,7 @@ export function getTreeNodeProps(
   ) => ReactElement,
   cardHeight: number,
   locatedResources?: Set<string>,
-  resourcesWithLocatedChildren?: Array<string>,
+  resourcesWithLocatedChildren?: Set<string>,
   breakpoints?: Set<string>,
 ): Array<VirtualizedTreeNodeData> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
@@ -103,19 +103,16 @@ export function isLocated(
   nodeId: string,
   isExpandedNode: boolean,
   locatedResources?: Set<string>,
-  resourcesWithLocatedChildren?: Array<string>,
+  resourcesWithLocatedChildren?: Set<string>,
 ): boolean {
   if (locatedResources && locatedResources.has(nodeId)) {
     return true;
   }
-  if (
+  return !!(
     resourcesWithLocatedChildren &&
-    resourcesWithLocatedChildren.includes(nodeId) &&
+    resourcesWithLocatedChildren.has(nodeId) &&
     !isExpandedNode
-  ) {
-    return true;
-  }
-  return false;
+  );
 }
 
 export function getNodeIdsToExpand(

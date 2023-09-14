@@ -12,17 +12,25 @@ import React from 'react';
 import { getLocatePopupSelectedCriticality } from '../../../state/selectors/locate-popup-selectors';
 import { clickOnButton } from '../../../test-helpers/general-test-helpers';
 import { setLocatePopupSelectedCriticality } from '../../../state/actions/resource-actions/locate-popup-actions';
-import { SelectedCriticality } from '../../../../shared/shared-types';
+import {
+  Criticality,
+  FrequentLicenses,
+  SelectedCriticality,
+} from '../../../../shared/shared-types';
 import { getLicenseNames, LocatorPopup } from '../LocatorPopup';
 import { getLocatePopupSelectedLicenses } from '../../../state/selectors/locate-popup-selectors';
 import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
-import { setExternalData } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  setExternalData,
+  setFrequentLicenses,
+} from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   Attributions,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { setLocatePopupSelectedLicenses } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -103,6 +111,10 @@ describe('Locator popup ', () => {
       ),
     );
     const licenseSet = new Set(['MIT']);
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set(['/root/']),
+    };
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
@@ -110,6 +122,9 @@ describe('Locator popup ', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
       licenseSet,
+    );
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
     );
   });
 
@@ -125,6 +140,10 @@ describe('Locator popup ', () => {
     expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
       new Set(),
     );
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(),
+    });
   });
 
   it('shows license if selected beforehand', () => {
@@ -155,5 +174,149 @@ describe('getLicenseNamesFromExternalAttributions', () => {
     const licenseNames = getLicenseNames(testExternalAttributions);
     const expectedLicenseNames = ['MIT', 'Apache-2.0'];
     expect(licenseNames).toEqual(expectedLicenseNames);
+  });
+});
+
+describe('locateResourcesByCriticalityAndLicense', () => {
+  const testAttributions: Attributions = {
+    MITHighAttribution: {
+      licenseName: 'MIT',
+      criticality: Criticality.High,
+    },
+    MITMediumAttribution: {
+      licenseName: 'MIT',
+      criticality: Criticality.Medium,
+    },
+    ApacheHighAttribution: {
+      licenseName: 'Apache-2.0',
+      criticality: Criticality.High,
+    },
+    ApacheMediumAttribution: {
+      licenseName: 'Apache-2.0',
+      criticality: Criticality.Medium,
+    },
+    GPLMediumAttribution: {
+      licenseName: 'General Public License',
+      criticality: Criticality.Medium,
+    },
+  };
+  const testResourcesToAttributions: ResourcesToAttributions = {
+    '/pathToMITHigh/': ['MITHighAttribution'],
+    '/pathToMITHigh/pathToMITMedium': ['MITMediumAttribution'],
+    '/pathToApacheHigh': ['ApacheHighAttribution'],
+    '/pathToApacheMedium': ['ApacheMediumAttribution'],
+    '/pathToGPLMedium': ['GPLMediumAttribution'],
+  };
+  const testFrequentLicenses: FrequentLicenses = {
+    nameOrder: [
+      {
+        shortName: 'GPL',
+        fullName: 'General Public License',
+      },
+    ],
+    texts: {
+      GPL: 'GPL license text',
+      'General Public License': 'GPL license text',
+    },
+  };
+
+  it('locates attribution and parent if criticality and licenses are set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const criticality = SelectedCriticality.Medium;
+    const licenseNames = new Set(['MIT']);
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/', '/pathToMITHigh/']),
+      locatedResources: new Set(['/pathToMITHigh/pathToMITMedium']),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('locates attribution and parent if only licenses set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const licenseNames = new Set(['MIT']);
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/', '/pathToMITHigh/']),
+      locatedResources: new Set([
+        '/pathToMITHigh/',
+        '/pathToMITHigh/pathToMITMedium',
+      ]),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('locates attribution and parent if only criticality is set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const criticality = SelectedCriticality.Medium;
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/', '/pathToMITHigh/']),
+      locatedResources: new Set([
+        '/pathToMITHigh/pathToMITMedium',
+        '/pathToApacheMedium',
+        '/pathToGPLMedium',
+      ]),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('locates full name attribution if license is set to frequent license', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const criticality = SelectedCriticality.Medium;
+    const licenseNames = new Set(['GPL']);
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set(['/pathToGPLMedium']),
+    };
+
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
   });
 });
