@@ -6,9 +6,11 @@
 import {
   AttributionData,
   Attributions,
+  Criticality,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
+  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -20,12 +22,19 @@ import {
   createExternalAttributionsToHashes,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
+  locateResourcesByCriticalityAndLicense,
 } from '../action-and-reducer-helpers';
 import {
   initialResourceState,
   ResourceState,
 } from '../../reducers/resource-reducer';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
+import {
+  setLocatePopupSelectedCriticality,
+  setLocatePopupSelectedLicenses,
+} from '../../actions/resource-actions/locate-popup-actions';
+import { getResourcesWithLocatedAttributions } from '../../selectors/all-views-resource-selectors';
+import { setExternalData } from '../../actions/resource-actions/all-views-simple-actions';
 
 describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
@@ -342,5 +351,119 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
       testManualData,
     );
     expect(testIndex).toEqual(expectedIndex);
+  });
+});
+
+describe('locateResourcesByCriticalityAndLicense', () => {
+  const testAttributions: Attributions = {
+    MITHighAttribution: {
+      licenseName: 'MIT',
+      criticality: Criticality.High,
+    },
+    MITMediumAttribution: {
+      licenseName: 'MIT',
+      criticality: Criticality.Medium,
+    },
+    ApacheHighAttribution: {
+      licenseName: 'Apache-2.0',
+      criticality: Criticality.High,
+    },
+    ApacheMediumAttribution: {
+      licenseName: 'Apache-2.0',
+      criticality: Criticality.Medium,
+    },
+  };
+  const testResourcesToAttributions: ResourcesToAttributions = {
+    'pathToMITHigh/': ['MITHighAttribution'],
+    'pathToMITHigh/pathToMITMedium': ['MITMediumAttribution'],
+    pathToApacheHigh: ['ApacheHighAttribution'],
+    pathToApacheMedium: ['ApacheMediumAttribution'],
+  };
+  const testStore = createTestAppStore();
+  testStore.dispatch(
+    setExternalData(testAttributions, testResourcesToAttributions),
+  );
+
+  it('locates attribution and parent if criticality and licenses are set', () => {
+    const criticality = SelectedCriticality.Medium;
+    const licenseNames = new Set(['MIT']);
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    testStore.dispatch(
+      locateResourcesByCriticalityAndLicense(criticality, licenseNames),
+    );
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: {
+        attributedChildren: { 1: new Set([0]) },
+        paths: ['pathToMITHigh/pathToMITMedium', 'pathToMITHigh/'],
+        pathsToIndices: {
+          'pathToMITHigh/pathToMITMedium': 0,
+          'pathToMITHigh/': 1,
+        },
+      },
+      locatedResources: new Set(['pathToMITHigh/pathToMITMedium']),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('locates attribution and parent if only licenses set', () => {
+    const licenseNames = new Set(['MIT']);
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+    testStore.dispatch(
+      locateResourcesByCriticalityAndLicense(
+        SelectedCriticality.Any,
+        licenseNames,
+      ),
+    );
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: {
+        attributedChildren: { 0: new Set([1]) },
+        paths: ['pathToMITHigh/', 'pathToMITHigh/pathToMITMedium'],
+        pathsToIndices: {
+          'pathToMITHigh/pathToMITMedium': 1,
+          'pathToMITHigh/': 0,
+        },
+      },
+      locatedResources: new Set([
+        'pathToMITHigh/',
+        'pathToMITHigh/pathToMITMedium',
+      ]),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('locates attribution and parent if only criticality is set', () => {
+    const criticality = SelectedCriticality.Medium;
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(
+      locateResourcesByCriticalityAndLicense(criticality, new Set()),
+    );
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: {
+        attributedChildren: { 1: new Set([0]) },
+        paths: [
+          'pathToMITHigh/pathToMITMedium',
+          'pathToMITHigh/',
+          'pathToApacheMedium',
+        ],
+        pathsToIndices: {
+          pathToApacheMedium: 2,
+          'pathToMITHigh/': 1,
+          'pathToMITHigh/pathToMITMedium': 0,
+        },
+      },
+      locatedResources: new Set([
+        'pathToMITHigh/pathToMITMedium',
+        'pathToApacheMedium',
+      ]),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
   });
 });

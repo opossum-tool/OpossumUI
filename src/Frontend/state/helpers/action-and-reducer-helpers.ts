@@ -11,6 +11,7 @@ import {
   PackageInfo,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
+  SelectedCriticality,
 } from '../../../shared/shared-types';
 import isEqual from 'lodash/isEqual';
 import { getParents } from './get-parents';
@@ -23,6 +24,14 @@ import { ResourceState } from '../reducers/resource-reducer';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
+import { AppThunkAction, AppThunkDispatch } from '../types';
+import { setResourcesWithLocatedAttributions } from '../actions/resource-actions/all-views-simple-actions';
+import {
+  getExternalAttributions,
+  getExternalAttributionsToResources,
+  getResourcesToExternalAttributions,
+} from '../selectors/all-views-resource-selectors';
+import { State } from '../../types/types';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -253,4 +262,77 @@ export function getIndexOfAttributionInManualPackagePanel(
   );
 
   return packageCardIndex !== -1 ? packageCardIndex : null;
+}
+
+export function locateResourcesByCriticalityAndLicense(
+  criticality: SelectedCriticality,
+  licenseNames: Set<string>,
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const locatedResources = new Set<string>();
+    const attributions = getExternalAttributions(getState());
+    const attributionsToResources = getExternalAttributionsToResources(
+      getState(),
+    );
+    const resourcesToExternalAttributions = getResourcesToExternalAttributions(
+      getState(),
+    );
+    // if license Name check frequent licenses for either short name or full name?
+    function CriticalityAndLicenseMatches(attribution: PackageInfo): boolean {
+      return (
+        criticality != SelectedCriticality.Any &&
+        attribution.criticality == criticality &&
+        attribution.licenseName !== undefined &&
+        licenseNames.size > 0 &&
+        licenseNames.has(attribution.licenseName)
+      );
+    }
+
+    function CriticalityIsAnyAndLicenseMatches(
+      attribution: PackageInfo,
+    ): boolean {
+      return (
+        criticality == SelectedCriticality.Any &&
+        licenseNames.size > 0 &&
+        attribution.licenseName !== undefined &&
+        licenseNames.has(attribution.licenseName)
+      );
+    }
+    function CriticalityMatchesAndLicenseNAmesIsEmpty(
+      attribution: PackageInfo,
+    ): boolean {
+      return (
+        criticality != SelectedCriticality.Any &&
+        attribution.criticality == criticality &&
+        licenseNames.size == 0
+      );
+    }
+    for (const attributionId in attributions) {
+      const attribution = attributions[attributionId];
+      if (
+        CriticalityAndLicenseMatches(attribution) ||
+        CriticalityIsAnyAndLicenseMatches(attribution) ||
+        CriticalityMatchesAndLicenseNAmesIsEmpty(attribution)
+      ) {
+        attributionsToResources[attributionId].forEach((resource) => {
+          locatedResources.add(resource);
+        });
+      }
+    }
+    const resourcesToAttributions: ResourcesToAttributions = {};
+    for (const resourcePath in resourcesToExternalAttributions) {
+      if (locatedResources.has(resourcePath)) {
+        resourcesToAttributions[resourcePath] =
+          resourcesToExternalAttributions[resourcePath];
+      }
+    }
+    const resourcesWithLocatedChildren: ResourcesWithAttributedChildren =
+      computeChildrenWithAttributions(resourcesToAttributions);
+    dispatch(
+      setResourcesWithLocatedAttributions(
+        resourcesWithLocatedChildren,
+        locatedResources,
+      ),
+    );
+  };
 }

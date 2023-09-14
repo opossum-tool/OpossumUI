@@ -23,6 +23,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { setLocatePopupSelectedLicenses } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -103,6 +104,17 @@ describe('Locator popup ', () => {
       ),
     );
     const licenseSet = new Set(['MIT']);
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: {
+        attributedChildren: { 1: new Set([0]) },
+        paths: ['/root/', '/'],
+        pathsToIndices: {
+          '/root/': 0,
+          '/': 1,
+        },
+      },
+      locatedResources: new Set(['/root/']),
+    };
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
@@ -110,6 +122,9 @@ describe('Locator popup ', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
       licenseSet,
+    );
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
     );
   });
 
@@ -125,6 +140,14 @@ describe('Locator popup ', () => {
     expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
       new Set(),
     );
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: {
+        attributedChildren: {},
+        paths: [],
+        pathsToIndices: {},
+      },
+      locatedResources: new Set(),
+    });
   });
 
   it('shows license if selected beforehand', () => {

@@ -23,6 +23,8 @@ import {
 } from '../../../shared/shared-types';
 import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { AutoComplete } from '../InputElements/AutoComplete';
+import { locateResourcesByCriticalityAndLicense } from '../../state/helpers/action-and-reducer-helpers';
+import { setResourcesWithLocatedAttributions } from '../../state/actions/resource-actions/all-views-simple-actions';
 
 const classes = {
   dropdown: {
@@ -80,6 +82,12 @@ export function LocatorPopup(): ReactElement {
   function handleApplyClick(): void {
     dispatch(setLocatePopupSelectedCriticality(criticalityDropDownChoice));
     dispatch(setLocatePopupSelectedLicenses(new Set([searchedLicense])));
+    dispatch(
+      locateResourcesByCriticalityAndLicense(
+        criticalityDropDownChoice,
+        new Set([searchedLicense]),
+      ),
+    );
   }
 
   function handleClearClick(): void {
@@ -87,6 +95,16 @@ export function LocatorPopup(): ReactElement {
     dispatch(setLocatePopupSelectedCriticality(SelectedCriticality.Any));
     setSearchedLicense('');
     dispatch(setLocatePopupSelectedLicenses(new Set()));
+    dispatch(
+      setResourcesWithLocatedAttributions(
+        {
+          paths: [],
+          pathsToIndices: {},
+          attributedChildren: {},
+        },
+        new Set(),
+      ),
+    );
   }
   function close(): void {
     dispatch(closePopup());
