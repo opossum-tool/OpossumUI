@@ -23,6 +23,8 @@ export function getTreeNodeProps(
     nodeId: string,
   ) => ReactElement,
   cardHeight: number,
+  locatedResources?: Set<string>,
+  resourcesWithLocatedChildren?: Array<string>,
   breakpoints?: Set<string>,
 ): Array<VirtualizedTreeNodeData> {
   const sortedNodeNames: Array<string> = Object.keys(nodes).sort(
@@ -38,6 +40,12 @@ export function getTreeNodeProps(
       canNodeHaveChildren(node) && Object.keys(node).length !== 0;
     const nodeId = getNodeId(nodeName, parentPath, canNodeHaveChildren(node));
     const isExpandedNode = isExpanded(nodeId, expandedNodes);
+    const isLocatedNode = isLocated(
+      nodeId,
+      isExpandedNode,
+      locatedResources,
+      resourcesWithLocatedChildren,
+    );
 
     const nodeIdsToExpand: Array<string> = getNodeIdsToExpand(nodeId, node);
 
@@ -65,6 +73,7 @@ export function getTreeNodeProps(
       selected,
       nodeHeight,
       breakpoints,
+      isLocatedNode,
     });
 
     if (isExpandedNode) {
@@ -79,6 +88,8 @@ export function getTreeNodeProps(
           onToggle,
           getTreeNodeLabel,
           nodeHeight,
+          locatedResources,
+          resourcesWithLocatedChildren,
           breakpoints,
         ),
       );
@@ -86,6 +97,25 @@ export function getTreeNodeProps(
   }
 
   return treeNodes;
+}
+
+export function isLocated(
+  nodeId: string,
+  isExpandedNode: boolean,
+  locatedResources?: Set<string>,
+  resourcesWithLocatedChildren?: Array<string>,
+): boolean {
+  if (locatedResources && locatedResources.has(nodeId)) {
+    return true;
+  }
+  if (
+    resourcesWithLocatedChildren &&
+    resourcesWithLocatedChildren.includes(nodeId) &&
+    !isExpandedNode
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export function getNodeIdsToExpand(

@@ -7,6 +7,7 @@ import {
   getNodeIdsToExpand,
   isBreakpointOrChildOfBreakpoint,
   isChildOfSelected,
+  isLocated,
   isSelected,
 } from '../utils/get-tree-node-props';
 import { NodesForTree } from '../types';
@@ -81,5 +82,40 @@ describe('renderTree', () => {
     ];
 
     expect(getNodeIdsToExpand(nodeId, node)).toEqual(expectedNodeIdsToExpand);
+  });
+
+  it('isLocatedSelected highlights selected resources', () => {
+    const locatedNodeId = '/located.js';
+    const notLocatedNodeId = '/notLocated.js';
+    const locatedResources = new Set<string>(['/located.js']);
+
+    expect(isLocated(locatedNodeId, false, locatedResources)).toBe(true);
+    expect(isLocated(notLocatedNodeId, false, locatedResources)).toBe(false);
+  });
+
+  it('isLocatedSelected highlights unexpanded resources with located children', () => {
+    const locatedParentId = '/locatedParent/';
+    const notLocatedParentId = '/notLocatedParent/';
+    const resourcesWithLocatedChildren = ['/locatedParent/'];
+
+    expect(
+      isLocated(
+        locatedParentId,
+        false,
+        undefined,
+        resourcesWithLocatedChildren,
+      ),
+    ).toBe(true);
+    expect(
+      isLocated(locatedParentId, true, undefined, resourcesWithLocatedChildren),
+    ).toBe(false);
+    expect(
+      isLocated(
+        notLocatedParentId,
+        false,
+        undefined,
+        resourcesWithLocatedChildren,
+      ),
+    ).toBe(false);
   });
 });

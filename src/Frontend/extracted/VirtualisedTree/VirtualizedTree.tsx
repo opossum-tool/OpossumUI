@@ -51,6 +51,9 @@ interface VirtualizedTreeProps {
   alwaysShowHorizontalScrollBar?: boolean;
   breakpoints?: Set<string>;
   locatorIcon?: ReactElement;
+  locatedResourceIcon?: ReactElement;
+  locatedResources?: Set<string>;
+  resourcesWithLocatedChildren?: Array<string>;
 }
 
 export function VirtualizedTree(
@@ -67,6 +70,8 @@ export function VirtualizedTree(
     props.onToggle,
     props.getTreeNodeLabel,
     props.cardHeight,
+    props.locatedResources,
+    props.resourcesWithLocatedChildren,
     props.breakpoints,
   );
 
@@ -98,6 +103,7 @@ export function VirtualizedTree(
                 ...treeNodeProps[index],
                 expandedNodeIcon: props.expandedNodeIcon,
                 nonExpandedNodeIcon: props.nonExpandedNodeIcon,
+                locatedResourceIcon: props.locatedResourceIcon,
                 treeNodeStyle: props.treeNodeStyle,
               }}
             />
