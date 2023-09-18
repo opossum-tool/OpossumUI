@@ -13,9 +13,6 @@ import { Attributions } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
-import { mockResizeObserver } from '../../../test-helpers/popup-test-helpers';
-
-mockResizeObserver();
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {

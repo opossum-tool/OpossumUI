@@ -60,6 +60,7 @@ export function BackendCommunication(): ReactElement | null {
     parsedFileContent: ParsedFileContent,
   ): void {
     dispatch(loadFromFile(parsedFileContent));
+    dispatch(openPopup(PopupType.ProjectStatisticsPopup));
   }
 
   function getExportFileRequestListener(

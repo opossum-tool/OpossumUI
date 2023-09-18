@@ -8,6 +8,7 @@ import { App } from '../../../Components/App/App';
 import {
   clickOnButton,
   clickOnOpenFileIcon,
+  closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   goToView,
@@ -169,6 +170,7 @@ describe('The App in attribution view', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnOpenFileIcon(screen);
     goToView(screen, View.Attribution);
@@ -309,6 +311,7 @@ describe('The App in attribution view', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnOpenFileIcon(screen);
     goToView(screen, View.Attribution);
@@ -379,6 +382,7 @@ describe('The App in attribution view', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnOpenFileIcon(screen);
     goToView(screen, View.Attribution);

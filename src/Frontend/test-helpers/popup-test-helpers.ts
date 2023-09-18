@@ -74,20 +74,3 @@ export function expectConfirmMultiSelectDeletionPopupNotVisible(
 ): void {
   expect(screen.queryByText('Confirm Deletion')).not.toBeInTheDocument();
 }
-
-export function mockResizeObserver(): void {
-  const originalResizeObserver = window.ResizeObserver;
-
-  beforeEach(() => {
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }));
-  });
-
-  afterEach(() => {
-    window.ResizeObserver = originalResizeObserver;
-    jest.restoreAllMocks();
-  });
-}

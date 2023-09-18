@@ -7,6 +7,7 @@
 import {
   clickOnButton,
   clickOnTopProgressBar,
+  closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   getOpenFileIcon,
   getParsedInputFileEnrichedWithTestData,
@@ -138,6 +139,7 @@ describe('The App in Audit View', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     getElementInResourceBrowser(screen, 'root');
     expectPackagePanelNotShown(screen, 'Signals in Folder Content');
@@ -213,6 +215,7 @@ describe('The App in Audit View', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'withExternalAttribution.js');
     expectValueNotInConfidenceField(screen, '10');
@@ -346,6 +349,7 @@ describe('The App in Audit View', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'folder1');
     expectPackageInPackagePanel(
@@ -431,6 +435,7 @@ describe('The App in Audit View', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'folder1');
     expectPackageInPackagePanel(

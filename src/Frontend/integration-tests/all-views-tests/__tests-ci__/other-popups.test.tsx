@@ -7,6 +7,7 @@
 import { App } from '../../../Components/App/App';
 import {
   clickOnButton,
+  closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   getOpenResourcesButtonForPackagePanel,
@@ -81,6 +82,7 @@ describe('Other popups of the app', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectButton(screen, ButtonText.Save, true);
@@ -137,6 +139,7 @@ describe('Other popups of the app', () => {
 
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', testInitialPackageName);
@@ -198,6 +201,7 @@ describe('Other popups of the app', () => {
 
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', testInitialPackageName);
@@ -268,6 +272,7 @@ describe('Other popups of the app', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, '/');
 
@@ -297,6 +302,7 @@ describe('Other popups of the app', () => {
 
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
 

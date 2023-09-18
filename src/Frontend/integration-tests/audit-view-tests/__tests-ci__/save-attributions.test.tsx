@@ -7,6 +7,7 @@
 import { App } from '../../../Components/App/App';
 import {
   clickOnButton,
+  closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   expectButtonIsNotShown,
@@ -77,6 +78,7 @@ describe('The App in Audit View', () => {
 
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'something.js');
     expectValueInTextBox(screen, 'Name', 'InitialPackageName');
@@ -157,6 +159,7 @@ describe('The App in Audit View', () => {
     };
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
@@ -239,6 +242,7 @@ describe('The App in Audit View', () => {
 
     mockElectronBackend(mockChannelReturn);
     renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectValueInTextBox(screen, 'Name', 'React');
