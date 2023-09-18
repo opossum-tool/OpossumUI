@@ -35,7 +35,7 @@
     "spdx-license-ids": "^3.0.13",
     "stream-json": "^1.8.0",
     "upath": "^2.0.1",
-    "url": "^0.11.2",
+    "url": "^0.11.3",
     "uuid": "^9.0.1",
     "write-file-atomic": "^5.0.1"
   },
