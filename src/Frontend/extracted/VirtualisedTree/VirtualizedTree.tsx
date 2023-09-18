@@ -50,6 +50,7 @@ interface VirtualizedTreeProps {
   treeNodeStyle?: TreeNodeStyle;
   alwaysShowHorizontalScrollBar?: boolean;
   breakpoints?: Set<string>;
+  locatorIcon?: ReactElement;
 }
 
 export function VirtualizedTree(
@@ -85,6 +86,7 @@ export function VirtualizedTree(
 
   return props.nodes ? (
     <MuiBox aria-label={props.ariaLabel} sx={props.sx}>
+      {props.locatorIcon}
       <MuiBox sx={classes.content}>
         <List
           length={treeNodeProps.length}

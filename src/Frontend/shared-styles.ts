@@ -144,6 +144,7 @@ export const treeClasses = {
         return {
           background: OpossumColors.white,
           height: '100%',
+          position: 'relative',
         };
       }
       case 'browser': {
@@ -152,6 +153,7 @@ export const treeClasses = {
           padding: '4px 0',
           background: OpossumColors.white,
           height: '100%',
+          position: 'relative',
         };
       }
       case 'popup': {
@@ -165,6 +167,7 @@ export const treeClasses = {
             width: `calc(100vw - ${horizontalSpaceBetweenTreeAndViewportEdges}px)`,
             maxWidth: `calc(${popupMaxWidth}px - ${popupContentPadding}px)`,
             background: OpossumColors.white,
+            position: 'relative',
           };
         } else {
           throw Error(

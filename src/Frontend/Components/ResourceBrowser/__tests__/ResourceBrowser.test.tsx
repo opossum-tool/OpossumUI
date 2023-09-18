@@ -17,6 +17,7 @@ import {
   Attributions,
   Resources,
   ResourcesToAttributions,
+  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ResourceBrowser } from '../ResourceBrowser';
@@ -30,6 +31,9 @@ import { getSelectedResourceId } from '../../../state/selectors/audit-view-resou
 import { isEqual } from 'lodash';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
+import { setLocatePopupSelectedCriticality } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { PopupType } from '../../../enums/enums';
 
 describe('ResourceBrowser', () => {
   it('renders working tree', () => {
@@ -50,6 +54,10 @@ describe('ResourceBrowser', () => {
     act(() => {
       store.dispatch(setResources(testResources));
     });
+
+    expect(
+      screen.queryByLabelText('locate attributions'),
+    ).not.toBeInTheDocument();
 
     expect(screen.getByText('/'));
     expect(screen.getByText('root'));
@@ -299,6 +307,22 @@ describe('ResourceBrowser', () => {
       return null;
     });
     expect(isEqual(actualSequence, expectedSequence)).toBeTruthy();
+  });
+
+  it('renders working tree with the locate attributions icon', () => {
+    const { store } = renderComponentWithStore(<ResourceBrowser />);
+    act(() => {
+      store.dispatch(setResources({}));
+      store.dispatch(
+        setLocatePopupSelectedCriticality(SelectedCriticality.High),
+      );
+    });
+
+    expect(screen.getByLabelText('locate attributions')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('locate attributions'));
+
+    expect(getOpenPopup(store.getState())).toBe(PopupType.LocatorPopup);
   });
 });
 

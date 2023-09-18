@@ -5,6 +5,7 @@
 
 import { SelectedCriticality } from '../../../shared/shared-types';
 import { State } from '../../types/types';
+import { initialResourceState } from '../reducers/resource-reducer';
 
 export function getLocatePopupSelectedCriticality(
   state: State,
@@ -14,4 +15,15 @@ export function getLocatePopupSelectedCriticality(
 
 export function getLocatePopupSelectedLicenses(state: State): Set<string> {
   return state.resourceState.locatePopup.selectedLicenses;
+}
+
+export function isLocateSignalActive(state: State): boolean {
+  const locatePopupSelectedCriticality =
+    getLocatePopupSelectedCriticality(state);
+  const locatePopupSelectedLicenses = getLocatePopupSelectedLicenses(state);
+  return (
+    locatePopupSelectedCriticality !==
+      initialResourceState.locatePopup.selectedCriticality ||
+    locatePopupSelectedLicenses.size > 0
+  );
 }
