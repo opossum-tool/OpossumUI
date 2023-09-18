@@ -231,7 +231,7 @@ export function getExternalAttributionsToHashes(
 }
 
 export function getResourcesWithLocatedAttributions(state: State): {
-  resourcesWithLocatedChildren: ResourcesWithAttributedChildren;
+  resourcesWithLocatedChildren: Set<string>;
   locatedResources: Set<string>;
 } {
   return state.resourceState.allViews.resourcesWithLocatedAttributions;

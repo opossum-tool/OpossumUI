@@ -105,14 +105,7 @@ describe('Locator popup ', () => {
     );
     const licenseSet = new Set(['MIT']);
     const expectedLocatedResources = {
-      resourcesWithLocatedChildren: {
-        attributedChildren: { 1: new Set([0]) },
-        paths: ['/root/', '/'],
-        pathsToIndices: {
-          '/root/': 0,
-          '/': 1,
-        },
-      },
+      resourcesWithLocatedChildren: new Set(['/']),
       locatedResources: new Set(['/root/']),
     };
 
@@ -141,11 +134,7 @@ describe('Locator popup ', () => {
       new Set(),
     );
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
-      resourcesWithLocatedChildren: {
-        attributedChildren: {},
-        paths: [],
-        pathsToIndices: {},
-      },
+      resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
   });

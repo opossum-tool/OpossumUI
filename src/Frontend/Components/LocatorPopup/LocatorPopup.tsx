@@ -75,7 +75,7 @@ export function LocatorPopup(): ReactElement {
   const selectedLicenses = useAppSelector(getLocatePopupSelectedLicenses);
   // currently we only support sets with one element
   // once we support multiple elements we will have to adapt the logic to not take one arbitrary element of the set
-  const selectedLicense =
+  const selectedLicense: string =
     selectedLicenses.size == 0 ? '' : selectedLicenses.values().next().value;
   const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
 
@@ -95,16 +95,7 @@ export function LocatorPopup(): ReactElement {
     dispatch(setLocatePopupSelectedCriticality(SelectedCriticality.Any));
     setSearchedLicense('');
     dispatch(setLocatePopupSelectedLicenses(new Set()));
-    dispatch(
-      setResourcesWithLocatedAttributions(
-        {
-          paths: [],
-          pathsToIndices: {},
-          attributedChildren: {},
-        },
-        new Set(),
-      ),
-    );
+    dispatch(setResourcesWithLocatedAttributions(new Set(), new Set()));
   }
   function close(): void {
     dispatch(closePopup());

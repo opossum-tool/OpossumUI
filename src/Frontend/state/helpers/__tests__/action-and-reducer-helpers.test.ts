@@ -7,6 +7,7 @@ import {
   AttributionData,
   Attributions,
   Criticality,
+  FrequentLicenses,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -34,7 +35,10 @@ import {
   setLocatePopupSelectedLicenses,
 } from '../../actions/resource-actions/locate-popup-actions';
 import { getResourcesWithLocatedAttributions } from '../../selectors/all-views-resource-selectors';
-import { setExternalData } from '../../actions/resource-actions/all-views-simple-actions';
+import {
+  setExternalData,
+  setFrequentLicenses,
+} from '../../actions/resource-actions/all-views-simple-actions';
 
 describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
@@ -372,17 +376,36 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       licenseName: 'Apache-2.0',
       criticality: Criticality.Medium,
     },
+    GPLMediumAttribution: {
+      licenseName: 'General Public License',
+      criticality: Criticality.Medium,
+    },
   };
   const testResourcesToAttributions: ResourcesToAttributions = {
     'pathToMITHigh/': ['MITHighAttribution'],
     'pathToMITHigh/pathToMITMedium': ['MITMediumAttribution'],
     pathToApacheHigh: ['ApacheHighAttribution'],
     pathToApacheMedium: ['ApacheMediumAttribution'],
+    pathToGPLMedium: ['GPLMediumAttribution'],
   };
+  const testFrequentLicenses: FrequentLicenses = {
+    nameOrder: [
+      {
+        shortName: 'GPL',
+        fullName: 'General Public License',
+      },
+    ],
+    texts: {
+      GPL: 'GPL license text',
+      'General Public License': 'GPL license text',
+    },
+  };
+
   const testStore = createTestAppStore();
   testStore.dispatch(
     setExternalData(testAttributions, testResourcesToAttributions),
   );
+  testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
 
   it('locates attribution and parent if criticality and licenses are set', () => {
     const criticality = SelectedCriticality.Medium;
@@ -394,16 +417,10 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       locateResourcesByCriticalityAndLicense(criticality, licenseNames),
     );
     const expectedLocatedResources = {
-      resourcesWithLocatedChildren: {
-        attributedChildren: { 1: new Set([0]) },
-        paths: ['pathToMITHigh/pathToMITMedium', 'pathToMITHigh/'],
-        pathsToIndices: {
-          'pathToMITHigh/pathToMITMedium': 0,
-          'pathToMITHigh/': 1,
-        },
-      },
+      resourcesWithLocatedChildren: new Set(['pathToMITHigh/']),
       locatedResources: new Set(['pathToMITHigh/pathToMITMedium']),
     };
+
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
       expectedLocatedResources,
     );
@@ -419,14 +436,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       ),
     );
     const expectedLocatedResources = {
-      resourcesWithLocatedChildren: {
-        attributedChildren: { 0: new Set([1]) },
-        paths: ['pathToMITHigh/', 'pathToMITHigh/pathToMITMedium'],
-        pathsToIndices: {
-          'pathToMITHigh/pathToMITMedium': 1,
-          'pathToMITHigh/': 0,
-        },
-      },
+      resourcesWithLocatedChildren: new Set(['pathToMITHigh/']),
       locatedResources: new Set([
         'pathToMITHigh/',
         'pathToMITHigh/pathToMITMedium',
@@ -444,24 +454,32 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       locateResourcesByCriticalityAndLicense(criticality, new Set()),
     );
     const expectedLocatedResources = {
-      resourcesWithLocatedChildren: {
-        attributedChildren: { 1: new Set([0]) },
-        paths: [
-          'pathToMITHigh/pathToMITMedium',
-          'pathToMITHigh/',
-          'pathToApacheMedium',
-        ],
-        pathsToIndices: {
-          pathToApacheMedium: 2,
-          'pathToMITHigh/': 1,
-          'pathToMITHigh/pathToMITMedium': 0,
-        },
-      },
+      resourcesWithLocatedChildren: new Set(['pathToMITHigh/']),
       locatedResources: new Set([
         'pathToMITHigh/pathToMITMedium',
         'pathToApacheMedium',
+        'pathToGPLMedium',
       ]),
     };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('locates full name attribution if license is set to frequent license', () => {
+    const criticality = SelectedCriticality.Medium;
+    const licenseNames = new Set(['GPL']);
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    testStore.dispatch(
+      locateResourcesByCriticalityAndLicense(criticality, licenseNames),
+    );
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(['pathToGPLMedium']),
+    };
+
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
       expectedLocatedResources,
     );

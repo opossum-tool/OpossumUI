@@ -8,6 +8,7 @@ import {
   Attributions,
   AttributionsToHashes,
   AttributionsToResources,
+  FrequentLicenseName,
   PackageInfo,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
@@ -29,7 +30,7 @@ import { setResourcesWithLocatedAttributions } from '../actions/resource-actions
 import {
   getExternalAttributions,
   getExternalAttributionsToResources,
-  getResourcesToExternalAttributions,
+  getFrequentLicensesNameOrder,
 } from '../selectors/all-views-resource-selectors';
 import { State } from '../../types/types';
 
@@ -274,60 +275,38 @@ export function locateResourcesByCriticalityAndLicense(
     const attributionsToResources = getExternalAttributionsToResources(
       getState(),
     );
-    const resourcesToExternalAttributions = getResourcesToExternalAttributions(
-      getState(),
-    );
-    // if license Name check frequent licenses for either short name or full name?
-    function CriticalityAndLicenseMatches(attribution: PackageInfo): boolean {
-      return (
-        criticality != SelectedCriticality.Any &&
-        attribution.criticality == criticality &&
-        attribution.licenseName !== undefined &&
-        licenseNames.size > 0 &&
-        licenseNames.has(attribution.licenseName)
-      );
+    const frequentLicensesNameOrder: Array<FrequentLicenseName> =
+      getFrequentLicensesNameOrder(getState());
+
+    // if one of the license names matches a frequent license, we want to consider the short- and the full name
+    for (const frequentLicense of frequentLicensesNameOrder) {
+      if (licenseNames.has(frequentLicense.shortName)) {
+        licenseNames.add(frequentLicense.fullName);
+      } else if (licenseNames.has(frequentLicense.fullName)) {
+        licenseNames.add(frequentLicense.shortName);
+      }
     }
 
-    function CriticalityIsAnyAndLicenseMatches(
-      attribution: PackageInfo,
-    ): boolean {
-      return (
-        criticality == SelectedCriticality.Any &&
-        licenseNames.size > 0 &&
-        attribution.licenseName !== undefined &&
-        licenseNames.has(attribution.licenseName)
-      );
-    }
-    function CriticalityMatchesAndLicenseNAmesIsEmpty(
-      attribution: PackageInfo,
-    ): boolean {
-      return (
-        criticality != SelectedCriticality.Any &&
-        attribution.criticality == criticality &&
-        licenseNames.size == 0
-      );
-    }
     for (const attributionId in attributions) {
       const attribution = attributions[attributionId];
       if (
-        CriticalityAndLicenseMatches(attribution) ||
-        CriticalityIsAnyAndLicenseMatches(attribution) ||
-        CriticalityMatchesAndLicenseNAmesIsEmpty(attribution)
+        (criticalityMatches(criticality, attribution) &&
+          !licenseIsDifferent(licenseNames, attribution)) ||
+        (licenseMatches(licenseNames, attribution) &&
+          !criticalityIsDifferent(criticality, attribution))
       ) {
         attributionsToResources[attributionId].forEach((resource) => {
           locatedResources.add(resource);
         });
       }
     }
-    const resourcesToAttributions: ResourcesToAttributions = {};
-    for (const resourcePath in resourcesToExternalAttributions) {
-      if (locatedResources.has(resourcePath)) {
-        resourcesToAttributions[resourcePath] =
-          resourcesToExternalAttributions[resourcePath];
-      }
+
+    const resourcesWithLocatedChildren = new Set<string>();
+    for (const locatedResource of locatedResources) {
+      const parents = getParents(locatedResource);
+      parents.forEach((parent) => resourcesWithLocatedChildren.add(parent));
     }
-    const resourcesWithLocatedChildren: ResourcesWithAttributedChildren =
-      computeChildrenWithAttributions(resourcesToAttributions);
+
     dispatch(
       setResourcesWithLocatedAttributions(
         resourcesWithLocatedChildren,
@@ -335,4 +314,46 @@ export function locateResourcesByCriticalityAndLicense(
       ),
     );
   };
+}
+
+function criticalityMatches(
+  criticality: SelectedCriticality,
+  attribution: PackageInfo,
+): boolean {
+  return (
+    criticality != SelectedCriticality.Any &&
+    attribution.criticality == criticality
+  );
+}
+
+function criticalityIsDifferent(
+  criticality: SelectedCriticality,
+  attribution: PackageInfo,
+): boolean {
+  return (
+    criticality != SelectedCriticality.Any &&
+    attribution.criticality !== criticality
+  );
+}
+
+function licenseMatches(
+  licenseNames: Set<string>,
+  attribution: PackageInfo,
+): boolean {
+  return (
+    licenseNames.size > 0 &&
+    attribution.licenseName !== undefined &&
+    licenseNames.has(attribution.licenseName)
+  );
+}
+
+function licenseIsDifferent(
+  licenseNames: Set<string>,
+  attribution: PackageInfo,
+): boolean {
+  return (
+    licenseNames.size > 0 &&
+    attribution.licenseName !== undefined &&
+    !licenseNames.has(attribution.licenseName)
+  );
 }
