@@ -17,6 +17,7 @@ import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import MyLocationIcon from '@mui/icons-material/MyLocation';
 import React, { ReactElement } from 'react';
 import {
   baseIcon,
@@ -279,5 +280,11 @@ export function MissingPackageNameIcon(props: IconProps): ReactElement {
         })}
       />
     </MuiTooltip>
+  );
+}
+
+export function LocateAttributionsIcon(props: IconProps): ReactElement {
+  return (
+    <MyLocationIcon arial-abel={'locate attributions icon'} sx={props.sx} />
   );
 }

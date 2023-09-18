@@ -9,10 +9,11 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import React from 'react';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
-import { Attributions } from '../../../../shared/shared-types';
+import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
+import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {
@@ -46,6 +47,40 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
     expect(screen.getByText('Scancode')).toBeInTheDocument();
     expect(screen.getByText('Reuser')).toBeInTheDocument();
+  });
+
+  it('renders search icons in CriticalLicensesTable', () => {
+    const store = createTestAppStore();
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        licenseName: 'GNU General Public License v2.0',
+        criticality: Criticality.High,
+      },
+      uuid_2: {
+        licenseName: 'The MIT License (MIT)',
+        criticality: Criticality.Medium,
+      },
+    };
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+        }),
+      ),
+    );
+    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+
+    expect(
+      screen.getByText(ProjectStatisticsPopupTitle.CriticalLicensesTable),
+    ).toBeInTheDocument();
+    const iconButtonGPL = screen.getByRole('button', {
+      name: 'locate attributions with "GNU General Public License v2.0"',
+    });
+    const iconButtonMIT = screen.getByRole('button', {
+      name: 'locate attributions with "The MIT License (MIT)"',
+    });
+    expect(iconButtonGPL).toBeEnabled();
+    expect(iconButtonMIT).toBeEnabled();
   });
 
   it('renders pie charts when there are attributions', () => {
@@ -93,6 +128,7 @@ describe('The ProjectStatisticsPopup', () => {
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+
     expect(screen.getByText('Most Frequent Licenses')).toBeInTheDocument();
     expect(screen.getByText('Critical Signals')).toBeInTheDocument();
     expect(screen.getAllByText('Incomplete Attributions')).toHaveLength(2);

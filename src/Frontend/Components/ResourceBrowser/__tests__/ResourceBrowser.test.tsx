@@ -338,9 +338,9 @@ describe('ResourceBrowser', () => {
       );
     });
 
-    expect(screen.getByLabelText('locate attributions')).toBeInTheDocument();
+    expect(screen.getByLabelText('filters active')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText('locate attributions'));
+    fireEvent.click(screen.getByLabelText('filters active'));
 
     expect(getOpenPopup(store.getState())).toBe(PopupType.LocatorPopup);
   });
