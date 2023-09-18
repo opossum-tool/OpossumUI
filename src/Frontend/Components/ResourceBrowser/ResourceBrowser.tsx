@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import WestRoundedIcon from '@mui/icons-material/WestRounded';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import remove from 'lodash/remove';
 import React, { ReactElement } from 'react';
@@ -16,6 +17,7 @@ import {
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
   getResourcesWithExternalAttributedChildren,
+  getResourcesWithLocatedAttributions,
   getResourcesWithManualAttributedChildren,
 } from '../../state/selectors/all-views-resource-selectors';
 import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -57,6 +59,11 @@ const classes = {
     '&:hover': {
       background: OpossumColors.middleBlue,
     },
+  },
+  locatedResourceIcon: {
+    marginTop: '-2px',
+    marginLeft: '10px',
+    stroke: OpossumColors.darkBlue,
   },
 };
 
@@ -132,8 +139,8 @@ export function ResourceBrowser(): ReactElement | null {
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const maxTreeHeight: number = useWindowHeight() - topBarHeight - 4;
 
-  const showLocatorIcon = useAppSelector(isLocateSignalActive);
-  const locatorIcon = showLocatorIcon ? (
+  const locateSignalActive = useAppSelector(isLocateSignalActive);
+  const locatorIcon = locateSignalActive ? (
     <IconButton
       iconSx={classes.locatorIcon}
       containerSx={classes.locatorIconContainer}
@@ -145,6 +152,22 @@ export function ResourceBrowser(): ReactElement | null {
       icon={<MyLocationIcon aria-label={'locate attributions'} />}
     />
   ) : undefined;
+  const resourcesWithLocatedAttributions = useAppSelector(
+    getResourcesWithLocatedAttributions,
+  );
+  const locatedResources = locateSignalActive
+    ? resourcesWithLocatedAttributions.locatedResources
+    : undefined;
+  const resourcesWithLocatedChildren = locateSignalActive
+    ? resourcesWithLocatedAttributions.resourcesWithLocatedChildren.paths
+    : undefined;
+
+  const locatedResourceIcon = (
+    <WestRoundedIcon
+      sx={classes.locatedResourceIcon}
+      aria-label={'located attribution'}
+    />
+  );
 
   return resources ? (
     <VirtualizedTree
@@ -168,6 +191,9 @@ export function ResourceBrowser(): ReactElement | null {
         treeExpandIcon: treeClasses.treeExpandIcon,
       }}
       locatorIcon={locatorIcon}
+      locatedResourceIcon={locatedResourceIcon}
+      locatedResources={locatedResources}
+      resourcesWithLocatedChildren={resourcesWithLocatedChildren}
     />
   ) : null;
 }

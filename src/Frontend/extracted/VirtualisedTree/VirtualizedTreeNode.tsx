@@ -54,6 +54,8 @@ export interface VirtualizedTreeNodeData {
   treeNodeStyle?: TreeNodeStyle;
   nodeHeight: number;
   breakpoints?: Set<string>;
+  isLocatedNode: boolean;
+  locatedResourceIcon?: ReactElement;
 }
 
 export function VirtualizedTreeNode(
@@ -98,6 +100,8 @@ export function VirtualizedTreeNode(
       >
         {props.getTreeNodeLabel(props.nodeName, props.node, props.nodeId)}
       </MuiBox>
+      <MuiBox />
+      {props.isLocatedNode ? props.locatedResourceIcon : null}
     </MuiBox>
   );
 }

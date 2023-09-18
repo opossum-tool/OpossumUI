@@ -26,6 +26,7 @@ import {
   setFilesWithChildren,
   setManualData,
   setResources,
+  setResourcesWithLocatedAttributions,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import { isEqual } from 'lodash';
@@ -152,6 +153,14 @@ describe('ResourceBrowser', () => {
       '/root/src/': [testUuid],
     };
 
+    const testLocatePopupSelectedCriticality = SelectedCriticality.High;
+    const testResourcesWithLocatedChildren = {
+      paths: ['/', '/root/'],
+      pathsToIndices: {},
+      attributedChildren: {},
+    };
+    const testLocatedResources = new Set<string>(['/root/src/']);
+
     const { store } = renderComponentWithStore(<ResourceBrowser />);
     act(() => {
       store.dispatch(setResources(testResources));
@@ -167,6 +176,15 @@ describe('ResourceBrowser', () => {
           testResourcesToExternalAttributions,
         ),
       );
+      store.dispatch(
+        setResourcesWithLocatedAttributions(
+          testResourcesWithLocatedChildren,
+          testLocatedResources,
+        ),
+      );
+      store.dispatch(
+        setLocatePopupSelectedCriticality(testLocatePopupSelectedCriticality),
+      );
     });
 
     expect(screen.getByText('/')).toBeInTheDocument();
@@ -177,12 +195,16 @@ describe('ResourceBrowser', () => {
       'root',
       'Directory icon containing signals',
     );
+    expectIconToExist(screen, 'located attribution', '/', false);
+    expectIconToExist(screen, 'located attribution', 'root', true);
     expect(screen.queryByText('src')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('root') as Element);
     expect(screen.getByText('src')).toBeInTheDocument();
     expectIconToExist(screen, 'Signal icon', 'src', true);
     expectResourceIconLabelToBe(screen, 'src', 'Directory icon with signal');
+    expectIconToExist(screen, 'located attribution', 'root', false);
+    expectIconToExist(screen, 'located attribution', 'src', true);
 
     fireEvent.click(screen.queryByText('src') as Element);
     expect(screen.getByText('something.js')).toBeInTheDocument();
@@ -201,6 +223,8 @@ describe('ResourceBrowser', () => {
       'src',
       'Directory icon without information',
     );
+    expectIconToExist(screen, 'located attribution', 'src', true);
+    expectIconToExist(screen, 'located attribution', 'something.js', false);
 
     expectResourceIconLabelToBe(
       screen,
@@ -333,14 +357,14 @@ function expectIconToExist(
   expectedToExist: boolean,
 ): void {
   const treeItem = screen.getByText(resourceName);
+  const resourceTreeRow = treeItem.parentElement?.parentElement
+    ?.parentElement as HTMLElement;
   expectedToExist
-    ? expect(
-        // eslint-disable-next-line testing-library/prefer-screen-queries
-        getByLabelText(treeItem.parentElement as HTMLElement, iconLabel),
-      ).toBeInTheDocument()
+    ? // eslint-disable-next-line testing-library/prefer-screen-queries
+      expect(getByLabelText(resourceTreeRow, iconLabel)).toBeInTheDocument()
     : expect(
         // eslint-disable-next-line testing-library/prefer-screen-queries
-        queryByLabelText(treeItem.parentElement as HTMLElement, iconLabel),
+        queryByLabelText(resourceTreeRow, iconLabel),
       ).not.toBeInTheDocument();
 }
 
