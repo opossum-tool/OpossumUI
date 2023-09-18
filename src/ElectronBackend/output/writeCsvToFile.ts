@@ -91,6 +91,8 @@ export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
     excludeFromNotice: 'exclude-from-notice',
     criticality: 'criticality',
     needsReview: 'needs-review',
+    preferred: 'preferred',
+    preferredOverOriginIds: 'preferred-over-origin-ids',
   };
 
   const headers: { [key: string]: string } = {};

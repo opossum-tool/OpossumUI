@@ -28,6 +28,8 @@ export function getPackageInfoKeys(): Array<KeysOfPackageInfo> {
     excludeFromNotice: true,
     criticality: true,
     needsReview: true,
+    preferred: true,
+    preferredOverOriginIds: true,
   };
   return Object.keys(packageInfoKeysObject) as Array<KeysOfPackageInfo>;
 }

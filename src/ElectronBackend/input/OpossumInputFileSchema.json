@@ -149,6 +149,17 @@
             "items": {
               "type": "string"
             }
+          },
+          "preferred":{
+            "type": "boolean",
+            "description": "Indicates that the attribution has been marked as preferred by a user."
+          },
+          "preferredOverOriginIds": {
+            "type": "array",
+            "description": "OriginIds of all attributions this one is preferred over.",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": ["source"],
