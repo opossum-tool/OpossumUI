@@ -20,7 +20,7 @@ export enum Criticality {
   Medium = 'medium',
 }
 
-enum AnyCriticality {
+export enum AnyCriticality {
   Any = 'any',
 }
 export type SelectedCriticality = Criticality | AnyCriticality;
