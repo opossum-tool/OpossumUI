@@ -30,6 +30,7 @@ export function getFormattedCellData(
     case 'preSelected':
     case 'needsReview':
     case 'excludeFromNotice':
+    case 'preferred':
       cellData = attributionInfo[config.attributionProperty] ? 'Yes' : 'No';
       break;
     case 'icons':
@@ -39,6 +40,7 @@ export function getFormattedCellData(
       cellData = attributionInfo[config.attributionProperty]?.name.trim() || '';
       break;
     case 'originIds':
+    case 'preferredOverOriginIds':
       cellData = '';
       break;
     default:

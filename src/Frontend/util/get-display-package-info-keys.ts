@@ -29,6 +29,8 @@ export function getDisplayPackageInfoKeys(): Array<KeysOfDisplayPackageInfo> {
     criticality: true,
     comments: true,
     attributionIds: true,
+    preferred: true,
+    preferredOverOriginIds: true,
   };
   return Object.keys(
     displayPackageInfoKeysObject,

@@ -122,6 +122,8 @@ const correctOutput: OpossumOutputFile = {
       packageVersion: '16.0.1',
       licenseText: '',
       needsReview: true,
+      preferred: true,
+      preferredOverOriginIds: ['test-id'],
     },
   },
   resourcesToAttributions: {

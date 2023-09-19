@@ -53,6 +53,8 @@ describe('convertPackageInfoToDisplayPackageInfo', () => {
       'excludeFromNotice',
       'criticality',
       'needsReview',
+      'preferred',
+      'preferredOverOriginIds',
     ];
     expect(testKeysOfPackageInfo).toEqual(expectedKeysOfPackageInfo);
   });
@@ -133,6 +135,8 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       'criticality',
       'comments',
       'attributionIds',
+      'preferred',
+      'preferredOverOriginIds',
     ];
     expect(testKeysOfDisplayPackageInfo).toEqual(
       expectedKeysOfDisplayPackageInfo,
