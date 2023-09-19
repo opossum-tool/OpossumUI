@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import StarIcon from '@mui/icons-material/Star';
 import React, { ReactElement, useState } from 'react';
 import MuiMenu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
@@ -56,6 +58,8 @@ const BUTTON_TITLE_TO_ICON_MAP: {
   [ButtonText.Hide]: <VisibilityOffIcon fontSize="small" />,
   [ButtonText.Unhide]: <VisibilityIcon fontSize="small" />,
   [ButtonText.OpenAttributionWizardPopup]: <AutoFixHighIcon fontSize="small" />,
+  [ButtonText.MarkAsPreferred]: <StarOutlineIcon fontSize="small" />,
+  [ButtonText.UnmarkAsPreferred]: <StarIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {

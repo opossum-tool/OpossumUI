@@ -19,6 +19,7 @@ import { getSelectedView } from '../../state/selectors/view-selector';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
+  getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { IpcRendererEvent } from 'electron';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
@@ -52,6 +53,8 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { isEqual } from 'lodash';
+import { PanelPackage } from '../../types/types';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 
 const classes = {
   root: {
@@ -104,6 +107,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     getAttributionIdMarkedForReplacement,
   );
   const view = useAppSelector(getSelectedView);
+  const selectedResourceId = useAppSelector(getSelectedResourceId);
 
   const {
     isLicenseTextShown,
@@ -139,9 +143,22 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       temporaryDisplayPackageInfo.preSelected,
     ),
     targetAttributionIsExternalAttribution: false,
+    attributionIsPreferred:
+      selectedPackage?.displayPackageInfo.preferred ?? false,
+    view,
   });
 
   const mainButtonConfigs: Array<MainButtonConfig> = [];
+
+  function toggleIsSelectedPackagePreferred(
+    resourceId: string,
+    attributionId: string,
+    selectedPackage: PanelPackage,
+  ): void {
+    const packageInfo = selectedPackage.displayPackageInfo;
+    packageInfo.preferred = !packageInfo.preferred;
+    dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
+  }
 
   if (props.onSaveButtonClick) {
     mainButtonConfigs.push({
@@ -212,6 +229,32 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         );
       },
       hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
+    },
+    {
+      buttonText: ButtonText.MarkAsPreferred,
+      onClick: (): void => {
+        if (selectedPackage) {
+          toggleIsSelectedPackagePreferred(
+            selectedResourceId,
+            selectedManualAttributionIdInCurrentView,
+            selectedPackage,
+          );
+        }
+      },
+      hidden: mergeButtonDisplayState.hideMarkAsPreferredButton,
+    },
+    {
+      buttonText: ButtonText.UnmarkAsPreferred,
+      onClick: (): void => {
+        if (selectedPackage) {
+          toggleIsSelectedPackagePreferred(
+            selectedResourceId,
+            selectedManualAttributionIdInCurrentView,
+            selectedPackage,
+          );
+        }
+      },
+      hidden: mergeButtonDisplayState.hideUnmarkAsPreferredButton,
     },
   ];
 

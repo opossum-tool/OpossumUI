@@ -193,6 +193,8 @@ export interface MergeButtonDisplayState {
   hideUnmarkForReplacementButton: boolean;
   hideReplaceMarkedByButton: boolean;
   deactivateReplaceMarkedByButton: boolean;
+  hideMarkAsPreferredButton: boolean;
+  hideUnmarkAsPreferredButton: boolean;
 }
 
 export function getMergeButtonsDisplayState(currentState: {
@@ -202,6 +204,8 @@ export function getMergeButtonsDisplayState(currentState: {
   packageInfoWereModified: boolean;
   targetAttributionIsPreSelected: boolean;
   targetAttributionIsExternalAttribution: boolean;
+  attributionIsPreferred?: boolean;
+  view?: View;
 }): MergeButtonDisplayState {
   const anyAttributionMarkedForReplacement =
     currentState.attributionIdMarkedForReplacement !== '';
@@ -229,6 +233,14 @@ export function getMergeButtonsDisplayState(currentState: {
       (selectedAttributionIsPartOfMerge &&
         currentState.packageInfoWereModified) ||
       currentState.targetAttributionIsPreSelected,
+    hideMarkAsPreferredButton:
+      !currentState.selectedAttributionId ||
+      currentState.view !== View.Audit ||
+      Boolean(currentState.attributionIsPreferred),
+    hideUnmarkAsPreferredButton:
+      !currentState.selectedAttributionId ||
+      currentState.view !== View.Audit ||
+      !currentState.attributionIsPreferred,
   };
 }
 

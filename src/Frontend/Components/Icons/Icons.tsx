@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import StarIcon from '@mui/icons-material/Star';
 import MuiTooltip from '@mui/material/Tooltip';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import InsertCommentIcon from '@mui/icons-material/InsertComment';
@@ -286,5 +287,19 @@ export function MissingPackageNameIcon(props: IconProps): ReactElement {
 export function LocateAttributionsIcon(props: IconProps): ReactElement {
   return (
     <MyLocationIcon arial-abel={'locate attributions icon'} sx={props.sx} />
+  );
+}
+
+export function PreferredIcon(props: IconProps): ReactElement {
+  return (
+    <MuiTooltip sx={classes.tooltip} title="is preferred">
+      <StarIcon
+        aria-label={'Preferred icon'}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.nonClickableIcon,
+          sxProps: props.sx,
+        })}
+      />
+    </MuiTooltip>
   );
 }

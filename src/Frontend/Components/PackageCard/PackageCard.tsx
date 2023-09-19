@@ -338,6 +338,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           },
         ];
   }
+
   function getContextMenuItemsForExternalAttributions(): Array<ContextMenuItem> {
     return props.hideContextMenuAndMultiSelect
       ? []
