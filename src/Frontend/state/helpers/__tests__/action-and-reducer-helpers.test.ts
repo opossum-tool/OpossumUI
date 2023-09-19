@@ -6,12 +6,9 @@
 import {
   AttributionData,
   Attributions,
-  Criticality,
-  FrequentLicenses,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
-  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -23,22 +20,12 @@ import {
   createExternalAttributionsToHashes,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
-  locateResourcesByCriticalityAndLicense,
 } from '../action-and-reducer-helpers';
 import {
   initialResourceState,
   ResourceState,
 } from '../../reducers/resource-reducer';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
-import {
-  setLocatePopupSelectedCriticality,
-  setLocatePopupSelectedLicenses,
-} from '../../actions/resource-actions/locate-popup-actions';
-import { getResourcesWithLocatedAttributions } from '../../selectors/all-views-resource-selectors';
-import {
-  setExternalData,
-  setFrequentLicenses,
-} from '../../actions/resource-actions/all-views-simple-actions';
 
 describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
@@ -355,133 +342,5 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
       testManualData,
     );
     expect(testIndex).toEqual(expectedIndex);
-  });
-});
-
-describe('locateResourcesByCriticalityAndLicense', () => {
-  const testAttributions: Attributions = {
-    MITHighAttribution: {
-      licenseName: 'MIT',
-      criticality: Criticality.High,
-    },
-    MITMediumAttribution: {
-      licenseName: 'MIT',
-      criticality: Criticality.Medium,
-    },
-    ApacheHighAttribution: {
-      licenseName: 'Apache-2.0',
-      criticality: Criticality.High,
-    },
-    ApacheMediumAttribution: {
-      licenseName: 'Apache-2.0',
-      criticality: Criticality.Medium,
-    },
-    GPLMediumAttribution: {
-      licenseName: 'General Public License',
-      criticality: Criticality.Medium,
-    },
-  };
-  const testResourcesToAttributions: ResourcesToAttributions = {
-    'pathToMITHigh/': ['MITHighAttribution'],
-    'pathToMITHigh/pathToMITMedium': ['MITMediumAttribution'],
-    pathToApacheHigh: ['ApacheHighAttribution'],
-    pathToApacheMedium: ['ApacheMediumAttribution'],
-    pathToGPLMedium: ['GPLMediumAttribution'],
-  };
-  const testFrequentLicenses: FrequentLicenses = {
-    nameOrder: [
-      {
-        shortName: 'GPL',
-        fullName: 'General Public License',
-      },
-    ],
-    texts: {
-      GPL: 'GPL license text',
-      'General Public License': 'GPL license text',
-    },
-  };
-
-  const testStore = createTestAppStore();
-  testStore.dispatch(
-    setExternalData(testAttributions, testResourcesToAttributions),
-  );
-  testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
-  it('locates attribution and parent if criticality and licenses are set', () => {
-    const criticality = SelectedCriticality.Medium;
-    const licenseNames = new Set(['MIT']);
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
-
-    testStore.dispatch(
-      locateResourcesByCriticalityAndLicense(criticality, licenseNames),
-    );
-    const expectedLocatedResources = {
-      resourcesWithLocatedChildren: new Set(['pathToMITHigh/']),
-      locatedResources: new Set(['pathToMITHigh/pathToMITMedium']),
-    };
-
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
-      expectedLocatedResources,
-    );
-  });
-
-  it('locates attribution and parent if only licenses set', () => {
-    const licenseNames = new Set(['MIT']);
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
-    testStore.dispatch(
-      locateResourcesByCriticalityAndLicense(
-        SelectedCriticality.Any,
-        licenseNames,
-      ),
-    );
-    const expectedLocatedResources = {
-      resourcesWithLocatedChildren: new Set(['pathToMITHigh/']),
-      locatedResources: new Set([
-        'pathToMITHigh/',
-        'pathToMITHigh/pathToMITMedium',
-      ]),
-    };
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
-      expectedLocatedResources,
-    );
-  });
-
-  it('locates attribution and parent if only criticality is set', () => {
-    const criticality = SelectedCriticality.Medium;
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
-    testStore.dispatch(
-      locateResourcesByCriticalityAndLicense(criticality, new Set()),
-    );
-    const expectedLocatedResources = {
-      resourcesWithLocatedChildren: new Set(['pathToMITHigh/']),
-      locatedResources: new Set([
-        'pathToMITHigh/pathToMITMedium',
-        'pathToApacheMedium',
-        'pathToGPLMedium',
-      ]),
-    };
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
-      expectedLocatedResources,
-    );
-  });
-
-  it('locates full name attribution if license is set to frequent license', () => {
-    const criticality = SelectedCriticality.Medium;
-    const licenseNames = new Set(['GPL']);
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
-
-    testStore.dispatch(
-      locateResourcesByCriticalityAndLicense(criticality, licenseNames),
-    );
-    const expectedLocatedResources = {
-      resourcesWithLocatedChildren: new Set(),
-      locatedResources: new Set(['pathToGPLMedium']),
-    };
-
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
-      expectedLocatedResources,
-    );
   });
 });

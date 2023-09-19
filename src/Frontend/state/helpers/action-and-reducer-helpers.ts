@@ -8,11 +8,9 @@ import {
   Attributions,
   AttributionsToHashes,
   AttributionsToResources,
-  FrequentLicenseName,
   PackageInfo,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
-  SelectedCriticality,
 } from '../../../shared/shared-types';
 import isEqual from 'lodash/isEqual';
 import { getParents } from './get-parents';
@@ -25,14 +23,6 @@ import { ResourceState } from '../reducers/resource-reducer';
 import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
-import { AppThunkAction, AppThunkDispatch } from '../types';
-import { setResourcesWithLocatedAttributions } from '../actions/resource-actions/all-views-simple-actions';
-import {
-  getExternalAttributions,
-  getExternalAttributionsToResources,
-  getFrequentLicensesNameOrder,
-} from '../selectors/all-views-resource-selectors';
-import { State } from '../../types/types';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -263,97 +253,4 @@ export function getIndexOfAttributionInManualPackagePanel(
   );
 
   return packageCardIndex !== -1 ? packageCardIndex : null;
-}
-
-export function locateResourcesByCriticalityAndLicense(
-  criticality: SelectedCriticality,
-  licenseNames: Set<string>,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const locatedResources = new Set<string>();
-    const attributions = getExternalAttributions(getState());
-    const attributionsToResources = getExternalAttributionsToResources(
-      getState(),
-    );
-    const frequentLicensesNameOrder: Array<FrequentLicenseName> =
-      getFrequentLicensesNameOrder(getState());
-
-    // if one of the license names matches a frequent license, we want to consider the short- and the full name
-    for (const frequentLicense of frequentLicensesNameOrder) {
-      if (licenseNames.has(frequentLicense.shortName)) {
-        licenseNames.add(frequentLicense.fullName);
-      } else if (licenseNames.has(frequentLicense.fullName)) {
-        licenseNames.add(frequentLicense.shortName);
-      }
-    }
-
-    for (const attributionId in attributions) {
-      const attribution = attributions[attributionId];
-      if (
-        (criticalityMatches(criticality, attribution) &&
-          !licenseIsDifferent(licenseNames, attribution)) ||
-        (licenseMatches(licenseNames, attribution) &&
-          !criticalityIsDifferent(criticality, attribution))
-      ) {
-        attributionsToResources[attributionId].forEach((resource) => {
-          locatedResources.add(resource);
-        });
-      }
-    }
-
-    const resourcesWithLocatedChildren = new Set<string>();
-    for (const locatedResource of locatedResources) {
-      const parents = getParents(locatedResource);
-      parents.forEach((parent) => resourcesWithLocatedChildren.add(parent));
-    }
-
-    dispatch(
-      setResourcesWithLocatedAttributions(
-        resourcesWithLocatedChildren,
-        locatedResources,
-      ),
-    );
-  };
-}
-
-function criticalityMatches(
-  criticality: SelectedCriticality,
-  attribution: PackageInfo,
-): boolean {
-  return (
-    criticality != SelectedCriticality.Any &&
-    attribution.criticality == criticality
-  );
-}
-
-function criticalityIsDifferent(
-  criticality: SelectedCriticality,
-  attribution: PackageInfo,
-): boolean {
-  return (
-    criticality != SelectedCriticality.Any &&
-    attribution.criticality !== criticality
-  );
-}
-
-function licenseMatches(
-  licenseNames: Set<string>,
-  attribution: PackageInfo,
-): boolean {
-  return (
-    licenseNames.size > 0 &&
-    attribution.licenseName !== undefined &&
-    licenseNames.has(attribution.licenseName)
-  );
-}
-
-function licenseIsDifferent(
-  licenseNames: Set<string>,
-  attribution: PackageInfo,
-): boolean {
-  return (
-    licenseNames.size > 0 &&
-    attribution.licenseName !== undefined &&
-    !licenseNames.has(attribution.licenseName)
-  );
 }
