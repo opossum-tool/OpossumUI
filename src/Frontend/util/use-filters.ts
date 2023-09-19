@@ -34,5 +34,8 @@ export function useFilters(
   attributions = activeFilters.has(FilterType.OnlyNeedsReview)
     ? pickBy(attributions, (value: PackageInfo) => value.needsReview)
     : attributions;
+  attributions = activeFilters.has(FilterType.OnlyPreferred)
+    ? pickBy(attributions, (value: PackageInfo) => value.preferred)
+    : attributions;
   return attributions;
 }
