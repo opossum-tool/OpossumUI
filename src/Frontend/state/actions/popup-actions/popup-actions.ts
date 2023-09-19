@@ -12,6 +12,7 @@ import {
   getExternalData,
   getManualAttributions,
   getManualData,
+  getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
@@ -26,6 +27,7 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  setShowNoSignalsLocatedMessage,
   setTargetView,
 } from '../view-actions/view-actions';
 import {
@@ -59,12 +61,16 @@ import {
   setAttributionWizardSelectedPackageIds,
   setAttributionWizardTotalAttributionCount,
 } from '../resource-actions/attribution-wizard-actions';
-import { DisplayPackageInfo } from '../../../../shared/shared-types';
+import {
+  DisplayPackageInfo,
+  SelectedCriticality,
+} from '../../../../shared/shared-types';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
   convertDisplayPackageInfoToPackageInfo,
   convertPackageInfoToDisplayPackageInfo,
 } from '../../../util/convert-package-info';
+import { setLocatePopupFilters } from '../resource-actions/locate-popup-actions';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
@@ -343,6 +349,57 @@ export function closeAttributionWizardPopup(): AppThunkAction {
       ),
     );
 
+    dispatch(closePopup());
+  };
+}
+
+export function locateSignalsFromLocatorPopup(
+  criticality: SelectedCriticality,
+  licenseNames: Set<string>,
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: criticality,
+        selectedLicenses: licenseNames,
+      }),
+    );
+
+    const { locatedResources, resourcesWithLocatedChildren } =
+      getResourcesWithLocatedAttributions(getState());
+    const noSignalsAreFound =
+      locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
+    const allFiltersAreEmpty =
+      criticality === SelectedCriticality.Any && licenseNames.size === 0;
+    const showNoSignalsLocatedMessage =
+      noSignalsAreFound && !allFiltersAreEmpty;
+
+    dispatch(setShowNoSignalsLocatedMessage(showNoSignalsLocatedMessage));
+
+    if (!showNoSignalsLocatedMessage) {
+      dispatch(closePopup());
+    }
+  };
+}
+
+export function locateSignalsFromProjectStatisticsPopup(
+  licenseName: string,
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set([licenseName]),
+      }),
+    );
+    const { locatedResources } = getResourcesWithLocatedAttributions(
+      getState(),
+    );
+
+    dispatch(navigateToView(View.Audit));
+    dispatch(
+      openResourceInResourceBrowser(locatedResources.values().next().value),
+    );
     dispatch(closePopup());
   };
 }

@@ -3,37 +3,64 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Criticality } from '../../../../../shared/shared-types';
+import {
+  Attributions,
+  Criticality,
+  ResourcesToAttributions,
+  SelectedCriticality,
+} from '../../../../../shared/shared-types';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
-import {
-  getLocatePopupSelectedCriticality,
-  getLocatePopupSelectedLicenses,
-} from '../../../selectors/locate-popup-selectors';
-import {
-  setLocatePopupSelectedCriticality,
-  setLocatePopupSelectedLicenses,
-} from '../locate-popup-actions';
+import { getResourcesWithLocatedAttributions } from '../../../selectors/all-views-resource-selectors';
+import { getLocatePopupFilters } from '../../../selectors/locate-popup-selectors';
+import { loadFromFile } from '../load-actions';
+import { setLocatePopupFilters } from '../locate-popup-actions';
 
 describe('The locatePopup actions', () => {
-  it('sets and gets selected criticality', () => {
+  it('sets and gets filters and thus located resources (in reducer)', () => {
     const testStore = createTestAppStore();
-    expect(getLocatePopupSelectedCriticality(testStore.getState())).toBe('any');
+    const testExternalAttributions: Attributions = {
+      uuid1: {
+        packageName: 'react',
+        criticality: Criticality.High,
+        licenseName: 'GPL-2.0',
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder/file': ['uuid1'],
+    };
 
-    testStore.dispatch(setLocatePopupSelectedCriticality(Criticality.High));
-    expect(getLocatePopupSelectedCriticality(testStore.getState())).toBe(
-      Criticality.High,
-    );
-  });
-
-  it('sets and gets selected licenses', () => {
-    const testStore = createTestAppStore();
-    expect(getLocatePopupSelectedLicenses(testStore.getState()).size).toBe(0);
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set<string>(),
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(),
+    });
 
     testStore.dispatch(
-      setLocatePopupSelectedLicenses(new Set<string>(['testLicenseId'])),
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
     );
-    expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
-      new Set<string>(['testLicenseId']),
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.High,
+        selectedLicenses: new Set<string>(['GPL-2.0']),
+      }),
     );
+
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.High,
+      selectedLicenses: new Set<string>(['GPL-2.0']),
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set<string>(['/', '/folder/']),
+      locatedResources: new Set<string>(['/folder/file']),
+    });
   });
 });

@@ -3,28 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SelectedCriticality } from '../../../../shared/shared-types';
+import { LocatePopupFilters } from '../../../types/types';
 import {
-  SetLocatePopupSelectedCriticality,
-  ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
-  SetLocatePopupSelectedLicenses,
-  ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
+  SetLocatePopupFilters,
+  ACTION_SET_LOCATE_POPUP_FILTERS,
 } from './types';
 
-export function setLocatePopupSelectedCriticality(
-  selectedCriticality: SelectedCriticality,
-): SetLocatePopupSelectedCriticality {
+export function setLocatePopupFilters(
+  locatePopupFilters: LocatePopupFilters,
+): SetLocatePopupFilters {
   return {
-    type: ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
-    payload: selectedCriticality,
-  };
-}
-
-export function setLocatePopupSelectedLicenses(
-  selectedLicenses: Set<string>,
-): SetLocatePopupSelectedLicenses {
-  return {
-    type: ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
-    payload: selectedLicenses,
+    type: ACTION_SET_LOCATE_POPUP_FILTERS,
+    payload: locatePopupFilters,
   };
 }

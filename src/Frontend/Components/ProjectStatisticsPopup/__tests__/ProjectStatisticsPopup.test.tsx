@@ -9,11 +9,28 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import React from 'react';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
-import { Attributions, Criticality } from '../../../../shared/shared-types';
+import {
+  Attributions,
+  Criticality,
+  ResourcesToAttributions,
+} from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { screen } from '@testing-library/react';
-import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
+import { fireEvent, screen } from '@testing-library/react';
+import {
+  PopupType,
+  ProjectStatisticsPopupTitle,
+  View,
+} from '../../../enums/enums';
+import {
+  navigateToView,
+  openPopup,
+} from '../../../state/actions/view-actions/view-actions';
+import {
+  getOpenPopup,
+  getSelectedView,
+} from '../../../state/selectors/view-selector';
+import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {
@@ -74,13 +91,53 @@ describe('The ProjectStatisticsPopup', () => {
       screen.getByText(ProjectStatisticsPopupTitle.CriticalLicensesTable),
     ).toBeInTheDocument();
     const iconButtonGPL = screen.getByRole('button', {
-      name: 'locate attributions with "GNU General Public License v2.0"',
+      name: 'locate signals with "GNU General Public License v2.0"',
     });
     const iconButtonMIT = screen.getByRole('button', {
-      name: 'locate attributions with "The MIT License (MIT)"',
+      name: 'locate signals with "The MIT License (MIT)"',
     });
     expect(iconButtonGPL).toBeEnabled();
     expect(iconButtonMIT).toBeEnabled();
+  });
+
+  it('locates attributions in resource browser when clicking on a search license icon', () => {
+    const store = createTestAppStore();
+    const testExternalAttributions: Attributions = {
+      uuid_1: {
+        licenseName: 'MIT',
+        criticality: Criticality.Medium,
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder/file': ['uuid_1'],
+      '/folder/otherFile': ['uuid_1'],
+    };
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+    store.dispatch(navigateToView(View.Attribution));
+    store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+
+    expect(getSelectedView(store.getState())).toBe(View.Attribution);
+    expect(getSelectedResourceId(store.getState())).toBe('');
+    expect(getOpenPopup(store.getState())).toBe(
+      PopupType.ProjectStatisticsPopup,
+    );
+    const iconButtonMIT = screen.getByRole('button', {
+      name: 'locate signals with "MIT"',
+    });
+    fireEvent.click(iconButtonMIT);
+    expect(getSelectedView(store.getState())).toBe(View.Audit);
+    expect(['/folder/file', '/folder/otherFile']).toContain(
+      getSelectedResourceId(store.getState()),
+    );
+    expect(getOpenPopup(store.getState())).toBeNull();
   });
 
   it('renders pie charts when there are attributions', () => {

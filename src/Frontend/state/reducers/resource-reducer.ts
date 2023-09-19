@@ -16,6 +16,7 @@ import {
 } from '../../../shared/shared-types';
 import { AllowedSaveOperations, PackagePanelTitle } from '../../enums/enums';
 import {
+  LocatePopupFilters,
   PackageAttributeIds,
   PackageAttributes,
   PanelPackage,
@@ -54,15 +55,12 @@ import {
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_ALLOWED_SAVE_OPERATIONS,
-  ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
-  ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
   ACTION_SET_PACKAGE_SEARCH_TERM,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_RESOURCES,
-  ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
@@ -73,6 +71,7 @@ import {
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   ResourceAction,
+  ACTION_SET_LOCATE_POPUP_FILTERS,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -84,9 +83,11 @@ import {
 } from '../helpers/save-action-helpers';
 import {
   addUnresolvedAttributionsToResourcesWithAttributedChildren,
+  calculateResourcesWithLocatedAttributions,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
   getMatchingAttributionId,
+  getResourcesWithLocatedChildren,
   removeResolvedAttributionsFromResourcesWithAttributedChildren,
 } from '../helpers/action-and-reducer-helpers';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
@@ -148,7 +149,7 @@ export const initialResourceState: ResourceState = {
   },
   locatePopup: {
     selectedCriticality: SelectedCriticality.Any,
-    selectedLicenses: new Set(),
+    selectedLicenses: new Set<string>(),
   },
 };
 
@@ -201,10 +202,7 @@ export type ResourceState = {
     selectedPackageAttributeIds: PackageAttributeIds;
     totalAttributionCount: number | null;
   };
-  locatePopup: {
-    selectedCriticality: SelectedCriticality;
-    selectedLicenses: Set<string>;
-  };
+  locatePopup: LocatePopupFilters;
 };
 
 export const resourceState = (
@@ -848,36 +846,37 @@ export const resourceState = (
           externalAttributionsToHashes: action.payload,
         },
       };
-    case ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY:
-      return {
-        ...state,
-        locatePopup: {
-          ...state.locatePopup,
-          selectedCriticality: action.payload,
-        },
-      };
-    case ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES:
-      return {
-        ...state,
-        locatePopup: {
-          ...state.locatePopup,
-          selectedLicenses: action.payload,
-        },
-      };
-    case ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS:
-      return {
-        ...state,
-        allViews: {
-          ...state.allViews,
-          resourcesWithLocatedAttributions: action.payload,
-        },
-      };
     case ACTION_SET_ENABLE_PREFERENCE_FEATURE:
       return {
         ...state,
         allViews: {
           ...state.allViews,
           isPreferenceFeatureEnabled: action.payload,
+        },
+      };
+    case ACTION_SET_LOCATE_POPUP_FILTERS:
+      const { selectedCriticality, selectedLicenses } = action.payload;
+      const locatedResources = calculateResourcesWithLocatedAttributions(
+        selectedCriticality,
+        selectedLicenses,
+        state.allViews.externalData.attributions,
+        state.allViews.externalData.attributionsToResources,
+        state.allViews.frequentLicenses.nameOrder,
+      );
+      const resourcesWithLocatedChildren =
+        getResourcesWithLocatedChildren(locatedResources);
+      return {
+        ...state,
+        allViews: {
+          ...state.allViews,
+          resourcesWithLocatedAttributions: {
+            locatedResources,
+            resourcesWithLocatedChildren,
+          },
+        },
+        locatePopup: {
+          selectedCriticality,
+          selectedLicenses,
         },
       };
     default:

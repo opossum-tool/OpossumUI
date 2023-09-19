@@ -5,33 +5,28 @@
 
 import React, { ChangeEvent, ReactElement, useState } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
+import {
+  closePopup,
+  setShowNoSignalsLocatedMessage,
+} from '../../state/actions/view-actions/view-actions';
 import { ButtonText, CriticalityTypes } from '../../enums/enums';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Dropdown, menuItem } from '../InputElements/Dropdown';
 import {
-  getLocatePopupSelectedCriticality,
-  getLocatePopupSelectedLicenses,
+  getLocatePopupFilters,
+  getShowNoSignalsLocatedMessage,
 } from '../../state/selectors/locate-popup-selectors';
-import {
-  setLocatePopupSelectedCriticality,
-  setLocatePopupSelectedLicenses,
-} from '../../state/actions/resource-actions/locate-popup-actions';
+import { setLocatePopupFilters } from '../../state/actions/resource-actions/locate-popup-actions';
 import {
   Attributions,
   SelectedCriticality,
 } from '../../../shared/shared-types';
-import {
-  getExternalAttributions,
-  getExternalAttributionsToResources,
-  getFrequentLicensesNameOrder,
-} from '../../state/selectors/all-views-resource-selectors';
+import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { AutoComplete } from '../InputElements/AutoComplete';
-import { setResourcesWithLocatedAttributions } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { getParents } from '../../state/helpers/get-parents';
 import { OpossumColors } from '../../shared-styles';
 import MuiTypography from '@mui/material/Typography';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
+import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
 
 const classes = {
   dropdown: {
@@ -73,14 +68,12 @@ export function getLicenseNames(attributions: Attributions): Array<string> {
 
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
-  const selectedCriticality = useAppSelector(getLocatePopupSelectedCriticality);
   const externalAttributions = useAppSelector(getExternalAttributions);
-  const selectedLicenses = useAppSelector(getLocatePopupSelectedLicenses);
-  const attributionsToResources = useAppSelector(
-    getExternalAttributionsToResources,
+  const { selectedCriticality, selectedLicenses } = useAppSelector(
+    getLocatePopupFilters,
   );
-  const frequentLicensesNameOrder = useAppSelector(
-    getFrequentLicensesNameOrder,
+  const showNoSignalsLocatedMessage = useAppSelector(
+    getShowNoSignalsLocatedMessage,
   );
 
   const licenseNameOptions = getLicenseNames(externalAttributions);
@@ -92,8 +85,6 @@ export function LocatorPopup(): ReactElement {
   const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
-  const [showNoSignalsLocatedMessage, setShowNoSignalsLocatedMessage] =
-    useState<boolean>(false);
 
   function updateCriticalityDropdownChoice(
     event: ChangeEvent<HTMLInputElement>,
@@ -106,96 +97,25 @@ export function LocatorPopup(): ReactElement {
       searchedLicense.length == 0
         ? new Set<string>()
         : new Set([searchedLicense]);
-    dispatch(setLocatePopupSelectedCriticality(criticalityDropDownChoice));
-    dispatch(setLocatePopupSelectedLicenses(searchedLicenses));
 
-    const locatedResources = getResourcesWithLocatedAttributions(
-      criticalityDropDownChoice,
-      searchedLicenses,
-    );
-    const resourcesWithLocatedChildren =
-      getResourcesWithLocatedChildren(locatedResources);
     dispatch(
-      setResourcesWithLocatedAttributions(
-        resourcesWithLocatedChildren,
-        locatedResources,
+      locateSignalsFromLocatorPopup(
+        criticalityDropDownChoice,
+        searchedLicenses,
       ),
     );
-
-    const noSignalsAreFound =
-      locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
-    const allFiltersAreEmpty =
-      criticalityDropDownChoice === SelectedCriticality.Any &&
-      searchedLicenses.size === 0;
-    if (noSignalsAreFound && !allFiltersAreEmpty) {
-      setShowNoSignalsLocatedMessage(true);
-    } else {
-      close();
-    }
-  }
-
-  function getResourcesWithLocatedAttributions(
-    criticality: SelectedCriticality,
-    licenseNames: Set<string>,
-  ): Set<string> {
-    completeFrequentLicenseNamesIfPresent(licenseNames);
-    const locatedResources = new Set<string>();
-
-    const licenseIsSet = licenseNames.size > 0;
-    const criticalityIsSet = criticality != SelectedCriticality.Any;
-    if (!licenseIsSet && !criticalityIsSet) {
-      return locatedResources;
-    }
-    for (const attributionId in externalAttributions) {
-      const attribution = externalAttributions[attributionId];
-      const licenseMatches =
-        attribution.licenseName !== undefined &&
-        licenseNames.has(attribution.licenseName);
-      const criticalityMatches = attribution.criticality == criticality;
-
-      if (
-        (licenseMatches || !licenseIsSet) &&
-        (criticalityMatches || !criticalityIsSet)
-      ) {
-        attributionsToResources[attributionId].forEach((resource) => {
-          locatedResources.add(resource);
-        });
-      }
-    }
-
-    return locatedResources;
-  }
-
-  function completeFrequentLicenseNamesIfPresent(
-    licenseNames: Set<string>,
-  ): void {
-    // if one of the license names matches a frequent license, we want to consider the short- and the full name
-    for (const frequentLicense of frequentLicensesNameOrder) {
-      if (licenseNames.has(frequentLicense.shortName)) {
-        licenseNames.add(frequentLicense.fullName);
-      } else if (licenseNames.has(frequentLicense.fullName)) {
-        licenseNames.add(frequentLicense.shortName);
-      }
-    }
-  }
-
-  function getResourcesWithLocatedChildren(
-    locatedResources: Set<string>,
-  ): Set<string> {
-    const resourcesWithLocatedChildren = new Set<string>();
-    for (const locatedResource of locatedResources) {
-      const parents = getParents(locatedResource);
-      parents.forEach((parent) => resourcesWithLocatedChildren.add(parent));
-    }
-    return resourcesWithLocatedChildren;
   }
 
   function handleClearClick(): void {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
-    dispatch(setLocatePopupSelectedCriticality(SelectedCriticality.Any));
     setSearchedLicense('');
-    dispatch(setLocatePopupSelectedLicenses(new Set()));
-    setShowNoSignalsLocatedMessage(false);
+    dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set<string>(),
+      }),
+    );
+    dispatch(setShowNoSignalsLocatedMessage(false));
   }
 
   function close(): void {

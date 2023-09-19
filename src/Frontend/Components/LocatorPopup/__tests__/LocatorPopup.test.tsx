@@ -9,16 +9,15 @@ import {
 } from '../../../test-helpers/render-component-with-store';
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
-import { getLocatePopupSelectedCriticality } from '../../../state/selectors/locate-popup-selectors';
+import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-selectors';
 import { clickOnButton } from '../../../test-helpers/general-test-helpers';
-import { setLocatePopupSelectedCriticality } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import {
   Criticality,
   FrequentLicenses,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { getLicenseNames, LocatorPopup } from '../LocatorPopup';
-import { getLocatePopupSelectedLicenses } from '../../../state/selectors/locate-popup-selectors';
 import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 import {
   setExternalData,
@@ -29,7 +28,6 @@ import {
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { setLocatePopupSelectedLicenses } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
 
 describe('Locator popup ', () => {
@@ -58,21 +56,26 @@ describe('Locator popup ', () => {
 
     fireEvent.click(screen.getByText('High').parentNode as Element);
 
-    expect(getLocatePopupSelectedCriticality(testStore.getState())).toBe(
-      SelectedCriticality.Any,
-    );
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set<string>(),
+    });
 
     clickOnButton(screen, 'Apply');
 
-    expect(getLocatePopupSelectedCriticality(testStore.getState())).toBe(
-      SelectedCriticality.High,
-    );
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.High,
+      selectedLicenses: new Set<string>(),
+    });
   });
 
   it('resets criticality using the Clear button', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
-      setLocatePopupSelectedCriticality(SelectedCriticality.Medium),
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Medium,
+        selectedLicenses: new Set<string>(),
+      }),
     );
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
@@ -83,9 +86,10 @@ describe('Locator popup ', () => {
     expect(screen.getByText('Any')).toBeInTheDocument();
     expect(screen.queryByText('Medium')).not.toBeInTheDocument();
 
-    expect(getLocatePopupSelectedCriticality(testStore.getState())).toBe(
-      SelectedCriticality.Any,
-    );
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set<string>(),
+    });
   });
 
   it('sets state if license selected', () => {
@@ -120,9 +124,10 @@ describe('Locator popup ', () => {
 
     expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
-    expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
-      licenseSet,
-    );
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: licenseSet,
+    });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
       expectedLocatedResources,
     );
@@ -132,14 +137,20 @@ describe('Locator popup ', () => {
     const testStore = createTestAppStore();
 
     const licenseSet = new Set(['MIT']);
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseSet));
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: licenseSet,
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
-    expect(getLocatePopupSelectedLicenses(testStore.getState())).toEqual(
-      new Set(),
-    );
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedLicenses: new Set<string>(),
+      selectedCriticality: SelectedCriticality.Any,
+    });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
@@ -150,7 +161,12 @@ describe('Locator popup ', () => {
     const testStore = createTestAppStore();
 
     const licenseSet = new Set(['MIT']);
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseSet));
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: licenseSet,
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     expect(screen.getByDisplayValue('MIT')).toBeInTheDocument();
@@ -229,8 +245,13 @@ describe('locateResourcesByCriticalityAndLicense', () => {
 
     const criticality = SelectedCriticality.Medium;
     const licenseNames = new Set(['MIT']);
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: criticality,
+        selectedLicenses: licenseNames,
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     clickOnButton(screen, 'Apply');
@@ -252,7 +273,12 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
 
     const licenseNames = new Set(['MIT']);
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: licenseNames,
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     clickOnButton(screen, 'Apply');
@@ -277,7 +303,12 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
 
     const criticality = SelectedCriticality.Medium;
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: criticality,
+        selectedLicenses: new Set<string>(),
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     clickOnButton(screen, 'Apply');
@@ -304,8 +335,12 @@ describe('locateResourcesByCriticalityAndLicense', () => {
 
     const criticality = SelectedCriticality.Medium;
     const licenseNames = new Set(['GPL']);
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: criticality,
+        selectedLicenses: licenseNames,
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     clickOnButton(screen, 'Apply');
@@ -329,8 +364,12 @@ describe('locateResourcesByCriticalityAndLicense', () => {
 
     const criticality = SelectedCriticality.High;
     const licenseNames = new Set(['General Public License']);
-    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
-    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: criticality,
+        selectedLicenses: licenseNames,
+      }),
+    );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     clickOnButton(screen, 'Apply');
