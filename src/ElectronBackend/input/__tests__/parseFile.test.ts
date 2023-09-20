@@ -190,7 +190,7 @@ describe('parseOpossumFile', () => {
     const opossumFilePath = path.join(
       upath.toUnix(temporaryPath),
       'test.opossum',
-    ); //test
+    );
 
     await writeOpossumFile(
       opossumFilePath,

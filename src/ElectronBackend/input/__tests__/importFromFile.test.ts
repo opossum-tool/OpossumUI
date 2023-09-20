@@ -92,6 +92,8 @@ const inputFileContent: ParsedOpossumInputFile = {
       firstParty: true,
       excludeFromNotice: true,
       criticality: Criticality.High,
+      preferred: true,
+      preferredOverOriginIds: ['test-id'],
     },
   },
   frequentLicenses: [
@@ -138,6 +140,8 @@ const expectedFileContent: ParsedFileContent = {
         excludeFromNotice: true,
         firstParty: true,
         criticality: Criticality.High,
+        preferred: true,
+        preferredOverOriginIds: ['test-id'],
       },
     },
     resourcesToAttributions: {
@@ -394,6 +398,8 @@ describe('Test of loading function', () => {
               preSelected: true,
               attributionConfidence: 17,
               comment: 'some comment',
+              preferred: true,
+              preferredOverOriginIds: ['test-id'],
             },
           },
           frequentLicenses: [
@@ -466,6 +472,8 @@ describe('Test of loading function', () => {
               preSelected: true,
               attributionConfidence: 17,
               comment: 'some comment',
+              preferred: true,
+              preferredOverOriginIds: ['test-id'],
             },
           },
           resourcesToAttributions: {
