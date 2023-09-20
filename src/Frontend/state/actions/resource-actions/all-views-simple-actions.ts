@@ -13,7 +13,6 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
 import { getAttributionDataFromSetAttributionDataPayload } from '../../helpers/action-and-reducer-helpers';
 import {
@@ -146,7 +145,7 @@ export function setExternalAttributionsToHashes(
 }
 
 export function setResourcesWithLocatedAttributions(
-  resourcesWithLocatedChildren: ResourcesWithAttributedChildren,
+  resourcesWithLocatedChildren: Set<string>,
   locatedResources: Set<string>,
 ): SetResourcesWithLocatedAttributions {
   return {

@@ -21,8 +21,14 @@ import {
   Attributions,
   SelectedCriticality,
 } from '../../../shared/shared-types';
-import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getExternalAttributions,
+  getExternalAttributionsToResources,
+  getFrequentLicensesNameOrder,
+} from '../../state/selectors/all-views-resource-selectors';
 import { AutoComplete } from '../InputElements/AutoComplete';
+import { setResourcesWithLocatedAttributions } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { getParents } from '../../state/helpers/get-parents';
 
 const classes = {
   dropdown: {
@@ -61,25 +67,107 @@ export function getLicenseNames(attributions: Attributions): Array<string> {
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const selectedCriticality = useAppSelector(getLocatePopupSelectedCriticality);
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const selectedLicenses = useAppSelector(getLocatePopupSelectedLicenses);
+  const attributionsToResources = useAppSelector(
+    getExternalAttributionsToResources,
+  );
+  const frequentLicensesNameOrder = useAppSelector(
+    getFrequentLicensesNameOrder,
+  );
+
+  const licenseNameOptions = getLicenseNames(externalAttributions);
+  // currently we only support sets with one element
+  // once we support multiple elements we will have to adapt the logic to not take one arbitrary element of the set
+  const selectedLicense: string =
+    selectedLicenses.size == 0 ? '' : selectedLicenses.values().next().value;
+
+  const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
+
   function updateCriticalityDropdownChoice(
     event: ChangeEvent<HTMLInputElement>,
   ): void {
     setCriticalityDropDownChoice(event.target.value as SelectedCriticality);
   }
-  const externalAttributions = useAppSelector(getExternalAttributions);
-  const licenseNameOptions = getLicenseNames(externalAttributions);
-  const selectedLicenses = useAppSelector(getLocatePopupSelectedLicenses);
-  // currently we only support sets with one element
-  // once we support multiple elements we will have to adapt the logic to not take one arbitrary element of the set
-  const selectedLicense =
-    selectedLicenses.size == 0 ? '' : selectedLicenses.values().next().value;
-  const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
 
   function handleApplyClick(): void {
+    const searchedLicenses =
+      searchedLicense.length == 0
+        ? new Set<string>()
+        : new Set([searchedLicense]);
     dispatch(setLocatePopupSelectedCriticality(criticalityDropDownChoice));
-    dispatch(setLocatePopupSelectedLicenses(new Set([searchedLicense])));
+    dispatch(setLocatePopupSelectedLicenses(searchedLicenses));
+
+    const locatedResources = getResourcesWithLocatedAttributions(
+      criticalityDropDownChoice,
+      searchedLicenses,
+    );
+    const resourcesWithLocatedChildren =
+      getResourcesWithLocatedChildren(locatedResources);
+    dispatch(
+      setResourcesWithLocatedAttributions(
+        resourcesWithLocatedChildren,
+        locatedResources,
+      ),
+    );
+  }
+
+  function getResourcesWithLocatedAttributions(
+    criticality: SelectedCriticality,
+    licenseNames: Set<string>,
+  ): Set<string> {
+    completeFrequentLicenseNamesIfPresent(licenseNames);
+    const locatedResources = new Set<string>();
+
+    const licenseIsSet = licenseNames.size > 0;
+    const criticalityIsSet = criticality != SelectedCriticality.Any;
+    if (!licenseIsSet && !criticalityIsSet) {
+      return locatedResources;
+    }
+    for (const attributionId in externalAttributions) {
+      const attribution = externalAttributions[attributionId];
+      const licenseMatches =
+        attribution.licenseName !== undefined &&
+        licenseNames.has(attribution.licenseName);
+      const criticalityMatches = attribution.criticality == criticality;
+
+      if (
+        (licenseMatches || !licenseIsSet) &&
+        (criticalityMatches || !criticalityIsSet)
+      ) {
+        attributionsToResources[attributionId].forEach((resource) => {
+          locatedResources.add(resource);
+        });
+      }
+    }
+
+    return locatedResources;
+  }
+
+  function completeFrequentLicenseNamesIfPresent(
+    licenseNames: Set<string>,
+  ): void {
+    // if one of the license names matches a frequent license, we want to consider the short- and the full name
+    for (const frequentLicense of frequentLicensesNameOrder) {
+      if (licenseNames.has(frequentLicense.shortName)) {
+        licenseNames.add(frequentLicense.fullName);
+      } else if (licenseNames.has(frequentLicense.fullName)) {
+        licenseNames.add(frequentLicense.shortName);
+      }
+    }
+  }
+
+  function getResourcesWithLocatedChildren(
+    locatedResources: Set<string>,
+  ): Set<string> {
+    const resourcesWithLocatedChildren = new Set<string>();
+    for (const locatedResource of locatedResources) {
+      const parents = getParents(locatedResource);
+      parents.forEach((parent) => resourcesWithLocatedChildren.add(parent));
+    }
+    return resourcesWithLocatedChildren;
   }
 
   function handleClearClick(): void {
@@ -87,10 +175,13 @@ export function LocatorPopup(): ReactElement {
     dispatch(setLocatePopupSelectedCriticality(SelectedCriticality.Any));
     setSearchedLicense('');
     dispatch(setLocatePopupSelectedLicenses(new Set()));
+    dispatch(setResourcesWithLocatedAttributions(new Set(), new Set()));
   }
+
   function close(): void {
     dispatch(closePopup());
   }
+
   const content = (
     <>
       <Dropdown
@@ -116,6 +207,7 @@ export function LocatorPopup(): ReactElement {
       />
     </>
   );
+
   return (
     <NotificationPopup
       content={content}

@@ -15,7 +15,6 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
-  ResourcesWithAttributedChildren,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
 import {
@@ -377,7 +376,7 @@ export interface SetLocatePopupSelectedLicenses {
 export interface SetResourcesWithLocatedAttributions {
   type: typeof ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS;
   payload: {
-    resourcesWithLocatedChildren: ResourcesWithAttributedChildren;
+    resourcesWithLocatedChildren: Set<string>;
     locatedResources: Set<string>;
   };
 }

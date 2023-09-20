@@ -154,11 +154,7 @@ describe('ResourceBrowser', () => {
     };
 
     const testLocatePopupSelectedCriticality = SelectedCriticality.High;
-    const testResourcesWithLocatedChildren = {
-      paths: ['/', '/root/'],
-      pathsToIndices: {},
-      attributedChildren: {},
-    };
+    const testResourcesWithLocatedChildren = new Set<string>(['/', '/root/']);
     const testLocatedResources = new Set<string>(['/root/src/']);
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
