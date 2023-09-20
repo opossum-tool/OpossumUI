@@ -12,6 +12,7 @@ import {
   FirstPartyIcon,
   FollowUpIcon,
   NeedsReviewIcon,
+  PreferredIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { TableConfig, tableConfigs } from '../Table/Table';
@@ -109,6 +110,10 @@ const classes = {
   preSelectedIcon: {
     border: `2px ${OpossumColors.darkBlue} solid`,
     color: OpossumColors.darkBlue,
+  },
+  preferredIcon: {
+    border: `2px ${OpossumColors.mediumOrange} solid`,
+    color: OpossumColors.mediumOrange,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,
@@ -364,6 +369,17 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
               sx={{
                 ...reportTableItemClasses.icon,
                 ...reportTableItemClasses.preSelectedIcon,
+              }}
+            />{' '}
+            <br />
+          </>
+        )}
+        {attributionInfo.preferred && (
+          <>
+            <PreferredIcon
+              sx={{
+                ...reportTableItemClasses.icon,
+                ...reportTableItemClasses.preferredIcon,
               }}
             />{' '}
             <br />

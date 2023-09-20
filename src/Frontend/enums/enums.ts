@@ -74,6 +74,8 @@ export enum ButtonText {
   UnmarkForReplacement = 'Unmark for replacement',
   Unhide = 'Unhide',
   OpenDotOpossumFile = 'Open ".opossum" file',
+  MarkAsPreferred = 'Mark as preferred',
+  UnmarkAsPreferred = 'Unmark as preferred',
 }
 
 export enum FilterType {
