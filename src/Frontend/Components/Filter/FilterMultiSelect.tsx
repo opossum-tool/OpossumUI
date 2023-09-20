@@ -26,6 +26,7 @@ const FILTERS = [
   FilterType.OnlyFirstParty,
   FilterType.HideFirstParty,
   FilterType.OnlyNeedsReview,
+  FilterType.OnlyPreferred,
 ];
 
 const classes = {

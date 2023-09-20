@@ -44,6 +44,7 @@ describe('useFollowUpFilter', () => {
     licenseText: 'Some other license text',
     followUp: FollowUp,
     needsReview: true,
+    preferred: true,
   };
 
   it('returns working getFilteredAttributions with follow-up filter', () => {
@@ -118,6 +119,18 @@ describe('useFollowUpFilter', () => {
   it('returns working getFilteredAttributions with only needs review filter', () => {
     const store = createTestAppStore();
     store.dispatch(updateActiveFilters(FilterType.OnlyNeedsReview));
+    renderComponentWithStore(
+      <TestComponent manualAttributions={testManualAttributions} />,
+      { store },
+    );
+    expect(filteredAttributions).toEqual({
+      [testOtherManualUuid]: testManualAttributions[testOtherManualUuid],
+    });
+  });
+
+  it('returns working getFilteredAttributions with only preferred filter', () => {
+    const store = createTestAppStore();
+    store.dispatch(updateActiveFilters(FilterType.OnlyPreferred));
     renderComponentWithStore(
       <TestComponent manualAttributions={testManualAttributions} />,
       { store },
