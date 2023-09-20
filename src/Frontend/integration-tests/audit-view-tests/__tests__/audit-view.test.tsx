@@ -576,25 +576,32 @@ describe('The App in Audit View', () => {
   });
 
   it('preferred button is shown and sets an attribution as preferred', () => {
-    function getExpectedSaveFileArgs(preferred: boolean): SaveFileArgs {
-      const expected_args: SaveFileArgs = {
-        manualAttributions: {
-          uuid: {
+    function getExpectedSaveFileArgs(
+      preferred: boolean,
+      preferredOverOriginIds?: Array<string>,
+    ): SaveFileArgs {
+      const packageInfo = preferred
+        ? {
             packageName: 'jQuery',
             packageVersion: '16.0.0',
             attributionConfidence: DiscreteConfidence.Low,
-          },
+            preferred,
+            preferredOverOriginIds,
+          }
+        : {
+            packageName: 'jQuery',
+            packageVersion: '16.0.0',
+            attributionConfidence: DiscreteConfidence.Low,
+          };
+      return {
+        manualAttributions: {
+          uuid: packageInfo,
         },
         resolvedExternalAttributions: new Set<string>(),
         resourcesToAttributions: {
           '/file': ['uuid'],
         },
       };
-      if (preferred) {
-        expected_args.manualAttributions.uuid.preferred = true;
-      }
-
-      return expected_args;
     }
 
     const testResources: Resources = {
@@ -611,6 +618,16 @@ describe('The App in Audit View', () => {
       '/file': ['uuid'],
     };
 
+    const testExternalAttributions = {
+      uuid2: {
+        originIds: ['originUuid'],
+        source: { name: 'SC', documentConfidence: 100 },
+      },
+    };
+    const testResourcesToExternalAttributions = {
+      '/file': ['uuid2'],
+    };
+
     mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -623,6 +640,8 @@ describe('The App in Audit View', () => {
             isRelevantForPreferred: true,
           },
         },
+        externalAttributions: testExternalAttributions,
+        resourcesToExternalAttributions: testResourcesToExternalAttributions,
       }),
     );
     renderComponentWithStore(<App />);
@@ -637,7 +656,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Save);
     expect(window.electronAPI.saveFile).toHaveBeenNthCalledWith(
       1,
-      getExpectedSaveFileArgs(true),
+      getExpectedSaveFileArgs(true, ['originUuid']),
     );
 
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.MarkAsPreferred);
@@ -646,7 +665,7 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Save);
     expect(window.electronAPI.saveFile).toHaveBeenNthCalledWith(
       2,
-      getExpectedSaveFileArgs(false),
+      getExpectedSaveFileArgs(false, undefined),
     );
 
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.UnmarkAsPreferred);

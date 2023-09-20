@@ -53,7 +53,8 @@ import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import { cloneDeep, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
+import { toggleIsSelectedPackagePreferred } from '../../state/actions/resource-actions/preference-actions';
 
 const classes = {
   root: {
@@ -156,15 +157,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   const mainButtonConfigs: Array<MainButtonConfig> = [];
 
-  function toggleIsSelectedPackagePreferred(): void {
-    const newTemporaryDisplayPackageInfo = cloneDeep(
-      temporaryDisplayPackageInfo,
-    );
-    newTemporaryDisplayPackageInfo.preferred =
-      !newTemporaryDisplayPackageInfo.preferred;
-    dispatch(setTemporaryDisplayPackageInfo(newTemporaryDisplayPackageInfo));
-  }
-
   if (props.onSaveButtonClick) {
     mainButtonConfigs.push({
       buttonText: temporaryDisplayPackageInfo.preSelected
@@ -239,7 +231,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.MarkAsPreferred,
       onClick: (): void => {
         if (selectedPackage) {
-          toggleIsSelectedPackagePreferred();
+          dispatch(
+            toggleIsSelectedPackagePreferred(temporaryDisplayPackageInfo),
+          );
         }
       },
       hidden: mergeButtonDisplayState.hideMarkAsPreferredButton,
@@ -248,7 +242,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.UnmarkAsPreferred,
       onClick: (): void => {
         if (selectedPackage) {
-          toggleIsSelectedPackagePreferred();
+          dispatch(
+            toggleIsSelectedPackagePreferred(temporaryDisplayPackageInfo),
+          );
         }
       },
       hidden: mergeButtonDisplayState.hideUnmarkAsPreferredButton,
