@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import WestRoundedIcon from '@mui/icons-material/WestRounded';
-import MyLocationIcon from '@mui/icons-material/MyLocation';
 import remove from 'lodash/remove';
 import React, { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -44,6 +43,7 @@ import { isLocateSignalActive } from '../../state/selectors/locate-popup-selecto
 import { IconButton } from '../IconButton/IconButton';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
+import { LocateAttributionsIcon } from '../Icons/Icons';
 
 const classes = {
   locatorIconContainer: {
@@ -149,7 +149,7 @@ export function ResourceBrowser(): ReactElement | null {
       onClick={(): void => {
         dispatch(openPopup(PopupType.LocatorPopup));
       }}
-      icon={<MyLocationIcon aria-label={'locate attributions'} />}
+      icon={<LocateAttributionsIcon />}
     />
   ) : undefined;
   const resourcesWithLocatedAttributions = useAppSelector(

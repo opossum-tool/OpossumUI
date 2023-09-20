@@ -29,6 +29,7 @@ interface ProjectLicensesTableProps {
   columnHeaders: Array<string>;
   columnNames: Array<string>;
   rowNames: Array<string>;
+  firstColumnIconButtons?: { [rowName: string]: ReactElement };
   tableContent: TableContent;
   tableFooter?: Array<string>;
   licenseNamesWithCriticality: LicenseNamesWithCriticality;
@@ -75,10 +76,16 @@ export function ProjectLicensesTable(
                     key={columnIndex}
                     align={columnIndex === 0 ? 'left' : 'center'}
                   >
-                    {columnIndex === 0
-                      ? rowName
-                      : props.tableContent[rowName][columnName] ||
-                        PLACEHOLDER_ATTRIBUTION_COUNT}
+                    {columnIndex === 0 ? (
+                      <>
+                        <span>{rowName}</span>
+                        {props.firstColumnIconButtons &&
+                          props.firstColumnIconButtons[rowName]}
+                      </>
+                    ) : (
+                      props.tableContent[rowName][columnName] ||
+                      PLACEHOLDER_ATTRIBUTION_COUNT
+                    )}
                   </MuiTableCell>
                 ))}
               </MuiTableRow>

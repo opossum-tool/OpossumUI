@@ -7,6 +7,9 @@ import React, { ReactElement } from 'react';
 import { Criticality } from '../../../shared/shared-types';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 import { LicenseNamesWithCriticality } from '../../types/types';
+import { IconButton } from '../IconButton/IconButton';
+import { LocateAttributionsIcon } from '../Icons/Icons';
+import { clickableIcon } from '../../shared-styles';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const COUNT_COLUMN_NAME_IN_TABLE = 'Count';
@@ -21,6 +24,10 @@ const classes = {
     maxHeight: '400px',
     maxWidth: '500px',
     marginBottom: '3px',
+  },
+  clickableIcon,
+  iconButton: {
+    marginLeft: '8px',
   },
 };
 
@@ -70,6 +77,12 @@ export function CriticalLicensesTable(
       containerStyle={classes.container}
       columnHeaders={TABLE_COLUMN_NAMES}
       columnNames={TABLE_COLUMN_NAMES}
+      firstColumnIconButtons={Object.fromEntries(
+        criticalLicensesTotalAttributions.map(({ licenseName }) => [
+          licenseName,
+          getLocateAttributionIconButton(licenseName),
+        ]),
+      )}
       rowNames={criticalLicensesTotalAttributions.map(
         (attribution) => attribution.licenseName,
       )}
@@ -77,7 +90,9 @@ export function CriticalLicensesTable(
         criticalLicensesTotalAttributions.map(
           ({ licenseName, totalNumberOfAttributions }) => [
             licenseName,
-            { [COUNT_COLUMN_NAME_IN_TABLE]: totalNumberOfAttributions },
+            {
+              [COUNT_COLUMN_NAME_IN_TABLE]: totalNumberOfAttributions,
+            },
           ],
         ),
       )}
@@ -135,4 +150,19 @@ function getTotalNumberOfAttributions(
         licenseNameAndTotalAttributions.totalNumberOfAttributions,
     )
     .reduce((total, value) => total + value, 0);
+}
+
+function getLocateAttributionIconButton(licenseName: string): ReactElement {
+  const onLocateAttributionButtonClick = function (): void {
+    // TODO: dispatch license locator actions in next ticket
+  };
+  return (
+    <IconButton
+      tooltipTitle={`locate attributions with "${licenseName}"`}
+      tooltipPlacement="right"
+      onClick={onLocateAttributionButtonClick}
+      iconSx={classes.iconButton}
+      icon={<LocateAttributionsIcon sx={classes.clickableIcon} />}
+    />
+  );
 }
