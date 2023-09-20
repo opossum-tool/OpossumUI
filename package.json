@@ -32,7 +32,7 @@
     "recharts": "^2.8.0",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
-    "spdx-license-ids": "^3.0.13",
+    "spdx-license-ids": "^3.0.14",
     "stream-json": "^1.8.0",
     "upath": "^2.0.1",
     "url": "^0.11.3",
