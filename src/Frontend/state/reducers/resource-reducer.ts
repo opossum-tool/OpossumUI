@@ -72,6 +72,7 @@ import {
   ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
   ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
   ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
+  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -111,6 +112,7 @@ export const initialResourceState: ResourceState = {
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     },
+    isPreferenceFeatureEnabled: false,
   },
   auditView: {
     selectedResourceId: '',
@@ -169,6 +171,7 @@ export type ResourceState = {
       resourcesWithLocatedChildren: Set<string>;
       locatedResources: Set<string>;
     };
+    isPreferenceFeatureEnabled: boolean;
   };
   auditView: {
     selectedResourceId: string;
@@ -867,6 +870,14 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           resourcesWithLocatedAttributions: action.payload,
+        },
+      };
+    case ACTION_SET_ENABLE_PREFERENCE_FEATURE:
+      return {
+        ...state,
+        allViews: {
+          ...state.allViews,
+          isPreferenceFeatureEnabled: action.payload,
         },
       };
     default:

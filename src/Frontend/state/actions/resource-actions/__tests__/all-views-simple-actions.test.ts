@@ -34,6 +34,7 @@ import {
   getResourcesWithManualAttributedChildren,
   getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
+  getIsPreferenceFeatureEnabled,
 } from '../../../selectors/all-views-resource-selectors';
 import {
   resetResourceState,
@@ -42,6 +43,7 @@ import {
   setExternalAttributionsToHashes,
   setExternalData,
   setFrequentLicenses,
+  setIsPreferenceFeatureEnabled,
   setManualData,
   setResources,
   setResourcesWithLocatedAttributions,
@@ -332,5 +334,12 @@ describe('The load and navigation simple actions', () => {
       resourcesWithLocatedChildren: testResourcesWithLocatedChildren,
       locatedResources: testLocatedResources,
     });
+  });
+
+  it('sets and gets isPreferenceFeatureEnabled', () => {
+    const testStore = createTestAppStore();
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);
+    testStore.dispatch(setIsPreferenceFeatureEnabled(true));
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(true);
   });
 });

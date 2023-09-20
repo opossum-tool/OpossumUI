@@ -348,7 +348,8 @@
     },
     "HHC": {
       "name": "High High Compute",
-      "priority": 10
+      "priority": 10,
+      "isRelevantForPreferred": true
     },
     "SC": {
       "name": "ScanCode",

@@ -236,3 +236,7 @@ export function getResourcesWithLocatedAttributions(state: State): {
 } {
   return state.resourceState.allViews.resourcesWithLocatedAttributions;
 }
+
+export function getIsPreferenceFeatureEnabled(state: State): boolean {
+  return state.resourceState.allViews.isPreferenceFeatureEnabled;
+}

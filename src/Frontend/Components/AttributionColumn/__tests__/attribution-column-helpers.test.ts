@@ -101,7 +101,7 @@ describe('getMergeButtonsDisplayState', () => {
       hideUnmarkForReplacementButton: true,
       hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: false,
-      hideMarkAsPreferredButton: false,
+      hideMarkAsPreferredButton: true,
       hideUnmarkAsPreferredButton: true,
     });
   });
@@ -123,7 +123,7 @@ describe('getMergeButtonsDisplayState', () => {
       hideUnmarkForReplacementButton: false,
       hideReplaceMarkedByButton: true,
       deactivateReplaceMarkedByButton: false,
-      hideMarkAsPreferredButton: false,
+      hideMarkAsPreferredButton: true,
       hideUnmarkAsPreferredButton: true,
     });
   });
@@ -145,7 +145,7 @@ describe('getMergeButtonsDisplayState', () => {
       hideUnmarkForReplacementButton: true,
       hideReplaceMarkedByButton: true,
       deactivateReplaceMarkedByButton: false,
-      hideMarkAsPreferredButton: false,
+      hideMarkAsPreferredButton: true,
       hideUnmarkAsPreferredButton: true,
     });
   });
@@ -167,7 +167,7 @@ describe('getMergeButtonsDisplayState', () => {
       hideUnmarkForReplacementButton: true,
       hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,
-      hideMarkAsPreferredButton: false,
+      hideMarkAsPreferredButton: true,
       hideUnmarkAsPreferredButton: true,
     });
   });
@@ -189,7 +189,7 @@ describe('getMergeButtonsDisplayState', () => {
       hideUnmarkForReplacementButton: true,
       hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: false,
-      hideMarkAsPreferredButton: false,
+      hideMarkAsPreferredButton: true,
       hideUnmarkAsPreferredButton: true,
     });
   });
@@ -205,6 +205,29 @@ describe('getMergeButtonsDisplayState', () => {
         targetAttributionIsExternalAttribution: false,
         attributionIsPreferred: false,
         view: View.Audit,
+      }),
+    ).toStrictEqual({
+      hideMarkForReplacementButton: false,
+      hideUnmarkForReplacementButton: true,
+      hideReplaceMarkedByButton: false,
+      deactivateReplaceMarkedByButton: true,
+      hideMarkAsPreferredButton: true,
+      hideUnmarkAsPreferredButton: true,
+    });
+  });
+
+  it('activates UnmarkAsPreferredButton when attribution is not preferred', () => {
+    expect(
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'attr2',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: true,
+        targetAttributionIsExternalAttribution: false,
+        attributionIsPreferred: false,
+        view: View.Audit,
+        isPreferenceFeatureEnabled: true,
       }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
@@ -227,6 +250,7 @@ describe('getMergeButtonsDisplayState', () => {
         targetAttributionIsExternalAttribution: false,
         attributionIsPreferred: true,
         view: View.Audit,
+        isPreferenceFeatureEnabled: true,
       }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,
@@ -249,6 +273,7 @@ describe('getMergeButtonsDisplayState', () => {
         targetAttributionIsExternalAttribution: false,
         attributionIsPreferred: false,
         view: View.Attribution,
+        isPreferenceFeatureEnabled: true,
       }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,

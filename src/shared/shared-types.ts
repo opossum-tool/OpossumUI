@@ -218,6 +218,7 @@ export interface ExternalAttributionSources {
   [source: string]: {
     name: string;
     priority: number;
+    isRelevantForPreferred?: boolean;
   };
 }
 

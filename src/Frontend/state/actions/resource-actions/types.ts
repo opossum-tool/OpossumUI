@@ -99,6 +99,8 @@ export const ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES =
   'ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES';
 export const ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS =
   'ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS';
+export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
+  'ACTION_SET_ENABLE_PREFERENCE_FEATURE';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -143,7 +145,8 @@ export type ResourceAction =
   | SetExternalAttributionsToHashes
   | SetLocatePopupSelectedCriticality
   | SetLocatePopupSelectedLicenses
-  | SetResourcesWithLocatedAttributions;
+  | SetResourcesWithLocatedAttributions
+  | SetIsPreferenceFeatureEnabled;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -379,4 +382,9 @@ export interface SetResourcesWithLocatedAttributions {
     resourcesWithLocatedChildren: Set<string>;
     locatedResources: Set<string>;
   };
+}
+
+export interface SetIsPreferenceFeatureEnabled {
+  type: typeof ACTION_SET_ENABLE_PREFERENCE_FEATURE;
+  payload: boolean;
 }

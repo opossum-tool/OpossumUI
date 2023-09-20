@@ -42,6 +42,8 @@ import {
   SetTemporaryDisplayPackageInfoAction,
   SetResourcesWithLocatedAttributions,
   ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
+  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
+  SetIsPreferenceFeatureEnabled,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {
@@ -154,5 +156,14 @@ export function setResourcesWithLocatedAttributions(
       resourcesWithLocatedChildren,
       locatedResources,
     },
+  };
+}
+
+export function setIsPreferenceFeatureEnabled(
+  isPreferenceFeatureEnabled: boolean,
+): SetIsPreferenceFeatureEnabled {
+  return {
+    type: ACTION_SET_ENABLE_PREFERENCE_FEATURE,
+    payload: isPreferenceFeatureEnabled,
   };
 }
