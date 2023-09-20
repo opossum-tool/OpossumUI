@@ -29,12 +29,15 @@ import {
 import { AutoComplete } from '../InputElements/AutoComplete';
 import { setResourcesWithLocatedAttributions } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { getParents } from '../../state/helpers/get-parents';
+import { OpossumColors } from '../../shared-styles';
+import MuiTypography from '@mui/material/Typography';
 
 const classes = {
   dropdown: {
     marginTop: '8px',
   },
   autocomplete: { marginTop: '8px' },
+  noSignalsMessage: { color: OpossumColors.red, marginTop: '8px' },
 };
 
 const criticalityMenuItems: Array<menuItem> = [
@@ -85,6 +88,8 @@ export function LocatorPopup(): ReactElement {
   const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
+  const [showNoSignalsLocatedMessage, setShowNoSignalsLocatedMessage] =
+    useState<boolean>(false);
 
   function updateCriticalityDropdownChoice(
     event: ChangeEvent<HTMLInputElement>,
@@ -106,12 +111,23 @@ export function LocatorPopup(): ReactElement {
     );
     const resourcesWithLocatedChildren =
       getResourcesWithLocatedChildren(locatedResources);
-    dispatch(
-      setResourcesWithLocatedAttributions(
-        resourcesWithLocatedChildren,
-        locatedResources,
-      ),
-    );
+
+    const noSignalsAreFound =
+      locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
+    const allFiltersAreEmpty =
+      criticalityDropDownChoice === SelectedCriticality.Any &&
+      searchedLicenses.size === 0;
+    if (noSignalsAreFound && !allFiltersAreEmpty) {
+      setShowNoSignalsLocatedMessage(true);
+    } else {
+      dispatch(
+        setResourcesWithLocatedAttributions(
+          resourcesWithLocatedChildren,
+          locatedResources,
+        ),
+      );
+      close();
+    }
   }
 
   function getResourcesWithLocatedAttributions(
@@ -175,7 +191,7 @@ export function LocatorPopup(): ReactElement {
     dispatch(setLocatePopupSelectedCriticality(SelectedCriticality.Any));
     setSearchedLicense('');
     dispatch(setLocatePopupSelectedLicenses(new Set()));
-    dispatch(setResourcesWithLocatedAttributions(new Set(), new Set()));
+    setShowNoSignalsLocatedMessage(false);
   }
 
   function close(): void {
@@ -205,6 +221,13 @@ export function LocatorPopup(): ReactElement {
         showTextBold={false}
         formatOptionForDisplay={(option: string): string => option}
       />
+      {showNoSignalsLocatedMessage ? (
+        <MuiTypography variant={'subtitle2'} sx={classes.noSignalsMessage}>
+          No signals located. Adjust filters or cancel.
+        </MuiTypography>
+      ) : (
+        <></>
+      )}
     </>
   );
 

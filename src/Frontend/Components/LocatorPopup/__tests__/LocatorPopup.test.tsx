@@ -319,4 +319,34 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       expectedLocatedResources,
     );
   });
+
+  it('shows message when filters are set, but no signals are located', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const criticality = SelectedCriticality.High;
+    const licenseNames = new Set(['General Public License']);
+    testStore.dispatch(setLocatePopupSelectedCriticality(criticality));
+    testStore.dispatch(setLocatePopupSelectedLicenses(licenseNames));
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set([]),
+      locatedResources: new Set([]),
+    };
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+
+    expect(
+      screen.getByText('No signals located. Adjust filters or cancel.', {
+        exact: true,
+      }),
+    );
+  });
 });
