@@ -267,6 +267,8 @@ function createJsonOutputFile(
     const packageInfo = externalAttributionsCopy[attributionId];
     if (packageInfo.preSelected) {
       delete packageInfo.source;
+      delete packageInfo.preferred;
+      delete packageInfo.preferredOverOriginIds;
       if (packageInfo.attributionConfidence !== undefined) {
         packageInfo.attributionConfidence =
           packageInfo.attributionConfidence >= DiscreteConfidence.High
