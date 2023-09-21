@@ -10,6 +10,7 @@ import {
   getExternalAttributionsToHashes,
   getExternalData,
   getFilesWithChildren,
+  getManualData,
   getResources,
   getResourcesToExternalAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -28,6 +29,7 @@ export const AccordionWorkersContextProvider: FC<{
 }> = ({ children }) => {
   const externalAttributionData = useAppSelector(getExternalData);
   const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
+  const manualAttributionData = useAppSelector(getManualData);
 
   const externalData: PanelAttributionData = useMemo(
     () => ({
@@ -37,6 +39,16 @@ export const AccordionWorkersContextProvider: FC<{
         externalAttributionData.resourcesWithAttributedChildren,
     }),
     [externalAttributionData],
+  );
+
+  const manualData: PanelAttributionData = useMemo(
+    () => ({
+      attributions: manualAttributionData.attributions,
+      resourcesToAttributions: manualAttributionData.resourcesToAttributions,
+      resourcesWithAttributedChildren:
+        manualAttributionData.resourcesWithAttributedChildren,
+    }),
+    [manualAttributionData],
   );
 
   useMemo(() => {
@@ -52,6 +64,20 @@ export const AccordionWorkersContextProvider: FC<{
       console.info('Web worker error in workers context provider: ', error);
     }
   }, [externalData, attributionsToHashes]);
+
+  useMemo(() => {
+    try {
+      // remove data from previous file or empty data from app just opened
+      resourceDetailsTabsWorkers.containedManualAttributionsAccordionWorker.postMessage(
+        { manualData: null },
+      );
+      resourceDetailsTabsWorkers.containedManualAttributionsAccordionWorker.postMessage(
+        { manualData },
+      );
+    } catch (error) {
+      console.info('Web worker error in workers context provider: ', error);
+    }
+  }, [manualData]);
 
   return (
     <AccordionWorkersContext.Provider value={resourceDetailsTabsWorkers}>
