@@ -41,7 +41,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
     const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
       [expectedPackageCardIds[0]]: {
-        count: 5,
+        count: 3,
         displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2'],
           packageName: 'Typescript',
@@ -109,7 +109,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
     const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
       [expectedPackageCardIds[0]]: {
-        count: 5,
+        count: 3,
         displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2'],
           attributionConfidence: 20,
@@ -179,7 +179,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
     const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
       [expectedPackageCardIds[0]]: {
-        count: 5,
+        count: 3,
         displayPackageInfo: {
           attributionIds: ['uuid1', 'uuid2'],
           originIds: ['uuid3', 'uuid4', 'uuid5'],
@@ -220,7 +220,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
 
     const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
       [expectedPackageCardIds[0]]: {
-        count: 5,
+        count: 3,
         displayPackageInfo: {
           attributionIds: ['uuidToMerge1', 'uuidToMerge2'],
           packageName: 'Typescript',

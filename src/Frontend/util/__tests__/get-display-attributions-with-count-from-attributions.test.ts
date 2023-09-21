@@ -35,7 +35,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         comments: ['comment A'],
         attributionIds: ['uuid_1', 'uuid_2'],
       },
-      count: 3,
+      count: 2,
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -74,7 +74,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         attributionConfidence: 20,
         attributionIds: ['uuid_1', 'uuid_2'],
       },
-      count: 3,
+      count: 2,
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -113,7 +113,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         attributionIds: ['uuid_1', 'uuid_2'],
         originIds: ['id_1', 'id_2', 'id_3'],
       },
-      count: 3,
+      count: 2,
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -179,7 +179,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         packageName: 'React',
         attributionIds: ['uuid_1', 'uuid_2'],
       },
-      count: 3,
+      count: 2,
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -225,7 +225,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         attributionIds: ['uuid_1', 'uuid_2', 'uuid_3'],
         originIds: ['id_1', 'id_2', 'id_3'],
       },
-      count: 3,
+      count: 2,
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(

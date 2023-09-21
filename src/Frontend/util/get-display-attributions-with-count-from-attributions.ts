@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { sum } from 'lodash';
 import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
 import { DisplayPackageInfoWithCount } from '../types/types';
 
@@ -82,7 +81,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
   }
 
   return {
-    count: sum(counts),
+    count: Math.max(...counts, 0),
     displayPackageInfo: attributionToShow,
   };
 }
