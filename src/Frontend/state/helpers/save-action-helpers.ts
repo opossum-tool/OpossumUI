@@ -23,11 +23,19 @@ import { v4 as uuid4 } from 'uuid';
 import { remove } from 'lodash';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './action-and-reducer-helpers';
+import { getOriginIdsToPreferOver } from '../actions/resource-actions/preference-actions';
+import { ResourceState } from '../reducers/resource-reducer';
+
+export type CalculatePreferredOverOriginIds = (
+  pathToResource: string,
+  newManualAttributionToResources: AttributionsToResources,
+) => Array<string>;
 
 export function createManualAttribution(
   manualData: AttributionData,
   selectedResourceId: string,
   strippedTemporaryDisplayPackageInfo: PackageInfo,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): { newManualData: AttributionData; newAttributionId: string } {
   const newAttributionId = uuid4();
 
@@ -60,6 +68,12 @@ export function createManualAttribution(
     newManualData.resourcesWithAttributedChildren,
   );
 
+  recalulatePreferencesOfParents(
+    selectedResourceId,
+    newManualData,
+    calculatePreferredOverOriginIds,
+  );
+
   return { newManualData, newAttributionId };
 }
 
@@ -81,6 +95,7 @@ export function deleteManualAttribution(
   manualData: AttributionData,
   attributionToDeleteId: string,
   isAttributionBreakpoint: PathPredicate,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData =
     getAttributionDataShallowCopy(manualData);
@@ -113,6 +128,14 @@ export function deleteManualAttribution(
     resourcesLinkedToAttributionThatIsDeleted,
     isAttributionBreakpoint,
   );
+
+  resourcesLinkedToAttributionThatIsDeleted.forEach((resourceId) => {
+    recalulatePreferencesOfParents(
+      resourceId,
+      newManualData,
+      calculatePreferredOverOriginIds,
+    );
+  });
 
   return newManualData;
 }
@@ -171,6 +194,7 @@ export function unlinkResourceFromAttributionId(
   manualData: AttributionData,
   resourceId: string,
   attributionId: string,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData =
     getAttributionDataShallowCopy(manualData);
@@ -193,6 +217,12 @@ export function unlinkResourceFromAttributionId(
         resourceId,
       );
   }
+
+  recalulatePreferencesOfParents(
+    resourceId,
+    newManualData,
+    calculatePreferredOverOriginIds,
+  );
 
   return newManualData;
 }
@@ -268,6 +298,7 @@ export function linkToAttributionManualData(
   selectedResourceId: string,
   matchingAttributionId: string,
   isAttributionBreakpoint: PathPredicate,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): AttributionData {
   const newManualData: AttributionData =
     getAttributionDataShallowCopy(manualData);
@@ -288,6 +319,12 @@ export function linkToAttributionManualData(
       matchingAttributionId,
     ),
     isAttributionBreakpoint,
+  );
+
+  recalulatePreferencesOfParents(
+    selectedResourceId,
+    newManualData,
+    calculatePreferredOverOriginIds,
   );
 
   return newManualData;
@@ -323,6 +360,51 @@ function linkAttributionAndResource(
       resourceId,
       newManualData.resourcesWithAttributedChildren,
     );
+  }
+}
+
+export function getCalculatePreferredOverOriginIds(
+  state: ResourceState,
+): CalculatePreferredOverOriginIds {
+  return (
+    pathToResource: string,
+    newManualAttributionToResources: AttributionsToResources,
+  ) =>
+    getOriginIdsToPreferOver(
+      pathToResource,
+      state.allViews.resources ?? {},
+      state.allViews.externalData.resourcesToAttributions,
+      newManualAttributionToResources,
+      state.allViews.externalData.attributions,
+      state.allViews.externalAttributionSources,
+    );
+}
+
+export function recalulatePreferencesOfParents(
+  pathToChangedResource: string,
+  newManualData: AttributionData,
+  calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
+): void {
+  for (const pathToParent of getParents(pathToChangedResource)) {
+    let wasPreferredParentFound = false;
+
+    const manualAttributionsIds =
+      newManualData.resourcesToAttributions[pathToParent] ?? [];
+
+    manualAttributionsIds.forEach((manualAttributionId) => {
+      const packageInfo = newManualData.attributions[manualAttributionId];
+      if (packageInfo.preferred) {
+        wasPreferredParentFound = true;
+        packageInfo.preferredOverOriginIds = calculatePreferredOverOriginIds(
+          pathToParent,
+          newManualData.resourcesToAttributions,
+        );
+      }
+    });
+
+    if (wasPreferredParentFound) {
+      break;
+    }
   }
 }
 

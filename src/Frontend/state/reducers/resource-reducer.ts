@@ -77,6 +77,7 @@ import {
 import {
   createManualAttribution,
   deleteManualAttribution,
+  getCalculatePreferredOverOriginIds,
   linkToAttributionManualData,
   replaceAttributionWithMatchingAttributionId,
   unlinkResourceFromAttributionId,
@@ -390,6 +391,7 @@ export const resourceState = (
         state.allViews.manualData,
         selectedResourceId,
         action.payload.strippedPackageInfo,
+        getCalculatePreferredOverOriginIds(state),
       );
 
       const packageCardIndex = getIndexOfAttributionInManualPackagePanel(
@@ -492,6 +494,7 @@ export const resourceState = (
         state.allViews.manualData,
         attributionToDeleteId,
         getAttributionBreakpointCheckForResourceState(state),
+        getCalculatePreferredOverOriginIds(state),
       );
 
       const displayedDisplayPackageInfo =
@@ -622,6 +625,7 @@ export const resourceState = (
           action.payload.resourceId,
           matchingAttributionIdForLinking,
           getAttributionBreakpointCheckForResourceState(state),
+          getCalculatePreferredOverOriginIds(state),
         );
 
       const packageCardIndexOfLinkingAttribution =
@@ -665,6 +669,7 @@ export const resourceState = (
           state.allViews.manualData,
           action.payload.resourceId,
           action.payload.attributionId,
+          getCalculatePreferredOverOriginIds(state),
         );
 
       return {
