@@ -204,6 +204,7 @@ export function getMergeButtonsDisplayState(currentState: {
   packageInfoWereModified: boolean;
   targetAttributionIsPreSelected: boolean;
   targetAttributionIsExternalAttribution: boolean;
+  isPreferenceFeatureEnabled?: boolean;
   attributionIsPreferred?: boolean;
   view?: View;
 }): MergeButtonDisplayState {
@@ -234,10 +235,12 @@ export function getMergeButtonsDisplayState(currentState: {
         currentState.packageInfoWereModified) ||
       currentState.targetAttributionIsPreSelected,
     hideMarkAsPreferredButton:
+      !currentState.isPreferenceFeatureEnabled ||
       !currentState.selectedAttributionId ||
       currentState.view !== View.Audit ||
       Boolean(currentState.attributionIsPreferred),
     hideUnmarkAsPreferredButton:
+      !currentState.isPreferenceFeatureEnabled ||
       !currentState.selectedAttributionId ||
       currentState.view !== View.Audit ||
       !currentState.attributionIsPreferred,

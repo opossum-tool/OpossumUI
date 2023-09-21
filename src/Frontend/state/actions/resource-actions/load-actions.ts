@@ -8,6 +8,7 @@ import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   setAttributionBreakpoints,
   setBaseUrlsForSources,
+  setIsPreferenceFeatureEnabled,
   setExternalAttributionSources,
   setExternalAttributionsToHashes,
   setExternalData,
@@ -56,6 +57,14 @@ export function loadFromFile(
       setExternalAttributionSources(
         parsedFileContent.externalAttributionSources,
       ),
+    );
+
+    const fileContainsSourcesRelevantForPreferred = Object.values(
+      parsedFileContent.externalAttributionSources,
+    ).some((source) => source.isRelevantForPreferred);
+
+    dispatch(
+      setIsPreferenceFeatureEnabled(fileContainsSourcesRelevantForPreferred),
     );
 
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>

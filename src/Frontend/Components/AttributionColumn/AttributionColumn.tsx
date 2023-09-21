@@ -10,6 +10,7 @@ import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
+  getIsPreferenceFeatureEnabled,
   getIsSavingDisabled,
   getManualDisplayPackageInfoOfSelected,
   getTemporaryDisplayPackageInfo,
@@ -108,6 +109,9 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   );
   const view = useAppSelector(getSelectedView);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const isPreferenceFeatureEnabled = useAppSelector(
+    getIsPreferenceFeatureEnabled,
+  );
 
   const {
     isLicenseTextShown,
@@ -143,6 +147,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       temporaryDisplayPackageInfo.preSelected,
     ),
     targetAttributionIsExternalAttribution: false,
+    isPreferenceFeatureEnabled,
     attributionIsPreferred:
       selectedPackage?.displayPackageInfo.preferred ?? false,
     view,

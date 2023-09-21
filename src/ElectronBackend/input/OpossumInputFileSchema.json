@@ -229,6 +229,9 @@
           },
           "priority": {
             "type": "integer"
+          },
+          "isRelevantForPreferred": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false,

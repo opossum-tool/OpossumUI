@@ -573,4 +573,74 @@ describe('The App in Audit View', () => {
       expectedSaveFileArgs,
     );
   });
+
+  it('preferred button is shown and sets an attribution as preferred', () => {
+    function getExpectedSaveFileArgs(preferred: boolean): SaveFileArgs {
+      return {
+        manualAttributions: {
+          uuid: {
+            packageName: 'jQuery',
+            packageVersion: '16.0.0',
+            attributionConfidence: DiscreteConfidence.Low,
+            preferred,
+          },
+        },
+        resolvedExternalAttributions: new Set(),
+        resourcesToAttributions: {
+          '/file': ['uuid'],
+        },
+      };
+    }
+
+    const testResources: Resources = {
+      file: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        attributionConfidence: DiscreteConfidence.Low,
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/file': ['uuid'],
+    };
+
+    mockElectronBackend(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+        externalAttributionSources: {
+          SC: {
+            name: 'ScanCode',
+            priority: 1,
+            isRelevantForPreferred: true,
+          },
+        },
+      }),
+    );
+    renderComponentWithStore(<App />);
+
+    clickOnElementInResourceBrowser(screen, 'file');
+    expectValueInTextBox(screen, 'Name', 'jQuery');
+
+    expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.UnmarkAsPreferred);
+
+    clickOnButtonInHamburgerMenu(screen, ButtonText.MarkAsPreferred);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      getExpectedSaveFileArgs(true),
+    );
+
+    expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.MarkAsPreferred);
+
+    clickOnButtonInHamburgerMenu(screen, ButtonText.UnmarkAsPreferred);
+    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+      getExpectedSaveFileArgs(true),
+    );
+
+    expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.UnmarkAsPreferred);
+
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(2);
+  });
 });

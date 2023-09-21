@@ -26,6 +26,7 @@ import {
   getFilesWithChildren,
   getFrequentLicensesNameOrder,
   getFrequentLicensesTexts,
+  getIsPreferenceFeatureEnabled,
   getManualData,
   getResources,
 } from '../../../selectors/all-views-resource-selectors';
@@ -125,7 +126,9 @@ describe('loadFromFile', () => {
       attributionBreakpoints: new Set(['/third-party/package/']),
       filesWithChildren: new Set(['/third-party/package.json/']),
       baseUrlsForSources: testBaseUrlsForSources,
-      externalAttributionSources: { SC: { name: 'ScanCode', priority: 1 } },
+      externalAttributionSources: {
+        SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
+      },
     };
     const expectedResources: Resources = testResources;
     const expectedManualData: AttributionData = {
@@ -214,10 +217,44 @@ describe('loadFromFile', () => {
       testBaseUrlsForSources,
     );
     expect(getExternalAttributionSources(testStore.getState())).toEqual({
-      SC: { name: 'ScanCode', priority: 1 },
+      SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: true },
     });
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
       expectedExternalAttributionsToHashes,
     );
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(true);
+  });
+
+  it('disables the preference feature if no external source is relevant', () => {
+    const testFrequentLicenses: FrequentLicenses = {
+      nameOrder: [],
+      texts: {},
+    };
+
+    const testParsedFileContent: ParsedFileContent = {
+      metadata: EMPTY_PROJECT_METADATA,
+      resources: testResources,
+      manualAttributions: {
+        attributions: testManualAttributions,
+        resourcesToAttributions: testResourcesToManualAttributions,
+      },
+      externalAttributions: {
+        attributions: {},
+        resourcesToAttributions: {},
+      },
+      frequentLicenses: testFrequentLicenses,
+      resolvedExternalAttributions: new Set(),
+      attributionBreakpoints: new Set(),
+      filesWithChildren: new Set(),
+      baseUrlsForSources: {},
+      externalAttributionSources: {
+        SC: { name: 'ScanCode', priority: 1, isRelevantForPreferred: false },
+      },
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(loadFromFile(testParsedFileContent));
+
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);
   });
 });
