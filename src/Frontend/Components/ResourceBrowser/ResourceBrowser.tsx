@@ -49,8 +49,8 @@ const classes = {
   locatorIconContainer: {
     margin: '4px',
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: 5,
+    right: 15,
     zIndex: 1,
   },
   locatorIcon: {
@@ -61,9 +61,9 @@ const classes = {
     },
   },
   locatedResourceIcon: {
-    marginTop: '-2px',
     marginLeft: '10px',
     stroke: OpossumColors.darkBlue,
+    fontSize: '20px',
   },
 };
 

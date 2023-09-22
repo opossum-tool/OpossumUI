@@ -36,8 +36,11 @@ const classes = {
   dropdown: {
     marginTop: '8px',
   },
-  autocomplete: { marginTop: '8px' },
+  autocomplete: { marginTop: '12px' },
   noSignalsMessage: { color: OpossumColors.red, marginTop: '8px' },
+  dialogContent: {
+    width: '25vw',
+  },
 };
 
 const criticalityMenuItems: Array<menuItem> = [
@@ -111,6 +114,12 @@ export function LocatorPopup(): ReactElement {
     );
     const resourcesWithLocatedChildren =
       getResourcesWithLocatedChildren(locatedResources);
+    dispatch(
+      setResourcesWithLocatedAttributions(
+        resourcesWithLocatedChildren,
+        locatedResources,
+      ),
+    );
 
     const noSignalsAreFound =
       locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
@@ -120,12 +129,6 @@ export function LocatorPopup(): ReactElement {
     if (noSignalsAreFound && !allFiltersAreEmpty) {
       setShowNoSignalsLocatedMessage(true);
     } else {
-      dispatch(
-        setResourcesWithLocatedAttributions(
-          resourcesWithLocatedChildren,
-          locatedResources,
-        ),
-      );
       close();
     }
   }
@@ -223,7 +226,7 @@ export function LocatorPopup(): ReactElement {
       />
       {showNoSignalsLocatedMessage ? (
         <MuiTypography variant={'subtitle2'} sx={classes.noSignalsMessage}>
-          No signals located. Adjust filters or cancel.
+          No signals located. Please adjust filters or cancel.
         </MuiTypography>
       ) : (
         <></>
@@ -237,6 +240,7 @@ export function LocatorPopup(): ReactElement {
       header={'Locate Signals'}
       isOpen={true}
       fullWidth={false}
+      contentSx={classes.dialogContent}
       leftButtonConfig={{
         onClick: handleClearClick,
         buttonText: ButtonText.Clear,
@@ -244,6 +248,7 @@ export function LocatorPopup(): ReactElement {
       centerLeftButtonConfig={{
         onClick: handleApplyClick,
         buttonText: ButtonText.Apply,
+        isDark: true,
       }}
       rightButtonConfig={{
         onClick: close,
