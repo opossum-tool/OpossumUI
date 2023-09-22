@@ -344,7 +344,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     );
 
     expect(
-      screen.getByText('No signals located. Adjust filters or cancel.', {
+      screen.getByText('No signals located. Please adjust filters or cancel.', {
         exact: true,
       }),
     );
