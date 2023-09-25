@@ -19,6 +19,8 @@ import {
   createManualAttribution,
   deleteManualAttribution,
   updateManualAttribution,
+  unlinkResourceFromAttributionId,
+  linkToAttributionManualData,
 } from '../save-action-helpers';
 
 const testUuid: string = uuidNil;
@@ -190,6 +192,103 @@ describe('The updateManualAttribution function', () => {
     expect(newManualData.attributionsToResources).toEqual(
       expectedManualAttributionsToResources,
     );
+  });
+});
+
+describe('The linkToAttributionManualData function', () => {
+  it('links a manual attribution', () => {
+    const testManualData: AttributionData = {
+      attributions: {
+        [testUuid]: {
+          packageName: 'testpackage',
+          packageVersion: '2.0',
+          licenseText: 'Permission is hereby granted',
+        },
+      },
+      resourcesToAttributions: {},
+      attributionsToResources: {},
+      resourcesWithAttributedChildren: {
+        attributedChildren: {},
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+        },
+        paths: ['/', '/first/'],
+      },
+    };
+
+    const newManualData = linkToAttributionManualData(
+      testManualData,
+      '/first/',
+      testUuid,
+      () => false,
+    );
+
+    expect(newManualData.attributions).toEqual(testManualData.attributions);
+    expect(newManualData.resourcesToAttributions).toEqual({
+      '/first/': [testUuid],
+    });
+    expect(newManualData.attributionsToResources).toEqual({
+      [testUuid]: ['/first/'],
+    });
+    expect(newManualData.resourcesWithAttributedChildren).toEqual({
+      attributedChildren: {
+        '0': new Set<number>().add(1),
+      },
+      pathsToIndices: {
+        '/': 0,
+        '/first/': 1,
+      },
+      paths: ['/', '/first/'],
+    });
+  });
+});
+
+describe('The unlinkResourceFromAttributionId function', () => {
+  it('unlinks a manual attribution', () => {
+    const testManualData: AttributionData = {
+      attributions: {
+        [testUuid]: {
+          packageName: 'testpackage',
+          packageVersion: '2.0',
+          licenseText: 'Permission is hereby granted',
+        },
+      },
+      resourcesToAttributions: {
+        '/first/': [testUuid],
+      },
+      attributionsToResources: {
+        [testUuid]: ['/first/'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '0': new Set<number>().add(1),
+        },
+        pathsToIndices: {
+          '/': 0,
+          '/first/': 1,
+        },
+        paths: ['/', '/first/'],
+      },
+    };
+
+    const newManualData: AttributionData = unlinkResourceFromAttributionId(
+      testManualData,
+      '/first/',
+      testUuid,
+    );
+
+    expect(newManualData.attributions).toEqual(testManualData.attributions);
+    expect(isEmpty(newManualData.resourcesToAttributions)).toBe(true);
+    expect(isEmpty(newManualData.attributionsToResources)).toBe(true);
+    expect(newManualData.resourcesWithAttributedChildren).toEqual({
+      attributedChildren: {},
+      pathsToIndices: {
+        '/': 0,
+        '/first/': 1,
+      },
+      paths: ['/', '/first/'],
+    });
   });
 });
 
