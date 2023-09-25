@@ -10,6 +10,7 @@ import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   getAttributionIdMarkedForReplacement,
+  getIsGlobalSavingDisabled,
   getIsPreferenceFeatureEnabled,
   getIsSavingDisabled,
   getManualDisplayPackageInfoOfSelected,
@@ -20,7 +21,6 @@ import { getSelectedView } from '../../state/selectors/view-selector';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
-  getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { IpcRendererEvent } from 'electron';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
@@ -53,9 +53,7 @@ import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import { isEqual } from 'lodash';
-import { PanelPackage } from '../../types/types';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
+import { cloneDeep, isEqual } from 'lodash';
 
 const classes = {
   root: {
@@ -101,6 +99,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     wereTemporaryDisplayPackageInfoModified,
   );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
+  const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
   const selectedAttributionIdInAttributionView = useAppSelector(
     getSelectedAttributionIdInAttributionView,
   );
@@ -108,10 +107,12 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     getAttributionIdMarkedForReplacement,
   );
   const view = useAppSelector(getSelectedView);
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
+  const wasPreferredFieldChanged: boolean =
+    initialManualDisplayPackageInfo.preferred !==
+    temporaryDisplayPackageInfo.preferred;
 
   const {
     isLicenseTextShown,
@@ -128,6 +129,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     usePurl(
       dispatch,
       packageInfoWereModified,
+      wasPreferredFieldChanged,
       temporaryDisplayPackageInfo,
       selectedPackage,
       selectedAttributionIdInAttributionView,
@@ -148,21 +150,19 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     ),
     targetAttributionIsExternalAttribution: false,
     isPreferenceFeatureEnabled,
-    attributionIsPreferred:
-      selectedPackage?.displayPackageInfo.preferred ?? false,
+    attributionIsPreferred: temporaryDisplayPackageInfo.preferred ?? false,
     view,
   });
 
   const mainButtonConfigs: Array<MainButtonConfig> = [];
 
-  function toggleIsSelectedPackagePreferred(
-    resourceId: string,
-    attributionId: string,
-    selectedPackage: PanelPackage,
-  ): void {
-    const packageInfo = selectedPackage.displayPackageInfo;
-    packageInfo.preferred = !packageInfo.preferred;
-    dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
+  function toggleIsSelectedPackagePreferred(): void {
+    const newTemporaryDisplayPackageInfo = cloneDeep(
+      temporaryDisplayPackageInfo,
+    );
+    newTemporaryDisplayPackageInfo.preferred =
+      !newTemporaryDisplayPackageInfo.preferred;
+    dispatch(setTemporaryDisplayPackageInfo(newTemporaryDisplayPackageInfo));
   }
 
   if (props.onSaveButtonClick) {
@@ -184,7 +184,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: temporaryDisplayPackageInfo.preSelected
         ? ButtonText.ConfirmGlobally
         : ButtonText.SaveGlobally,
-      disabled: isSavingDisabled,
+      disabled: isGlobalSavingDisabled,
       onClick: () => {
         updatePurl(temporaryDisplayPackageInfo);
         props.onSaveGloballyButtonClick && props.onSaveGloballyButtonClick();
@@ -239,11 +239,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.MarkAsPreferred,
       onClick: (): void => {
         if (selectedPackage) {
-          toggleIsSelectedPackagePreferred(
-            selectedResourceId,
-            selectedManualAttributionIdInCurrentView,
-            selectedPackage,
-          );
+          toggleIsSelectedPackagePreferred();
         }
       },
       hidden: mergeButtonDisplayState.hideMarkAsPreferredButton,
@@ -252,11 +248,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       buttonText: ButtonText.UnmarkAsPreferred,
       onClick: (): void => {
         if (selectedPackage) {
-          toggleIsSelectedPackagePreferred(
-            selectedResourceId,
-            selectedManualAttributionIdInCurrentView,
-            selectedPackage,
-          );
+          toggleIsSelectedPackagePreferred();
         }
       },
       hidden: mergeButtonDisplayState.hideUnmarkAsPreferredButton,

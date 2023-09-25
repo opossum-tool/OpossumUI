@@ -7,7 +7,7 @@
 import { App } from '../../../Components/App/App';
 import {
   EMPTY_PARSED_FILE_CONTENT,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -38,7 +38,7 @@ describe('The go to link button', () => {
     const expectedLinkForFile =
       'https://www.testurl.com/code/parent/something_else.js?base=123456789';
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'parent_with_breakpoint');

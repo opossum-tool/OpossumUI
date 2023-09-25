@@ -11,7 +11,7 @@ import {
   closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
@@ -68,7 +68,7 @@ describe('The App integration', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
 
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);

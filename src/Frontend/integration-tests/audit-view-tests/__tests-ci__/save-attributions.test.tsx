@@ -13,7 +13,7 @@ import {
   expectButtonIsNotShown,
   expectElementsInAutoCompleteAndSelectFirst,
   expectValuesInTopProgressbarTooltip,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -76,7 +76,7 @@ describe('The App in Audit View', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -157,7 +157,7 @@ describe('The App in Audit View', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -240,7 +240,7 @@ describe('The App in Audit View', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 

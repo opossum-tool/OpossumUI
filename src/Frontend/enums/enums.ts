@@ -39,6 +39,12 @@ export enum SavePackageInfoOperation {
   Update = 'Update',
 }
 
+export enum AllowedSaveOperations {
+  All = 'All',
+  Local = 'Local',
+  None = 'None',
+}
+
 export enum PackagePanelTitle {
   AllAttributions = 'All Attributions',
   ContainedExternalPackages = 'Signals in Folder Content',

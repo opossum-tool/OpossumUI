@@ -28,7 +28,7 @@ import { ButtonText } from '../enums/enums';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 
-export function mockElectronBackend(
+export function mockElectronBackendOpenFile(
   mockChannelReturn: ParsedFileContent,
 ): void {
   window.electronAPI.on

@@ -19,7 +19,11 @@ import {
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { PackagePanelTitle, View } from '../../enums/enums';
+import {
+  AllowedSaveOperations,
+  PackagePanelTitle,
+  View,
+} from '../../enums/enums';
 import { State } from '../../types/types';
 import { getPopupAttributionId, getSelectedView } from './view-selector';
 import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
@@ -207,7 +211,17 @@ export function wereTemporaryDisplayPackageInfoModified(state: State): boolean {
 }
 
 export function getIsSavingDisabled(state: State): boolean {
-  return state.resourceState.allViews.isSavingDisabled;
+  return (
+    state.resourceState.allViews.allowedSaveOperations ===
+    AllowedSaveOperations.None
+  );
+}
+
+export function getIsGlobalSavingDisabled(state: State): boolean {
+  return (
+    state.resourceState.allViews.allowedSaveOperations !==
+    AllowedSaveOperations.All
+  );
 }
 
 export function getBaseUrlsForSources(state: State): BaseUrlsForSources {

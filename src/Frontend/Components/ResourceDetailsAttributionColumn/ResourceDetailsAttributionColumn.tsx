@@ -9,6 +9,7 @@ import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
 import {
   getAttributionBreakpoints,
+  getIsGlobalSavingDisabled,
   getManualData,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -21,6 +22,7 @@ import {
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
   unlinkAttributionAndSavePackageInfo,
+  unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -49,6 +51,7 @@ export function ResourceDetailsAttributionColumn(
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
+  const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const selectedResourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
     attributionBreakpoints,
@@ -116,6 +119,17 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function saveFileRequestListener(): void {
+    if (showSaveGloballyButton && isGlobalSavingDisabled) {
+      dispatch(
+        unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
+          selectedResourceId,
+          attributionIdOfSelectedPackageInManualPanel as string, // showSaveGloballyButton is true, so attributionIdOfSelectedPackageInManualPanel is not null
+          temporaryDisplayPackageInfo,
+        ),
+      );
+      return;
+    }
+
     dispatch(
       savePackageInfoIfSavingIsNotDisabled(
         selectedResourceId,

@@ -11,7 +11,7 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   getOpenResourcesButtonForPackagePanel,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
   mockElectronIpcRendererOn,
 } from '../../../test-helpers/general-test-helpers';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
@@ -80,7 +80,7 @@ describe('Other popups of the app', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -137,7 +137,7 @@ describe('Other popups of the app', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -199,7 +199,7 @@ describe('Other popups of the app', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -270,7 +270,7 @@ describe('Other popups of the app', () => {
       },
       externalAttributionSources: { HC: { name: 'High Compute', priority: 1 } },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -300,7 +300,7 @@ describe('Other popups of the app', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -343,7 +343,7 @@ describe('Other popups of the app', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');

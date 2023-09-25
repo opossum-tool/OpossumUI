@@ -12,7 +12,11 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { State } from '../../../types/types';
-import { PopupType, SavePackageInfoOperation } from '../../../enums/enums';
+import {
+  AllowedSaveOperations,
+  PopupType,
+  SavePackageInfoOperation,
+} from '../../../enums/enums';
 import { packageInfoHasNoSignificantFields } from '../../../util/package-info-has-no-significant-fields';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
@@ -39,14 +43,14 @@ import {
   ACTION_DELETE_ATTRIBUTION,
   ACTION_LINK_TO_ATTRIBUTION,
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
-  ACTION_SET_IS_SAVING_DISABLED,
+  ACTION_SET_ALLOWED_SAVE_OPERATIONS,
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   CreateAttributionForSelectedResource,
   DeleteAttribution,
   LinkToAttributionAction,
   ReplaceAttributionWithMatchingAttributionAction,
-  SetIsSavingDisabled,
+  SetAllowedSaveOperation,
   UnlinkResourceFromAttributionAction,
   UpdateAttribution,
 } from './types';
@@ -57,12 +61,12 @@ import { openPopup } from '../view-actions/view-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
 import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
 
-export function setIsSavingDisabled(
-  isSavingDisabled: boolean,
-): SetIsSavingDisabled {
+export function setAllowedSaveOperations(
+  allowedSaveOperations: AllowedSaveOperations,
+): SetAllowedSaveOperation {
   return {
-    type: ACTION_SET_IS_SAVING_DISABLED,
-    payload: isSavingDisabled,
+    type: ACTION_SET_ALLOWED_SAVE_OPERATIONS,
+    payload: allowedSaveOperations,
   };
 }
 
@@ -77,6 +81,26 @@ export function savePackageInfoIfSavingIsNotDisabled(
       return;
     }
     dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
+  };
+}
+
+export function unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
+  resourceId: string,
+  attributionId: string,
+  packageInfo: PackageInfo,
+): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    if (getIsSavingDisabled(getState())) {
+      dispatch(openPopup(PopupType.UnableToSavePopup));
+      return;
+    }
+    dispatch(
+      unlinkAttributionAndSavePackageInfo(
+        resourceId,
+        attributionId,
+        packageInfo,
+      ),
+    );
   };
 }
 

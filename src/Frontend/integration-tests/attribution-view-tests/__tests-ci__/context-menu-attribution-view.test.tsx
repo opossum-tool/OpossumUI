@@ -42,7 +42,7 @@ import {
   expectSelectCheckboxInPackageCardIsChecked,
   getParsedInputFileEnrichedWithTestData,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import {
   expectConfirmMultiSelectDeletionPopupNotVisible,
@@ -84,7 +84,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 
 describe('In Attribution View the ContextMenu', () => {
   it('confirmation buttons work correctly', () => {
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -176,7 +176,7 @@ describe('In Attribution View the ContextMenu', () => {
       '/root/src/file_2': ['uuid_2', 'uuid_3'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -231,7 +231,7 @@ describe('In Attribution View the ContextMenu', () => {
   });
 
   it('deletes multi-selected attributions correctly', () => {
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,

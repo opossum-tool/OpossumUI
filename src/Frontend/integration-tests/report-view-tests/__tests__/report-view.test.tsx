@@ -11,7 +11,7 @@ import {
   closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -50,7 +50,7 @@ describe('The report view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnOpenFileIcon(screen);
@@ -112,7 +112,7 @@ describe('The report view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 

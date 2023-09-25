@@ -15,7 +15,11 @@ import {
   ResourcesWithAttributedChildren,
   SaveFileArgs,
 } from '../../../../../shared/shared-types';
-import { PackagePanelTitle, PopupType } from '../../../../enums/enums';
+import {
+  AllowedSaveOperations,
+  PackagePanelTitle,
+  PopupType,
+} from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import {
@@ -56,7 +60,7 @@ import {
   saveManualAndResolvedAttributionsToFile,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
-  setIsSavingDisabled,
+  setAllowedSaveOperations,
   unlinkAttributionAndSavePackageInfo,
 } from '../save-actions';
 import { getOpenPopup } from '../../../selectors/view-selector';
@@ -148,7 +152,7 @@ describe('The savePackageInfo action', () => {
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
       true,
     );
-    testStore.dispatch(setIsSavingDisabled(true));
+    testStore.dispatch(setAllowedSaveOperations(AllowedSaveOperations.None));
 
     testStore.dispatch(
       savePackageInfoIfSavingIsNotDisabled(

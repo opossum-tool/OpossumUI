@@ -14,7 +14,7 @@ import {
 import {
   expectValuesInTopProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import {
@@ -82,7 +82,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 
 describe('In Audit View the ContextMenu', () => {
   it('is not shown for add new attribution PackageCard', () => {
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -122,7 +122,7 @@ describe('In Audit View the ContextMenu', () => {
       '/thirdResource.js': ['uuid_1'],
       '/fourthResource.js': ['uuid_2'],
     };
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributionsPreSelected,
@@ -217,7 +217,7 @@ describe('In Audit View the ContextMenu', () => {
       '/secondResource.js': ['uuid_2'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         externalAttributions: testManualAttributions,
@@ -296,7 +296,7 @@ describe('In Audit View the ContextMenu', () => {
       '/secondResource.js': ['uuid_1', 'uuid_2', 'uuid_3'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         externalAttributions: testExternalAttributions,
@@ -419,7 +419,7 @@ describe('In Audit View the ContextMenu', () => {
     };
 
     it('in the package panel', () => {
-      mockElectronBackend(
+      mockElectronBackendOpenFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           manualAttributions: testManualAttributions,
@@ -473,7 +473,7 @@ describe('In Audit View the ContextMenu', () => {
     });
 
     it('in the attributions in folder content panel', () => {
-      mockElectronBackend(
+      mockElectronBackendOpenFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           manualAttributions: testManualAttributions,

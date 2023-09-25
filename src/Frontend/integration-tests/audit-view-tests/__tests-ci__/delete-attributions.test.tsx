@@ -9,7 +9,7 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectValuesInTopProgressbarTooltip,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -71,7 +71,7 @@ describe('The App in Audit View', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
@@ -162,7 +162,7 @@ describe('The App in Audit View', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
