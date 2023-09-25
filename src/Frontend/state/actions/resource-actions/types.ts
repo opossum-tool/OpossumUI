@@ -22,6 +22,7 @@ import {
   PackageAttributeIds,
   PackageAttributes,
 } from '../../../types/types';
+import { AllowedSaveOperations } from '../../../enums/enums';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';
@@ -39,7 +40,8 @@ export const ACTION_SET_SELECTED_RESOURCE_ID =
 export const ACTION_SET_EXPANDED_IDS = 'ACTION_SET_EXPANDED_IDS';
 export const ACTION_SET_TARGET_SELECTED_RESOURCE_ID =
   'ACTION_SET_TARGET_SELECTED_RESOURCE_ID';
-export const ACTION_SET_IS_SAVING_DISABLED = 'ACTION_SET_IS_SAVING_DISABLED';
+export const ACTION_SET_ALLOWED_SAVE_OPERATIONS =
+  'ACTION_SET_ALLOWED_SAVE_OPERATIONS';
 export const ACTION_SET_ATTRIBUTION_BREAKPOINTS =
   'ACTION_SET_ATTRIBUTION_BREAKPOINTS';
 export const ACTION_SET_FILES_WITH_CHILDREN = 'ACTION_SET_FILES_WITH_CHILDREN';
@@ -113,7 +115,7 @@ export type ResourceAction =
   | SetExpandedIdsAction
   | SetTargetSelectedResourceId
   | SetSelectedAttributionId
-  | SetIsSavingDisabled
+  | SetAllowedSaveOperation
   | SetAttributionBreakpoints
   | SetFilesWithChildren
   | UpdateAttribution
@@ -219,9 +221,9 @@ export interface SetTargetSelectedAttributionIdAction {
   payload: string | null;
 }
 
-export interface SetIsSavingDisabled {
-  type: typeof ACTION_SET_IS_SAVING_DISABLED;
-  payload: boolean;
+export interface SetAllowedSaveOperation {
+  type: typeof ACTION_SET_ALLOWED_SAVE_OPERATIONS;
+  payload: AllowedSaveOperations;
 }
 
 export interface SetAttributionBreakpoints {

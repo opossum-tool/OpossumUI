@@ -8,7 +8,7 @@ import {
   expectValuesInTopProgressbarTooltip,
   getParsedInputFileEnrichedWithTestData,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import {
@@ -92,7 +92,7 @@ describe('The ContextMenu', () => {
     };
 
     it('work correctly for non-pre-selected attributions', () => {
-      mockElectronBackend(
+      mockElectronBackendOpenFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           manualAttributions: testExpandedManualAttributions,
@@ -201,7 +201,7 @@ describe('The ContextMenu', () => {
         },
       };
 
-      mockElectronBackend(
+      mockElectronBackendOpenFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           manualAttributions: testManualAttributionsPreSelected,
@@ -329,7 +329,7 @@ describe('The ContextMenu', () => {
       '/thirdResource.js': ['uuid_1'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,

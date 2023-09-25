@@ -12,7 +12,7 @@ import {
   EMPTY_PARSED_FILE_CONTENT,
   expectButton,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -74,7 +74,7 @@ describe('The App in attribution view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
 
     renderComponentWithStore(<App />);
 
@@ -113,7 +113,7 @@ describe('The App in attribution view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnOpenFileIcon(screen);
@@ -168,7 +168,7 @@ describe('The App in attribution view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -309,7 +309,7 @@ describe('The App in attribution view', () => {
 
       resolvedExternalAttributions: new Set<string>().add('test_id'),
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -380,7 +380,7 @@ describe('The App in attribution view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -449,7 +449,7 @@ describe('The App in attribution view', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnOpenFileIcon(screen);

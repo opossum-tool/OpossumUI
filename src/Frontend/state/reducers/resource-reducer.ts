@@ -14,7 +14,7 @@ import {
   Resources,
   SelectedCriticality,
 } from '../../../shared/shared-types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { AllowedSaveOperations, PackagePanelTitle } from '../../enums/enums';
 import {
   PackageAttributeIds,
   PackageAttributes,
@@ -45,6 +45,7 @@ import {
   ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
+  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
@@ -52,13 +53,16 @@ import {
   ACTION_SET_FILE_SEARCH,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
-  ACTION_SET_IS_SAVING_DISABLED,
+  ACTION_SET_ALLOWED_SAVE_OPERATIONS,
+  ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
+  ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
   ACTION_SET_PACKAGE_SEARCH_TERM,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_RESOURCES,
+  ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_SELECTED_RESOURCE_ID,
   ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE,
@@ -69,10 +73,6 @@ import {
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   ResourceAction,
-  ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY,
-  ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES,
-  ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS,
-  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
 } from '../actions/resource-actions/types';
 import {
   createManualAttribution,
@@ -102,7 +102,7 @@ export const initialResourceState: ResourceState = {
     temporaryDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     attributionBreakpoints: new Set(),
     filesWithChildren: new Set(),
-    isSavingDisabled: false,
+    allowedSaveOperations: AllowedSaveOperations.All,
     metadata: EMPTY_PROJECT_METADATA,
     baseUrlsForSources: {},
     externalAttributionSources: {},
@@ -161,7 +161,7 @@ export type ResourceState = {
     temporaryDisplayPackageInfo: DisplayPackageInfo;
     attributionBreakpoints: Set<string>;
     filesWithChildren: Set<string>;
-    isSavingDisabled: boolean;
+    allowedSaveOperations: AllowedSaveOperations;
     metadata: ProjectMetadata;
     baseUrlsForSources: BaseUrlsForSources;
     externalAttributionSources: ExternalAttributionSources;
@@ -361,10 +361,10 @@ export const resourceState = (
           attributionIdMarkedForReplacement: action.payload,
         },
       };
-    case ACTION_SET_IS_SAVING_DISABLED:
+    case ACTION_SET_ALLOWED_SAVE_OPERATIONS:
       return {
         ...state,
-        allViews: { ...state.allViews, isSavingDisabled: action.payload },
+        allViews: { ...state.allViews, allowedSaveOperations: action.payload },
       };
     case ACTION_SET_ATTRIBUTION_BREAKPOINTS:
       return {

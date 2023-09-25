@@ -19,6 +19,7 @@ import {
 } from '../../state/actions/popup-actions/popup-actions';
 import {
   getCurrentAttributionId,
+  getIsGlobalSavingDisabled,
   getIsSavingDisabled,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -35,6 +36,7 @@ export function NotSavedPopup(): ReactElement {
   );
   const view = useAppSelector(getSelectedView);
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
+  const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
   const showSaveGloballyButton =
     view === View.Audit &&
     hasAttributionMultipleResources(
@@ -89,7 +91,7 @@ export function NotSavedPopup(): ReactElement {
           ? {
               onClick: handleSaveGloballyClick,
               buttonText: ButtonText.SaveGlobally,
-              disabled: isSavingDisabled,
+              disabled: isGlobalSavingDisabled,
             }
           : undefined
       }

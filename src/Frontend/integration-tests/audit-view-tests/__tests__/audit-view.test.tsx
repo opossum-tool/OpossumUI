@@ -9,9 +9,10 @@ import {
   clickOnTopProgressBar,
   closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
+  getButton,
   getOpenFileIcon,
   getParsedInputFileEnrichedWithTestData,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import { screen } from '@testing-library/react';
@@ -84,7 +85,7 @@ describe('The App in Audit View', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'something.js');
@@ -137,7 +138,7 @@ describe('The App in Audit View', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -213,7 +214,7 @@ describe('The App in Audit View', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -288,7 +289,7 @@ describe('The App in Audit View', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
 
     renderComponentWithStore(<App />);
 
@@ -347,7 +348,7 @@ describe('The App in Audit View', () => {
 
       resolvedExternalAttributions: new Set<string>().add('uuid_1'),
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -433,7 +434,7 @@ describe('The App in Audit View', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
     closeProjectStatisticsPopup(screen);
 
@@ -515,7 +516,7 @@ describe('The App in Audit View', () => {
       '/root/src/file_2': ['uuid_2'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -576,20 +577,24 @@ describe('The App in Audit View', () => {
 
   it('preferred button is shown and sets an attribution as preferred', () => {
     function getExpectedSaveFileArgs(preferred: boolean): SaveFileArgs {
-      return {
+      const expected_args: SaveFileArgs = {
         manualAttributions: {
           uuid: {
             packageName: 'jQuery',
             packageVersion: '16.0.0',
             attributionConfidence: DiscreteConfidence.Low,
-            preferred,
           },
         },
-        resolvedExternalAttributions: new Set(),
+        resolvedExternalAttributions: new Set<string>(),
         resourcesToAttributions: {
           '/file': ['uuid'],
         },
       };
+      if (preferred) {
+        expected_args.manualAttributions.uuid.preferred = true;
+      }
+
+      return expected_args;
     }
 
     const testResources: Resources = {
@@ -606,7 +611,7 @@ describe('The App in Audit View', () => {
       '/file': ['uuid'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -621,6 +626,7 @@ describe('The App in Audit View', () => {
       }),
     );
     renderComponentWithStore(<App />);
+    clickOnButton(screen, ButtonText.Close);
 
     clickOnElementInResourceBrowser(screen, 'file');
     expectValueInTextBox(screen, 'Name', 'jQuery');
@@ -628,19 +634,65 @@ describe('The App in Audit View', () => {
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.UnmarkAsPreferred);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkAsPreferred);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
+    clickOnButton(screen, ButtonText.Save);
+    expect(window.electronAPI.saveFile).toHaveBeenNthCalledWith(
+      1,
       getExpectedSaveFileArgs(true),
     );
 
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.MarkAsPreferred);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.UnmarkAsPreferred);
-    expect(window.electronAPI.saveFile).toHaveBeenCalledWith(
-      getExpectedSaveFileArgs(true),
+    clickOnButton(screen, ButtonText.Save);
+    expect(window.electronAPI.saveFile).toHaveBeenNthCalledWith(
+      2,
+      getExpectedSaveFileArgs(false),
     );
 
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.UnmarkAsPreferred);
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(2);
+  });
+
+  it('after setting an attribution to preferred, global save is disabled', () => {
+    const testResources: Resources = {
+      file: 1,
+      other_file: 1,
+      other_file_2: 1,
+    };
+    const testManualAttributions: Attributions = {
+      uuid: {
+        packageName: 'jQuery',
+        packageVersion: '16.0.0',
+        attributionConfidence: DiscreteConfidence.Low,
+      },
+    };
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      '/file': ['uuid'],
+      '/other_file': ['uuid'],
+    };
+
+    mockElectronBackendOpenFile(
+      getParsedInputFileEnrichedWithTestData({
+        resources: testResources,
+        manualAttributions: testManualAttributions,
+        resourcesToManualAttributions: testResourcesToManualAttributions,
+        externalAttributionSources: {
+          SC: {
+            name: 'ScanCode',
+            priority: 1,
+            isRelevantForPreferred: true,
+          },
+        },
+      }),
+    );
+    renderComponentWithStore(<App />);
+    clickOnButton(screen, ButtonText.Close);
+
+    clickOnElementInResourceBrowser(screen, 'file');
+    expectValueInTextBox(screen, 'Name', 'jQuery');
+
+    clickOnButtonInHamburgerMenu(screen, ButtonText.MarkAsPreferred);
+    expect(getButton(screen, ButtonText.SaveGlobally)).toBeDisabled();
   });
 });

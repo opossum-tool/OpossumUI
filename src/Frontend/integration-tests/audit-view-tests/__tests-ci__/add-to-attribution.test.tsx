@@ -7,7 +7,7 @@ import {
   clickOnButton,
   closeProjectStatisticsPopup,
   getParsedInputFileEnrichedWithTestData,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import {
@@ -71,7 +71,7 @@ describe('Add to attribution', () => {
         '/secondResource.js': ['uuid_2'],
         '/thirdResource.js': ['uuid_3'],
       };
-      mockElectronBackend(
+      mockElectronBackendOpenFile(
         getParsedInputFileEnrichedWithTestData({
           resources: testResources,
           manualAttributions: testManualAttributions,
@@ -149,7 +149,7 @@ describe('Add to attribution', () => {
       '/secondResource.js': ['uuid_2'],
       '/thirdResource.js': ['uuid_3'],
     };
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -209,7 +209,7 @@ describe('Add to attribution', () => {
       '/secondResource.js': ['uuid_2'],
       '/thirdResource.js': ['uuid_3'],
     };
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -290,7 +290,7 @@ describe('Add to attribution', () => {
       '/thirdResource.js': ['uuid_3'],
     };
     const attributionBreakpoints = new Set<string>().add('/folder1/');
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         manualAttributions: testManualAttributions,
@@ -334,7 +334,7 @@ describe('Add to attribution', () => {
       '/folder1/': ['uuid_ext_1', 'uuid_ext_2'],
     };
 
-    mockElectronBackend(
+    mockElectronBackendOpenFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
         externalAttributions: testExternalAttributions,

@@ -18,7 +18,7 @@ import {
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import {
   saveManualAndResolvedAttributionsToFile,
-  setIsSavingDisabled,
+  setAllowedSaveOperations,
 } from '../../state/actions/resource-actions/save-actions';
 import { useWindowHeight } from '../../util/use-window-height';
 import {
@@ -26,7 +26,7 @@ import {
   parsePurl,
 } from '../../util/handle-purl';
 import { PanelPackage } from '../../types/types';
-import { View } from '../../enums/enums';
+import { AllowedSaveOperations, View } from '../../enums/enums';
 import { isExternalPackagePanel } from '../../util/is-external-package-panel';
 import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../shared-constants';
 
@@ -250,6 +250,7 @@ export function getMergeButtonsDisplayState(currentState: {
 export function usePurl(
   dispatch: AppThunkDispatch,
   packageInfoWereModified: boolean,
+  wasPreferredFieldChanged: boolean,
   temporaryDisplayPackageInfo: DisplayPackageInfo,
   selectedPackage: PanelPackage | null,
   selectedAttributionId: string | null,
@@ -262,19 +263,19 @@ export function usePurl(
   const [temporaryPurl, setTemporaryPurl] = useState<string>('');
   const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
 
+  const isAllSavingDisabled =
+    (!packageInfoWereModified || !isDisplayedPurlValid) &&
+    !temporaryDisplayPackageInfo.preSelected;
+
+  const savingStatus = isAllSavingDisabled
+    ? AllowedSaveOperations.None
+    : wasPreferredFieldChanged
+    ? AllowedSaveOperations.Local
+    : AllowedSaveOperations.All;
+
   useEffect(() => {
-    dispatch(
-      setIsSavingDisabled(
-        (!packageInfoWereModified || !isDisplayedPurlValid) &&
-          !temporaryDisplayPackageInfo.preSelected,
-      ),
-    );
-  }, [
-    dispatch,
-    packageInfoWereModified,
-    isDisplayedPurlValid,
-    temporaryDisplayPackageInfo,
-  ]);
+    dispatch(setAllowedSaveOperations(savingStatus));
+  }, [dispatch, savingStatus]);
 
   useEffect(
     () => {

@@ -10,7 +10,7 @@ import {
   clickOnTopProgressBar,
   EMPTY_PARSED_FILE_CONTENT,
   goToView,
-  mockElectronBackend,
+  mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
@@ -76,7 +76,7 @@ describe('Not saved popup of the app', () => {
       },
     };
 
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
   }
 
   it('switches between views', () => {
@@ -284,7 +284,7 @@ describe('Not saved popup of the app', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
 
     renderComponentWithStore(<App />);
 
@@ -331,7 +331,7 @@ describe('Not saved popup of the app', () => {
         },
       },
     };
-    mockElectronBackend(mockChannelReturn);
+    mockElectronBackendOpenFile(mockChannelReturn);
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'root');
