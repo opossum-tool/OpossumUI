@@ -48,11 +48,9 @@ const classes = {
     color: OpossumColors.middleBlue,
   },
   tooltip: tooltipStyle,
-  openCloseFolderIcons: {
-    margin: '0px',
-    padding: '0px',
-    width: '16px',
-    height: '20px',
+  preferredIcon: {
+    ...baseIcon,
+    color: OpossumColors.mediumOrange,
   },
 };
 
@@ -296,7 +294,7 @@ export function PreferredIcon(props: IconProps): ReactElement {
       <StarIcon
         aria-label={'Preferred icon'}
         sx={getSxFromPropsAndClasses({
-          styleClass: classes.nonClickableIcon,
+          styleClass: classes.preferredIcon,
           sxProps: props.sx,
         })}
       />
