@@ -111,7 +111,10 @@ function getResourcesRecursively(
   });
 }
 
-function getSubtree(resourceTree: Resources, folderPath: string): Resources {
+export function getSubtree(
+  resourceTree: Resources,
+  folderPath: string,
+): Resources {
   if (folderPath === '/') {
     return resourceTree;
   }
