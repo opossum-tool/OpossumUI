@@ -7,13 +7,15 @@ import { Attributions } from '../../shared/shared-types';
 import { getCardLabels } from './get-card-labels';
 import { convertPackageInfoToDisplayPackageInfo } from './convert-package-info';
 
-export function getAlphabeticalComparer(attributions: Attributions) {
+const DEFAULT_NAME = '\u10FFFF'; // largest unicode character
+
+export function getAlphabeticalComparerForAttributions(
+  attributions: Attributions,
+) {
   return function compareFunction(
     element: string,
     otherElement: string,
   ): number {
-    const defaultName = '\u10FFFF'; // largest unicode character
-
     const elementCardLabels = getCardLabels(
       convertPackageInfoToDisplayPackageInfo(
         {
@@ -23,11 +25,7 @@ export function getAlphabeticalComparer(attributions: Attributions) {
         [],
       ),
     );
-    const elementTitle = getElementTitle(elementCardLabels, defaultName);
-    const elementTitleIsAlphabetical = isElementTitleAlphabetical(
-      elementTitle,
-      defaultName,
-    );
+    const elementTitle = getElementTitle(elementCardLabels);
 
     const otherElementCardLabels = getCardLabels(
       convertPackageInfoToDisplayPackageInfo(
@@ -38,36 +36,36 @@ export function getAlphabeticalComparer(attributions: Attributions) {
         [],
       ),
     );
-    const otherElementTitle = getElementTitle(
-      otherElementCardLabels,
-      defaultName,
-    );
-    const otherElementTitleIsAlphabetical = isElementTitleAlphabetical(
-      otherElementTitle,
-      defaultName,
-    );
+    const otherElementTitle = getElementTitle(otherElementCardLabels);
 
-    if (!elementTitleIsAlphabetical && otherElementTitleIsAlphabetical)
-      return 1;
-    if (elementTitleIsAlphabetical && !otherElementTitleIsAlphabetical)
-      return -1;
-
-    return elementTitle.toLowerCase() < otherElementTitle.toLowerCase()
-      ? -1
-      : 1;
+    return compareAlphabeticalStrings(elementTitle, otherElementTitle);
   };
 }
 
-function getElementTitle(
-  elementCardLabels: Array<string>,
-  defaultName: string,
-): string {
-  return elementCardLabels.length > 0 ? elementCardLabels[0] : defaultName;
+export function compareAlphabeticalStrings(
+  element: string,
+  otherElement: string,
+): number {
+  const trimmedElement = element.trim();
+  const trimmedOtherElement = otherElement.trim();
+
+  const elementIsAlphabetical = isElementTitleAlphabetical(trimmedElement);
+  const otherElementIsAlphabetical =
+    isElementTitleAlphabetical(trimmedOtherElement);
+
+  if (!elementIsAlphabetical && otherElementIsAlphabetical) return 1;
+  if (elementIsAlphabetical && !otherElementIsAlphabetical) return -1;
+
+  return trimmedElement.toLowerCase() < trimmedOtherElement.toLowerCase()
+    ? -1
+    : 1;
 }
 
-function isElementTitleAlphabetical(
-  elementTitle: string,
-  defaultName: string,
-): boolean {
-  return elementTitle.toLowerCase() > 'a' && elementTitle !== defaultName;
+function getElementTitle(elementCardLabels: Array<string>): string {
+  return elementCardLabels.length > 0 ? elementCardLabels[0] : DEFAULT_NAME;
+}
+
+// item is alphabetical if starts with a letter. Empty attributions are to be sorted to the end of the list.
+function isElementTitleAlphabetical(elementTitle: string): boolean {
+  return elementTitle.toLowerCase() >= 'a' && elementTitle !== DEFAULT_NAME;
 }

@@ -20,7 +20,7 @@ import {
 } from './save-action-helpers';
 import objectHash from 'object-hash';
 import { ResourceState } from '../reducers/resource-reducer';
-import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 
@@ -214,7 +214,9 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
   let displayedAttributionId = '';
   if (attributionIds && attributionIds.length > 0) {
     displayedAttributionId = attributionIds.sort(
-      getAlphabeticalComparer(state.allViews.manualData.attributions),
+      getAlphabeticalComparerForAttributions(
+        state.allViews.manualData.attributions,
+      ),
     )[0];
   } else {
     const closestParentAttributionIds: Array<string> =
@@ -225,7 +227,9 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
       );
     if (closestParentAttributionIds.length > 0) {
       displayedAttributionId = closestParentAttributionIds.sort(
-        getAlphabeticalComparer(state.allViews.manualData.attributions),
+        getAlphabeticalComparerForAttributions(
+          state.allViews.manualData.attributions,
+        ),
       )[0];
     }
   }
@@ -245,7 +249,7 @@ export function getIndexOfAttributionInManualPackagePanel(
   }
 
   const sortedAttributionIds = manualAttributionIdsOnResource.sort(
-    getAlphabeticalComparer(manualData.attributions),
+    getAlphabeticalComparerForAttributions(manualData.attributions),
   );
 
   const packageCardIndex = sortedAttributionIds.findIndex(
