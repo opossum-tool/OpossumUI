@@ -4,9 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Attributions } from '../../../shared/shared-types';
-import { getAlphabeticalComparer } from '../get-alphabetical-comparer';
+import {
+  getAlphabeticalComparerForAttributions,
+  compareAlphabeticalStrings,
+} from '../get-alphabetical-comparer';
 
-describe('getAlphabeticalComparer', () => {
+describe('getAlphabeticalComparerForAttributions', () => {
   it('sorts alphabetically by list card title', () => {
     const testAttributions: Attributions = {
       '1': {
@@ -34,7 +37,7 @@ describe('getAlphabeticalComparer', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparer(testAttributions),
+      getAlphabeticalComparerForAttributions(testAttributions),
     );
 
     expect(sortedAttributionIds).toEqual(['3', '5', '4', '2', '1']);
@@ -54,7 +57,7 @@ describe('getAlphabeticalComparer', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparer(testAttributions),
+      getAlphabeticalComparerForAttributions(testAttributions),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '3', '1']);
@@ -77,9 +80,35 @@ describe('getAlphabeticalComparer', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparer(testAttributions),
+      getAlphabeticalComparerForAttributions(testAttributions),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '1', '3']);
+  });
+});
+
+describe('compareAlphabeticalStrings', () => {
+  it('sorts licenses alphabetically', () => {
+    const testLicenses = [
+      'MIT',
+      '123',
+      'the MIT',
+      '  Mit  ',
+      '_mit',
+      'apache-2.0',
+    ];
+    const sortedLicenses = testLicenses.sort((a, b) =>
+      compareAlphabeticalStrings(a, b),
+    );
+    const expectedSortedLicenses = [
+      'apache-2.0',
+      'MIT',
+      '  Mit  ',
+      'the MIT',
+      '123',
+      '_mit',
+    ];
+
+    expect(sortedLicenses).toEqual(expectedSortedLicenses);
   });
 });

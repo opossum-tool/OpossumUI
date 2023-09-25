@@ -22,7 +22,7 @@ import { OpossumColors } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
   EMPTY_DISPLAY_PACKAGE_INFO,
@@ -128,7 +128,7 @@ function getSortedPackageCardIdsAndDisplayPackageInfos(
   displayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
-    getAlphabeticalComparer(shownAttributionsOfResource),
+    getAlphabeticalComparerForAttributions(shownAttributionsOfResource),
   );
 
   const sortedPackageCardIds: Array<string> = [];

@@ -31,6 +31,7 @@ import { setResourcesWithLocatedAttributions } from '../../state/actions/resourc
 import { getParents } from '../../state/helpers/get-parents';
 import { OpossumColors } from '../../shared-styles';
 import MuiTypography from '@mui/material/Typography';
+import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 
 const classes = {
   dropdown: {
@@ -219,7 +220,9 @@ export function LocatorPopup(): ReactElement {
           setSearchedLicense(event.target.value);
         }}
         isHighlighted={false}
-        options={licenseNameOptions}
+        options={licenseNameOptions.sort((a, b) =>
+          compareAlphabeticalStrings(a, b),
+        )}
         inputValue={searchedLicense}
         showTextBold={false}
         formatOptionForDisplay={(option: string): string => option}

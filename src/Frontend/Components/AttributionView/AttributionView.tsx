@@ -27,7 +27,7 @@ import { getActiveFilters } from '../../state/selectors/view-selector';
 import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { getAlphabeticalComparer } from '../../util/get-alphabetical-comparer';
+import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 
 const classes = {
   root: {
@@ -117,7 +117,7 @@ function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
   filteredDisplayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(filteredAttributions).sort(
-    getAlphabeticalComparer(filteredAttributions),
+    getAlphabeticalComparerForAttributions(filteredAttributions),
   );
 
   const filteredAndSortedPackageCardIds: Array<string> = [];
