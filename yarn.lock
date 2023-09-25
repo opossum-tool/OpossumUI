@@ -2233,10 +2233,10 @@
   dependencies:
     "@types/ms" "*"
 
-"@types/electron-devtools-installer@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@types/electron-devtools-installer/-/electron-devtools-installer-2.2.2.tgz#5a91929ee76b5de0d171edec5bd049292d48a2a4"
-  integrity sha512-8o2XkyAw2HZoVD5KpIoUJmEgZ7BPVv33p7rY1jmn/wJUbugtQUc44vNMDTguUNUGiLv+oqgtyYmiYctHDZEzdQ==
+"@types/electron-devtools-installer@^2.2.3":
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/@types/electron-devtools-installer/-/electron-devtools-installer-2.2.3.tgz#58009e74c4b69003f32eff4efdf6586e5b29e26b"
+  integrity sha512-a/+y/IvUKiNAFDYuzxuqcfj40RZc+oFmvwvXnysHTtYRmm4InLVJf20cmIb0//s/HKdbZoQV1srT9/XDd+Efrg==
 
 "@types/estree@^1.0.0":
   version "1.0.1"
