@@ -7,7 +7,7 @@ import React, { ReactElement, useState } from 'react';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from '../../util/get-card-labels';
 import { ListCardConfig, PackageCardConfig } from '../../types/types';
-import { clickableIcon } from '../../shared-styles';
+import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@mui/icons-material/Add';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
@@ -65,6 +65,7 @@ const classes = {
     visibility: 'hidden',
   },
   clickableIcon,
+  disabledIcon,
   multiSelectCheckbox: {
     height: '40px',
     marginTop: '1px',
@@ -74,6 +75,9 @@ const classes = {
     minWidth: '0px',
   },
 };
+
+export const CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP =
+  'A preferred attribution cannot be added';
 
 interface PackageCardProps {
   cardId: string;
@@ -402,15 +406,22 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
 
   const leftIcon = props.onIconClick ? (
     <IconButton
-      tooltipTitle="add"
+      tooltipTitle={
+        props.displayPackageInfo.preferred
+          ? CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP
+          : 'add'
+      }
       tooltipPlacement="left"
+      disabled={props.displayPackageInfo.preferred}
       onClick={props.onIconClick}
       key={getKey('add-icon', props.cardId)}
       icon={
         <PlusIcon
           sx={{
             ...(props.cardConfig.isResolved ? classes.hiddenIcon : {}),
-            ...classes.clickableIcon,
+            ...(props.displayPackageInfo.preferred
+              ? classes.disabledIcon
+              : classes.clickableIcon),
           }}
           aria-label={`add ${packageLabels[0] || ''}`}
         />

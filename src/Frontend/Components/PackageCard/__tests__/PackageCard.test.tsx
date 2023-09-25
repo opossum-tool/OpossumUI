@@ -6,7 +6,10 @@
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
-import { PackageCard } from '../PackageCard';
+import {
+  PackageCard,
+  CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP,
+} from '../PackageCard';
 import {
   createTestAppStore,
   renderComponentWithStore,
@@ -327,5 +330,42 @@ describe('The PackageCard', () => {
     expect(getOpenPopup(testStore.getState())).toBe(
       PopupType.AttributionWizardPopup,
     );
+  });
+
+  it('add button for preferred attribution is disabled', () => {
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      'package_1.tr.gz': [testAttributionId],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        }),
+      ),
+    );
+    renderComponentWithStore(
+      <PackageCard
+        cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
+        cardId={'some_id'}
+        displayPackageInfo={{
+          packageName: 'packageName',
+          attributionIds: [testAttributionId],
+          preferred: true,
+        }}
+        onClick={doNothing}
+        onIconClick={doNothing}
+        showCheckBox={true}
+      />,
+      { store: testStore },
+    );
+
+    const addButton = screen.getByLabelText(
+      CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP,
+    );
+    expect(addButton.attributes.getNamedItem('disabled')).toBeTruthy();
   });
 });
