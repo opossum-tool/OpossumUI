@@ -6,9 +6,13 @@
 import {
   AttributionData,
   Attributions,
+  AttributionsToResources,
+  Criticality,
+  FrequentLicenseName,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
+  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -16,11 +20,13 @@ import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { attributionForTemporaryDisplayPackageInfoExists } from '../save-action-helpers';
 import { NIL as uuidNil } from 'uuid';
 import {
+  calculateResourcesWithLocatedAttributions,
   computeChildrenWithAttributions,
   createExternalAttributionsToHashes,
   getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
+  getResourcesWithLocatedChildren,
 } from '../action-and-reducer-helpers';
 import {
   initialResourceState,
@@ -358,5 +364,179 @@ describe('getAttributionDataFromSetAttributionDataPayload', () => {
     });
 
     expect(attributionData).toEqual(expectedAttributionData);
+  });
+});
+
+describe('calculateResourcesWithLocatedAttributions', () => {
+  it('finds resource with correct attribution attached', () => {
+    const selectedCriticality = SelectedCriticality.High;
+    const licenseNames = new Set<string>(['GPL-2.0-or-later']);
+    const externalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'react',
+        licenseName: 'GPL-2.0-or-later',
+        criticality: Criticality.High,
+      },
+      uuid_2: {
+        packageName: 'react',
+        licenseName: 'GPL-2.0-only',
+        criticality: Criticality.High,
+      },
+    };
+    const externalAttributionsToResources: AttributionsToResources = {
+      uuid_1: ['/folder/file1'],
+      uuid_2: ['/folder/file2'],
+    };
+    const frequentLicenseNames: Array<FrequentLicenseName> = [];
+    const locatedResources = calculateResourcesWithLocatedAttributions(
+      selectedCriticality,
+      licenseNames,
+      externalAttributions,
+      externalAttributionsToResources,
+      frequentLicenseNames,
+    );
+    const expectedLocatedResources = new Set<string>(['/folder/file1']);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+  });
+
+  it('considers license full name if frequent licenses are given', () => {
+    const selectedCriticality = SelectedCriticality.High;
+    const licenseNames = new Set<string>(['GPL-2.0-or-later']);
+    const externalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'react',
+        licenseName: 'GNU General Public License v2.0 or later',
+        criticality: Criticality.High,
+      },
+    };
+    const externalAttributionsToResources: AttributionsToResources = {
+      uuid_1: ['/folder/file'],
+    };
+    const frequentLicenseNames: Array<FrequentLicenseName> = [
+      {
+        shortName: 'GPL-2.0-or-later',
+        fullName: 'GNU General Public License v2.0 or later',
+      },
+    ];
+    const locatedResources = calculateResourcesWithLocatedAttributions(
+      selectedCriticality,
+      licenseNames,
+      externalAttributions,
+      externalAttributionsToResources,
+      frequentLicenseNames,
+    );
+    const expectedLocatedResources = new Set<string>(['/folder/file']);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+  });
+
+  it('yields results with arbitrary criticality if criticality is not specified', () => {
+    const selectedCriticality = SelectedCriticality.Any;
+    const licenseNames = new Set<string>(['GPL-2.0-or-later']);
+    const externalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'react',
+        licenseName: 'GPL-2.0-or-later',
+        criticality: Criticality.High,
+      },
+      uuid_2: {
+        packageName: 'angular',
+        licenseName: 'GPL-2.0-or-later',
+        criticality: Criticality.Medium,
+      },
+      uuid_3: {
+        packageName: 'vue',
+        licenseName: 'GPL-2.0-or-later',
+        criticality: undefined,
+      },
+    };
+    const externalAttributionsToResources: AttributionsToResources = {
+      uuid_1: ['/folder/file1'],
+      uuid_2: ['/folder/file2'],
+      uuid_3: ['/folder/file3'],
+    };
+    const frequentLicenseNames: Array<FrequentLicenseName> = [];
+    const locatedResources = calculateResourcesWithLocatedAttributions(
+      selectedCriticality,
+      licenseNames,
+      externalAttributions,
+      externalAttributionsToResources,
+      frequentLicenseNames,
+    );
+    const expectedLocatedResources = new Set<string>([
+      '/folder/file1',
+      '/folder/file2',
+      '/folder/file3',
+    ]);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+  });
+
+  it('yields results with arbitrary license name if license name is not specified', () => {
+    const selectedCriticality = SelectedCriticality.High;
+    const licenseNames = new Set<string>();
+    const externalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'react',
+        licenseName: 'GPL-2.0-or-later',
+        criticality: Criticality.High,
+      },
+      uuid_2: {
+        packageName: 'angular',
+        licenseName: 'GPL-2.0-only',
+        criticality: Criticality.High,
+      },
+      uuid_3: {
+        packageName: 'vue',
+        licenseName: 'MIT',
+        criticality: Criticality.High,
+      },
+    };
+    const externalAttributionsToResources: AttributionsToResources = {
+      uuid_1: ['/folder/file1'],
+      uuid_2: ['/folder/file2'],
+      uuid_3: ['/folder/file3'],
+    };
+    const frequentLicenseNames: Array<FrequentLicenseName> = [];
+    const locatedResources = calculateResourcesWithLocatedAttributions(
+      selectedCriticality,
+      licenseNames,
+      externalAttributions,
+      externalAttributionsToResources,
+      frequentLicenseNames,
+    );
+    const expectedLocatedResources = new Set<string>([
+      '/folder/file1',
+      '/folder/file2',
+      '/folder/file3',
+    ]);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+  });
+});
+
+describe('getResourcesWithLocatedChildren', () => {
+  it('yields all parents of a resource', () => {
+    const locatedResources = new Set<string>([
+      '/folder1/folder2/file',
+      '/folder1/folder2/otherFile',
+      '/folder1/folder3/file',
+    ]);
+    const parents = getResourcesWithLocatedChildren(locatedResources);
+    const expectedParents = new Set<string>([
+      '/',
+      '/folder1/',
+      '/folder1/folder2/',
+      '/folder1/folder3/',
+    ]);
+    expect(parents).toEqual(expectedParents);
+  });
+
+  it('returns empty set if input is root', () => {
+    const locatedResources = new Set<string>(['/']);
+    const parents = getResourcesWithLocatedChildren(locatedResources);
+    const expectedParents = new Set<string>();
+    expect(parents).toEqual(expectedParents);
   });
 });

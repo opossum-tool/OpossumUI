@@ -15,12 +15,12 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
-  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import {
   PanelPackage,
   PackageAttributeIds,
   PackageAttributes,
+  LocatePopupFilters,
 } from '../../../types/types';
 import { AllowedSaveOperations } from '../../../enums/enums';
 
@@ -95,14 +95,12 @@ export const ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT =
   'ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT';
 export const ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES =
   'ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES';
-export const ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY =
-  'ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY';
-export const ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES =
-  'ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES';
 export const ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS =
   'ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS';
 export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
   'ACTION_SET_ENABLE_PREFERENCE_FEATURE';
+export const ACTION_SET_LOCATE_POPUP_FILTERS =
+  'ACTION_SET_LOCATE_POPUP_FILTERS';
 
 export type ResourceAction =
   | ResetResourceStateAction
@@ -145,10 +143,8 @@ export type ResourceAction =
   | SetAttributionWizardSelectedPackageIds
   | SetAttributionWizardTotalAttributionCount
   | SetExternalAttributionsToHashes
-  | SetLocatePopupSelectedCriticality
-  | SetLocatePopupSelectedLicenses
-  | SetResourcesWithLocatedAttributions
-  | SetIsPreferenceFeatureEnabled;
+  | SetIsPreferenceFeatureEnabled
+  | SetLocatePopupFilters;
 
 export interface ResetResourceStateAction {
   type: typeof ACTION_RESET_RESOURCE_STATE;
@@ -368,25 +364,12 @@ export interface SetExternalAttributionsToHashes {
   payload: AttributionsToHashes;
 }
 
-export interface SetLocatePopupSelectedCriticality {
-  type: typeof ACTION_SET_LOCATE_POPUP_SELECTED_CRITICALITY;
-  payload: SelectedCriticality;
-}
-
-export interface SetLocatePopupSelectedLicenses {
-  type: typeof ACTION_SET_LOCATE_POPUP_SELECTED_LICENSES;
-  payload: Set<string>;
-}
-
-export interface SetResourcesWithLocatedAttributions {
-  type: typeof ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS;
-  payload: {
-    resourcesWithLocatedChildren: Set<string>;
-    locatedResources: Set<string>;
-  };
-}
-
 export interface SetIsPreferenceFeatureEnabled {
   type: typeof ACTION_SET_ENABLE_PREFERENCE_FEATURE;
   payload: boolean;
+}
+
+export interface SetLocatePopupFilters {
+  type: typeof ACTION_SET_LOCATE_POPUP_FILTERS;
+  payload: LocatePopupFilters;
 }

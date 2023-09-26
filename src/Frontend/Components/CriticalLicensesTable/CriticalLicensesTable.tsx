@@ -8,8 +8,11 @@ import { Criticality } from '../../../shared/shared-types';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 import { LicenseNamesWithCriticality } from '../../types/types';
 import { IconButton } from '../IconButton/IconButton';
-import { LocateAttributionsIcon } from '../Icons/Icons';
+import { LocateSignalsIcon } from '../Icons/Icons';
 import { clickableIcon } from '../../shared-styles';
+import { useAppDispatch } from '../../state/hooks';
+import { AppThunkDispatch } from '../../state/types';
+import { locateSignalsFromProjectStatisticsPopup } from '../../state/actions/popup-actions/popup-actions';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const COUNT_COLUMN_NAME_IN_TABLE = 'Count';
@@ -40,6 +43,7 @@ interface CriticalLicensesTableProps {
 export function CriticalLicensesTable(
   props: CriticalLicensesTableProps,
 ): ReactElement {
+  const dispatch = useAppDispatch();
   const allLicensesWithCriticality = Object.entries(
     props.licenseNamesWithCriticality,
   ).map((licenseNameAndCriticality) => {
@@ -80,7 +84,7 @@ export function CriticalLicensesTable(
       firstColumnIconButtons={Object.fromEntries(
         criticalLicensesTotalAttributions.map(({ licenseName }) => [
           licenseName,
-          getLocateAttributionIconButton(licenseName),
+          getLocateSignalsIconButton(licenseName, dispatch),
         ]),
       )}
       rowNames={criticalLicensesTotalAttributions.map(
@@ -152,17 +156,20 @@ function getTotalNumberOfAttributions(
     .reduce((total, value) => total + value, 0);
 }
 
-function getLocateAttributionIconButton(licenseName: string): ReactElement {
-  const onLocateAttributionButtonClick = function (): void {
-    // TODO: dispatch license locator actions in next ticket
+function getLocateSignalsIconButton(
+  licenseName: string,
+  dispatch: AppThunkDispatch,
+): ReactElement {
+  const onLocateSignalButtonClick = function (): void {
+    dispatch(locateSignalsFromProjectStatisticsPopup(licenseName));
   };
   return (
     <IconButton
-      tooltipTitle={`locate attributions with "${licenseName}"`}
+      tooltipTitle={`locate signals with "${licenseName}"`}
       tooltipPlacement="right"
-      onClick={onLocateAttributionButtonClick}
+      onClick={onLocateSignalButtonClick}
       iconSx={classes.iconButton}
-      icon={<LocateAttributionsIcon sx={classes.clickableIcon} />}
+      icon={<LocateSignalsIcon sx={classes.clickableIcon} />}
     />
   );
 }

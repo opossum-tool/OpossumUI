@@ -14,6 +14,7 @@ import {
   PackageInfo,
   Resources,
   ResourcesToAttributions,
+  SelectedCriticality,
 } from '../../shared/shared-types';
 
 export type State = {
@@ -190,4 +191,9 @@ export interface DisplayPackageInfos {
 
 export interface DisplayPackageInfosWithCount {
   [packageCardId: string]: DisplayPackageInfoWithCount;
+}
+
+export interface LocatePopupFilters {
+  selectedCriticality: SelectedCriticality;
+  selectedLicenses: Set<string>;
 }

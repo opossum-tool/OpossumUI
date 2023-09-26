@@ -3,27 +3,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SelectedCriticality } from '../../../shared/shared-types';
-import { State } from '../../types/types';
+import { LocatePopupFilters, State } from '../../types/types';
 import { initialResourceState } from '../reducers/resource-reducer';
 
-export function getLocatePopupSelectedCriticality(
-  state: State,
-): SelectedCriticality {
-  return state.resourceState.locatePopup.selectedCriticality;
-}
-
-export function getLocatePopupSelectedLicenses(state: State): Set<string> {
-  return state.resourceState.locatePopup.selectedLicenses;
+export function getLocatePopupFilters(state: State): LocatePopupFilters {
+  return state.resourceState.locatePopup;
 }
 
 export function isLocateSignalActive(state: State): boolean {
-  const locatePopupSelectedCriticality =
-    getLocatePopupSelectedCriticality(state);
-  const locatePopupSelectedLicenses = getLocatePopupSelectedLicenses(state);
+  const locatePopupFilters = getLocatePopupFilters(state);
+
   return (
-    locatePopupSelectedCriticality !==
+    locatePopupFilters.selectedCriticality !==
       initialResourceState.locatePopup.selectedCriticality ||
-    locatePopupSelectedLicenses.size > 0
+    locatePopupFilters.selectedLicenses.size > 0
   );
+}
+
+export function getShowNoSignalsLocatedMessage(state: State): boolean {
+  return state.viewState.showNoSignalsLocatedMessage;
 }

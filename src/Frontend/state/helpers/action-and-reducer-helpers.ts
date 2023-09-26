@@ -8,9 +8,11 @@ import {
   Attributions,
   AttributionsToHashes,
   AttributionsToResources,
+  FrequentLicenseName,
   PackageInfo,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
+  SelectedCriticality,
 } from '../../../shared/shared-types';
 import isEqual from 'lodash/isEqual';
 import { getParents } from './get-parents';
@@ -275,4 +277,69 @@ export function getIndexOfAttributionInManualPackagePanel(
   );
 
   return packageCardIndex !== -1 ? packageCardIndex : null;
+}
+
+export function calculateResourcesWithLocatedAttributions(
+  selectedCriticality: SelectedCriticality,
+  licenseNames: Set<string>,
+  externalAttributions: Attributions,
+  externalAttributionsToResources: AttributionsToResources,
+  frequentLicenseNames: Array<FrequentLicenseName>,
+): Set<string> {
+  const augmentedLicenseNames = augmentFrequentLicenseNamesIfPresent(
+    licenseNames,
+    frequentLicenseNames,
+  );
+  const locatedResources = new Set<string>();
+
+  const licenseIsSet = augmentedLicenseNames.size > 0;
+  const criticalityIsSet = selectedCriticality != SelectedCriticality.Any;
+  if (!licenseIsSet && !criticalityIsSet) {
+    return locatedResources;
+  }
+  for (const attributionId in externalAttributions) {
+    const attribution = externalAttributions[attributionId];
+    const licenseMatches =
+      attribution.licenseName !== undefined &&
+      augmentedLicenseNames.has(attribution.licenseName);
+    const criticalityMatches = attribution.criticality == selectedCriticality;
+
+    if (
+      (licenseMatches || !licenseIsSet) &&
+      (criticalityMatches || !criticalityIsSet)
+    ) {
+      externalAttributionsToResources[attributionId].forEach((resource) => {
+        locatedResources.add(resource);
+      });
+    }
+  }
+
+  return locatedResources;
+}
+
+function augmentFrequentLicenseNamesIfPresent(
+  licenseNames: Set<string>,
+  frequentLicenseNames: Array<FrequentLicenseName>,
+): Set<string> {
+  // if one of the license names matches a frequent license, we want to consider the short- and the full name
+  const augmentedLicenseNames = new Set([...licenseNames]);
+  for (const frequentLicense of frequentLicenseNames) {
+    if (licenseNames.has(frequentLicense.shortName)) {
+      augmentedLicenseNames.add(frequentLicense.fullName);
+    } else if (licenseNames.has(frequentLicense.fullName)) {
+      augmentedLicenseNames.add(frequentLicense.shortName);
+    }
+  }
+  return augmentedLicenseNames;
+}
+
+export function getResourcesWithLocatedChildren(
+  locatedResources: Set<string>,
+): Set<string> {
+  const resourcesWithLocatedChildren = new Set<string>();
+  for (const locatedResource of locatedResources) {
+    const parents = getParents(locatedResource);
+    parents.forEach((parent) => resourcesWithLocatedChildren.add(parent));
+  }
+  return resourcesWithLocatedChildren;
 }

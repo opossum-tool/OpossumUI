@@ -43,7 +43,7 @@ import { isLocateSignalActive } from '../../state/selectors/locate-popup-selecto
 import { IconButton } from '../IconButton/IconButton';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { PopupType } from '../../enums/enums';
-import { LocateAttributionsIcon } from '../Icons/Icons';
+import { LocateSignalsIcon } from '../Icons/Icons';
 
 const classes = {
   locatorIconContainer: {
@@ -149,18 +149,12 @@ export function ResourceBrowser(): ReactElement | null {
       onClick={(): void => {
         dispatch(openPopup(PopupType.LocatorPopup));
       }}
-      icon={<LocateAttributionsIcon />}
+      icon={<LocateSignalsIcon />}
     />
   ) : undefined;
   const resourcesWithLocatedAttributions = useAppSelector(
     getResourcesWithLocatedAttributions,
   );
-  const locatedResources = locateSignalActive
-    ? resourcesWithLocatedAttributions.locatedResources
-    : undefined;
-  const resourcesWithLocatedChildren = locateSignalActive
-    ? resourcesWithLocatedAttributions.resourcesWithLocatedChildren
-    : undefined;
 
   const locatedResourceIcon = (
     <WestRoundedIcon
@@ -192,8 +186,10 @@ export function ResourceBrowser(): ReactElement | null {
       }}
       locatorIcon={locatorIcon}
       locatedResourceIcon={locatedResourceIcon}
-      locatedResources={locatedResources}
-      resourcesWithLocatedChildren={resourcesWithLocatedChildren}
+      locatedResources={resourcesWithLocatedAttributions.locatedResources}
+      resourcesWithLocatedChildren={
+        resourcesWithLocatedAttributions.resourcesWithLocatedChildren
+      }
     />
   ) : null;
 }

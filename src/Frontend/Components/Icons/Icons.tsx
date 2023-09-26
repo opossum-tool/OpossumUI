@@ -282,10 +282,8 @@ export function MissingPackageNameIcon(props: IconProps): ReactElement {
   );
 }
 
-export function LocateAttributionsIcon(props: IconProps): ReactElement {
-  return (
-    <MyLocationIcon arial-abel={'locate attributions icon'} sx={props.sx} />
-  );
+export function LocateSignalsIcon(props: IconProps): ReactElement {
+  return <MyLocationIcon arial-abel={'locate signals icon'} sx={props.sx} />;
 }
 
 export function PreferredIcon(props: IconProps): ReactElement {

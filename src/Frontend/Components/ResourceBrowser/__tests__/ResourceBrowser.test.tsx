@@ -15,6 +15,7 @@ import React from 'react';
 import { NIL as uuidNil } from 'uuid';
 import {
   Attributions,
+  Criticality,
   Resources,
   ResourcesToAttributions,
   SelectedCriticality,
@@ -26,13 +27,12 @@ import {
   setFilesWithChildren,
   setManualData,
   setResources,
-  setResourcesWithLocatedAttributions,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import { isEqual } from 'lodash';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
-import { setLocatePopupSelectedCriticality } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { PopupType } from '../../../enums/enums';
 
@@ -147,15 +147,13 @@ describe('ResourceBrowser', () => {
     const testManualAttributions: Attributions = {};
     const testResourcesToManualAttributions: ResourcesToAttributions = {};
     const testExternalAttributions: Attributions = {
-      [testUuid]: { packageName: 'jquery' },
+      [testUuid]: { packageName: 'jquery', criticality: Criticality.High },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/src/': [testUuid],
     };
 
     const testLocatePopupSelectedCriticality = SelectedCriticality.High;
-    const testResourcesWithLocatedChildren = new Set<string>(['/', '/root/']);
-    const testLocatedResources = new Set<string>(['/root/src/']);
 
     const { store } = renderComponentWithStore(<ResourceBrowser />);
     act(() => {
@@ -173,13 +171,10 @@ describe('ResourceBrowser', () => {
         ),
       );
       store.dispatch(
-        setResourcesWithLocatedAttributions(
-          testResourcesWithLocatedChildren,
-          testLocatedResources,
-        ),
-      );
-      store.dispatch(
-        setLocatePopupSelectedCriticality(testLocatePopupSelectedCriticality),
+        setLocatePopupFilters({
+          selectedCriticality: testLocatePopupSelectedCriticality,
+          selectedLicenses: new Set<string>(),
+        }),
       );
     });
 
@@ -334,7 +329,10 @@ describe('ResourceBrowser', () => {
     act(() => {
       store.dispatch(setResources({}));
       store.dispatch(
-        setLocatePopupSelectedCriticality(SelectedCriticality.High),
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.High,
+          selectedLicenses: new Set<string>(),
+        }),
       );
     });
 

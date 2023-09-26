@@ -33,7 +33,6 @@ import {
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
   getResourcesWithExternalAttributedChildren,
-  getResourcesWithLocatedAttributions,
   getResourcesWithManualAttributedChildren,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
@@ -47,7 +46,6 @@ import {
   setIsPreferenceFeatureEnabled,
   setManualData,
   setResources,
-  setResourcesWithLocatedAttributions,
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import { setSelectedResourceId } from '../audit-view-simple-actions';
@@ -331,29 +329,6 @@ describe('The load and navigation simple actions', () => {
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
       testExternalAttributionsToHashes,
     );
-  });
-
-  it('sets and gets resourcesWithLocatedAttributions', () => {
-    const testStore = createTestAppStore();
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
-      resourcesWithLocatedChildren: new Set(),
-      locatedResources: new Set(),
-    });
-
-    const testResourcesWithLocatedChildren = new Set<string>([
-      'test resource with located children',
-    ]);
-    const testLocatedResources = new Set<string>(['test resource']);
-    testStore.dispatch(
-      setResourcesWithLocatedAttributions(
-        testResourcesWithLocatedChildren,
-        testLocatedResources,
-      ),
-    );
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
-      resourcesWithLocatedChildren: testResourcesWithLocatedChildren,
-      locatedResources: testLocatedResources,
-    });
   });
 
   it('sets and gets isPreferenceFeatureEnabled', () => {
