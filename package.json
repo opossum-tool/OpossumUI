@@ -56,7 +56,7 @@
     "@types/react-window": "^1.8.5",
     "@types/stream-json": "^1.7.3",
     "@types/uuid": "^9.0.4",
-    "@types/write-file-atomic": "^4.0.0",
+    "@types/write-file-atomic": "^4.0.1",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.1.0",
