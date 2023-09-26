@@ -11,6 +11,7 @@ import {
   FollowUpIcon,
   NeedsReviewIcon,
   PreSelectedIcon,
+  PreferredIcon,
 } from '../Icons/Icons';
 import { OpossumColors } from '../../shared-styles';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
@@ -77,6 +78,9 @@ export function getRightIcons(
     rightIcons.push(
       <PreSelectedIcon key={getKey('pre-selected-icon', cardId)} />,
     );
+  }
+  if (cardConfig.isPreferred) {
+    rightIcons.push(<PreferredIcon key={getKey('preferred-icon', cardId)} />);
   }
 
   return rightIcons;

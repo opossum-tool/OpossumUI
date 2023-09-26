@@ -137,6 +137,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       excludeFromNotice: props.displayPackageInfo.excludeFromNotice,
       needsReview: Boolean(props.displayPackageInfo.needsReview),
       followUp: Boolean(props.displayPackageInfo.followUp),
+      isPreferred: Boolean(props.displayPackageInfo.preferred),
       isContextMenuOpen,
       criticality: props.cardConfig.isExternalAttribution
         ? props.displayPackageInfo.criticality
