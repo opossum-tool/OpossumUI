@@ -97,7 +97,11 @@ describe('loadFromFile', () => {
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/src/something.js': ['uuid'],
-      '/thirdParty/package_1.tr.gz': ['test_id'],
+      '/thirdParty/package_1.tr.gz': [
+        'test_id',
+        'doNotChangeMe1',
+        'doNotChangeMe2',
+      ],
     };
     const testFrequentLicenses: FrequentLicenses = {
       nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
@@ -158,12 +162,17 @@ describe('loadFromFile', () => {
       attributionsToResources: {
         uuid: ['/root/src/something.js'],
         test_id: ['/thirdParty/package_1.tr.gz'],
+        doNotChangeMe1: ['/thirdParty/package_1.tr.gz'],
+        doNotChangeMe2: ['/thirdParty/package_1.tr.gz'],
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          '1': new Set<number>().add(0),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '1': new Set<number>().add(0).add(4),
           '2': new Set<number>().add(0),
           '3': new Set<number>().add(0),
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          '5': new Set<number>().add(4),
         },
         pathsToIndices: {
           '/': 1,

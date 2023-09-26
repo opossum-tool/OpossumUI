@@ -980,33 +980,10 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
     };
     const testInitialManualAttributions: Attributions = {
       reactUuid: testReact,
-      vueUuid: testVue,
     };
     const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
       '/something.js': ['reactUuid'],
       '/somethingElse.js': ['reactUuid'],
-    };
-    const expectedManualData: AttributionData = {
-      attributions: testInitialManualAttributions,
-      resourcesToAttributions: {
-        '/something.js': ['vueUuid'],
-        '/somethingElse.js': ['reactUuid'],
-      },
-      attributionsToResources: {
-        reactUuid: ['/somethingElse.js'],
-        vueUuid: ['/something.js'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(0).add(2),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/something.js': 0,
-          '/somethingElse.js': 2,
-        },
-        paths: ['/something.js', '/', '/somethingElse.js'],
-      },
     };
 
     const testStore = createTestAppStore();
@@ -1020,6 +997,16 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
         }),
       ),
     );
+    const startingManualAttributions = getManualAttributions(
+      testStore.getState(),
+    );
+    expect(Object.keys(startingManualAttributions).length).toEqual(1);
+    const startingManualAttributionsToResources =
+      getManualAttributionsToResources(testStore.getState());
+    expect(startingManualAttributionsToResources.reactUuid).toEqual([
+      '/something.js',
+      '/somethingElse.js',
+    ]);
 
     testStore.dispatch(
       unlinkAttributionAndSavePackageInfo(
@@ -1028,7 +1015,14 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
         testVue,
       ),
     );
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    const finalManualAttributions = getManualAttributions(testStore.getState());
+    expect(Object.keys(finalManualAttributions).length).toEqual(2);
+    const finalManualAttributionsToResources = getManualAttributionsToResources(
+      testStore.getState(),
+    );
+    expect(finalManualAttributionsToResources.reactUuid).toEqual([
+      '/somethingElse.js',
+    ]);
   });
 });
 

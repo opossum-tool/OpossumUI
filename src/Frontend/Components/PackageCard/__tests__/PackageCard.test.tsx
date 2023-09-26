@@ -33,21 +33,28 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 
-const testResources: Resources = {
-  thirdParty: {
-    'package_1.tr.gz': 1,
-    'package_2.tr.gz': 1,
-    'jQuery.js': 1,
-  },
-};
-const testAttributionId = 'attributionId';
-const anotherAttributionId = 'another_id';
-const testAttributions: Attributions = {
-  [testAttributionId]: { packageName: 'pkg', preSelected: true },
-  [anotherAttributionId]: { packageName: 'pkg2', preSelected: true },
-};
+let testResources: Resources;
+let testAttributionId: string;
+let anotherAttributionId: string;
+let testAttributions: Attributions;
 
 describe('The PackageCard', () => {
+  beforeEach(() => {
+    testResources = {
+      thirdParty: {
+        'package_1.tr.gz': 1,
+        'package_2.tr.gz': 1,
+        'jQuery.js': 1,
+      },
+    };
+    testAttributionId = 'attributionId';
+    anotherAttributionId = 'another_id';
+    testAttributions = {
+      [testAttributionId]: { packageName: 'pkg', preSelected: true },
+      [anotherAttributionId]: { packageName: 'pkg2', preSelected: true },
+    };
+  });
+
   it('has working confirm button', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],
@@ -75,7 +82,6 @@ describe('The PackageCard', () => {
       />,
       { store: testStore },
     );
-
     expect(screen.getByText('packageName'));
 
     expect(
@@ -155,6 +161,7 @@ describe('The PackageCard', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       'package_1.tr.gz': [testAttributionId],
       'package_2.tr.gz': [testAttributionId],
+      'jQuery.js': [anotherAttributionId],
     };
 
     const testStore = createTestAppStore();

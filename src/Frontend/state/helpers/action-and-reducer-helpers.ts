@@ -98,16 +98,34 @@ export function getAttributionDataFromSetAttributionDataPayload(payload: {
   attributions: Attributions;
   resourcesToAttributions: ResourcesToAttributions;
 }): AttributionData {
+  const attributionsToResources = getAttributionsToResources(
+    payload.resourcesToAttributions,
+  );
+
+  pruneAttributionsWithoutResources(
+    payload.attributions,
+    attributionsToResources,
+  );
+
   return {
     attributions: payload.attributions,
     resourcesToAttributions: payload.resourcesToAttributions,
-    attributionsToResources: getAttributionsToResources(
-      payload.resourcesToAttributions,
-    ),
+    attributionsToResources,
     resourcesWithAttributedChildren: computeChildrenWithAttributions(
       payload.resourcesToAttributions,
     ),
   };
+}
+
+export function pruneAttributionsWithoutResources(
+  attributions: Attributions,
+  attributionsToResources: AttributionsToResources,
+): void {
+  Object.keys(attributions).forEach((attributionId) => {
+    if (!attributionsToResources[attributionId]) {
+      delete attributions[attributionId];
+    }
+  });
 }
 
 function getAttributionsToResources(

@@ -18,6 +18,7 @@ import { NIL as uuidNil } from 'uuid';
 import {
   computeChildrenWithAttributions,
   createExternalAttributionsToHashes,
+  getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
 } from '../action-and-reducer-helpers';
@@ -342,5 +343,20 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
       testManualData,
     );
     expect(testIndex).toEqual(expectedIndex);
+  });
+});
+
+describe('getAttributionDataFromSetAttributionDataPayload', () => {
+  it('prunes attributions without linked resources', () => {
+    const expectedAttributionData: AttributionData = EMPTY_ATTRIBUTION_DATA;
+
+    const testAttributions: Attributions = { uuid_0: { packageName: 'Vue' } };
+    const testResourcesToAttributions: ResourcesToAttributions = {};
+    const attributionData = getAttributionDataFromSetAttributionDataPayload({
+      attributions: testAttributions,
+      resourcesToAttributions: testResourcesToAttributions,
+    });
+
+    expect(attributionData).toEqual(expectedAttributionData);
   });
 });
