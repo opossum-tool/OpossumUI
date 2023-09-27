@@ -13,6 +13,7 @@ import { clickableIcon } from '../../shared-styles';
 import { useAppDispatch } from '../../state/hooks';
 import { AppThunkDispatch } from '../../state/types';
 import { locateSignalsFromProjectStatisticsPopup } from '../../state/actions/popup-actions/popup-actions';
+import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const COUNT_COLUMN_NAME_IN_TABLE = 'Count';
@@ -70,9 +71,13 @@ export function CriticalLicensesTable(
       props.totalAttributionsPerLicense,
       mediumCriticalityLicenseNames,
     );
-  const criticalLicensesTotalAttributions =
-    highCriticalityLicensesTotalAttributions.concat(
-      mediumCriticalityLicensesTotalAttributions,
+  const sortedCriticalLicensesTotalAttributions =
+    sortLicenseNamesWithTotalAttributions(
+      highCriticalityLicensesTotalAttributions,
+    ).concat(
+      sortLicenseNamesWithTotalAttributions(
+        mediumCriticalityLicensesTotalAttributions,
+      ),
     );
 
   return (
@@ -82,16 +87,16 @@ export function CriticalLicensesTable(
       columnHeaders={TABLE_COLUMN_NAMES}
       columnNames={TABLE_COLUMN_NAMES}
       firstColumnIconButtons={Object.fromEntries(
-        criticalLicensesTotalAttributions.map(({ licenseName }) => [
+        sortedCriticalLicensesTotalAttributions.map(({ licenseName }) => [
           licenseName,
           getLocateSignalsIconButton(licenseName, dispatch),
         ]),
       )}
-      rowNames={criticalLicensesTotalAttributions.map(
+      rowNames={sortedCriticalLicensesTotalAttributions.map(
         (attribution) => attribution.licenseName,
       )}
       tableContent={Object.fromEntries(
-        criticalLicensesTotalAttributions.map(
+        sortedCriticalLicensesTotalAttributions.map(
           ({ licenseName, totalNumberOfAttributions }) => [
             licenseName,
             {
@@ -102,7 +107,7 @@ export function CriticalLicensesTable(
       )}
       tableFooter={[FOOTER_TITLE].concat(
         getTotalNumberOfAttributions(
-          criticalLicensesTotalAttributions,
+          sortedCriticalLicensesTotalAttributions,
         ).toString(),
       )}
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}
@@ -171,5 +176,16 @@ function getLocateSignalsIconButton(
       iconSx={classes.iconButton}
       icon={<LocateSignalsIcon sx={classes.clickableIcon} />}
     />
+  );
+}
+
+function sortLicenseNamesWithTotalAttributions(
+  licenseNamesWithTotalAttributions: Array<{
+    licenseName: string;
+    totalNumberOfAttributions: number;
+  }>,
+): Array<{ licenseName: string; totalNumberOfAttributions: number }> {
+  return licenseNamesWithTotalAttributions.sort((a, b) =>
+    compareAlphabeticalStrings(a.licenseName, b.licenseName),
   );
 }
