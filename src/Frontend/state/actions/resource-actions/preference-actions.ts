@@ -38,7 +38,7 @@ export function toggleIsSelectedPackagePreferred(
 
     if (newTemporaryDisplayPackageInfo.preferred) {
       newTemporaryDisplayPackageInfo.preferredOverOriginIds =
-        _getOriginIdsToPreferOver(
+        getOriginIdsToPreferOver(
           getSelectedResourceId(state),
           getResources(state) ?? {},
           getResourcesToExternalAttributions(state),
@@ -54,7 +54,7 @@ export function toggleIsSelectedPackagePreferred(
   };
 }
 
-export function _getOriginIdsToPreferOver(
+export function getOriginIdsToPreferOver(
   pathToRootResource: string,
   resources: Resources,
   resourcesToExternalAttributions: ResourcesToAttributions,

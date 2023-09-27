@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Resources } from '../../../../../shared/shared-types';
-import { _getOriginIdsToPreferOver } from '../preference-actions';
+import { getOriginIdsToPreferOver } from '../preference-actions';
 
-describe('_getOriginIdsToPreferOver', () => {
+describe('getOriginIdsToPreferOver', () => {
   it('finds all external attributions in the subtree', () => {
     const testSource = { name: 'testSource', documentConfidence: 100 };
     const resources: Resources = {
@@ -34,7 +34,7 @@ describe('_getOriginIdsToPreferOver', () => {
       },
     };
 
-    const actualOriginUuids = _getOriginIdsToPreferOver(
+    const actualOriginUuids = getOriginIdsToPreferOver(
       pathToRootResource,
       resources,
       resourcesToExternalAttributions,
@@ -69,7 +69,7 @@ describe('_getOriginIdsToPreferOver', () => {
       },
     };
 
-    const actualOriginUuids = _getOriginIdsToPreferOver(
+    const actualOriginUuids = getOriginIdsToPreferOver(
       pathToRootResource,
       resources,
       resourcesToExternalAttributions,
@@ -108,7 +108,7 @@ describe('_getOriginIdsToPreferOver', () => {
       },
     };
 
-    const actualOriginUuids = _getOriginIdsToPreferOver(
+    const actualOriginUuids = getOriginIdsToPreferOver(
       pathToRootResource,
       resources,
       resourcesToExternalAttributions,
@@ -144,7 +144,7 @@ describe('_getOriginIdsToPreferOver', () => {
       otherSource: { name: 'Other Source', priority: 0 },
     };
 
-    const actualOriginUuids = _getOriginIdsToPreferOver(
+    const actualOriginUuids = getOriginIdsToPreferOver(
       pathToRootResource,
       resources,
       resourcesToExternalAttributions,

@@ -12,6 +12,11 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
+import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { initialResourceState } from '../../reducers/resource-reducer';
+import { getManualData } from '../../selectors/all-views-resource-selectors';
 import {
   _getIdsOfResourcesThatMightHaveChildrenWithTheSameAttributions,
   _removeAttributionsFromChildrenAndParents,
@@ -21,6 +26,7 @@ import {
   updateManualAttribution,
   unlinkResourceFromAttributionId,
   linkToAttributionManualData,
+  getCalculatePreferredOverOriginIds,
 } from '../save-action-helpers';
 
 const testUuid: string = uuidNil;
@@ -37,6 +43,7 @@ describe('The createManualAttribution function', () => {
       testManualData,
       testSelectedResourceId,
       testTemporaryDisplayPackageInfo,
+      getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions[newAttributionId]).toEqual(
       testTemporaryDisplayPackageInfo,
@@ -44,6 +51,61 @@ describe('The createManualAttribution function', () => {
     expect(newManualData.attributionsToResources[newAttributionId]).toEqual([
       '/something.js',
     ]);
+  });
+
+  it('correctly updates preferences', () => {
+    const testSelectedResourceId = '/child';
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
+      packageName: 'React',
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { child: 1 },
+          resourcesToExternalAttributions: {
+            '/child': ['externalUuid'],
+          },
+          externalAttributions: {
+            externalUuid: {
+              source: { name: 'testSource', documentConfidence: 0 },
+              originIds: ['originId'],
+            },
+          },
+          externalAttributionSources: {
+            testSource: {
+              name: 'Test source',
+              priority: 0,
+              isRelevantForPreferred: true,
+            },
+          },
+          manualAttributions: {
+            manualUuid1: {
+              preferred: true,
+              preferredOverOriginIds: ['originId'],
+            },
+          },
+          resourcesToManualAttributions: {
+            '/': ['manualUuid1'],
+          },
+        }),
+      ),
+    );
+    const resourceState = testStore.getState().resourceState;
+    const testManualData = getManualData(testStore.getState());
+
+    const { newManualData } = createManualAttribution(
+      testManualData,
+      testSelectedResourceId,
+      testTemporaryDisplayPackageInfo,
+      getCalculatePreferredOverOriginIds(resourceState),
+    );
+
+    expect(newManualData.attributions['manualUuid1']).toEqual({
+      preferred: true,
+      preferredOverOriginIds: [],
+    });
   });
 });
 
@@ -78,6 +140,7 @@ describe('The deleteManualAttribution function', () => {
       testManualData,
       testUuid,
       () => false,
+      getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(isEmpty(newManualData.attributions)).toBe(true);
     expect(isEmpty(newManualData.resourcesToAttributions)).toBe(true);
@@ -127,6 +190,7 @@ describe('The deleteManualAttribution function', () => {
       testManualData,
       testUuid,
       () => false,
+      getCalculatePreferredOverOriginIds(initialResourceState),
     );
     expect(newManualData.attributions).toEqual({
       '000': { packageName: 'another testpackage' },
@@ -146,6 +210,55 @@ describe('The deleteManualAttribution function', () => {
         '/first/': 1,
       },
       paths: ['/', '/first/'],
+    });
+  });
+
+  it('correctly updates preferences', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { child: 1 },
+          resourcesToExternalAttributions: {
+            '/child': ['externalUuid'],
+          },
+          externalAttributions: {
+            externalUuid: {
+              source: { name: 'testSource', documentConfidence: 0 },
+              originIds: ['originId'],
+            },
+          },
+          externalAttributionSources: {
+            testSource: {
+              name: 'Test source',
+              priority: 0,
+              isRelevantForPreferred: true,
+            },
+          },
+          manualAttributions: {
+            manualUuid1: { preferred: true, preferredOverOriginIds: [] },
+            manualUuid2: {},
+          },
+          resourcesToManualAttributions: {
+            '/': ['manualUuid1'],
+            '/child/': ['manualUuid2'],
+          },
+        }),
+      ),
+    );
+    const resourceState = testStore.getState().resourceState;
+    const testManualData = getManualData(testStore.getState());
+
+    const newManualData: AttributionData = deleteManualAttribution(
+      testManualData,
+      'manualUuid2',
+      () => false,
+      getCalculatePreferredOverOriginIds(resourceState),
+    );
+
+    expect(newManualData.attributions['manualUuid1']).toEqual({
+      preferred: true,
+      preferredOverOriginIds: ['originId'],
     });
   });
 });
@@ -222,6 +335,7 @@ describe('The linkToAttributionManualData function', () => {
       '/first/',
       testUuid,
       () => false,
+      getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
     expect(newManualData.attributions).toEqual(testManualData.attributions);
@@ -240,6 +354,61 @@ describe('The linkToAttributionManualData function', () => {
         '/first/': 1,
       },
       paths: ['/', '/first/'],
+    });
+  });
+
+  it('correctly updates preferences', () => {
+    const testSelectedResourceId = '/child';
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { child: 1 },
+          resourcesToExternalAttributions: {
+            '/child': ['externalUuid'],
+          },
+          externalAttributions: {
+            externalUuid: {
+              source: { name: 'testSource', documentConfidence: 0 },
+              originIds: ['originId'],
+            },
+          },
+          externalAttributionSources: {
+            testSource: {
+              name: 'Test source',
+              priority: 0,
+              isRelevantForPreferred: true,
+            },
+          },
+          manualAttributions: {
+            parentAttriubtionUuid: {
+              preferred: true,
+              preferredOverOriginIds: [],
+            },
+            childAttributionUuid: { preferred: false },
+          },
+          resourcesToManualAttributions: {
+            '/': ['parentAttriubtionUuid'],
+            '/child': ['childAttributionUuid'],
+          },
+        }),
+      ),
+    );
+    const resourceState = testStore.getState().resourceState;
+    const testManualData = getManualData(testStore.getState());
+
+    const newManualData = linkToAttributionManualData(
+      testManualData,
+      testSelectedResourceId,
+      'childAttributionUuid',
+      () => false,
+      getCalculatePreferredOverOriginIds(resourceState),
+    );
+
+    expect(newManualData.attributions['parentAttriubtionUuid']).toEqual({
+      preferred: true,
+      preferredOverOriginIds: [],
     });
   });
 });
@@ -276,6 +445,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
       testManualData,
       '/first/',
       testUuid,
+      getCalculatePreferredOverOriginIds(initialResourceState),
     );
 
     expect(newManualData.attributions).toEqual(testManualData.attributions);
@@ -288,6 +458,60 @@ describe('The unlinkResourceFromAttributionId function', () => {
         '/first/': 1,
       },
       paths: ['/', '/first/'],
+    });
+  });
+
+  it('correctly updates preferences', () => {
+    const testSelectedResourceId = '/child';
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { child: 1 },
+          resourcesToExternalAttributions: {
+            '/child': ['externalUuid'],
+          },
+          externalAttributions: {
+            externalUuid: {
+              source: { name: 'testSource', documentConfidence: 0 },
+              originIds: ['originId'],
+            },
+          },
+          externalAttributionSources: {
+            testSource: {
+              name: 'Test source',
+              priority: 0,
+              isRelevantForPreferred: true,
+            },
+          },
+          manualAttributions: {
+            parentAttriubtionUuid: {
+              preferred: true,
+              preferredOverOriginIds: [],
+            },
+            childAttributionUuid: { preferred: false },
+          },
+          resourcesToManualAttributions: {
+            '/': ['parentAttriubtionUuid'],
+            '/child': ['childAttributionUuid'],
+          },
+        }),
+      ),
+    );
+    const resourceState = testStore.getState().resourceState;
+    const testManualData = getManualData(testStore.getState());
+
+    const newManualData = unlinkResourceFromAttributionId(
+      testManualData,
+      testSelectedResourceId,
+      'childAttributionUuid',
+      getCalculatePreferredOverOriginIds(resourceState),
+    );
+
+    expect(newManualData.attributions['parentAttriubtionUuid']).toEqual({
+      preferred: true,
+      preferredOverOriginIds: ['originId'],
     });
   });
 });
