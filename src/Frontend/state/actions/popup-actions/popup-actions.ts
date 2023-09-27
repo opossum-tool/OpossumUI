@@ -74,20 +74,14 @@ import { setLocatePopupFilters } from '../resource-actions/locate-popup-actions'
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
-  fromPopup?: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryDisplayPackageInfoModified(getState())) {
-      if (!fromPopup) {
-        dispatch(setTargetSelectedResourceId(resourcePath));
-        dispatch(setTargetView(View.Audit));
-      }
+      dispatch(setTargetSelectedResourceId(resourcePath));
+      dispatch(setTargetView(View.Audit));
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(openResourceInResourceBrowser(resourcePath));
-      if (fromPopup) {
-        dispatch(closePopup());
-      }
     }
   };
 }
@@ -383,10 +377,10 @@ export function locateSignalsFromLocatorPopup(
     dispatch(setShowNoSignalsLocatedMessage(showNoSignalsLocatedMessage));
 
     if (!showNoSignalsLocatedMessage) {
+      dispatch(closePopup());
       dispatch(
         navigateToSelectedPathOrOpenUnsavedPopup(
           locatedResources.values().next().value,
-          true,
         ),
       );
     }
@@ -406,11 +400,10 @@ export function locateSignalsFromProjectStatisticsPopup(
     const { locatedResources } = getResourcesWithLocatedAttributions(
       getState(),
     );
-
+    dispatch(closePopup());
     dispatch(
       navigateToSelectedPathOrOpenUnsavedPopup(
         locatedResources.values().next().value,
-        true,
       ),
     );
   };

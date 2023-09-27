@@ -104,61 +104,6 @@ describe('The actions checking for unsaved changes', () => {
       ]);
       expect(getSelectedView(testStore.getState())).toBe(View.Audit);
     });
-
-    it('closes an open popup if dispatched from an open popup', () => {
-      const testStore = createTestAppStore();
-      testStore.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
-
-      expect(getOpenPopup(testStore.getState())).toBe(
-        PopupType.ProjectStatisticsPopup,
-      );
-
-      testStore.dispatch(
-        navigateToSelectedPathOrOpenUnsavedPopup('/folder/file', true),
-      );
-
-      expect(getOpenPopup(testStore.getState())).toBeNull();
-    });
-
-    it('does not navigate to another resource if dispatched from an open popup and there are unsaved changes', () => {
-      const testStore = createTestAppStore();
-      const testInitalPackageInfo: PackageInfo = {
-        packageName: 'react',
-        packageVersion: '18',
-      };
-      const testManualAttributions: Attributions = {
-        uuid: testInitalPackageInfo,
-      };
-      const changedDisplayPackageInfo: DisplayPackageInfo = {
-        packageName: 'react',
-        packageVersion: '19',
-        attributionIds: ['uuid'],
-      };
-      testStore.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: testManualAttributions,
-          }),
-        ),
-      );
-
-      testStore.dispatch(navigateToView(View.Attribution));
-      testStore.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
-      testStore.dispatch(setSelectedAttributionId('uuid'));
-      testStore.dispatch(
-        setTemporaryDisplayPackageInfo(changedDisplayPackageInfo),
-      );
-      testStore.dispatch(
-        navigateToSelectedPathOrOpenUnsavedPopup('/folder/file', true),
-      );
-      expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
-      testStore.dispatch(
-        unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(),
-      );
-      expect(getOpenPopup(testStore.getState())).toBe(
-        PopupType.ProjectStatisticsPopup,
-      );
-    });
   });
 
   describe('changeSelectedAttributionIdOrOpenUnsavedPopup', () => {
@@ -833,6 +778,58 @@ describe('locateSignalsFromLocatorPopup', () => {
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
     expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
   });
+
+  it('navigates to a located resource if unsaved changes are handled', () => {
+    const testStore = createTestAppStore();
+    const testInitalPackageInfo: PackageInfo = {
+      packageName: 'react',
+      packageVersion: '18',
+    };
+    const testManualAttributions: Attributions = {
+      uuid: testInitalPackageInfo,
+    };
+    const changedDisplayPackageInfo: DisplayPackageInfo = {
+      packageName: 'react',
+      packageVersion: '19',
+      attributionIds: ['uuid'],
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_ext: {
+        packageName: 'vue',
+        licenseName: 'GPL-2.0',
+        criticality: Criticality.High,
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder/file': ['uuid_ext'],
+    };
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+
+    testStore.dispatch(navigateToView(View.Attribution));
+    testStore.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    testStore.dispatch(setSelectedAttributionId('uuid'));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(changedDisplayPackageInfo),
+    );
+    testStore.dispatch(
+      locateSignalsFromLocatorPopup(Criticality.High, new Set(['GPL-2.0'])),
+    );
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    testStore.dispatch(
+      unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(),
+    );
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
+  });
 });
 
 describe('locateSignalsFromProjectStatisticsPopup', () => {
@@ -867,5 +864,51 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(false);
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
     expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
+  });
+
+  it('navigates to a located resource if unsaved changes are handled', () => {
+    const testStore = createTestAppStore();
+    const testInitalPackageInfo: PackageInfo = {
+      packageName: 'react',
+      packageVersion: '18',
+    };
+    const testManualAttributions: Attributions = {
+      uuid: testInitalPackageInfo,
+    };
+    const changedDisplayPackageInfo: DisplayPackageInfo = {
+      packageName: 'react',
+      packageVersion: '19',
+      attributionIds: ['uuid'],
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_ext: { packageName: 'vue', licenseName: 'GPL-2.0' },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder/file': ['uuid_ext'],
+    };
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          manualAttributions: testManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+
+    testStore.dispatch(navigateToView(View.Attribution));
+    testStore.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    testStore.dispatch(setSelectedAttributionId('uuid'));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(changedDisplayPackageInfo),
+    );
+    testStore.dispatch(locateSignalsFromProjectStatisticsPopup('GPL-2.0'));
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
+    testStore.dispatch(
+      unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(),
+    );
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
   });
 });
