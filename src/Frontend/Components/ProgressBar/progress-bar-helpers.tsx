@@ -58,16 +58,14 @@ export function getCriticalityBarTooltipText(
     progressBarData.filesWithMediumCriticalExternalAttributionsCount;
   return (
     <MuiBox>
-      Files without attributions but <br />
-      with signals: {progressBarData.filesWithOnlyExternalAttributionCount}
-      <br />
-      with highly-critical signals:{' '}
-      {progressBarData.filesWithHighlyCriticalExternalAttributionsCount}
-      <br />
-      with medium-critical signals:{' '}
-      {progressBarData.filesWithMediumCriticalExternalAttributionsCount}
-      <br />
-      with non-critical signals: {filesWithNonCriticalExternalAttributions}
+      Number of files with signals and no attributions (
+      {progressBarData.filesWithOnlyExternalAttributionCount}) <br />
+      containing highly-critical signals:{' '}
+      {progressBarData.filesWithHighlyCriticalExternalAttributionsCount} <br />
+      containing medium-critical signals:{' '}
+      {progressBarData.filesWithMediumCriticalExternalAttributionsCount} <br />
+      containing only non-critical signals:{' '}
+      {filesWithNonCriticalExternalAttributions}
     </MuiBox>
   );
 }
