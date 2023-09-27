@@ -26,6 +26,7 @@ SPDX-License-Identifier: CC0-1.0
    11. [Audit View](#audit_view)
    12. [Attribution View](#attribution_view)
    13. [Report View](#report_view)
+   14. [Preferred Attributions](#preferred_attributions)
 
 ## How to get & run OpossumUI <a name="get_and_run_OpossumUI"></a>
 
@@ -365,3 +366,12 @@ filters that allows for filtering for attributions marked for follow-up, first p
 are mutually exclusive.
 
 Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `attribution view`.
+
+
+### Preferred Attributions <a name="preferred_attributions"></a>
+
+In the audit view, an attributions can be marked as preferred, to indicate that it is preferred over the displayed signals. This feature does not have any immediate effect on the signals displayed in OpossumUI; instead, it is intended to give additional information to tools that consume .opossum files. A preferred attribution will store origin IDs of signals visible to the user when it was marked as preferred.
+
+Only signals with a source marked as `isRelevantForPreference` can be preferred over. If no signal source has this flag set, then the feature is disabled.
+
+To mark an attribution as preferred, choose an attribution in the audit view, and open the `...` context menu. From there, you can mark or unmark an attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the .opossum file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
