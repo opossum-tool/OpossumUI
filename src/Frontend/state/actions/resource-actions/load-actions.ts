@@ -67,12 +67,6 @@ export function loadFromFile(
       setIsPreferenceFeatureEnabled(fileContainsSourcesRelevantForPreferred),
     );
 
-    // Feature flag
-    // when removing unskip the following tests
-    // * after setting an attribution to preferred, global save is disabled
-    // * preferred button is shown and sets an attribution as preferred
-    dispatch(setIsPreferenceFeatureEnabled(false));
-
     parsedFileContent.resolvedExternalAttributions.forEach((attribution) =>
       dispatch(addResolvedExternalAttribution(attribution)),
     );

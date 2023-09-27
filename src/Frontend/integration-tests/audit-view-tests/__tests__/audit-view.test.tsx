@@ -575,7 +575,7 @@ describe('The App in Audit View', () => {
     );
   });
 
-  it.skip('preferred button is shown and sets an attribution as preferred', () => {
+  it('preferred button is shown and sets an attribution as preferred', () => {
     function getExpectedSaveFileArgs(
       preferred: boolean,
       preferredOverOriginIds?: Array<string>,
@@ -673,7 +673,7 @@ describe('The App in Audit View', () => {
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(2);
   });
 
-  it.skip('after setting an attribution to preferred, global save is disabled', () => {
+  it('after setting an attribution to preferred, global save is disabled', () => {
     const testResources: Resources = {
       file: 1,
       other_file: 1,
