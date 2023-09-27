@@ -34,10 +34,10 @@ import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-ite
 import { useWindowHeight } from '../../util/use-window-height';
 import { topBarHeight } from '../TopBar/TopBar';
 import {
+  OpossumColors,
   TREE_ROOT_FOLDER_LABEL,
   TREE_ROW_HEIGHT,
   treeClasses,
-  OpossumColors,
 } from '../../shared-styles';
 import { isLocateSignalActive } from '../../state/selectors/locate-popup-selectors';
 import { IconButton } from '../IconButton/IconButton';
@@ -144,7 +144,7 @@ export function ResourceBrowser(): ReactElement | null {
     <IconButton
       iconSx={classes.locatorIcon}
       containerSx={classes.locatorIconContainer}
-      tooltipTitle="filters active"
+      tooltipTitle="locate active"
       tooltipPlacement="right"
       onClick={(): void => {
         dispatch(openPopup(PopupType.LocatorPopup));
