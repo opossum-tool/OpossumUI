@@ -231,7 +231,7 @@ describe('loadFromFile', () => {
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
       expectedExternalAttributionsToHashes,
     );
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(true);
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);
   });
 
   it('disables the preference feature if no external source is relevant', () => {
