@@ -378,6 +378,11 @@ export function locateSignalsFromLocatorPopup(
 
     if (!showNoSignalsLocatedMessage) {
       dispatch(closePopup());
+      dispatch(
+        navigateToSelectedPathOrOpenUnsavedPopup(
+          locatedResources.values().next().value,
+        ),
+      );
     }
   };
 }
@@ -395,11 +400,11 @@ export function locateSignalsFromProjectStatisticsPopup(
     const { locatedResources } = getResourcesWithLocatedAttributions(
       getState(),
     );
-
-    dispatch(navigateToView(View.Audit));
-    dispatch(
-      openResourceInResourceBrowser(locatedResources.values().next().value),
-    );
     dispatch(closePopup());
+    dispatch(
+      navigateToSelectedPathOrOpenUnsavedPopup(
+        locatedResources.values().next().value,
+      ),
+    );
   };
 }
