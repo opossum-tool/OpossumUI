@@ -16,7 +16,7 @@ import {
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import { getTargetView } from '../../selectors/view-selector';
+import { getSelectedView, getTargetView } from '../../selectors/view-selector';
 import {
   openResourceInResourceBrowser,
   setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
@@ -378,11 +378,9 @@ export function locateSignalsFromLocatorPopup(
 
     if (!showNoSignalsLocatedMessage) {
       dispatch(closePopup());
-      dispatch(
-        navigateToSelectedPathOrOpenUnsavedPopup(
-          locatedResources.values().next().value,
-        ),
-      );
+      if (getSelectedView(getState()) !== View.Audit) {
+        dispatch(setViewOrOpenUnsavedPopup(View.Audit));
+      }
     }
   };
 }
@@ -397,14 +395,9 @@ export function locateSignalsFromProjectStatisticsPopup(
         selectedLicenses: new Set([licenseName]),
       }),
     );
-    const { locatedResources } = getResourcesWithLocatedAttributions(
-      getState(),
-    );
     dispatch(closePopup());
-    dispatch(
-      navigateToSelectedPathOrOpenUnsavedPopup(
-        locatedResources.values().next().value,
-      ),
-    );
+    if (getSelectedView(getState()) !== View.Audit) {
+      dispatch(setViewOrOpenUnsavedPopup(View.Audit));
+    }
   };
 }

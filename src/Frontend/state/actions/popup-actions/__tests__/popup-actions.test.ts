@@ -9,6 +9,7 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import {
   getManualAttributions,
   getManualData,
+  getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
@@ -722,13 +723,12 @@ describe('openAttributionWizardPopup', () => {
 });
 
 describe('locateSignalsFromLocatorPopup', () => {
-  it('sets showNoSignalsLocatedMessage and does not navigate if no resources are found', () => {
+  it('sets showNoSignalsLocatedMessage if no resources are found and does not change view', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(false);
     expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
-    expect(getSelectedResourceId(testStore.getState())).toBe('');
 
     testStore.dispatch(
       locateSignalsFromLocatorPopup(
@@ -739,10 +739,9 @@ describe('locateSignalsFromLocatorPopup', () => {
 
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(true);
     expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
-    expect(getSelectedResourceId(testStore.getState())).toBe('');
   });
 
-  it('navigates to a located resource', () => {
+  it('navigates to audit view but does not change selected resource', () => {
     const testStore = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
@@ -751,15 +750,11 @@ describe('locateSignalsFromLocatorPopup', () => {
         licenseName: 'GPL-2.0',
       },
     };
-    const testResourcesToExternalAttributions: ResourcesToAttributions = {
-      '/folder/file': ['uuid1'],
-    };
 
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
         }),
       ),
     );
@@ -776,10 +771,10 @@ describe('locateSignalsFromLocatorPopup', () => {
     );
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(false);
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-    expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
+    expect(getSelectedResourceId(testStore.getState())).toBe('');
   });
 
-  it('navigates to a located resource if unsaved changes are handled', () => {
+  it('navigates to audit view if unsaved changes are handled but does not change selected resource', () => {
     const testStore = createTestAppStore();
     const testInitalPackageInfo: PackageInfo = {
       packageName: 'react',
@@ -827,13 +822,68 @@ describe('locateSignalsFromLocatorPopup', () => {
       unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(),
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
-    expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
+    expect(getSelectedResourceId(testStore.getState())).toBe('');
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
   });
 });
 
 describe('locateSignalsFromProjectStatisticsPopup', () => {
-  it('navigates to a located resource independent of criticality', () => {
+  it('locates signals independently of criticality', () => {
+    const testStore = createTestAppStore();
+    const testExternalAttributions: Attributions = {
+      uuid1: {
+        packageName: 'react',
+        criticality: Criticality.High,
+        licenseName: 'MIT',
+      },
+      uuid2: {
+        packageName: 'angular',
+        criticality: Criticality.Medium,
+        licenseName: 'MIT',
+      },
+      uuid3: {
+        packageName: 'vue',
+        licenseName: 'MIT',
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder1/file1': ['uuid1'],
+      '/folder2/file2': ['uuid2'],
+      '/folder3/file3': ['uuid3'],
+    };
+
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+
+    testStore.dispatch(locateSignalsFromProjectStatisticsPopup('MIT'));
+
+    const { locatedResources, resourcesWithLocatedChildren } =
+      getResourcesWithLocatedAttributions(testStore.getState());
+    const expectedLocatedResources = new Set<string>([
+      '/folder1/file1',
+      '/folder2/file2',
+      '/folder3/file3',
+    ]);
+    const expectedResourcesWithLocatedChildren = new Set<string>([
+      '/',
+      '/folder1/',
+      '/folder2/',
+      '/folder3/',
+    ]);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+    expect(resourcesWithLocatedChildren).toEqual(
+      expectedResourcesWithLocatedChildren,
+    );
+  });
+
+  it('navigates to audit view but does not change selected resource', () => {
     const testStore = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
@@ -863,10 +913,10 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
 
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(false);
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-    expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
+    expect(getSelectedResourceId(testStore.getState())).toBe('');
   });
 
-  it('navigates to a located resource if unsaved changes are handled', () => {
+  it('navigates to audit view if unsaved changes are handled', () => {
     const testStore = createTestAppStore();
     const testInitalPackageInfo: PackageInfo = {
       packageName: 'react',
@@ -908,7 +958,6 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
       unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(),
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
-    expect(getSelectedResourceId(testStore.getState())).toBe('/folder/file');
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
   });
 });
