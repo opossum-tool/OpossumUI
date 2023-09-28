@@ -227,13 +227,14 @@ describe('TopProgressBar', () => {
       jest.runAllTimers();
     });
     expect(
-      screen.getByText(/Files without attributions but/),
+      screen.getByText(
+        /Number of files with signals and no attributions \(3\)/,
+      ),
     ).toBeInTheDocument();
-    expect(screen.getByText(/with signals: 3/)).toBeInTheDocument();
     expect(
-      screen.getByText(/with highly-critical signals: 1/) &&
-        screen.getByText(/with medium-critical signals: 1/) &&
-        screen.getByText(/with non-critical signals: 1/),
+      screen.getByText(/containing highly-critical signals: 1/) &&
+        screen.getByText(/containing medium-critical signals: 1/) &&
+        screen.getByText(/containing only non-critical signals: 1/),
     ).toBeDefined();
   });
 });
