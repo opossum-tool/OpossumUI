@@ -375,4 +375,68 @@ describe('The PackageCard', () => {
     );
     expect(addButton.attributes.getNamedItem('disabled')).toBeTruthy();
   });
+
+  it('highlights preferred attribution correctly', () => {
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      'package_1.tr.gz': [testAttributionId],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        }),
+      ),
+    );
+    renderComponentWithStore(
+      <PackageCard
+        cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
+        cardId={'some_id'}
+        displayPackageInfo={{
+          packageName: 'packageName',
+          attributionIds: [testAttributionId],
+          preferred: true,
+          wasPreferred: true,
+        }}
+        onClick={doNothing}
+      />,
+      { store: testStore },
+    );
+    expect(screen.getByTestId('preferred-icon')).toBeInTheDocument();
+    expect(screen.queryByTestId('was-preferred-icon')).not.toBeInTheDocument();
+  });
+
+  it('highlights previously preferred attribution correctly', () => {
+    const testResourcesToManualAttributions: ResourcesToAttributions = {
+      'package_1.tr.gz': [testAttributionId],
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+        }),
+      ),
+    );
+    renderComponentWithStore(
+      <PackageCard
+        cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
+        cardId={'some_id'}
+        displayPackageInfo={{
+          packageName: 'packageName',
+          attributionIds: [testAttributionId],
+          wasPreferred: true,
+        }}
+        onClick={doNothing}
+      />,
+      { store: testStore },
+    );
+    expect(screen.getByTestId('was-preferred-icon')).toBeInTheDocument();
+  });
 });

@@ -52,6 +52,10 @@ const classes = {
     ...baseIcon,
     color: OpossumColors.mediumOrange,
   },
+  wasPreferredIcon: {
+    ...baseIcon,
+    color: OpossumColors.mediumGrey,
+  },
 };
 
 const criticalityTooltipText = {
@@ -295,6 +299,22 @@ export function PreferredIcon(props: IconProps): ReactElement {
           styleClass: classes.preferredIcon,
           sxProps: props.sx,
         })}
+        data-testid={'preferred-icon'}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function WasPreferredIcon(props: IconProps): ReactElement {
+  return (
+    <MuiTooltip sx={classes.tooltip} title="was previously preferred">
+      <StarIcon
+        aria-label={'Was Preferred icon'}
+        sx={getSxFromPropsAndClasses({
+          styleClass: classes.wasPreferredIcon,
+          sxProps: props.sx,
+        })}
+        data-testid={'was-preferred-icon'}
       />
     </MuiTooltip>
   );

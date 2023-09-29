@@ -12,6 +12,7 @@ import {
   NeedsReviewIcon,
   PreSelectedIcon,
   PreferredIcon,
+  WasPreferredIcon,
 } from '../Icons/Icons';
 import { OpossumColors } from '../../shared-styles';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
@@ -81,6 +82,10 @@ export function getRightIcons(
   }
   if (cardConfig.isPreferred) {
     rightIcons.push(<PreferredIcon key={getKey('preferred-icon', cardId)} />);
+  } else if (cardConfig.wasPreferred) {
+    rightIcons.push(
+      <WasPreferredIcon key={getKey('was-preferred-icon', cardId)} />,
+    );
   }
 
   return rightIcons;
