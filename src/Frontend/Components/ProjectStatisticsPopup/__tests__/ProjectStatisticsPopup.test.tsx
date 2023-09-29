@@ -31,6 +31,7 @@ import {
   getSelectedView,
 } from '../../../state/selectors/view-selector';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
+import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {
@@ -100,7 +101,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(iconButtonMIT).toBeEnabled();
   });
 
-  it('locates attributions in resource browser when clicking on a search license icon', () => {
+  it('locates attributions when clicking on a search license icon', () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -133,10 +134,24 @@ describe('The ProjectStatisticsPopup', () => {
       name: 'locate signals with "MIT"',
     });
     fireEvent.click(iconButtonMIT);
-    expect(getSelectedView(store.getState())).toBe(View.Audit);
-    expect(['/folder/file', '/folder/otherFile']).toContain(
-      getSelectedResourceId(store.getState()),
+
+    const { locatedResources, resourcesWithLocatedChildren } =
+      getResourcesWithLocatedAttributions(store.getState());
+    const expectedLocatedResources = new Set<string>([
+      '/folder/file',
+      '/folder/otherFile',
+    ]);
+    const expectedResourcesWithLocatedChildren = new Set<string>([
+      '/',
+      '/folder/',
+    ]);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+    expect(resourcesWithLocatedChildren).toEqual(
+      expectedResourcesWithLocatedChildren,
     );
+    expect(getSelectedView(store.getState())).toBe(View.Audit);
+    expect(getSelectedResourceId(store.getState())).toBe('');
     expect(getOpenPopup(store.getState())).toBeNull();
   });
 
