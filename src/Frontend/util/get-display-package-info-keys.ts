@@ -31,6 +31,7 @@ export function getDisplayPackageInfoKeys(): Array<KeysOfDisplayPackageInfo> {
     attributionIds: true,
     preferred: true,
     preferredOverOriginIds: true,
+    wasPreferred: true,
   };
   return Object.keys(
     displayPackageInfoKeysObject,

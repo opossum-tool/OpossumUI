@@ -94,6 +94,7 @@ const inputFileContent: ParsedOpossumInputFile = {
       criticality: Criticality.High,
       preferred: true,
       preferredOverOriginIds: ['test-id'],
+      wasPreferred: true,
     },
   },
   frequentLicenses: [
@@ -142,6 +143,7 @@ const expectedFileContent: ParsedFileContent = {
         criticality: Criticality.High,
         preferred: true,
         preferredOverOriginIds: ['test-id'],
+        wasPreferred: true,
       },
     },
     resourcesToAttributions: {

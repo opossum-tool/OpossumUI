@@ -63,6 +63,7 @@ interface RawPackageInfo {
   needsReview?: boolean;
   preferred?: boolean;
   preferredOverOriginIds?: Array<string>;
+  wasPreferred?: boolean;
 }
 
 export interface RawAttributions {

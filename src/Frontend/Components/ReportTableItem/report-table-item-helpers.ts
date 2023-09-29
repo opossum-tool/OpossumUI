@@ -31,6 +31,7 @@ export function getFormattedCellData(
     case 'needsReview':
     case 'excludeFromNotice':
     case 'preferred':
+    case 'wasPreferred':
       cellData = attributionInfo[config.attributionProperty] ? 'Yes' : 'No';
       break;
     case 'icons':

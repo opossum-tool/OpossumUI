@@ -93,6 +93,7 @@ export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
     needsReview: 'needs-review',
     preferred: 'preferred',
     preferredOverOriginIds: 'preferred-over-origin-ids',
+    wasPreferred: 'was-preferred',
   };
 
   const headers: { [key: string]: string } = {};
