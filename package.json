@@ -63,7 +63,7 @@
     "axios-mock-adapter": "^1.22.0",
     "babel-jest": "^29.7.0",
     "cross-env": "^7.0.3",
-    "electron": "^26.2.3",
+    "electron": "^26.2.4",
     "electron-builder": "^24.6.4",
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
