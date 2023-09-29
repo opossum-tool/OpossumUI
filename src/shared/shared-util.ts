@@ -30,6 +30,7 @@ export function getPackageInfoKeys(): Array<KeysOfPackageInfo> {
     needsReview: true,
     preferred: true,
     preferredOverOriginIds: true,
+    wasPreferred: true,
   };
   return Object.keys(packageInfoKeysObject) as Array<KeysOfPackageInfo>;
 }

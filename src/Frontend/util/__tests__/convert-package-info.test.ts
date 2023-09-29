@@ -55,6 +55,7 @@ describe('convertPackageInfoToDisplayPackageInfo', () => {
       'needsReview',
       'preferred',
       'preferredOverOriginIds',
+      'wasPreferred',
     ];
     expect(testKeysOfPackageInfo).toEqual(expectedKeysOfPackageInfo);
   });
@@ -137,6 +138,7 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       'attributionIds',
       'preferred',
       'preferredOverOriginIds',
+      'wasPreferred',
     ];
     expect(testKeysOfDisplayPackageInfo).toEqual(
       expectedKeysOfDisplayPackageInfo,

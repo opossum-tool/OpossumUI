@@ -57,6 +57,7 @@ interface PackageInfoCore {
   needsReview?: boolean;
   preferred?: boolean;
   preferredOverOriginIds?: Array<string>;
+  wasPreferred?: boolean;
 }
 
 export interface PackageInfo extends PackageInfoCore {

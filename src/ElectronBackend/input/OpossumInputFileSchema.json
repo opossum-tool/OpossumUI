@@ -160,6 +160,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "wasPreferred":{
+            "type": "boolean",
+            "description": "Indicates that the attribution had previously been marked as preferred."
           }
         },
         "required": ["source"],
