@@ -182,6 +182,7 @@ export function createExternalAttributionsToHashes(
       'attributionConfidence',
       'originIds',
       'preSelected',
+      'wasPreferred',
     ].includes(key);
   };
   const hashOptions = {

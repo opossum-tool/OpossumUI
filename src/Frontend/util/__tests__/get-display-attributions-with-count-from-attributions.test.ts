@@ -236,4 +236,62 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
       expectedDisplayAttributionWithCount,
     );
   });
+  it('sets wasPreffered to true for display Attribution if at least one Attribution wasPreferred', () => {
+    const testAttributionsWithIdsAndCounts: Array<
+      [string, PackageInfo, number | undefined]
+    > = [
+      [
+        'uuid_1',
+        {
+          packageName: 'React',
+          comment: 'comment A',
+          attributionConfidence: 20,
+          originIds: ['id_1', 'id_2'],
+          wasPreferred: false,
+        },
+        1,
+      ],
+      [
+        'uuid_2',
+        {
+          packageName: 'React',
+          comment: 'comment B',
+          attributionConfidence: 80,
+          originIds: ['id_2', 'id_3'],
+          wasPreferred: true,
+        },
+        2,
+      ],
+      [
+        'uuid_3',
+        {
+          packageName: 'React',
+          comment: 'comment C',
+          attributionConfidence: 80,
+          originIds: ['id_2', 'id_3'],
+          wasPreferred: false,
+        },
+        1,
+      ],
+    ];
+    const expectedDisplayAttributionWithCount: DisplayPackageInfoWithCount = {
+      displayPackageInfo: {
+        packageName: 'React',
+        comments: ['comment A', 'comment B', 'comment C'],
+        attributionConfidence: 20,
+        attributionIds: ['uuid_1', 'uuid_2', 'uuid_3'],
+        originIds: ['id_1', 'id_2', 'id_3'],
+        wasPreferred: true,
+      },
+      count: 2,
+    };
+    const testDisplayAttributionWithCount =
+      getDisplayPackageInfoWithCountFromAttributions(
+        testAttributionsWithIdsAndCounts,
+      );
+
+    expect(testDisplayAttributionWithCount).toEqual(
+      expectedDisplayAttributionWithCount,
+    );
+  });
 });
