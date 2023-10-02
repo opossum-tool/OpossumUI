@@ -15,6 +15,7 @@ interface AutoCompleteProps extends InputElementProps {
   endAdornmentText?: string;
   inputValue: string;
   showTextBold?: boolean;
+  multiple?: boolean;
   formatOptionForDisplay?(value: string): string;
 }
 
@@ -52,6 +53,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
   return (
     <MuiBox sx={props.sx}>
       <MuiAutocomplete
+        multiple={props.multiple}
         freeSolo
         sx={{
           ...(props.isHighlighted
@@ -89,6 +91,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
               sx={{
                 ...classes.textField,
                 ...(props.showTextBold ? classes.textFieldBoldText : {}),
+                ...(props.multiple ? classes.textFieldMultiple : {}),
               }}
               variant="outlined"
               size="small"
