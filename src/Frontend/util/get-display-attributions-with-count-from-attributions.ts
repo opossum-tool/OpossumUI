@@ -59,6 +59,10 @@ export function getDisplayPackageInfoWithCountFromAttributions(
   const attributionIds = attributionsWithIdsAndCounts.map(
     (attributionWithIdAndCount) => attributionWithIdAndCount[0],
   );
+  const atLeastOneAttributionWasPreferred = attributionsWithIdsAndCounts.some(
+    (attributionWithIdAndCount) =>
+      attributionWithIdAndCount[1].wasPreferred === true,
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { comment, ...packageInfoWithoutComment } =
@@ -78,6 +82,9 @@ export function getDisplayPackageInfoWithCountFromAttributions(
   }
   if (originIds.length > 0) {
     attributionToShow.originIds = originIds;
+  }
+  if (atLeastOneAttributionWasPreferred) {
+    attributionToShow.wasPreferred = true;
   }
 
   return {

@@ -159,6 +159,7 @@ describe('createExternalAttributionsToHashes', () => {
         packageName: 'name',
         originIds: ['abc'],
         preSelected: true,
+        wasPreferred: false,
       },
       uuid2: {
         attributionConfidence: 2,
@@ -166,6 +167,7 @@ describe('createExternalAttributionsToHashes', () => {
         packageName: 'name',
         originIds: ['def'],
         preSelected: false,
+        wasPreferred: true,
       },
       uuid3: {
         packageName: 'name',
