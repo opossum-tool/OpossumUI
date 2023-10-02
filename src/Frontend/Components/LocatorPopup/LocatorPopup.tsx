@@ -145,6 +145,7 @@ export function LocatorPopup(): ReactElement {
         )}
         inputValue={searchedLicense}
         showTextBold={false}
+        multiple={true}
         formatOptionForDisplay={(option: string): string => option}
       />
       {showNoSignalsLocatedMessage ? (
