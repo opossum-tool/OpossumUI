@@ -174,6 +174,7 @@ describe('ResourceBrowser', () => {
         setLocatePopupFilters({
           selectedCriticality: testLocatePopupSelectedCriticality,
           selectedLicenses: new Set<string>(),
+          searchTerm: '',
         }),
       );
     });
@@ -332,6 +333,7 @@ describe('ResourceBrowser', () => {
         setLocatePopupFilters({
           selectedCriticality: SelectedCriticality.High,
           selectedLicenses: new Set<string>(),
+          searchTerm: '',
         }),
       );
     });
@@ -355,11 +357,11 @@ function expectIconToExist(
     ?.parentElement as HTMLElement;
   expectedToExist
     ? // eslint-disable-next-line testing-library/prefer-screen-queries
-      expect(getByLabelText(resourceTreeRow, iconLabel)).toBeInTheDocument()
+    expect(getByLabelText(resourceTreeRow, iconLabel)).toBeInTheDocument()
     : expect(
-        // eslint-disable-next-line testing-library/prefer-screen-queries
-        queryByLabelText(resourceTreeRow, iconLabel),
-      ).not.toBeInTheDocument();
+      // eslint-disable-next-line testing-library/prefer-screen-queries
+      queryByLabelText(resourceTreeRow, iconLabel),
+    ).not.toBeInTheDocument();
 }
 
 function expectResourceIconLabelToBe(

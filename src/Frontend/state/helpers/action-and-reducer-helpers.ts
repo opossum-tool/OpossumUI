@@ -25,6 +25,8 @@ import { ResourceState } from '../reducers/resource-reducer';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
+import { displayPackageInfoContainsSearchTerm } from '../../Components/PackageList/package-list-helpers';
+import { licenseContainsSearchTerm } from '../../util/search-package-info';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -282,6 +284,8 @@ export function getIndexOfAttributionInManualPackagePanel(
 export function calculateResourcesWithLocatedAttributions(
   selectedCriticality: SelectedCriticality,
   licenseNames: Set<string>,
+  searchTerm: string,
+  searchOnlyInLicenseFields: boolean,
   externalAttributions: Attributions,
   externalAttributionsToResources: AttributionsToResources,
   frequentLicenseNames: Array<FrequentLicenseName>,
@@ -303,10 +307,14 @@ export function calculateResourcesWithLocatedAttributions(
       attribution.licenseName !== undefined &&
       augmentedLicenseNames.has(attribution.licenseName);
     const criticalityMatches = attribution.criticality == selectedCriticality;
+    const packageInfoContainsSearchTerm = displayPackageInfoContainsSearchTerm(attribution, searchTerm);
+    const searchTermMatches = (searchOnlyInLicenseFields && licenseContainsSearchTerm)
+      || (!searchOnlyInLicenseFields && packageInfoContainsSearchTerm);
 
     if (
       (licenseMatches || !licenseIsSet) &&
-      (criticalityMatches || !criticalityIsSet)
+      (criticalityMatches || !criticalityIsSet) &&
+      searchTermMatches
     ) {
       externalAttributionsToResources[attributionId].forEach((resource) => {
         locatedResources.add(resource);

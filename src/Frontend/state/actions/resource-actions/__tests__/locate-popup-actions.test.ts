@@ -51,6 +51,7 @@ describe('The locatePopup actions', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.High,
         selectedLicenses: new Set<string>(['GPL-2.0']),
+        searchTerm: '',
       }),
     );
 

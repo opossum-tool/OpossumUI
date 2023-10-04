@@ -74,7 +74,7 @@ export function getLicenseNames(attributions: Attributions): Array<string> {
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const externalAttributions = useAppSelector(getExternalAttributions);
-  const { selectedCriticality, selectedLicenses } = useAppSelector(
+  const { selectedCriticality, selectedLicenses, searchTerm, searchOnlyInLicenseField } = useAppSelector(
     getLocatePopupFilters,
   );
   const showNoSignalsLocatedMessage = useAppSelector(
@@ -89,9 +89,9 @@ export function LocatorPopup(): ReactElement {
 
   const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
 
-  const [searchedSignal, setSearchedSignal] = useState('');
-  const [searchOnlyInLicenseField, setSearchOnlyInLicenseField] =
-    useState(false);
+  const [searchedSignal, setSearchedSignal] = useState(searchTerm);
+  const [displaySearchOnlyInLicenseField, setDisplaySearchOnlyInLicenseField] =
+    useState(searchOnlyInLicenseField);
 
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
@@ -107,11 +107,12 @@ export function LocatorPopup(): ReactElement {
       searchedLicense.length == 0
         ? new Set<string>()
         : new Set([searchedLicense]);
-
     dispatch(
       locateSignalsFromLocatorPopup(
         criticalityDropDownChoice,
         searchedLicenses,
+        searchedSignal,
+        displaySearchOnlyInLicenseField
       ),
     );
   }
@@ -120,11 +121,13 @@ export function LocatorPopup(): ReactElement {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
     setSearchedLicense('');
     setSearchedSignal('');
-    setSearchOnlyInLicenseField(false);
+    setDisplaySearchOnlyInLicenseField(false);
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(),
+        searchTerm: '',
+        searchOnlyInLicenseField: false,
       }),
     );
     dispatch(setShowNoSignalsLocatedMessage(false));
@@ -152,9 +155,9 @@ export function LocatorPopup(): ReactElement {
       <Checkbox
         sx={classes.checkboxContainer}
         label={CheckboxLabel.OnlyInLicenseField}
-        checked={searchOnlyInLicenseField}
+        checked={displaySearchOnlyInLicenseField}
         onChange={(): void => {
-          setSearchOnlyInLicenseField(!searchOnlyInLicenseField);
+          setDisplaySearchOnlyInLicenseField(!displaySearchOnlyInLicenseField);
         }}
       />
       <Dropdown
