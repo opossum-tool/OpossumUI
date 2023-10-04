@@ -3,13 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { Checkbox } from '../Checkbox/Checkbox';
 import React, { ChangeEvent, ReactElement, useState } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   closePopup,
   setShowNoSignalsLocatedMessage,
 } from '../../state/actions/view-actions/view-actions';
-import { ButtonText, CriticalityTypes } from '../../enums/enums';
+import { ButtonText, CheckboxLabel, CriticalityTypes } from '../../enums/enums';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Dropdown, menuItem } from '../InputElements/Dropdown';
 import {
@@ -36,6 +37,10 @@ const classes = {
   noSignalsMessage: { color: OpossumColors.red, marginTop: '8px' },
   dialogContent: {
     width: '25vw',
+  },
+  checkboxContainer: {
+    display: 'flex',
+    alignItems: 'center',
   },
 };
 
@@ -79,6 +84,10 @@ export function LocatorPopup(): ReactElement {
   const licenseNameOptions = getLicenseNames(externalAttributions);
 
   const [searchedLicenses, setSearchedLicenses] = useState(selectedLicenses);
+
+  const [searchedSignal, setSearchedSignal] = useState('');
+  const [searchOnlyInLicenseField, setSearchOnlyInLicenseField] =
+    useState(false);
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
 
@@ -100,6 +109,8 @@ export function LocatorPopup(): ReactElement {
   function handleClearClick(): void {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
     setSearchedLicenses(new Set());
+    setSearchedSignal('');
+    setSearchOnlyInLicenseField(false);
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
@@ -115,6 +126,27 @@ export function LocatorPopup(): ReactElement {
 
   const content = (
     <>
+      <AutoComplete
+        isEditable={true}
+        sx={classes.autocomplete}
+        title={'Search'}
+        handleChange={(event: ChangeEvent<HTMLInputElement>): void => {
+          setSearchedSignal(event.target.value);
+        }}
+        isHighlighted={false}
+        options={new Array<string>()}
+        inputValue={searchedSignal}
+        showTextBold={false}
+        formatOptionForDisplay={(option: string): string => option}
+      />
+      <Checkbox
+        sx={classes.checkboxContainer}
+        label={CheckboxLabel.OnlyInLicenseField}
+        checked={searchOnlyInLicenseField}
+        onChange={(): void => {
+          setSearchOnlyInLicenseField(!searchOnlyInLicenseField);
+        }}
+      />
       <Dropdown
         sx={classes.dropdown}
         isEditable={true}
