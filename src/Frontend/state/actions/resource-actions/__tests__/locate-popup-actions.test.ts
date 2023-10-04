@@ -33,6 +33,8 @@ describe('The locatePopup actions', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
@@ -51,13 +53,16 @@ describe('The locatePopup actions', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.High,
         selectedLicenses: new Set<string>(['GPL-2.0']),
-        searchTerm: '',
+        searchTerm: 'gpl',
+        searchOnlyInLicenseField: true,
       }),
     );
 
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.High,
       selectedLicenses: new Set<string>(['GPL-2.0']),
+      searchTerm: 'gpl',
+      searchOnlyInLicenseField: true,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set<string>(['/', '/folder/']),
