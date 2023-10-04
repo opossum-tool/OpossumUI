@@ -7,10 +7,11 @@
 
 import { PackageInfoCore } from "../../shared/shared-types";
 
-export function displayPackageInfoContainsSearchTerm(
+export function packageInfoContainsSearchTerm(
     attribution: PackageInfoCore,
     searchTerm: string,
 ): boolean {
+    console.log()
     return Boolean(
         attribution &&
         (searchTerm === '' ||

@@ -156,6 +156,7 @@ export function LocatorPopup(): ReactElement {
         sx={classes.checkboxContainer}
         label={CheckboxLabel.OnlyInLicenseField}
         checked={displaySearchOnlyInLicenseField}
+        disabled={searchedSignal === ''}
         onChange={(): void => {
           setDisplaySearchOnlyInLicenseField(!displaySearchOnlyInLicenseField);
         }}

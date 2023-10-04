@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PackageInfoCore } from '../../../shared/shared-types';
 import { DisplayPackageInfos } from '../../types/types';
+import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 
 export function getFilteredPackageCardIdsFromDisplayPackageInfos(
   displayPackageInfos: DisplayPackageInfos,
@@ -12,36 +12,9 @@ export function getFilteredPackageCardIdsFromDisplayPackageInfos(
   searchTerm: string,
 ): Array<string> {
   return sortedPackageCardIds.filter((packageCardId) => {
-    return displayPackageInfoContainsSearchTerm(
+    return packageInfoContainsSearchTerm(
       displayPackageInfos[packageCardId],
       searchTerm,
     );
   });
-}
-
-export function displayPackageInfoContainsSearchTerm(
-  attribution: PackageInfoCore,
-  searchTerm: string,
-): boolean {
-  console.log(attribution);
-  return Boolean(
-    attribution &&
-    (searchTerm === '' ||
-      (attribution.packageName &&
-        attribution.packageName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
-      (attribution.licenseName &&
-        attribution.licenseName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
-      (attribution.copyright &&
-        attribution.copyright
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
-      (attribution.packageVersion &&
-        attribution.packageVersion
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()))),
-  );
 }
