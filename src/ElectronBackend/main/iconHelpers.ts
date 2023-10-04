@@ -7,7 +7,7 @@ import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
 import { getBasePathOfAssets } from './getPath';
-import electron from 'electron';
+import electron, { Menu } from 'electron';
 
 export function getIconPath(): string {
   const basePath = isDev
@@ -23,4 +23,15 @@ export function getIconBasedOnTheme(
   return electron.nativeTheme?.shouldUseDarkColors
     ? path.join(getBasePathOfAssets(), white_icon)
     : path.join(getBasePathOfAssets(), black_icon);
+}
+
+export function makeFirstIconVisibleAndSecondHidden(
+  firstItemId: string,
+  secondItemId: string,
+): void {
+  const itemToMakeVisible =
+    Menu.getApplicationMenu()?.getMenuItemById(firstItemId);
+  if (itemToMakeVisible) itemToMakeVisible.visible = true;
+  const itemToHide = Menu.getApplicationMenu()?.getMenuItemById(secondItemId);
+  if (itemToHide) itemToHide.visible = false;
 }
