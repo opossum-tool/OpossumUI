@@ -138,6 +138,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       needsReview: Boolean(props.displayPackageInfo.needsReview),
       followUp: Boolean(props.displayPackageInfo.followUp),
       isPreferred: Boolean(props.displayPackageInfo.preferred),
+      wasPreferred: Boolean(props.displayPackageInfo.wasPreferred),
       isContextMenuOpen,
       criticality: props.cardConfig.isExternalAttribution
         ? props.displayPackageInfo.criticality

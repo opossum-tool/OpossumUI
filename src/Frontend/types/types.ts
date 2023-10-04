@@ -67,6 +67,7 @@ export interface ListCardConfig {
   isResolved?: boolean;
   isPreSelected?: boolean;
   isPreferred?: boolean;
+  wasPreferred?: boolean;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
   needsReview?: boolean;
