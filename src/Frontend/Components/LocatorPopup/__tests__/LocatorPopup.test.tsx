@@ -10,7 +10,10 @@ import {
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-selectors';
-import { clickOnButton } from '../../../test-helpers/general-test-helpers';
+import {
+  clickOnButton,
+  clickOnCheckbox,
+} from '../../../test-helpers/general-test-helpers';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import {
   Criticality,
@@ -29,6 +32,10 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
+import {
+  expectValueInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -38,6 +45,15 @@ describe('Locator popup ', () => {
     expect(
       screen.getByText('Locate Signals', { exact: true }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Search')).toBeInTheDocument();
+    expect(
+      screen.getByText('Only search in the license field'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search in the license field',
+      }),
+    ).not.toBeChecked();
     expect(screen.getByLabelText('Criticality')).toBeInTheDocument();
     expect(screen.getByText('Any')).toBeInTheDocument();
     expect(
@@ -122,7 +138,7 @@ describe('Locator popup ', () => {
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
-    expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
+    expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT'], 'License');
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
@@ -155,6 +171,36 @@ describe('Locator popup ', () => {
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
+  });
+
+  it('clears search field if clear button pressed', () => {
+    renderComponentWithStore(<LocatorPopup />);
+    insertValueIntoTextBox(screen, 'Search', 'jquery');
+    expectValueInTextBox(screen, 'Search', 'jquery');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
+
+    expectValueInTextBox(screen, 'Search', '');
+  });
+
+  it('unchecks checkbox if clear button pressed', () => {
+    renderComponentWithStore(<LocatorPopup />);
+
+    clickOnCheckbox(screen, 'Only search in the license field');
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search in the license field',
+      }),
+    ).toBeChecked();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search in the license field',
+      }),
+    ).not.toBeChecked();
   });
 
   it('shows license if selected beforehand', () => {
