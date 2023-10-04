@@ -75,6 +75,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
     });
 
     clickOnButton(screen, 'Apply');
@@ -82,6 +84,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.High,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
     });
   });
 
@@ -91,6 +95,8 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Medium,
         selectedLicenses: new Set<string>(),
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
@@ -105,6 +111,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
     });
   });
 
@@ -143,6 +151,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
       expectedLocatedResources,
@@ -157,6 +167,8 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseSet,
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
@@ -166,6 +178,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
@@ -211,6 +225,8 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseSet,
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
@@ -260,6 +276,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     GPLMediumAttribution: {
       licenseName: 'General Public License',
       criticality: Criticality.Medium,
+      packageVersion: '2.0',
     },
   };
   const testResourcesToAttributions: ResourcesToAttributions = {
@@ -296,6 +313,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
@@ -311,6 +330,70 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     );
   });
 
+  it('locates attribution and parent if only search term set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const searchTerm = '2.0';
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set(),
+        searchOnlyInLicenseField: false,
+        searchTerm,
+      }),
+    );
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set([
+        '/pathToApacheHigh',
+        '/pathToApacheMedium',
+        '/pathToGPLMedium',
+      ]),
+    };
+    const actualLocatedResources = getResourcesWithLocatedAttributions(
+      testStore.getState(),
+    );
+    expect(actualLocatedResources).toEqual(expectedLocatedResources);
+  });
+
+  it('locates attribution and parent when searching for license name only', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const searchTerm = '2.0';
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set(),
+        searchOnlyInLicenseField: true,
+        searchTerm,
+      }),
+    );
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set(['/pathToApacheHigh', '/pathToApacheMedium']),
+    };
+    const actualLocatedResources = getResourcesWithLocatedAttributions(
+      testStore.getState(),
+    );
+    expect(actualLocatedResources).toEqual(expectedLocatedResources);
+  });
+
   it('locates attribution and parent if only licenses set', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
@@ -323,6 +406,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseNames,
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
@@ -353,6 +438,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: new Set<string>(),
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
@@ -385,6 +472,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
@@ -414,6 +503,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
       }),
     );
 
