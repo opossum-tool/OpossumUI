@@ -10,10 +10,7 @@ import {
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-selectors';
-import {
-  clickOnButton,
-  clickOnCheckbox,
-} from '../../../test-helpers/general-test-helpers';
+import { clickOnButton } from '../../../test-helpers/general-test-helpers';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import {
   Criticality,
@@ -188,19 +185,43 @@ describe('Locator popup ', () => {
   });
 
   it('clears search field if clear button pressed', () => {
-    renderComponentWithStore(<LocatorPopup />);
-    insertValueIntoTextBox(screen, 'Search', 'jquery');
-    expectValueInTextBox(screen, 'Search', 'jquery');
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Medium,
+        selectedLicenses: new Set<string>(),
+        searchOnlyInLicenseField: false,
+        searchTerm: 'jquery',
+      }),
+    );
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
 
     expectValueInTextBox(screen, 'Search', '');
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedLicenses: new Set<string>(),
+      selectedCriticality: SelectedCriticality.Any,
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(),
+    });
   });
 
   it('unchecks checkbox if clear button pressed', () => {
-    renderComponentWithStore(<LocatorPopup />);
-
-    clickOnCheckbox(screen, 'Only search in the license field');
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Medium,
+        selectedLicenses: new Set<string>(),
+        searchOnlyInLicenseField: true,
+        searchTerm: '',
+      }),
+    );
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
     expect(
       screen.getByRole('checkbox', {
@@ -215,6 +236,43 @@ describe('Locator popup ', () => {
         name: 'checkbox Only search in the license field',
       }),
     ).not.toBeChecked();
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedLicenses: new Set<string>(),
+      selectedCriticality: SelectedCriticality.Any,
+      searchTerm: '',
+      searchOnlyInLicenseField: false,
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(),
+    });
+  });
+
+  it('disables the checkbox if the search term is empty', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Medium,
+        selectedLicenses: new Set<string>(),
+        searchOnlyInLicenseField: false,
+        searchTerm: '',
+      }),
+    );
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search in the license field',
+      }),
+    ).toBeDisabled();
+
+    insertValueIntoTextBox(screen, 'Search', 'jquery');
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search in the license field',
+      }),
+    ).toBeEnabled();
   });
 
   it('shows license if selected beforehand', () => {
