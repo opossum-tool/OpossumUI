@@ -209,7 +209,7 @@ export function navigateToTargetResourceOrAttribution(): AppThunkAction {
     dispatch(
       setTemporaryDisplayPackageInfo(
         getDisplayPackageInfoOfSelected(getState()) ||
-        EMPTY_DISPLAY_PACKAGE_INFO,
+          EMPTY_DISPLAY_PACKAGE_INFO,
       ),
     );
 
@@ -266,9 +266,9 @@ export function openAttributionWizardPopup(
     const originalDisplayPackageInfo =
       originalAttributionId !== null
         ? convertPackageInfoToDisplayPackageInfo(
-          manualAttributions[originalAttributionId],
-          [originalAttributionId],
-        )
+            manualAttributions[originalAttributionId],
+            [originalAttributionId],
+          )
         : EMPTY_DISPLAY_PACKAGE_INFO;
 
     const {
@@ -365,7 +365,7 @@ export function locateSignalsFromLocatorPopup(
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
         searchTerm,
-        searchOnlyInLicenseField
+        searchOnlyInLicenseField,
       }),
     );
 
@@ -374,7 +374,9 @@ export function locateSignalsFromLocatorPopup(
     const noSignalsAreFound =
       locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
     const allFiltersAreEmpty =
-      criticality === SelectedCriticality.Any && licenseNames.size === 0 && searchTerm === '';
+      criticality === SelectedCriticality.Any &&
+      licenseNames.size === 0 &&
+      searchTerm === '';
     const showNoSignalsLocatedMessage =
       noSignalsAreFound && !allFiltersAreEmpty;
 
@@ -398,7 +400,7 @@ export function locateSignalsFromProjectStatisticsPopup(
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set([licenseName]),
         searchTerm: '',
-        searchOnlyInLicenseField: false
+        searchOnlyInLicenseField: false,
       }),
     );
     dispatch(closePopup());

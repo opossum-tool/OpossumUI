@@ -151,7 +151,7 @@ export const initialResourceState: ResourceState = {
   locatePopup: {
     selectedCriticality: SelectedCriticality.Any,
     selectedLicenses: new Set<string>(),
-    searchTerm: "",
+    searchTerm: '',
     searchOnlyInLicenseField: false,
   },
 };
@@ -273,9 +273,9 @@ export const resourceState = (
 
       const displayPackageInfoForNewResource = displayedAttributionId
         ? convertPackageInfoToDisplayPackageInfo(
-          state.allViews.manualData.attributions[displayedAttributionId],
-          [displayedAttributionId],
-        )
+            state.allViews.manualData.attributions[displayedAttributionId],
+            [displayedAttributionId],
+          )
         : EMPTY_DISPLAY_PACKAGE_INFO;
 
       return {
@@ -403,18 +403,18 @@ export const resourceState = (
       const packageCardIdOfNewAttribution =
         packageCardIndex !== null
           ? createPackageCardId(
-            PackagePanelTitle.ManualPackages,
-            packageCardIndex,
-          )
+              PackagePanelTitle.ManualPackages,
+              packageCardIndex,
+            )
           : null;
 
       const newDisplayPackageInfo =
         action.payload.jumpToCreatedAttribution &&
-          packageCardIdOfNewAttribution !== null
+        packageCardIdOfNewAttribution !== null
           ? convertPackageInfoToDisplayPackageInfo(
-            newManualData.attributions[newAttributionId],
-            [newAttributionId],
-          )
+              newManualData.attributions[newAttributionId],
+              [newAttributionId],
+            )
           : EMPTY_DISPLAY_PACKAGE_INFO;
 
       return {
@@ -424,19 +424,19 @@ export const resourceState = (
           manualData: newManualData,
           ...(action.payload.jumpToCreatedAttribution &&
             packageCardIdOfNewAttribution !== null && {
-            temporaryDisplayPackageInfo: newDisplayPackageInfo,
-          }),
+              temporaryDisplayPackageInfo: newDisplayPackageInfo,
+            }),
         },
         auditView: {
           ...state.auditView,
           ...(action.payload.jumpToCreatedAttribution &&
             packageCardIdOfNewAttribution !== null && {
-            displayedPanelPackage: {
-              panel: PackagePanelTitle.ManualPackages,
-              packageCardId: packageCardIdOfNewAttribution,
-              displayPackageInfo: newDisplayPackageInfo,
-            },
-          }),
+              displayedPanelPackage: {
+                panel: PackagePanelTitle.ManualPackages,
+                packageCardId: packageCardIdOfNewAttribution,
+                displayPackageInfo: newDisplayPackageInfo,
+              },
+            }),
         },
       };
     case ACTION_UPDATE_ATTRIBUTION:
@@ -456,9 +456,9 @@ export const resourceState = (
       const packageCardIdAfterUpdate =
         packageCardIndexAfterUpdate !== null
           ? createPackageCardId(
-            PackagePanelTitle.ManualPackages,
-            packageCardIndexAfterUpdate,
-          )
+              PackagePanelTitle.ManualPackages,
+              packageCardIndexAfterUpdate,
+            )
           : null;
 
       const temporaryDisplayPackageInfoAfterUpdate =
@@ -480,12 +480,12 @@ export const resourceState = (
           ...state.auditView,
           ...(action.payload.jumpToUpdatedAttribution &&
             packageCardIdAfterUpdate !== null && {
-            displayedPanelPackage: {
-              panel: PackagePanelTitle.ManualPackages,
-              packageCardId: packageCardIdAfterUpdate,
-              displayPackageInfo: temporaryDisplayPackageInfoAfterUpdate,
-            },
-          }),
+              displayedPanelPackage: {
+                panel: PackagePanelTitle.ManualPackages,
+                packageCardId: packageCardIdAfterUpdate,
+                displayPackageInfo: temporaryDisplayPackageInfoAfterUpdate,
+              },
+            }),
         },
       };
     case ACTION_DELETE_ATTRIBUTION:
@@ -507,12 +507,12 @@ export const resourceState = (
       const newDisplayedPanelPackage: PanelPackage | null =
         state.auditView.displayedPanelPackage?.panel ===
           PackagePanelTitle.ManualPackages &&
-          attributionIdsOfDisplayedDisplayPackageInfo[0] === attributionToDeleteId
+        attributionIdsOfDisplayedDisplayPackageInfo[0] === attributionToDeleteId
           ? {
-            panel: PackagePanelTitle.ManualPackages,
-            packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
-            displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
-          }
+              panel: PackagePanelTitle.ManualPackages,
+              packageCardId: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+              displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
+            }
           : state.auditView.displayedPanelPackage;
 
       const newSelectedAttributionId: string =
@@ -522,7 +522,7 @@ export const resourceState = (
 
       const newAttributionIdMarkedForReplacement: string =
         state.allViews.attributionIdMarkedForReplacement ===
-          attributionToDeleteId
+        attributionToDeleteId
           ? ''
           : state.allViews.attributionIdMarkedForReplacement;
 
@@ -567,20 +567,20 @@ export const resourceState = (
       const packageCardIdForReplaceAttribution =
         packageCardIndexForReplaceAttribution !== null
           ? createPackageCardId(
-            PackagePanelTitle.ManualPackages,
-            packageCardIndexForReplaceAttribution,
-          )
+              PackagePanelTitle.ManualPackages,
+              packageCardIndexForReplaceAttribution,
+            )
           : null;
 
       const temporaryDisplayPackageInfoAfterReplace =
         action.payload.jumpToMatchingAttribution &&
-          packageCardIdForReplaceAttribution
+        packageCardIdForReplaceAttribution
           ? convertPackageInfoToDisplayPackageInfo(
-            manualDataForReplace.attributions[
-            matchingAttributionIdForReplace
-            ],
-            [matchingAttributionIdForReplace],
-          )
+              manualDataForReplace.attributions[
+                matchingAttributionIdForReplace
+              ],
+              [matchingAttributionIdForReplace],
+            )
           : EMPTY_DISPLAY_PACKAGE_INFO;
 
       return {
@@ -590,27 +590,27 @@ export const resourceState = (
           manualData: manualDataForReplace,
           ...(action.payload.jumpToMatchingAttribution &&
             packageCardIdForReplaceAttribution && {
-            temporaryDisplayPackageInfo:
-              temporaryDisplayPackageInfoAfterReplace,
-          }),
+              temporaryDisplayPackageInfo:
+                temporaryDisplayPackageInfoAfterReplace,
+            }),
         },
         auditView: {
           ...state.auditView,
           ...(action.payload.jumpToMatchingAttribution &&
             packageCardIdForReplaceAttribution && {
-            displayedPanelPackage: {
-              panel: PackagePanelTitle.ManualPackages,
-              packageCardId: packageCardIdForReplaceAttribution,
-              displayPackageInfo: temporaryDisplayPackageInfoAfterReplace,
-            },
-          }),
+              displayedPanelPackage: {
+                panel: PackagePanelTitle.ManualPackages,
+                packageCardId: packageCardIdForReplaceAttribution,
+                displayPackageInfo: temporaryDisplayPackageInfoAfterReplace,
+              },
+            }),
         },
         attributionView: {
           ...state.attributionView,
           ...(action.payload.jumpToMatchingAttribution &&
             packageCardIdForReplaceAttribution && {
-            selectedAttributionId: matchingAttributionIdForReplace,
-          }),
+              selectedAttributionId: matchingAttributionIdForReplace,
+            }),
         },
       };
     case ACTION_LINK_TO_ATTRIBUTION:
@@ -638,9 +638,9 @@ export const resourceState = (
       const packageCardIdOfLinkingAttribution =
         packageCardIndexOfLinkingAttribution !== null
           ? createPackageCardId(
-            PackagePanelTitle.ManualPackages,
-            packageCardIndexOfLinkingAttribution,
-          )
+              PackagePanelTitle.ManualPackages,
+              packageCardIndexOfLinkingAttribution,
+            )
           : ADD_NEW_ATTRIBUTION_BUTTON_ID;
 
       return {
@@ -656,7 +656,7 @@ export const resourceState = (
             packageCardId: packageCardIdOfLinkingAttribution,
             displayPackageInfo: convertPackageInfoToDisplayPackageInfo(
               manualDataAfterForLinking.attributions[
-              matchingAttributionIdForLinking
+                matchingAttributionIdForLinking
               ],
               [matchingAttributionIdForLinking],
             ),
@@ -702,7 +702,7 @@ export const resourceState = (
 
       const resourcesWithOnlyHiddenAttributions = (
         state.allViews.externalData.attributionsToResources[
-        resolvedAttributionId
+          resolvedAttributionId
         ] ?? []
       ).filter((resourceId) => {
         const resourceAttributionIds =
@@ -754,7 +754,7 @@ export const resourceState = (
                     .resourcesWithAttributedChildren,
                 },
                 state.allViews.externalData.attributionsToResources[
-                action.payload
+                  action.payload
                 ],
               ),
           },
@@ -862,7 +862,12 @@ export const resourceState = (
         },
       };
     case ACTION_SET_LOCATE_POPUP_FILTERS:
-      const { selectedCriticality, selectedLicenses, searchTerm, searchOnlyInLicenseField } = action.payload;
+      const {
+        selectedCriticality,
+        selectedLicenses,
+        searchTerm,
+        searchOnlyInLicenseField,
+      } = action.payload;
       const locatedResources = calculateResourcesWithLocatedAttributions(
         selectedCriticality,
         selectedLicenses,
@@ -886,7 +891,8 @@ export const resourceState = (
         locatePopup: {
           selectedCriticality,
           selectedLicenses,
-          searchTerm, searchOnlyInLicenseField
+          searchTerm,
+          searchOnlyInLicenseField,
         },
       };
     default:

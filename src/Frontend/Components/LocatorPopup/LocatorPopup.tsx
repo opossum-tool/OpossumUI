@@ -74,9 +74,12 @@ export function getLicenseNames(attributions: Attributions): Array<string> {
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const externalAttributions = useAppSelector(getExternalAttributions);
-  const { selectedCriticality, selectedLicenses, searchTerm, searchOnlyInLicenseField } = useAppSelector(
-    getLocatePopupFilters,
-  );
+  const {
+    selectedCriticality,
+    selectedLicenses,
+    searchTerm,
+    searchOnlyInLicenseField,
+  } = useAppSelector(getLocatePopupFilters);
   const showNoSignalsLocatedMessage = useAppSelector(
     getShowNoSignalsLocatedMessage,
   );
@@ -112,7 +115,7 @@ export function LocatorPopup(): ReactElement {
         criticalityDropDownChoice,
         searchedLicenses,
         searchedSignal,
-        displaySearchOnlyInLicenseField
+        displaySearchOnlyInLicenseField,
       ),
     );
   }

@@ -15,7 +15,7 @@ export function isLocateSignalActive(state: State): boolean {
 
   return (
     locatePopupFilters.selectedCriticality !==
-    initialResourceState.locatePopup.selectedCriticality ||
+      initialResourceState.locatePopup.selectedCriticality ||
     locatePopupFilters.selectedLicenses.size > 0 ||
     locatePopupFilters.searchTerm !== ''
   );
