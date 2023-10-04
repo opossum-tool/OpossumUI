@@ -28,6 +28,7 @@ import { OpossumColors } from '../../shared-styles';
 import MuiTypography from '@mui/material/Typography';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
   dropdown: {
@@ -142,18 +143,13 @@ export function LocatorPopup(): ReactElement {
 
   const content = (
     <>
-      <AutoComplete
-        isEditable={true}
+      <SearchTextField
         sx={classes.autocomplete}
-        title={'Search'}
-        handleChange={(event: ChangeEvent<HTMLInputElement>): void => {
-          setSearchedSignal(event.target.value);
+        onInputChange={(search: string): void => {
+          setSearchedSignal(search);
         }}
-        isHighlighted={false}
-        options={new Array<string>()}
-        inputValue={searchedSignal}
-        showTextBold={false}
-        formatOptionForDisplay={(option: string): string => option}
+        search={searchedSignal}
+        showIcon={true}
       />
       <Checkbox
         sx={classes.checkboxContainer}

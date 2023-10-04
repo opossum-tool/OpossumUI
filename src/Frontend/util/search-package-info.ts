@@ -9,7 +9,6 @@ export function packageInfoContainsSearchTerm(
   attribution: PackageInfoCore,
   searchTerm: string,
 ): boolean {
-  console.log();
   return Boolean(
     attribution &&
       (searchTerm === '' ||
