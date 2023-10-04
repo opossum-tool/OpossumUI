@@ -356,12 +356,16 @@ export function closeAttributionWizardPopup(): AppThunkAction {
 export function locateSignalsFromLocatorPopup(
   criticality: SelectedCriticality,
   licenseNames: Set<string>,
+  searchTerm: string,
+  searchOnlyLicenseName: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchTerm,
+        searchOnlyLicenseName,
       }),
     );
 
@@ -370,7 +374,9 @@ export function locateSignalsFromLocatorPopup(
     const noSignalsAreFound =
       locatedResources.size === 0 && resourcesWithLocatedChildren.size === 0;
     const allFiltersAreEmpty =
-      criticality === SelectedCriticality.Any && licenseNames.size === 0;
+      criticality === SelectedCriticality.Any &&
+      licenseNames.size === 0 &&
+      searchTerm === '';
     const showNoSignalsLocatedMessage =
       noSignalsAreFound && !allFiltersAreEmpty;
 
@@ -393,6 +399,8 @@ export function locateSignalsFromProjectStatisticsPopup(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set([licenseName]),
+        searchTerm: '',
+        searchOnlyLicenseName: false,
       }),
     );
     dispatch(closePopup());

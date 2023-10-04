@@ -174,6 +174,8 @@ describe('ResourceBrowser', () => {
         setLocatePopupFilters({
           selectedCriticality: testLocatePopupSelectedCriticality,
           selectedLicenses: new Set<string>(),
+          searchTerm: '',
+          searchOnlyLicenseName: false,
         }),
       );
     });
@@ -332,6 +334,8 @@ describe('ResourceBrowser', () => {
         setLocatePopupFilters({
           selectedCriticality: SelectedCriticality.High,
           selectedLicenses: new Set<string>(),
+          searchTerm: '',
+          searchOnlyLicenseName: false,
         }),
       );
     });
