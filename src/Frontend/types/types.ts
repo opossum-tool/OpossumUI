@@ -197,5 +197,5 @@ export interface LocatePopupFilters {
   selectedCriticality: SelectedCriticality;
   selectedLicenses: Set<string>;
   searchTerm: string;
-  searchOnlyInLicenseField: boolean;
+  searchOnlyLicenseName: boolean;
 }

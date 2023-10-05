@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
-  licenseContainsSearchTerm,
+  licenseNameContainsSearchTerm,
   packageInfoContainsSearchTerm,
 } from '../search-package-info';
 
@@ -67,15 +67,15 @@ describe('packageInfoContainsSearchTerm', () => {
   });
 });
 
-describe('licenseContainsSearchTerm', () => {
+describe('licenseNameContainsSearchTerm', () => {
   it('searches by license name', () => {
     const testPackageInfo = {
       licenseName: 'Search_term licence',
       attributionIds: ['uuid3'],
     };
 
-    expect(licenseContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toEqual(
-      true,
-    );
+    expect(
+      licenseNameContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm'),
+    ).toEqual(true);
   });
 });

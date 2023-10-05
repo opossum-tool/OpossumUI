@@ -73,7 +73,7 @@ describe('Locator popup ', () => {
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
 
     clickOnButton(screen, 'Apply');
@@ -82,7 +82,7 @@ describe('Locator popup ', () => {
       selectedCriticality: SelectedCriticality.High,
       selectedLicenses: new Set<string>(),
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
   });
 
@@ -92,7 +92,7 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Medium,
         selectedLicenses: new Set<string>(),
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -109,7 +109,7 @@ describe('Locator popup ', () => {
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
   });
 
@@ -149,7 +149,7 @@ describe('Locator popup ', () => {
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
       expectedLocatedResources,
@@ -164,7 +164,7 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseSet,
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -176,7 +176,7 @@ describe('Locator popup ', () => {
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
@@ -190,7 +190,7 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Medium,
         selectedLicenses: new Set<string>(),
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: 'jquery',
       }),
     );
@@ -203,7 +203,7 @@ describe('Locator popup ', () => {
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
@@ -217,7 +217,7 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Medium,
         selectedLicenses: new Set<string>(),
-        searchOnlyInLicenseField: true,
+        searchOnlyLicenseName: true,
         searchTerm: '',
       }),
     );
@@ -240,7 +240,7 @@ describe('Locator popup ', () => {
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
       searchTerm: '',
-      searchOnlyInLicenseField: false,
+      searchOnlyLicenseName: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
@@ -254,7 +254,7 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Medium,
         selectedLicenses: new Set<string>(),
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -283,7 +283,7 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseSet,
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -371,7 +371,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -400,7 +400,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set(),
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm,
       }),
     );
@@ -434,7 +434,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set(),
-        searchOnlyInLicenseField: true,
+        searchOnlyLicenseName: true,
         searchTerm,
       }),
     );
@@ -464,7 +464,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseNames,
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -496,7 +496,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: new Set<string>(),
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -530,7 +530,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );
@@ -561,7 +561,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
         searchTerm: '',
       }),
     );

@@ -79,7 +79,7 @@ export function LocatorPopup(): ReactElement {
     selectedCriticality,
     selectedLicenses,
     searchTerm,
-    searchOnlyInLicenseField,
+    searchOnlyLicenseName,
   } = useAppSelector(getLocatePopupFilters);
   const showNoSignalsLocatedMessage = useAppSelector(
     getShowNoSignalsLocatedMessage,
@@ -94,8 +94,8 @@ export function LocatorPopup(): ReactElement {
   const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
 
   const [searchedSignal, setSearchedSignal] = useState(searchTerm);
-  const [displaySearchOnlyInLicenseField, setDisplaySearchOnlyInLicenseField] =
-    useState(searchOnlyInLicenseField);
+  const [displaySearchOnlyLicenseName, setDisplaySearchOnlyLicenseName] =
+    useState(searchOnlyLicenseName);
 
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
@@ -116,7 +116,7 @@ export function LocatorPopup(): ReactElement {
         criticalityDropDownChoice,
         searchedLicenses,
         searchedSignal,
-        displaySearchOnlyInLicenseField,
+        displaySearchOnlyLicenseName,
       ),
     );
   }
@@ -125,13 +125,13 @@ export function LocatorPopup(): ReactElement {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
     setSearchedLicense('');
     setSearchedSignal('');
-    setDisplaySearchOnlyInLicenseField(false);
+    setDisplaySearchOnlyLicenseName(false);
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(),
         searchTerm: '',
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
       }),
     );
     dispatch(setShowNoSignalsLocatedMessage(false));
@@ -153,11 +153,11 @@ export function LocatorPopup(): ReactElement {
       />
       <Checkbox
         sx={classes.checkboxContainer}
-        label={CheckboxLabel.OnlyInLicenseField}
-        checked={displaySearchOnlyInLicenseField}
+        label={CheckboxLabel.OnlyLicenseName}
+        checked={displaySearchOnlyLicenseName}
         disabled={searchedSignal === ''}
         onChange={(): void => {
-          setDisplaySearchOnlyInLicenseField(!displaySearchOnlyInLicenseField);
+          setDisplaySearchOnlyLicenseName(!displaySearchOnlyLicenseName);
         }}
       />
       <Dropdown

@@ -21,7 +21,7 @@ describe('isLocateSignalActive', () => {
         selectedCriticality: SelectedCriticality.High,
         selectedLicenses: new Set<string>(),
         searchTerm: '',
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
       }),
     );
 
@@ -35,7 +35,7 @@ describe('isLocateSignalActive', () => {
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(['testLicenseId']),
         searchTerm: '',
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
       }),
     );
 
@@ -49,21 +49,21 @@ describe('isLocateSignalActive', () => {
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(),
         searchTerm: 'testSearchterm',
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
       }),
     );
 
     expect(isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
-  it('returns false if only searchOnlyInLicenseField is set', () => {
+  it('returns false if only searchOnlyLicenseName is set', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(),
         searchTerm: '',
-        searchOnlyInLicenseField: true,
+        searchOnlyLicenseName: true,
       }),
     );
 

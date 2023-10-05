@@ -152,7 +152,7 @@ export const initialResourceState: ResourceState = {
     selectedCriticality: SelectedCriticality.Any,
     selectedLicenses: new Set<string>(),
     searchTerm: '',
-    searchOnlyInLicenseField: false,
+    searchOnlyLicenseName: false,
   },
 };
 
@@ -866,13 +866,13 @@ export const resourceState = (
         selectedCriticality,
         selectedLicenses,
         searchTerm,
-        searchOnlyInLicenseField,
+        searchOnlyLicenseName,
       } = action.payload;
       const locatedResources = calculateResourcesWithLocatedAttributions(
         selectedCriticality,
         selectedLicenses,
         searchTerm,
-        searchOnlyInLicenseField,
+        searchOnlyLicenseName,
         state.allViews.externalData.attributions,
         state.allViews.externalData.attributionsToResources,
         state.allViews.frequentLicenses.nameOrder,
@@ -892,7 +892,7 @@ export const resourceState = (
           selectedCriticality,
           selectedLicenses,
           searchTerm,
-          searchOnlyInLicenseField,
+          searchOnlyLicenseName,
         },
       };
     default:

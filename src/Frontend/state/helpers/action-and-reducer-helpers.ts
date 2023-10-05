@@ -26,7 +26,7 @@ import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabeti
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 import {
-  licenseContainsSearchTerm,
+  licenseNameContainsSearchTerm,
   packageInfoContainsSearchTerm,
 } from '../../util/search-package-info';
 
@@ -287,7 +287,7 @@ export function calculateResourcesWithLocatedAttributions(
   selectedCriticality: SelectedCriticality,
   licenseNames: Set<string>,
   searchTerm: string,
-  searchOnlyInLicenseFields: boolean,
+  searchOnlyLicenseNames: boolean,
   externalAttributions: Attributions,
   externalAttributionsToResources: AttributionsToResources,
   frequentLicenseNames: Array<FrequentLicenseName>,
@@ -311,9 +311,9 @@ export function calculateResourcesWithLocatedAttributions(
       augmentedLicenseNames.has(attribution.licenseName);
     const criticalityMatches = attribution.criticality == selectedCriticality;
     const searchTermMatches =
-      (searchOnlyInLicenseFields &&
-        licenseContainsSearchTerm(attribution, searchTerm)) ||
-      (!searchOnlyInLicenseFields &&
+      (searchOnlyLicenseNames &&
+        licenseNameContainsSearchTerm(attribution, searchTerm)) ||
+      (!searchOnlyLicenseNames &&
         packageInfoContainsSearchTerm(attribution, searchTerm));
 
     if (

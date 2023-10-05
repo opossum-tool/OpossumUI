@@ -31,7 +31,7 @@ export function packageInfoContainsSearchTerm(
   );
 }
 
-export function licenseContainsSearchTerm(
+export function licenseNameContainsSearchTerm(
   attribution: PackageInfoCore,
   searchTerm: string,
 ): boolean {

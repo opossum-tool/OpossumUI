@@ -357,7 +357,7 @@ export function locateSignalsFromLocatorPopup(
   criticality: SelectedCriticality,
   licenseNames: Set<string>,
   searchTerm: string,
-  searchOnlyInLicenseField: boolean,
+  searchOnlyLicenseName: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     dispatch(
@@ -365,7 +365,7 @@ export function locateSignalsFromLocatorPopup(
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
         searchTerm,
-        searchOnlyInLicenseField,
+        searchOnlyLicenseName,
       }),
     );
 
@@ -400,7 +400,7 @@ export function locateSignalsFromProjectStatisticsPopup(
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set([licenseName]),
         searchTerm: '',
-        searchOnlyInLicenseField: false,
+        searchOnlyLicenseName: false,
       }),
     );
     dispatch(closePopup());
