@@ -83,7 +83,7 @@ To search for a path, press `CTRL + F` or open the `Edit` menu and select `Searc
 
 ### Locate signals <a name="locator"></a>
 
-To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup. From here, you can search for signals by license name and criticality. Once selected, the locations of matching signals will be highlighted in the resource tree.
+To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup. From here, you can choose which signals you want to locate in the resource tree. You can search for signals by string, or choose an existing license name or criticality. Once selected, the locations of matching signals will be highlighted in the resource tree.
 
 ![integration](./docs/user_guide_screenshots/locator.png)
 
