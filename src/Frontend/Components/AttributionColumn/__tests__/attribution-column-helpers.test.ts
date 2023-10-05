@@ -216,7 +216,7 @@ describe('getMergeButtonsDisplayState', () => {
     });
   });
 
-  it('activates UnmarkAsPreferredButton when attribution is not preferred', () => {
+  it('deactivates UnmarkAsPreferredButton when attribution is not preferred in QA mode', () => {
     expect(
       getMergeButtonsDisplayState({
         attributionIdMarkedForReplacement: 'attr2',
@@ -239,7 +239,7 @@ describe('getMergeButtonsDisplayState', () => {
     });
   });
 
-  it('activates UnmarkAsPreferredButton when attribution is preferred', () => {
+  it('activates UnmarkAsPreferredButton when attribution is preferred in QA mode', () => {
     expect(
       getMergeButtonsDisplayState({
         attributionIdMarkedForReplacement: 'attr2',
@@ -274,6 +274,29 @@ describe('getMergeButtonsDisplayState', () => {
         attributionIsPreferred: false,
         view: View.Attribution,
         isPreferenceFeatureEnabled: true,
+      }),
+    ).toStrictEqual({
+      hideMarkForReplacementButton: false,
+      hideUnmarkForReplacementButton: true,
+      hideReplaceMarkedByButton: false,
+      deactivateReplaceMarkedByButton: true,
+      hideMarkAsPreferredButton: true,
+      hideUnmarkAsPreferredButton: true,
+    });
+  });
+
+  it('hides MarkAsPreferredButton & UnmarkAsPreferredButton when preference feature is disabled', () => {
+    expect(
+      getMergeButtonsDisplayState({
+        attributionIdMarkedForReplacement: 'attr2',
+        targetAttributionId: 'attr',
+        selectedAttributionId: 'attr',
+        packageInfoWereModified: false,
+        targetAttributionIsPreSelected: true,
+        targetAttributionIsExternalAttribution: false,
+        attributionIsPreferred: true,
+        view: View.Audit,
+        isPreferenceFeatureEnabled: false,
       }),
     ).toStrictEqual({
       hideMarkForReplacementButton: false,

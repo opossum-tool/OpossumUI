@@ -25,7 +25,10 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
 import {
   clickAddIconOnCardInAttributionList,
@@ -59,6 +62,7 @@ import {
   expectReplaceAttributionPopupIsNotShown,
   expectReplaceAttributionPopupIsShown,
 } from '../../../test-helpers/popup-test-helpers';
+import { setQAMode } from '../../../state/actions/view-actions/view-actions';
 
 describe('The App in Audit View', () => {
   it('renders TopBar and no ResourceBrowser when no resource file has been loaded', () => {
@@ -575,7 +579,7 @@ describe('The App in Audit View', () => {
     );
   });
 
-  it('preferred button is shown and sets an attribution as preferred', () => {
+  it('preferred button is shown and sets an attribution as preferred if QA mode is enabled', () => {
     function getExpectedSaveFileArgs(
       preferred: boolean,
       preferredOverOriginIds?: Array<string>,
@@ -644,7 +648,9 @@ describe('The App in Audit View', () => {
         resourcesToExternalAttributions: testResourcesToExternalAttributions,
       }),
     );
-    renderComponentWithStore(<App />);
+    const testStore = createTestAppStore();
+    renderComponentWithStore(<App />, { store: testStore });
+    testStore.dispatch(setQAMode(true));
     clickOnButton(screen, ButtonText.Close);
 
     clickOnElementInResourceBrowser(screen, 'file');
@@ -673,7 +679,7 @@ describe('The App in Audit View', () => {
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(2);
   });
 
-  it('after setting an attribution to preferred, global save is disabled', () => {
+  it('after setting an attribution to preferred in QA mode, global save is disabled', () => {
     const testResources: Resources = {
       file: 1,
       other_file: 1,
@@ -705,7 +711,9 @@ describe('The App in Audit View', () => {
         },
       }),
     );
-    renderComponentWithStore(<App />);
+    const testStore = createTestAppStore();
+    renderComponentWithStore(<App />, { store: testStore });
+    testStore.dispatch(setQAMode(true));
     clickOnButton(screen, ButtonText.Close);
 
     clickOnElementInResourceBrowser(screen, 'file');
