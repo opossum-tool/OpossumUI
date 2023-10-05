@@ -43,12 +43,10 @@ describe('Locator popup ', () => {
       screen.getByText('Locate Signals', { exact: true }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Search')).toBeInTheDocument();
-    expect(
-      screen.getByText('Only search in the license field'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Only search license names')).toBeInTheDocument();
     expect(
       screen.getByRole('checkbox', {
-        name: 'checkbox Only search in the license field',
+        name: 'checkbox Only search license names',
       }),
     ).not.toBeChecked();
     expect(screen.getByLabelText('Criticality')).toBeInTheDocument();
@@ -225,7 +223,7 @@ describe('Locator popup ', () => {
 
     expect(
       screen.getByRole('checkbox', {
-        name: 'checkbox Only search in the license field',
+        name: 'checkbox Only search license names',
       }),
     ).toBeChecked();
 
@@ -233,7 +231,7 @@ describe('Locator popup ', () => {
 
     expect(
       screen.getByRole('checkbox', {
-        name: 'checkbox Only search in the license field',
+        name: 'checkbox Only search license names',
       }),
     ).not.toBeChecked();
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
@@ -262,7 +260,7 @@ describe('Locator popup ', () => {
 
     expect(
       screen.getByRole('checkbox', {
-        name: 'checkbox Only search in the license field',
+        name: 'checkbox Only search license names',
       }),
     ).toBeDisabled();
 
@@ -270,7 +268,7 @@ describe('Locator popup ', () => {
 
     expect(
       screen.getByRole('checkbox', {
-        name: 'checkbox Only search in the license field',
+        name: 'checkbox Only search license names',
       }),
     ).toBeEnabled();
   });

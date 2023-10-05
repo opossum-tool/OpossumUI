@@ -97,7 +97,7 @@ export enum CheckboxLabel {
   FollowUp = 'Follow-up',
   ExcludeFromNotice = 'Exclude From Notice',
   NeedsReview = 'Needs Review',
-  OnlyLicenseName = 'Only search the license name',
+  OnlyLicenseName = 'Only search license names',
 }
 
 export enum ProjectStatisticsPopupTitle {
