@@ -734,6 +734,8 @@ describe('locateSignalsFromLocatorPopup', () => {
       locateSignalsFromLocatorPopup(
         SelectedCriticality.High,
         new Set<string>(['GPL-2.0']),
+        '',
+        false,
       ),
     );
 
@@ -767,6 +769,8 @@ describe('locateSignalsFromLocatorPopup', () => {
       locateSignalsFromLocatorPopup(
         SelectedCriticality.High,
         new Set<string>(['GPL-2.0']),
+        'gpl',
+        true,
       ),
     );
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(false);
@@ -815,7 +819,12 @@ describe('locateSignalsFromLocatorPopup', () => {
       setTemporaryDisplayPackageInfo(changedDisplayPackageInfo),
     );
     testStore.dispatch(
-      locateSignalsFromLocatorPopup(Criticality.High, new Set(['GPL-2.0'])),
+      locateSignalsFromLocatorPopup(
+        Criticality.High,
+        new Set(['GPL-2.0']),
+        'gpl',
+        true,
+      ),
     );
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
     testStore.dispatch(

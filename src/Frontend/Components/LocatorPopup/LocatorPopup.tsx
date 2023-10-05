@@ -28,6 +28,7 @@ import { OpossumColors } from '../../shared-styles';
 import MuiTypography from '@mui/material/Typography';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
   dropdown: {
@@ -74,9 +75,12 @@ export function getLicenseNames(attributions: Attributions): Array<string> {
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const externalAttributions = useAppSelector(getExternalAttributions);
-  const { selectedCriticality, selectedLicenses } = useAppSelector(
-    getLocatePopupFilters,
-  );
+  const {
+    selectedCriticality,
+    selectedLicenses,
+    searchTerm,
+    searchOnlyLicenseName,
+  } = useAppSelector(getLocatePopupFilters);
   const showNoSignalsLocatedMessage = useAppSelector(
     getShowNoSignalsLocatedMessage,
   );
@@ -89,9 +93,9 @@ export function LocatorPopup(): ReactElement {
 
   const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
 
-  const [searchedSignal, setSearchedSignal] = useState('');
-  const [searchOnlyInLicenseField, setSearchOnlyInLicenseField] =
-    useState(false);
+  const [searchedSignal, setSearchedSignal] = useState(searchTerm);
+  const [displaySearchOnlyLicenseName, setDisplaySearchOnlyLicenseName] =
+    useState(searchOnlyLicenseName);
 
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
@@ -107,11 +111,12 @@ export function LocatorPopup(): ReactElement {
       searchedLicense.length == 0
         ? new Set<string>()
         : new Set([searchedLicense]);
-
     dispatch(
       locateSignalsFromLocatorPopup(
         criticalityDropDownChoice,
         searchedLicenses,
+        searchedSignal,
+        displaySearchOnlyLicenseName,
       ),
     );
   }
@@ -120,11 +125,13 @@ export function LocatorPopup(): ReactElement {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
     setSearchedLicense('');
     setSearchedSignal('');
-    setSearchOnlyInLicenseField(false);
+    setDisplaySearchOnlyLicenseName(false);
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(),
+        searchTerm: '',
+        searchOnlyLicenseName: false,
       }),
     );
     dispatch(setShowNoSignalsLocatedMessage(false));
@@ -136,25 +143,21 @@ export function LocatorPopup(): ReactElement {
 
   const content = (
     <>
-      <AutoComplete
-        isEditable={true}
+      <SearchTextField
         sx={classes.autocomplete}
-        title={'Search'}
-        handleChange={(event: ChangeEvent<HTMLInputElement>): void => {
-          setSearchedSignal(event.target.value);
+        onInputChange={(search: string): void => {
+          setSearchedSignal(search);
         }}
-        isHighlighted={false}
-        options={new Array<string>()}
-        inputValue={searchedSignal}
-        showTextBold={false}
-        formatOptionForDisplay={(option: string): string => option}
+        search={searchedSignal}
+        showIcon={true}
       />
       <Checkbox
         sx={classes.checkboxContainer}
-        label={CheckboxLabel.OnlyInLicenseField}
-        checked={searchOnlyInLicenseField}
+        label={CheckboxLabel.OnlyLicenseName}
+        checked={displaySearchOnlyLicenseName}
+        disabled={searchedSignal === ''}
         onChange={(): void => {
-          setSearchOnlyInLicenseField(!searchOnlyInLicenseField);
+          setDisplaySearchOnlyLicenseName(!displaySearchOnlyLicenseName);
         }}
       />
       <Dropdown

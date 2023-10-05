@@ -197,4 +197,6 @@ export interface DisplayPackageInfosWithCount {
 export interface LocatePopupFilters {
   selectedCriticality: SelectedCriticality;
   selectedLicenses: Set<string>;
+  searchTerm: string;
+  searchOnlyLicenseName: boolean;
 }

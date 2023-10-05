@@ -11,7 +11,7 @@ import { isLocateSignalActive } from '../locate-popup-selectors';
 describe('isLocateSignalActive', () => {
   it('returns false in the default state', () => {
     const testStore = createTestAppStore();
-    expect(!isLocateSignalActive(testStore.getState()));
+    expect(!isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns true if the selected criticality is not the default', () => {
@@ -20,10 +20,12 @@ describe('isLocateSignalActive', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.High,
         selectedLicenses: new Set<string>(),
+        searchTerm: '',
+        searchOnlyLicenseName: false,
       }),
     );
 
-    expect(isLocateSignalActive(testStore.getState()));
+    expect(isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns true if there are selected licenses', () => {
@@ -32,8 +34,39 @@ describe('isLocateSignalActive', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(['testLicenseId']),
+        searchTerm: '',
+        searchOnlyLicenseName: false,
       }),
     );
-    expect(isLocateSignalActive(testStore.getState()));
+
+    expect(isLocateSignalActive(testStore.getState())).toEqual(true);
+  });
+
+  it('returns true if the search term is set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set<string>(),
+        searchTerm: 'testSearchterm',
+        searchOnlyLicenseName: false,
+      }),
+    );
+
+    expect(isLocateSignalActive(testStore.getState())).toEqual(true);
+  });
+
+  it('returns false if only searchOnlyLicenseName is set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set<string>(),
+        searchTerm: '',
+        searchOnlyLicenseName: true,
+      }),
+    );
+
+    expect(isLocateSignalActive(testStore.getState())).toEqual(false);
   });
 });
