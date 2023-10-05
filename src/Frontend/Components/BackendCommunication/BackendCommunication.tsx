@@ -18,6 +18,7 @@ import {
   FileSupportPopupArgs,
   IsLoadingArgs,
   ParsedFileContent,
+  QAModeArgs,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import {
@@ -44,6 +45,7 @@ import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import {
   openPopup,
   setIsLoading,
+  setQAMode,
 } from '../../state/actions/view-actions/view-actions';
 
 export function BackendCommunication(): ReactElement | null {
@@ -280,6 +282,15 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
+  function setQAModeListener(
+    event: IpcRendererEvent,
+    qaModeArgs: QAModeArgs,
+  ): void {
+    if (qaModeArgs) {
+      dispatch(setQAMode(qaModeArgs.qaMode));
+    }
+  }
+
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -342,6 +353,9 @@ export function BackendCommunication(): ReactElement | null {
     showUpdateAppPopupListener,
     [dispatch],
   );
+  useIpcRenderer(AllowedFrontendChannels.SetQAMode, setQAModeListener, [
+    dispatch,
+  ]);
 
   return null;
 }

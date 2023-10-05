@@ -11,6 +11,7 @@ import {
   getIsLoading,
   getOpenPopup,
   getPopupAttributionId,
+  getQAMode,
   getSelectedView,
   getTargetView,
   isAttributionViewSelected,
@@ -23,6 +24,7 @@ import {
   openPopup,
   resetViewState,
   setIsLoading,
+  setQAMode,
   setTargetView,
   updateActiveFilters,
 } from '../view-actions';
@@ -158,6 +160,15 @@ describe('view actions', () => {
     expect(getIsLoading(testStore.getState())).toBe(true);
     testStore.dispatch(setIsLoading(false));
     expect(getIsLoading(testStore.getState())).toBe(false);
+  });
+
+  it('sets and gets QA mode state', () => {
+    const testStore = createTestAppStore();
+    expect(getQAMode(testStore.getState())).toBe(false);
+    testStore.dispatch(setQAMode(true));
+    expect(getQAMode(testStore.getState())).toBe(true);
+    testStore.dispatch(setQAMode(false));
+    expect(getQAMode(testStore.getState())).toBe(false);
   });
 });
 
