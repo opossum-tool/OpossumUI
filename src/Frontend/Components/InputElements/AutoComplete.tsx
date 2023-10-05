@@ -13,7 +13,8 @@ import MuiBox from '@mui/material/Box';
 interface AutoCompleteProps extends InputElementProps {
   options: Array<string>;
   endAdornmentText?: string;
-  inputValue: string;
+  inputValue?: string;
+  value?: Array<string>; // Use value if multiple is true and inputValue otherwise.
   showTextBold?: boolean;
   multiple?: boolean;
   formatOptionForDisplay?(value: string): string;
@@ -31,9 +32,9 @@ function enterWasPressed(event: KeyboardEvent): boolean {
 }
 
 export function AutoComplete(props: AutoCompleteProps): ReactElement {
-  function onInputChange(
+  function onChange(
     event: ChangeEvent<unknown> | KeyboardEvent,
-    value: string,
+    value: Array<string> | string,
   ): void {
     if (
       value &&
@@ -42,9 +43,10 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
     ) {
       props.handleChange({
         target: {
-          value: props.formatOptionForDisplay
-            ? props.formatOptionForDisplay(value)
-            : value,
+          value:
+            props.formatOptionForDisplay && typeof value === 'string'
+              ? props.formatOptionForDisplay(value)
+              : value,
         },
       } as unknown as ChangeEvent<HTMLInputElement | HTMLTextAreaElement>);
     }
@@ -67,7 +69,8 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
         disableClearable={true}
         disabled={!props.isEditable}
         inputValue={props.inputValue}
-        onInputChange={onInputChange}
+        value={props.value}
+        onChange={onChange}
         aria-label={'auto complete'}
         renderInput={(params): ReactElement => {
           const paramsWithAdornment = props.endAdornmentText
@@ -95,7 +98,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
               }}
               variant="outlined"
               size="small"
-              onChange={props.handleChange}
+              onChange={props.multiple ? undefined : props.handleChange}
             />
           );
         }}

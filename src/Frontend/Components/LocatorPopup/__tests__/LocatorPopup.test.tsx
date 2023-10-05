@@ -92,7 +92,7 @@ describe('Locator popup ', () => {
     });
   });
 
-  it.skip('sets state if license selected', () => {
+  it('sets state if license selected', () => {
     const testStore = createTestAppStore();
     // add external attribution with license MIT to see it
     const testExternalAttribution: PackageInfo = {
@@ -123,6 +123,54 @@ describe('Locator popup ', () => {
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
     expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: licenseSet,
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+      expectedLocatedResources,
+    );
+  });
+
+  it('sets state if several licenses selected', () => {
+    const testStore = createTestAppStore();
+    const testExternalAttribution: PackageInfo = {
+      packageName: 'jQuery',
+      packageVersion: '16.0.0',
+      licenseName: 'MIT',
+      comment: 'ManualPackage',
+    };
+    const otherTestExternalAttribution: PackageInfo = {
+      packageName: 'jQuery',
+      packageVersion: '16.0.0',
+      licenseName: 'GPL-2.0',
+      comment: 'ManualPackage',
+    };
+    const testExternalAttributions: Attributions = {
+      uuid_1: testExternalAttribution,
+      uuid_2: otherTestExternalAttribution,
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/root/': ['uuid_1', 'uuid_2'],
+    };
+
+    testStore.dispatch(
+      setExternalData(
+        testExternalAttributions,
+        testResourcesToExternalAttributions,
+      ),
+    );
+    const licenseSet = new Set(['MIT', 'GPL-2.0']);
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set(['/root/']),
+    };
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+
+    expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
+    expectElementsInAutoCompleteAndSelectFirst(screen, ['GPL-2.0']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
@@ -169,7 +217,7 @@ describe('Locator popup ', () => {
     );
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
-    expect(screen.getByDisplayValue('MIT')).toBeInTheDocument();
+    expect(screen.getByText('MIT')).toBeInTheDocument();
   });
 });
 
