@@ -10,7 +10,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.12",
     "@mui/material": "^5.14.11",
-    "@mui/system": "^5.14.10",
+    "@mui/system": "^5.14.12",
     "@tanstack/react-query": "^4.35.7",
     "@types/recharts": "^1.8.25",
     "axios": "^1.5.1",
