@@ -66,6 +66,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
         disabled={!props.isEditable}
         inputValue={props.inputValue}
         onInputChange={onInputChange}
+        aria-label={'auto complete'}
         renderInput={(params): ReactElement => {
           const paramsWithAdornment = props.endAdornmentText
             ? {
