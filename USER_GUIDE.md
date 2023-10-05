@@ -375,3 +375,12 @@ In the audit view, an attributions can be marked as preferred, to indicate that 
 Only signals with a source marked as `isRelevantForPreference` can be preferred over. If no signal source has this flag set, then the feature is disabled.
 
 To mark an attribution as preferred, choose an attribution in the audit view, and open the `...` context menu. From there, you can mark or unmark an attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the .opossum file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
+
+Note that you are only able to mark an attribution as preferred (or unmark if it was preferred beforehand) if you are in
+"QA Mode". To enable this mode click the item "QA Mode" in the `View` submenu.
+
+![disabled_qa_mode](./docs/user_guide_screenshots/disabled_qa_mode.png)
+
+If "QA Mode" is enabled the icon will change as in the screenshot below.
+
+![enabled_qa_mode](./docs/user_guide_screenshots/enabled_qa_mode.png)
