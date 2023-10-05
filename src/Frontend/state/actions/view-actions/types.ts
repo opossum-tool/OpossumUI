@@ -16,6 +16,8 @@ export const ACTION_SET_IS_LOADING = 'ACTION_SET_IS_LOADING';
 export const ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE =
   'ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE';
 
+export const ACTION_SET_QA_MODE = 'ACTION_SET_QA_MODE';
+
 export type ViewAction =
   | SetView
   | SetTargetView
@@ -24,7 +26,8 @@ export type ViewAction =
   | OpenPopupAction
   | UpdateActiveFilters
   | SetIsLoadingAction
-  | SetShowNoSignalsLocatedMessage;
+  | SetShowNoSignalsLocatedMessage
+  | SetQAModeAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -61,5 +64,10 @@ export interface SetIsLoadingAction {
 
 export interface SetShowNoSignalsLocatedMessage {
   type: typeof ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE;
+  payload: boolean;
+}
+
+export interface SetQAModeAction {
+  type: typeof ACTION_SET_QA_MODE;
   payload: boolean;
 }

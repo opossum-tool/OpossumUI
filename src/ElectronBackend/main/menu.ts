@@ -327,6 +327,9 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               'enabled-qa-mode',
               'disabled-qa-mode',
             );
+            webContents.send(AllowedFrontendChannels.SetQAMode, {
+              qaMode: true,
+            });
           },
           visible: true,
         },
@@ -342,6 +345,9 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               'disabled-qa-mode',
               'enabled-qa-mode',
             );
+            webContents.send(AllowedFrontendChannels.SetQAMode, {
+              qaMode: false,
+            });
           },
           visible: false,
         },
