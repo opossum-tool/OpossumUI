@@ -6,6 +6,7 @@
 import React, { ReactElement } from 'react';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
+import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 
 const classes = {
   container: {
@@ -64,7 +65,9 @@ export function AttributionCountPerSourcePerLicenseTable(
       containerStyle={classes.container}
       columnHeaders={headerRow}
       columnNames={headerRow}
-      rowNames={Object.keys(props.licenseNamesWithCriticality).sort()}
+      rowNames={Object.keys(props.licenseNamesWithCriticality).sort((a, b) =>
+        compareAlphabeticalStrings(a, b),
+      )}
       tableContent={props.licenseCounts.attributionCountPerSourcePerLicense}
       tableFooter={footerRow}
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}
