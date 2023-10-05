@@ -11,7 +11,7 @@ import { isLocateSignalActive } from '../locate-popup-selectors';
 describe('isLocateSignalActive', () => {
   it('returns false in the default state', () => {
     const testStore = createTestAppStore();
-    expect(!isLocateSignalActive(testStore.getState()));
+    expect(!isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns true if the selected criticality is not the default', () => {
@@ -25,7 +25,7 @@ describe('isLocateSignalActive', () => {
       }),
     );
 
-    expect(isLocateSignalActive(testStore.getState()));
+    expect(isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns true if there are selected licenses', () => {
@@ -38,7 +38,8 @@ describe('isLocateSignalActive', () => {
         searchOnlyInLicenseField: false,
       }),
     );
-    expect(isLocateSignalActive(testStore.getState()));
+
+    expect(isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns true if the search term is set', () => {
@@ -51,7 +52,8 @@ describe('isLocateSignalActive', () => {
         searchOnlyInLicenseField: false,
       }),
     );
-    expect(isLocateSignalActive(testStore.getState()));
+
+    expect(isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns false if only searchOnlyInLicenseField is set', () => {
@@ -64,6 +66,7 @@ describe('isLocateSignalActive', () => {
         searchOnlyInLicenseField: true,
       }),
     );
-    expect(isLocateSignalActive(testStore.getState()));
+
+    expect(isLocateSignalActive(testStore.getState())).toEqual(false);
   });
 });
