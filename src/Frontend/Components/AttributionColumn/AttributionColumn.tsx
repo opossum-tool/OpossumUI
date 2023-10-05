@@ -17,7 +17,10 @@ import {
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedView } from '../../state/selectors/view-selector';
+import {
+  getQAMode,
+  getSelectedView,
+} from '../../state/selectors/view-selector';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
@@ -114,6 +117,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const wasPreferredFieldChanged: boolean =
     initialManualDisplayPackageInfo.preferred !==
     temporaryDisplayPackageInfo.preferred;
+  const qaMode = useAppSelector(getQAMode);
 
   const {
     isLicenseTextShown,
@@ -150,7 +154,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       temporaryDisplayPackageInfo.preSelected,
     ),
     targetAttributionIsExternalAttribution: false,
-    isPreferenceFeatureEnabled,
+    isPreferenceFeatureEnabled: isPreferenceFeatureEnabled && qaMode,
     attributionIsPreferred: temporaryDisplayPackageInfo.preferred ?? false,
     view,
   });
