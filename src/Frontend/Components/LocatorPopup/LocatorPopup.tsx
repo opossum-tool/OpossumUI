@@ -29,6 +29,7 @@ import MuiTypography from '@mui/material/Typography';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
+import MuiBox from '@mui/material/Box';
 
 const classes = {
   dropdown: {
@@ -42,6 +43,12 @@ const classes = {
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
+  },
+  search: {
+    padding: '8px',
+    border: '1px solid lightgrey',
+    marginBottom: '16px',
+    borderRadius: '2px',
   },
 };
 
@@ -134,23 +141,25 @@ export function LocatorPopup(): ReactElement {
 
   const content = (
     <>
-      <SearchTextField
-        sx={classes.autocomplete}
-        onInputChange={(search: string): void => {
-          setSearchedSignal(search);
-        }}
-        search={searchedSignal}
-        showIcon={true}
-      />
-      <Checkbox
-        sx={classes.checkboxContainer}
-        label={CheckboxLabel.OnlyLicenseName}
-        checked={displaySearchOnlyLicenseName}
-        disabled={searchedSignal === ''}
-        onChange={(): void => {
-          setDisplaySearchOnlyLicenseName(!displaySearchOnlyLicenseName);
-        }}
-      />
+      <MuiBox sx={classes.search}>
+        <SearchTextField
+          sx={classes.autocomplete}
+          onInputChange={(search: string): void => {
+            setSearchedSignal(search);
+          }}
+          search={searchedSignal}
+          showIcon={true}
+        />
+        <Checkbox
+          sx={classes.checkboxContainer}
+          label={CheckboxLabel.OnlyLicenseName}
+          checked={displaySearchOnlyLicenseName}
+          disabled={searchedSignal === ''}
+          onChange={(): void => {
+            setDisplaySearchOnlyLicenseName(!displaySearchOnlyLicenseName);
+          }}
+        />
+      </MuiBox>
       <Dropdown
         sx={classes.dropdown}
         isEditable={true}
