@@ -828,6 +828,53 @@ describe('locateSignalsFromLocatorPopup', () => {
 });
 
 describe('locateSignalsFromProjectStatisticsPopup', () => {
+  it('locates signals with different license name variant', () => {
+    const testStore = createTestAppStore();
+    const testExternalAttributions: Attributions = {
+      uuid1: {
+        licenseName: 'Apache-2.0',
+      },
+      uuid2: {
+        licenseName: 'Apache 2.0',
+      },
+      uuid3: {
+        licenseName: 'MIT',
+      },
+    };
+    const testResourcesToExternalAttributions: ResourcesToAttributions = {
+      '/folder1/file1': ['uuid1'],
+      '/folder2/file2': ['uuid2'],
+      '/folder3/file3': ['uuid3'],
+    };
+    const expectedLocatedResources = new Set<string>([
+      '/folder1/file1',
+      '/folder2/file2',
+    ]);
+    const expectedResourcesWithLocatedChildren = new Set<string>([
+      '/',
+      '/folder1/',
+      '/folder2/',
+    ]);
+
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+
+    testStore.dispatch(locateSignalsFromProjectStatisticsPopup('Apache-2.0'));
+
+    const { locatedResources, resourcesWithLocatedChildren } =
+      getResourcesWithLocatedAttributions(testStore.getState());
+    expect(locatedResources).toEqual(expectedLocatedResources);
+    expect(resourcesWithLocatedChildren).toEqual(
+      expectedResourcesWithLocatedChildren,
+    );
+  });
+
   it('locates signals independently of criticality', () => {
     const testStore = createTestAppStore();
     const testExternalAttributions: Attributions = {
