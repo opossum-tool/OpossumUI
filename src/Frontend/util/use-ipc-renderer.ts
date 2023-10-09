@@ -13,6 +13,7 @@ import {
   FileSupportPopupArgs,
   IsLoadingArgs,
   ParsedFileContent,
+  QAModeArgs,
 } from '../../shared/shared-types';
 
 type ResetStateListener = (
@@ -47,6 +48,11 @@ type ShowFileSupportPopupListener = (
   fileSupportPopupArgs: FileSupportPopupArgs,
 ) => void;
 
+type SetQAModeListener = (
+  event: IpcRendererEvent,
+  qaModeArgs: QAModeArgs,
+) => void;
+
 type Listener =
   | ResetStateListener
   | SetStateListener
@@ -54,7 +60,8 @@ type Listener =
   | ExportFileRequestListener
   | SetBaseURLForRootListener
   | IsLoadingListener
-  | ShowFileSupportPopupListener;
+  | ShowFileSupportPopupListener
+  | SetQAModeListener;
 
 export function useIpcRenderer(
   channel: AllowedFrontendChannels,

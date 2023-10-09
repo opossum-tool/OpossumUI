@@ -18,9 +18,13 @@ import {
 } from './notice-document-helpers';
 import { ExportType } from '../../shared/shared-types';
 import { isFileLoaded } from '../utils/getLoadedFile';
-import { getIconBasedOnTheme } from './iconHelpers';
+import {
+  getIconBasedOnTheme,
+  makeFirstIconVisibleAndSecondHidden,
+} from './iconHelpers';
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
+
   return Menu.buildFromTemplate([
     {
       label: 'File',
@@ -310,6 +314,42 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           ),
           label: 'Zoom Out',
           role: 'zoomOut',
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/check-box-blank-white.png',
+            'icons/check-box-blank-black.png',
+          ),
+          label: 'QA Mode',
+          id: 'disabled-qa-mode',
+          click(): void {
+            makeFirstIconVisibleAndSecondHidden(
+              'enabled-qa-mode',
+              'disabled-qa-mode',
+            );
+            webContents.send(AllowedFrontendChannels.SetQAMode, {
+              qaMode: true,
+            });
+          },
+          visible: true,
+        },
+        {
+          icon: getIconBasedOnTheme(
+            'icons/check-box-white.png',
+            'icons/check-box-black.png',
+          ),
+          label: 'QA Mode',
+          id: 'enabled-qa-mode',
+          click(): void {
+            makeFirstIconVisibleAndSecondHidden(
+              'disabled-qa-mode',
+              'enabled-qa-mode',
+            );
+            webContents.send(AllowedFrontendChannels.SetQAMode, {
+              qaMode: false,
+            });
+          },
+          visible: false,
         },
       ],
     },
