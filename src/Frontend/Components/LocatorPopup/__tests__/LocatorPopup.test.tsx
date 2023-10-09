@@ -92,7 +92,7 @@ describe('Locator popup ', () => {
     });
   });
 
-  it.skip('sets state if license selected', () => {
+  it('sets state if license selected', () => {
     const testStore = createTestAppStore();
     // add external attribution with license MIT to see it
     const testExternalAttribution: PackageInfo = {

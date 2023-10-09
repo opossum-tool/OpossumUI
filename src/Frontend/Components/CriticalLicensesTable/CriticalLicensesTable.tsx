@@ -41,6 +41,11 @@ interface CriticalLicensesTableProps {
   title: string;
 }
 
+interface LicenseNameAndTotalNumberOfAttributions {
+  licenseName: string;
+  totalNumberOfAttributions: number;
+}
+
 export function CriticalLicensesTable(
   props: CriticalLicensesTableProps,
 ): ReactElement {
@@ -61,17 +66,17 @@ export function CriticalLicensesTable(
     allLicensesWithCriticality,
     Criticality.Medium,
   );
-  const highCriticalityLicensesTotalAttributions =
+  const highCriticalityLicensesTotalAttributions: Array<LicenseNameAndTotalNumberOfAttributions> =
     getCriticalLicenseNamesWithTheirTotalAttributions(
       props.totalAttributionsPerLicense,
       highCriticalityLicenseNames,
     );
-  const mediumCriticalityLicensesTotalAttributions =
+  const mediumCriticalityLicensesTotalAttributions: Array<LicenseNameAndTotalNumberOfAttributions> =
     getCriticalLicenseNamesWithTheirTotalAttributions(
       props.totalAttributionsPerLicense,
       mediumCriticalityLicenseNames,
     );
-  const sortedCriticalLicensesTotalAttributions =
+  const sortedCriticalLicensesTotalAttributions: Array<LicenseNameAndTotalNumberOfAttributions> =
     sortLicenseNamesWithTotalAttributions(
       highCriticalityLicensesTotalAttributions,
     ).concat(
@@ -134,7 +139,7 @@ function getLicenseNamesByCriticality(
 function getCriticalLicenseNamesWithTheirTotalAttributions(
   totalAttributionsPerLicense: { [licenseName: string]: number },
   criticalLicenseNames: Array<string>,
-): Array<{ licenseName: string; totalNumberOfAttributions: number }> {
+): Array<LicenseNameAndTotalNumberOfAttributions> {
   const licenseNamesAndTheirTotalAttributions = criticalLicenseNames.map(
     (criticalLicenseName) => {
       return {
