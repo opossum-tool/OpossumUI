@@ -10,7 +10,9 @@ import {
   getCriticalSignalsCount,
   getIncompleteAttributionsCount,
   getLicenseCriticality,
+  getLicenseNameVariants,
   getMostFrequentLicenses,
+  getStrippedLicenseName,
   getUniqueLicenseNameToAttribution,
 } from '../project-statistics-popup-helpers';
 import {
@@ -196,6 +198,49 @@ describe('getLicenseCriticality', () => {
     const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
 
     expect(licenseCriticality).toEqual(expectedLicenseCriticality);
+  });
+});
+
+describe('getLicenseNameVariants', () => {
+  it('gets equivalent license names from attributions', () => {
+    const gpl2 = 'GPL-2.0';
+    const gpl2variant1 = 'gpl 2.0';
+    const testAttributions: Attributions = {
+      uuid1: { licenseName: gpl2 },
+      uuid2: { licenseName: gpl2variant1 },
+      uuid3: { licenseName: 'something else' },
+    };
+    const expectedLicenseNameVariants = new Set([gpl2, gpl2variant1]);
+
+    const licenseNameVariants = getLicenseNameVariants(gpl2, testAttributions);
+
+    expect(licenseNameVariants).toEqual(expectedLicenseNameVariants);
+  });
+});
+
+describe('getStrippedLicenseName', () => {
+  it.each`
+    licenseName
+    ${'apache2.0'}
+    ${'apache 2.0'}
+    ${'Apache 2.0'}
+    ${'Apache\t2.0'}
+    ${'Apache\n2.0'}
+    ${'Apache-2.0'}
+    ${'Apache - 2.0'}
+  `('converts $licenseName to apache2.0', ({ licenseName }) => {
+    expect(getStrippedLicenseName(licenseName)).toEqual('apache2.0');
+  });
+
+  it.each`
+    licenseName
+    ${'Apache_2.0'}
+    ${'apache2'}
+    ${'Apache 2'}
+    ${'Apache 2.0.0'}
+    ${'Apache License Version 2.0'}
+  `('does not convert $licenseName to apache2.0', ({ licenseName }) => {
+    expect(getStrippedLicenseName(licenseName)).not.toEqual('apache2.0');
   });
 });
 

@@ -77,12 +77,8 @@ export function LocatorPopup(): ReactElement {
   );
 
   const licenseNameOptions = getLicenseNames(externalAttributions);
-  // currently we only support sets with one element
-  // once we support multiple elements we will have to adapt the logic to not take one arbitrary element of the set
-  const selectedLicense: string =
-    selectedLicenses.size == 0 ? '' : selectedLicenses.values().next().value;
 
-  const [searchedLicense, setSearchedLicense] = useState(selectedLicense);
+  const [searchedLicenses, setSearchedLicenses] = useState(selectedLicenses);
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
 
@@ -93,11 +89,6 @@ export function LocatorPopup(): ReactElement {
   }
 
   function handleApplyClick(): void {
-    const searchedLicenses =
-      searchedLicense.length == 0
-        ? new Set<string>()
-        : new Set([searchedLicense]);
-
     dispatch(
       locateSignalsFromLocatorPopup(
         criticalityDropDownChoice,
@@ -108,7 +99,7 @@ export function LocatorPopup(): ReactElement {
 
   function handleClearClick(): void {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
-    setSearchedLicense('');
+    setSearchedLicenses(new Set());
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
@@ -137,14 +128,19 @@ export function LocatorPopup(): ReactElement {
         sx={classes.autocomplete}
         title={'License'}
         handleChange={(event: ChangeEvent<HTMLInputElement>): void => {
-          setSearchedLicense(event.target.value);
+          const values =
+            typeof event.target.value === 'string'
+              ? new Set([event.target.value])
+              : new Set(event.target.value as Array<string>);
+          setSearchedLicenses(values);
         }}
         isHighlighted={false}
         options={licenseNameOptions.sort((a, b) =>
           compareAlphabeticalStrings(a, b),
         )}
-        inputValue={searchedLicense}
+        value={[...searchedLicenses]}
         showTextBold={false}
+        multiple={true}
         formatOptionForDisplay={(option: string): string => option}
       />
       {showNoSignalsLocatedMessage ? (

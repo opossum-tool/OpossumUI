@@ -9,6 +9,7 @@ import { State } from '../../../types/types';
 import {
   getCurrentAttributionId,
   getDisplayPackageInfoOfSelected,
+  getExternalAttributions,
   getExternalData,
   getManualAttributions,
   getManualData,
@@ -71,6 +72,7 @@ import {
   convertPackageInfoToDisplayPackageInfo,
 } from '../../../util/convert-package-info';
 import { setLocatePopupFilters } from '../resource-actions/locate-popup-actions';
+import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/project-statistics-popup-helpers';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
@@ -389,10 +391,16 @@ export function locateSignalsFromProjectStatisticsPopup(
   licenseName: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const externalAttributions = getExternalAttributions(getState());
+    const licenseNames: Set<string> = getLicenseNameVariants(
+      licenseName,
+      externalAttributions,
+    );
+
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: new Set([licenseName]),
+        selectedLicenses: licenseNames,
       }),
     );
     dispatch(closePopup());

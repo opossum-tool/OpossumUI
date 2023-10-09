@@ -187,10 +187,10 @@ export function getUniqueLicenseNameToAttribution(
   const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};
   for (const attributionId of Object.keys(attributions)) {
     const licenseName = attributions[attributionId].licenseName;
+
     if (licenseName) {
-      const strippedLicenseName = licenseName
-        .replace(/[\s-]/g, '')
-        .toLowerCase();
+      const strippedLicenseName = getStrippedLicenseName(licenseName);
+
       if (!uniqueLicenseNameToAttributions[strippedLicenseName]) {
         uniqueLicenseNameToAttributions[strippedLicenseName] = [];
       }
@@ -198,6 +198,32 @@ export function getUniqueLicenseNameToAttribution(
     }
   }
   return uniqueLicenseNameToAttributions;
+}
+
+export function getLicenseNameVariants(
+  licenseName: string,
+  attributions: Attributions,
+): Set<string> {
+  const strippedLicenseName = getStrippedLicenseName(licenseName);
+  const licenseNames: Set<string> = new Set<string>();
+
+  for (const attributionId of Object.keys(attributions)) {
+    const attributionLicenseName =
+      attributions[attributionId].licenseName || '';
+    const attributionStrippedLicenseName = getStrippedLicenseName(
+      attributions[attributionId].licenseName || '',
+    );
+
+    if (attributionStrippedLicenseName === strippedLicenseName) {
+      licenseNames.add(attributionLicenseName);
+    }
+  }
+
+  return licenseNames;
+}
+
+export function getStrippedLicenseName(licenseName: string): string {
+  return licenseName.replace(/[\s-]/g, '').toLowerCase();
 }
 
 export function aggregateAttributionPropertiesFromAttributions(

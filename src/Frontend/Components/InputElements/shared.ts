@@ -35,6 +35,11 @@ export const inputElementClasses = {
       },
     },
   },
+  textFieldMultiple: {
+    '& span': {
+      padding: '0px 6px',
+    },
+  },
   defaultHighlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
