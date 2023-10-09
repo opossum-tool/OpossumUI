@@ -262,7 +262,7 @@ export function expectElementsInAutoCompleteAndSelectFirst(
   screen: Screen,
   elements: Array<string>,
 ): void {
-  const autoComplete = screen.getByRole('combobox');
+  const autoComplete = screen.getByLabelText('auto complete');
   autoComplete.focus();
   fireEvent.keyDown(autoComplete, { key: 'ArrowDown' });
 
