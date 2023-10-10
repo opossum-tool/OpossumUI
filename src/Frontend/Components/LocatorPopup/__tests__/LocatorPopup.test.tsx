@@ -141,7 +141,7 @@ describe('Locator popup ', () => {
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
 
-    expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT'], 'License');
+    expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
@@ -194,6 +194,8 @@ describe('Locator popup ', () => {
     expectElementsInAutoCompleteAndSelectFirst(screen, ['GPL-2.0']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      searchOnlyLicenseName: false,
+      searchTerm: '',
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
     });
