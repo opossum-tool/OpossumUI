@@ -98,7 +98,7 @@
     "build:dev:darwin:linux": "yarn generate-notice && DISABLE_ESLINT_PLUGIN=true tsc -p ./ && vite build && tsc -p src/ElectronBackend",
     "build:dev:win32": "yarn generate-notice && cross-env DISABLE_ESLINT_PLUGIN=true tsc -p ./ && vite build && tsc -p src/ElectronBackend",
     "build:prod": "yarn generate-notice && tsc -p ./ && vite build && tsc -p src/ElectronBackend",
-    "compile-all": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
+    "typecheck": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "jest --testPathIgnorePatterns=src/e2e-tests --testPathIgnorePatterns=src/Frontend/integration-tests",
     "test:local": "jest --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__tests__/**/*.ts?(x)\" ]",
     "test:changed": "jest --onlyChanged",
