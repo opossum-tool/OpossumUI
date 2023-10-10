@@ -2,32 +2,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactElement } from 'react';
-import MuiSpinner from '@mui/material/CircularProgress';
 import MuiBox from '@mui/material/Box';
-import { SxProps } from '@mui/material';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-
-const classes = {
-  root: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-};
+import MuiSpinner from '@mui/material/CircularProgress';
+import { ReactElement } from 'react';
+import { useStyles } from './Spinner.styles';
 
 interface SpinnerProps {
-  sx?: SxProps;
+  className?: string;
 }
 
 export function Spinner(props: SpinnerProps): ReactElement {
+  const { classes, cx } = useStyles();
+
   return (
-    <MuiBox
-      sx={getSxFromPropsAndClasses({
-        styleClass: classes.root,
-        sxProps: props.sx,
-      })}
-    >
+    <MuiBox className={cx(classes.root, props.className)}>
       <MuiSpinner />
     </MuiBox>
   );

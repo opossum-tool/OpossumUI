@@ -3,97 +3,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import MuiBox from '@mui/material/Box';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { ReactElement } from 'react';
 import { View } from '../../enums/enums';
+import { useAppSelector } from '../../state/hooks';
 import {
   getIsLoading,
   getSelectedView,
 } from '../../state/selectors/view-selector';
-import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
-import { ReportView } from '../ReportView/ReportView';
 import { AttributionView } from '../AttributionView/AttributionView';
-import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { AuditView } from '../AuditView/AuditView';
-import { TopBar } from '../TopBar/TopBar';
-import { createTheme } from '@mui/material';
-import { useAppSelector } from '../../state/hooks';
-import MuiBox from '@mui/material/Box';
+import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
+import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
+import { ReportView } from '../ReportView/ReportView';
 import { Spinner } from '../Spinner/Spinner';
-import { OpossumColors } from '../../shared-styles';
-
-const classes = {
-  root: {
-    width: '100vw',
-    height: '100vh',
-  },
-  panelDiv: {
-    display: 'flex',
-    height: 'calc(100vh - 36px)',
-    width: '100%',
-    overflow: 'hidden',
-  },
-  spinner: {
-    margin: 'auto',
-  },
-};
-
-const theme = createTheme({
-  components: {
-    MuiTypography: {
-      styleOverrides: {
-        body1: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
-    MuiInputBase: {
-      styleOverrides: {
-        root: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
-    MuiFormLabel: {
-      styleOverrides: {
-        root: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
-    MuiSwitch: {
-      styleOverrides: {
-        switchBase: {
-          color: OpossumColors.lightestBlue,
-        },
-        colorPrimary: {
-          '&.Mui-checked': {
-            color: OpossumColors.middleBlue,
-          },
-        },
-        track: {
-          opacity: 0.7,
-          backgroundColor: OpossumColors.lightestBlue,
-          '.Mui-checked.Mui-checked + &': {
-            opacity: 0.7,
-            backgroundColor: OpossumColors.middleBlue,
-          },
-        },
-      },
-    },
-  },
-});
+import { TopBar } from '../TopBar/TopBar';
+import { theme, useStyles } from './App.styles';
 
 export function App(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
   const isLoading = useAppSelector(getIsLoading);
+  const { classes } = useStyles();
 
   function getSelectedViewContainer(): ReactElement {
     if (isLoading) {
-      return <Spinner sx={classes.spinner} />;
+      return <Spinner className={classes.spinner} />;
     }
 
     switch (selectedView) {
@@ -111,9 +46,11 @@ export function App(): ReactElement {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <GlobalPopup />
-          <MuiBox sx={classes.root}>
+          <MuiBox className={classes.root}>
             <TopBar />
-            <MuiBox sx={classes.panelDiv}>{getSelectedViewContainer()}</MuiBox>
+            <MuiBox className={classes.panelDiv}>
+              {getSelectedViewContainer()}
+            </MuiBox>
           </MuiBox>
         </ThemeProvider>
       </StyledEngineProvider>
