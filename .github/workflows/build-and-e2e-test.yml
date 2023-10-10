@@ -37,23 +37,10 @@ jobs:
       - name: Install Node.js and yarn
         uses: actions/setup-node@v3
         with:
+          cache: 'yarn'
           node-version: 18
 
-      - name: Use cached node modules (linux, mac)
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
-        if: matrix.os != 'windows-latest'
-
-      - name: Use cached node modules (win)
-        uses: actions/cache@v3
-        with:
-          path: '**\node_modules'
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**\yarn.lock') }}
-        if: matrix.os == 'windows-latest'
-
-      - run: yarn install --frozen-lockfile --prefer-offline --network-timeout 560000
+      - run: yarn install --immutable
 
       - name: Increase watches
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
