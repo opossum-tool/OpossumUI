@@ -15,7 +15,7 @@ yarn lint
 
 echo "type checking"
 echo "-----------------------"
-yarn compile-all
+yarn typecheck
 
 echo "copyright checking"
 echo "-----------------------"
