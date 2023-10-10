@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiCheckbox from '@mui/material/Checkbox';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';

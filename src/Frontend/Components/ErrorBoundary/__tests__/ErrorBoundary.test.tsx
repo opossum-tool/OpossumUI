@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import { initialViewState } from '../../../state/reducers/view-reducer';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';

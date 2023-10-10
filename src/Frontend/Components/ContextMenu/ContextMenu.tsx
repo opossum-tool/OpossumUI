@@ -5,7 +5,7 @@
 
 import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import StarIcon from '@mui/icons-material/Star';
-import React, { ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import MuiMenu from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import MuiListItemIcon from '@mui/material/ListItemIcon';

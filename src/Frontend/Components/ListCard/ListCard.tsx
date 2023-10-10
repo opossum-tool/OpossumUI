@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiTypography from '@mui/material/Typography';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { Criticality } from '../../../shared/shared-types';

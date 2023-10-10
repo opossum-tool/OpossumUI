@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { Fragment, ReactElement } from 'react';
 import MuiChip from '@mui/material/Chip';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import MuiListItem from '@mui/material/ListItem';
@@ -143,7 +143,7 @@ export function ListWithAttributesListItem(
             props.item.attributes && !props.item.manuallyAdded ? (
               <MuiBox sx={classes.listItemTextSecondaryBox}>
                 {props.item.attributes.map((attribute) => (
-                  <React.Fragment key={`attributeId-${attribute.id}`}>
+                  <Fragment key={`attributeId-${attribute.id}`}>
                     {props.showChipsForAttributes ? (
                       <MuiChip
                         clickable={false}
@@ -158,7 +158,7 @@ export function ListWithAttributesListItem(
                     ) : (
                       attribute.text || ITEM_TEXT_FALLBACK
                     )}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
               </MuiBox>
             ) : null

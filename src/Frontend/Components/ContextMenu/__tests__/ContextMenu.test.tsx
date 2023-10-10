@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ButtonText } from '../../../enums/enums';
 import { doNothing } from '../../../util/do-nothing';

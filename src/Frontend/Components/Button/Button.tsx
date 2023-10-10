@@ -5,7 +5,7 @@
 
 import MuiButton from '@mui/material/Button';
 import MuiTooltip from '@mui/material/Tooltip';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { tooltipStyle } from '../../shared-styles';
 import { ButtonConfig } from '../../types/types';
 import { buttonStyles } from './button-styles';

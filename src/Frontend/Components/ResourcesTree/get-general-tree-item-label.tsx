@@ -5,7 +5,7 @@
 
 import { Resources } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { GeneralTreeItemLabel } from '../GeneralTreeItemLabel/GeneralTreeItemLabel';
 
 export function getGeneralTreeItemLabel(

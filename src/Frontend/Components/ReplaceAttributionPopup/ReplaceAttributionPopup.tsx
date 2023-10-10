@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ButtonText } from '../../enums/enums';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';

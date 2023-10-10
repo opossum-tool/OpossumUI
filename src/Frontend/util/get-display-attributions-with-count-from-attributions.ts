@@ -64,7 +64,6 @@ export function getDisplayPackageInfoWithCountFromAttributions(
       attributionWithIdAndCount[1].wasPreferred === true,
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { comment, ...packageInfoWithoutComment } =
     attributionsWithIdsAndCounts[0][1];
 

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ChangeEvent, ReactElement } from 'react';
+import { ChangeEvent, ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -280,7 +280,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     view,
   );
 
-  function listener(event: IpcRendererEvent, resetState: boolean): void {
+  function listener(_: IpcRendererEvent, resetState: boolean): void {
     if (resetState) {
       props.saveFileRequestListener();
     }

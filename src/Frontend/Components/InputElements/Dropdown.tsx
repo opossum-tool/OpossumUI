@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { inputElementClasses, InputElementProps } from './shared';
 import MuiTextField from '@mui/material/TextField';
 import MuiMenuItem from '@mui/material/MenuItem';

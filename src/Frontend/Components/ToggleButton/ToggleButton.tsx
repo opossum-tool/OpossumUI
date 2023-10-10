@@ -5,7 +5,7 @@
 
 import MuiToggleButton from '@mui/material/ToggleButton';
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';

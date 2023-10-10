@@ -6,7 +6,7 @@
 
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { View } from '../../enums/enums';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -65,7 +65,7 @@ export function TopBar(): ReactElement {
   const dispatch = useAppDispatch();
 
   function handleClick(
-    event: React.MouseEvent<HTMLElement>,
+    _: React.MouseEvent<HTMLElement>,
     selectedView: View,
   ): void {
     dispatch(setViewOrOpenUnsavedPopup(selectedView));

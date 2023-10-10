@@ -7,7 +7,6 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import React from 'react';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
 import {
   Attributions,

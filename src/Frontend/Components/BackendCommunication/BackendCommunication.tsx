@@ -58,7 +58,7 @@ export function BackendCommunication(): ReactElement | null {
   const dispatch = useAppDispatch();
 
   function fileLoadedListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     parsedFileContent: ParsedFileContent,
   ): void {
     dispatch(loadFromFile(parsedFileContent));
@@ -66,7 +66,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function getExportFileRequestListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     exportType: ExportType,
   ): void {
     switch (exportType) {
@@ -178,7 +178,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function resetLoadedFileListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     resetState: boolean,
   ): void {
     if (resetState) {
@@ -186,14 +186,14 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function loggingListener(event: IpcRendererEvent, logging: string): void {
+  function loggingListener(_: IpcRendererEvent, logging: string): void {
     if (logging) {
       console.log(logging);
     }
   }
 
   function showSearchPopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     showSearchPopUp: boolean,
   ): void {
     if (showSearchPopUp) {
@@ -202,7 +202,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function showLocatorPopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     showLocatePopUp: boolean,
   ): void {
     if (showLocatePopUp) {
@@ -211,7 +211,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function showProjectMetadataPopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     showProjectMetadataPopup: boolean,
   ): void {
     if (showProjectMetadataPopup) {
@@ -220,7 +220,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function showProjectStatisticsPopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     showProjectStatisticsPopup: boolean,
   ): void {
     if (showProjectStatisticsPopup) {
@@ -229,7 +229,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function showChangedInputFilePopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     showChangedInputFilePopup: boolean,
   ): void {
     if (showChangedInputFilePopup) {
@@ -238,7 +238,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function showUpdateAppPopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     showUpdateAppPopup: boolean,
   ): void {
     if (showUpdateAppPopup) {
@@ -247,7 +247,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function setBaseURLForRootListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     baseURLForRootArgs: BaseURLForRootArgs,
   ): void {
     if (baseURLForRootArgs?.baseURLForRoot) {
@@ -261,7 +261,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function setFileLoadingListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     isLoadingArgs: IsLoadingArgs,
   ): void {
     if (isLoadingArgs) {
@@ -270,7 +270,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function showFileSupportPopupListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     fileSupportPopupArgs: FileSupportPopupArgs,
   ): void {
     if (fileSupportPopupArgs && fileSupportPopupArgs.showFileSupportPopup) {
@@ -283,7 +283,7 @@ export function BackendCommunication(): ReactElement | null {
   }
 
   function setQAModeListener(
-    event: IpcRendererEvent,
+    _: IpcRendererEvent,
     qaModeArgs: QAModeArgs,
   ): void {
     if (qaModeArgs) {

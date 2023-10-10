@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup';
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { ButtonText } from '../../../enums/enums';

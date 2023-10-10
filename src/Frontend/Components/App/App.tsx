@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { View } from '../../enums/enums';
 import {
   getIsLoading,

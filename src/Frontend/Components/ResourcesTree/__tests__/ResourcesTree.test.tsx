@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { View } from '../../../enums/enums';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { fireEvent, screen } from '@testing-library/react';

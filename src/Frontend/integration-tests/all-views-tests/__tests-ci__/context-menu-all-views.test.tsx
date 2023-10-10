@@ -28,7 +28,6 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ButtonText, View } from '../../../enums/enums';
 import { screen } from '@testing-library/react';
-import React from 'react';
 import {
   clickOnCardInAttributionList,
   clickOnTab,

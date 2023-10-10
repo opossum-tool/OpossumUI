@@ -5,7 +5,6 @@
 
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { screen } from '@testing-library/react';
-import React from 'react';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup';
 
 describe('The ConfirmDeletionGloballyPopup', () => {

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { ListCard } from '../ListCard/ListCard';
 import { getCardLabels } from '../../util/get-card-labels';
 import { ListCardConfig, PackageCardConfig } from '../../types/types';

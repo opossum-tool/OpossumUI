@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import MuiSkeleton from '@mui/material/Skeleton';

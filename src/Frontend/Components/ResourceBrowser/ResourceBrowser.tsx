@@ -5,7 +5,7 @@
 
 import WestRoundedIcon from '@mui/icons-material/WestRounded';
 import remove from 'lodash/remove';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -107,10 +107,7 @@ export function ResourceBrowser(): ReactElement | null {
     dispatch(setExpandedIds(newExpandedNodeIds));
   }
 
-  function handleSelect(
-    event: React.ChangeEvent<unknown>,
-    nodeId: string,
-  ): void {
+  function handleSelect(_: React.ChangeEvent<unknown>, nodeId: string): void {
     dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
   }
 

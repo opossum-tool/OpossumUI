@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, screen } from '@testing-library/react';
-import React from 'react';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
   isAttributionViewSelected,

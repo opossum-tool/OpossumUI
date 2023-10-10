@@ -23,7 +23,6 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { ButtonText, View } from '../../../enums/enums';
-import React from 'react';
 import { clickOnPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
 import {
   clickOnButtonInHamburgerMenu,

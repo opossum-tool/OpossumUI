@@ -12,7 +12,6 @@ import {
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { screen } from '@testing-library/react';
-import React from 'react';
 import {
   clickGoToLinkIcon,
   expectGoToLinkIconIsNotVisible,

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ChangeEvent, ReactElement, useState } from 'react';
+import { ChangeEvent, ReactElement, useState } from 'react';
 import MuiBox from '@mui/material/Box';
 import MuiList from '@mui/material/List';
 import MuiTypography from '@mui/material/Typography';

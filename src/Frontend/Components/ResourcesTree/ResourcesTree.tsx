@@ -5,7 +5,7 @@
 
 import { SxProps } from '@mui/system';
 import { remove } from 'lodash';
-import React, { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useMemo, useState } from 'react';
 import { Resources } from '../../../shared/shared-types';
 import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import {
@@ -63,10 +63,7 @@ export function ResourcesTree(props: ResourcesTreeProps): ReactElement {
     setExpandedIds(newExpandedNodeIds);
   }
 
-  function handleSelect(
-    event: React.ChangeEvent<unknown>,
-    nodeId: string,
-  ): void {
+  function handleSelect(_: React.ChangeEvent<unknown>, nodeId: string): void {
     dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId));
   }
 

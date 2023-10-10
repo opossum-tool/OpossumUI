@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { render, RenderResult } from '@testing-library/react';
-import React, { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
 import { createAppStore } from '../state/configure-store';

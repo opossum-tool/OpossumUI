@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import { ReactElement, useContext, useMemo, useState } from 'react';
 import { AttributionsToHashes } from '../../../shared/shared-types';
 import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';

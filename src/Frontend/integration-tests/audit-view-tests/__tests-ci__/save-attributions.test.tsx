@@ -23,7 +23,6 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { ButtonText } from '../../../enums/enums';
-import React from 'react';
 import {
   clickAddNewAttributionButton,
   expectValueInManualPackagePanel,

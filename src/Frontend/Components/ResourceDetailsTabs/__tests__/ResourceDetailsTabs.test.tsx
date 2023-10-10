@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import React from 'react';
 import { ResourceDetailsTabs } from '../ResourceDetailsTabs';
 import {
   Attributions,

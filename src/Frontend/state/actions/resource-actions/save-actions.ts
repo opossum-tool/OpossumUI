@@ -208,7 +208,7 @@ function getSavePackageInfoOperation(
 }
 
 export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (_: AppThunkDispatch, getState: () => State): void => {
     const saveFileArgs: SaveFileArgs = {
       manualAttributions: getManualAttributions(getState()),
       resourcesToAttributions: getResourcesToManualAttributions(getState()),

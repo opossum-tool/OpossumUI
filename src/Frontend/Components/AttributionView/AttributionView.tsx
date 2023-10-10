@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiBox from '@mui/material/Box';
-import React, { ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';

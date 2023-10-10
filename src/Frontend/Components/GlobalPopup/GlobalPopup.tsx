@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { PopupType } from '../../enums/enums';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';

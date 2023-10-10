@@ -8,7 +8,6 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { fireEvent, screen } from '@testing-library/react';
-import React from 'react';
 import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-selectors';
 import { clickOnButton } from '../../../test-helpers/general-test-helpers';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';

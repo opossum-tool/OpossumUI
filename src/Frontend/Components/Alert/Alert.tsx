@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiAlert from '@mui/material/Alert';
 
 interface AlertProps {
