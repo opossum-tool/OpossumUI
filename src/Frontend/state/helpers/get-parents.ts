@@ -6,7 +6,7 @@
 import { PathPredicate } from '../../types/types';
 
 export function getParents(pathToBeSplit: string): Array<string> {
-  const parents = [];
+  const parents: Array<string> = [];
   for (
     let characterIndex = 0;
     characterIndex < pathToBeSplit.length - 1;

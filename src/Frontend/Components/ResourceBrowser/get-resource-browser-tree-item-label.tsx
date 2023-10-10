@@ -105,9 +105,8 @@ export function getCriticality(
         return Criticality.Medium;
       }
     }
-
-    return undefined;
   }
+  return undefined;
 }
 
 function isRootResource(resourceName: string): boolean {
