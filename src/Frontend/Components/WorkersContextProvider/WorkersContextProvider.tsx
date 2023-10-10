@@ -7,16 +7,20 @@ import { FC, ReactNode, createContext, useMemo } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
+  getExternalAttributions,
   getExternalAttributionsToHashes,
   getExternalData,
   getFilesWithChildren,
+  getManualAttributions,
   getManualData,
   getResources,
   getResourcesToExternalAttributions,
+  getResourcesToManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getNewAccordionWorkers } from '../../web-workers/get-new-accordion-workers';
 import { getNewProgressBarWorkers } from '../../web-workers/get-new-progress-bar-workers';
 import { PanelAttributionData } from '../../util/get-contained-packages';
+import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 
 const resourceDetailsTabsWorkers = getNewAccordionWorkers();
 
@@ -93,8 +97,16 @@ export const ProgressBarWorkersContextProvider: FC<{
   children: ReactNode | null;
 }> = ({ children }) => {
   const resources = useAppSelector(getResources);
+  const manualAttributions = useAppSelector(getManualAttributions);
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const resourcesToManualAttributions = useAppSelector(
+    getResourcesToManualAttributions,
+  );
   const resourcesToExternalAttributions = useAppSelector(
     getResourcesToExternalAttributions,
+  );
+  const resolvedExternalAttributions = useAppSelector(
+    getResolvedExternalAttributions,
   );
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
@@ -104,6 +116,7 @@ export const ProgressBarWorkersContextProvider: FC<{
       progressBarWorkers.TopProgressBarWorker.postMessage({
         isCacheInitializationMessage: true,
         resources: null,
+        externalAttributions: null,
         resourcesToExternalAttributions: null,
         attributionBreakpoints: null,
         filesWithChildren: null,
@@ -112,6 +125,7 @@ export const ProgressBarWorkersContextProvider: FC<{
         worker.postMessage({
           isCacheInitializationMessage: true,
           resources,
+          externalAttributions,
           resourcesToExternalAttributions,
           attributionBreakpoints,
           filesWithChildren,
@@ -122,9 +136,33 @@ export const ProgressBarWorkersContextProvider: FC<{
     }
   }, [
     resources,
+    externalAttributions,
     resourcesToExternalAttributions,
     attributionBreakpoints,
     filesWithChildren,
+  ]);
+
+  useMemo(() => {
+    try {
+      progressBarWorkers.TopProgressBarWorker.postMessage({
+        manualAttributions: null,
+        resourcesToManualAttributions: null,
+        resolvedExternalAttributions: null,
+      });
+      Object.values(progressBarWorkers).forEach((worker) => {
+        worker.postMessage({
+          manualAttributions,
+          resourcesToManualAttributions,
+          resolvedExternalAttributions,
+        });
+      });
+    } catch (error) {
+      console.info('Web worker error in workers context provider: ', error);
+    }
+  }, [
+    manualAttributions,
+    resourcesToManualAttributions,
+    resolvedExternalAttributions,
   ]);
 
   return (
