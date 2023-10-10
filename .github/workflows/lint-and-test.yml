@@ -35,6 +35,7 @@ jobs:
       - name: Increase watches
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
+      - run: yarn format-check
       - run: yarn lint-check
       - run: yarn compile-all
       - run: yarn test:unit
