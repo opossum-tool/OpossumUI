@@ -29,10 +29,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
-import {
-  expectValueInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
+import { expectValueInTextBox } from '../../../test-helpers/attribution-column-test-helpers';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -294,33 +291,6 @@ describe('Locator popup ', () => {
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
-  });
-
-  it('disables the checkbox if the search term is empty', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Medium,
-        selectedLicenses: new Set<string>(),
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
-
-    expect(
-      screen.getByRole('checkbox', {
-        name: 'checkbox Only search license names',
-      }),
-    ).toBeDisabled();
-
-    insertValueIntoTextBox(screen, 'Search', 'jquery');
-
-    expect(
-      screen.getByRole('checkbox', {
-        name: 'checkbox Only search license names',
-      }),
-    ).toBeEnabled();
   });
 
   it('shows license if selected beforehand', () => {
