@@ -83,7 +83,15 @@ To search for a path, press `CTRL + F` or open the `Edit` menu and select `Searc
 
 ### Locate signals <a name="locator"></a>
 
-To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup. From here, you can search for signals by license name and criticality. Once selected, the locations of matching signals will be highlighted in the resource tree.
+To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup. 
+From here, you can choose which signals you want to locate in the resource tree. You can search for signals by string, criticality 
+or choose one or multiple existing license name(s). Once selected, the locations of matching signals will be highlighted in the resource tree.
+
+Note: When searching for matching resources, the input of the search field, the selected criticality and the selected 
+license names are linked with **and**, while different license names in the license search field are linked with **or**. 
+That is, when searching for a license name using the search field (and the checkbox) and additionally selecting 
+another license name, only the resources matching the license name **and** the term in the search field will be highlighted 
+while when searching for multiple license names, all resources matching **one of these** licenses will be highlighted.
 
 ![integration](./docs/user_guide_screenshots/locator.png)
 

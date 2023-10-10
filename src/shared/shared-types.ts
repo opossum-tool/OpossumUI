@@ -36,7 +36,7 @@ export enum DiscreteConfidence {
   Low = 20,
 }
 
-interface PackageInfoCore {
+export interface PackageInfoCore {
   attributionConfidence?: number;
   packageName?: string;
   packageVersion?: string;

@@ -393,6 +393,8 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     const locatedResources = calculateResourcesWithLocatedAttributions(
       selectedCriticality,
       licenseNames,
+      'gpl',
+      false,
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -424,6 +426,8 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     const locatedResources = calculateResourcesWithLocatedAttributions(
       selectedCriticality,
       licenseNames,
+      '',
+      false,
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -462,6 +466,8 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     const locatedResources = calculateResourcesWithLocatedAttributions(
       selectedCriticality,
       licenseNames,
+      '',
+      false,
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -504,6 +510,8 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     const locatedResources = calculateResourcesWithLocatedAttributions(
       selectedCriticality,
       licenseNames,
+      '',
+      false,
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -513,6 +521,45 @@ describe('calculateResourcesWithLocatedAttributions', () => {
       '/folder/file2',
       '/folder/file3',
     ]);
+
+    expect(locatedResources).toEqual(expectedLocatedResources);
+  });
+
+  it('yields results satisfying the search query', () => {
+    const licenseNames = new Set<string>();
+    const externalAttributions: Attributions = {
+      uuid_1: {
+        packageName: 'react',
+        licenseName: 'GPL-2.0-or-later',
+        criticality: Criticality.High,
+      },
+      uuid_2: {
+        packageName: 'angular',
+        licenseName: 'GPL-2.0-only',
+        criticality: Criticality.High,
+      },
+      uuid_3: {
+        packageName: 'vue',
+        licenseName: 'MIT',
+        criticality: Criticality.High,
+      },
+    };
+    const externalAttributionsToResources: AttributionsToResources = {
+      uuid_1: ['/folder/file1'],
+      uuid_2: ['/folder/file2'],
+      uuid_3: ['/folder/file3'],
+    };
+    const frequentLicenseNames: Array<FrequentLicenseName> = [];
+    const locatedResources = calculateResourcesWithLocatedAttributions(
+      SelectedCriticality.Any,
+      licenseNames,
+      '2.0-only',
+      false,
+      externalAttributions,
+      externalAttributionsToResources,
+      frequentLicenseNames,
+    );
+    const expectedLocatedResources = new Set<string>(['/folder/file2']);
 
     expect(locatedResources).toEqual(expectedLocatedResources);
   });

@@ -25,6 +25,10 @@ import { ResourceState } from '../reducers/resource-reducer';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
+import {
+  licenseNameContainsSearchTerm,
+  packageInfoContainsSearchTerm,
+} from '../../util/search-package-info';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -283,6 +287,8 @@ export function getIndexOfAttributionInManualPackagePanel(
 export function calculateResourcesWithLocatedAttributions(
   selectedCriticality: SelectedCriticality,
   licenseNames: Set<string>,
+  searchTerm: string,
+  searchOnlyLicenseNames: boolean,
   externalAttributions: Attributions,
   externalAttributionsToResources: AttributionsToResources,
   frequentLicenseNames: Array<FrequentLicenseName>,
@@ -295,7 +301,8 @@ export function calculateResourcesWithLocatedAttributions(
 
   const licenseIsSet = augmentedLicenseNames.size > 0;
   const criticalityIsSet = selectedCriticality != SelectedCriticality.Any;
-  if (!licenseIsSet && !criticalityIsSet) {
+  const searchTermIsSet = searchTerm != '';
+  if (!licenseIsSet && !criticalityIsSet && !searchTermIsSet) {
     return locatedResources;
   }
   for (const attributionId in externalAttributions) {
@@ -304,10 +311,16 @@ export function calculateResourcesWithLocatedAttributions(
       attribution.licenseName !== undefined &&
       augmentedLicenseNames.has(attribution.licenseName);
     const criticalityMatches = attribution.criticality == selectedCriticality;
+    const searchTermMatches =
+      (searchOnlyLicenseNames &&
+        licenseNameContainsSearchTerm(attribution, searchTerm)) ||
+      (!searchOnlyLicenseNames &&
+        packageInfoContainsSearchTerm(attribution, searchTerm));
 
     if (
       (licenseMatches || !licenseIsSet) &&
-      (criticalityMatches || !criticalityIsSet)
+      (criticalityMatches || !criticalityIsSet) &&
+      searchTermMatches
     ) {
       externalAttributionsToResources[attributionId].forEach((resource) => {
         locatedResources.add(resource);

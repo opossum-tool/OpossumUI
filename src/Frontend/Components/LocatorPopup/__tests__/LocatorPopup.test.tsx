@@ -29,6 +29,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
+import { expectValueInTextBox } from '../../../test-helpers/attribution-column-test-helpers';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -38,6 +39,13 @@ describe('Locator popup ', () => {
     expect(
       screen.getByText('Locate Signals', { exact: true }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Search')).toBeInTheDocument();
+    expect(screen.getByText('Only search license names')).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search license names',
+      }),
+    ).not.toBeChecked();
     expect(screen.getByLabelText('Criticality')).toBeInTheDocument();
     expect(screen.getByText('Any')).toBeInTheDocument();
     expect(
@@ -59,6 +67,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
     });
 
     clickOnButton(screen, 'Apply');
@@ -66,6 +76,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.High,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
     });
   });
 
@@ -75,6 +87,8 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Medium,
         selectedLicenses: new Set<string>(),
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
@@ -89,6 +103,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
     });
   });
 
@@ -127,6 +143,8 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
+      searchTerm: '',
+      searchOnlyLicenseName: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
       expectedLocatedResources,
@@ -173,6 +191,8 @@ describe('Locator popup ', () => {
     expectElementsInAutoCompleteAndSelectFirst(screen, ['GPL-2.0']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      searchOnlyLicenseName: false,
+      searchTerm: '',
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
     });
@@ -189,6 +209,8 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseSet,
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 
@@ -198,6 +220,72 @@ describe('Locator popup ', () => {
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(),
+    });
+  });
+
+  it('clears search field if clear button pressed', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Medium,
+        selectedLicenses: new Set<string>(),
+        searchOnlyLicenseName: false,
+        searchTerm: 'jquery',
+      }),
+    );
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
+
+    expectValueInTextBox(screen, 'Search', '');
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedLicenses: new Set<string>(),
+      selectedCriticality: SelectedCriticality.Any,
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    });
+    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+      resourcesWithLocatedChildren: new Set(),
+      locatedResources: new Set(),
+    });
+  });
+
+  it('unchecks checkbox if clear button pressed', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Medium,
+        selectedLicenses: new Set<string>(),
+        searchOnlyLicenseName: true,
+        searchTerm: '',
+      }),
+    );
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search license names',
+      }),
+    ).toBeChecked();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
+
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'checkbox Only search license names',
+      }),
+    ).not.toBeChecked();
+    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+      selectedLicenses: new Set<string>(),
+      selectedCriticality: SelectedCriticality.Any,
+      searchTerm: '',
+      searchOnlyLicenseName: false,
     });
     expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
@@ -213,6 +301,8 @@ describe('Locator popup ', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseSet,
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 
@@ -262,6 +352,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     GPLMediumAttribution: {
       licenseName: 'General Public License',
       criticality: Criticality.Medium,
+      packageVersion: '2.0',
     },
   };
   const testResourcesToAttributions: ResourcesToAttributions = {
@@ -298,6 +389,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 
@@ -313,6 +406,70 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     );
   });
 
+  it('locates attribution and parent if only search term set', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const searchTerm = '2.0';
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set(),
+        searchOnlyLicenseName: false,
+        searchTerm,
+      }),
+    );
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set([
+        '/pathToApacheHigh',
+        '/pathToApacheMedium',
+        '/pathToGPLMedium',
+      ]),
+    };
+    const actualLocatedResources = getResourcesWithLocatedAttributions(
+      testStore.getState(),
+    );
+    expect(actualLocatedResources).toEqual(expectedLocatedResources);
+  });
+
+  it('locates attribution and parent when searching for license name only', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      setExternalData(testAttributions, testResourcesToAttributions),
+    );
+    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
+
+    const searchTerm = '2.0';
+    testStore.dispatch(
+      setLocatePopupFilters({
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: new Set(),
+        searchOnlyLicenseName: true,
+        searchTerm,
+      }),
+    );
+
+    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    clickOnButton(screen, 'Apply');
+
+    const expectedLocatedResources = {
+      resourcesWithLocatedChildren: new Set(['/']),
+      locatedResources: new Set(['/pathToApacheHigh', '/pathToApacheMedium']),
+    };
+    const actualLocatedResources = getResourcesWithLocatedAttributions(
+      testStore.getState(),
+    );
+    expect(actualLocatedResources).toEqual(expectedLocatedResources);
+  });
+
   it('locates attribution and parent if only licenses set', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
@@ -325,6 +482,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: licenseNames,
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 
@@ -355,6 +514,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: new Set<string>(),
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 
@@ -387,6 +548,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 
@@ -416,6 +579,8 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       setLocatePopupFilters({
         selectedCriticality: criticality,
         selectedLicenses: licenseNames,
+        searchOnlyLicenseName: false,
+        searchTerm: '',
       }),
     );
 

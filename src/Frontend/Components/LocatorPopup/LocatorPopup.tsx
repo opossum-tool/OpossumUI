@@ -3,13 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { Checkbox } from '../Checkbox/Checkbox';
 import React, { ChangeEvent, ReactElement, useState } from 'react';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   closePopup,
   setShowNoSignalsLocatedMessage,
 } from '../../state/actions/view-actions/view-actions';
-import { ButtonText, CriticalityTypes } from '../../enums/enums';
+import { ButtonText, CheckboxLabel, CriticalityTypes } from '../../enums/enums';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Dropdown, menuItem } from '../InputElements/Dropdown';
 import {
@@ -27,6 +28,8 @@ import { OpossumColors } from '../../shared-styles';
 import MuiTypography from '@mui/material/Typography';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
+import MuiBox from '@mui/material/Box';
 
 const classes = {
   dropdown: {
@@ -36,6 +39,16 @@ const classes = {
   noSignalsMessage: { color: OpossumColors.red, marginTop: '8px' },
   dialogContent: {
     width: '25vw',
+  },
+  checkboxContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  search: {
+    padding: '8px',
+    border: '1px solid lightgrey',
+    marginBottom: '16px',
+    borderRadius: '2px',
   },
 };
 
@@ -69,9 +82,12 @@ export function getLicenseNames(attributions: Attributions): Array<string> {
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const externalAttributions = useAppSelector(getExternalAttributions);
-  const { selectedCriticality, selectedLicenses } = useAppSelector(
-    getLocatePopupFilters,
-  );
+  const {
+    selectedCriticality,
+    selectedLicenses,
+    searchTerm,
+    searchOnlyLicenseName,
+  } = useAppSelector(getLocatePopupFilters);
   const showNoSignalsLocatedMessage = useAppSelector(
     getShowNoSignalsLocatedMessage,
   );
@@ -79,6 +95,10 @@ export function LocatorPopup(): ReactElement {
   const licenseNameOptions = getLicenseNames(externalAttributions);
 
   const [searchedLicenses, setSearchedLicenses] = useState(selectedLicenses);
+
+  const [searchedSignal, setSearchedSignal] = useState(searchTerm);
+  const [displaySearchOnlyLicenseName, setDisplaySearchOnlyLicenseName] =
+    useState(searchOnlyLicenseName);
   const [criticalityDropDownChoice, setCriticalityDropDownChoice] =
     useState<SelectedCriticality>(selectedCriticality);
 
@@ -93,6 +113,8 @@ export function LocatorPopup(): ReactElement {
       locateSignalsFromLocatorPopup(
         criticalityDropDownChoice,
         searchedLicenses,
+        searchedSignal,
+        displaySearchOnlyLicenseName,
       ),
     );
   }
@@ -100,10 +122,14 @@ export function LocatorPopup(): ReactElement {
   function handleClearClick(): void {
     setCriticalityDropDownChoice(SelectedCriticality.Any);
     setSearchedLicenses(new Set());
+    setSearchedSignal('');
+    setDisplaySearchOnlyLicenseName(false);
     dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
         selectedLicenses: new Set<string>(),
+        searchTerm: '',
+        searchOnlyLicenseName: false,
       }),
     );
     dispatch(setShowNoSignalsLocatedMessage(false));
@@ -115,6 +141,24 @@ export function LocatorPopup(): ReactElement {
 
   const content = (
     <>
+      <MuiBox sx={classes.search}>
+        <SearchTextField
+          sx={classes.autocomplete}
+          onInputChange={(search: string): void => {
+            setSearchedSignal(search);
+          }}
+          search={searchedSignal}
+          showIcon={true}
+        />
+        <Checkbox
+          sx={classes.checkboxContainer}
+          label={CheckboxLabel.OnlyLicenseName}
+          checked={displaySearchOnlyLicenseName}
+          onChange={(): void => {
+            setDisplaySearchOnlyLicenseName(!displaySearchOnlyLicenseName);
+          }}
+        />
+      </MuiBox>
       <Dropdown
         sx={classes.dropdown}
         isEditable={true}
