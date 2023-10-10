@@ -95,7 +95,7 @@ export function expectValueInTextBox(
   value: string,
 ): void {
   const textBox = screen.getByLabelText(textBoxLabel);
-  // eslint-disable-next-line testing-library/prefer-screen-queries
+
   expect(textBox).toHaveValue(value);
 }
 

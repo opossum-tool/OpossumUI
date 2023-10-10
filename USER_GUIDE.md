@@ -186,7 +186,6 @@ structure:
   Furthermore, no attribution is inferred beyond such a breakpoint),
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
-
 ![integration](./docs/user_guide_screenshots/filetree.png)
 
 The coloring scheme reads as follows:
@@ -256,11 +255,9 @@ The `Attribution Wizard` has the following structure (compare image):
 - Package URL (3) that describes the currently selected package.
 - Lists of aggregated package attributes (4), e.g., package namespace, name, and version (depending on wizard step).
 
-
 ![integration](./docs/user_guide_screenshots/attribution_wizard_doc_overview.png)
 
 In the first step, package namespace and name can be selected. The list items are sorted by count, i.e., the number of occurrences in the attributions and signals of the current resource and its descendents. New list items can be added manually via the textboxes below the lists (5). Manually added items are marked with a star-icon and are displayed at the top of the list (6).
-
 
 ![integration](./docs/user_guide_screenshots/attribution_wizard_doc_add_new.png)
 
@@ -366,7 +363,6 @@ filters that allows for filtering for attributions marked for follow-up, first p
 are mutually exclusive.
 
 Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `attribution view`.
-
 
 ### Preferred Attributions <a name="preferred_attributions"></a>
 

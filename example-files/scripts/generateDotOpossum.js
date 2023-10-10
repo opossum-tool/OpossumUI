@@ -33,7 +33,7 @@ for (const inputFilePath of inputFilePaths) {
     addAttributionsJsonToArchive(
       dotOpossumArchive,
       inputFilePath,
-      attributionFilePaths
+      attributionFilePaths,
     );
 
     dotOpossumArchive
@@ -53,7 +53,7 @@ for (const inputFilePath of inputFilePaths) {
 
 function getInputAndAttributionFilePaths(exampleFilesDirectory) {
   const jsonFilePaths = glob.sync(
-    `${exampleFilesDirectory}/**/*${jsonFileExtension}`
+    `${exampleFilesDirectory}/**/*${jsonFileExtension}`,
   );
   const inputFilePaths = [];
   const attributionFilePaths = [];
@@ -62,7 +62,7 @@ function getInputAndAttributionFilePaths(exampleFilesDirectory) {
       ? attributionFilePaths.push(filePath)
       : checkIfJsonFileIsInputJson(filePath)
       ? inputFilePaths.push(filePath)
-      : null
+      : null,
   );
   return { inputFilePaths, attributionFilePaths };
 }
@@ -79,7 +79,7 @@ function addInputJsonToArchive(archive, inputFilePath) {
 function addAttributionsJsonToArchive(
   archive,
   inputFilePath,
-  attributionFilePaths
+  attributionFilePaths,
 ) {
   const expectedAssociatedAttributionFilePath =
     inputFilePath.slice(0, -5) + attributionsFileSuffix;

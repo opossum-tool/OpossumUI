@@ -158,7 +158,7 @@ describe('ProgressBar helpers', () => {
     ],
     [
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      [0, 0, 100.2, 0], // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      [0, 0, 100.2, 0],
       [0, 0.0, 100, 0],
     ],
     [

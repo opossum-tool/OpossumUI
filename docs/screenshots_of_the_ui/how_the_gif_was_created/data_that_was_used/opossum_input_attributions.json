@@ -53,18 +53,14 @@
     }
   },
   "resourcesToAttributions": {
-    "/ElectronBackend/main.ts": [
-      "585bf5b2-4da7-4de4-8e8f-38d142e42079"
-    ],
+    "/ElectronBackend/main.ts": ["585bf5b2-4da7-4de4-8e8f-38d142e42079"],
     "/package.json/dependencies/electron/": [
       "fc327da6-62a2-45ac-9230-be5938d5adf9"
     ],
     "/package.json/dependencies/jQuery/": [
       "e296e9ef-f272-4fa8-9dd7-a8edeb06fd71"
     ],
-    "/Frontend/Components/App/": [
-      "7ab78aa0-2d03-4b63-90e9-256d59d0789a"
-    ],
+    "/Frontend/Components/App/": ["7ab78aa0-2d03-4b63-90e9-256d59d0789a"],
     "/Frontend/Components/TextBox/TextBox.tsx": [
       "e6646d0b-0c00-4625-84da-699969333f03"
     ]
