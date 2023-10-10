@@ -59,7 +59,6 @@ interface VirtualizedTreeProps {
 export function VirtualizedTree(
   props: VirtualizedTreeProps,
 ): ReactElement | null {
-  // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
     props.nodes,
     '',

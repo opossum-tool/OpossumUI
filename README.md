@@ -69,7 +69,7 @@ If you open a `.opossum` file for the first time, it will be automatically updat
 
 ## Generating input files
 
-Result files from _ScanCode_ and _SCANOSS_ can be converted into OpossumUI input files using 
+Result files from _ScanCode_ and _SCANOSS_ can be converted into OpossumUI input files using
 [opossum-tool/opossum.lib.hs](https://github.com/opossum-tool/opossum.lib.hs). This tool can also generate
 OpossumUI input files from spdx and merge several OpossumUI input files.
 
@@ -84,7 +84,7 @@ For details of the file format, see [File formats](#file_formats).
 
 Check out our short getting started video:
 
-<a href="https://www.youtube.com/watch?v=tXMV04f-CHg" target="_blank">![click to play video](docs/readme_images/opossum_youtube.png )</a>
+<a href="https://www.youtube.com/watch?v=tXMV04f-CHg" target="_blank">![click to play video](docs/readme_images/opossum_youtube.png)</a>
 
 ### Get the latest release
 

@@ -48,7 +48,6 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
   }, [props.panelData.displayPackageInfosWithCount]);
 
   function handleExpansionChange(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: React.ChangeEvent<unknown>,
     targetExpansionState: boolean,
   ): void {

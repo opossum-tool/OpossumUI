@@ -213,7 +213,7 @@ describe('The AggregatedAttributionsPanel', () => {
     );
 
     const signalsPanel = getPackagePanel(screen, 'Signals');
-    // eslint-disable-next-line testing-library/prefer-screen-queries, jest-dom/prefer-in-document
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     expect(queryAllByText(signalsPanel, 'jQuery, 16.0.0')).toHaveLength(1);
   });
 
@@ -264,7 +264,6 @@ describe('The AggregatedAttributionsPanel', () => {
     expect(
       // eslint-disable-next-line testing-library/prefer-screen-queries
       queryAllByText(signalsInFolderContentPanel, 'jQuery, 16.0.0'),
-      // eslint-disable-next-line jest-dom/prefer-in-document
     ).toHaveLength(1);
   });
 

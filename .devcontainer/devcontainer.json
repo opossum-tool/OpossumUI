@@ -6,28 +6,26 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.202.3/containers/typescript-node
 {
-	"name": "Node.js & TypeScript",
-	"runArgs": ["--init"],
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": { 
-			"VARIANT": "18-bullseye"
-		}
-	},
+  "name": "Node.js & TypeScript",
+  "runArgs": ["--init"],
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "18-bullseye"
+    }
+  },
 
-	"settings": {},
+  "settings": {},
 
-	"extensions": [
-		"dbaeumer.vscode-eslint"
-	],
+  "extensions": ["dbaeumer.vscode-eslint"],
 
-	// "forwardPorts": [],
+  // "forwardPorts": [],
 
-	"postCreateCommand": "yarn install",
+  "postCreateCommand": "yarn install",
 
-	"remoteUser": "node",
-	"features": {
-		"git": "latest",
-		"python": "latest"
-	}
+  "remoteUser": "node",
+  "features": {
+    "git": "latest",
+    "python": "latest"
+  }
 }

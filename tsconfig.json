@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "es2019"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext", "es2019"],
     "types": [
       "vite/client",
       "vite-plugin-svgr/client",
@@ -36,7 +31,5 @@
     "vite.config.ts",
     "index.html"
   ],
-  "exclude": [
-    "src/ElectronBackend/**/*"
-  ]
+  "exclude": ["src/ElectronBackend/**/*"]
 }
