@@ -44,7 +44,7 @@ export function getColorsForPieChart(
   pieChartData: Array<PieChartData>,
   pieChartTitle: string,
 ): Array<string> | undefined {
-  const pieChartColors = [];
+  const pieChartColors: Array<string> = [];
 
   if (
     pieChartTitle === ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart

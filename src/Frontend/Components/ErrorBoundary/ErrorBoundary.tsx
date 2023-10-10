@@ -61,14 +61,14 @@ class ProtoErrorBoundary extends Component<
     this.state = { hasError: false };
   }
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
     window.electronAPI.on(AllowedFrontendChannels.RestoreFrontend, () => {
       this.props.resetState();
       this.setState({ hasError: false });
     });
   }
 
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     window.electronAPI.removeListener(AllowedFrontendChannels.RestoreFrontend);
   }
 
@@ -76,11 +76,11 @@ class ProtoErrorBoundary extends Component<
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     sendErrorInfo(error, errorInfo);
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (this.state.hasError) {
       return <MuiBox sx={classes.root} />;
     }
