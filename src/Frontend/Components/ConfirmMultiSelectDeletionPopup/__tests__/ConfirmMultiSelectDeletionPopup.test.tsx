@@ -8,7 +8,6 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { act, screen } from '@testing-library/react';
-import React from 'react';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import {

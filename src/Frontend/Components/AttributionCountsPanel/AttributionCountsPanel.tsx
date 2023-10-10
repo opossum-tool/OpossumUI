@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';

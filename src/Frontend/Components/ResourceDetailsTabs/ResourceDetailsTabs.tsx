@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTab from '@mui/material/Tab';
 import { getManualData } from '../../state/selectors/all-views-resource-selectors';
@@ -140,7 +140,7 @@ export function ResourceDetailsTabs(
     <div style={{ position: 'relative' }}>
       <MuiTabs
         value={selectedTab}
-        onChange={(event: React.SyntheticEvent, newTab: Tabs): void => {
+        onChange={(_: React.SyntheticEvent, newTab: Tabs): void => {
           setSelectedTab(newTab);
         }}
         aria-label="Add To Tabs"

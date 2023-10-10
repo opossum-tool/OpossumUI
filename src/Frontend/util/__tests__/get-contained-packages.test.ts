@@ -3,20 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  Attributions,
-  ResourcesToAttributions,
-} from '../../../shared/shared-types';
-import { computeAggregatedAttributionsFromChildren } from '../get-contained-packages';
+import { ResourcesToAttributions } from '../../../shared/shared-types';
 import { AttributionIdWithCount } from '../../types/types';
+import { computeAggregatedAttributionsFromChildren } from '../get-contained-packages';
 
 describe('computeAggregatedAttributionsFromChildren', () => {
-  const testAttributions: Attributions = {
-    uuid_1: { packageName: 'test Package', licenseText: 'test license text' },
-    uuid_2: { packageName: 'second test Package' },
-    uuid_3: { comment: 'test comment', copyright: 'test copyright' },
-    uuid_4: { packageName: 'test Package' },
-  };
   const testResourcesToAttributions: ResourcesToAttributions = {
     'samplepath/subfolder': ['uuid_1', 'uuid_2'],
     'samplepath2/subfolder/subsubfolder': ['uuid_3', 'uuid_2'],
@@ -44,7 +35,6 @@ describe('computeAggregatedAttributionsFromChildren', () => {
 
     const result: Array<AttributionIdWithCount> =
       computeAggregatedAttributionsFromChildren(
-        testAttributions,
         testResourcesToAttributions,
         testAttributedChildren,
       );
@@ -68,7 +58,6 @@ describe('computeAggregatedAttributionsFromChildren', () => {
 
     const result: Array<AttributionIdWithCount> =
       computeAggregatedAttributionsFromChildren(
-        testAttributions,
         testResourcesToAttributions,
         testAttributedChildren,
         testResolvedExternalAttributions,

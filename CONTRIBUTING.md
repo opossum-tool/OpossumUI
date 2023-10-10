@@ -21,6 +21,7 @@ explanatory text separated by an empty line. If your commit refers to an issue, 
 issue number.
 
 Example:
+
 ```
 Short summary of changes (72 characters or less)
 
@@ -78,13 +79,16 @@ testing library. They can be run locally by executing:
 ```
 yarn test:local
 ```
+
 to run a subset of all tests. To run all tests:
+
 ```
 yarn test:unit
 yarn test:integration-ci
 ```
 
 End to end test are available and can be run using:
+
 ```
 yarn test:e2e
 ```
@@ -114,18 +118,20 @@ The built release(s) can be found under _/release_
 Note: You will need Maintain permissions in order to create a new release.
 
 ### Checklist
+
 1. **Test** on a large real-world example.
-    1. Create a build for your OS using either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`.
-    1. Check performances on a large .opossum file.
-    1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpussumUI and resize the window, don't need to change resolution).
-    1. Check that the performance of the save operation is good.
-    1. Check that the notices for the app itself and chromium are accessible via the menu.
+   1. Create a build for your OS using either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`.
+   1. Check performances on a large .opossum file.
+   1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpussumUI and resize the window, don't need to change resolution).
+   1. Check that the performance of the save operation is good.
+   1. Check that the notices for the app itself and chromium are accessible via the menu.
 1. **Create** the release via UI (see next section for details).
 1. Optional: Notify users about a new release.
-    1. Wait until all the artifacts are shown on Github before sending a message.
-    1. Briefly mention the most important changes.
+   1. Wait until all the artifacts are shown on Github before sending a message.
+   1. Briefly mention the most important changes.
 
 ### Creating a release
+
 1. Go to: https://github.com/opossum-tool/OpossumUI/releases/new
 1. Use the UI to create an new release. The tag should have the format "OpossumUI-2023-$MONTH-$DAY" (in case of a second release on the same day "OpossumUI-2023-$MONTH-$DAY.1").
 1. The title of the release equals the tag.

@@ -83,14 +83,14 @@ To search for a path, press `CTRL + F` or open the `Edit` menu and select `Searc
 
 ### Locate signals <a name="locator"></a>
 
-To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup. 
-From here, you can choose which signals you want to locate in the resource tree. You can search for signals by string, criticality 
+To locate signals, press `CTRL + L` or open the `Edit` menu and select `Locate Signals`. This will open the Locate Signals popup.
+From here, you can choose which signals you want to locate in the resource tree. You can search for signals by string, criticality
 or choose one or multiple existing license name(s). Once selected, the locations of matching signals will be highlighted in the resource tree.
 
-Note: When searching for matching resources, the input of the search field, the selected criticality and the selected 
-license names are linked with **and**, while different license names in the license search field are linked with **or**. 
-That is, when searching for a license name using the search field (and the checkbox) and additionally selecting 
-another license name, only the resources matching the license name **and** the term in the search field will be highlighted 
+Note: When searching for matching resources, the input of the search field, the selected criticality and the selected
+license names are linked with **and**, while different license names in the license search field are linked with **or**.
+That is, when searching for a license name using the search field (and the checkbox) and additionally selecting
+another license name, only the resources matching the license name **and** the term in the search field will be highlighted
 while when searching for multiple license names, all resources matching **one of these** licenses will be highlighted.
 
 ![integration](./docs/user_guide_screenshots/locator.png)
@@ -194,7 +194,6 @@ structure:
   Furthermore, no attribution is inferred beyond such a breakpoint),
 - a **exclamation mark** ![integration](./docs/user_guide_screenshots/has_signals_icon.png) indicates the presence of signals attached to the resource.
 
-
 ![integration](./docs/user_guide_screenshots/filetree.png)
 
 The coloring scheme reads as follows:
@@ -264,11 +263,9 @@ The `Attribution Wizard` has the following structure (compare image):
 - Package URL (3) that describes the currently selected package.
 - Lists of aggregated package attributes (4), e.g., package namespace, name, and version (depending on wizard step).
 
-
 ![integration](./docs/user_guide_screenshots/attribution_wizard_doc_overview.png)
 
 In the first step, package namespace and name can be selected. The list items are sorted by count, i.e., the number of occurrences in the attributions and signals of the current resource and its descendents. New list items can be added manually via the textboxes below the lists (5). Manually added items are marked with a star-icon and are displayed at the top of the list (6).
-
 
 ![integration](./docs/user_guide_screenshots/attribution_wizard_doc_add_new.png)
 
@@ -374,7 +371,6 @@ filters that allows for filtering for attributions marked for follow-up, first p
 are mutually exclusive.
 
 Clicking on the _edit_ buttons in the _name_ columns, navigates to the respective attribution in the `attribution view`.
-
 
 ### Preferred Attributions <a name="preferred_attributions"></a>
 

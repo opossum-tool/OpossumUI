@@ -35,7 +35,6 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { ButtonText } from '../../../enums/enums';
 import { screen } from '@testing-library/react';
-import React from 'react';
 import {
   clickOnPackageInPackagePanel,
   clickOnTab,

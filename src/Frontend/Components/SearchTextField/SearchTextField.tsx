@@ -6,7 +6,7 @@
 import { InputAdornment, SxProps } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
 import { Search } from '@mui/icons-material';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 import { inputElementClasses } from '../InputElements/shared';

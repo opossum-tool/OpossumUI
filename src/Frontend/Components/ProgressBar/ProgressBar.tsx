@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiTooltip from '@mui/material/Tooltip';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { ProgressBarData, ProgressBarType } from '../../types/types';
 import { OpossumColors } from '../../shared-styles';
 import {

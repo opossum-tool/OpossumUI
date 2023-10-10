@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ListWithAttributes } from '../ListWithAttributes';
 import { ListWithAttributesItem } from '../../../types/types';

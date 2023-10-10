@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
 import { ButtonText } from '../../enums/enums';

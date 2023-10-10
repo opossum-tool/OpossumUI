@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { GoToLinkButton } from '../GoToLinkButton';

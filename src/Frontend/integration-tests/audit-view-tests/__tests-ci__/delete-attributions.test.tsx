@@ -15,7 +15,6 @@ import { fireEvent, screen } from '@testing-library/react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ParsedFileContent } from '../../../../shared/shared-types';
 import { ButtonText, View } from '../../../enums/enums';
-import React from 'react';
 import {
   clickOnButtonInHamburgerMenu,
   expectButtonInHamburgerMenu,

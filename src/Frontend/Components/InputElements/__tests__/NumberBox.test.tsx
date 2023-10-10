@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ChangeEvent } from 'react';
+import { ChangeEvent } from 'react';
 import { render, screen } from '@testing-library/react';
 import { NumberBox } from '../NumberBox';
 import { doNothing } from '../../../util/do-nothing';

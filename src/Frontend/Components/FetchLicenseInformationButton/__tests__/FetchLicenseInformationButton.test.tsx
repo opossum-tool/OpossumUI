@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React, { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import {
   FETCH_DATA_FOR_SIGNALS_TOOLTIP,
   FETCH_DATA_INVALID_DOMAIN_TOOLTIP,
@@ -123,12 +123,10 @@ describe('FetchLicenseInformationButton', () => {
   });
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function mockConvertPayload(_: Response): PackageInfo {
   return { licenseName: 'testLicense' };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function mockConvertPayloadRaises(_: Response): PackageInfo {
   throw new Error('unexpected error');
 }

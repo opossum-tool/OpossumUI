@@ -110,7 +110,7 @@
             "type": "boolean",
             "description": "Indicates that the information in an attribution needs further review."
           },
-          "preferred":{
+          "preferred": {
             "type": "boolean",
             "description": "Indicates that the attribution has been marked as preferred by a user."
           },
@@ -121,7 +121,7 @@
               "type": "string"
             }
           },
-          "wasPreferred":{
+          "wasPreferred": {
             "type": "boolean",
             "description": "Indicates that the attribution had previously been marked as preferred."
           }

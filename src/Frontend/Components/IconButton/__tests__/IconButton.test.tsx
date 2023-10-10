@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IconButton } from '../IconButton';
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 

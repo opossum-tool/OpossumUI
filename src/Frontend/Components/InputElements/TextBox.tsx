@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiTextField from '@mui/material/TextField';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { inputElementClasses, InputElementProps } from './shared';
 import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiBox from '@mui/material/Box';

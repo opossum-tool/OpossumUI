@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import commitInfo from '../../../commitInfo.json';
 import { OpossumColors } from '../../shared-styles';

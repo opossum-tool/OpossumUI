@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
@@ -44,7 +44,7 @@ export function getColorsForPieChart(
   pieChartData: Array<PieChartData>,
   pieChartTitle: string,
 ): Array<string> | undefined {
-  const pieChartColors = [];
+  const pieChartColors: Array<string> = [];
 
   if (
     pieChartTitle === ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { FC, ReactNode, useMemo } from 'react';
+import { FC, ReactNode, createContext, useMemo } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -20,7 +20,7 @@ import { PanelAttributionData } from '../../util/get-contained-packages';
 
 const resourceDetailsTabsWorkers = getNewAccordionWorkers();
 
-export const AccordionWorkersContext = React.createContext(
+export const AccordionWorkersContext = createContext(
   resourceDetailsTabsWorkers,
 );
 
@@ -87,8 +87,7 @@ export const AccordionWorkersContextProvider: FC<{
 };
 
 const progressBarWorkers = getNewProgressBarWorkers();
-export const ProgressBarWorkersContext =
-  React.createContext(progressBarWorkers);
+export const ProgressBarWorkersContext = createContext(progressBarWorkers);
 
 export const ProgressBarWorkersContextProvider: FC<{
   children: ReactNode | null;

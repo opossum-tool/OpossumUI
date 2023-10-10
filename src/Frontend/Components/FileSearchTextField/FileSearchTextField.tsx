@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
+import { ReactElement, useEffect, useMemo, useRef } from 'react';
 import { setFileSearch } from '../../state/actions/resource-actions/file-search-actions';
 import { getFileSearch } from '../../state/selectors/file-search-selectors';
 import { SearchTextField } from '../SearchTextField/SearchTextField';

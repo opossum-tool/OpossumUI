@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, screen } from '@testing-library/react';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AttributionsViewPackageList } from '../AttributionsViewPackageList';
 import { DisplayPackageInfos } from '../../../types/types';

@@ -13,11 +13,11 @@ const noticeDocumentForChromium = path.join(
   'node_modules',
   'electron',
   'dist',
-  'LICENSES.chromium.html'
+  'LICENSES.chromium.html',
 );
 const noticeDocumentForOpossumUITemplate = path.join(
   __dirname,
-  'notices.template.html'
+  'notices.template.html',
 );
 const noticeDocumentFolder = path.join(__dirname, '..', 'notices');
 const noticeDocumentRaw = path.join(noticeDocumentFolder, 'notices.txt');
@@ -27,12 +27,12 @@ const noticeDocumentRaw = path.join(noticeDocumentFolder, 'notices.txt');
 
   copyNoticeForChromiumFromNodeModules(
     noticeDocumentForChromium,
-    path.join(noticeDocumentFolder, 'LICENSES.chromium.html')
+    path.join(noticeDocumentFolder, 'LICENSES.chromium.html'),
   );
   createNoticeForOpossumUI(
     fileContent,
     noticeDocumentForOpossumUITemplate,
-    path.join(noticeDocumentFolder, 'notices.html')
+    path.join(noticeDocumentFolder, 'notices.html'),
   );
 })();
 
@@ -43,7 +43,7 @@ function copyNoticeForChromiumFromNodeModules(originPath, destinationPath) {
 function createNoticeForOpossumUI(
   noticeContent,
   templateFile,
-  destinationPath
+  destinationPath,
 ) {
   const result = nunjucks.render(templateFile, {
     noticeContent,

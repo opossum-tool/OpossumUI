@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import CachedIcon from '@mui/icons-material/Cached';
 import { IconButton } from '../IconButton/IconButton';
 import {

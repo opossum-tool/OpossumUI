@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   DisplayPackageInfo,
   FollowUp,
@@ -42,7 +42,7 @@ export function getDisplayTexts(
   attributionIdMarkedForReplacement: string,
   view: View,
 ): Array<string> {
-  const displayTexts = [];
+  const displayTexts: Array<string> = [];
   if (temporaryDisplayPackageInfo.preSelected) {
     displayTexts.push(PRE_SELECTED_LABEL);
   }

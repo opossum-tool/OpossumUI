@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';

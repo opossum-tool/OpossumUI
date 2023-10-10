@@ -8,7 +8,7 @@ import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
-import React, { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect } from 'react';
 import { Button } from '../Button/Button';
 import { doNothing } from '../../util/do-nothing';
 import { ButtonConfig } from '../../types/types';
@@ -51,7 +51,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
     return (): void => window.removeEventListener('keydown', onKeyDown);
   }, [onEscapeKeyDown]);
 
-  function handleOnClose(event: unknown, reason: string): void {
+  function handleOnClose(_: unknown, reason: string): void {
     switch (reason) {
       case 'backdropClick':
         if (props.onBackdropClick) {

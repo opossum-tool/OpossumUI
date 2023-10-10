@@ -6,7 +6,6 @@
 
 import { App } from '../../../Components/App/App';
 import { fireEvent, screen } from '@testing-library/react';
-import React from 'react';
 import {
   Attributions,
   DiscreteConfidence,

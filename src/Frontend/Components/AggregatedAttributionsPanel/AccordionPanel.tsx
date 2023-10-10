@@ -7,7 +7,7 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import React, { ReactElement, useMemo, useState } from 'react';
+import { ReactElement, useMemo, useState } from 'react';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
 import { PanelData } from '../../types/types';
 import { isEmpty } from 'lodash';
@@ -48,8 +48,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
   }, [props.panelData.displayPackageInfosWithCount]);
 
   function handleExpansionChange(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    event: React.ChangeEvent<unknown>,
+    _: React.ChangeEvent<unknown>,
     targetExpansionState: boolean,
   ): void {
     setExpanded(targetExpansionState);

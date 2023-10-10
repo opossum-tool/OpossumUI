@@ -12,7 +12,7 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { ResourceBrowserTreeItemLabel } from '../ResourceBrowserTreeItemLabel/ResourceBrowserTreeItemLabel';
 import { getClosestParentAttributions } from '../../util/get-closest-parent-attributions';
 
@@ -105,9 +105,8 @@ export function getCriticality(
         return Criticality.Medium;
       }
     }
-
-    return undefined;
   }
+  return undefined;
 }
 
 function isRootResource(resourceName: string): boolean {

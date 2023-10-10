@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { List } from './List';
 import {
   HeightForTree,
@@ -59,7 +59,6 @@ interface VirtualizedTreeProps {
 export function VirtualizedTree(
   props: VirtualizedTreeProps,
 ): ReactElement | null {
-  // eslint-disable-next-line testing-library/render-result-naming-convention
   const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
     props.nodes,
     '',

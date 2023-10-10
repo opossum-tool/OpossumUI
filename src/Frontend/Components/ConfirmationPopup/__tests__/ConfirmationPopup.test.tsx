@@ -6,7 +6,6 @@
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ConfirmationPopup } from '../ConfirmationPopup';
 import { fireEvent, screen } from '@testing-library/react';
-import React from 'react';
 import { ButtonText } from '../../../enums/enums';
 
 describe('The ConfirmationPopup', () => {

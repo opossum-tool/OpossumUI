@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiTypography from '@mui/material/Typography';
-import React, { ReactElement, useCallback } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';

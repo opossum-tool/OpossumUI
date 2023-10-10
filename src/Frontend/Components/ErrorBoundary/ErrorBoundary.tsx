@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
+import { Component, Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
@@ -52,7 +52,7 @@ function sendErrorInfo(error: Error, errorInfo: ErrorInfo): void {
   window.electronAPI.sendErrorInformation(sendErrorInformationArgs);
 }
 
-class ProtoErrorBoundary extends React.Component<
+class ProtoErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
@@ -61,14 +61,14 @@ class ProtoErrorBoundary extends React.Component<
     this.state = { hasError: false };
   }
 
-  componentDidMount(): void {
+  override componentDidMount(): void {
     window.electronAPI.on(AllowedFrontendChannels.RestoreFrontend, () => {
       this.props.resetState();
       this.setState({ hasError: false });
     });
   }
 
-  componentWillUnmount(): void {
+  override componentWillUnmount(): void {
     window.electronAPI.removeListener(AllowedFrontendChannels.RestoreFrontend);
   }
 
@@ -76,11 +76,11 @@ class ProtoErrorBoundary extends React.Component<
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     sendErrorInfo(error, errorInfo);
   }
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (this.state.hasError) {
       return <MuiBox sx={classes.root} />;
     }

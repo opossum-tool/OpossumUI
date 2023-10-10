@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { act } from '@testing-library/react';
-import React from 'react';
 import { View } from '../../../enums/enums';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getSelectedView } from '../../../state/selectors/view-selector';
@@ -158,7 +157,7 @@ describe('ProgressBar helpers', () => {
     ],
     [
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      [0, 0, 100.2, 0], // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      [0, 0, 100.2, 0],
       [0, 0.0, 100, 0],
     ],
     [

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 import MuiTypography from '@mui/material/Typography';
 import { List } from '../List/List';
 import { useAppSelector } from '../../state/hooks';

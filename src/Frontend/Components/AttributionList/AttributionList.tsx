@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { checkboxClass } from '../../shared-styles';

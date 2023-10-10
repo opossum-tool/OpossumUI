@@ -32,7 +32,6 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
   const externalAttributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
     args.externalData.resourcesWithAttributedChildren,
-    args.externalData.attributions,
     args.externalData.resourcesToAttributions,
     args.resolvedExternalAttributions,
   );

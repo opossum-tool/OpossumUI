@@ -69,7 +69,6 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-filenames": "^1.3.2",
     "eslint-plugin-jest-dom": "^5.1.0",
-    "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-testing-library": "^6.0.2",
@@ -99,7 +98,7 @@
     "build:dev:darwin:linux": "yarn generate-notice && DISABLE_ESLINT_PLUGIN=true tsc -p ./ && vite build && tsc -p src/ElectronBackend",
     "build:dev:win32": "yarn generate-notice && cross-env DISABLE_ESLINT_PLUGIN=true tsc -p ./ && vite build && tsc -p src/ElectronBackend",
     "build:prod": "yarn generate-notice && tsc -p ./ && vite build && tsc -p src/ElectronBackend",
-    "compile-all": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
+    "typecheck": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "jest --testPathIgnorePatterns=src/e2e-tests --testPathIgnorePatterns=src/Frontend/integration-tests",
     "test:local": "jest --testPathIgnorePatterns=src/e2e-tests --testMatch=[ \"**/__tests__/**/*.ts?(x)\" ]",
     "test:changed": "jest --onlyChanged",
@@ -110,6 +109,8 @@
     "test:e2e:win32": "start-server-and-test \"yarn build:dev & cross-env BROWSER=none vite --config src/e2e-tests/vite-e2e-config.ts\" \"http://localhost:5173/\" \"cross-env RUNNING_IN_E2E_TEST=true DISPLAY=:99 npx playwright test src/e2e-tests\"",
     "lint": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\" --fix",
     "lint-check": "eslint -c .eslintrc.js \"src/**/*.{ts,tsx}\"",
+    "format": "prettier --write --ignore-unknown .",
+    "format-check": "prettier --check --ignore-unknown .",
     "copyright-lint-check": "reuse lint",
     "update-commit-hash": "run-script-os",
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\";\n",
@@ -173,7 +174,8 @@
   "lint-staged": {
     "**/*.{ts,tsx}": [
       "./run_precommit.sh"
-    ]
+    ],
+    "*": "prettier --write --ignore-unknown"
   },
   "resolutions": {
     "semver": "^7.5.2"

@@ -77,7 +77,7 @@ afterAll(() => {
 
 function mockConsoleImplementation(
   selectors: Array<string>,
-  type: 'info' | 'warn' | 'error'
+  type: 'info' | 'warn' | 'error',
 ): void {
   jest
     .spyOn(console, type)
@@ -86,12 +86,12 @@ function mockConsoleImplementation(
 
 function getMockConsoleImplementation(
   selectors: Array<string>,
-  type: 'info' | 'warn' | 'error'
+  type: 'info' | 'warn' | 'error',
 ) {
   return (...args: Array<unknown>): void => {
     if (
       selectors.filter(
-        (selector) => typeof args[0] === 'string' && args[0].includes(selector)
+        (selector) => typeof args[0] === 'string' && args[0].includes(selector),
       ).length
     ) {
       return;

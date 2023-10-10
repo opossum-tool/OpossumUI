@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { PanelPackage } from '../../types/types';
 import { ManualPackagePanel } from '../ManualPackagePanel/ManualPackagePanel';
 import { PathBar } from '../PathBar/PathBar';

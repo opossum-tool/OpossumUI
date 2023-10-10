@@ -16,7 +16,6 @@ import {
 } from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
 import { screen } from '@testing-library/react';
-import React from 'react';
 import {
   Attributions,
   DiscreteConfidence,

@@ -1,33 +1,32 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./build/lib",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
     "target": "ESNext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext",
-      "es2019"
-    ],
     "types": [
       "vite/client",
       "vite-plugin-svgr/client",
       "jest",
       "@testing-library/jest-dom"
-    ],
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "sourceMap": true,
-    "outDir": "./build/lib",
-    "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "allowJs": true,
-    "noFallthroughCasesInSwitch": true
+    ]
   },
   "include": [
     "src/**/*",
@@ -36,7 +35,5 @@
     "vite.config.ts",
     "index.html"
   ],
-  "exclude": [
-    "src/ElectronBackend/**/*"
-  ]
+  "exclude": ["src/ElectronBackend/**/*"]
 }
