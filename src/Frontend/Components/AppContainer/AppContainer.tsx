@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement, StrictMode } from 'react';
 import { Provider } from 'react-redux';
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
@@ -23,9 +23,9 @@ export function AppContainer(): ReactElement {
       <QueryClientProvider client={queryClient}>
         <AccordionWorkersContextProvider>
           <ProgressBarWorkersContextProvider>
-            <React.StrictMode>
+            <StrictMode>
               <App />
-            </React.StrictMode>
+            </StrictMode>
           </ProgressBarWorkersContextProvider>
         </AccordionWorkersContextProvider>
       </QueryClientProvider>

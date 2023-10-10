@@ -4,7 +4,6 @@
 
 import {
   AttributionData,
-  Attributions,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../shared/shared-types';
@@ -27,7 +26,6 @@ export function getExternalAttributionIdsWithCount(
 export function getContainedExternalPackages(
   selectedResourceId: string,
   resourcesWithAttributedChildren: Readonly<ResourcesWithAttributedChildren>,
-  externalAttributions: Readonly<Attributions>,
   resourcesToExternalAttributions: Readonly<ResourcesToAttributions>,
   resolvedExternalAttributions: Readonly<Set<string>>,
 ): Array<AttributionIdWithCount> {
@@ -37,7 +35,6 @@ export function getContainedExternalPackages(
   );
 
   return computeAggregatedAttributionsFromChildren(
-    externalAttributions,
     resourcesToExternalAttributions,
     externalAttributedChildren,
     resolvedExternalAttributions,
@@ -54,7 +51,6 @@ export function getContainedManualPackages(
   );
 
   return computeAggregatedAttributionsFromChildren(
-    manualData.attributions,
     manualData.resourcesToAttributions,
     manualAttributedChildren,
   );
@@ -62,7 +58,6 @@ export function getContainedManualPackages(
 
 // exported for testing
 export function computeAggregatedAttributionsFromChildren(
-  attributions: Readonly<Attributions>,
   resourcesToAttributions: Readonly<ResourcesToAttributions>,
   attributedChildren: Readonly<Set<string>>,
   resolvedExternalAttributions?: Readonly<Set<string>>,

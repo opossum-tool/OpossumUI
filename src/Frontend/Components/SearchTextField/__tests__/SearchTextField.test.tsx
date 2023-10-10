@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, screen } from '@testing-library/react';
-import React from 'react';
 import { SearchTextField } from '../SearchTextField';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 

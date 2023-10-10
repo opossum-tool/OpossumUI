@@ -25,7 +25,6 @@ import {
 import { act, fireEvent, screen } from '@testing-library/react';
 import { ButtonText } from '../../../enums/enums';
 import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
-import React from 'react';
 import {
   expectButtonInHamburgerMenu,
   expectValueInTextBox,

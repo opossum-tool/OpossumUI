@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import {

@@ -23,7 +23,6 @@ import {
   View,
 } from '../../../enums/enums';
 import { ParsedFileContent } from '../../../../shared/shared-types';
-import React from 'react';
 import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 
 describe('The App integration', () => {

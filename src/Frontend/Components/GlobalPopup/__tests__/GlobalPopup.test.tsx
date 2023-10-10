@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import {
   createTestAppStore,

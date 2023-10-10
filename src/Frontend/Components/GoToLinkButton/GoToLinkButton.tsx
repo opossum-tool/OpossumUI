@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getAttributionBreakpoints,

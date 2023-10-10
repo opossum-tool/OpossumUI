@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import MuiBox from '@mui/material/Box';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ButtonText } from '../../enums/enums';

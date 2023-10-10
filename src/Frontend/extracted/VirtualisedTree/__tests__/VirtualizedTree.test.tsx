@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { VirtualizedTree } from '../VirtualizedTree';
 import { screen } from '@testing-library/react';
 import { NodesForTree } from '../types';
@@ -36,10 +36,9 @@ describe('The VirtualizedTree', () => {
         onToggle={(): void => {}}
         nodes={testNodes}
         selectedNodeId={'/thirdParty/'}
-        getTreeNodeLabel={
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          (nodeName, node, nodeId): ReactElement => <div>{nodeName || '/'}</div>
-        }
+        getTreeNodeLabel={(nodeName): ReactElement => (
+          <div>{nodeName || '/'}</div>
+        )}
         breakpoints={new Set()}
         cardHeight={20}
         maxHeight={5000}
@@ -76,10 +75,9 @@ describe('The VirtualizedTree', () => {
         onToggle={(): void => {}}
         nodes={testNodes}
         selectedNodeId={'/thirdParty/'}
-        getTreeNodeLabel={
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          (nodeName, node, nodeId): ReactElement => <div>{nodeName || '/'}</div>
-        }
+        getTreeNodeLabel={(nodeName): ReactElement => (
+          <div>{nodeName || '/'}</div>
+        )}
         breakpoints={new Set()}
         cardHeight={20}
         maxHeight={5000}

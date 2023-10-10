@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';

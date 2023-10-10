@@ -6,7 +6,6 @@
 import { render, screen } from '@testing-library/react';
 import { doNothing } from '../../../util/do-nothing';
 import { Breadcrumbs } from '../Breadcrumbs';
-import React from 'react';
 
 describe('Breadcrumbs', () => {
   it('renders breadcrumbs', () => {

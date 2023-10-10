@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiMoreVertIcon from '@mui/icons-material/MoreVert';
 import MuiButton from '@mui/material/Button';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';

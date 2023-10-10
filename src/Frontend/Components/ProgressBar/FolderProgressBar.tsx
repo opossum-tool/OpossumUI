@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiSkeleton from '@mui/material/Skeleton';
-import React, { ReactElement, useContext, useMemo, useState } from 'react';
+import { ReactElement, useContext, useMemo, useState } from 'react';
 import {
   getAttributionBreakpoints,
   getExternalAttributions,

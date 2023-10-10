@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React from 'react';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import {

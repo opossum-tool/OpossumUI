@@ -3,15 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { Fragment, ReactElement } from 'react';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer/ResourceDetailsViewer';
 import { ResourceBrowser } from '../ResourceBrowser/ResourceBrowser';
 
 export function AuditView(): ReactElement {
   return (
-    <React.Fragment>
+    <Fragment>
       <ResourceBrowser />
       <ResourceDetailsViewer />
-    </React.Fragment>
+    </Fragment>
   );
 }

@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { Dispatch, ErrorInfo, ReactNode } from 'react';
+import { Component, Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
@@ -52,7 +52,7 @@ function sendErrorInfo(error: Error, errorInfo: ErrorInfo): void {
   window.electronAPI.sendErrorInformation(sendErrorInformationArgs);
 }
 
-class ProtoErrorBoundary extends React.Component<
+class ProtoErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {

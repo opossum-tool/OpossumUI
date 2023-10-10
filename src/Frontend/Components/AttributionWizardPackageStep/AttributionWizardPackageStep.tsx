@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiBox from '@mui/material/Box';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ListWithAttributesItem } from '../../types/types';

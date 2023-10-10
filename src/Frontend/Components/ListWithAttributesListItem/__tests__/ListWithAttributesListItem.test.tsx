@@ -9,7 +9,6 @@ import {
   ListWithAttributesItemAttribute,
 } from '../../../types/types';
 import { ListWithAttributesListItem } from '../ListWithAttributesListItem';
-import React from 'react';
 import { doNothing } from '../../../util/do-nothing';
 
 describe('ListWithAttributesListItem', () => {

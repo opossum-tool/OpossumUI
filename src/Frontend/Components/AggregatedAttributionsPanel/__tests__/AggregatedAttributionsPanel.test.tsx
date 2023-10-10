@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { queryAllByText, screen } from '@testing-library/react';
-import React from 'react';
 import {
   Attributions,
   PackageInfo,

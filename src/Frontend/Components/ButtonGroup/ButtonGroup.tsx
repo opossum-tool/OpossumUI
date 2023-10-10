@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import MuiButtonGroup from '@mui/material/ButtonGroup';
 import { Button } from '../Button/Button';
 import { HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';

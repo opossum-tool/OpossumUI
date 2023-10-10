@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ListCardConfig } from '../../types/types';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,

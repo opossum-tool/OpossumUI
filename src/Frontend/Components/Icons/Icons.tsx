@@ -19,7 +19,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import {
   baseIcon,
   clickableIcon,

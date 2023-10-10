@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { List } from '../List/List';
 import { PackageCard } from '../PackageCard/PackageCard';
