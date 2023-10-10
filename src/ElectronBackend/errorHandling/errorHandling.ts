@@ -51,7 +51,7 @@ export function createListenerCallbackWithErrorHandling(
 
 export function getMessageBoxForErrors(
   errorMessage: string,
-  errorStack: string,
+  errorStack: string | null | undefined,
   mainWindow: BrowserWindow,
   isBackendError: boolean,
 ): Promise<void> {
@@ -75,7 +75,7 @@ function getErrorDialog(
 
 export function getMessageBoxContentForErrorsWrapper(
   isBackendError: boolean,
-  errorStack?: string,
+  errorStack?: string | null | undefined,
 ): (message: string) => MessageBoxOptions {
   return (errorMessage: string): MessageBoxOptions => {
     return {
