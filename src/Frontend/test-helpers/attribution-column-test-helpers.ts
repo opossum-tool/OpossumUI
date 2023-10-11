@@ -54,10 +54,6 @@ export function expectButtonInHamburgerMenuIsNotShown(
   expect(
     screen.queryByRole('button', { name: buttonLabel }),
   ).not.toBeInTheDocument();
-
-  if (screen.queryByRole('presentation')) {
-    fireEvent.click(screen.getByRole('presentation').firstChild as Element);
-  }
 }
 
 export function insertValueIntoTextBox(

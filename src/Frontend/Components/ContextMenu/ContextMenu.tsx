@@ -79,7 +79,7 @@ interface ContextMenuProps {
   onOpen?(): void;
 }
 
-interface anchorAttributes {
+interface AnchorAttributes {
   anchorEl?: null | HTMLElement;
   anchorReference?: PopoverReference;
   anchorPosition?: PopoverPosition | undefined;
@@ -95,11 +95,16 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
     (menuItem) => !menuItem.hidden,
   );
 
+  const contextMenuIsDisabled = displayedMenuItems.every(
+    ({ disabled }) => disabled,
+  );
+
   const isContextMenuOpen =
+    !contextMenuIsDisabled &&
     displayedMenuItems.length > 0 &&
     (Boolean(anchorElement) || Boolean(anchorPosition));
 
-  const anchorAttributes: anchorAttributes =
+  const anchorAttributes: AnchorAttributes =
     props.activation === 'onLeftClick'
       ? {
           anchorEl: anchorElement,

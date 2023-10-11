@@ -363,6 +363,10 @@ export function clickOnButtonInPackageContextMenu(
   fireEvent.click(button);
 }
 
+export function clearPopover(screen: Screen): void {
+  fireEvent.click(screen.getByRole('presentation').firstChild as Element);
+}
+
 function openContextMenuOnCardPackageCard(
   screen: Screen,
   cardLabel: string,

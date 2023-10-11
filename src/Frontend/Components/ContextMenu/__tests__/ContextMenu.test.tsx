@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { fireEvent, render, screen } from '@testing-library/react';
+import { noop } from 'lodash';
 import { ButtonText } from '../../../enums/enums';
 import { doNothing } from '../../../util/do-nothing';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu';
@@ -144,5 +145,53 @@ describe('The ContextMenu', () => {
 
     fireEvent.click(screen.getByText(ButtonText.Save));
     expect(onCloseMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('is disabled when all menu items are disabled', () => {
+    const menuItem: ContextMenuItem = {
+      buttonText: ButtonText.Undo,
+      disabled: true,
+      onClick: noop,
+      hidden: false,
+    };
+    const trigger = 'Test Element';
+    render(
+      <ContextMenu menuItems={[menuItem]} activation={'onLeftClick'}>
+        <p>{trigger}</p>
+      </ContextMenu>,
+    );
+
+    fireEvent.click(screen.getByText(trigger));
+
+    expect(screen.queryByText(menuItem.buttonText)).not.toBeInTheDocument();
+  });
+
+  it('only displays visible menu items', () => {
+    const visibleMenuItem: ContextMenuItem = {
+      buttonText: ButtonText.Undo,
+      onClick: noop,
+      hidden: false,
+    };
+    const invisibleMenuItem: ContextMenuItem = {
+      buttonText: ButtonText.Apply,
+      onClick: noop,
+      hidden: true,
+    };
+    const trigger = 'Test Element';
+    render(
+      <ContextMenu
+        menuItems={[visibleMenuItem, invisibleMenuItem]}
+        activation={'onLeftClick'}
+      >
+        <p>{trigger}</p>
+      </ContextMenu>,
+    );
+
+    fireEvent.click(screen.getByText(trigger));
+
+    expect(screen.getByText(visibleMenuItem.buttonText)).toBeInTheDocument();
+    expect(
+      screen.queryByText(invisibleMenuItem.buttonText),
+    ).not.toBeInTheDocument();
   });
 });
