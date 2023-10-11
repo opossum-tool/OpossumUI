@@ -56,7 +56,6 @@ import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import MuiBox from '@mui/material/Box';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import { isEqual } from 'lodash';
 import { toggleIsSelectedPackagePreferred } from '../../state/actions/resource-actions/preference-actions';
 
 const classes = {
@@ -90,7 +89,7 @@ interface AttributionColumnProps {
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const dispatch = useAppDispatch();
   const initialManualDisplayPackageInfo =
-    useAppSelector(getManualDisplayPackageInfoOfSelected, isEqual) ||
+    useAppSelector(getManualDisplayPackageInfoOfSelected) ||
     EMPTY_DISPLAY_PACKAGE_INFO;
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useAppSelector(

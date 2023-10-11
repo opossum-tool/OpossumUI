@@ -3,11 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { pick } from 'lodash';
 import {
   Attributions,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { getFilteredAttributionsById } from './get-filtered-attributions-by-id';
 import { getParentsUpToNextAttributionBreakpoint } from '../state/helpers/get-parents';
 import { PathPredicate } from '../types/types';
 
@@ -24,10 +24,7 @@ export function getClosestParentAttributions(
       isAttributionBreakpoint,
     );
   if (closestParentAttributionIds.length > 0) {
-    return getFilteredAttributionsById(
-      closestParentAttributionIds,
-      manualAttributions,
-    );
+    return pick(manualAttributions, closestParentAttributionIds);
   }
 
   return null;

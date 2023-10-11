@@ -10,7 +10,6 @@ import { PathBar } from '../PathBar/PathBar';
 import { ResourceDetailsTabs } from '../ResourceDetailsTabs/ResourceDetailsTabs';
 import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn/ResourceDetailsAttributionColumn';
 import { PackagePanelTitle } from '../../enums/enums';
-import { isEqual } from 'lodash';
 import { setDisplayedPackage } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -69,7 +68,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
     useAppSelector(getDisplayedPackage);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResourceClosestParent: Array<string> =
-    useAppSelector(getAttributionIdsOfSelectedResourceClosestParent, isEqual);
+    useAppSelector(getAttributionIdsOfSelectedResourceClosestParent);
   const attributionIdsOfSelectedResource: Array<string> | null = useAppSelector(
     getAttributionIdsOfSelectedResource,
   );
