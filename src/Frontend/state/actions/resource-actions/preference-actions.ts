@@ -109,23 +109,22 @@ function getResourceIdsInSubtreeWithBreakpoints(
 ): Array<string> {
   const resources: Array<string> = [pathToRootResource];
 
-  for (const [childResourceName, childResource] of Object.entries(
-    rootResource,
-  )) {
+  for (const childResourceName of Object.keys(rootResource)) {
     const pathToChildResource = pathToRootResource + childResourceName;
     if (isBreakpoint(pathToChildResource)) {
       continue;
     }
-    if (childResource === 1) {
+    if (rootResource[childResourceName] === 1) {
       resources.push(pathToChildResource);
     } else {
-      resources.push(
-        ...getResourceIdsInSubtreeWithBreakpoints(
-          pathToChildResource + '/',
-          childResource,
-          isBreakpoint,
-        ),
+      const results = getResourceIdsInSubtreeWithBreakpoints(
+        pathToChildResource + '/',
+        rootResource[childResourceName] as Resources,
+        isBreakpoint,
       );
+      for (const result of results) {
+        resources.push(result);
+      }
     }
   }
 
