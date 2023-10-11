@@ -3,17 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { PanelPackage, State } from '../../types/types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { pick } from 'lodash';
 import { Attributions, DisplayPackageInfo } from '../../../shared/shared-types';
-import { getFilteredAttributionsById } from '../../util/get-filtered-attributions-by-id';
+import { PackagePanelTitle } from '../../enums/enums';
+import { PanelPackage, State } from '../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
+import { getAttributionBreakpointCheckForState } from '../../util/is-attribution-breakpoint';
 import {
   getManualAttributions,
   getResourcesToManualAttributions,
 } from './all-views-resource-selectors';
-import { getAttributionBreakpointCheckForState } from '../../util/is-attribution-breakpoint';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 
 export function getSelectedResourceId(state: State): string {
   return state.resourceState.auditView.selectedResourceId;
@@ -59,10 +59,7 @@ function getAttributionsOfSelectedResourceClosestParent(
     getAttributionIdsOfSelectedResourceClosestParent(state);
   const manualAttributions: Attributions = getManualAttributions(state);
 
-  return getFilteredAttributionsById(
-    attributionIdsOfClosestParent,
-    manualAttributions,
-  );
+  return pick(manualAttributions, attributionIdsOfClosestParent);
 }
 
 export function getAttributionIdsOfSelectedResource(
@@ -70,21 +67,14 @@ export function getAttributionIdsOfSelectedResource(
 ): Array<string> | null {
   const selectedResourceId = getSelectedResourceId(state);
   const resourcesToManualAttributions = getResourcesToManualAttributions(state);
-  if (selectedResourceId in resourcesToManualAttributions) {
-    return resourcesToManualAttributions[selectedResourceId];
-  }
 
-  return null;
+  return resourcesToManualAttributions[selectedResourceId] || null;
 }
 
 export function getAttributionsOfSelectedResource(state: State): Attributions {
-  const attributionIdsOfSelectedResource: Array<string> =
-    getAttributionIdsOfSelectedResource(state) || [];
-  const manualAttributions: Attributions = getManualAttributions(state);
-
-  return getFilteredAttributionsById(
-    attributionIdsOfSelectedResource,
-    manualAttributions,
+  return pick(
+    getManualAttributions(state),
+    getAttributionIdsOfSelectedResource(state) || [],
   );
 }
 

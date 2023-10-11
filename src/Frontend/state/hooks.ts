@@ -3,10 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { memoize } from 'proxy-memoize';
+import { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { State } from '../types/types';
 import { AppThunkDispatch } from './types';
 
 export const useAppDispatch = (): AppThunkDispatch =>
   useDispatch<AppThunkDispatch>();
-export const useAppSelector: TypedUseSelectorHook<State> = useSelector;
+export const useAppSelector = <T>(
+  fn: (state: State) => T,
+  deps: Array<unknown> = [],
+): T =>
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useSelector<State, T>(useCallback(memoize(fn), deps));
