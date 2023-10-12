@@ -20,7 +20,7 @@ import {
 import { PackageInfo } from '../../../../shared/shared-types';
 import { Store } from 'redux';
 import { Provider } from 'react-redux';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
