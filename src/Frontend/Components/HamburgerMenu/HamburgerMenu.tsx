@@ -18,8 +18,9 @@ export function HamburgerMenu(props: HamburgerMenuProps): ReactElement | null {
     (menuItem) => !menuItem.hidden,
   );
 
-  const contextMenuIsDisabled =
-    displayedMenuItems.filter((menuItem) => !menuItem.disabled).length === 0;
+  const contextMenuIsDisabled = displayedMenuItems.every(
+    ({ disabled }) => disabled,
+  );
 
   return displayedMenuItems ? (
     <ContextMenu menuItems={props.menuItems} activation={'onLeftClick'}>

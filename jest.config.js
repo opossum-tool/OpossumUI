@@ -10,9 +10,13 @@ module.exports = {
   transformIgnorePatterns: ['/node_modules/(?!d3-*|internmap|axios)'],
   transform: {
     '/node_modules/(?!d3-*|internmap|axios)': 'babel-jest',
-    '^.+\\.ts?(x)$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', { diagnostics: false }],
   },
   setupFilesAfterEnv: ['./setupTests.ts'],
   watchAll: false,
   modulePathIgnorePatterns: ['<rootDir>/build/'],
+  watchPlugins: [
+    'jest-watch-typeahead/filename',
+    'jest-watch-typeahead/testname',
+  ],
 };

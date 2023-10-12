@@ -4,17 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  clickOnButton,
-  clickOnTopProgressBar,
-  closeProjectStatisticsPopup,
-  EMPTY_PARSED_FILE_CONTENT,
-  getButton,
-  getOpenFileIcon,
-  getParsedInputFileEnrichedWithTestData,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
-import { App } from '../../../Components/App/App';
 import { screen } from '@testing-library/react';
 import {
   Attributions,
@@ -24,11 +13,29 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { App } from '../../../Components/App/App';
 import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
+import { setQAMode } from '../../../state/actions/view-actions/view-actions';
+import {
+  clickOnButtonInHamburgerMenu,
+  expectButtonInHamburgerMenuIsNotShown,
+  expectValueInConfidenceField,
+  expectValueInTextBox,
+  expectValueNotInConfidenceField,
+  expectValueNotInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import { clearPopover } from '../../../test-helpers/context-menu-test-helpers';
+import {
+  EMPTY_PARSED_FILE_CONTENT,
+  clickOnButton,
+  clickOnTopProgressBar,
+  closeProjectStatisticsPopup,
+  getButton,
+  getOpenFileIcon,
+  getParsedInputFileEnrichedWithTestData,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
 import {
   clickAddIconOnCardInAttributionList,
   clickOnPackageInPackagePanel,
@@ -44,24 +51,18 @@ import {
   expectValueNotInManualPackagePanel,
 } from '../../../test-helpers/package-panel-helpers';
 import {
-  clickOnButtonInHamburgerMenu,
-  expectButtonInHamburgerMenuIsNotShown,
-  expectValueInConfidenceField,
-  expectValueInTextBox,
-  expectValueNotInConfidenceField,
-  expectValueNotInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
+  expectReplaceAttributionPopupIsNotShown,
+  expectReplaceAttributionPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import {
   clickOnElementInResourceBrowser,
   expectResourceBrowserIsNotShown,
   getElementInResourceBrowser,
 } from '../../../test-helpers/resource-browser-test-helpers';
-import {
-  expectReplaceAttributionPopupIsNotShown,
-  expectReplaceAttributionPopupIsShown,
-} from '../../../test-helpers/popup-test-helpers';
-import { setQAMode } from '../../../state/actions/view-actions/view-actions';
 
 describe('The App in Audit View', () => {
   it('renders TopBar and no ResourceBrowser when no resource file has been loaded', () => {
@@ -174,6 +175,7 @@ describe('The App in Audit View', () => {
     clickOnValueInManualPackagePanelForParentAttribution(screen, 'React');
     expectValueInTextBox(screen, 'Name', 'React');
 
+    clearPopover(screen);
     clickOnButton(screen, 'Override parent');
     expectValueNotInManualPackagePanel(screen, 'React');
     expectValueNotInTextBox(screen, 'Name', 'React');
