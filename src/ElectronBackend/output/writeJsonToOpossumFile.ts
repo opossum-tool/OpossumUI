@@ -11,6 +11,10 @@ import {
   OUTPUT_FILE_NAME,
 } from '../shared-constants';
 import { getGlobalBackendState } from '../main/globalBackendState';
+import {
+  returnPromiseOfData,
+  returnPromiseOfVoid,
+} from '../utils/returnPromise';
 
 export async function writeOutputJsonToOpossumFile(
   opossumfilePath: string,
@@ -23,24 +27,13 @@ export async function writeOutputJsonToOpossumFile(
     JSON.stringify(outputfileData),
   );
 
-  const zippedData: Uint8Array = await new Promise((resolve) => {
-    fflate.zip(
-      unzipResult,
-      {
-        level: OPOSSUM_FILE_COMPRESSION_LEVEL,
-      },
-      (err, data) => {
-        if (err) throw err;
-        resolve(data);
-      },
-    );
-  });
+  const archive = await returnPromiseOfData<Uint8Array>(fflate.zip, [
+    unzipResult,
+    {
+      level: OPOSSUM_FILE_COMPRESSION_LEVEL,
+    },
+  ]);
 
   const writeStream = fs.createWriteStream(opossumfilePath);
-  return new Promise((resolve) => {
-    writeStream.write(zippedData, (err) => {
-      if (err) throw err;
-      resolve();
-    });
-  });
+  return returnPromiseOfVoid(writeStream.write, [archive]);
 }
