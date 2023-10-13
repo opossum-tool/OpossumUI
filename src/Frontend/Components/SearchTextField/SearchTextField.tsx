@@ -3,9 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import ClearIcon from '@mui/icons-material/Clear';
+import SearchIcon from '@mui/icons-material/Search';
 import { InputAdornment, SxProps } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
-import { Search } from '@mui/icons-material';
 import { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
@@ -18,10 +19,19 @@ const classes = {
     '& div': {
       borderRadius: '0px',
     },
+    '& input[type=search]::-webkit-search-cancel-button': { display: 'none' },
+  },
+  startAdornment: {
+    width: '20px',
+    color: OpossumColors.grey,
   },
   endAdornment: {
     width: '20px',
     color: OpossumColors.grey,
+    '&:hover': {
+      color: OpossumColors.darkBlue,
+      cursor: 'pointer',
+    },
   },
 };
 
@@ -29,14 +39,13 @@ interface SearchTextFieldProps {
   onInputChange(search: string): void;
   search: string;
   autoFocus?: boolean;
-  showIcon: boolean;
   sx?: SxProps;
 }
 
 export function SearchTextField(props: SearchTextFieldProps): ReactElement {
   return (
     <MuiTextField
-      label="Search"
+      aria-label="Search"
       type="search"
       variant="outlined"
       autoFocus={props.autoFocus ?? false}
@@ -51,17 +60,21 @@ export function SearchTextField(props: SearchTextFieldProps): ReactElement {
       value={props.search}
       fullWidth={true}
       onChange={(event): void => props.onInputChange(event.target.value)}
-      InputProps={
-        props.showIcon
-          ? {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Search sx={classes.endAdornment} />
-                </InputAdornment>
-              ),
-            }
-          : {}
-      }
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SearchIcon sx={classes.startAdornment} />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <ClearIcon
+              onClick={(): void => props.onInputChange('')}
+              sx={classes.endAdornment}
+            />
+          </InputAdornment>
+        ),
+      }}
     />
   );
 }

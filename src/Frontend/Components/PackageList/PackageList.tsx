@@ -12,13 +12,6 @@ import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list
 import { DisplayPackageInfos } from '../../types/types';
 
 const CARD_VERTICAL_DISTANCE = 41;
-const TYPICAL_SCROLLBAR_WIDTH = 13;
-
-const classes = {
-  paddingRight: {
-    paddingRight: `${TYPICAL_SCROLLBAR_WIDTH}px`,
-  },
-};
 
 interface PackageListProps {
   displayPackageInfos: DisplayPackageInfos;
@@ -41,10 +34,6 @@ export function PackageList(props: PackageListProps): ReactElement {
     [props.displayPackageInfos, props.sortedPackageCardIds, searchTerm],
   );
 
-  const currentHeight =
-    props.sortedPackageCardIds.length * CARD_VERTICAL_DISTANCE;
-  const maxHeight = props.maxNumberOfDisplayedItems * CARD_VERTICAL_DISTANCE;
-
   return (
     <>
       {filteredPackageCardIds.length === 0 ? null : (
@@ -59,7 +48,6 @@ export function PackageList(props: PackageListProps): ReactElement {
             max={{ numberOfDisplayedItems: props.maxNumberOfDisplayedItems }}
             length={filteredPackageCardIds.length}
             cardVerticalDistance={CARD_VERTICAL_DISTANCE}
-            sx={currentHeight < maxHeight ? classes.paddingRight : {}}
           />
         </>
       )}

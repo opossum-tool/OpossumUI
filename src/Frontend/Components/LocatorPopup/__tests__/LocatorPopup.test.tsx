@@ -3,32 +3,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
 import { fireEvent, screen } from '@testing-library/react';
-import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-selectors';
-import { clickOnButton } from '../../../test-helpers/general-test-helpers';
-import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import {
+  Attributions,
   Criticality,
   FrequentLicenses,
+  PackageInfo,
+  ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
-import { getLicenseNames, LocatorPopup } from '../LocatorPopup';
-import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 import {
   setExternalData,
   setFrequentLicenses,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  Attributions,
-  PackageInfo,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
+import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
-import { expectValueInTextBox } from '../../../test-helpers/attribution-column-test-helpers';
+import { getLocatePopupFilters } from '../../../state/selectors/locate-popup-selectors';
+import {
+  clickOnButton,
+  expectElementsInAutoCompleteAndSelectFirst,
+} from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { LocatorPopup, getLicenseNames } from '../LocatorPopup';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -242,7 +241,7 @@ describe('Locator popup ', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
 
-    expectValueInTextBox(screen, 'Search', '');
+    expect(screen.getByRole('searchbox')).toHaveValue('');
     expect(getLocatePopupFilters(testStore.getState())).toEqual({
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,

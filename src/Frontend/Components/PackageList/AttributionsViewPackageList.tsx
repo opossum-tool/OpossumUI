@@ -39,11 +39,7 @@ export function AttributionsViewPackageList(
 
   return (
     <div>
-      <SearchTextField
-        onInputChange={setSearch}
-        search={search}
-        showIcon={true}
-      />
+      <SearchTextField onInputChange={setSearch} search={search} />
       <List
         getListItem={(index: number): ReactElement | null =>
           props.getAttributionCard(filteredAndSortedPackageCardIds[index])

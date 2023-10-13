@@ -148,7 +148,6 @@ export function LocatorPopup(): ReactElement {
             setSearchedSignal(search);
           }}
           search={searchedSignal}
-          showIcon={true}
         />
         <Checkbox
           sx={classes.checkboxContainer}

@@ -102,8 +102,9 @@ describe('PackageSearchPopup', () => {
         <PackageSearchPopup />
       </QueryClientProvider>,
     );
-    const searchField = screen.getByLabelText('Search');
-    fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'sqlalchemy' },
+    });
     act(() => {
       // advance timer as form is debounced
       jest.advanceTimersByTime(serverErrorStatus);
@@ -126,8 +127,9 @@ describe('PackageSearchPopup', () => {
       </QueryClientProvider>,
     );
 
-    const searchField = screen.getByLabelText('Search');
-    fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'sqlalchemy' },
+    });
     act(() => {
       // advance timer as form is debounced
       jest.advanceTimersByTime(serverErrorStatus);
@@ -149,8 +151,9 @@ describe('PackageSearchPopup', () => {
       </QueryClientProvider>,
     );
 
-    const searchField = screen.getByLabelText('Search');
-    fireEvent.change(searchField, { target: { value: 'sqlalchemy' } });
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'sqlalchemy' },
+    });
     act(() => {
       // advance timer as form is debounced
       jest.advanceTimersByTime(serverErrorStatus);

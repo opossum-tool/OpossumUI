@@ -17,7 +17,7 @@ describe('The FileSearchTextField', () => {
     renderComponentWithStore(
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
-    screen.getAllByText('Search');
+    screen.getByLabelText('Search');
   });
 
   it('calls callback after debounce time', () => {
@@ -26,7 +26,7 @@ describe('The FileSearchTextField', () => {
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
 
-    screen.getAllByText('Search');
+    screen.getByLabelText('Search');
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'test' },
