@@ -90,18 +90,14 @@ const classes = {
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    paddingLeft: '6px',
-    marginRight: 'auto',
   },
   textShortenedFromLeftSide: {
     overflowY: 'auto',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    paddingLeft: '6px',
     direction: 'rtl',
     textAlign: 'left',
-    marginRight: 'auto',
   },
   count: {
     '&.MuiTypography-body2': {
@@ -125,7 +121,6 @@ const classes = {
     height: defaultCardHeight,
   },
   textLines: {
-    margin: '0 6px 0 0',
     flex: 1,
   },
   longTextInFlexbox: {
@@ -152,6 +147,9 @@ const classes = {
     },
   },
 };
+
+const MAX_RIGHT_PADDING = 60;
+const PADDING_PER_ICON_COLUMN = 20;
 
 interface ListCardProps {
   text: string;
@@ -180,6 +178,15 @@ export function ListCard(props: ListCardProps): ReactElement | null {
     }
   }
 
+  function calculateRightPadding(): number {
+    return Math.max(
+      0,
+      MAX_RIGHT_PADDING -
+        Math.ceil((props.rightIcons?.length || 0) / 2) *
+          PADDING_PER_ICON_COLUMN,
+    );
+  }
+
   return (
     <MuiBox sx={getSx(props.cardConfig, props.highlighting)}>
       {props.leftElement ? props.leftElement : null}
@@ -202,6 +209,9 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           sx={{
             ...classes.textLines,
             ...(props.cardConfig.isResource ? {} : classes.longTextInFlexbox),
+            ...(props.highlighting && {
+              paddingRight: `${calculateRightPadding()}px`,
+            }),
           }}
         >
           <MuiTypography
