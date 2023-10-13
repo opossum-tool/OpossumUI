@@ -3,39 +3,40 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactElement, useEffect, useMemo, useState } from 'react';
-import MuiTabs from '@mui/material/Tabs';
+import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
-import { getManualData } from '../../state/selectors/all-views-resource-selectors';
-import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
-import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
+import MuiTabs from '@mui/material/Tabs';
 import { remove } from 'lodash';
+import { ReactElement, useEffect, useState } from 'react';
+import { Attributions } from '../../../shared/shared-types';
+import { PackagePanelTitle } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
+import { setPackageSearchTerm } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getManualData } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
-  getIsAccordionSearchFieldDisplayed,
   getPackageSearchTerm,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { OpossumColors } from '../../shared-styles';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-
-import { IconButton } from '../IconButton/IconButton';
-import { SearchPackagesIcon } from '../Icons/Icons';
-import {
-  setPackageSearchTerm,
-  toggleAccordionSearchField,
-} from '../../state/actions/resource-actions/audit-view-simple-actions';
-import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { DisplayPackageInfos } from '../../types/types';
-import { PackagePanelTitle } from '../../enums/enums';
 import { createPackageCardId } from '../../util/create-package-card-id';
-import { Attributions } from '../../../shared/shared-types';
+import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
+import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
+  container: {
+    position: 'relative',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   tabsRoot: {
     minHeight: 'fit-content',
+    overflow: 'initial',
   },
   tab: {
     backgroundColor: OpossumColors.almostWhiteBlue,
@@ -50,23 +51,8 @@ const classes = {
       color: OpossumColors.black,
     },
   },
-  searchToggle: {
-    position: 'absolute',
-    right: '0px',
-    top: '0px',
-  },
   indicator: {
     backgroundColor: OpossumColors.darkBlue,
-  },
-  largeClickableIcon: {
-    width: '26px',
-    height: '26px',
-    padding: '2px',
-    margin: '0 2px',
-    color: OpossumColors.darkBlue,
-    '&:hover': {
-      background: OpossumColors.middleBlue,
-    },
   },
   searchBox: {
     marginTop: '10px',
@@ -87,9 +73,6 @@ export function ResourceDetailsTabs(
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResource: Array<string> =
     useAppSelector(getAttributionIdsOfSelectedResource) || [];
-  const isAccordionSearchFieldDisplayed = useAppSelector(
-    getIsAccordionSearchFieldDisplayed,
-  );
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
   const dispatch = useAppDispatch();
@@ -113,31 +96,18 @@ export function ResourceDetailsTabs(
 
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
-  const aggregatedAttributionsPanel = useMemo(
-    () => (
-      <AggregatedAttributionsPanel
-        isAddToPackageEnabled={isAddToPackageEnabled}
-      />
-    ),
-    [isAddToPackageEnabled],
-  );
 
   const tabLabels = {
     [Tabs.Local]: 'Local',
     [Tabs.Global]: 'Global',
   };
 
-  function onSearchToggleClick(): void {
-    dispatch(toggleAccordionSearchField());
-    dispatch(setPackageSearchTerm(''));
-  }
-
   function onSearchInputChange(input: string): void {
     dispatch(setPackageSearchTerm(input));
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <MuiBox sx={classes.container}>
       <MuiTabs
         value={selectedTab}
         onChange={(_: React.SyntheticEvent, newTab: Tabs): void => {
@@ -145,6 +115,7 @@ export function ResourceDetailsTabs(
         }}
         aria-label="Add To Tabs"
         sx={{ ...classes.tabsRoot, indicator: classes.indicator }}
+        variant="fullWidth"
       >
         <MuiTab
           label={tabLabels[Tabs.Local]}
@@ -163,36 +134,30 @@ export function ResourceDetailsTabs(
           sx={classes.tab}
         />
       </MuiTabs>
-      <IconButton
-        tooltipTitle="Search signals by name, license name, copyright text and version"
-        tooltipPlacement="right"
-        onClick={onSearchToggleClick}
-        icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
-        iconSx={classes.searchToggle}
+      <SearchTextField
+        onInputChange={onSearchInputChange}
+        search={searchTerm}
+        autoFocus={true}
+        sx={classes.searchBox}
       />
-      {isAccordionSearchFieldDisplayed ? (
-        <SearchTextField
-          onInputChange={onSearchInputChange}
-          search={searchTerm}
-          autoFocus={true}
-          showIcon={false}
-          sx={classes.searchBox}
-        />
-      ) : null}
-      {selectedTab === Tabs.Local ? (
-        aggregatedAttributionsPanel
-      ) : (
-        <AllAttributionsPanel
-          displayPackageInfos={displayPackageInfos}
-          selectedPackageCardId={
-            selectedPackage && selectedPackage.packageCardId
-          }
-          isAddToPackageEnabled={
-            props.isGlobalTabEnabled && props.isAddToPackageEnabled
-          }
-        />
-      )}
-    </div>
+      <MuiBox style={{ overflow: 'auto' }}>
+        {selectedTab === Tabs.Local ? (
+          <AggregatedAttributionsPanel
+            isAddToPackageEnabled={isAddToPackageEnabled}
+          />
+        ) : (
+          <AllAttributionsPanel
+            displayPackageInfos={displayPackageInfos}
+            selectedPackageCardId={
+              selectedPackage && selectedPackage.packageCardId
+            }
+            isAddToPackageEnabled={
+              props.isGlobalTabEnabled && props.isAddToPackageEnabled
+            }
+          />
+        )}
+      </MuiBox>
+    </MuiBox>
   );
 }
 
