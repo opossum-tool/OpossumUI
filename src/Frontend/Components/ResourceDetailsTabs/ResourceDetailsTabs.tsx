@@ -7,16 +7,20 @@ import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import { remove } from 'lodash';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import { setPackageSearchTerm } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  setPackageSearchTerm,
+  toggleAccordionSearchField,
+} from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getManualData } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getDisplayedPackage,
+  getIsAccordionSearchFieldDisplayed,
   getPackageSearchTerm,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
@@ -26,6 +30,8 @@ import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-d
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
+import { SearchPackagesIcon } from '../Icons/Icons';
+import { IconButton } from '../IconButton/IconButton';
 
 const classes = {
   container: {
@@ -51,8 +57,23 @@ const classes = {
       color: OpossumColors.black,
     },
   },
+  searchToggle: {
+    position: 'absolute',
+    right: '0px',
+    top: '0px',
+  },
   indicator: {
     backgroundColor: OpossumColors.darkBlue,
+  },
+  largeClickableIcon: {
+    width: '26px',
+    height: '26px',
+    padding: '2px',
+    margin: '0 2px',
+    color: OpossumColors.darkBlue,
+    '&:hover': {
+      background: OpossumColors.middleBlue,
+    },
   },
   searchBox: {
     marginTop: '10px',
@@ -73,6 +94,9 @@ export function ResourceDetailsTabs(
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResource: Array<string> =
     useAppSelector(getAttributionIdsOfSelectedResource) || [];
+  const isAccordionSearchFieldDisplayed = useAppSelector(
+    getIsAccordionSearchFieldDisplayed,
+  );
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
   const dispatch = useAppDispatch();
@@ -96,11 +120,24 @@ export function ResourceDetailsTabs(
 
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
+  const aggregatedAttributionsPanel = useMemo(
+    () => (
+      <AggregatedAttributionsPanel
+        isAddToPackageEnabled={isAddToPackageEnabled}
+      />
+    ),
+    [isAddToPackageEnabled],
+  );
 
   const tabLabels = {
     [Tabs.Local]: 'Local',
     [Tabs.Global]: 'Global',
   };
+
+  function onSearchToggleClick(): void {
+    dispatch(toggleAccordionSearchField());
+    dispatch(setPackageSearchTerm(''));
+  }
 
   function onSearchInputChange(input: string): void {
     dispatch(setPackageSearchTerm(input));
@@ -115,7 +152,6 @@ export function ResourceDetailsTabs(
         }}
         aria-label="Add To Tabs"
         sx={{ ...classes.tabsRoot, indicator: classes.indicator }}
-        variant="fullWidth"
       >
         <MuiTab
           label={tabLabels[Tabs.Local]}
@@ -134,17 +170,24 @@ export function ResourceDetailsTabs(
           sx={classes.tab}
         />
       </MuiTabs>
-      <SearchTextField
-        onInputChange={onSearchInputChange}
-        search={searchTerm}
-        autoFocus={true}
-        sx={classes.searchBox}
+      <IconButton
+        tooltipTitle="Search signals by name, license name, copyright text and version"
+        tooltipPlacement="right"
+        onClick={onSearchToggleClick}
+        icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
+        iconSx={classes.searchToggle}
       />
+      {isAccordionSearchFieldDisplayed ? (
+        <SearchTextField
+          onInputChange={onSearchInputChange}
+          search={searchTerm}
+          autoFocus={true}
+          sx={classes.searchBox}
+        />
+      ) : null}
       <MuiBox style={{ overflow: 'auto' }}>
         {selectedTab === Tabs.Local ? (
-          <AggregatedAttributionsPanel
-            isAddToPackageEnabled={isAddToPackageEnabled}
-          />
+          aggregatedAttributionsPanel
         ) : (
           <AllAttributionsPanel
             displayPackageInfos={displayPackageInfos}

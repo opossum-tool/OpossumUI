@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import ClearIcon from '@mui/icons-material/Clear';
-import SearchIcon from '@mui/icons-material/Search';
 import { InputAdornment, SxProps } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
 import { ReactElement } from 'react';
@@ -45,7 +44,7 @@ interface SearchTextFieldProps {
 export function SearchTextField(props: SearchTextFieldProps): ReactElement {
   return (
     <MuiTextField
-      aria-label="Search"
+      label="Search"
       type="search"
       variant="outlined"
       autoFocus={props.autoFocus ?? false}
@@ -61,11 +60,6 @@ export function SearchTextField(props: SearchTextFieldProps): ReactElement {
       fullWidth={true}
       onChange={(event): void => props.onInputChange(event.target.value)}
       InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon sx={classes.startAdornment} />
-          </InputAdornment>
-        ),
         endAdornment: (
           <InputAdornment position="end">
             <ClearIcon
