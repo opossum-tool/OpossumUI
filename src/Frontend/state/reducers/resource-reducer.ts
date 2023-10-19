@@ -67,6 +67,7 @@ import {
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
+  ACTION_TOGGLE_ACCORDION_SEARCH_FIELD,
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   ResourceAction,
@@ -770,6 +771,18 @@ export const resourceState = (
         fileSearchPopup: {
           ...state.fileSearchPopup,
           fileSearch: action.payload,
+        },
+      };
+    case ACTION_TOGGLE_ACCORDION_SEARCH_FIELD:
+      return {
+        ...state,
+        auditView: {
+          ...state.auditView,
+          accordionSearchField: {
+            ...state.auditView.accordionSearchField,
+            isSearchFieldDisplayed:
+              !state.auditView.accordionSearchField.isSearchFieldDisplayed,
+          },
         },
       };
     case ACTION_SET_PACKAGE_SEARCH_TERM:

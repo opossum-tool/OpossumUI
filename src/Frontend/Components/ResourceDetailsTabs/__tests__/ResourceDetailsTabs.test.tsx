@@ -145,6 +145,12 @@ describe('The ResourceDetailsTabs', () => {
     screen.getByText(/package name 2/);
     screen.getByText(/package name 3/);
 
+    fireEvent.click(
+      screen.getByLabelText(
+        'Search signals by name, license name, copyright text and version',
+      ),
+    );
+
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name 1' },
     });
