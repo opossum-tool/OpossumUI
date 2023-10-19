@@ -3103,10 +3103,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/object-hash@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "@types/object-hash@npm:3.0.4"
-  checksum: 0c9f3c9262a7a4e5e5a5ee6c3bd513e05296f0c5e9c198ec99c5d9a4d9f4a6b2e2f19db7b28beab077de3713e04eb7aea5eb25e54b8f6c85a16753f6f9f463a5
+"@types/object-hash@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "@types/object-hash@npm:3.0.5"
+  checksum: 63e96a10c7ea45ee5400d12342729e91872721eecc9c96ed6f6c8e300cf2c489151190bb5bbaa6009ee48f66d0f778e2114138e5a2f104c0250667106fc90bec
   languageName: node
   linkType: hard
 
@@ -8846,7 +8846,7 @@ __metadata:
     "@types/jest": ^29.5.6
     "@types/js-yaml": ^4.0.7
     "@types/lodash": ^4.14.200
-    "@types/object-hash": ^3.0.4
+    "@types/object-hash": ^3.0.5
     "@types/react": ^18.2.28
     "@types/react-dom": ^18.2.12
     "@types/react-window": ^1.8.6
