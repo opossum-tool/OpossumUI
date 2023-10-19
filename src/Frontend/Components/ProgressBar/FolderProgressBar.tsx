@@ -71,9 +71,11 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
 
   const folderProgressBarWorkerArgs = useMemo(
     () => ({
+      manualAttributions,
       resourceId,
+      resourcesToManualAttributions,
     }),
-    [resourceId],
+    [manualAttributions, resourceId, resourcesToManualAttributions],
   );
 
   const folderProgressBarSyncFallbackArgs = useMemo(
