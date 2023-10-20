@@ -92,14 +92,12 @@ export function PackageSearchPopup(): ReactElement {
     currentSearchTerm,
     debounceDelayInMs,
   );
-  const { isLoading, data, isError, error } = useQuery(
-    ['clearlyDefinedPackageSearch', debouncedSearchTerm],
-    () => searchPackagesOnClearlyDefined(debouncedSearchTerm),
-    {
-      refetchOnWindowFocus: false,
-      enabled: Boolean(currentSearchTerm),
-    },
-  );
+  const { isLoading, data, isError, error } = useQuery({
+    queryKey: ['clearlyDefinedPackageSearch', debouncedSearchTerm],
+    queryFn: () => searchPackagesOnClearlyDefined(debouncedSearchTerm),
+    refetchOnWindowFocus: false,
+    enabled: Boolean(currentSearchTerm),
+  });
 
   function close(): void {
     dispatch(closePopup());

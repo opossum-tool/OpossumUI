@@ -51,11 +51,11 @@ export function ClearlyDefinedPackageCard(
   const dispatch = useAppDispatch();
 
   const [expanded, setExpanded] = useState<boolean>(false);
-  const { isLoading, data, isError, error } = useQuery(
-    ['clearlyDefinedDefinition', props.coordinate],
-    () => fetchFromClearlyDefined(props.coordinate),
-    { refetchOnWindowFocus: false },
-  );
+  const { isLoading, data, isError, error } = useQuery({
+    queryKey: ['clearlyDefinedDefinition', props.coordinate],
+    queryFn: () => fetchFromClearlyDefined(props.coordinate),
+    refetchOnWindowFocus: false,
+  });
 
   function handleExpansion(): void {
     if (data?.copyright) {

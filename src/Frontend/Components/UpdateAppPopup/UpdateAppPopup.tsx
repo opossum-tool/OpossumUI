@@ -24,13 +24,11 @@ export function UpdateAppPopup(): ReactElement {
     dispatch(closePopup());
   }
 
-  const { isLoading, data, isError, error } = useQuery(
-    ['latestReleaseNameSearch'],
-    () => searchLatestReleaseNameAndUrl(),
-    {
-      refetchOnWindowFocus: false,
-    },
-  );
+  const { isLoading, data, isError, error } = useQuery({
+    queryKey: ['latestReleaseNameSearch'],
+    queryFn: () => searchLatestReleaseNameAndUrl(),
+    refetchOnWindowFocus: false,
+  });
 
   const content = !isError ? (
     isLoading ? (
