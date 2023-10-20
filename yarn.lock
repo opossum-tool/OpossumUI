@@ -2948,10 +2948,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/electron-devtools-installer@npm:^2.2.3":
-  version: 2.2.3
-  resolution: "@types/electron-devtools-installer@npm:2.2.3"
-  checksum: c46d7efce5f158acec931b0d2d9676844fd8ff78331d5654d62a74b489bd70f7be35a77b10cabb3dcb860114b749e3826e161e3ad49275e037c776c277031b30
+"@types/electron-devtools-installer@npm:^2.2.4":
+  version: 2.2.4
+  resolution: "@types/electron-devtools-installer@npm:2.2.4"
+  checksum: febb6be2f4578e491cad7c6d6b550178badf66c8c0cdd8abd925388809d6f771ca016c898034009bd911b387c05a6795b5ed7f675b0a43940b53a52c93e7b868
   languageName: node
   linkType: hard
 
@@ -8842,7 +8842,7 @@ __metadata:
     "@testing-library/dom": ^9.3.3
     "@testing-library/jest-dom": ^6.1.4
     "@testing-library/react": ^14.0.0
-    "@types/electron-devtools-installer": ^2.2.3
+    "@types/electron-devtools-installer": ^2.2.4
     "@types/jest": ^29.5.6
     "@types/js-yaml": ^4.0.7
     "@types/lodash": ^4.14.200
