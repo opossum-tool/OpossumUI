@@ -3278,12 +3278,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/write-file-atomic@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@types/write-file-atomic@npm:4.0.1"
+"@types/write-file-atomic@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "@types/write-file-atomic@npm:4.0.2"
   dependencies:
     "@types/node": "*"
-  checksum: b1dd47fa90edbed6d3ca9b5733d4f4b1db6754d9fd6cbae0fb568a768018f13ed080821d41ba230eb1fcedc5a37562b3aa40b0a15ead8f44b0c045b964dd49fb
+  checksum: 76a0d2bf86e25914c13e08e5de5f9ae6cfa2a573d32ec0da5d9845cd58b40a88f3ad050d7411549c6c41b5ef6dffca3ff90fdd9321c67d6c067033d3cbb96eda
   languageName: node
   linkType: hard
 
@@ -8852,7 +8852,7 @@ __metadata:
     "@types/recharts": ^1.8.26
     "@types/stream-json": ^1.7.4
     "@types/uuid": ^9.0.6
-    "@types/write-file-atomic": ^4.0.1
+    "@types/write-file-atomic": ^4.0.2
     "@typescript-eslint/eslint-plugin": ^6.8.0
     "@typescript-eslint/parser": ^6.8.0
     "@vitejs/plugin-react": ^4.1.0
