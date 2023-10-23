@@ -11,7 +11,7 @@
     "@mui/icons-material": "^5.14.14",
     "@mui/material": "^5.14.14",
     "@mui/system": "^5.14.14",
-    "@tanstack/react-query": "^4.36.1",
+    "@tanstack/react-query": "^5.0.0",
     "@types/recharts": "^1.8.26",
     "axios": "^1.5.1",
     "buffer": "^6.0.3",
