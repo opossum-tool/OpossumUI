@@ -31,6 +31,7 @@ import { SxProps } from '@mui/material';
 import RectangleIcon from '@mui/icons-material/Rectangle';
 import { Criticality } from '../../../shared/shared-types';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import MuiBox from '@mui/material/Box';
 
 const classes = {
   clickableIcon,
@@ -287,7 +288,17 @@ export function MissingPackageNameIcon(props: IconProps): ReactElement {
 }
 
 export function LocateSignalsIcon(props: IconProps): ReactElement {
-  return <MyLocationIcon arial-abel={'locate signals icon'} sx={props.sx} />;
+  return <MyLocationIcon aria-label={'locate signals icon'} sx={props.sx} />;
+}
+
+export function LocateSignalsIconWithTooltip(): ReactElement {
+  return (
+    <MuiTooltip sx={classes.tooltip} title="signal matches locate filters">
+      <MuiBox>
+        <LocateSignalsIcon sx={classes.nonClickableIcon} />
+      </MuiBox>
+    </MuiTooltip>
+  );
 }
 
 export function PreferredIcon(props: IconProps): ReactElement {

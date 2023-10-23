@@ -14,6 +14,7 @@ import {
   FirstPartyIcon,
   FollowUpIcon,
   IncompleteAttributionsIcon,
+  LocateSignalsIconWithTooltip,
   NeedsReviewIcon,
   PreSelectedIcon,
   SearchPackagesIcon,
@@ -91,6 +92,12 @@ describe('The Icons', () => {
     render(<SearchPackagesIcon />);
 
     expect(screen.getByLabelText('Search packages icon'));
+  });
+
+  it('renders LocateSignalsIconWithTooltip', () => {
+    render(<LocateSignalsIconWithTooltip />);
+
+    expect(screen.getByLabelText('locate signals icon'));
   });
 });
 

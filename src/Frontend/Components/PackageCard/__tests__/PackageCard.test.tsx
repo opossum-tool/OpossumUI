@@ -20,6 +20,7 @@ import {
   DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
+  SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { ButtonText, PopupType } from '../../../enums/enums';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
@@ -31,6 +32,7 @@ import {
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 
 let testResources: Resources;
 let testAttributionId: string;
@@ -437,5 +439,70 @@ describe('The PackageCard', () => {
       { store: testStore },
     );
     expect(screen.getByTestId('was-preferred-icon')).toBeInTheDocument();
+  });
+
+  it('highlights located attributions correctly', () => {
+    const locatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set(['MIT']),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testAttributions,
+        }),
+      ),
+    );
+    testStore.dispatch(setLocatePopupFilters(locatePopupFilters));
+    renderComponentWithStore(
+      <PackageCard
+        cardConfig={{ isExternalAttribution: true }}
+        cardId={'some_id'}
+        displayPackageInfo={{
+          attributionIds: [testAttributionId],
+          licenseName: 'MIT',
+        }}
+        onClick={doNothing}
+      />,
+      { store: testStore },
+    );
+    expect(screen.getByLabelText('locate signals icon')).toBeInTheDocument();
+  });
+  it("doesn't highlight an attribution if filter doesn't match", () => {
+    const locatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set(['MIT']),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+
+    const testStore = createTestAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          externalAttributions: testAttributions,
+        }),
+      ),
+    );
+    testStore.dispatch(setLocatePopupFilters(locatePopupFilters));
+    renderComponentWithStore(
+      <PackageCard
+        cardConfig={{ isExternalAttribution: true }}
+        cardId={'some_id'}
+        displayPackageInfo={{
+          attributionIds: [testAttributionId],
+          licenseName: 'Apache',
+        }}
+        onClick={doNothing}
+      />,
+      { store: testStore },
+    );
+    expect(
+      screen.queryByLabelText('locate signals icon'),
+    ).not.toBeInTheDocument();
   });
 });
