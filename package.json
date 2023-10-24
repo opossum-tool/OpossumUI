@@ -17,7 +17,7 @@
     "buffer": "^6.0.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-is-dev": "^2.0.0",
-    "electron-log": "^4.4.8",
+    "electron-log": "^5.0.0",
     "fast-csv": "^4.3.6",
     "fflate": "^0.8.1",
     "js-yaml": "^4.1.0",
