@@ -24,7 +24,7 @@
     "jsonschema": "^1.4.1",
     "lodash": "^4.17.21",
     "object-hash": "^3.0.0",
-    "packageurl-js": "^1.1.1",
+    "packageurl-js": "^1.2.0",
     "proxy-memoize": "^2.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
