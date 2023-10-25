@@ -291,26 +291,18 @@ export function calculateResourcesWithLocatedAttributions(
   externalAttributionsToResources: AttributionsToResources,
   frequentLicenseNames: Array<FrequentLicenseName>,
 ): Set<string> {
-  const augmentedLicenseNames = augmentFrequentLicenseNamesIfPresent(
-    locatePopupFilters.selectedLicenses,
-    frequentLicenseNames,
-  );
   const locatedResources = new Set<string>();
-  if (
-    !anyLocateFilterIsSet({
-      ...locatePopupFilters,
-      selectedLicenses: augmentedLicenseNames,
-    })
-  ) {
+  if (!anyLocateFilterIsSet(locatePopupFilters)) {
     return locatedResources;
   }
   for (const attributionId in externalAttributions) {
     const attribution = externalAttributions[attributionId];
     if (
-      attributionMatchesLocateFilter(attribution, {
-        ...locatePopupFilters,
-        selectedLicenses: augmentedLicenseNames,
-      })
+      attributionMatchesLocateFilter(
+        attribution,
+        locatePopupFilters,
+        frequentLicenseNames,
+      )
     ) {
       externalAttributionsToResources[attributionId].forEach((resource) => {
         locatedResources.add(resource);
@@ -333,13 +325,18 @@ export function anyLocateFilterIsSet(
 export function attributionMatchesLocateFilter(
   attribution: PackageInfo,
   locatePopupFilter: LocatePopupFilters,
+  frequentLicenseNames: Array<FrequentLicenseName>,
 ): boolean {
   const licenseIsSet = locatePopupFilter.selectedLicenses.size > 0;
   const criticalityIsSet =
     locatePopupFilter.selectedCriticality != SelectedCriticality.Any;
+  const augmentedLicenseNames = augmentFrequentLicenseNamesIfPresent(
+    locatePopupFilter.selectedLicenses,
+    frequentLicenseNames,
+  );
   const licenseMatches =
     attribution.licenseName !== undefined &&
-    locatePopupFilter.selectedLicenses.has(attribution.licenseName);
+    augmentedLicenseNames.has(attribution.licenseName);
   const criticalityMatches =
     attribution.criticality == locatePopupFilter.selectedCriticality;
   const searchTermMatches =
