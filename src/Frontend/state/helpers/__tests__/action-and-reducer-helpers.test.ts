@@ -616,7 +616,7 @@ describe('attributionMatchesLocatedFilters', () => {
       searchOnlyLicenseName: false,
     };
     expect(
-      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter),
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter, []),
     ).toBeTruthy();
   });
 
@@ -632,7 +632,7 @@ describe('attributionMatchesLocatedFilters', () => {
       searchOnlyLicenseName: false,
     };
     expect(
-      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter),
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter, []),
     ).toBeFalsy();
   });
   it('is true if no filter selected', () => {
@@ -647,7 +647,25 @@ describe('attributionMatchesLocatedFilters', () => {
       searchOnlyLicenseName: false,
     };
     expect(
-      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter),
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter, []),
+    ).toBeTruthy();
+  });
+
+  it('is true if the license matches a frequent license', () => {
+    const testPackageInfo: PackageInfo = {
+      criticality: Criticality.High,
+      licenseName: 'MIT License',
+    };
+    const locatePopupFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set(['MIT']),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter, [
+        { shortName: 'MIT', fullName: 'MIT License' },
+      ]),
     ).toBeTruthy();
   });
 });

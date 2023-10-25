@@ -15,6 +15,7 @@ import { ButtonText, PopupType, View } from '../../enums/enums';
 import { useSelector } from 'react-redux';
 import {
   getAttributionIdMarkedForReplacement,
+  getFrequentLicensesNameOrder,
   getManualAttributions,
   getManualAttributionsToResources,
   wereTemporaryDisplayPackageInfoModified,
@@ -136,6 +137,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       ? selectedAttributionIdAttributionView
       : selectedAttributionIdAuditView;
 
+  const frequentLicenseNames = useAppSelector(getFrequentLicensesNameOrder);
   function getListCardConfig(): ListCardConfig {
     let listCardConfig: ListCardConfig = {
       ...props.cardConfig,
@@ -169,6 +171,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           ? attributionMatchesLocateFilter(
               props.displayPackageInfo,
               locatePopupFilter,
+              frequentLicenseNames,
             )
           : false,
       };
