@@ -76,6 +76,7 @@ export interface ListCardConfig {
   isContextMenuOpen?: boolean;
   isMultiSelected?: boolean;
   criticality?: Criticality;
+  isLocated?: boolean;
 }
 
 export interface PathPredicate {

@@ -59,6 +59,11 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import MuiBox from '@mui/material/Box';
 import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
+import { getLocatePopupFilters } from '../../state/selectors/locate-popup-selectors';
+import {
+  attributionMatchesLocateFilter,
+  anyLocateFilterIsSet,
+} from '../../state/helpers/action-and-reducer-helpers';
 
 const classes = {
   hiddenIcon: {
@@ -116,6 +121,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   const multiSelectSelectedAttributionIds = useAppSelector(
     getMultiSelectSelectedAttributionIds,
   );
+  const locatePopupFilter = useAppSelector(getLocatePopupFilters);
 
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [showAssociatedResourcesPopup, setShowAssociatedResourcesPopup] =
@@ -155,6 +161,16 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           attributionId === attributionIdMarkedForReplacement,
         isMultiSelected:
           multiSelectSelectedAttributionIds.includes(attributionId),
+      };
+    } else {
+      listCardConfig = {
+        ...listCardConfig,
+        isLocated: anyLocateFilterIsSet(locatePopupFilter)
+          ? attributionMatchesLocateFilter(
+              props.displayPackageInfo,
+              locatePopupFilter,
+            )
+          : false,
       };
     }
 

@@ -13,6 +13,7 @@ import {
   PreSelectedIcon,
   PreferredIcon,
   WasPreferredIcon,
+  LocateSignalsIconWithTooltip,
 } from '../Icons/Icons';
 import { OpossumColors } from '../../shared-styles';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
@@ -85,6 +86,11 @@ export function getRightIcons(
   } else if (cardConfig.wasPreferred) {
     rightIcons.push(
       <WasPreferredIcon key={getKey('was-preferred-icon', cardId)} />,
+    );
+  }
+  if (cardConfig.isLocated) {
+    rightIcons.push(
+      <LocateSignalsIconWithTooltip key={getKey('is-located-icon', cardId)} />,
     );
   }
 

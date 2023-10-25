@@ -20,6 +20,8 @@ import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { attributionForTemporaryDisplayPackageInfoExists } from '../save-action-helpers';
 import { NIL as uuidNil } from 'uuid';
 import {
+  anyLocateFilterIsSet,
+  attributionMatchesLocateFilter,
   calculateResourcesWithLocatedAttributions,
   computeChildrenWithAttributions,
   createExternalAttributionsToHashes,
@@ -33,6 +35,7 @@ import {
   ResourceState,
 } from '../../reducers/resource-reducer';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
+import { LocatePopupFilters } from '../../../types/types';
 
 describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {
@@ -391,10 +394,12 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     };
     const frequentLicenseNames: Array<FrequentLicenseName> = [];
     const locatedResources = calculateResourcesWithLocatedAttributions(
-      selectedCriticality,
-      licenseNames,
-      'gpl',
-      false,
+      {
+        selectedCriticality,
+        selectedLicenses: licenseNames,
+        searchTerm: 'gpl',
+        searchOnlyLicenseName: false,
+      },
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -424,10 +429,12 @@ describe('calculateResourcesWithLocatedAttributions', () => {
       },
     ];
     const locatedResources = calculateResourcesWithLocatedAttributions(
-      selectedCriticality,
-      licenseNames,
-      '',
-      false,
+      {
+        selectedCriticality,
+        selectedLicenses: licenseNames,
+        searchTerm: '',
+        searchOnlyLicenseName: false,
+      },
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -464,10 +471,12 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     };
     const frequentLicenseNames: Array<FrequentLicenseName> = [];
     const locatedResources = calculateResourcesWithLocatedAttributions(
-      selectedCriticality,
-      licenseNames,
-      '',
-      false,
+      {
+        selectedCriticality,
+        selectedLicenses: licenseNames,
+        searchTerm: '',
+        searchOnlyLicenseName: false,
+      },
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -508,10 +517,12 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     };
     const frequentLicenseNames: Array<FrequentLicenseName> = [];
     const locatedResources = calculateResourcesWithLocatedAttributions(
-      selectedCriticality,
-      licenseNames,
-      '',
-      false,
+      {
+        selectedCriticality,
+        selectedLicenses: licenseNames,
+        searchTerm: '',
+        searchOnlyLicenseName: false,
+      },
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -551,10 +562,12 @@ describe('calculateResourcesWithLocatedAttributions', () => {
     };
     const frequentLicenseNames: Array<FrequentLicenseName> = [];
     const locatedResources = calculateResourcesWithLocatedAttributions(
-      SelectedCriticality.Any,
-      licenseNames,
-      '2.0-only',
-      false,
+      {
+        selectedCriticality: SelectedCriticality.Any,
+        selectedLicenses: licenseNames,
+        searchTerm: '2.0-only',
+        searchOnlyLicenseName: false,
+      },
       externalAttributions,
       externalAttributionsToResources,
       frequentLicenseNames,
@@ -587,5 +600,96 @@ describe('getResourcesWithLocatedChildren', () => {
     const parents = getResourcesWithLocatedChildren(locatedResources);
     const expectedParents = new Set<string>();
     expect(parents).toEqual(expectedParents);
+  });
+});
+
+describe('attributionMatchesLocatedFilters', () => {
+  it('is true if matched', () => {
+    const testPackageInfo: PackageInfo = {
+      criticality: Criticality.High,
+      licenseName: 'MIT',
+    };
+    const locatePopupFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.High,
+      selectedLicenses: new Set(['MIT']),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter),
+    ).toBeTruthy();
+  });
+
+  it('is false if no filter matches', () => {
+    const testPackageInfo: PackageInfo = {
+      criticality: Criticality.High,
+      licenseName: 'Apache',
+    };
+    const locatePopupFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.High,
+      selectedLicenses: new Set(['MIT']),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter),
+    ).toBeFalsy();
+  });
+  it('is true if no filter selected', () => {
+    const testPackageInfo: PackageInfo = {
+      criticality: Criticality.High,
+      licenseName: 'Apache',
+    };
+    const locatePopupFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set([]),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(
+      attributionMatchesLocateFilter(testPackageInfo, locatePopupFilter),
+    ).toBeTruthy();
+  });
+});
+
+describe('anyLocateFilterIsSet', () => {
+  it('is true if the criticality filter is set', () => {
+    const testLocateFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.High,
+      selectedLicenses: new Set(),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(anyLocateFilterIsSet(testLocateFilter)).toBeTruthy();
+  });
+
+  it('is true if the license filter is set', () => {
+    const testLocateFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set(['MIT']),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(anyLocateFilterIsSet(testLocateFilter)).toBeTruthy();
+  });
+
+  it('is true if a searchTerm filter is set', () => {
+    const testLocateFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set(),
+      searchTerm: 'package',
+      searchOnlyLicenseName: false,
+    };
+    expect(anyLocateFilterIsSet(testLocateFilter)).toBeTruthy();
+  });
+
+  it('is false if no filter is set', () => {
+    const testLocateFilter: LocatePopupFilters = {
+      selectedCriticality: SelectedCriticality.Any,
+      selectedLicenses: new Set(),
+      searchTerm: '',
+      searchOnlyLicenseName: false,
+    };
+    expect(anyLocateFilterIsSet(testLocateFilter)).toBeFalsy();
   });
 });

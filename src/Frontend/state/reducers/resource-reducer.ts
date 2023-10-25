@@ -862,17 +862,8 @@ export const resourceState = (
         },
       };
     case ACTION_SET_LOCATE_POPUP_FILTERS:
-      const {
-        selectedCriticality,
-        selectedLicenses,
-        searchTerm,
-        searchOnlyLicenseName,
-      } = action.payload;
       const locatedResources = calculateResourcesWithLocatedAttributions(
-        selectedCriticality,
-        selectedLicenses,
-        searchTerm,
-        searchOnlyLicenseName,
+        action.payload,
         state.allViews.externalData.attributions,
         state.allViews.externalData.attributionsToResources,
         state.allViews.frequentLicenses.nameOrder,
@@ -888,12 +879,7 @@ export const resourceState = (
             resourcesWithLocatedChildren,
           },
         },
-        locatePopup: {
-          selectedCriticality,
-          selectedLicenses,
-          searchTerm,
-          searchOnlyLicenseName,
-        },
+        locatePopup: action.payload,
       };
     default:
       return state;
