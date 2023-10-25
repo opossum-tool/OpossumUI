@@ -3,42 +3,39 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import MuiBox from '@mui/material/Box';
 import { ReactElement, useEffect, useState } from 'react';
-import { PanelPackage } from '../../types/types';
-import { ManualPackagePanel } from '../ManualPackagePanel/ManualPackagePanel';
-import { PathBar } from '../PathBar/PathBar';
-import { ResourceDetailsTabs } from '../ResourceDetailsTabs/ResourceDetailsTabs';
-import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn/ResourceDetailsAttributionColumn';
 import { PackagePanelTitle } from '../../enums/enums';
-import { setDisplayedPackage } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../shared-constants';
+import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setDisplayedPackage } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getAttributionIdsOfSelectedResourceClosestParent,
   getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import {
-  OpossumColors,
-  resourceBrowserWidthInPixels,
-} from '../../shared-styles';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
+import { PanelPackage } from '../../types/types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
+import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
+import { ManualPackagePanel } from '../ManualPackagePanel/ManualPackagePanel';
+import { PathBar } from '../PathBar/PathBar';
 import { FolderProgressBar } from '../ProgressBar/FolderProgressBar';
-import MuiBox from '@mui/material/Box';
-import {
-  ADD_NEW_ATTRIBUTION_BUTTON_ID,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../shared-constants';
+import { ResizableBox } from '../ResizableBox/ResizableBox';
+import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn/ResourceDetailsAttributionColumn';
+import { ResourceDetailsTabs } from '../ResourceDetailsTabs/ResourceDetailsTabs';
 
 const classes = {
   root: {
     background: OpossumColors.lightestBlue,
     flex: 1,
     padding: '8px',
-    width: `calc(95% - ${resourceBrowserWidthInPixels}px)`,
   },
   columnDiv: {
     display: 'flex',
@@ -48,10 +45,8 @@ const classes = {
   packageColumn: {
     display: 'flex',
     flexDirection: 'column',
-    width: '30%',
     height: '100%',
     marginRight: '4px',
-    minWidth: '240px',
   },
   tabsDiv: {
     overflowY: 'auto',
@@ -112,7 +107,11 @@ export function ResourceDetailsViewer(): ReactElement | null {
     <MuiBox sx={classes.root}>
       <PathBar />
       <MuiBox sx={classes.columnDiv}>
-        <MuiBox sx={classes.packageColumn}>
+        <ResizableBox
+          sx={classes.packageColumn}
+          defaultSize={{ width: '30%', height: 'auto' }}
+          minWidth={240}
+        >
           {!resourceIsAttributionBreakpoint && (
             <ManualPackagePanel
               showParentAttributions={showParentAttributions}
@@ -130,7 +129,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
               isAddToPackageEnabled={!resourceIsAttributionBreakpoint}
             />
           </MuiBox>
-        </MuiBox>
+        </ResizableBox>
         <ResourceDetailsAttributionColumn
           showParentAttributions={showParentAttributions}
         />

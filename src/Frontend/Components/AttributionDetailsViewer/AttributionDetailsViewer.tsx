@@ -3,30 +3,31 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement, useCallback } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
-import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
+import { PopupType } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   deleteAttributionGloballyAndSave,
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import {
   getResourceIdsOfSelectedAttribution,
   getSelectedAttributionIdInAttributionView,
 } from '../../state/selectors/attribution-view-resource-selectors';
-import { OpossumColors, treeClasses } from '../../shared-styles';
-import { useWindowHeight } from '../../util/use-window-height';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { PopupType } from '../../enums/enums';
-import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
-import MuiBox from '@mui/material/Box';
-import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { useWindowHeight } from '../../util/use-window-height';
+import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
+import { ResizableBox } from '../ResizableBox/ResizableBox';
+import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
 
 const VERTICAL_RESOURCE_COLUMN_PADDING = 24;
 const VERTICAL_RESOURCE_HEADER_AND_FOOTER_SIZE = 72;
@@ -42,14 +43,17 @@ const classes = {
   resourceColumn: {
     display: 'flex',
     flexDirection: 'column',
-    width: '30%',
     height: `calc(100% - ${VERTICAL_RESOURCE_COLUMN_PADDING}px)`,
     paddingRight: '8px',
     overflowY: 'auto',
-    minWidth: '240px',
   },
   typography: {
     marginTop: '8px',
+  },
+  tree: {
+    background: OpossumColors.white,
+    height: '100%',
+    position: 'relative',
   },
 };
 
@@ -108,7 +112,11 @@ export function AttributionDetailsViewer(): ReactElement | null {
 
   return selectedAttributionId ? (
     <MuiBox sx={classes.root}>
-      <MuiBox sx={classes.resourceColumn}>
+      <ResizableBox
+        sx={classes.resourceColumn}
+        defaultSize={{ width: '30%', height: 'auto' }}
+        minWidth={240}
+      >
         <MuiTypography sx={classes.typography} variant={'subtitle1'}>
           Linked Resources
         </MuiTypography>
@@ -116,9 +124,9 @@ export function AttributionDetailsViewer(): ReactElement | null {
           resourcePaths={resourceIdsOfSelectedAttributionId}
           highlightSelectedResources={false}
           maxHeight={maxTreeHeight}
-          sx={treeClasses.tree('attributionView')}
+          sx={classes.tree}
         />
-      </MuiBox>
+      </ResizableBox>
       <AttributionColumn
         isEditable={true}
         showManualAttributionData={true}

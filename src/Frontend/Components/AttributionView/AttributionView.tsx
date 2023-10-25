@@ -36,7 +36,6 @@ const classes = {
     backgroundColor: OpossumColors.white,
   },
   attributionList: {
-    width: '30%',
     margin: '5px',
   },
   disabledIcon,
