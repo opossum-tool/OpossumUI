@@ -103,7 +103,9 @@
     "vite-tsconfig-paths": "^4.2.1"
   },
   "scripts": {
-    "start": "yarn generate-notice && tsc -p src/ElectronBackend && vite",
+    "start": "run-script-os",
+    "start:darwin:linux": "yarn_scripts/start_linux_darwin.sh",
+    "start:win32": "yarn_scripts/start_windows.bat",
     "build": "yarn generate-notice && vite build && tsc -p src/ElectronBackend",
     "circular-import-check": "dpdm src/**/*.ts[x] --circular -T --tree false --warning false --exit-code circular:1",
     "typecheck": "tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
@@ -119,8 +121,8 @@
     "copyright-lint-check": "reuse lint",
     "update-commit-hash": "run-script-os",
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\"",
-    "update-commit-hash:win32": "build_scripts/get_app_version_for_windows.bat",
-    "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
+    "update-commit-hash:win32": "yarn_scripts/get_app_version_for_windows.bat",
+    "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node yarn_scripts/generateNotices.js",
     "ship-linux": "yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
     "ship-win": "yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
     "ship-mac": "yarn build && electron-builder --mac --x64 --publish never && zip -r -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",

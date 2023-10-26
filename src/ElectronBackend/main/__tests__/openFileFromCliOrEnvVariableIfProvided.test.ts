@@ -3,8 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow } from 'electron';
+import { cloneDeep } from 'lodash';
 
-import { openFileFromCliIfProvided } from '../openFileFromCliIfProvided';
+import { openFileFromCliOrEnvVariableIfProvided } from '../openFileFromCliOrEnvVariableIfProvided';
 
 const mockHandleOpeningFile = jest.fn();
 jest.mock('../listeners', () => ({
@@ -39,7 +40,7 @@ describe('openFileFromCli', () => {
       }
       process.argv.push(inputFileName);
 
-      await openFileFromCliIfProvided(
+      await openFileFromCliOrEnvVariableIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow,
       );
       expect(mockHandleOpeningFile).toHaveBeenCalledWith([
@@ -64,7 +65,7 @@ describe('openFileFromCli', () => {
         process.argv.push(inputFileName);
       }
 
-      await openFileFromCliIfProvided(
+      await openFileFromCliOrEnvVariableIfProvided(
         'mockBrowserWindow' as unknown as BrowserWindow,
       );
       expect(mockHandleOpeningFile).not.toHaveBeenCalled();
@@ -72,4 +73,57 @@ describe('openFileFromCli', () => {
       process.argv = oldProcessArgv;
     },
   );
+});
+
+describe('openFileFromEnvVariable', () => {
+  const oldEnvVariables = process.env;
+  const oldProcessArgv = process.argv;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = cloneDeep(oldEnvVariables);
+    process.argv = cloneDeep(oldProcessArgv);
+  });
+
+  afterAll(() => {
+    process.env = oldEnvVariables;
+    process.argv = oldProcessArgv;
+  });
+
+  it('opens a file if env variable provided', async () => {
+    const inputFileName = '/path/inputFile.opossum';
+    process.env.OPOSSUM_FILE = inputFileName;
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+    );
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      inputFileName,
+    ]);
+  });
+
+  it('does not call openFile if env is not set', async () => {
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+    );
+    expect(mockHandleOpeningFile).not.toHaveBeenCalledWith([
+      'mockBrowserWindow',
+    ]);
+  });
+
+  it('does open a file from CLI argument if argument and env variable provided', async () => {
+    process.env.OPOSSUM_FILE = '/path/to/file';
+    const inputFileName = 'path/to/file/inputfile.opossum';
+    process.argv = ['app'];
+    process.argv.push(inputFileName);
+
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+    );
+
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      inputFileName,
+    ]);
+  });
 });
