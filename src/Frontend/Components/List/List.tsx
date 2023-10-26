@@ -9,54 +9,66 @@ import { Height, NumberOfDisplayedItems } from '../../types/types';
 import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
 
+const DEFAULT_CARD_HEIGHT = 24;
+
 const classes = {
   scrollChild: {
     direction: 'ltr',
   },
 };
 
-interface ListProps {
-  length: number;
-  max: NumberOfDisplayedItems | Height;
-  getListItem(index: number): ReactElement | null;
-  cardVerticalDistance?: number;
-  alwaysShowHorizontalScrollBar?: boolean;
+interface Props {
   addPaddingBottom?: boolean;
   allowHorizontalScrolling?: boolean;
+  alwaysShowHorizontalScrollBar?: boolean;
+  cardVerticalDistance?: number;
+  getListItem(index: number): ReactElement | null;
+  indexToScrollTo?: number;
   leftScrollBar?: boolean;
+  length: number;
+  max: NumberOfDisplayedItems | Height;
   sx?: SxProps;
 }
 
-function maxHeightWasGiven(
-  max: NumberOfDisplayedItems | Height,
-): max is Height {
-  return Boolean((max as Height).height);
-}
-
-export function List(props: ListProps): ReactElement {
-  const defaultCardHeight = 24;
-  const cardHeight = props.cardVerticalDistance || defaultCardHeight;
-  const maxHeight = maxHeightWasGiven(props.max)
-    ? props.max.height
-    : props.max.numberOfDisplayedItems * cardHeight;
-  const currentHeight = props.length * cardHeight;
-  const listHeight = props.alwaysShowHorizontalScrollBar
+export function List({
+  getListItem,
+  length,
+  max,
+  addPaddingBottom,
+  allowHorizontalScrolling,
+  alwaysShowHorizontalScrollBar,
+  cardVerticalDistance,
+  indexToScrollTo,
+  leftScrollBar,
+  sx,
+}: Props): ReactElement {
+  const cardHeight = cardVerticalDistance || DEFAULT_CARD_HEIGHT;
+  const maxHeight =
+    'height' in max ? max.height : max.numberOfDisplayedItems * cardHeight;
+  const currentHeight = length * cardHeight;
+  const listHeight = alwaysShowHorizontalScrollBar
     ? maxHeight
     : Math.min(currentHeight, maxHeight);
+  const scrollOffset = indexToScrollTo
+    ? indexToScrollTo * cardHeight < maxHeight / 2
+      ? 0
+      : indexToScrollTo * cardHeight - maxHeight / 2
+    : 0;
 
   return (
-    <MuiBox sx={props.sx} style={{ maxHeight: `${maxHeight}` }}>
+    <MuiBox sx={sx} style={{ maxHeight }}>
       <VirtualizedList
+        initialScrollOffset={scrollOffset}
         height={listHeight}
         width={'vertical'}
         itemSize={cardHeight}
-        itemCount={props.length}
+        itemCount={length}
         style={{
-          direction: `${props.leftScrollBar ? 'rtl' : 'ltr'}`,
-          overflow: `${
-            props.alwaysShowHorizontalScrollBar ? 'scroll' : 'auto'
-          } ${currentHeight < maxHeight ? 'hidden' : 'auto'}`,
-          paddingBottom: `${props.addPaddingBottom ? '18px' : '0px'}`,
+          direction: `${leftScrollBar ? 'rtl' : 'ltr'}`,
+          overflow: `${alwaysShowHorizontalScrollBar ? 'scroll' : 'auto'} ${
+            currentHeight < maxHeight ? 'hidden' : 'auto'
+          }`,
+          paddingBottom: `${addPaddingBottom ? '18px' : '0px'}`,
         }}
       >
         {({
@@ -67,9 +79,9 @@ export function List(props: ListProps): ReactElement {
           style: CSSProperties;
         }): ReactElement => (
           <MuiBox
-            sx={props.leftScrollBar ? classes.scrollChild : {}}
+            sx={leftScrollBar ? classes.scrollChild : {}}
             style={
-              props.allowHorizontalScrolling
+              allowHorizontalScrolling
                 ? {
                     ...style,
                     minWidth: '100%',
@@ -78,7 +90,7 @@ export function List(props: ListProps): ReactElement {
                 : style
             }
           >
-            {props.getListItem(index)}
+            {getListItem(index)}
           </MuiBox>
         )}
       </VirtualizedList>

@@ -5,14 +5,6 @@
 
 import { SxProps } from '@mui/material';
 
-export interface HeightForTree {
-  height: number;
-}
-
-export interface NumberOfDisplayedNodesForTree {
-  numberOfDisplayedNodes: number;
-}
-
 export interface NodeIdPredicateForTree {
   (path: string): boolean;
 }

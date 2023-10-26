@@ -3,24 +3,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactElement } from 'react';
-import { List } from './List';
-import {
-  HeightForTree,
-  NodeIdPredicateForTree,
-  NodesForTree,
-  NumberOfDisplayedNodesForTree,
-  TreeNodeStyle,
-} from './types';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 import { min } from 'lodash';
+import { ReactElement } from 'react';
+import { List } from '../../Components/List/List';
+import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
+import { Height, NumberOfDisplayedItems } from '../../types/types';
 import {
   VirtualizedTreeNode,
   VirtualizedTreeNodeData,
 } from './VirtualizedTreeNode';
+import { NodeIdPredicateForTree, NodesForTree, TreeNodeStyle } from './types';
 import { getTreeNodeProps } from './utils/get-tree-node-props';
-import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
-import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
 
 const classes = {
   content: {
@@ -77,15 +72,14 @@ export function VirtualizedTree(
     props.breakpoints,
   );
 
-  const maxListLength: NumberOfDisplayedNodesForTree | HeightForTree =
-    props.maxHeight
-      ? { height: props.maxHeight }
-      : {
-          numberOfDisplayedNodes: min([
-            treeNodeProps.length,
-            DEFAULT_MAX_TREE_DISPLAYED_NODES,
-          ]) as number,
-        };
+  const maxListLength: NumberOfDisplayedItems | Height = props.maxHeight
+    ? { height: props.maxHeight }
+    : {
+        numberOfDisplayedItems: min([
+          treeNodeProps.length,
+          DEFAULT_MAX_TREE_DISPLAYED_NODES,
+        ]) as number,
+      };
 
   const indexToScrollTo = treeNodeProps.findIndex(
     (itemData) => itemData.nodeId === props.selectedNodeId,
