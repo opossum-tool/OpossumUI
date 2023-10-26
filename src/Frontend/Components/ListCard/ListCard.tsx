@@ -164,7 +164,7 @@ interface ListCardProps {
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
-  function getDisplayedCount(): string {
+  const displayedCount = ((): string => {
     const digitsInAThousand = 4;
     const digitsInAMillion = 7;
     const count = props.count ? props.count.toString() : '';
@@ -176,7 +176,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
     } else {
       return `${count.slice(0, -(digitsInAMillion - 1))}M`;
     }
-  }
+  })();
 
   function calculateRightPadding(): number {
     return Math.max(
@@ -189,7 +189,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
 
   return (
     <MuiBox sx={getSx(props.cardConfig, props.highlighting)}>
-      {props.leftElement ? props.leftElement : null}
+      {props.leftElement}
       <MuiBox
         sx={{
           ...classes.root,
@@ -198,10 +198,10 @@ export function ListCard(props: ListCardProps): ReactElement | null {
         onClick={props.onClick}
       >
         <MuiBox sx={classes.iconColumn}>
-          {props.leftIcon ? props.leftIcon : null}
-          {getDisplayedCount() ? (
+          {props.leftIcon}
+          {displayedCount ? (
             <MuiTypography variant={'body2'} sx={classes.count}>
-              {getDisplayedCount()}
+              {displayedCount}
             </MuiTypography>
           ) : null}
         </MuiBox>
@@ -217,6 +217,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           <MuiTypography
             variant={'body2'}
             sx={{
+              ...(!props.leftIcon && !displayedCount && { paddingLeft: '6px' }),
               ...(props.cardConfig.isHeader
                 ? classes.header
                 : classes.textLine),
@@ -231,6 +232,8 @@ export function ListCard(props: ListCardProps): ReactElement | null {
             <MuiTypography
               variant={'body2'}
               sx={{
+                ...(!props.leftIcon &&
+                  !displayedCount && { paddingLeft: '6px' }),
                 ...classes.textLine,
                 ...(props.cardConfig.isResource
                   ? classes.textShortenedFromLeftSide
