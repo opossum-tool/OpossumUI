@@ -19,6 +19,7 @@ License: Apache-2.0
 Files: docs/*
        public/icons/*
        .github/pull_request_template.md
+       .github/ISSUE_TEMPLATE/*
        public/assets/icons/*
 Copyright: Meta Platforms, Inc. and its affiliates
            TNG Technology Consulting GmbH <https://www.tngtech.com>
