@@ -20,6 +20,7 @@ import {
 import { getTreeNodeProps } from './utils/get-tree-node-props';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
 
 const classes = {
   content: {
@@ -44,6 +45,7 @@ interface VirtualizedTreeProps {
   ariaLabel?: string;
   cardHeight: number;
   maxHeight?: number;
+  width?: number | string;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
   sx?: SxProps;
@@ -54,6 +56,7 @@ interface VirtualizedTreeProps {
   locatedResourceIcon?: ReactElement;
   locatedResources?: Set<string>;
   resourcesWithLocatedChildren?: Set<string>;
+  resizable?: boolean;
 }
 
 export function VirtualizedTree(
@@ -89,7 +92,12 @@ export function VirtualizedTree(
   );
 
   return props.nodes ? (
-    <MuiBox aria-label={props.ariaLabel} sx={props.sx}>
+    <ResizableBox
+      aria-label={props.ariaLabel}
+      sx={props.sx}
+      defaultSize={{ width: props.width ?? 'auto', height: 'auto' }}
+      enable={props.resizable === true ? undefined : false}
+    >
       {props.locatorIcon}
       <MuiBox sx={classes.content}>
         <List
@@ -111,6 +119,6 @@ export function VirtualizedTree(
           indexToScrollTo={indexToScrollTo}
         />
       </MuiBox>
-    </MuiBox>
+    </ResizableBox>
   ) : null;
 }

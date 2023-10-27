@@ -3,8 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SxProps } from '@mui/material';
-import { shouldNotBeCalled } from './util/should-not-be-called';
+import { Breakpoint } from '@mui/material';
 
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -46,8 +45,6 @@ export const criticalityColor = {
   medium: OpossumColors.mediumOrange,
   undefined: OpossumColors.darkBlue,
 };
-
-export const resourceBrowserWidthInPixels = 420;
 
 export const tooltipStyle = {
   '& tooltip': {
@@ -110,76 +107,9 @@ export const tableClasses = {
 
 export const TREE_ROW_HEIGHT = 20;
 export const TREE_ROOT_FOLDER_LABEL = '';
-export const POPUP_MAX_WIDTH_BREAKPOINT = 'xl';
-export const MUI_BREAKPOINTS_TO_PIXELS_MAPPING = {
-  xs: 0,
-  sm: 600,
-  md: 900,
-  lg: 1200,
-  xl: 1536,
-};
+export const POPUP_MAX_WIDTH_BREAKPOINT: Breakpoint = 'xl';
 
 export const treeClasses = {
-  header: (popupContentPadding: number): SxProps => {
-    return {
-      whiteSpace: 'nowrap',
-      width: `calc(100% - ${popupContentPadding}px)`,
-    };
-  },
-  treeContainer: (
-    verticalSpaceBetweenTreeAndViewportEdges: number,
-  ): SxProps => {
-    return {
-      overflow: 'hidden',
-      height: `calc(100vh - ${verticalSpaceBetweenTreeAndViewportEdges}px)`,
-    };
-  },
-  tree: (
-    treeLocation: 'attributionView' | 'popup' | 'browser',
-    horizontalSpaceBetweenTreeAndViewportEdges?: number,
-    popupContentPadding?: number,
-  ): SxProps => {
-    switch (treeLocation) {
-      case 'attributionView': {
-        return {
-          background: OpossumColors.white,
-          height: '100%',
-          position: 'relative',
-        };
-      }
-      case 'browser': {
-        return {
-          width: resourceBrowserWidthInPixels,
-          padding: '4px 0',
-          background: OpossumColors.white,
-          height: '100%',
-          position: 'relative',
-        };
-      }
-      case 'popup': {
-        const popupMaxWidth =
-          MUI_BREAKPOINTS_TO_PIXELS_MAPPING[POPUP_MAX_WIDTH_BREAKPOINT];
-        if (
-          horizontalSpaceBetweenTreeAndViewportEdges !== undefined &&
-          popupContentPadding !== undefined
-        ) {
-          return {
-            width: `calc(100vw - ${horizontalSpaceBetweenTreeAndViewportEdges}px)`,
-            maxWidth: `calc(${popupMaxWidth}px - ${popupContentPadding}px)`,
-            background: OpossumColors.white,
-            position: 'relative',
-          };
-        } else {
-          throw Error(
-            "horizontalSpaceBetweenTreeAndViewportEdges and popupContentPadding have to be provided if treeLocation='popup'",
-          );
-        }
-      }
-      default: {
-        shouldNotBeCalled(treeLocation);
-      }
-    }
-  },
   treeItemLabel: {
     height: '19px',
     whiteSpace: 'nowrap',

@@ -3,23 +3,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactElement } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useWindowHeight } from '../../util/use-window-height';
-import { useAppSelector } from '../../state/hooks';
-import { ButtonText } from '../../enums/enums';
 import MuiBox from '@mui/material/Box';
-import { treeClasses } from '../../shared-styles';
-import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
-import { getAllResourcePathsForAttributions } from './resource-path-popup-helpers';
+import { ReactElement } from 'react';
+import { ButtonText } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributionsToResources,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
+import { useWindowHeight } from '../../util/use-window-height';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
+import { getAllResourcePathsForAttributions } from './resource-path-popup-helpers';
 
 const VERTICAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES = 236;
-const HORIZONTAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES = 112;
 const POPUP_CONTENT_PADDING = 48;
+
+const classes = {
+  tree: {
+    background: OpossumColors.white,
+    position: 'relative',
+  },
+  header: {
+    whiteSpace: 'nowrap',
+    width: `calc(100% - ${POPUP_CONTENT_PADDING}px)`,
+  },
+  container: {
+    overflow: 'hidden',
+    height: `calc(100vh - ${VERTICAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES}px)`,
+  },
+};
 
 interface ResourcePathPopupProps {
   closePopup(): void;
@@ -49,7 +63,7 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
   return (
     <NotificationPopup
       header={header}
-      headerSx={treeClasses.header(POPUP_CONTENT_PADDING)}
+      headerSx={classes.header}
       rightButtonConfig={{
         onClick: props.closePopup,
         buttonText: ButtonText.Close,
@@ -57,25 +71,17 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
       onBackdropClick={props.closePopup}
       onEscapeKeyDown={props.closePopup}
       content={
-        <MuiBox
-          sx={treeClasses.treeContainer(
-            VERTICAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES,
-          )}
-        >
+        <MuiBox sx={classes.container}>
           <ResourcesTree
             resourcePaths={allResourcePaths}
             highlightSelectedResources={true}
             maxHeight={maxTreeHeight}
-            sx={treeClasses.tree(
-              'popup',
-              HORIZONTAL_SPACE_BETWEEN_TREE_AND_VIEWPORT_EDGES,
-              POPUP_CONTENT_PADDING,
-            )}
+            sx={classes.tree}
           />
         </MuiBox>
       }
       isOpen={true}
-      fullWidth={false}
+      fullWidth
     />
   );
 }

@@ -8915,6 +8915,7 @@ __metadata:
     packageurl-js: ^1.2.0
     prettier: ^3.0.3
     proxy-memoize: ^2.0.4
+    re-resizable: ^6.9.11
     react: ^18.2.0
     react-dom: ^18.2.0
     react-redux: ^8.1.3
@@ -9392,6 +9393,16 @@ __metadata:
   version: 5.1.1
   resolution: "quick-lru@npm:5.1.1"
   checksum: a516faa25574be7947969883e6068dbe4aa19e8ef8e8e0fd96cddd6d36485e9106d85c0041a27153286b0770b381328f4072aa40d3b18a19f5f7d2b78b94b5ed
+  languageName: node
+  linkType: hard
+
+"re-resizable@npm:^6.9.11":
+  version: 6.9.11
+  resolution: "re-resizable@npm:6.9.11"
+  peerDependencies:
+    react: ^16.13.1 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
+  checksum: 04be62e2985caff8ff082664b9b66d7c49df383a9560e691f32f583cba75ce51077be8b718c5cda5a1fa07e701337102cbd9ff5b03a58541d9092f25753f47f7
   languageName: node
   linkType: hard
 

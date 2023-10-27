@@ -65,6 +65,12 @@ const classes = {
     stroke: OpossumColors.darkBlue,
     fontSize: '20px',
   },
+  tree: {
+    padding: '4px 0',
+    background: OpossumColors.white,
+    height: '100%',
+    position: 'relative',
+  },
 };
 
 export function ResourceBrowser(): ReactElement | null {
@@ -173,7 +179,7 @@ export function ResourceBrowser(): ReactElement | null {
       breakpoints={attributionBreakpoints}
       cardHeight={TREE_ROW_HEIGHT}
       maxHeight={maxTreeHeight}
-      sx={treeClasses.tree('browser')}
+      sx={classes.tree}
       alwaysShowHorizontalScrollBar={true}
       treeNodeStyle={{
         root: treeClasses.treeItemLabel,
@@ -187,6 +193,8 @@ export function ResourceBrowser(): ReactElement | null {
       resourcesWithLocatedChildren={
         resourcesWithLocatedAttributions.resourcesWithLocatedChildren
       }
+      resizable
+      width={420}
     />
   ) : null;
 }

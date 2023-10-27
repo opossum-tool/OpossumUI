@@ -3,13 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactElement } from 'react';
-import { PackageCard } from '../PackageCard/PackageCard';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
-import { checkboxClass } from '../../shared-styles';
-import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
+import { ReactElement } from 'react';
+import { checkboxClass } from '../../shared-styles';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
+import { PackageCard } from '../PackageCard/PackageCard';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
+import { ResizableBox } from '../ResizableBox/ResizableBox';
 
 const classes = {
   ...checkboxClass,
@@ -64,7 +65,7 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   }
 
   return (
-    <MuiBox sx={props.sx}>
+    <ResizableBox sx={props.sx} defaultSize={{ width: '30%', height: 'auto' }}>
       <MuiBox sx={classes.topElements}>
         {props.title}
         {props.topRightElement}
@@ -76,6 +77,6 @@ export function AttributionList(props: AttributionListProps): ReactElement {
         getAttributionCard={getAttributionCard}
         max={{ height: props.maxHeight }}
       />
-    </MuiBox>
+    </ResizableBox>
   );
 }
