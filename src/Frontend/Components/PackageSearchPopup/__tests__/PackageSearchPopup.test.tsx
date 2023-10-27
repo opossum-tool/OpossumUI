@@ -4,12 +4,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, screen } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { PackageSearchPopup } from '../PackageSearchPopup';
-import { act, fireEvent, screen } from '@testing-library/react';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 describe('PackageSearchPopup', () => {
   beforeAll(() => {
@@ -34,11 +34,9 @@ describe('PackageSearchPopup', () => {
     },
   });
   const okStatus = 200;
-  const serverErrorStatus = 500;
   const notFoundStatus = 404;
 
   it('performs search successfully', async () => {
-    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(okStatus, []);
     axiosMock
       .onGet(requestURLSearchEndpoint)
       .replyOnce(okStatus, ['sqlalchemy/1.4.1', 'sqlalchemy/1.3.0']);
@@ -105,10 +103,6 @@ describe('PackageSearchPopup', () => {
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'sqlalchemy' },
     });
-    act(() => {
-      // advance timer as form is debounced
-      jest.advanceTimersByTime(serverErrorStatus);
-    });
 
     expect(await screen.findByText('sqlalchemy/1.3.0'));
     expect(screen.getByText('sqlalchemy/1.4.1'));
@@ -116,9 +110,6 @@ describe('PackageSearchPopup', () => {
   });
 
   it('shows an error message', async () => {
-    // suppress output to console
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    axiosMock.onGet(requestURLSearchEndpoint).replyOnce(okStatus, []);
     axiosMock.onGet(requestURLSearchEndpoint).replyOnce(notFoundStatus);
 
     renderComponentWithStore(
@@ -129,10 +120,6 @@ describe('PackageSearchPopup', () => {
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'sqlalchemy' },
-    });
-    act(() => {
-      // advance timer as form is debounced
-      jest.advanceTimersByTime(serverErrorStatus);
     });
 
     expect(
@@ -153,10 +140,6 @@ describe('PackageSearchPopup', () => {
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'sqlalchemy' },
-    });
-    act(() => {
-      // advance timer as form is debounced
-      jest.advanceTimersByTime(serverErrorStatus);
     });
 
     expect(await screen.findByText('No results found'));

@@ -96,7 +96,7 @@ export function PackageSearchPopup(): ReactElement {
     queryKey: ['clearlyDefinedPackageSearch', debouncedSearchTerm],
     queryFn: () => searchPackagesOnClearlyDefined(debouncedSearchTerm),
     refetchOnWindowFocus: false,
-    enabled: Boolean(currentSearchTerm),
+    enabled: Boolean(debouncedSearchTerm),
   });
 
   function close(): void {
