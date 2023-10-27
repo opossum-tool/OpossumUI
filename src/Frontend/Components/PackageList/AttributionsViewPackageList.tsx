@@ -4,22 +4,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactElement, useMemo, useState } from 'react';
-import {
-  DisplayPackageInfos,
-  Height,
-  NumberOfDisplayedItems,
-} from '../../types/types';
+import { DisplayPackageInfos } from '../../types/types';
 import { List } from '../List/List';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list-helpers';
+import MuiBox from '@mui/material/Box';
+import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
-const CARD_VERTICAL_DISTANCE = 41;
+const classes = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+  },
+};
 
 interface AttributionsViewPackageListProps {
   displayPackageInfos: DisplayPackageInfos;
   sortedPackageCardIds: Array<string>;
   getAttributionCard(packageCardId: string): ReactElement | null;
-  max: NumberOfDisplayedItems | Height;
 }
 
 export function AttributionsViewPackageList(
@@ -38,16 +41,16 @@ export function AttributionsViewPackageList(
   );
 
   return (
-    <div>
+    <MuiBox sx={classes.container}>
       <SearchTextField onInputChange={setSearch} search={search} />
       <List
         getListItem={(index: number): ReactElement | null =>
           props.getAttributionCard(filteredAndSortedPackageCardIds[index])
         }
-        max={props.max}
         length={filteredAndSortedPackageCardIds.length}
-        cardVerticalDistance={CARD_VERTICAL_DISTANCE}
+        cardHeight={PACKAGE_CARD_HEIGHT}
+        fullHeight
       />
-    </div>
+    </MuiBox>
   );
 }

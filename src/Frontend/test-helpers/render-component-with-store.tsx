@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 import { createAppStore } from '../state/configure-store';
 import { AppThunkDispatch } from '../state/types';
+import { VirtuosoMockContext } from 'react-virtuoso';
 
 export interface EnhancedTestStore extends Store {
   dispatch: AppThunkDispatch;
@@ -27,7 +28,15 @@ export const renderComponentWithStore = (
   { store = createTestAppStore(), ...renderOptions } = {},
 ): RenderResultWithStore => {
   const Wrapper: React.FC<{ children: ReactNode | null }> = ({ children }) => {
-    return <Provider store={store as Store}>{children}</Provider>;
+    return (
+      <Provider store={store as Store}>
+        <VirtuosoMockContext.Provider
+          value={{ itemHeight: 200, viewportHeight: 600 }}
+        >
+          {children}
+        </VirtuosoMockContext.Provider>
+      </Provider>
+    );
   };
   // @ts-ignore
   return {

@@ -3,27 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
-import { min } from 'lodash';
 import { ReactElement } from 'react';
 import { List } from '../../Components/List/List';
 import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
-import { Height, NumberOfDisplayedItems } from '../../types/types';
 import {
   VirtualizedTreeNode,
   VirtualizedTreeNodeData,
 } from './VirtualizedTreeNode';
 import { NodeIdPredicateForTree, NodesForTree, TreeNodeStyle } from './types';
 import { getTreeNodeProps } from './utils/get-tree-node-props';
-
-const classes = {
-  content: {
-    height: '100%',
-  },
-};
-
-const DEFAULT_MAX_TREE_DISPLAYED_NODES = 5;
+import { SxProps } from '@mui/system';
 
 interface VirtualizedTreeProps {
   nodes: NodesForTree;
@@ -39,13 +28,11 @@ interface VirtualizedTreeProps {
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   ariaLabel?: string;
   cardHeight: number;
-  maxHeight?: number;
   width?: number | string;
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
   sx?: SxProps;
   treeNodeStyle?: TreeNodeStyle;
-  alwaysShowHorizontalScrollBar?: boolean;
   breakpoints?: Set<string>;
   locatorIcon?: ReactElement;
   locatedResourceIcon?: ReactElement;
@@ -66,20 +53,10 @@ export function VirtualizedTree(
     props.onSelect,
     props.onToggle,
     props.getTreeNodeLabel,
-    props.cardHeight,
     props.locatedResources,
     props.resourcesWithLocatedChildren,
     props.breakpoints,
   );
-
-  const maxListLength: NumberOfDisplayedItems | Height = props.maxHeight
-    ? { height: props.maxHeight }
-    : {
-        numberOfDisplayedItems: min([
-          treeNodeProps.length,
-          DEFAULT_MAX_TREE_DISPLAYED_NODES,
-        ]) as number,
-      };
 
   const indexToScrollTo = treeNodeProps.findIndex(
     (itemData) => itemData.nodeId === props.selectedNodeId,
@@ -89,30 +66,25 @@ export function VirtualizedTree(
     <ResizableBox
       aria-label={props.ariaLabel}
       sx={props.sx}
-      defaultSize={{ width: props.width ?? 'auto', height: 'auto' }}
+      defaultSize={{ width: props.width ?? 'auto', height: '100%' }}
       enable={props.resizable === true ? undefined : false}
     >
       {props.locatorIcon}
-      <MuiBox sx={classes.content}>
-        <List
-          length={treeNodeProps.length}
-          max={maxListLength}
-          cardVerticalDistance={props.cardHeight}
-          getListItem={(index: number): ReactElement => (
-            <VirtualizedTreeNode
-              {...{
-                ...treeNodeProps[index],
-                expandedNodeIcon: props.expandedNodeIcon,
-                nonExpandedNodeIcon: props.nonExpandedNodeIcon,
-                locatedResourceIcon: props.locatedResourceIcon,
-                treeNodeStyle: props.treeNodeStyle,
-              }}
-            />
-          )}
-          alwaysShowHorizontalScrollBar={props.alwaysShowHorizontalScrollBar}
-          indexToScrollTo={indexToScrollTo}
-        />
-      </MuiBox>
+      <List
+        length={treeNodeProps.length}
+        cardHeight={props.cardHeight}
+        getListItem={(index: number): ReactElement => (
+          <VirtualizedTreeNode
+            {...treeNodeProps[index]}
+            expandedNodeIcon={props.expandedNodeIcon}
+            nonExpandedNodeIcon={props.nonExpandedNodeIcon}
+            locatedResourceIcon={props.locatedResourceIcon}
+            treeNodeStyle={props.treeNodeStyle}
+          />
+        )}
+        indexToScrollTo={indexToScrollTo}
+        fullHeight
+      />
     </ResizableBox>
   ) : null;
 }

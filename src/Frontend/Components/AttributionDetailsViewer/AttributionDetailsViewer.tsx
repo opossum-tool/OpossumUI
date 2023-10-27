@@ -24,13 +24,9 @@ import {
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
-import { useWindowHeight } from '../../util/use-window-height';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
-
-const VERTICAL_RESOURCE_COLUMN_PADDING = 24;
-const VERTICAL_RESOURCE_HEADER_AND_FOOTER_SIZE = 72;
 
 const classes = {
   root: {
@@ -38,22 +34,20 @@ const classes = {
     flex: 1,
     display: 'flex',
     padding: '8px',
-    height: '100%',
   },
   resourceColumn: {
     display: 'flex',
     flexDirection: 'column',
-    height: `calc(100% - ${VERTICAL_RESOURCE_COLUMN_PADDING}px)`,
     paddingRight: '8px',
-    overflowY: 'auto',
   },
   typography: {
     marginTop: '8px',
   },
   tree: {
     background: OpossumColors.white,
-    height: '100%',
-    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
 };
 
@@ -105,11 +99,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
     }
   }
 
-  const maxTreeHeight: number =
-    useWindowHeight() -
-    VERTICAL_RESOURCE_COLUMN_PADDING -
-    VERTICAL_RESOURCE_HEADER_AND_FOOTER_SIZE;
-
   return selectedAttributionId ? (
     <MuiBox sx={classes.root}>
       <ResizableBox
@@ -123,7 +112,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
         <ResourcesTree
           resourcePaths={resourceIdsOfSelectedAttributionId}
           highlightSelectedResources={false}
-          maxHeight={maxTreeHeight}
           sx={classes.tree}
         />
       </ResizableBox>

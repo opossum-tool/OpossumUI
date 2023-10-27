@@ -3,25 +3,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import MuiBox from '@mui/material/Box';
 import { ReactElement, useMemo } from 'react';
 import {
   AttributionInfo,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
+import { OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
-import {
-  reportTableClasses,
-  ReportTableHeader,
-} from '../ReportTableHeader/ReportTableHeader';
 import { List } from '../List/List';
+import {
+  ReportTableHeader,
+  reportTableClasses,
+} from '../ReportTableHeader/ReportTableHeader';
 import {
   ReportTableItem,
   reportTableRowHeight,
 } from '../ReportTableItem/ReportTableItem';
-import { useWindowHeight } from '../../util/use-window-height';
-import { OpossumColors } from '../../shared-styles';
-import { topBarHeight } from '../TopBar/TopBar';
-import MuiBox from '@mui/material/Box';
 
 const classes = {
   ...reportTableClasses,
@@ -30,14 +28,25 @@ const classes = {
     paddingRight: '10px',
     paddingBottom: '10px',
     width: 'calc(100% - 20px)',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
   },
   tableAndHeader: {
     overflow: 'overlay',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
   table: {
     backgroundColor: OpossumColors.white,
     borderCollapse: 'separate',
     borderSpacing: '0px',
+  },
+  rows: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
 };
 
@@ -100,8 +109,6 @@ interface TableProps {
 }
 
 export function Table(props: TableProps): ReactElement | null {
-  const tableHeaderOffset = 145;
-  const maxHeight = useWindowHeight() - topBarHeight - tableHeaderOffset;
   const attributionsIds = useMemo(() => {
     return Object.keys(props.attributionsWithResources);
   }, [props.attributionsWithResources]);
@@ -126,13 +133,13 @@ export function Table(props: TableProps): ReactElement | null {
           <MuiBox sx={{ ...classes.tableWidth, ...classes.table }}>
             <ReportTableHeader />
           </MuiBox>
-          <MuiBox sx={classes.tableWidth}>
+          <MuiBox sx={{ ...classes.tableWidth, ...classes.rows }}>
             <List
               length={attributionsIds.length}
-              cardVerticalDistance={reportTableRowHeight}
-              max={{ height: maxHeight }}
+              cardHeight={reportTableRowHeight}
               getListItem={getReportTableItem}
               leftScrollBar={true}
+              fullHeight
             />
           </MuiBox>
         </MuiBox>

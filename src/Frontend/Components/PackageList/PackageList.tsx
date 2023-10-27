@@ -10,15 +10,15 @@ import { useAppSelector } from '../../state/hooks';
 import { getPackageSearchTerm } from '../../state/selectors/audit-view-resource-selectors';
 import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list-helpers';
 import { DisplayPackageInfos } from '../../types/types';
-
-const CARD_VERTICAL_DISTANCE = 41;
+import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
 interface PackageListProps {
   displayPackageInfos: DisplayPackageInfos;
   sortedPackageCardIds: Array<string>;
   getAttributionCard(attributionId: string): ReactElement | null;
-  maxNumberOfDisplayedItems: number;
+  maxNumberOfDisplayedItems?: number;
   listTitle: string;
+  fullHeight?: boolean;
 }
 
 export function PackageList(props: PackageListProps): ReactElement {
@@ -45,9 +45,10 @@ export function PackageList(props: PackageListProps): ReactElement {
             getListItem={(index: number): ReactElement | null =>
               props.getAttributionCard(filteredPackageCardIds[index])
             }
-            max={{ numberOfDisplayedItems: props.maxNumberOfDisplayedItems }}
+            maxNumberOfItems={props.maxNumberOfDisplayedItems}
             length={filteredPackageCardIds.length}
-            cardVerticalDistance={CARD_VERTICAL_DISTANCE}
+            cardHeight={PACKAGE_CARD_HEIGHT}
+            fullHeight={props.fullHeight}
           />
         </>
       )}

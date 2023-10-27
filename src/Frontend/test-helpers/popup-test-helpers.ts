@@ -9,6 +9,10 @@ export function expectShowResourcesPopupVisible(screen: Screen): void {
   expect(getPopupWithResources(screen)).toBeTruthy();
 }
 
+export function closePopup(screen: Screen): void {
+  fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+}
+
 export function clickOnNodeInPopupWithResources(
   screen: Screen,
   nodeLabel: string,

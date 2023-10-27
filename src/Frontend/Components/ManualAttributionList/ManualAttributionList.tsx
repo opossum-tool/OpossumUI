@@ -6,7 +6,7 @@
 import { ReactElement } from 'react';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { List } from '../List/List';
-import { PackageCard } from '../PackageCard/PackageCard';
+import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
 import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
@@ -76,8 +76,8 @@ export function ManualAttributionList(
         )
       }
       length={sortedPackageCardIdsPotentiallyWithAddNewAttributionButton.length}
-      max={{ numberOfDisplayedItems: 5 }}
-      cardVerticalDistance={41}
+      maxNumberOfItems={5}
+      cardHeight={PACKAGE_CARD_HEIGHT}
     />
   );
 }

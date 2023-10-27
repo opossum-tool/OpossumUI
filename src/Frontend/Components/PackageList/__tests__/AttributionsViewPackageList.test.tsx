@@ -45,7 +45,6 @@ describe('The AttributionsViewPackageList', () => {
         getAttributionCard={(packageCardId): ReactElement => (
           <div>{packageCardId}</div>
         )}
-        max={{ numberOfDisplayedItems: 20 }}
       />,
     );
     screen.getByText(testSortedPackageCardIds[0]);

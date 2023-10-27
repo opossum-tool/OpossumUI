@@ -10,7 +10,7 @@ export function hasAttributionMultipleResources(
   attributionsToResources: AttributionsToResources,
 ): boolean {
   if (attributionId) {
-    return attributionsToResources[attributionId].length > 1;
+    return (attributionsToResources[attributionId] || []).length > 1;
   }
   return false;
 }

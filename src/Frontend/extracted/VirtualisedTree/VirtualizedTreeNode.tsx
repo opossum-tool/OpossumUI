@@ -52,7 +52,6 @@ export interface VirtualizedTreeNodeData {
   expandedNodeIcon?: ReactElement;
   nonExpandedNodeIcon?: ReactElement;
   treeNodeStyle?: TreeNodeStyle;
-  nodeHeight: number;
   breakpoints?: Set<string>;
   isLocatedNode: boolean;
   locatedResourceIcon?: ReactElement;
@@ -66,7 +65,7 @@ export function VirtualizedTreeNode(
     (!props.isExpandable ? SIMPLE_NODE_EXTRA_INDENT : 0);
 
   return (
-    <MuiBox sx={classes.listNode} style={{ height: props.nodeHeight }}>
+    <MuiBox sx={classes.listNode}>
       <MuiBox sx={classes.treeNodeSpacer} style={{ width: marginRight }} />
       {props.isExpandable
         ? getExpandableNodeIcon(

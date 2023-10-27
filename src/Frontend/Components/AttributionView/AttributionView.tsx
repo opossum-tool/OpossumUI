@@ -3,31 +3,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { Attributions } from '../../../shared/shared-types';
-import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
-import { useFilters } from '../../util/use-filters';
-import { useWindowHeight } from '../../util/use-window-height';
-import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
-import { AttributionList } from '../AttributionList/AttributionList';
 import {
+  OpossumColors,
   clickableIcon,
   disabledIcon,
-  OpossumColors,
 } from '../../shared-styles';
-import { topBarHeight } from '../TopBar/TopBar';
-import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { IconButton } from '../IconButton/IconButton';
+import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { getActiveFilters } from '../../state/selectors/view-selector';
-import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
+import { useFilters } from '../../util/use-filters';
+import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
+import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
+import { AttributionList } from '../AttributionList/AttributionList';
+import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
+import { IconButton } from '../IconButton/IconButton';
 
 const classes = {
   root: {
@@ -37,6 +35,8 @@ const classes = {
   },
   attributionList: {
     margin: '5px',
+    display: 'flex',
+    flexDirection: 'column',
   },
   disabledIcon,
   clickableIcon,
@@ -62,13 +62,10 @@ export function AttributionView(): ReactElement {
     );
 
   function onCardClick(packageCardId: string): void {
-    // In AttributionView, attribtionIds still serve as packageCardIds
+    // In AttributionView, attributionIds still serve as packageCardIds
     const attributionId = packageCardId;
     dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  const countAndSearchAndFilterOffset = showMultiSelect ? 137 : 80;
 
   return (
     <MuiBox sx={classes.root}>
@@ -78,9 +75,6 @@ export function AttributionView(): ReactElement {
         selectedPackageCardId={selectedPackageCardIdInAttributionView}
         onCardClick={onCardClick}
         sx={classes.attributionList}
-        maxHeight={
-          useWindowHeight() - topBarHeight - countAndSearchAndFilterOffset
-        }
         title={<AttributionCountsPanel />}
         topRightElement={
           <IconButton

@@ -80,7 +80,6 @@ describe('The AttributionList', () => {
         sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
-        maxHeight={1000}
         title={'title'}
       />,
       { store: getTestStore(attributions) },
@@ -96,7 +95,6 @@ describe('The AttributionList', () => {
         sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={doNothing}
-        maxHeight={1000}
         title={'title'}
       />,
       { store: getTestStore(attributions) },
@@ -112,7 +110,6 @@ describe('The AttributionList', () => {
         sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
-        maxHeight={1000}
         title={'title'}
       />,
       { store: getTestStore(attributions) },
@@ -195,7 +192,6 @@ describe('The AttributionList', () => {
         sortedPackageCardIds={testSortedPackageCardIds}
         selectedPackageCardId={''}
         onCardClick={mockCallback}
-        maxHeight={1000}
         title={'title'}
       />,
       { store: testStore },

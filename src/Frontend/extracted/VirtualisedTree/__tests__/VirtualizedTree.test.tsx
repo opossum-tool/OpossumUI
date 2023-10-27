@@ -41,7 +41,6 @@ describe('The VirtualizedTree', () => {
         )}
         breakpoints={new Set()}
         cardHeight={20}
-        maxHeight={5000}
       />,
     );
 
@@ -80,7 +79,6 @@ describe('The VirtualizedTree', () => {
         )}
         breakpoints={new Set()}
         cardHeight={20}
-        maxHeight={5000}
         locatorIcon={locatorIcon}
       />,
     );

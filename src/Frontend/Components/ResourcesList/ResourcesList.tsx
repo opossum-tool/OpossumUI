@@ -21,12 +21,14 @@ const classes = {
   root: {
     marginTop: '6px',
     backgroundColor: OpossumColors.white,
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
 };
 
 interface ResourcesListProps {
   resourcesListBatches: Array<ResourcesListBatch>;
-  maxHeight?: number;
   onClickCallback?: () => void;
 }
 
@@ -66,18 +68,13 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
     );
   }
 
-  const max = props.maxHeight
-    ? { height: props.maxHeight }
-    : { numberOfDisplayedItems: 30 };
-
   return (
     <MuiBox sx={classes.root}>
       <List
         getListItem={getResourceCard}
-        max={max}
         length={resourcesListItems.length}
-        addPaddingBottom={true}
-        allowHorizontalScrolling={true}
+        cardHeight={24}
+        fullHeight
       />
     </MuiBox>
   );

@@ -3,24 +3,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { SxProps } from '@mui/material';
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 import { ReactElement, useEffect } from 'react';
-import { Button } from '../Button/Button';
-import { doNothing } from '../../util/do-nothing';
 import { ButtonConfig } from '../../types/types';
-import { SxProps } from '@mui/material';
-import { POPUP_MAX_WIDTH_BREAKPOINT } from '../../shared-styles';
+import { doNothing } from '../../util/do-nothing';
+import { Button } from '../Button/Button';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
-  dialogContent: {
-    paddingTop: '5px',
-  },
+  content: { display: 'flex', flexDirection: 'column' },
+  fullHeightPaper: { height: '100%' },
 };
+
 interface NotificationPopupProps {
   header: string;
   content: ReactElement | string;
@@ -32,6 +31,7 @@ interface NotificationPopupProps {
   onEscapeKeyDown?(): void;
   isOpen: boolean;
   fullWidth?: boolean;
+  fullHeight?: boolean;
   headerSx?: SxProps;
   contentSx?: SxProps;
 }
@@ -64,10 +64,11 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
   return (
     <MuiDialog
       fullWidth={props.fullWidth}
-      maxWidth={POPUP_MAX_WIDTH_BREAKPOINT}
+      maxWidth={'xl'}
       open={props.isOpen}
       disableEscapeKeyDown={true}
       onClose={handleOnClose}
+      PaperProps={{ sx: props.fullHeight ? classes.fullHeightPaper : {} }}
     >
       <MuiDialogTitle
         sx={{ '&.MuiDialogTitle-root': props.headerSx } as SxProps}
@@ -77,7 +78,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       <MuiDialogContent
         sx={getSxFromPropsAndClasses({
           sxProps: props.contentSx,
-          styleClass: classes.dialogContent,
+          styleClass: props.fullHeight ? classes.content : undefined,
         })}
       >
         {typeof props.content === 'string' ? (

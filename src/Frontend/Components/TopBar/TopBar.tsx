@@ -20,11 +20,9 @@ import { BackendCommunication } from '../BackendCommunication/BackendCommunicati
 import MuiBox from '@mui/material/Box';
 import { getResources } from '../../state/selectors/all-views-resource-selectors';
 
-export const topBarHeight = 36;
-
 const classes = {
   root: {
-    height: `${topBarHeight}px`,
+    height: '36px',
     background: OpossumColors.darkBlue,
     display: 'flex',
   },

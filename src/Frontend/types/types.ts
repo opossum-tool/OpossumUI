@@ -40,14 +40,6 @@ export interface PanelPackage {
   displayPackageInfo: DisplayPackageInfo;
 }
 
-export interface NumberOfDisplayedItems {
-  numberOfDisplayedItems: number;
-}
-
-export interface Height {
-  height: number;
-}
-
 export type KeysOfPackageInfo = keyof PackageInfo;
 
 export type KeysOfDisplayPackageInfo = keyof DisplayPackageInfo;
