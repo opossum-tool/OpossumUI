@@ -4,6 +4,7 @@ Source: https://github.com/opossum-tool/opossumUI
 Files: *.json
        *.json.gz
        *.prettierrc
+       *.prettierignore
        **.gitignore
        **yarn.lock
        **.opossum
