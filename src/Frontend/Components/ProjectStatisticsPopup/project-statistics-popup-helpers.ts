@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { pickBy } from 'lodash';
 
 import {
   Attributions,
@@ -9,15 +10,14 @@ import {
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { pickBy } from 'lodash';
 import { CriticalityTypes } from '../../enums/enums';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
   LicenseNamesWithCriticality,
   PieChartData,
 } from '../../types/types';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 interface UniqueLicenseNameToAttributions {
   [strippedLicenseName: string]: Array<string>;

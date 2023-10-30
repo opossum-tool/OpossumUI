@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   act,
   fireEvent,
@@ -11,6 +10,9 @@ import {
   Screen,
   within,
 } from '@testing-library/react';
+import isEmpty from 'lodash/isEmpty';
+
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
   ExternalAttributionSources,
@@ -18,15 +20,12 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import { ButtonText } from '../enums/enums';
 import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
 } from '../shared-constants';
-import isEmpty from 'lodash/isEmpty';
-
-import { ButtonText } from '../enums/enums';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
-import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 
 export function mockElectronBackendOpenFile(
   mockChannelReturn: ParsedFileContent,

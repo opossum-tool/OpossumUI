@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { Criticality } from '../../../../shared/shared-types';
 import {
   BreakpointIcon,

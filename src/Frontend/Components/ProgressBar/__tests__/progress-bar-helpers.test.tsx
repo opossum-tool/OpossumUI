@@ -2,26 +2,26 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act } from '@testing-library/react';
+import each from 'jest-each';
+
 import { View } from '../../../enums/enums';
+import { criticalityColor, OpossumColors } from '../../../shared-styles';
+import { setExpandedIds } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
+import {
+  getExpandedIds,
+  getSelectedResourceId,
+} from '../../../state/selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../../state/selectors/view-selector';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { ProgressBarData } from '../../../types/types';
 import {
   getCriticalityBarBackground,
   getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
   useOnProgressBarClick,
 } from '../progress-bar-helpers';
-import { setExpandedIds } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import {
-  getExpandedIds,
-  getSelectedResourceId,
-} from '../../../state/selectors/audit-view-resource-selectors';
-import { ProgressBarData } from '../../../types/types';
-import { criticalityColor, OpossumColors } from '../../../shared-styles';
-import each from 'jest-each';
 
 let useOnProgressBarClickHook: () => void;
 

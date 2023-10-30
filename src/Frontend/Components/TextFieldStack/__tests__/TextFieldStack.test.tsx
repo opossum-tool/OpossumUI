@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { render, screen } from '@testing-library/react';
+
 import { doNothing } from '../../../util/do-nothing';
 import { TextFieldStack } from '../TextFieldStack';
 

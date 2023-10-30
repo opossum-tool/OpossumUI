@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { v4 as uuid4 } from 'uuid';
 
 import {
   Attributions,
@@ -9,10 +10,9 @@ import {
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
+import { AttributionIdWithCount, PackageAttributes } from '../../types/types';
 import { getAttributedChildren } from '../../util/get-attributed-children';
 import { shouldNotBeCalled } from '../../util/should-not-be-called';
-import { v4 as uuid4 } from 'uuid';
-import { AttributionIdWithCount, PackageAttributes } from '../../types/types';
 
 interface NamesWithCounts {
   [name: string]: number;

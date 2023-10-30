@@ -2,39 +2,39 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
+
 import {
   Attributions,
   DisplayPackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { PackagePanelTitle } from '../../../enums/enums';
 import {
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+  ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../shared-constants';
 import {
   setExternalData,
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getDisplayedPackage } from '../../../state/selectors/audit-view-resource-selectors';
 import {
   expectValueInTextBox,
   expectValueNotInTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
-import { act } from 'react-dom/test-utils';
 import {
-  ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../../shared-constants';
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../types/types';
-import { PackagePanelTitle } from '../../../enums/enums';
+import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';

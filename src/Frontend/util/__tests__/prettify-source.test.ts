@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { prettifySource } from '../prettify-source';
 import each from 'jest-each';
+
 import { ExternalAttributionSources } from '../../../shared/shared-types';
+import { prettifySource } from '../prettify-source';
 
 const testAttributionSources: ExternalAttributionSources = {
   MERGER: { name: 'Suggested', priority: 11 },

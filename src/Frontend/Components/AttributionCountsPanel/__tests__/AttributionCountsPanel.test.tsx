@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
+
 import {
   Attributions,
   FollowUp,
@@ -12,10 +13,9 @@ import {
 import { View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AttributionCountsPanel } from '../AttributionCountsPanel';
-import { act } from 'react-dom/test-utils';
 
 describe('The Attribution Counts Panel', () => {
   const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';

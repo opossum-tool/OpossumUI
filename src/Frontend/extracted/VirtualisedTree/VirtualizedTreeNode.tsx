@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { NodesForTree, TreeNodeStyle } from './types';
-import { NodeIcon } from './Icons';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
+import { ReactElement } from 'react';
+
+import { NodeIcon } from './Icons';
+import { NodesForTree, TreeNodeStyle } from './types';
 import {
   isBreakpointOrChildOfBreakpoint,
   isChildOfSelected,

@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { queryAllByText, screen } from '@testing-library/react';
+
 import {
   Attributions,
   PackageInfo,
@@ -11,25 +11,25 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { ButtonText } from '../../../enums/enums';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import {
-  getPackagePanel,
-  getParsedInputFileEnrichedWithTestData,
-} from '../../../test-helpers/general-test-helpers';
-import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
+import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { expectPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
 import {
   clickOnButtonInPackageContextMenu,
   expectButtonInPackageContextMenu,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  getPackagePanel,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
+import { expectPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
 
 describe('The AggregatedAttributionsPanel', () => {
   it('renders', () => {

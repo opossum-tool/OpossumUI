@@ -2,27 +2,26 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   AttributionData,
   Attributions,
   AttributionsToHashes,
   BaseUrlsForSources,
+  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
-  DisplayPackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { AllowedSaveOperations } from '../../../enums/enums';
 import {
-  PanelPackage,
+  LocatePopupFilters,
   PackageAttributeIds,
   PackageAttributes,
-  LocatePopupFilters,
+  PanelPackage,
 } from '../../../types/types';
-import { AllowedSaveOperations } from '../../../enums/enums';
 
 export const ACTION_SET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_SELECTED_ATTRIBUTION_ID';

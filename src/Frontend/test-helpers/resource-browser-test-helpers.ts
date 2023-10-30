@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, getByText, Screen } from '@testing-library/react';
 
 export function collapseFolderByClickingOnIcon(

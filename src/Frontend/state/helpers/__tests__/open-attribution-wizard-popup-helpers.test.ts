@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   DisplayPackageInfo,
@@ -11,13 +10,13 @@ import {
   AttributionIdWithCount,
   PackageAttributes,
 } from '../../../types/types';
+import { computeChildrenWithAttributions } from '../action-and-reducer-helpers';
 import {
   getAllAttributionIdsWithCountsFromResourceAndChildren,
   getAttributionWizardInitialState,
   getPackageVersionsWithRelatedPackageNameIds,
   getPreSelectedPackageAttributeIds,
 } from '../open-attribution-wizard-popup-helpers';
-import { computeChildrenWithAttributions } from '../action-and-reducer-helpers';
 
 describe('getExternalAndManualAttributionIdsWithCountsFromResourceAndChildren', () => {
   it('yields correct output', () => {

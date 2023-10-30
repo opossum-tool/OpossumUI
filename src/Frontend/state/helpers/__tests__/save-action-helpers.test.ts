@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { isEmpty } from 'lodash';
 import { NIL as uuidNil } from 'uuid';
+
 import {
   AttributionData,
   AttributionsToResources,
@@ -23,10 +23,10 @@ import {
   _removeManualAttributionFromChildrenIfAllAreIdentical,
   createManualAttribution,
   deleteManualAttribution,
-  updateManualAttribution,
-  unlinkResourceFromAttributionId,
-  linkToAttributionManualData,
   getCalculatePreferredOverOriginIds,
+  linkToAttributionManualData,
+  unlinkResourceFromAttributionId,
+  updateManualAttribution,
 } from '../save-action-helpers';
 
 const testUuid: string = uuidNil;

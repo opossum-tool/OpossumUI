@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+
 import {
   Attributions,
   Criticality,
@@ -27,7 +27,7 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { LocatorPopup, getLicenseNames } from '../LocatorPopup';
+import { getLicenseNames, LocatorPopup } from '../LocatorPopup';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();

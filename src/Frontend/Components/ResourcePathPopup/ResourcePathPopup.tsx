@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
+
 import { ButtonText } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';

@@ -2,15 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { FilterType, PopupType, View } from '../../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
 import { getDisplayPackageInfoOfSelectedAttributionInAttributionView } from '../../selectors/all-views-resource-selectors';
+import { getDisplayPackageInfoOfDisplayedPackage } from '../../selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
-import { getDisplayPackageInfoOfDisplayedPackage } from '../../selectors/audit-view-resource-selectors';
+import { setMultiSelectSelectedAttributionIds } from '../resource-actions/attribution-view-simple-actions';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -31,8 +32,6 @@ import {
   SetView,
   UpdateActiveFilters,
 } from './types';
-import { setMultiSelectSelectedAttributionIds } from '../resource-actions/attribution-view-simple-actions';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
 export function resetViewState(): ResetViewStateAction {
   return { type: ACTION_RESET_VIEW_STATE };

@@ -2,18 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { App } from '../../../Components/App/App';
-import {
-  clickOnButton,
-  EMPTY_PARSED_FILE_CONTENT,
-  expectValuesInTopProgressbarTooltip,
-  goToView,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
 import { fireEvent, screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+
 import { ParsedFileContent } from '../../../../shared/shared-types';
+import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
   clickOnButtonInHamburgerMenu,
@@ -24,13 +16,21 @@ import {
   expectValueNotInTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
 import {
-  clickOnElementInResourceBrowser,
-  expectResourceBrowserIsNotShown,
-} from '../../../test-helpers/resource-browser-test-helpers';
+  clickOnButton,
+  EMPTY_PARSED_FILE_CONTENT,
+  expectValuesInTopProgressbarTooltip,
+  goToView,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
 import {
   expectConfirmDeletionPopupNotVisible,
   expectConfirmDeletionPopupVisible,
 } from '../../../test-helpers/popup-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The App in Audit View', () => {
   it('delete buttons are shown and work for non-preselected with popup', () => {

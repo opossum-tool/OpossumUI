@@ -2,29 +2,29 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { screen } from '@testing-library/react';
+
 import {
   Attributions,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import { AllAttributionsPanel } from '../AllAttributionsPanel';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { ButtonText } from '../../../enums/enums';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { ButtonText } from '../../../enums/enums';
 import {
   clickOnButtonInPackageContextMenu,
   expectButtonInPackageContextMenu,
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { DisplayPackageInfos } from '../../../types/types';
+import { AllAttributionsPanel } from '../AllAttributionsPanel';
 
 describe('The AllAttributionsPanel', () => {
   const testManualAttributionUuid1 = '374ba87a-f68b-11ea-adc1-0242ac120002';

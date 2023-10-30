@@ -2,31 +2,31 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
-import StarIcon from '@mui/icons-material/Star';
-import { ReactElement, useState } from 'react';
-import MuiMenu from '@mui/material/Menu';
-import MuiMenuItem from '@mui/material/MenuItem';
-import MuiListItemIcon from '@mui/material/ListItemIcon';
-import MuiListItemText from '@mui/material/ListItemText';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
-import UndoIcon from '@mui/icons-material/Undo';
 import DoneIcon from '@mui/icons-material/Done';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { ButtonText } from '../../enums/enums';
-import { PopoverPosition, PopoverReference } from '@mui/material';
-import { OpossumColors } from '../../shared-styles';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import StarIcon from '@mui/icons-material/Star';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import UndoIcon from '@mui/icons-material/Undo';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { PopoverPosition, PopoverReference } from '@mui/material';
+import MuiListItemIcon from '@mui/material/ListItemIcon';
+import MuiListItemText from '@mui/material/ListItemText';
+import MuiMenu from '@mui/material/Menu';
+import MuiMenuItem from '@mui/material/MenuItem';
+import { ReactElement, useState } from 'react';
+
+import { ButtonText } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
 
 const classes = {
   icon: {

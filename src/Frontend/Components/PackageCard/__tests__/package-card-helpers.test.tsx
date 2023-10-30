@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { getPackageCardHighlighting } from '../package-card-helpers';
-import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import each from 'jest-each';
+
+import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { HighlightingColor } from '../../../enums/enums';
+import { getPackageCardHighlighting } from '../package-card-helpers';
 
 describe('The PackageCardHelper', () => {
   each([

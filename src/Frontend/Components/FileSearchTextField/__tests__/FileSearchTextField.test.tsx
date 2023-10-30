@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
+
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { FileSearchTextField } from '../FileSearchTextField';
-import { act } from 'react-dom/test-utils';
 
 describe('The FileSearchTextField', () => {
   jest.useFakeTimers();

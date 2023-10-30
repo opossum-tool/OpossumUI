@@ -2,23 +2,28 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { fireEvent, screen } from '@testing-library/react';
 
-import {
-  clickOnButton,
-  closeProjectStatisticsPopup,
-  getParsedInputFileEnrichedWithTestData,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
-import { App } from '../../../Components/App/App';
 import {
   Attributions,
   DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { fireEvent, screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { App } from '../../../Components/App/App';
 import { ButtonText } from '../../../enums/enums';
+import {
+  expectValueInConfidenceField,
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  clickOnButton,
+  closeProjectStatisticsPopup,
+  getParsedInputFileEnrichedWithTestData,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
 import {
   clickAddIconOnCardInAttributionList,
   clickOnTab,
@@ -27,12 +32,7 @@ import {
   expectValueNotInAddToAttributionList,
   getCardInAttributionList,
 } from '../../../test-helpers/package-panel-helpers';
-import {
-  expectValueInConfidenceField,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('Add to attribution', () => {

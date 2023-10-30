@@ -3,28 +3,28 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
+
 import { PopupType } from '../../enums/enums';
+import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
-import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
+import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWizardPopup';
+import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
+import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
+import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
+import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
+import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPopup';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { FileSearchPopup } from '../FileSearchPopup/FileSearchPopup';
+import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
+import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
+import { LocatorPopup } from '../LocatorPopup/LocatorPopup';
+import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
+import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttributionPopup';
-import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
-import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
-import { useAppSelector } from '../../state/hooks';
-import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
-import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPopup';
-import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
-import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
-import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWizardPopup';
-import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
-import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
 import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
-import { LocatorPopup } from '../LocatorPopup/LocatorPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
   switch (popupType) {

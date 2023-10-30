@@ -3,10 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { app, BrowserWindow, dialog, WebContents } from 'electron';
+
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
+import { getOpenFileListener } from '../../main/listeners';
+import { JsonParsingError } from '../../types/types';
 import {
   createListenerCallbackWithErrorHandling,
   getMessageBoxContentForErrorsWrapper,
@@ -15,9 +18,6 @@ import {
   getMessageBoxForInvalidDotOpossumFileError,
   getMessageBoxForParsingError,
 } from '../errorHandling';
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { JsonParsingError } from '../../types/types';
-import { getOpenFileListener } from '../../main/listeners';
 
 jest.mock('electron', () => ({
   dialog: {

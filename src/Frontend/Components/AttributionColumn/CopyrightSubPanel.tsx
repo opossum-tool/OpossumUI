@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import { ChangeEvent, ReactElement } from 'react';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
-import MuiBox from '@mui/material/Box';
 
 interface CopyrightSubPanelProps {
   isEditable: boolean;

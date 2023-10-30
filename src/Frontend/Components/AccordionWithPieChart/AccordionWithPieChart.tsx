@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiAccordion from '@mui/material/Accordion';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import { PieChart } from '../PieChart/PieChart';
-import { OpossumColors } from '../../shared-styles';
+import { ReactElement } from 'react';
+
 import {
   CriticalityTypes,
   ProjectStatisticsPopupTitle,
 } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
 import { PieChartData } from '../../types/types';
+import { PieChart } from '../PieChart/PieChart';
 
 const classes = {
   accordion: {

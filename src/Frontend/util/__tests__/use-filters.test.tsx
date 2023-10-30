@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
+
 import { Attributions, FollowUp } from '../../../shared/shared-types';
-import { useFilters } from '../use-filters';
+import { FilterType } from '../../enums/enums';
+import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../test-helpers/render-component-with-store';
-import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
-import { FilterType } from '../../enums/enums';
+import { useFilters } from '../use-filters';
 
 let filteredAttributions: Attributions;
 

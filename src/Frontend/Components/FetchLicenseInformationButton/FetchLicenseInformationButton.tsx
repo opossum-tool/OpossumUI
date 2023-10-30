@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement, useEffect, useState } from 'react';
 import CachedIcon from '@mui/icons-material/Cached';
-import { IconButton } from '../IconButton/IconButton';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import axios from 'axios';
+import { ReactElement, useEffect, useState } from 'react';
+
+import { PackageInfo } from '../../../shared/shared-types';
 import {
   baseIcon,
   clickableIcon,
@@ -13,17 +15,15 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { PackageInfo } from '../../../shared/shared-types';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { IconButton } from '../IconButton/IconButton';
 import {
   getLicenseFetchingInformation,
   LicenseFetchingInformation,
 } from './license-fetching-helpers';
-import axios from 'axios';
 
 const classes = {
   clickableIcon,

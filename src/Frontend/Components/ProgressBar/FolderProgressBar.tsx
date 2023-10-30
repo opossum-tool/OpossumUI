@@ -2,9 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import MuiSkeleton from '@mui/material/Skeleton';
 import { ReactElement, useContext, useMemo, useState } from 'react';
+
+import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
+import { useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
   getExternalAttributions,
@@ -14,15 +16,13 @@ import {
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
+import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import {
   ProgressBarData,
   ProgressBarDataAndResourceId,
   ProgressBarWorkerArgs,
 } from '../../types/types';
-import { useAppSelector } from '../../state/hooks';
-import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
-import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBar } from './ProgressBar';
 
 const classes = {

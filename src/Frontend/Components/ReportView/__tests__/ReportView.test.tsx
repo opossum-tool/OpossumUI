@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act, screen } from '@testing-library/react';
+
 import {
   Attributions,
   FollowUp,
@@ -11,16 +11,16 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { FilterType } from '../../../enums/enums';
+import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   clickOnFilter,
   getParsedInputFileEnrichedWithTestData,
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ReportView } from '../ReportView';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { FilterType } from '../../../enums/enums';
 
 describe('The ReportView', () => {
   const testResources: Resources = { ['test resource']: 1 };

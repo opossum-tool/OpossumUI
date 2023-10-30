@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { memo, ReactElement, useMemo } from 'react';
 
-import { ReactElement, memo, useMemo } from 'react';
 import { PackagePanelTitle } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import {
@@ -18,15 +18,15 @@ import {
 import { AttributionIdWithCount } from '../../types/types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import {
-  PanelAttributionData,
   getExternalAttributionIdsWithCount,
+  PanelAttributionData,
 } from '../../util/get-contained-packages';
-import { SyncAccordionPanel } from './SyncAccordionPanel';
-import { WorkerAccordionPanel } from './WorkerAccordionPanel';
 import {
   getContainedExternalDisplayPackageInfosWithCount,
   getContainedManualDisplayPackageInfosWithCount,
 } from './accordion-panel-helpers';
+import { SyncAccordionPanel } from './SyncAccordionPanel';
+import { WorkerAccordionPanel } from './WorkerAccordionPanel';
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;

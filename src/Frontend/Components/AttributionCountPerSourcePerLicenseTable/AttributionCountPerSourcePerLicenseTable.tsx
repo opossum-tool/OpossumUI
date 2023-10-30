@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
-import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
+
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
+import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 
 const classes = {
   container: {

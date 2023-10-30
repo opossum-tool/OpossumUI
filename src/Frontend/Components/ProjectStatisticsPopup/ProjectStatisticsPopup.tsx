@@ -2,19 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
+import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
+import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
+import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
+import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
+import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
@@ -23,10 +27,6 @@ import {
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
 } from './project-statistics-popup-helpers';
-import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
-import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
-import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
-import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
 
 const classes = {
   panels: { display: 'flex' },

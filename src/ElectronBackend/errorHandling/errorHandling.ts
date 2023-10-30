@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   app,
   BrowserWindow,
@@ -12,6 +11,7 @@ import {
   MessageBoxReturnValue,
 } from 'electron';
 import log from 'electron-log';
+
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { getGlobalBackendState } from '../main/globalBackendState';

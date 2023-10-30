@@ -2,24 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement, useState } from 'react';
 import MuiBox from '@mui/material/Box';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { ButtonText } from '../../enums/enums';
-import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { OpossumColors } from '../../shared-styles';
-import { PathBar } from '../PathBar/PathBar';
-import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
-import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
-import { ButtonConfig } from '../../types/types';
-import {
-  getAttributionWizardListItems,
-  getSelectedPackageAttributes,
-} from './attribution-wizard-popup-helpers';
+import { ReactElement, useState } from 'react';
+import { v4 as uuid4 } from 'uuid';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { ButtonText } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
+import { closeAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  setAttributionWizardPackageNames,
+  setAttributionWizardPackageNamespaces,
+  setAttributionWizardPackageVersions,
+  setAttributionWizardSelectedPackageIds,
+} from '../../state/actions/resource-actions/attribution-wizard-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
@@ -28,14 +26,16 @@ import {
   getAttributionWizardTotalAttributionCount,
   getAttributionWizarOriginalDisplayPackageInfo,
 } from '../../state/selectors/attribution-wizard-selectors';
-import { v4 as uuid4 } from 'uuid';
+import { ButtonConfig } from '../../types/types';
+import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
+import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
+import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { PathBar } from '../PathBar/PathBar';
 import {
-  setAttributionWizardPackageNames,
-  setAttributionWizardPackageNamespaces,
-  setAttributionWizardPackageVersions,
-  setAttributionWizardSelectedPackageIds,
-} from '../../state/actions/resource-actions/attribution-wizard-actions';
-import { closeAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
+  getAttributionWizardListItems,
+  getSelectedPackageAttributes,
+} from './attribution-wizard-popup-helpers';
 
 const MAXIMUM_NUMBER_OF_TABLES_IN_SINGLE_STEP = 2;
 const TABLE_WIDTH = 250;

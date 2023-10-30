@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { DisplayPackageInfosWithCountAndResourceId } from '../types/types';
 import { getContainedManualDisplayPackageInfosWithCount } from '../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
+import { DisplayPackageInfosWithCountAndResourceId } from '../types/types';
 import { PanelAttributionData } from '../util/get-contained-packages';
 
 let cachedManualData: PanelAttributionData | null = null;

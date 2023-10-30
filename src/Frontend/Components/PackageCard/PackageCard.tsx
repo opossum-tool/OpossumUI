@@ -2,25 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement, useState } from 'react';
-import { ListCard } from '../ListCard/ListCard';
-import { getCardLabels } from '../../util/get-card-labels';
-import { ListCardConfig, PackageCardConfig } from '../../types/types';
-import { clickableIcon, disabledIcon } from '../../shared-styles';
-import { IconButton } from '../IconButton/IconButton';
 import PlusIcon from '@mui/icons-material/Add';
-import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
-import { ButtonText, PopupType, View } from '../../enums/enums';
+import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
+import MuiBox from '@mui/material/Box';
+import { ReactElement, useState } from 'react';
 import { useSelector } from 'react-redux';
+
+import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { ButtonText, PopupType, View } from '../../enums/enums';
+import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
-  getAttributionIdMarkedForReplacement,
-  getFrequentLicensesNameOrder,
-  getManualAttributions,
-  getManualAttributionsToResources,
-  wereTemporaryDisplayPackageInfoModified,
-} from '../../state/selectors/all-views-resource-selectors';
-import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
+  setAttributionIdMarkedForReplacement,
+  setMultiSelectSelectedAttributionIds,
+} from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -28,43 +23,48 @@ import {
   unlinkAttributionAndSavePackageInfo,
 } from '../../state/actions/resource-actions/save-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  anyLocateFilterIsSet,
+  attributionMatchesLocateFilter,
+} from '../../state/helpers/action-and-reducer-helpers';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  getAttributionIdMarkedForReplacement,
+  getFrequentLicensesNameOrder,
+  getManualAttributions,
+  getManualAttributionsToResources,
+  wereTemporaryDisplayPackageInfoModified,
+} from '../../state/selectors/all-views-resource-selectors';
+import {
+  getMultiSelectSelectedAttributionIds,
+  getSelectedAttributionIdInAttributionView,
+} from '../../state/selectors/attribution-view-resource-selectors';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
+import { getLocatePopupFilters } from '../../state/selectors/locate-popup-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import {
-  getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionIdInAttributionView,
-} from '../../state/selectors/attribution-view-resource-selectors';
+import { ListCardConfig, PackageCardConfig } from '../../types/types';
+import { getCardLabels } from '../../util/get-card-labels';
+import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import {
   getMergeButtonsDisplayState,
   getResolvedToggleHandler,
   MergeButtonDisplayState,
   selectedPackagesAreResolved,
 } from '../AttributionColumn/attribution-column-helpers';
-import {
-  setAttributionIdMarkedForReplacement,
-  setMultiSelectSelectedAttributionIds,
-} from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { Checkbox } from '../Checkbox/Checkbox';
+import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { IconButton } from '../IconButton/IconButton';
+import { ListCard } from '../ListCard/ListCard';
+import { ResourcePathPopup } from '../ResourcePathPopup/ResourcePathPopup';
 import {
   getKey,
   getPackageCardHighlighting,
   getRightIcons,
 } from './package-card-helpers';
-import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
-import { DisplayPackageInfo } from '../../../shared/shared-types';
-import MuiBox from '@mui/material/Box';
-import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
-import { getLocatePopupFilters } from '../../state/selectors/locate-popup-selectors';
-import {
-  attributionMatchesLocateFilter,
-  anyLocateFilterIsSet,
-} from '../../state/helpers/action-and-reducer-helpers';
 
 const classes = {
   hiddenIcon: {

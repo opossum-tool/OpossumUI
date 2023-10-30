@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ChangeEvent } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { doNothing } from '../../../util/do-nothing';
-import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
-import { LicenseField } from '../LicenseField';
+import { ChangeEvent } from 'react';
+
 import { FrequentLicenseName } from '../../../../shared/shared-types';
+import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
+import { doNothing } from '../../../util/do-nothing';
+import { LicenseField } from '../LicenseField';
 
 describe('The LicenseField', () => {
   it('renders text and label', () => {

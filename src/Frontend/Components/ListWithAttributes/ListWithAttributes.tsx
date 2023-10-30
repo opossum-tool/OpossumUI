@@ -2,22 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ChangeEvent, ReactElement, useState } from 'react';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import MuiBox from '@mui/material/Box';
 import MuiList from '@mui/material/List';
 import MuiTypography from '@mui/material/Typography';
-import AddBoxIcon from '@mui/icons-material/AddBox';
+import { SxProps } from '@mui/system';
+import { ChangeEvent, ReactElement, useState } from 'react';
+
 import {
   clickableIcon,
   disabledIcon,
   OpossumColors,
 } from '../../shared-styles';
 import { ListWithAttributesItem } from '../../types/types';
-import { SxProps } from '@mui/system';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-import { TextBox } from '../InputElements/TextBox';
 import { IconButton } from '../IconButton/IconButton';
+import { TextBox } from '../InputElements/TextBox';
 import { ListWithAttributesListItem } from '../ListWithAttributesListItem/ListWithAttributesListItem';
 
 const LIST_TITLE_HEIGHT = 36;

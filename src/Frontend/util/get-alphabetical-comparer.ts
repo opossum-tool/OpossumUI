@@ -2,10 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { Attributions } from '../../shared/shared-types';
-import { getCardLabels } from './get-card-labels';
 import { convertPackageInfoToDisplayPackageInfo } from './convert-package-info';
+import { getCardLabels } from './get-card-labels';
 
 const DEFAULT_NAME = '\u10FFFF'; // largest unicode character
 

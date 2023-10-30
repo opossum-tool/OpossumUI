@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ReactElement } from 'react';
 
 import { Resources } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
-import { ReactElement } from 'react';
 import { GeneralTreeItemLabel } from '../GeneralTreeItemLabel/GeneralTreeItemLabel';
 
 export function getGeneralTreeItemLabel(

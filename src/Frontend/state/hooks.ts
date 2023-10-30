@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { memoize } from 'proxy-memoize';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { State } from '../types/types';
 import { AppThunkDispatch } from './types';
 

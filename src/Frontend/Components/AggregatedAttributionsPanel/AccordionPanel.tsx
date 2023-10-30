@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiTypography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ReactElement, useMemo, useState } from 'react';
-import { PackagePanel } from '../PackagePanel/PackagePanel';
-import { PanelData } from '../../types/types';
 import { isEmpty } from 'lodash';
+import { ReactElement, useMemo, useState } from 'react';
+
+import { PanelData } from '../../types/types';
+import { PackagePanel } from '../PackagePanel/PackagePanel';
 
 const classes = {
   expansionPanelExpanded: {

@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { IpcRendererEvent } from 'electron';
 import { useEffect } from 'react';
+
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   BaseURLForRootArgs,

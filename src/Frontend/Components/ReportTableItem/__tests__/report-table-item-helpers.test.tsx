@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { TableConfig } from '../../Table/Table';
-import { getFormattedCellData } from '../report-table-item-helpers';
 import { AttributionInfo, FollowUp } from '../../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
+import { TableConfig } from '../../Table/Table';
+import { getFormattedCellData } from '../report-table-item-helpers';
 
 describe('The table helpers', () => {
   const testPathOfFileWithChildren = '/test/path/';

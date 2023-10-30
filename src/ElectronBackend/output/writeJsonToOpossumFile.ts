@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import * as fflate from 'fflate';
 import fs from 'fs';
+
+import { getGlobalBackendState } from '../main/globalBackendState';
 import {
   INPUT_FILE_NAME,
   OPOSSUM_FILE_COMPRESSION_LEVEL,
   OUTPUT_FILE_NAME,
 } from '../shared-constants';
-import { getGlobalBackendState } from '../main/globalBackendState';
 
 export async function writeOutputJsonToOpossumFile(
   opossumfilePath: string,

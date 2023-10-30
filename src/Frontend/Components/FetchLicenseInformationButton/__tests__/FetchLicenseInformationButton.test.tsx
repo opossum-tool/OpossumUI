@@ -2,9 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { ReactElement, ReactNode } from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+
+import { PackageInfo } from '../../../../shared/shared-types';
+import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import {
   FETCH_DATA_FOR_SIGNALS_TOOLTIP,
   FETCH_DATA_INVALID_DOMAIN_TOOLTIP,
@@ -13,17 +24,6 @@ import {
   FetchStatus,
   useFetchPackageInfo,
 } from '../FetchLicenseInformationButton';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import { PackageInfo } from '../../../../shared/shared-types';
-import { Store } from 'redux';
-import { Provider } from 'react-redux';
-import { act, renderHook } from '@testing-library/react';
-import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
 import { convertGithubPayload } from '../github-fetching-helpers';
 
 const axiosMock = new MockAdapter(axios);

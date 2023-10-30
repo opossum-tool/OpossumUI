@@ -2,24 +2,24 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
+import { View } from '../../enums/enums';
 import {
-  getPopupAttributionId,
-  getSelectedView,
-} from '../../state/selectors/view-selector';
-import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
+  deleteAttributionAndSave,
+  deleteAttributionGloballyAndSave,
+} from '../../state/actions/resource-actions/save-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import {
-  deleteAttributionAndSave,
-  deleteAttributionGloballyAndSave,
-} from '../../state/actions/resource-actions/save-actions';
-import { View } from '../../enums/enums';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
+  getPopupAttributionId,
+  getSelectedView,
+} from '../../state/selectors/view-selector';
+import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 
 export function ConfirmDeletionPopup(): ReactElement {
   const view = useAppSelector(getSelectedView);

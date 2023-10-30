@@ -3,9 +3,23 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import {
+  DisplayPackageInfo,
+  SelectedCriticality,
+} from '../../../../shared/shared-types';
+import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/project-statistics-popup-helpers';
 import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../../util/convert-package-info';
+import {
+  getAllAttributionIdsWithCountsFromResourceAndChildren,
+  getAttributionWizardInitialState,
+  getPreSelectedPackageAttributeIds,
+} from '../../helpers/open-attribution-wizard-popup-helpers';
 import {
   getCurrentAttributionId,
   getDisplayPackageInfoOfSelected,
@@ -17,43 +31,17 @@ import {
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import { getSelectedView, getTargetView } from '../../selectors/view-selector';
-import {
-  openResourceInResourceBrowser,
-  setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
-  setSelectedResourceOrAttributionIdToTargetValue,
-} from '../resource-actions/navigation-actions';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
-import {
-  closePopup,
-  navigateToView,
-  openPopup,
-  setShowNoSignalsLocatedMessage,
-  setTargetView,
-} from '../view-actions/view-actions';
-import {
-  savePackageInfo,
-  unlinkAttributionAndSavePackageInfo,
-} from '../resource-actions/save-actions';
-import {
-  setSelectedAttributionId,
-  setTargetSelectedAttributionId,
-} from '../resource-actions/attribution-view-simple-actions';
-import {
-  setSelectedResourceId,
-  setTargetDisplayedPackage,
-  setTargetSelectedResourceId,
-} from '../resource-actions/audit-view-simple-actions';
-import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
+import { getSelectedView, getTargetView } from '../../selectors/view-selector';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import {
-  getAllAttributionIdsWithCountsFromResourceAndChildren,
-  getAttributionWizardInitialState,
-  getPreSelectedPackageAttributeIds,
-} from '../../helpers/open-attribution-wizard-popup-helpers';
+  setSelectedAttributionId,
+  setTargetSelectedAttributionId,
+} from '../resource-actions/attribution-view-simple-actions';
 import {
   setAttributionWizardOriginalAttribution,
   setAttributionWizardPackageNames,
@@ -63,16 +51,27 @@ import {
   setAttributionWizardTotalAttributionCount,
 } from '../resource-actions/attribution-wizard-actions';
 import {
-  DisplayPackageInfo,
-  SelectedCriticality,
-} from '../../../../shared/shared-types';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
-import {
-  convertDisplayPackageInfoToPackageInfo,
-  convertPackageInfoToDisplayPackageInfo,
-} from '../../../util/convert-package-info';
+  setSelectedResourceId,
+  setTargetDisplayedPackage,
+  setTargetSelectedResourceId,
+} from '../resource-actions/audit-view-simple-actions';
 import { setLocatePopupFilters } from '../resource-actions/locate-popup-actions';
-import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/project-statistics-popup-helpers';
+import {
+  openResourceInResourceBrowser,
+  setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
+  setSelectedResourceOrAttributionIdToTargetValue,
+} from '../resource-actions/navigation-actions';
+import {
+  savePackageInfo,
+  unlinkAttributionAndSavePackageInfo,
+} from '../resource-actions/save-actions';
+import {
+  closePopup,
+  navigateToView,
+  openPopup,
+  setShowNoSignalsLocatedMessage,
+  setTargetView,
+} from '../view-actions/view-actions';
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,

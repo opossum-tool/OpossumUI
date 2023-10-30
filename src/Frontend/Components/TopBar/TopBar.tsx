@@ -3,22 +3,22 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import MuiBox from '@mui/material/Box';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
 import { View } from '../../enums/enums';
-import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { getSelectedView } from '../../state/selectors/view-selector';
-import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
-import { TopProgressBar } from '../ProgressBar/TopProgressBar';
 import { OpossumColors } from '../../shared-styles';
-import { IconButton } from '../IconButton/IconButton';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
-import MuiBox from '@mui/material/Box';
+import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getResources } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedView } from '../../state/selectors/view-selector';
+import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
+import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
+import { IconButton } from '../IconButton/IconButton';
+import { TopProgressBar } from '../ProgressBar/TopProgressBar';
 
 const classes = {
   root: {

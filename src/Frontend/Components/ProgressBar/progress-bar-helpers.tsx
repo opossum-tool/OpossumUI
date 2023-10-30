@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
+import { sum } from 'lodash';
 import { useState } from 'react';
+
+import { criticalityColor, OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch } from '../../state/hooks';
 import { ProgressBarData, ProgressBarType } from '../../types/types';
 import { doNothing } from '../../util/do-nothing';
-import { criticalityColor, OpossumColors } from '../../shared-styles';
-import { sum } from 'lodash';
-import { useAppDispatch } from '../../state/hooks';
-import MuiBox from '@mui/material/Box';
 
 export function useOnProgressBarClick(resourceIds: Array<string>): () => void {
   const [numberOfClicks, setNumberOfClicks] = useState(-1);

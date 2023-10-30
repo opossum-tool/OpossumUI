@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   act,
   fireEvent,
@@ -11,7 +10,9 @@ import {
   Screen,
   screen,
 } from '@testing-library/react';
+import { isEqual } from 'lodash';
 import { NIL as uuidNil } from 'uuid';
+
 import {
   Attributions,
   Criticality,
@@ -19,21 +20,20 @@ import {
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ResourceBrowser } from '../ResourceBrowser';
+import { PopupType } from '../../../enums/enums';
 import {
   setExternalData,
   setFilesWithChildren,
   setManualData,
   setResources,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
-import { isEqual } from 'lodash';
 import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { PopupType } from '../../../enums/enums';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
+import { ResourceBrowser } from '../ResourceBrowser';
 
 describe('ResourceBrowser', () => {
   it('renders working tree', () => {

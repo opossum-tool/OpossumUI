@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,

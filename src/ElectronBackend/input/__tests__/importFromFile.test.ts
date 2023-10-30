@@ -3,10 +3,15 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { BrowserWindow, dialog } from 'electron';
+import * as fs from 'fs';
 import path from 'path';
 import upath from 'upath';
+import writeFileAtomic from 'write-file-atomic';
+import * as zlib from 'zlib';
+
+import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
   DiscreteConfidence,
@@ -14,24 +19,19 @@ import {
   PackageInfo,
   ParsedFileContent,
 } from '../../../shared/shared-types';
+import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
-import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { loadInputAndOutputFromFilePath } from '../importFromFile';
-import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import * as fs from 'fs';
-import * as zlib from 'zlib';
-import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling';
-import writeFileAtomic from 'write-file-atomic';
 import {
   createTempFolder,
   deleteFolder,
   writeOpossumFile,
 } from '../../test-helpers';
+import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
+import { loadInputAndOutputFromFilePath } from '../importFromFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';

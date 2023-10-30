@@ -3,8 +3,12 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { BrowserWindow } from 'electron';
+import log from 'electron-log';
 import fs from 'fs';
+import { cloneDeep } from 'lodash';
+import { v4 as uuid4 } from 'uuid';
+
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
@@ -13,15 +17,14 @@ import {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { getGlobalBackendState } from '../main/globalBackendState';
 import {
-  cleanNonExistentAttributions,
-  cleanNonExistentResolvedExternalAttributions,
-  parseFrequentLicenses,
-  parseRawAttributions,
-  sanitizeRawBaseUrlsForSources,
-  sanitizeResourcesToAttributions,
-} from './parseInputData';
+  getMessageBoxForInvalidDotOpossumFileError,
+  getMessageBoxForParsingError,
+} from '../errorHandling/errorHandling';
+import { getGlobalBackendState } from '../main/globalBackendState';
+import { setLoadingState } from '../main/listeners';
+import { writeJsonToFile } from '../output/writeJsonToFile';
+import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 import {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -30,24 +33,21 @@ import {
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../types/types';
-import { BrowserWindow } from 'electron';
-import { writeJsonToFile } from '../output/writeJsonToFile';
-import { cloneDeep } from 'lodash';
-import log from 'electron-log';
-import {
-  getMessageBoxForInvalidDotOpossumFileError,
-  getMessageBoxForParsingError,
-} from '../errorHandling/errorHandling';
-import { v4 as uuid4 } from 'uuid';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
+import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
 import {
   parseInputJsonFile,
   parseOpossumFile,
   parseOutputJsonFile,
 } from './parseFile';
-import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
-import { setLoadingState } from '../main/listeners';
+import {
+  cleanNonExistentAttributions,
+  cleanNonExistentResolvedExternalAttributions,
+  parseFrequentLicenses,
+  parseRawAttributions,
+  sanitizeRawBaseUrlsForSources,
+  sanitizeResourcesToAttributions,
+} from './parseInputData';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
   return (object as JsonParsingError).type === 'jsonParsingError';

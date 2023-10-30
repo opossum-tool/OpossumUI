@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { Buffer } from 'buffer';
+import { Schema, Validator } from 'jsonschema';
 
 import { PackageInfo } from '../../../shared/shared-types';
-import { Schema, Validator } from 'jsonschema';
-import { Buffer } from 'buffer';
 
 const jsonSchemaValidator = new Validator();
 

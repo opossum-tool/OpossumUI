@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
-import { BreakpointIcon, DirectoryIcon, FileIcon } from '../Icons/Icons';
+
 import { treeItemClasses } from '../../shared-styles';
-import MuiBox from '@mui/material/Box';
+import { BreakpointIcon, DirectoryIcon, FileIcon } from '../Icons/Icons';
 
 interface GeneralTreeItemLabelProps {
   labelText: string;

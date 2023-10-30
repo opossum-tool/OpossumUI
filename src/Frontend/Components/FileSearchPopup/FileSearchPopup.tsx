@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement, useState } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
+
 import { ButtonText } from '../../enums/enums';
-import { ResourcesList } from '../ResourcesList/ResourcesList';
-import { FileSearchTextField } from '../FileSearchTextField/FileSearchTextField';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
+import { FileSearchTextField } from '../FileSearchTextField/FileSearchTextField';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { ResourcesList } from '../ResourcesList/ResourcesList';
 
 export function FileSearchPopup(): ReactElement {
   const dispatch = useAppDispatch();

@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { AttributionInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../is-important-attribution-information-missing';
 

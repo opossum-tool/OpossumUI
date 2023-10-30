@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ChangeEvent } from 'react';
 import { render, screen } from '@testing-library/react';
+import { ChangeEvent } from 'react';
+
+import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 import { doNothing } from '../../../util/do-nothing';
 import { AutoComplete } from '../AutoComplete';
-import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
 
 describe('The AutoComplete', () => {
   it('renders text and label', () => {

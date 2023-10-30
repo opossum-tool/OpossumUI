@@ -2,12 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import viteTsconfigPaths from 'vite-tsconfig-paths';
-import svgrPlugin from 'vite-plugin-svgr';
+import { defineConfig } from 'vite';
 import electron from 'vite-plugin-electron';
+import svgrPlugin from 'vite-plugin-svgr';
+import viteTsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [

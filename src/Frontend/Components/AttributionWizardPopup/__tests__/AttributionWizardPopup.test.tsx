@@ -2,26 +2,26 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
 import { act, fireEvent, screen, within } from '@testing-library/react';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { ButtonText } from '../../../enums/enums';
+
 import {
   Attributions,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { ButtonText } from '../../../enums/enums';
+import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
 import {
   setExternalData,
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
-import { AttributionWizardPopup } from '../AttributionWizardPopup';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { AttributionWizardPopup } from '../AttributionWizardPopup';
 
 const selectedResourceId = '/samplepath/';
 const testManualAttributions: Attributions = {

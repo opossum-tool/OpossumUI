@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { act, screen } from '@testing-library/react';
 
+import { setFilesWithChildren } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { PathBar } from '../PathBar';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { setFilesWithChildren } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { act, screen } from '@testing-library/react';
 
 describe('The PathBar', () => {
   it('renders a path', () => {

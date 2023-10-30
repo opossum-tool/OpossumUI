@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import electron, { Menu } from 'electron';
 import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
+
 import { getBasePathOfAssets } from './getPath';
-import electron, { Menu } from 'electron';
 
 export function getIconPath(): string {
   const basePath = isDev

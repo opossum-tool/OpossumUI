@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   fireEvent,
   getByText,
@@ -10,6 +9,7 @@ import {
   Screen,
   within,
 } from '@testing-library/react';
+
 import { ButtonText } from '../enums/enums';
 import { getButton } from './general-test-helpers';
 

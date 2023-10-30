@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
 import MuiMoreVertIcon from '@mui/icons-material/MoreVert';
 import MuiButton from '@mui/material/Button';
-import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { ReactElement } from 'react';
+
 import { buttonStyles } from '../Button/button-styles';
+import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 interface HamburgerMenuProps {
   menuItems: Array<ContextMenuItem>;

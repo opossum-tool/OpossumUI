@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { List } from '../List/List';
-import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
   ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
   EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../shared-constants';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
+import { List } from '../List/List';
+import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
 
 const DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON: DisplayPackageInfo =
   {

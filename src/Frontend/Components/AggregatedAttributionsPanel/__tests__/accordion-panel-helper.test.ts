@@ -2,24 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
-  AttributionIdWithCount,
-  DisplayPackageInfosWithCount,
-} from '../../../types/types';
 import {
   Attributions,
   AttributionsToHashes,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
+import { PackagePanelTitle } from '../../../enums/enums';
+import {
+  AttributionIdWithCount,
+  DisplayPackageInfosWithCount,
+} from '../../../types/types';
+import { PanelAttributionData } from '../../../util/get-contained-packages';
 import {
   getContainedManualDisplayPackageInfosWithCount,
   getExternalDisplayPackageInfosWithCount,
   sortDisplayPackageInfosWithCountByCountAndPackageName,
 } from '../accordion-panel-helpers';
-import { PanelAttributionData } from '../../../util/get-contained-packages';
-import { PackagePanelTitle } from '../../../enums/enums';
 
 describe('getExternalDisplayPackageInfosWithCount', () => {
   const testAttributionIdsWithCount: Array<AttributionIdWithCount> = [

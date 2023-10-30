@@ -2,10 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { getFormattedCellData } from './report-table-item-helpers';
+import EditorIcon from '@mui/icons-material/Edit';
+import MuiBox from '@mui/material/Box';
+import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
+import { AttributionInfo } from '../../../shared/shared-types';
+import { clickableIcon, OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
+import { PathPredicate } from '../../types/types';
+import {
+  isImportantAttributionInformationMissing,
+  isPackageInfoIncomplete,
+} from '../../util/is-important-attribution-information-missing';
+import { openUrl } from '../../util/open-url';
+import { IconButton } from '../IconButton/IconButton';
 import {
   CommentIcon,
   ExcludeFromNoticeIcon,
@@ -15,22 +28,9 @@ import {
   PreferredIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
-import { TableConfig, tableConfigs } from '../Table/Table';
-import { clickableIcon, OpossumColors } from '../../shared-styles';
-import { PathPredicate } from '../../types/types';
 import { reportTableClasses } from '../ReportTableHeader/ReportTableHeader';
-import { AttributionInfo } from '../../../shared/shared-types';
-import { IconButton } from '../IconButton/IconButton';
-import EditorIcon from '@mui/icons-material/Edit';
-import {
-  isImportantAttributionInformationMissing,
-  isPackageInfoIncomplete,
-} from '../../util/is-important-attribution-information-missing';
-import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
-import { useAppSelector } from '../../state/hooks';
-import MuiBox from '@mui/material/Box';
-import MuiLink from '@mui/material/Link';
-import { openUrl } from '../../util/open-url';
+import { TableConfig, tableConfigs } from '../Table/Table';
+import { getFormattedCellData } from './report-table-item-helpers';
 
 export const reportTableRowHeight = 190;
 const padding = 10;

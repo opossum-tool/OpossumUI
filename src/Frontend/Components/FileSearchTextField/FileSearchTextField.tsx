@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement, useEffect, useMemo, useRef } from 'react';
-import { setFileSearch } from '../../state/actions/resource-actions/file-search-actions';
-import { getFileSearch } from '../../state/selectors/file-search-selectors';
-import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getResources } from '../../state/selectors/all-views-resource-selectors';
-import { getPathsFromResources } from '../../state/helpers/file-search-helpers';
 import { debounce } from 'lodash';
-import { PathPredicate } from '../../types/types';
+import { ReactElement, useEffect, useMemo, useRef } from 'react';
+
+import { setFileSearch } from '../../state/actions/resource-actions/file-search-actions';
+import { getPathsFromResources } from '../../state/helpers/file-search-helpers';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getResources } from '../../state/selectors/all-views-resource-selectors';
+import { getFileSearch } from '../../state/selectors/file-search-selectors';
+import { PathPredicate } from '../../types/types';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 interface FileSearchTextFieldProps {
   setFilteredPaths(filteredPaths: Array<string>): void;

@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import WestRoundedIcon from '@mui/icons-material/WestRounded';
 import remove from 'lodash/remove';
 import { ReactElement } from 'react';
+
 import { Resources } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';

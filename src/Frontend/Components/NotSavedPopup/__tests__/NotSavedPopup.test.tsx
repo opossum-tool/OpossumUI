@@ -2,34 +2,34 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+
 import { ButtonText, PopupType, View } from '../../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  setSelectedResourceId,
+  setTargetSelectedResourceId,
+} from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   navigateToView,
   openPopup,
   setTargetView,
 } from '../../../state/actions/view-actions/view-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
+import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import {
   getOpenPopup,
   isAttributionViewSelected,
   isAuditViewSelected,
 } from '../../../state/selectors/view-selector';
+import { EMPTY_PARSED_FILE_CONTENT } from '../../../test-helpers/general-test-helpers';
 import {
   EnhancedTestStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { EMPTY_PARSED_FILE_CONTENT } from '../../../test-helpers/general-test-helpers';
 import { NotSavedPopup } from '../NotSavedPopup';
-import {
-  setSelectedResourceId,
-  setTargetSelectedResourceId,
-} from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 
 function setupTestState(
   store: EnhancedTestStore,

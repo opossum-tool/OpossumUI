@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   DiscreteConfidence,
@@ -10,9 +9,15 @@ import {
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { PackagePanelTitle } from '../../../enums/enums';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../shared-constants';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../types/types';
-import { getManualDisplayPackageInfoOfSelected } from '../all-views-resource-selectors';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
 import {
   setDisplayedPackage,
@@ -20,19 +25,13 @@ import {
   setSelectedResourceId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { getManualDisplayPackageInfoOfSelected } from '../all-views-resource-selectors';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionIdsOfSelectedResource,
   getAttributionsOfSelectedResourceOrClosestParent,
   getResolvedExternalAttributions,
 } from '../audit-view-resource-selectors';
-import { PackagePanelTitle } from '../../../enums/enums';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
-import {
-  ADD_NEW_ATTRIBUTION_BUTTON_ID,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../../shared-constants';
 
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';

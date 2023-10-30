@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { NIL as uuidNil } from 'uuid';
 
 import {
   AttributionData,
@@ -14,11 +15,15 @@ import {
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
+import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
+import { LocatePopupFilters } from '../../../types/types';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import { attributionForTemporaryDisplayPackageInfoExists } from '../save-action-helpers';
-import { NIL as uuidNil } from 'uuid';
+import {
+  initialResourceState,
+  ResourceState,
+} from '../../reducers/resource-reducer';
 import {
   anyLocateFilterIsSet,
   attributionMatchesLocateFilter,
@@ -30,12 +35,7 @@ import {
   getIndexOfAttributionInManualPackagePanel,
   getResourcesWithLocatedChildren,
 } from '../action-and-reducer-helpers';
-import {
-  initialResourceState,
-  ResourceState,
-} from '../../reducers/resource-reducer';
-import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
-import { LocatePopupFilters } from '../../../types/types';
+import { attributionForTemporaryDisplayPackageInfoExists } from '../save-action-helpers';
 
 describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
   it('checks if manual attributions exist', () => {

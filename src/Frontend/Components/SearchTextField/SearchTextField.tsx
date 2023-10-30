@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import ClearIcon from '@mui/icons-material/Clear';
 import { InputAdornment, SxProps } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
 import { ReactElement } from 'react';
+
 import { OpossumColors } from '../../shared-styles';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 import { inputElementClasses } from '../InputElements/shared';

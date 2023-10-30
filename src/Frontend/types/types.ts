@@ -3,10 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { PackagePanelTitle, PopupType } from '../enums/enums';
-import { ResourceState } from '../state/reducers/resource-reducer';
-import { ViewState } from '../state/reducers/view-reducer';
 import {
   Attributions,
   Criticality,
@@ -16,6 +12,9 @@ import {
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../shared/shared-types';
+import { PackagePanelTitle, PopupType } from '../enums/enums';
+import { ResourceState } from '../state/reducers/resource-reducer';
+import { ViewState } from '../state/reducers/view-reducer';
 
 export type State = {
   resourceState: ResourceState;

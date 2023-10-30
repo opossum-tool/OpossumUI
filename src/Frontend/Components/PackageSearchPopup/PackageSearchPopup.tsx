@@ -3,23 +3,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement, useEffect, useState } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { ButtonText } from '../../enums/enums';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
-import { ClearlyDefinedPackageCard } from './ClearlyDefinedPackageCard';
+import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Validator } from 'jsonschema';
+import { ReactElement, useEffect, useState } from 'react';
+
 import { PackageInfo } from '../../../shared/shared-types';
-import { Spinner } from '../Spinner/Spinner';
+import { ButtonText } from '../../enums/enums';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { Alert } from '../Alert/Alert';
-import MuiTypography from '@mui/material/Typography';
-import MuiBox from '@mui/material/Box';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
+import { Spinner } from '../Spinner/Spinner';
+import { ClearlyDefinedPackageCard } from './ClearlyDefinedPackageCard';
 
 const classes = {
   root: {

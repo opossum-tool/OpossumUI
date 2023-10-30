@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { Checkbox } from '../Checkbox';
 import { render, screen } from '@testing-library/react';
+
 import { clickOnCheckbox } from '../../../test-helpers/general-test-helpers';
+import { Checkbox } from '../Checkbox';
 
 describe('The Checkbox', () => {
   it('renders', () => {

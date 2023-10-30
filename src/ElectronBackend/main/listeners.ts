@@ -3,8 +3,14 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { BrowserWindow, Menu, shell, WebContents } from 'electron';
+import log from 'electron-log';
+import fs from 'fs';
+import JSZip from 'jszip';
+import hash from 'object-hash';
+import upath from 'upath';
+import zlib from 'zlib';
+
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   ExportArgsType,
@@ -18,41 +24,35 @@ import {
   SaveFileArgs,
   SendErrorInformationArgs,
 } from '../../shared/shared-types';
+import { LoadedFileFormat } from '../enums/enums';
 import {
   createListenerCallbackWithErrorHandling,
   getMessageBoxForErrors,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
+import { parseOutputJsonFile } from '../input/parseFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
+import { writeJsonToFile } from '../output/writeJsonToFile';
+import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
+import { writeSpdxFile } from '../output/writeSpdxFile';
+import {
+  OPOSSUM_FILE_COMPRESSION_LEVEL,
+  OPOSSUM_FILE_EXTENSION,
+} from '../shared-constants';
 import {
   GlobalBackendState,
   KeysOfAttributionInfo,
   OpossumOutputFile,
 } from '../types/types';
+import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
+import { getLoadedFileType } from '../utils/getLoadedFile';
+import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
+import { openFileDialog, selectBaseURLDialog } from './dialogs';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
-import { openFileDialog, selectBaseURLDialog } from './dialogs';
-import fs from 'fs';
-import { writeSpdxFile } from '../output/writeSpdxFile';
-import log from 'electron-log';
 import { createMenu } from './menu';
-import { parseOutputJsonFile } from '../input/parseFile';
-import hash from 'object-hash';
-import upath from 'upath';
-import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
-import { writeJsonToFile } from '../output/writeJsonToFile';
-import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
-import { getLoadedFileType } from '../utils/getLoadedFile';
-import { LoadedFileFormat } from '../enums/enums';
-import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
-import JSZip from 'jszip';
-import zlib from 'zlib';
-import {
-  OPOSSUM_FILE_COMPRESSION_LEVEL,
-  OPOSSUM_FILE_EXTENSION,
-} from '../shared-constants';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';

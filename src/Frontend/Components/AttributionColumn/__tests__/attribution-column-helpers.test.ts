@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../../shared-constants';
 import { PanelPackage } from '../../../types/types';

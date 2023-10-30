@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   DiscreteConfidence,
@@ -10,14 +9,11 @@ import {
   ProjectMetadata,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { PackagePanelTitle, View } from '../../../enums/enums';
+import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
-import {
-  getAttributionBreakpoints,
-  getDisplayPackageInfoOfSelected,
-  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
-  getFilesWithChildren,
-  getProjectMetadata,
-} from '../all-views-resource-selectors';
+import { PanelPackage } from '../../../types/types';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 import {
   setAttributionBreakpoints,
   setFilesWithChildren,
@@ -25,12 +21,15 @@ import {
   setProjectMetadata,
 } from '../../actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
-import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
-import { PanelPackage } from '../../../types/types';
-import { PackagePanelTitle, View } from '../../../enums/enums';
 import { setDisplayedPackage } from '../../actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../../actions/view-actions/view-actions';
+import {
+  getAttributionBreakpoints,
+  getDisplayPackageInfoOfSelected,
+  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
+  getFilesWithChildren,
+  getProjectMetadata,
+} from '../all-views-resource-selectors';
 
 describe('getPackageInfoOfSelectedAttribution', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';

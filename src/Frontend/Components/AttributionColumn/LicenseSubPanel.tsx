@@ -2,24 +2,24 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MuiAccordion from '@mui/material/Accordion';
+import MuiAccordionDetails from '@mui/material/AccordionDetails';
+import MuiAccordionSummary from '@mui/material/AccordionSummary';
+import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import { ChangeEvent, ReactElement } from 'react';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
-import { TextBox } from '../InputElements/TextBox';
-import { OpossumColors } from '../../shared-styles';
-import { getLicenseTextLabelText } from './attribution-column-helpers';
-import MuiAccordion from '@mui/material/Accordion';
-import MuiAccordionSummary from '@mui/material/AccordionSummary';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MuiAccordionDetails from '@mui/material/AccordionDetails';
-import { attributionColumnClasses } from './shared-attribution-column-styles';
-import { useAppSelector } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import MuiBox from '@mui/material/Box';
+import { TextBox } from '../InputElements/TextBox';
+import { getLicenseTextLabelText } from './attribution-column-helpers';
 import { LicenseField } from './LicenseField';
+import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 const classes = {
   expansionPanel: {

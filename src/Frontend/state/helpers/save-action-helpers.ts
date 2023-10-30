@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { remove } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import { v4 as uuid4 } from 'uuid';
 
 import {
   AttributionData,
@@ -9,22 +12,19 @@ import {
   PackageInfo,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { getParents } from './get-parents';
+import { PathPredicate, State } from '../../types/types';
+import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getClosestParentWithAttributions } from '../../util/get-closest-parent-attributions';
 import {
   removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty,
   removeFromSetCloneAndDeleteKeyFromObjectIfEmpty,
   replaceInArray,
 } from '../../util/lodash-extension-utils';
-import isEqual from 'lodash/isEqual';
-import { PathPredicate, State } from '../../types/types';
-import { getManualAttributions } from '../selectors/all-views-resource-selectors';
-import { v4 as uuid4 } from 'uuid';
-import { remove } from 'lodash';
-import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
-import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './action-and-reducer-helpers';
 import { getOriginIdsToPreferOver } from '../actions/resource-actions/preference-actions';
 import { ResourceState } from '../reducers/resource-reducer';
+import { getManualAttributions } from '../selectors/all-views-resource-selectors';
+import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './action-and-reducer-helpers';
+import { getParents } from './get-parents';
 
 export type CalculatePreferredOverOriginIds = (
   pathToResource: string,

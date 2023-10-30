@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { SxProps } from '@mui/system';
 import { ReactElement } from 'react';
+
 import { List } from '../../Components/List/List';
 import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
+import { NodeIdPredicateForTree, NodesForTree, TreeNodeStyle } from './types';
+import { getTreeNodeProps } from './utils/get-tree-node-props';
 import {
   VirtualizedTreeNode,
   VirtualizedTreeNodeData,
 } from './VirtualizedTreeNode';
-import { NodeIdPredicateForTree, NodesForTree, TreeNodeStyle } from './types';
-import { getTreeNodeProps } from './utils/get-tree-node-props';
-import { SxProps } from '@mui/system';
 
 interface VirtualizedTreeProps {
   nodes: NodesForTree;

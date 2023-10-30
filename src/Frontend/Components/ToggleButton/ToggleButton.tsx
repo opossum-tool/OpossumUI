@@ -2,12 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import MuiToggleButton from '@mui/material/ToggleButton';
-
-import { ReactElement } from 'react';
-import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
+import MuiToggleButton from '@mui/material/ToggleButton';
+import { ReactElement } from 'react';
+
+import { OpossumColors } from '../../shared-styles';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {

@@ -2,10 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import {
+  Attributions,
+  ResourcesToAttributions,
+} from '../../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../../types/types';
+import { getResourcesWithExternalAttributedChildren } from '../../../selectors/all-views-resource-selectors';
 import {
   getDisplayedPackage,
   getExpandedIds,
@@ -14,6 +18,7 @@ import {
   getTargetDisplayedPackage,
   getTargetSelectedResourceId,
 } from '../../../selectors/audit-view-resource-selectors';
+import { setExternalData, setResources } from '../all-views-simple-actions';
 import {
   addResolvedExternalAttribution,
   removeResolvedExternalAttribution,
@@ -23,12 +28,6 @@ import {
   setTargetDisplayedPackage,
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
-import { setExternalData, setResources } from '../all-views-simple-actions';
-import {
-  Attributions,
-  ResourcesToAttributions,
-} from '../../../../../shared/shared-types';
-import { getResourcesWithExternalAttributedChildren } from '../../../selectors/all-views-resource-selectors';
 
 describe('The audit view simple actions', () => {
   it('sets and gets selectedResourceId', () => {

@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act, fireEvent, screen } from '@testing-library/react';
+
 import {
   Attributions,
   DiscreteConfidence,
@@ -11,15 +11,15 @@ import {
   PackageInfo,
 } from '../../../../shared/shared-types';
 import { View } from '../../../enums/enums';
-import { navigateToView } from '../../../state/actions/view-actions/view-actions';
-import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { navigateToView } from '../../../state/actions/view-actions/view-actions';
+import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
+import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
 
 describe('The AttributionDetailsViewer', () => {
   it('renders TextBoxes with right titles and content', () => {

@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { Schema, Validator } from 'jsonschema';
 import axios from 'axios';
+import { Schema, Validator } from 'jsonschema';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 
 const jsonSchemaValidator = new Validator();

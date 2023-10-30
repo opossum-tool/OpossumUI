@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { inputElementClasses, InputElementProps } from './shared';
-import MuiTextField from '@mui/material/TextField';
-import MuiMenuItem from '@mui/material/MenuItem';
 import MuiBox from '@mui/material/Box';
+import MuiMenuItem from '@mui/material/MenuItem';
+import MuiTextField from '@mui/material/TextField';
 import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
+import { inputElementClasses, InputElementProps } from './shared';
 
 interface DropdownProps extends InputElementProps {
   value: string;

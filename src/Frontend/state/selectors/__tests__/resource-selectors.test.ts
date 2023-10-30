@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   DiscreteConfidence,
@@ -10,19 +9,19 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
-import { wereTemporaryDisplayPackageInfoModified } from '../all-views-resource-selectors';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { PackagePanelTitle } from '../../../enums/enums';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
+import {
+  setManualData,
+  setTemporaryDisplayPackageInfo,
+} from '../../actions/resource-actions/all-views-simple-actions';
 import {
   setDisplayedPackage,
   setSelectedResourceId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import {
-  setManualData,
-  setTemporaryDisplayPackageInfo,
-} from '../../actions/resource-actions/all-views-simple-actions';
+import { wereTemporaryDisplayPackageInfoModified } from '../all-views-resource-selectors';
 
 describe('wereTemporaryDisplayPackageInfoModified', () => {
   const testResources: Resources = {

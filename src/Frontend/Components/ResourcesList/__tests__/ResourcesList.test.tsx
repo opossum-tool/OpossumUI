@@ -2,19 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { fireEvent, screen } from '@testing-library/react';
 
 import { View } from '../../../enums/enums';
-import { ResourcesList } from '../ResourcesList';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
-import { fireEvent, screen } from '@testing-library/react';
-import { getSelectedView } from '../../../state/selectors/view-selector';
 import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { getSelectedView } from '../../../state/selectors/view-selector';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ResourcesListBatch } from '../../../types/types';
+import { ResourcesList } from '../ResourcesList';
 
 describe('The ResourcesList', () => {
   const resourceIdsOfSelectedAttributionId = [

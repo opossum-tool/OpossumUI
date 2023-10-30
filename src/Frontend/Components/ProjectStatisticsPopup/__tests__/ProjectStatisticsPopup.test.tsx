@@ -2,35 +2,35 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { fireEvent, screen } from '@testing-library/react';
 
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
 import {
   Attributions,
   Criticality,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { fireEvent, screen } from '@testing-library/react';
 import {
   PopupType,
   ProjectStatisticsPopupTitle,
   View,
 } from '../../../enums/enums';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   navigateToView,
   openPopup,
 } from '../../../state/actions/view-actions/view-actions';
+import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
+import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import {
   getOpenPopup,
   getSelectedView,
 } from '../../../state/selectors/view-selector';
-import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
-import { getResourcesWithLocatedAttributions } from '../../../state/selectors/all-views-resource-selectors';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {

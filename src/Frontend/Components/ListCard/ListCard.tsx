@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
+import { merge } from 'lodash';
 import { ReactElement } from 'react';
+
+import { Criticality } from '../../../shared/shared-types';
+import { HighlightingColor } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
-import { Criticality } from '../../../shared/shared-types';
-import MuiBox from '@mui/material/Box';
-import { SxProps } from '@mui/material';
-import { merge } from 'lodash';
-import { HighlightingColor } from '../../enums/enums';
 
 const defaultCardHeight = '40px';
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlueOnHover;

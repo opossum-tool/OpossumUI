@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import MuiPaper from '@mui/material/Paper';
 import { ReactElement } from 'react';
+
 import { PackagePanelTitle } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
-import { OpossumColors } from '../../shared-styles';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { useAppDispatch } from '../../state/hooks';
-import { PackageList } from '../PackageList/PackageList';
-import { PackageCard } from '../PackageCard/PackageCard';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { PackageCard } from '../PackageCard/PackageCard';
+import { PackageList } from '../PackageList/PackageList';
 
 const classes = {
   root: {

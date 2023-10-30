@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ChangeEvent, ReactElement } from 'react';
-import { inputElementClasses, InputElementProps } from './shared';
 import MuiAutocomplete from '@mui/material/Autocomplete';
-import MuiTextField from '@mui/material/TextField';
-import MuiInputAdornment from '@mui/material/InputAdornment';
 import MuiBox from '@mui/material/Box';
+import MuiInputAdornment from '@mui/material/InputAdornment';
+import MuiTextField from '@mui/material/TextField';
+import { ChangeEvent, ReactElement } from 'react';
+
+import { inputElementClasses, InputElementProps } from './shared';
 
 interface AutoCompleteProps extends InputElementProps {
   options: Array<string>;

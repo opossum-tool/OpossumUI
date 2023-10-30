@@ -3,21 +3,21 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import { ChangeEvent, ReactElement } from 'react';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { HighlightingColor } from '../../enums/enums';
+import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { openUrl } from '../../util/open-url';
+import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
+import { IconButton } from '../IconButton/IconButton';
+import { SearchPackagesIcon } from '../Icons/Icons';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { IconButton } from '../IconButton/IconButton';
-import { clickableIcon, disabledIcon } from '../../shared-styles';
-import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
-import { SearchPackagesIcon } from '../Icons/Icons';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import MuiBox from '@mui/material/Box';
-import { openUrl } from '../../util/open-url';
-import { HighlightingColor } from '../../enums/enums';
 
 const iconClasses = { clickableIcon, disabledIcon };
 

@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 // @ts-ignore
+import fs from 'fs';
 import path from 'path';
 import upath from 'upath';
-import fs from 'fs';
-import { writeSpdxFile } from '../writeSpdxFile';
+
 import { Attributions, ExportType } from '../../../shared/shared-types';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { writeSpdxFile } from '../writeSpdxFile';
 
 describe('writeSpdxFile', () => {
   it('writes a yaml for empty attributions', () => {

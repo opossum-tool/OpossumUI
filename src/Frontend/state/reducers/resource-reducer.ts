@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   AttributionData,
   AttributionsToHashes,
@@ -16,18 +15,21 @@ import {
 } from '../../../shared/shared-types';
 import { AllowedSaveOperations, PackagePanelTitle } from '../../enums/enums';
 import {
-  LocatePopupFilters,
-  PackageAttributeIds,
-  PackageAttributes,
-  PanelPackage,
-} from '../../types/types';
-import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
   EMPTY_ATTRIBUTION_DATA,
   EMPTY_DISPLAY_PACKAGE_INFO,
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
 } from '../../shared-constants';
+import {
+  LocatePopupFilters,
+  PackageAttributeIds,
+  PackageAttributes,
+  PanelPackage,
+} from '../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { createPackageCardId } from '../../util/create-package-card-id';
+import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 import {
   ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION,
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
@@ -36,6 +38,7 @@ import {
   ACTION_REMOVE_RESOLVED_EXTERNAL_ATTRIBUTION,
   ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
   ACTION_RESET_RESOURCE_STATE,
+  ACTION_SET_ALLOWED_SAVE_OPERATIONS,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
   ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
@@ -54,7 +57,7 @@ import {
   ACTION_SET_FILE_SEARCH,
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
-  ACTION_SET_ALLOWED_SAVE_OPERATIONS,
+  ACTION_SET_LOCATE_POPUP_FILTERS,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
   ACTION_SET_PACKAGE_SEARCH_TERM,
@@ -71,17 +74,7 @@ import {
   ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
   ACTION_UPDATE_ATTRIBUTION,
   ResourceAction,
-  ACTION_SET_LOCATE_POPUP_FILTERS,
 } from '../actions/resource-actions/types';
-import {
-  createManualAttribution,
-  deleteManualAttribution,
-  getCalculatePreferredOverOriginIds,
-  linkToAttributionManualData,
-  replaceAttributionWithMatchingAttributionId,
-  unlinkResourceFromAttributionId,
-  updateManualAttribution,
-} from '../helpers/save-action-helpers';
 import {
   addUnresolvedAttributionsToResourcesWithAttributedChildren,
   calculateResourcesWithLocatedAttributions,
@@ -91,9 +84,15 @@ import {
   getResourcesWithLocatedChildren,
   removeResolvedAttributionsFromResourcesWithAttributedChildren,
 } from '../helpers/action-and-reducer-helpers';
-import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { createPackageCardId } from '../../util/create-package-card-id';
+import {
+  createManualAttribution,
+  deleteManualAttribution,
+  getCalculatePreferredOverOriginIds,
+  linkToAttributionManualData,
+  replaceAttributionWithMatchingAttributionId,
+  unlinkResourceFromAttributionId,
+  updateManualAttribution,
+} from '../helpers/save-action-helpers';
 
 export const initialResourceState: ResourceState = {
   allViews: {

@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement, useContext, useMemo, useState } from 'react';
+
 import { AttributionsToHashes } from '../../../shared/shared-types';
-import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
   DisplayPackageInfosWithCount,
   DisplayPackageInfosWithCountAndResourceId,
   PanelData,
 } from '../../types/types';
-import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { PanelAttributionData } from '../../util/get-contained-packages';
+import { AccordionWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
+import { AccordionPanel } from './AccordionPanel';
 
 const EMPTY_DISPLAY_PACKAGE_INFOS_WITH_COUNT_AND_RESOURCE_ID: DisplayPackageInfosWithCountAndResourceId =
   {

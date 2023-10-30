@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { BrowserWindow } from 'electron';
 
 import { handleOpeningFile } from './listeners';
-import { BrowserWindow } from 'electron';
 
 export async function openFileFromCliIfProvided(
   mainWindow: BrowserWindow,

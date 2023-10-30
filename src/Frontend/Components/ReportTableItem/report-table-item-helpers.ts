@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { AttributionInfo } from '../../../shared/shared-types';
-import { TableConfig } from '../Table/Table';
 import { PathPredicate } from '../../types/types';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
+import { TableConfig } from '../Table/Table';
 
 export function getFormattedCellData(
   config: TableConfig,

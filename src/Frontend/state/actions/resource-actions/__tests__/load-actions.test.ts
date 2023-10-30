@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   AttributionData,
   Attributions,
@@ -15,6 +14,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
+import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
@@ -32,7 +32,6 @@ import {
 } from '../../../selectors/all-views-resource-selectors';
 import { getResolvedExternalAttributions } from '../../../selectors/audit-view-resource-selectors';
 import { loadFromFile } from '../load-actions';
-import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
 
 const testResources: Resources = {
   thirdParty: {

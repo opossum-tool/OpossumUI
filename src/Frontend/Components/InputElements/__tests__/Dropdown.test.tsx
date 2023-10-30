@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ChangeEvent } from 'react';
 import { render, screen } from '@testing-library/react';
+import { ChangeEvent } from 'react';
+
+import { DiscreteConfidence } from '../../../../shared/shared-types';
 import { doNothing } from '../../../util/do-nothing';
 import { Dropdown } from '../Dropdown';
-import { DiscreteConfidence } from '../../../../shared/shared-types';
 
 describe('The Dropdown', () => {
   it('renders value ', () => {

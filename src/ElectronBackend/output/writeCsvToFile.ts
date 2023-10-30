@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import * as csv from 'fast-csv';
 import { CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
+
 import {
   AttributionInfo,
   Attributions,
