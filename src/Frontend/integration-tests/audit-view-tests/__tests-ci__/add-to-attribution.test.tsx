@@ -10,6 +10,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText } from '../../../enums/enums';
 import {
@@ -103,7 +104,11 @@ describe('Add to attribution', () => {
         'License Text (to appear in attribution document)',
         'Permission is not granted',
       );
-      expectValueInTextBox(screen, 'Name', 'Vue');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Vue',
+      );
       expectValueInConfidenceField(screen, `Low (${DiscreteConfidence.Low})`);
       clickAddIconOnCardInAttributionList(screen, 'Angular, 10');
 
@@ -115,7 +120,11 @@ describe('Add to attribution', () => {
         'License Text (to appear in attribution document)',
         'Permission is maybe granted.',
       );
-      expectValueInTextBox(screen, 'Name', 'Angular');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
       expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     },
   );
@@ -170,7 +179,11 @@ describe('Add to attribution', () => {
       'License Text (to appear in attribution document)',
       'Permission is not granted',
     );
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
     expectValueInAddToAttributionList(screen, 'Angular, 10');
 
@@ -230,10 +243,22 @@ describe('Add to attribution', () => {
       'License Text (to appear in attribution document)',
       'Permission is not granted',
     );
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
-    insertValueIntoTextBox(screen, 'Name', '');
-    insertValueIntoTextBox(screen, 'Version', '');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      '',
+    );
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '',
+    );
     insertValueIntoTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -352,7 +377,11 @@ describe('Add to attribution', () => {
     expectValueInTextBox(screen, 'Comment 2', 'I do not like this package.');
 
     clickAddIconOnCardInAttributionList(screen, 'Jquery, 16.5.0');
-    expectValueInTextBox(screen, 'Name', 'Jquery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Jquery',
+    );
     expectValueInTextBox(screen, 'Comment', '');
   });
 });

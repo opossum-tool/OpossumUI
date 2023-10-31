@@ -4,9 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -32,7 +30,6 @@ import { PanelPackage } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 
 interface ResourceDetailsAttributionColumnProps {
@@ -183,21 +180,12 @@ export function ResourceDetailsAttributionColumn(
       showParentAttributions={props.showParentAttributions}
       showSaveGloballyButton={showSaveGloballyButton}
       hideDeleteButtons={hideDeleteButtons}
-      setUpdateTemporaryDisplayPackageInfoFor={setUpdateTemporaryDisplayPackageInfoForCreator(
-        dispatch,
-        temporaryDisplayPackageInfo,
-      )}
       onSaveButtonClick={
         showSaveGloballyButton
           ? dispatchUnlinkAttributionAndSavePackageInfo
           : dispatchSavePackageInfo
       }
       onSaveGloballyButtonClick={dispatchSavePackageInfo}
-      setTemporaryDisplayPackageInfo={(
-        displayPackageInfo: DisplayPackageInfo,
-      ): void => {
-        dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
-      }}
       saveFileRequestListener={saveFileRequestListener}
       onDeleteButtonClick={openConfirmDeletionPopup}
       onDeleteGloballyButtonClick={openConfirmDeletionGloballyPopup}

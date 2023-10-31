@@ -3,8 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ChangeEvent, ReactElement } from 'react';
+import { ReactElement } from 'react';
 
+import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { TextBox } from '../InputElements/TextBox';
 
 const classes = {
@@ -21,14 +22,12 @@ interface TextFieldStackProps {
   isCollapsed: boolean;
   isEditable: boolean;
   comments: string[];
-  handleChange(
-    propertyToUpdate: string,
-  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   showHighlight?: boolean;
   commentBoxHeight: number;
 }
 
 export function TextFieldStack(props: TextFieldStackProps): ReactElement {
+  const handleChange = usePackageInfoChangeHandler();
   const filteredComments = props.comments.filter(
     (comment) => comment.replace(/\s/g, '') != '',
   );
@@ -45,7 +44,7 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
         text={''}
         minRows={1}
         maxRows={1}
-        handleChange={props.handleChange('comments')}
+        handleChange={handleChange('comments')}
       />
     </MuiBox>
   ) : (
@@ -62,7 +61,7 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
               minRows={numLines}
               maxRows={numLines}
               multiline={true}
-              handleChange={props.handleChange('comments')}
+              handleChange={handleChange('comments')}
             />
           </MuiBox>
         );

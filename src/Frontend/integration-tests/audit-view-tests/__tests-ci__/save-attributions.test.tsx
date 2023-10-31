@@ -10,6 +10,7 @@ import {
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText } from '../../../enums/enums';
 import {
@@ -80,22 +81,46 @@ describe('The App in Audit View', () => {
     closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'something.js');
-    expectValueInTextBox(screen, 'Name', 'InitialPackageName');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'InitialPackageName',
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
 
-    insertValueIntoTextBox(screen, 'Name', testPackageName);
-    expectValueInTextBox(screen, 'Name', testPackageName);
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Undo);
-    expectValueNotInTextBox(screen, 'Name', testPackageName);
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
 
-    insertValueIntoTextBox(screen, 'Name', testPackageName);
-    expectValueInTextBox(screen, 'Name', testPackageName);
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
 
     selectConfidenceInDropdown(screen, `Low (${DiscreteConfidence.Low})`);
     expect(screen.queryAllByText(`Low (${DiscreteConfidence.Low})`).length);
@@ -161,38 +186,74 @@ describe('The App in Audit View', () => {
     closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
     expectButton(screen, ButtonText.SaveGlobally, true);
 
-    insertValueIntoTextBox(screen, 'Name', 'Typescript');
-    expectValueInTextBox(screen, 'Name', 'Typescript');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Typescript',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Typescript',
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     expectButton(screen, ButtonText.SaveGlobally, false);
 
     clickOnButton(screen, ButtonText.SaveGlobally);
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    expectValueInTextBox(screen, 'Name', 'Typescript');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Typescript',
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
     expectButton(screen, ButtonText.SaveGlobally, true);
 
-    insertValueIntoTextBox(screen, 'Name', 'Vue');
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     expectButton(screen, ButtonText.SaveGlobally, false);
 
     clickOnButton(screen, ButtonText.Save);
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', 'Typescript');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Typescript',
+    );
 
     clickAddNewAttributionButton(screen);
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
 
@@ -244,7 +305,11 @@ describe('The App in Audit View', () => {
     closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInConfidenceField(screen, '10');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
@@ -260,7 +325,11 @@ describe('The App in Audit View', () => {
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInConfidenceField(screen, '10');
     expectValueNotInConfidenceField(
       screen,
@@ -289,7 +358,11 @@ describe('The App in Audit View', () => {
       screen,
       `High (${DiscreteConfidence.High})`,
     );
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
     expectButton(screen, ButtonText.Confirm);
     expectButtonIsNotShown(screen, ButtonText.ConfirmGlobally);
 

@@ -4,24 +4,24 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
-import { ChangeEvent, ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 interface CopyrightSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string,
-  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   copyrightRows: number;
   showHighlight?: boolean;
 }
 
 export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
+  const handleChange = usePackageInfoChangeHandler();
+
   return (
     <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
       <MuiBox sx={attributionColumnClasses.displayRow}>
@@ -33,9 +33,7 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
           minRows={props.copyrightRows}
           maxRows={props.copyrightRows}
           multiline={true}
-          handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-            'copyright',
-          )}
+          handleChange={handleChange('copyright')}
           isHighlighted={
             props.showHighlight &&
             isImportantAttributionInformationMissing(

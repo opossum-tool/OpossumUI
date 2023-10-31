@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
-import { ChangeEvent, ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import {
   DiscreteConfidence,
@@ -17,6 +17,7 @@ import { getExternalAttributionSources } from '../../state/selectors/all-views-r
 import { doNothing } from '../../util/do-nothing';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { prettifySource } from '../../util/prettify-source';
+import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Dropdown } from '../InputElements/Dropdown';
 import { NumberBox } from '../InputElements/NumberBox';
@@ -52,14 +53,12 @@ interface AuditingSubPanelProps {
     event: React.ChangeEvent<HTMLInputElement>,
   ): void;
   firstPartyChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
-  setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string,
-  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   showHighlight?: boolean;
 }
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
   const attributionSources = useAppSelector(getExternalAttributionSources);
+  const handleChange = usePackageInfoChangeHandler();
 
   return (
     <MuiPaper sx={classes.panel} elevation={0} square={true}>
@@ -110,9 +109,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
           <NumberBox
             sx={classes.confidenceDropDown}
             title={'Confidence'}
-            handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-              'attributionConfidence',
-            )}
+            handleChange={handleChange('attributionConfidence')}
             isEditable={props.isEditable}
             step={1}
             min={0}
@@ -130,7 +127,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
         {props.displayPackageInfo.source ? (
           <TextBox
             isEditable={false}
-            sx={{ ...classes.sourceField, ...classes.rightTextBox }}
+            sx={classes.sourceField}
             title={'Source'}
             text={prettifySource(
               props.displayPackageInfo.source.name,
@@ -145,7 +142,6 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
         comments={props.displayPackageInfo.comments || []}
         isCollapsed={props.isCommentsBoxCollapsed}
         commentBoxHeight={props.commentBoxHeight}
-        handleChange={props.setUpdateTemporaryDisplayPackageInfoFor}
       />
     </MuiPaper>
   );

@@ -10,6 +10,7 @@ import {
   DisplayPackageInfo,
   PackageInfo,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { View } from '../../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -53,13 +54,19 @@ describe('The AttributionDetailsViewer', () => {
     testTemporaryDisplayPackageInfo.comments?.forEach((comment) =>
       expect(screen.getByDisplayValue(comment)),
     );
-    expect(screen.queryAllByText('Name'));
+    expect(
+      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
+    );
     expect(
       screen.getByDisplayValue(
         testTemporaryDisplayPackageInfo.packageName as string,
       ),
     );
-    expect(screen.queryAllByText('Version'));
+    expect(
+      screen.queryAllByText(
+        text.attributionColumn.packageSubPanel.packageVersion,
+      ),
+    );
     expect(
       screen.getByDisplayValue(
         testTemporaryDisplayPackageInfo.packageVersion as string,

@@ -12,6 +12,7 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -107,7 +108,11 @@ describe('In Attribution View the ContextMenu', () => {
       'React, 16.5.0',
     );
     clickOnCardInAttributionList(screen, 'React, 16.5.0');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
@@ -118,7 +123,11 @@ describe('In Attribution View the ContextMenu', () => {
       screen,
       'React, 16.5.0',
     );
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
   });
@@ -188,7 +197,11 @@ describe('In Attribution View the ContextMenu', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
     screen.getByText('file_1');
 
     clickOnButtonInPackageContextMenu(
@@ -212,7 +225,11 @@ describe('In Attribution View the ContextMenu', () => {
       'React, 16.0.0',
       ButtonText.Replace,
     );
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,
       'React, 16.0.0',

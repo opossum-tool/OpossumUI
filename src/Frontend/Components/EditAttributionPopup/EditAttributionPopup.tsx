@@ -4,10 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement, useCallback } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText } from '../../enums/enums';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
@@ -20,7 +18,6 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
-import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
@@ -30,11 +27,6 @@ export function EditAttributionPopup(): ReactElement {
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
-  const setUpdateTemporaryDisplayPackageInfoFor =
-    setUpdateTemporaryDisplayPackageInfoForCreator(
-      dispatch,
-      temporaryDisplayPackageInfo,
-    );
 
   const saveFileRequestListener = useCallback(() => {
     dispatch(
@@ -73,14 +65,6 @@ export function EditAttributionPopup(): ReactElement {
           isEditable
           areButtonsHidden
           showManualAttributionData
-          setUpdateTemporaryDisplayPackageInfoFor={
-            setUpdateTemporaryDisplayPackageInfoFor
-          }
-          setTemporaryDisplayPackageInfo={(
-            displayPackageInfo: DisplayPackageInfo,
-          ): void => {
-            dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
-          }}
           saveFileRequestListener={saveFileRequestListener}
           smallerLicenseTextOrCommentField
           addMarginForNeedsReviewCheckbox

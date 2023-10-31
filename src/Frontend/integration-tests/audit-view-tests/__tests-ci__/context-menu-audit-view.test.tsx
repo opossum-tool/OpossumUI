@@ -12,6 +12,7 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText } from '../../../enums/enums';
 import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
@@ -131,7 +132,11 @@ describe('In Audit View the ContextMenu', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInConfidenceField(screen, '10');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 4, 0, 4, 0);
@@ -152,7 +157,11 @@ describe('In Audit View the ContextMenu', () => {
     expectNoConfirmationButtonsShown(screen, 'React, 16.5.0');
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInConfidenceField(screen, '10');
     expectValueNotInConfidenceField(
       screen,
@@ -194,7 +203,11 @@ describe('In Audit View the ContextMenu', () => {
     );
 
     clickOnElementInResourceBrowser(screen, 'fourthResource.js');
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
     expectValueNotInConfidenceField(screen, '90');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -430,7 +443,11 @@ describe('In Audit View the ContextMenu', () => {
       clickOnElementInResourceBrowser(screen, 'root');
       clickOnElementInResourceBrowser(screen, 'src');
       clickOnElementInResourceBrowser(screen, 'file_1');
-      expectValueInTextBox(screen, 'Name', 'jQuery');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'jQuery',
+      );
 
       clickOnButtonInPackageContextMenu(
         screen,
@@ -446,7 +463,11 @@ describe('In Audit View the ContextMenu', () => {
       );
 
       clickOnElementInResourceBrowser(screen, 'file_1');
-      expectValueInTextBox(screen, 'Name', 'jQuery');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'jQuery',
+      );
 
       clickOnElementInResourceBrowser(screen, 'file_2');
       handleReplaceMarkedAttributionViaContextMenu(
@@ -454,7 +475,11 @@ describe('In Audit View the ContextMenu', () => {
         'React, 16.0.0',
         ButtonText.Replace,
       );
-      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
         'React, 16.0.0',
@@ -462,7 +487,11 @@ describe('In Audit View the ContextMenu', () => {
 
       clickOnElementInResourceBrowser(screen, 'file_1');
       expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
-      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
 
       // make sure resources are now linked to React attribution
       expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);

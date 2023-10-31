@@ -8,7 +8,7 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
-import { ChangeEvent, ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { OpossumColors } from '../../shared-styles';
@@ -16,6 +16,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { TextBox } from '../InputElements/TextBox';
 import { getLicenseTextLabelText } from './attribution-column-helpers';
 import { LicenseField } from './LicenseField';
@@ -62,9 +63,6 @@ interface LicenseSubPanelProps {
   isLicenseTextShown: boolean;
   licenseTextRows: number;
   showHighlight?: boolean;
-  setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string,
-  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   setIsLicenseTextShown(isLicenseTextShown: boolean): void;
 }
 
@@ -78,6 +76,8 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
   function toggleIsLicenseTextShown(): void {
     props.setIsLicenseTextShown(!props.isLicenseTextShown);
   }
+
+  const handleChange = usePackageInfoChangeHandler();
 
   return (
     <MuiPaper sx={licenseSubPanelClasses.panel} elevation={0} square={true}>
@@ -110,9 +110,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             title={'License Name'}
             text={props.displayPackageInfo.licenseName}
             frequentLicenseNames={frequentLicensesNameOrder}
-            handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-              'licenseName',
-            )}
+            handleChange={handleChange('licenseName')}
             endAdornmentText={
               props.displayPackageInfo.licenseText
                 ? '(Licence text modified)'
@@ -143,9 +141,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
               frequentLicensesNameOrder,
             )}
             text={props.displayPackageInfo.licenseText}
-            handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-              'licenseText',
-            )}
+            handleChange={handleChange('licenseText')}
           />
         </MuiAccordionDetails>
       </MuiAccordion>

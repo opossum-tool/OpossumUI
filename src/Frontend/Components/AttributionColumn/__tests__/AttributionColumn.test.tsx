@@ -14,6 +14,7 @@ import {
   SaveFileArgs,
   Source,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { ButtonText, CheckboxLabel } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
@@ -38,7 +39,7 @@ import { AttributionColumn } from '../AttributionColumn';
 
 describe('The AttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
@@ -51,13 +52,11 @@ describe('The AttributionColumn', () => {
       licenseName: 'Made up license name',
       url: 'www.1999.com',
       attributionIds: [],
-    };
+    } satisfies DisplayPackageInfo;
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -75,22 +74,38 @@ describe('The AttributionColumn', () => {
     expect(screen.queryAllByText('Confidence')).toHaveLength(2);
     expect(
       screen.getByDisplayValue(
-        (
-          testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
-        ).toString(),
+        testTemporaryDisplayPackageInfo.attributionConfidence.toString(),
       ),
     );
-    expect(screen.queryAllByText('Name')).toHaveLength(2);
+    expect(
+      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageType),
+    ).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageType),
+    );
+    expect(
+      screen.queryAllByText(
+        text.attributionColumn.packageSubPanel.packageNamespace,
+      ),
+    ).toHaveLength(2);
     expect(
       screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string,
+        testTemporaryDisplayPackageInfo.packageNamespace,
       ),
     );
-    expect(screen.queryAllByText('Version')).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageVersion as string,
+      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
+    ).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
+    );
+    expect(
+      screen.queryAllByText(
+        text.attributionColumn.packageSubPanel.packageVersion,
       ),
+    ).toHaveLength(2);
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageVersion),
     );
     expect(
       screen.queryByText('(Defined in parent folder)'),
@@ -98,21 +113,17 @@ describe('The AttributionColumn', () => {
     expect(screen.queryByText('Override parent')).not.toBeInTheDocument();
     expect(screen.queryByText('Source')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Copyright'));
-    expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.copyright as string,
-      ),
-    );
+    expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright));
     expect(screen.getByLabelText('License Name'));
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.licenseName as string,
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.licenseName),
+    );
+    expect(
+      screen.getByLabelText(
+        text.attributionColumn.packageSubPanel.repositoryUrl,
       ),
     );
-    expect(screen.getByLabelText('URL'));
-    expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url as string),
-    );
+    expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url));
     expect(screen.getByLabelText(/License Text/));
     expect(
       screen.getByDisplayValue('Permission is hereby granted', {
@@ -124,7 +135,9 @@ describe('The AttributionColumn', () => {
       ? testTemporaryDisplayPackageInfo.comments[0]
       : '';
     expect(screen.getByDisplayValue(testComment));
-    expect(screen.queryAllByText('PURL')).toHaveLength(2);
+    expect(
+      screen.queryAllByText(text.attributionColumn.packageSubPanel.purl),
+    ).toHaveLength(2);
     expect(
       screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix'),
     );
@@ -148,9 +161,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -167,13 +178,13 @@ describe('The AttributionColumn', () => {
 
     insertValueIntoTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:type/namespace/jQuery@16.5.0?appendix&#test',
     );
     clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:type/namespace/jQuery@16.5.0?appendix=#test',
     );
   });
@@ -196,9 +207,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -215,13 +224,13 @@ describe('The AttributionColumn', () => {
 
     insertValueIntoTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:type/namespace/jQuery@16.5.0?test=appendix&appendix=test#test',
     );
     clickOnButton(screen, ButtonText.Save);
     expectValueInTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:type/namespace/jQuery@16.5.0?appendix=test&test=appendix#test',
     );
   });
@@ -244,9 +253,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -261,9 +268,17 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    insertValueIntoTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0?');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      'pkg:type/namespace/jQuery@16.5.0?',
+    );
     clickOnButton(screen, ButtonText.Save);
-    expectValueInTextBox(screen, 'PURL', 'pkg:type/namespace/jQuery@16.5.0');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      'pkg:type/namespace/jQuery@16.5.0',
+    );
   });
 
   it('renders a TextBox for the source, if it is defined', () => {
@@ -274,9 +289,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -306,9 +319,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -340,9 +351,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -374,9 +383,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -408,9 +415,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -439,9 +444,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -469,9 +472,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) => doNothing}
         onSaveButtonClick={doNothing}
-        setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
         onSaveGloballyButtonClick={doNothing}
         showManualAttributionData={true}
         saveFileRequestListener={doNothing}
@@ -499,11 +500,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
-            doNothing
-          }
           onSaveButtonClick={doNothing}
-          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -533,11 +530,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={false}
-          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
-            doNothing
-          }
           onSaveButtonClick={doNothing}
-          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -570,11 +563,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
-            doNothing
-          }
           onSaveButtonClick={doNothing}
-          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -610,11 +599,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
-            doNothing
-          }
           onSaveButtonClick={doNothing}
-          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -648,11 +633,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
-            doNothing
-          }
           onSaveButtonClick={doNothing}
-          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={true}
           saveFileRequestListener={doNothing}
@@ -690,11 +671,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          setUpdateTemporaryDisplayPackageInfoFor={(): (() => void) =>
-            doNothing
-          }
           onSaveButtonClick={doNothing}
-          setTemporaryDisplayPackageInfo={(): (() => void) => doNothing}
           onSaveGloballyButtonClick={doNothing}
           showManualAttributionData={false}
           saveFileRequestListener={doNothing}

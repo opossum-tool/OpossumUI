@@ -6,10 +6,8 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement, useCallback } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   deleteAttributionGloballyAndSave,
   savePackageInfo,
@@ -23,7 +21,6 @@ import {
   getSelectedAttributionIdInAttributionView,
 } from '../../state/selectors/attribution-view-resource-selectors';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
-import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
@@ -83,12 +80,6 @@ export function AttributionDetailsViewer(): ReactElement | null {
     );
   }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
-  const setUpdateTemporaryDisplayPackageInfoFor =
-    setUpdateTemporaryDisplayPackageInfoForCreator(
-      dispatch,
-      temporaryDisplayPackageInfo,
-    );
-
   function deleteAttribution(): void {
     if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(deleteAttributionGloballyAndSave(selectedAttributionId));
@@ -119,16 +110,8 @@ export function AttributionDetailsViewer(): ReactElement | null {
         isEditable={true}
         showManualAttributionData={true}
         areButtonsHidden={false}
-        setUpdateTemporaryDisplayPackageInfoFor={
-          setUpdateTemporaryDisplayPackageInfoFor
-        }
         onSaveButtonClick={dispatchSavePackageInfo}
         onDeleteButtonClick={deleteAttribution}
-        setTemporaryDisplayPackageInfo={(
-          displayPackageInfo: DisplayPackageInfo,
-        ): void => {
-          dispatch(setTemporaryDisplayPackageInfo(displayPackageInfo));
-        }}
         saveFileRequestListener={saveFileRequestListener}
       />
     </MuiBox>

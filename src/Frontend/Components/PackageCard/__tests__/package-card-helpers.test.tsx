@@ -38,6 +38,20 @@ describe('The PackageCardHelper', () => {
       {
         licenseName: 'some license name',
         packageName: 'some package name',
+        packageNamespace: 'some package namespace',
+        packageType: 'github',
+        packageVersion: 'some package version',
+        url: 'some url',
+        copyright: 'some copyright',
+        attributionIds: ['abc'],
+      },
+      undefined,
+    ],
+    [
+      {
+        licenseName: 'some license name',
+        packageName: 'some package name',
+        packageType: 'some type',
         packageVersion: 'some package version',
         url: 'some url',
         copyright: 'some copyright',
@@ -49,10 +63,10 @@ describe('The PackageCardHelper', () => {
     'for %s packageInfo gives %s highlighting',
     (
       displayPackageInfo: DisplayPackageInfo,
-      expected_highlighting: HighlightingColor | undefined,
+      expectedHighlighting: HighlightingColor | undefined,
     ) => {
       const actualHighlighting = getPackageCardHighlighting(displayPackageInfo);
-      expect(actualHighlighting).toEqual(expected_highlighting);
+      expect(actualHighlighting).toEqual(expectedHighlighting);
     },
   );
 });

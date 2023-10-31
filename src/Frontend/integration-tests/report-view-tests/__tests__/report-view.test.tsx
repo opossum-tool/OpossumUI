@@ -8,6 +8,7 @@ import {
   DiscreteConfidence,
   ParsedFileContent,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -69,7 +70,11 @@ describe('The report view', () => {
 
     clickOnEditIconForElement(screen, 'jQuery');
     expect(screen.getByText('Edit Attribution'));
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',

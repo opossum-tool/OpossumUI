@@ -13,6 +13,7 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
 import { setQAMode } from '../../../state/actions/view-actions/view-actions';
@@ -93,11 +94,27 @@ describe('The App in Audit View', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'something.js');
-    insertValueIntoTextBox(screen, 'Name', 'Vue');
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
-    insertValueIntoTextBox(screen, 'Version', '16.5.1');
-    expectValueInTextBox(screen, 'Version', '16.5.1');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '16.5.1',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '16.5.1',
+    );
 
     insertValueIntoTextBox(
       screen,
@@ -168,21 +185,41 @@ describe('The App in Audit View', () => {
     expectValueInManualPackagePanel(screen, 'React');
 
     clickOnElementInResourceBrowser(screen, 'file_manual');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInManualPackagePanelForParentAttribution(screen, 'React');
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Delete);
 
     clickOnValueInManualPackagePanelForParentAttribution(screen, 'React');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
     clearPopover(screen);
     clickOnButton(screen, 'Override parent');
     expectValueNotInManualPackagePanel(screen, 'React');
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
     clickOnButton(screen, ButtonText.Save);
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
   });
 
   it('show confidence correctly', () => {
@@ -238,11 +275,19 @@ describe('The App in Audit View', () => {
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
     expectValueInTextBox(screen, 'Comment', 'React comment');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     clickOnButton(screen, ButtonText.Save);
 
     clickOnElementInResourceBrowser(screen, 'withManualAttribution.js');
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
     expectValueNotInConfidenceField(screen, '10');
     expectValueInConfidenceField(screen, `High (${DiscreteConfidence.High})`);
 
@@ -533,7 +578,11 @@ describe('The App in Audit View', () => {
     clickOnElementInResourceBrowser(screen, 'root');
     clickOnElementInResourceBrowser(screen, 'src');
     clickOnElementInResourceBrowser(screen, 'file_1');
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
 
     expectButtonInHamburgerMenuIsNotShown(
       screen,
@@ -552,7 +601,11 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
 
     clickOnElementInResourceBrowser(screen, 'file_2');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
@@ -560,18 +613,30 @@ describe('The App in Audit View', () => {
     expectReplaceAttributionPopupIsNotShown(screen);
 
     clickOnElementInResourceBrowser(screen, 'file_1');
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
 
     clickOnElementInResourceBrowser(screen, 'file_2');
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Replace);
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectReplaceAttributionPopupIsNotShown(screen);
 
     clickOnElementInResourceBrowser(screen, 'file_1');
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
     // make sure resources are now linked to React attribution
     expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);
@@ -655,7 +720,11 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Close);
 
     clickOnElementInResourceBrowser(screen, 'file');
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
 
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.UnmarkAsPreferred);
 
@@ -718,7 +787,11 @@ describe('The App in Audit View', () => {
     clickOnButton(screen, ButtonText.Close);
 
     clickOnElementInResourceBrowser(screen, 'file');
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkAsPreferred);
     expect(getButton(screen, ButtonText.SaveGlobally)).toBeDisabled();
