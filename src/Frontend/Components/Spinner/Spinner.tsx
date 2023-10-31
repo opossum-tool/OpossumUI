@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import MuiSpinner from '@mui/material/CircularProgress';
-import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
+import MuiSpinner from '@mui/material/CircularProgress';
+import { ReactElement } from 'react';
+
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {

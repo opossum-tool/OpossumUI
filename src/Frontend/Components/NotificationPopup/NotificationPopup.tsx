@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { SxProps } from '@mui/material';
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogActions from '@mui/material/DialogActions';
@@ -10,10 +9,11 @@ import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 import { ReactElement, useEffect } from 'react';
+
 import { ButtonConfig } from '../../types/types';
 import { doNothing } from '../../util/do-nothing';
-import { Button } from '../Button/Button';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { Button } from '../Button/Button';
 
 const classes = {
   content: { display: 'flex', flexDirection: 'column' },

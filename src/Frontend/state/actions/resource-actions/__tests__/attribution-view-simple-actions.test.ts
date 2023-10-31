@@ -2,20 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
+import {
+  getMultiSelectSelectedAttributionIds,
+  getSelectedAttributionIdInAttributionView,
+  getTargetSelectedAttributionId,
+} from '../../../selectors/attribution-view-resource-selectors';
 import {
   setAttributionIdMarkedForReplacement,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
 } from '../attribution-view-simple-actions';
-import {
-  getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionIdInAttributionView,
-  getTargetSelectedAttributionId,
-} from '../../../selectors/attribution-view-resource-selectors';
-import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
 
 describe('The load and navigation simple actions', () => {
   it('sets and gets selectedAttributionId', () => {

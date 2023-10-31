@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/system';
 import { ReactElement } from 'react';
+
 import { checkboxClass } from '../../shared-styles';
 import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
-import { SxProps } from '@mui/system';
 
 const classes = {
   ...checkboxClass,

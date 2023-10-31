@@ -3,16 +3,16 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { GoToLinkButton } from '../GoToLinkButton';
-import { BaseUrlsForSources } from '../../../../shared/shared-types';
-import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { screen } from '@testing-library/react';
 import each from 'jest-each';
-import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 import { act } from 'react-dom/test-utils';
+
+import { BaseUrlsForSources } from '../../../../shared/shared-types';
+import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { GoToLinkButton } from '../GoToLinkButton';
 
 describe('The GoToLinkButton', () => {
   each([

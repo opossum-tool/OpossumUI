@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import MuiTypography from '@mui/material/Typography';
+import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import MuiTypography from '@mui/material/Typography';
+import { SxProps } from '@mui/system';
+import { ReactElement } from 'react';
+
 import { OpossumColors, tooltipStyle } from '../../shared-styles';
-import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
-import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
 import { useAppSelector } from '../../state/hooks';
 import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import MuiBox from '@mui/material/Box';
-import { SxProps } from '@mui/system';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
+import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
 
 const classes = {
   root: {

@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { BrowserWindow, Menu } from 'electron';
 import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
-import { createMenu } from './menu';
+
 import { getIconPath } from './iconHelpers';
+import { createMenu } from './menu';
 
 export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow: BrowserWindow = new BrowserWindow({

@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
 import {
   Attributions,
@@ -11,12 +12,16 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import {
-  expectValuesInTopProgressbarTooltip,
-  getParsedInputFileEnrichedWithTestData,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
 import { App } from '../../../Components/App/App';
+import { ButtonText } from '../../../enums/enums';
+import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
+import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  expectValueInConfidenceField,
+  expectValueInTextBox,
+  expectValueNotInConfidenceField,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButtonInPackageContextMenu,
   clickOnButtonInPackageInPackagePanelContextMenu,
@@ -31,24 +36,19 @@ import {
   expectNoConfirmationButtonsShown,
   handleReplaceMarkedAttributionViaContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { addResolvedExternalAttribution } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { ButtonText } from '../../../enums/enums';
-import { screen } from '@testing-library/react';
+import {
+  expectValuesInTopProgressbarTooltip,
+  getParsedInputFileEnrichedWithTestData,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
 import {
   clickOnPackageInPackagePanel,
   clickOnTab,
   expectAddIconInAddToAttributionCardIsHidden,
   expectAddIconInAddToAttributionCardIsNotHidden,
 } from '../../../test-helpers/package-panel-helpers';
-import {
-  expectValueInConfidenceField,
-  expectValueInTextBox,
-  expectValueNotInConfidenceField,
-} from '../../../test-helpers/attribution-column-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
-import { setExternalAttributionsToHashes } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 
 const testResources: Resources = {
   folder1: { 'firstResource.js': 1 },

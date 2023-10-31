@@ -2,10 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { ResourcesListBatch } from '../../../types/types';
 import { convertResourcesListBatchesToResourcesListItems } from '../resource-list-helpers';
 import { ResourcesListItem } from '../ResourcesList';
-import { ResourcesListBatch } from '../../../types/types';
 
 describe('convertResourceListBatchesToResourceListItems', () => {
   it('inserts headers correctly', () => {

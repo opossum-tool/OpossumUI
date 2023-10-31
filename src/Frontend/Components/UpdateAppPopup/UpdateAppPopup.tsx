@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useAppDispatch } from '../../state/hooks';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText } from '../../enums/enums';
-import commitInfo from '../../../commitInfo.json';
 import MuiLink from '@mui/material/Link';
-import { openUrl } from '../../util/open-url';
 import MuiTypography from '@mui/material/Typography';
-import { searchLatestReleaseNameAndUrl } from './update-app-popup-helpers';
 import { useQuery } from '@tanstack/react-query';
+import { ReactElement } from 'react';
+
+import commitInfo from '../../../commitInfo.json';
+import { ButtonText } from '../../enums/enums';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
+import { openUrl } from '../../util/open-url';
 import { Alert } from '../Alert/Alert';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { Spinner } from '../Spinner/Spinner';
+import { searchLatestReleaseNameAndUrl } from './update-app-popup-helpers';
 
 export function UpdateAppPopup(): ReactElement {
   const dispatch = useAppDispatch();

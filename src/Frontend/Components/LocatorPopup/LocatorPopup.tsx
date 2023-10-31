@@ -2,34 +2,34 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { Checkbox } from '../Checkbox/Checkbox';
+import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
 import { ChangeEvent, ReactElement, useState } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import {
-  closePopup,
-  setShowNoSignalsLocatedMessage,
-} from '../../state/actions/view-actions/view-actions';
-import { ButtonText, CheckboxLabel, CriticalityTypes } from '../../enums/enums';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { Dropdown, menuItem } from '../InputElements/Dropdown';
-import {
-  getLocatePopupFilters,
-  getShowNoSignalsLocatedMessage,
-} from '../../state/selectors/locate-popup-selectors';
-import { setLocatePopupFilters } from '../../state/actions/resource-actions/locate-popup-actions';
+
 import {
   Attributions,
   SelectedCriticality,
 } from '../../../shared/shared-types';
-import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
-import { AutoComplete } from '../InputElements/AutoComplete';
+import { ButtonText, CheckboxLabel, CriticalityTypes } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import MuiTypography from '@mui/material/Typography';
-import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
+import { setLocatePopupFilters } from '../../state/actions/resource-actions/locate-popup-actions';
+import {
+  closePopup,
+  setShowNoSignalsLocatedMessage,
+} from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getExternalAttributions } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getLocatePopupFilters,
+  getShowNoSignalsLocatedMessage,
+} from '../../state/selectors/locate-popup-selectors';
+import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
+import { Checkbox } from '../Checkbox/Checkbox';
+import { AutoComplete } from '../InputElements/AutoComplete';
+import { Dropdown, menuItem } from '../InputElements/Dropdown';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import MuiBox from '@mui/material/Box';
 
 const classes = {
   dropdown: {

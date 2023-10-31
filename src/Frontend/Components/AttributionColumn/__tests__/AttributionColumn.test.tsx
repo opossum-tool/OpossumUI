@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+
 import {
   DiscreteConfidence,
   DisplayPackageInfo,

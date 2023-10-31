@@ -2,16 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ExternalAttributionSources } from '../../../../shared/shared-types';
-import {
-  getPackageCardIdsAndDisplayPackageInfosForSource,
-  getSortedSourcesFromDisplayPackageInfosWithCount,
-} from '../package-panel-helpers';
 import {
   DisplayPackageInfos,
   DisplayPackageInfosWithCount,
 } from '../../../types/types';
+import {
+  getPackageCardIdsAndDisplayPackageInfosForSource,
+  getSortedSourcesFromDisplayPackageInfosWithCount,
+} from '../package-panel-helpers';
 
 const testSortedPackageCardIds = [
   'Signals-0',

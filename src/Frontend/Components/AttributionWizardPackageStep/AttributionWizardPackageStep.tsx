@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
 import MuiBox from '@mui/material/Box';
+import { SxProps } from '@mui/system';
+import { ReactElement } from 'react';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { ListWithAttributesItem } from '../../types/types';
-import { generatePurlFromDisplayPackageInfo } from '../../util/handle-purl';
-import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
-import { TextBox } from '../InputElements/TextBox';
-import { doNothing } from '../../util/do-nothing';
 import {
   ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT,
   attributionWizardStepClasses,
 } from '../../shared-styles';
-import { SxProps } from '@mui/system';
+import { ListWithAttributesItem } from '../../types/types';
+import { doNothing } from '../../util/do-nothing';
+import { generatePurlFromDisplayPackageInfo } from '../../util/handle-purl';
+import { TextBox } from '../InputElements/TextBox';
+import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 import { sortAttributedPackageItems } from './attribution-wizard-package-step-helpers';
 
 const classes = {

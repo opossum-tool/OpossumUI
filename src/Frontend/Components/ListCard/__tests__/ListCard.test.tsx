@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { render, screen } from '@testing-library/react';
+
 import { doNothing } from '../../../util/do-nothing';
-import { ListCard } from '../ListCard';
 import { Checkbox } from '../../Checkbox/Checkbox';
+import { ListCard } from '../ListCard';
 
 describe('The ListCard', () => {
   it('renders text with no count', () => {

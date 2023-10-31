@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { IconButton } from '../IconButton';
 import { render, screen } from '@testing-library/react';
+
 import { doNothing } from '../../../util/do-nothing';
+import { IconButton } from '../IconButton';
 
 describe('IconButton', () => {
   it('renders a button', () => {

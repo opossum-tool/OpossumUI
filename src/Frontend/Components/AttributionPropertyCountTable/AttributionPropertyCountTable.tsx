@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
 import MuiTable from '@mui/material/Table';
+import MuiTableBody from '@mui/material/TableBody';
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableContainer from '@mui/material/TableContainer';
-import MuiTableRow from '@mui/material/TableRow';
 import MuiTableHead from '@mui/material/TableHead';
-import MuiTableBody from '@mui/material/TableBody';
+import MuiTableRow from '@mui/material/TableRow';
+import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
 import { tableClasses } from '../../shared-styles';
 
 const ATTRIBUTION_PROPERTIES_ID_TO_DISPLAY_NAME: {

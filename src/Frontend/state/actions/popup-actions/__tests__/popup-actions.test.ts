@@ -3,9 +3,25 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { act } from 'react-dom/test-utils';
 
+import {
+  AttributionData,
+  Attributions,
+  Criticality,
+  DiscreteConfidence,
+  DisplayPackageInfo,
+  PackageInfo,
+  Resources,
+  ResourcesToAttributions,
+  SelectedCriticality,
+} from '../../../../../shared/shared-types';
 import { PackagePanelTitle, PopupType, View } from '../../../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
+import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { PanelPackage, State } from '../../../../types/types';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import {
   getManualAttributions,
   getManualData,
@@ -13,10 +29,43 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
 import {
+  getSelectedAttributionIdInAttributionView,
+  getTargetSelectedAttributionId,
+} from '../../../selectors/attribution-view-resource-selectors';
+import {
+  getAttributionWizardPackageNames,
+  getAttributionWizardPackageNamespaces,
+  getAttributionWizardPackageVersions,
+  getAttributionWizardSelectedPackageAttributeIds,
+  getAttributionWizardTotalAttributionCount,
+  getAttributionWizarOriginalDisplayPackageInfo,
+} from '../../../selectors/attribution-wizard-selectors';
+import {
+  getDisplayedPackage,
+  getExpandedIds,
+  getSelectedResourceId,
+  getTargetSelectedResourceId,
+} from '../../../selectors/audit-view-resource-selectors';
+import { getShowNoSignalsLocatedMessage } from '../../../selectors/locate-popup-selectors';
+import {
   getOpenPopup,
   getSelectedView,
   getTargetView,
 } from '../../../selectors/view-selector';
+import {
+  setExternalData,
+  setManualData,
+  setResources,
+  setTemporaryDisplayPackageInfo,
+} from '../../resource-actions/all-views-simple-actions';
+import { setSelectedAttributionId } from '../../resource-actions/attribution-view-simple-actions';
+import {
+  setDisplayedPackage,
+  setSelectedResourceId,
+  setTargetSelectedResourceId,
+} from '../../resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../resource-actions/load-actions';
+import { savePackageInfo } from '../../resource-actions/save-actions';
 import {
   navigateToView,
   openPopup,
@@ -35,55 +84,6 @@ import {
   setViewOrOpenUnsavedPopup,
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
 } from '../popup-actions';
-import { PanelPackage, State } from '../../../../types/types';
-import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import {
-  AttributionData,
-  Attributions,
-  Criticality,
-  DiscreteConfidence,
-  DisplayPackageInfo,
-  PackageInfo,
-  Resources,
-  ResourcesToAttributions,
-  SelectedCriticality,
-} from '../../../../../shared/shared-types';
-import { savePackageInfo } from '../../resource-actions/save-actions';
-import { setSelectedAttributionId } from '../../resource-actions/attribution-view-simple-actions';
-import {
-  setDisplayedPackage,
-  setSelectedResourceId,
-  setTargetSelectedResourceId,
-} from '../../resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../resource-actions/load-actions';
-import {
-  setExternalData,
-  setManualData,
-  setResources,
-  setTemporaryDisplayPackageInfo,
-} from '../../resource-actions/all-views-simple-actions';
-import {
-  getDisplayedPackage,
-  getExpandedIds,
-  getSelectedResourceId,
-  getTargetSelectedResourceId,
-} from '../../../selectors/audit-view-resource-selectors';
-import {
-  getSelectedAttributionIdInAttributionView,
-  getTargetSelectedAttributionId,
-} from '../../../selectors/attribution-view-resource-selectors';
-import { act } from 'react-dom/test-utils';
-import {
-  getAttributionWizardPackageNames,
-  getAttributionWizardPackageNamespaces,
-  getAttributionWizardPackageVersions,
-  getAttributionWizardSelectedPackageAttributeIds,
-  getAttributionWizardTotalAttributionCount,
-  getAttributionWizarOriginalDisplayPackageInfo,
-} from '../../../selectors/attribution-wizard-selectors';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
-import { getShowNoSignalsLocatedMessage } from '../../../selectors/locate-popup-selectors';
 
 describe('The actions checking for unsaved changes', () => {
   describe('navigateToSelectedPathOrOpenUnsavedPopup', () => {

@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useMemo } from 'react';
+
 import {
   AttributionInfo,
   AttributionsWithResources,
@@ -13,8 +13,8 @@ import { OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { List } from '../List/List';
 import {
-  ReportTableHeader,
   reportTableClasses,
+  ReportTableHeader,
 } from '../ReportTableHeader/ReportTableHeader';
 import {
   ReportTableItem,

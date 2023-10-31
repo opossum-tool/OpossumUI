@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act, fireEvent, screen } from '@testing-library/react';
+
 import {
   Attributions,
   DiscreteConfidence,
@@ -12,10 +12,6 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import {
   setAttributionBreakpoints,
   setExternalData,
   setFilesWithChildren,
@@ -23,6 +19,10 @@ import {
   setResources,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setResolvedExternalAttributions } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { FolderProgressBar } from '../FolderProgressBar';
 
 describe('FolderProgressBar', () => {

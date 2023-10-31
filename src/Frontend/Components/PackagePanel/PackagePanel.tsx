@@ -2,35 +2,35 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import MuiBox from '@mui/material/Box';
-import { ReactElement, Fragment } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { Fragment, ReactElement } from 'react';
+
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
-import {
-  getDisplayedPackage,
-  getResolvedExternalAttributions,
-  getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
-import { PackageList } from '../PackageList/PackageList';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
   getResourcesToExternalAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
-  getPackageCardIdsAndDisplayPackageInfosForSource,
-  getSortedSourcesFromDisplayPackageInfosWithCount,
-} from './package-panel-helpers';
-import { prettifySource } from '../../util/prettify-source';
+  getDisplayedPackage,
+  getResolvedExternalAttributions,
+  getSelectedResourceId,
+} from '../../state/selectors/audit-view-resource-selectors';
 import {
   DisplayPackageInfosWithCount,
   PackageCardConfig,
 } from '../../types/types';
-import { PackageCard } from '../PackageCard/PackageCard';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { prettifySource } from '../../util/prettify-source';
+import { PackageCard } from '../PackageCard/PackageCard';
+import { PackageList } from '../PackageList/PackageList';
+import {
+  getPackageCardIdsAndDisplayPackageInfosForSource,
+  getSortedSourcesFromDisplayPackageInfosWithCount,
+} from './package-panel-helpers';
 
 const classes = {
   root: {

@@ -2,20 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
-import {
-  getAttributionBreakpoints,
-  getIsGlobalSavingDisabled,
-  getManualData,
-  getTemporaryDisplayPackageInfo,
-} from '../../state/selectors/all-views-resource-selectors';
-import { PanelPackage } from '../../types/types';
-import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
-import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -24,16 +15,25 @@ import {
   unlinkAttributionAndSavePackageInfo,
   unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  getAttributionBreakpoints,
+  getIsGlobalSavingDisabled,
+  getManualData,
+  getTemporaryDisplayPackageInfo,
+} from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { PanelPackage } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
+import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
+import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 
 interface ResourceDetailsAttributionColumnProps {
   showParentAttributions: boolean;

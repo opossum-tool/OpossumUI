@@ -3,8 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
   isAttributionViewSelected,
@@ -16,8 +18,6 @@ import {
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { TopBar } from '../TopBar';
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('TopBar', () => {
   it('renders an Open file icon', () => {

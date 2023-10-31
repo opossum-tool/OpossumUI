@@ -3,22 +3,22 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { ReactElement } from 'react';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+
+import { OpenLinkArgs } from '../../../shared/shared-types';
+import { PopupType } from '../../enums/enums';
+import { clickableIcon } from '../../shared-styles';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { getParents } from '../../state/helpers/get-parents';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getParents } from '../../state/helpers/get-parents';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
-import { OpenLinkArgs } from '../../../shared/shared-types';
 import { IconButton } from '../IconButton/IconButton';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { clickableIcon } from '../../shared-styles';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { PopupType } from '../../enums/enums';
 
 export function GoToLinkButton(): ReactElement {
   const path = useAppSelector(getSelectedResourceId);

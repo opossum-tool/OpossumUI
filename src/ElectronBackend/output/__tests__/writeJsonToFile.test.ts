@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import * as fs from 'fs';
 // @ts-ignore
 import * as path from 'path';
 import * as upath from 'upath';
-import { OpossumOutputFile } from '../../types/types';
+
 import { FollowUp } from '../../../shared/shared-types';
-import { writeJsonToFile } from '../writeJsonToFile';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { OpossumOutputFile } from '../../types/types';
+import { writeJsonToFile } from '../writeJsonToFile';
 
 const attributions: OpossumOutputFile = {
   metadata: {

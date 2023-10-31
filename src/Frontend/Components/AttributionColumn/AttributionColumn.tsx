@@ -3,11 +3,19 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
+import { IpcRendererEvent } from 'electron';
 import { ChangeEvent, ReactElement } from 'react';
 
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { ButtonText, PopupType, View } from '../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { toggleIsSelectedPackagePreferred } from '../../state/actions/resource-actions/preference-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdMarkedForReplacement,
   getIsGlobalSavingDisabled,
@@ -17,17 +25,18 @@ import {
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
-import {
-  getQAMode,
-  getSelectedView,
-} from '../../state/selectors/view-selector';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import {
   getDisplayedPackage,
   getResolvedExternalAttributions,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { IpcRendererEvent } from 'electron';
+import {
+  getQAMode,
+  getSelectedView,
+} from '../../state/selectors/view-selector';
 import { useIpcRenderer } from '../../util/use-ipc-renderer';
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import {
   getDiscreteConfidenceChangeHandler,
   getDisplayTexts,
@@ -42,21 +51,11 @@ import {
   usePurl,
   useRows,
 } from './attribution-column-helpers';
-import { PackageSubPanel } from './PackageSubPanel';
-import { CopyrightSubPanel } from './CopyrightSubPanel';
-import { LicenseSubPanel } from './LicenseSubPanel';
 import { AuditingSubPanel } from './AuditingSubPanel';
 import { ButtonRow } from './ButtonRow';
-import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText, PopupType, View } from '../../enums/enums';
-import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import MuiBox from '@mui/material/Box';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import { toggleIsSelectedPackagePreferred } from '../../state/actions/resource-actions/preference-actions';
+import { CopyrightSubPanel } from './CopyrightSubPanel';
+import { LicenseSubPanel } from './LicenseSubPanel';
+import { PackageSubPanel } from './PackageSubPanel';
 
 const classes = {
   root: {

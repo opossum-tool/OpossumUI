@@ -2,27 +2,27 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import { ChangeEvent, ReactElement } from 'react';
+
 import {
   DiscreteConfidence,
   DisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { CheckboxLabel } from '../../enums/enums';
+import { checkboxClass } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { prettifySource } from '../../util/prettify-source';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Dropdown } from '../InputElements/Dropdown';
 import { NumberBox } from '../InputElements/NumberBox';
 import { TextBox } from '../InputElements/TextBox';
-import { attributionColumnClasses } from './shared-attribution-column-styles';
-import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
-import { useAppSelector } from '../../state/hooks';
-import { checkboxClass } from '../../shared-styles';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import MuiBox from '@mui/material/Box';
 import { TextFieldStack } from '../TextFieldStack/TextFieldStack';
+import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 const classes = {
   ...checkboxClass,

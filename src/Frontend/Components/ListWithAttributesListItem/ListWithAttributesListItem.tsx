@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { Fragment, ReactElement } from 'react';
+import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
-import { baseIcon, OpossumColors } from '../../shared-styles';
 import MuiListItem from '@mui/material/ListItem';
 import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiListItemText from '@mui/material/ListItemText';
-import MuiBox from '@mui/material/Box';
-import { ManuallyAddedListItemIcon } from '../Icons/Icons';
-import { ListWithAttributesItem } from '../../types/types';
 import { SxProps } from '@mui/system/styleFunctionSx';
+import { Fragment, ReactElement } from 'react';
+
+import { baseIcon, OpossumColors } from '../../shared-styles';
+import { ListWithAttributesItem } from '../../types/types';
+import { ManuallyAddedListItemIcon } from '../Icons/Icons';
 
 const classes = {
   listItem: {

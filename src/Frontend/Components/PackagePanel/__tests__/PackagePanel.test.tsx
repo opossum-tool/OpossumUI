@@ -2,22 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act, getByText, screen } from '@testing-library/react';
+
 import {
   Attributions,
   ExternalAttributionSources,
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../enums/enums';
+import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { PackagePanel } from '../PackagePanel';
-import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { DisplayPackageInfosWithCount } from '../../../types/types';
+import { PackagePanel } from '../PackagePanel';
 
 describe('The PackagePanel', () => {
   it('renders TextBoxes with right content', () => {

@@ -2,13 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import fs from 'fs';
+import { cloneDeep, set } from 'lodash';
+import path from 'path';
+import upath from 'upath';
 // @ts-ignore
 import { NIL as uuidNil } from 'uuid';
-import path from 'path';
 import zlib from 'zlib';
-import upath from 'upath';
+
+import {
+  createTempFolder,
+  deleteFolder,
+  writeOpossumFile,
+} from '../../test-helpers';
 import {
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,
@@ -20,12 +26,6 @@ import {
   parseOpossumFile,
   parseOutputJsonFile,
 } from '../parseFile';
-import { cloneDeep, set } from 'lodash';
-import {
-  createTempFolder,
-  deleteFolder,
-  writeOpossumFile,
-} from '../../test-helpers';
 
 const testUuid: string = uuidNil;
 const correctInput: ParsedOpossumInputFile = {

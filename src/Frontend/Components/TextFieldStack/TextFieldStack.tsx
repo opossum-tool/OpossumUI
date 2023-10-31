@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ChangeEvent, ReactElement } from 'react';
-import { TextBox } from '../InputElements/TextBox';
 import MuiBox from '@mui/material/Box';
+import { ChangeEvent, ReactElement } from 'react';
+
+import { TextBox } from '../InputElements/TextBox';
 
 const classes = {
   textBox: {

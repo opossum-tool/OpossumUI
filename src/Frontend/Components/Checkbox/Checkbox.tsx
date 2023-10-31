@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import MuiCheckbox from '@mui/material/Checkbox';
-import { ReactElement } from 'react';
-import MuiTypography from '@mui/material/Typography';
-import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiCheckbox from '@mui/material/Checkbox';
+import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
+import { OpossumColors } from '../../shared-styles';
 
 const classes = {
   white: {

@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
+import { OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
+import { ResourcesListBatch } from '../../types/types';
+import { doNothing } from '../../util/do-nothing';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { List } from '../List/List';
 import { ListCard } from '../ListCard/ListCard';
-import { doNothing } from '../../util/do-nothing';
-import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
-import { OpossumColors } from '../../shared-styles';
 import { convertResourcesListBatchesToResourcesListItems } from './resource-list-helpers';
-import { ResourcesListBatch } from '../../types/types';
-import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import MuiBox from '@mui/material/Box';
 
 const classes = {
   root: {

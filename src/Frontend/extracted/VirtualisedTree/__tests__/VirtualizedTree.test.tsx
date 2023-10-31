@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { VirtualizedTree } from '../VirtualizedTree';
-import { screen } from '@testing-library/react';
-import { NodesForTree } from '../types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { Button } from '@mui/material';
+import { screen } from '@testing-library/react';
+import { ReactElement } from 'react';
+
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { NodesForTree } from '../types';
+import { VirtualizedTree } from '../VirtualizedTree';
 
 describe('The VirtualizedTree', () => {
   const testNodes: NodesForTree = {

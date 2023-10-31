@@ -3,25 +3,26 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { app, BrowserWindow, Menu, shell } from 'electron';
+
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import { ExportType } from '../../shared/shared-types';
+import { isFileLoaded } from '../utils/getLoadedFile';
+import { getGlobalBackendState } from './globalBackendState';
+import {
+  getIconBasedOnTheme,
+  makeFirstIconVisibleAndSecondHidden,
+} from './iconHelpers';
 import {
   getOpenFileListener,
   getSelectBaseURLListener,
   setLoadingState,
 } from './listeners';
-import { getGlobalBackendState } from './globalBackendState';
 import {
   getPathOfChromiumNoticeDocument,
   getPathOfNoticeDocument,
 } from './notice-document-helpers';
-import { ExportType } from '../../shared/shared-types';
-import { isFileLoaded } from '../utils/getLoadedFile';
-import {
-  getIconBasedOnTheme,
-  makeFirstIconVisibleAndSecondHidden,
-} from './iconHelpers';
+
 export function createMenu(mainWindow: BrowserWindow): Menu {
   const webContents = mainWindow.webContents;
 

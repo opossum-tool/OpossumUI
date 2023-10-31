@@ -2,21 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
+import MuiChip from '@mui/material/Chip';
 import MuiFormControl from '@mui/material/FormControl';
 import MuiInputLabel from '@mui/material/InputLabel';
 import MuiMenuItem from '@mui/material/MenuItem';
-import MuiSelect from '@mui/material/Select';
-import MuiChip from '@mui/material/Chip';
-import MuiBox from '@mui/material/Box';
 import MuiOutlinedInput from '@mui/material/OutlinedInput';
+import MuiSelect from '@mui/material/Select';
+import { ReactElement } from 'react';
+
 import { FilterType } from '../../enums/enums';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
-import { getActiveFilters } from '../../state/selectors/view-selector';
 import { OpossumColors } from '../../shared-styles';
-import { SxProps } from '@mui/material';
+import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getActiveFilters } from '../../state/selectors/view-selector';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const ITEM_HEIGHT = 48;

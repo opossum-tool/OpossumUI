@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { act, screen } from '@testing-library/react';
 
 import {
   Attributions,
@@ -10,18 +11,17 @@ import {
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import {
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import {
   setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { act, screen } from '@testing-library/react';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
 
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';

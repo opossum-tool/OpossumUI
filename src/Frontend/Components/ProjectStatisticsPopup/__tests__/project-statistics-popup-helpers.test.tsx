@@ -2,7 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import {
+  Attributions,
+  Criticality,
+  ExternalAttributionSources,
+  FollowUp,
+} from '../../../../shared/shared-types';
+import {
+  LicenseCounts,
+  LicenseNamesWithCriticality,
+  PieChartData,
+} from '../../../types/types';
 import {
   aggregateAttributionPropertiesFromAttributions,
   aggregateLicensesAndSourcesFromAttributions,
@@ -15,17 +25,6 @@ import {
   getStrippedLicenseName,
   getUniqueLicenseNameToAttribution,
 } from '../project-statistics-popup-helpers';
-import {
-  Attributions,
-  Criticality,
-  ExternalAttributionSources,
-  FollowUp,
-} from '../../../../shared/shared-types';
-import {
-  LicenseCounts,
-  LicenseNamesWithCriticality,
-  PieChartData,
-} from '../../../types/types';
 
 const testAttributions_1: Attributions = {
   uuid1: {

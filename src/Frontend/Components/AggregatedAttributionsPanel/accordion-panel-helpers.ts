@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   AttributionsToHashes,
@@ -14,13 +13,13 @@ import {
   AttributionIdWithCount,
   DisplayPackageInfosWithCount,
 } from '../../types/types';
+import { createPackageCardId } from '../../util/create-package-card-id';
 import {
   getContainedExternalPackages,
   getContainedManualPackages,
   PanelAttributionData,
 } from '../../util/get-contained-packages';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
-import { createPackageCardId } from '../../util/create-package-card-id';
 
 export function getContainedExternalDisplayPackageInfosWithCount(args: {
   selectedResourceId: string;

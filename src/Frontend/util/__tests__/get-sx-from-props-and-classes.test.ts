@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { SxProps } from '@mui/material';
+import { SystemStyleObject } from '@mui/system/styleFunctionSx';
 
 import {
   getSxFromPropsAndClasses,
   MuiSx,
 } from '../get-sx-from-props-and-classes';
-import { SxProps } from '@mui/material';
-import { SystemStyleObject } from '@mui/system/styleFunctionSx';
 
 describe('getSxFromPropsAndClasses', () => {
   it('takes styleClass as only input', () => {

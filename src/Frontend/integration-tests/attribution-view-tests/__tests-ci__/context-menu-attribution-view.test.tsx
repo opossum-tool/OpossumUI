@@ -3,9 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { App } from '../../../Components/App/App';
 import { fireEvent, screen } from '@testing-library/react';
+
 import {
   Attributions,
   DiscreteConfidence,
@@ -13,6 +12,13 @@ import {
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { App } from '../../../Components/App/App';
+import { ButtonText, View } from '../../../enums/enums';
+import {
+  expectValueInConfidenceField,
+  expectValueInTextBox,
+  expectValueNotInConfidenceField,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButtonInPackageContextMenu,
   expectButtonInPackageContextMenu,
@@ -22,18 +28,6 @@ import {
   expectNoConfirmationButtonsShown,
   handleReplaceMarkedAttributionViaContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, View } from '../../../enums/enums';
-import {
-  expectValueInConfidenceField,
-  expectValueInTextBox,
-  expectValueNotInConfidenceField,
-} from '../../../test-helpers/attribution-column-test-helpers';
-import {
-  clickOnElementInResourceBrowser,
-  expectResourceBrowserIsNotShown,
-} from '../../../test-helpers/resource-browser-test-helpers';
-import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 import {
   clickOnButton,
   clickOnMultiSelectCheckboxInPackageCard,
@@ -43,10 +37,16 @@ import {
   goToView,
   mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
+import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
 import {
   expectConfirmMultiSelectDeletionPopupNotVisible,
   expectConfirmMultiSelectDeletionPopupVisible,
 } from '../../../test-helpers/popup-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
 
 const testResources: Resources = {
   'firstResource.js': 1,

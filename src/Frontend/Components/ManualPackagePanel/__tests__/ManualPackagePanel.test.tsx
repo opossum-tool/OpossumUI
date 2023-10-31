@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ManualPackagePanel } from '../ManualPackagePanel';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { act } from 'react-dom/test-utils';
+
 import { Attributions, Resources } from '../../../../shared/shared-types';
 import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { ManualPackagePanel } from '../ManualPackagePanel';
 
 describe('The ManualPackagePanel', () => {
   it('shows default and input attributions', () => {

@@ -3,11 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { IpcRendererEvent } from 'electron';
-import { ReactElement } from 'react';
 import pick from 'lodash/pick';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { ReactElement } from 'react';
+
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Attributions,
@@ -27,6 +26,12 @@ import {
 } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
 import {
+  openPopup,
+  setIsLoading,
+  setQAMode,
+} from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
   getAttributionBreakpoints,
   getBaseUrlsForSources,
   getFilesWithChildren,
@@ -39,14 +44,9 @@ import {
   getAttributionsWithResources,
   removeSlashesFromFilesWithChildren,
 } from '../../util/get-attributions-with-resources';
-import { useIpcRenderer } from '../../util/use-ipc-renderer';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import {
-  openPopup,
-  setIsLoading,
-  setQAMode,
-} from '../../state/actions/view-actions/view-actions';
+import { useIpcRenderer } from '../../util/use-ipc-renderer';
 
 export function BackendCommunication(): ReactElement | null {
   const resources = useAppSelector(getResources);

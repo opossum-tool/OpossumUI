@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
+
 import { deleteAttributionGloballyAndSave } from '../../state/actions/resource-actions/save-actions';
-import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getCurrentAttributionId } from '../../state/selectors/all-views-resource-selectors';
+import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
+import { ConfirmationPopup } from '../ConfirmationPopup/ConfirmationPopup';
 
 export function ConfirmMultiSelectDeletionPopup(): ReactElement {
   const multiSelectSelectedAttributionIds = useAppSelector(

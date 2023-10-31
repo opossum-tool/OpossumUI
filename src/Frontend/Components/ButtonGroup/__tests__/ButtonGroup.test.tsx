@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ButtonGroup, MainButtonConfig } from '../ButtonGroup';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { doNothing } from '../../../util/do-nothing';
+
 import { ButtonText } from '../../../enums/enums';
+import { doNothing } from '../../../util/do-nothing';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
+import { ButtonGroup, MainButtonConfig } from '../ButtonGroup';
 
 describe('Button group', () => {
   const mainButtonConfigs: Array<MainButtonConfig> = [

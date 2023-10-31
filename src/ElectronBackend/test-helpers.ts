@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import * as fflate from 'fflate';
 import fs from 'fs';
 import { v4 as uuid4 } from 'uuid';
-import * as fflate from 'fflate';
+
 import {
   INPUT_FILE_NAME,
   OPOSSUM_FILE_COMPRESSION_LEVEL,

@@ -3,11 +3,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen } from '@testing-library/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { PackageSearchPopup } from '../PackageSearchPopup';
 

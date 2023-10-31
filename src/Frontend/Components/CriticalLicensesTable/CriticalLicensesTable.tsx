@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
+
 import { Criticality } from '../../../shared/shared-types';
-import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
-import { LicenseNamesWithCriticality } from '../../types/types';
-import { IconButton } from '../IconButton/IconButton';
-import { LocateSignalsIcon } from '../Icons/Icons';
 import { clickableIcon } from '../../shared-styles';
+import { locateSignalsFromProjectStatisticsPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { AppThunkDispatch } from '../../state/types';
-import { locateSignalsFromProjectStatisticsPopup } from '../../state/actions/popup-actions/popup-actions';
+import { LicenseNamesWithCriticality } from '../../types/types';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
+import { IconButton } from '../IconButton/IconButton';
+import { LocateSignalsIcon } from '../Icons/Icons';
+import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
 const COUNT_COLUMN_NAME_IN_TABLE = 'Count';

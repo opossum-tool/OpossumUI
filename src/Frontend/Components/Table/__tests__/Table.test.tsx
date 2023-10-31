@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
 import {
   AttributionsWithResources,
@@ -10,7 +11,6 @@ import {
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { doNothing } from '../../../util/do-nothing';
 import { Table } from '../Table';
-import { screen } from '@testing-library/react';
 
 describe('The Table', () => {
   it('renders', () => {

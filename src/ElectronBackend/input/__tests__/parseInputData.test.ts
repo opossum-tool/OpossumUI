@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { WebContents } from 'electron';
+
 import {
   Attributions,
   AttributionsToResources,
@@ -14,6 +14,11 @@ import {
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import {
+  RawAttributions,
+  RawBaseUrlsForSources,
+  RawFrequentLicense,
+} from '../../types/types';
+import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalAttributions,
   getAllResourcePaths,
@@ -22,11 +27,6 @@ import {
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
 } from '../parseInputData';
-import {
-  RawAttributions,
-  RawBaseUrlsForSources,
-  RawFrequentLicense,
-} from '../../types/types';
 
 const mockCallback = jest.fn();
 const webContents = { send: mockCallback as unknown } as WebContents;

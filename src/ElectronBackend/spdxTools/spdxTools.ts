@@ -2,8 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import yaml from 'js-yaml';
+import hash from 'object-hash';
+import { PackageURL } from 'packageurl-js';
+import { default as spdxLicenseJson } from 'spdx-license-ids/index.json';
 import { v4 as uuid4 } from 'uuid';
+
 import {
   Package,
   SpdxAttributions,
@@ -13,10 +17,6 @@ import {
   SpdxLicenseInfo,
   SpdxPackage,
 } from './types';
-import yaml from 'js-yaml';
-import { PackageURL } from 'packageurl-js';
-import { default as spdxLicenseJson } from 'spdx-license-ids/index.json';
-import hash from 'object-hash';
 
 const DEFAULT_PACKAGE_RELATION = 'DEPENDENCY_OF';
 const DEFAULT_DOCUMENT_ID = 'SPDXRef-DOCUMENT';

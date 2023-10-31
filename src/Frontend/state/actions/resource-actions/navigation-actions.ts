@@ -2,19 +2,32 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { AttributionData } from '../../../../shared/shared-types';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
-import { PanelPackage, State } from '../../../types/types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
-import { getSelectedView, getTargetView } from '../../selectors/view-selector';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../shared-constants';
+import { PanelPackage, State } from '../../../types/types';
+import { doNothing } from '../../../util/do-nothing';
+import { isExternalPackagePanel } from '../../../util/is-external-package-panel';
+import { getParents } from '../../helpers/get-parents';
 import {
   getDisplayPackageInfoOfSelectedAttributionInAttributionView,
   getManualData,
 } from '../../selectors/all-views-resource-selectors';
-import { doNothing } from '../../../util/do-nothing';
-import { getParents } from '../../helpers/get-parents';
+import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
+import {
+  getDisplayedPackage,
+  getDisplayPackageInfoOfDisplayedPackage,
+  getSelectedResourceId,
+  getTargetDisplayedPackage,
+  getTargetSelectedResourceId,
+} from '../../selectors/audit-view-resource-selectors';
+import { getSelectedView, getTargetView } from '../../selectors/view-selector';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { navigateToView } from '../view-actions/view-actions';
+import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 import {
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
@@ -26,20 +39,6 @@ import {
   setTargetDisplayedPackage,
   setTargetSelectedResourceId,
 } from './audit-view-simple-actions';
-import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
-import {
-  getDisplayedPackage,
-  getDisplayPackageInfoOfDisplayedPackage,
-  getSelectedResourceId,
-  getTargetDisplayedPackage,
-  getTargetSelectedResourceId,
-} from '../../selectors/audit-view-resource-selectors';
-import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
-import {
-  ADD_NEW_ATTRIBUTION_BUTTON_ID,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../../shared-constants';
-import { isExternalPackagePanel } from '../../../util/is-external-package-panel';
 
 export function resetTemporaryDisplayPackageInfo(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {

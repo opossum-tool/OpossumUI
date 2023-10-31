@@ -1,14 +1,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   AttributionData,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../shared/shared-types';
-import { getAttributedChildren } from './get-attributed-children';
 import { AttributionIdWithCount } from '../types/types';
+import { getAttributedChildren } from './get-attributed-children';
 
 export type PanelAttributionData = Pick<
   AttributionData,

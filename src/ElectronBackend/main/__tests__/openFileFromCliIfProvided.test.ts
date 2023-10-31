@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { BrowserWindow } from 'electron';
 
 import { openFileFromCliIfProvided } from '../openFileFromCliIfProvided';
-import { BrowserWindow } from 'electron';
 
 const mockHandleOpeningFile = jest.fn();
 jest.mock('../listeners', () => ({

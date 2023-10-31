@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { FilterType, View } from '../../enums/enums';
 import { PopupInfo } from '../../types/types';
 import {

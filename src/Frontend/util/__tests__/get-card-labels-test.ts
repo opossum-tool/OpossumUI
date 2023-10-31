@@ -2,15 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import {
   addFirstLineOfPackageLabelFromAttribute,
   addPreambleToCopyright,
   addSecondLineOfPackageLabelFromAttribute,
   getCardLabels,
 } from '../get-card-labels';
-import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 
 describe('Test getPackageLabel', () => {
   const testProps: DisplayPackageInfo = {

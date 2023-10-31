@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   fireEvent,
   getByLabelText,
@@ -10,8 +9,9 @@ import {
   queryByText,
   Screen,
 } from '@testing-library/react';
-import { getPackagePanel } from './general-test-helpers';
+
 import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../shared-constants';
+import { getPackagePanel } from './general-test-helpers';
 
 export function expectPackageInPackagePanel(
   screen: Screen,

@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { contextBridge, ipcRenderer } from 'electron';
+
 import { AllowedFrontendChannels, IpcChannel } from '../shared/ipc-channels';
 import {
   ExportArgsType,

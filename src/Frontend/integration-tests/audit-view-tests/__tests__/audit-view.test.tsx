@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { screen } from '@testing-library/react';
+
 import {
   Attributions,
   DiscreteConfidence,
@@ -27,10 +27,10 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { clearPopover } from '../../../test-helpers/context-menu-test-helpers';
 import {
-  EMPTY_PARSED_FILE_CONTENT,
   clickOnButton,
   clickOnTopProgressBar,
   closeProjectStatisticsPopup,
+  EMPTY_PARSED_FILE_CONTENT,
   getButton,
   getOpenFileIcon,
   getParsedInputFileEnrichedWithTestData,

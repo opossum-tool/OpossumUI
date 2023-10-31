@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   AttributionsToHashes,
@@ -19,6 +18,7 @@ import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
+  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
   ACTION_SET_EXTERNAL_ATTRIBUTION_DATA,
   ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES,
   ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
@@ -36,12 +36,11 @@ import {
   SetExternalDataAction,
   SetFilesWithChildren,
   SetFrequentLicensesAction,
+  SetIsPreferenceFeatureEnabled,
   SetManualDataAction,
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryDisplayPackageInfoAction,
-  ACTION_SET_ENABLE_PREFERENCE_FEATURE,
-  SetIsPreferenceFeatureEnabled,
 } from './types';
 
 export function resetResourceState(): ResetResourceStateAction {

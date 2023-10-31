@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { PathPredicate } from '../types/types';
 import { ResourceState } from '../state/reducers/resource-reducer';
+import { PathPredicate } from '../types/types';
 
 export function getFileWithChildrenCheckForResourceState(
   resourceState: ResourceState,

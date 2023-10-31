@@ -1,0 +1,34 @@
+# Node
+**/.DS_Store
+**/.Rhistory
+**/node_modules
+
+# Builds
+build
+dist
+CHANGELOG.md
+
+# IDEs
+.vscode
+**/.idea
+**/coverage
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+lerna-debug.log*
+
+# Yarn
+.yarn-integrity
+.pnp.*
+.yarn/*
+
+# dotenv environment variables file
+.env
+.env.test

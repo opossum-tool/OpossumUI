@@ -2,25 +2,25 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { createTheme } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { ReactElement } from 'react';
+
 import { View } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
 import {
   getIsLoading,
   getSelectedView,
 } from '../../state/selectors/view-selector';
-import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
-import { ReportView } from '../ReportView/ReportView';
 import { AttributionView } from '../AttributionView/AttributionView';
-import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { AuditView } from '../AuditView/AuditView';
-import { TopBar } from '../TopBar/TopBar';
-import { createTheme } from '@mui/material';
-import { useAppSelector } from '../../state/hooks';
-import MuiBox from '@mui/material/Box';
+import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
+import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
+import { ReportView } from '../ReportView/ReportView';
 import { Spinner } from '../Spinner/Spinner';
-import { OpossumColors } from '../../shared-styles';
+import { TopBar } from '../TopBar/TopBar';
 
 const classes = {
   root: {

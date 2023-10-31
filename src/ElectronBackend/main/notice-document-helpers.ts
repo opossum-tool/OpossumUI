@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import path from 'path';
 import isDev from 'electron-is-dev';
+import path from 'path';
 
 function getNoticesDirectory(): string {
   if (isDev) {

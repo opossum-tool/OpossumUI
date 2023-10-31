@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { render, RenderResult } from '@testing-library/react';
 import { ReactElement, ReactNode } from 'react';
 import { Provider } from 'react-redux';
+import { VirtuosoMockContext } from 'react-virtuoso';
 import { Store } from 'redux';
+
 import { createAppStore } from '../state/configure-store';
 import { AppThunkDispatch } from '../state/types';
-import { VirtuosoMockContext } from 'react-virtuoso';
 
 export interface EnhancedTestStore extends Store {
   dispatch: AppThunkDispatch;

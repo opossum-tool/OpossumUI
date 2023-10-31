@@ -3,8 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { WebContents } from 'electron';
+
+import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
@@ -20,7 +21,6 @@ import {
   RawBaseUrlsForSources,
   RawFrequentLicense,
 } from '../types/types';
-import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');

@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { cloneDeep, isEqual } from 'lodash';
+
 import {
   AttributionData,
   Attributions,
@@ -24,18 +24,18 @@ import {
   PackagePanelTitle,
   View,
 } from '../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { State } from '../../types/types';
-import { getPopupAttributionId, getSelectedView } from './view-selector';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
+import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getDisplayedPackage,
   getDisplayPackageInfoOfDisplayedPackage,
   getDisplayPackageInfoOfDisplayedPackageInManualPanel,
 } from './audit-view-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import { getPopupAttributionId, getSelectedView } from './view-selector';
 
 export function getResources(state: State): Resources | null {
   return state.resourceState.allViews.resources;

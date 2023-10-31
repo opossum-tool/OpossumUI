@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
+import { SxProps } from '@mui/material';
 import MuiSwitch from '@mui/material/Switch';
 import MuiTooltip from '@mui/material/Tooltip';
-import { SxProps } from '@mui/material';
+import { ReactElement } from 'react';
 
 interface SwitchWithTooltipProps {
   sx: SxProps;

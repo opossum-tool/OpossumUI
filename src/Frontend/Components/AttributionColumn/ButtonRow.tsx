@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { ToggleButton } from '../ToggleButton/ToggleButton';
-import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
-import MuiTypography from '@mui/material/Typography';
-import { ButtonText, CheckboxLabel } from '../../enums/enums';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import MuiBox from '@mui/material/Box';
-import { Checkbox } from '../Checkbox/Checkbox';
-import { checkboxClass } from '../../shared-styles';
+import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
 import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import { ButtonText, CheckboxLabel } from '../../enums/enums';
+import { checkboxClass } from '../../shared-styles';
+import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
+import { Checkbox } from '../Checkbox/Checkbox';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { ToggleButton } from '../ToggleButton/ToggleButton';
 
 const classes = {
   ...checkboxClass,

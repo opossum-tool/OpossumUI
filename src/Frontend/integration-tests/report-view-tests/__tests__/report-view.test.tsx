@@ -2,8 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { fireEvent, screen } from '@testing-library/react';
 
+import {
+  DiscreteConfidence,
+  ParsedFileContent,
+} from '../../../../shared/shared-types';
 import { App } from '../../../Components/App/App';
+import { ButtonText, View } from '../../../enums/enums';
+import {
+  expectValueInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButton,
   clickOnEditIconForElement,
@@ -13,17 +23,7 @@ import {
   goToView,
   mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
-import { ButtonText, View } from '../../../enums/enums';
-import {
-  DiscreteConfidence,
-  ParsedFileContent,
-} from '../../../../shared/shared-types';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { fireEvent, screen } from '@testing-library/react';
-import {
-  expectValueInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnElementInResourceBrowser,
   expectResourceBrowserIsNotShown,

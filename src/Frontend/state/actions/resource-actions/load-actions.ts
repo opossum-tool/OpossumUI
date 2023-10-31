@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ParsedFileContent } from '../../../../shared/shared-types';
+import { createExternalAttributionsToHashes } from '../../helpers/action-and-reducer-helpers';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   setAttributionBreakpoints,
@@ -19,7 +19,6 @@ import {
   setResources,
 } from './all-views-simple-actions';
 import { addResolvedExternalAttribution } from './audit-view-simple-actions';
-import { createExternalAttributionsToHashes } from '../../helpers/action-and-reducer-helpers';
 
 export function loadFromFile(
   parsedFileContent: ParsedFileContent,

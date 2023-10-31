@@ -2,32 +2,32 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../shared-constants';
+import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionsOfSelectedResource,
   getAttributionsOfSelectedResourceOrClosestParent,
   getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { Button } from '../Button/Button';
-import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
-import { OpossumColors } from '../../shared-styles';
-import MuiBox from '@mui/material/Box';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
-import {
-  ADD_NEW_ATTRIBUTION_BUTTON_ID,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../shared-constants';
 import { createPackageCardId } from '../../util/create-package-card-id';
+import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
+import { Button } from '../Button/Button';
+import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
 
 const classes = {
   root: {

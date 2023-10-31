@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { remove } from 'lodash';
+
 import { isIdOfResourceWithChildren } from './can-resource-have-children';
 
 export function replaceInArray<T>(

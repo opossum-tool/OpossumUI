@@ -2,11 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import * as fflate from 'fflate';
 import fs from 'fs';
-import zlib from 'zlib';
 import { Options, Validator } from 'jsonschema';
+import { Parser, parser } from 'stream-json';
+import Asm from 'stream-json/Assembler';
+import zlib from 'zlib';
+
+import { getGlobalBackendState } from '../main/globalBackendState';
+import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from '../shared-constants';
 import {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -16,10 +20,6 @@ import {
 } from '../types/types';
 import * as OpossumInputFileSchema from './OpossumInputFileSchema.json';
 import * as OpossumOutputFileSchema from './OpossumOutputFileSchema.json';
-import Asm from 'stream-json/Assembler';
-import { Parser, parser } from 'stream-json';
-import { INPUT_FILE_NAME, OUTPUT_FILE_NAME } from '../shared-constants';
-import { getGlobalBackendState } from '../main/globalBackendState';
 
 const jsonSchemaValidator = new Validator();
 const validationOptions: Options = {

@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
 import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,

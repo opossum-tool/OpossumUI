@@ -2,16 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import MuiButtonGroup from '@mui/material/ButtonGroup';
-import { Button } from '../Button/Button';
-import { HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
-import MuiBox from '@mui/material/Box';
-
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
+import MuiButtonGroup from '@mui/material/ButtonGroup';
+import { ReactElement } from 'react';
+
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { Button } from '../Button/Button';
+import { ContextMenuItem } from '../ContextMenu/ContextMenu';
+import { HamburgerMenu } from '../HamburgerMenu/HamburgerMenu';
 
 const classes = {
   root: {

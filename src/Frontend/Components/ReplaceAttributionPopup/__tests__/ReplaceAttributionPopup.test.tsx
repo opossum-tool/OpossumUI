@@ -3,30 +3,29 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
-import { ButtonText, PopupType } from '../../../enums/enums';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
-import {
-  createTestAppStore,
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
 
-import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  setAttributionIdMarkedForReplacement,
-  setMultiSelectSelectedAttributionIds,
-  setSelectedAttributionId,
-} from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   Attributions,
   DiscreteConfidence,
   Resources,
 } from '../../../../shared/shared-types';
+import { ButtonText, PopupType } from '../../../enums/enums';
+import {
+  setAttributionIdMarkedForReplacement,
+  setMultiSelectSelectedAttributionIds,
+  setSelectedAttributionId,
+} from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup';
 
 function setupTestState(store: EnhancedTestStore): void {
   const testResources: Resources = {

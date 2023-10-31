@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import { ReactElement, useMemo, useState } from 'react';
+
 import { DisplayPackageInfos } from '../../types/types';
 import { List } from '../List/List';
+import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list-helpers';
-import MuiBox from '@mui/material/Box';
-import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
 const classes = {
   container: {

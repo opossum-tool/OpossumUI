@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+import each from 'jest-each';
+import { act } from 'react-dom/test-utils';
+
+import { Resources } from '../../../../shared/shared-types';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { FileSearchPopup } from '../FileSearchPopup';
-import { Resources } from '../../../../shared/shared-types';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { act } from 'react-dom/test-utils';
-import each from 'jest-each';
 
 describe('FileSearch popup ', () => {
   const testResources: Resources = {

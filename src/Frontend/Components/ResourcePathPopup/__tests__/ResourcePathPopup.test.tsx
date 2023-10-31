@@ -2,11 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { screen } from '@testing-library/react';
 import { ReactElement } from 'react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { doNothing } from '../../../util/do-nothing';
-import { ResourcePathPopup } from '../ResourcePathPopup';
+
 import {
   Attributions,
   ResourcesToAttributions,
@@ -15,8 +13,10 @@ import {
   setExternalData,
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { screen } from '@testing-library/react';
 import { useAppDispatch } from '../../../state/hooks';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { doNothing } from '../../../util/do-nothing';
+import { ResourcePathPopup } from '../ResourcePathPopup';
 
 interface HelperComponentProps {
   isExternalAttribution: boolean;

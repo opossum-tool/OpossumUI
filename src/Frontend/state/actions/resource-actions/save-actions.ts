@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { isEmpty, isEqual, sortBy } from 'lodash';
 
 import {
   Attributions,
@@ -11,14 +12,16 @@ import {
   PackageInfo,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
-import { State } from '../../../types/types';
 import {
   AllowedSaveOperations,
   PopupType,
   SavePackageInfoOperation,
 } from '../../../enums/enums';
+import { State } from '../../../types/types';
+import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
+import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
 import { packageInfoHasNoSignificantFields } from '../../../util/package-info-has-no-significant-fields';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { attributionForTemporaryDisplayPackageInfoExists } from '../../helpers/save-action-helpers';
 import {
   getIsSavingDisabled,
   getManualAttributions,
@@ -26,18 +29,20 @@ import {
   getResourcesToManualAttributions,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
-import {
-  resetSelectedPackagePanelIfContainedAttributionWasRemoved,
-  resetTemporaryDisplayPackageInfo,
-} from './navigation-actions';
+import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getAttributionIdsOfSelectedResourceClosestParent,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
-import { attributionForTemporaryDisplayPackageInfoExists } from '../../helpers/save-action-helpers';
+import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { openPopup } from '../view-actions/view-actions';
+import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
+import {
+  resetSelectedPackagePanelIfContainedAttributionWasRemoved,
+  resetTemporaryDisplayPackageInfo,
+} from './navigation-actions';
 import {
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
   ACTION_DELETE_ATTRIBUTION,
@@ -54,12 +59,6 @@ import {
   UnlinkResourceFromAttributionAction,
   UpdateAttribution,
 } from './types';
-
-import { isEmpty, isEqual, sortBy } from 'lodash';
-import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
-import { openPopup } from '../view-actions/view-actions';
-import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
-import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
 
 export function setAllowedSaveOperations(
   allowedSaveOperations: AllowedSaveOperations,

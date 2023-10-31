@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { createContext, FC, ReactNode, useMemo } from 'react';
 
-import { FC, ReactNode, createContext, useMemo } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -17,10 +17,10 @@ import {
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
+import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
+import { PanelAttributionData } from '../../util/get-contained-packages';
 import { getNewAccordionWorkers } from '../../web-workers/get-new-accordion-workers';
 import { getNewProgressBarWorkers } from '../../web-workers/get-new-progress-bar-workers';
-import { PanelAttributionData } from '../../util/get-contained-packages';
-import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 
 const resourceDetailsTabsWorkers = getNewAccordionWorkers();
 

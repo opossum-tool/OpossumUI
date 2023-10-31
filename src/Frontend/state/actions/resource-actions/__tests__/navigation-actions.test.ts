@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   Attributions,
   DiscreteConfidence,
@@ -12,22 +11,27 @@ import {
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../../enums/enums';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import {
+  ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  EMPTY_DISPLAY_PACKAGE_INFO,
+} from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
+import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../../types/types';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import {
   getManualData,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/attribution-view-resource-selectors';
 import {
-  openResourceInResourceBrowser,
-  resetTemporaryDisplayPackageInfo,
-  setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
-  setSelectedResourceOrAttributionIdToTargetValue,
-} from '../navigation-actions';
-import { savePackageInfo } from '../save-actions';
-import { navigateToView, setTargetView } from '../../view-actions/view-actions';
+  getDisplayedPackage,
+  getExpandedIds,
+  getSelectedResourceId,
+} from '../../../selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../../selectors/view-selector';
+import { navigateToView, setTargetView } from '../../view-actions/view-actions';
+import { setTemporaryDisplayPackageInfo } from '../all-views-simple-actions';
 import {
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
@@ -39,18 +43,13 @@ import {
   setTargetSelectedResourceId,
 } from '../audit-view-simple-actions';
 import { loadFromFile } from '../load-actions';
-import { setTemporaryDisplayPackageInfo } from '../all-views-simple-actions';
 import {
-  getDisplayedPackage,
-  getExpandedIds,
-  getSelectedResourceId,
-} from '../../../selectors/audit-view-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../../selectors/attribution-view-resource-selectors';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
-import {
-  ADD_NEW_ATTRIBUTION_BUTTON_ID,
-  EMPTY_DISPLAY_PACKAGE_INFO,
-} from '../../../../shared-constants';
+  openResourceInResourceBrowser,
+  resetTemporaryDisplayPackageInfo,
+  setDisplayedPackageAndResetTemporaryDisplayPackageInfo,
+  setSelectedResourceOrAttributionIdToTargetValue,
+} from '../navigation-actions';
+import { savePackageInfo } from '../save-actions';
 
 describe('resetTemporaryDisplayPackageInfo', () => {
   it('works correctly on audit view', () => {

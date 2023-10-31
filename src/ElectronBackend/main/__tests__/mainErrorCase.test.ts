@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { dialog, ipcMain } from 'electron';
+
 import { main } from '../main';
 
 jest.mock('../installExtensionsForDev', () => ({

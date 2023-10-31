@@ -2,19 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
+
+import { Criticality } from '../../../shared/shared-types';
+import { treeItemClasses } from '../../shared-styles';
 import {
   BreakpointIcon,
   DirectoryIcon,
   FileIcon,
   SignalIcon,
 } from '../Icons/Icons';
-import { treeItemClasses } from '../../shared-styles';
-import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
-import { Criticality } from '../../../shared/shared-types';
 
 interface ResourceBrowserTreeItemLabelProps {
   labelText: string;

@@ -2,23 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ListCardConfig } from '../../types/types';
 import { ReactElement } from 'react';
+
+import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { HighlightingColor } from '../../enums/enums';
+import { OpossumColors } from '../../shared-styles';
+import { ListCardConfig } from '../../types/types';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
-  NeedsReviewIcon,
-  PreSelectedIcon,
-  PreferredIcon,
-  WasPreferredIcon,
   LocateSignalsIconWithTooltip,
+  NeedsReviewIcon,
+  PreferredIcon,
+  PreSelectedIcon,
+  WasPreferredIcon,
 } from '../Icons/Icons';
-import { OpossumColors } from '../../shared-styles';
-import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { HighlightingColor } from '../../enums/enums';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 export function getKey(prefix: string, cardId: string): string {
   return `${prefix}-${cardId}`;

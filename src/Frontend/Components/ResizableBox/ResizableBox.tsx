@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { SxProps } from '@mui/system';
 import { Resizable, ResizableProps } from 're-resizable';
 

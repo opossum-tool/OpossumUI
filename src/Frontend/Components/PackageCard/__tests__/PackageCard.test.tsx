@@ -2,19 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { act, fireEvent, screen } from '@testing-library/react';
-import { doNothing } from '../../../util/do-nothing';
-import {
-  PackageCard,
-  CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP,
-} from '../PackageCard';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+
 import {
   Attributions,
   DiscreteConfidence,
@@ -23,16 +12,27 @@ import {
   SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { ButtonText, PopupType } from '../../../enums/enums';
-import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
-import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
-import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
 import {
   setExternalData,
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
+import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { doNothing } from '../../../util/do-nothing';
+import {
+  CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP,
+  PackageCard,
+} from '../PackageCard';
 
 let testResources: Resources;
 let testAttributionId: string;

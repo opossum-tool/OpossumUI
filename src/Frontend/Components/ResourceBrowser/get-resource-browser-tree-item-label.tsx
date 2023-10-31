@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ReactElement } from 'react';
 
 import {
   AttributionData,
@@ -12,9 +13,8 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
-import { ReactElement } from 'react';
-import { ResourceBrowserTreeItemLabel } from '../ResourceBrowserTreeItemLabel/ResourceBrowserTreeItemLabel';
 import { getClosestParentAttributions } from '../../util/get-closest-parent-attributions';
+import { ResourceBrowserTreeItemLabel } from '../ResourceBrowserTreeItemLabel/ResourceBrowserTreeItemLabel';
 
 export function getResourceBrowserTreeItemLabel(
   resourceName: string,

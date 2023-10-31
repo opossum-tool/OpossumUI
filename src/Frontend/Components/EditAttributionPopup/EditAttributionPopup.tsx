@@ -2,27 +2,27 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement, useCallback } from 'react';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { ButtonText } from '../../enums/enums';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
-import {
-  getIsSavingDisabled,
-  getTemporaryDisplayPackageInfo,
-} from '../../state/selectors/all-views-resource-selectors';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { ButtonText } from '../../enums/enums';
+import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  getIsSavingDisabled,
+  getTemporaryDisplayPackageInfo,
+} from '../../state/selectors/all-views-resource-selectors';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
-import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { setUpdateTemporaryDisplayPackageInfoForCreator } from '../../util/set-update-temporary-package-info-for-creator';
+import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function EditAttributionPopup(): ReactElement {
   const dispatch = useAppDispatch();

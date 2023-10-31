@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
+import { ProjectMetadata } from '../../../../shared/shared-types';
+import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { screen } from '@testing-library/react';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
-import { ProjectMetadata } from '../../../../shared/shared-types';
-import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 
 describe('The ProjectMetadataPopup', () => {
   it('displays metadata', () => {

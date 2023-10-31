@@ -3,23 +3,27 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import StarIcon from '@mui/icons-material/Star';
-import MuiTooltip from '@mui/material/Tooltip';
-import Filter1Icon from '@mui/icons-material/Filter1';
-import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
-import WidgetsIcon from '@mui/icons-material/Widgets';
-import FolderOutlinedIcon from '@mui/icons-material/Folder';
-import DescriptionIcon from '@mui/icons-material/Description';
-import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
-import ReplayIcon from '@mui/icons-material/Replay';
-import LocalParkingIcon from '@mui/icons-material/LocalParking';
-import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import DescriptionIcon from '@mui/icons-material/Description';
+import Filter1Icon from '@mui/icons-material/Filter1';
+import FolderOutlinedIcon from '@mui/icons-material/Folder';
+import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
+import InsertCommentIcon from '@mui/icons-material/InsertComment';
+import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import RectangleIcon from '@mui/icons-material/Rectangle';
+import ReplayIcon from '@mui/icons-material/Replay';
+import SearchIcon from '@mui/icons-material/Search';
+import StarIcon from '@mui/icons-material/Star';
+import WidgetsIcon from '@mui/icons-material/Widgets';
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
+import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
+
+import { Criticality } from '../../../shared/shared-types';
 import {
   baseIcon,
   clickableIcon,
@@ -27,11 +31,7 @@ import {
   OpossumColors,
   tooltipStyle,
 } from '../../shared-styles';
-import { SxProps } from '@mui/material';
-import RectangleIcon from '@mui/icons-material/Rectangle';
-import { Criticality } from '../../../shared/shared-types';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-import MuiBox from '@mui/material/Box';
 
 const classes = {
   clickableIcon,

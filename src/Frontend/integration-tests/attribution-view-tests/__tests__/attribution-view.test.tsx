@@ -3,8 +3,23 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { fireEvent, screen } from '@testing-library/react';
 
+import {
+  DiscreteConfidence,
+  PackageInfo,
+  ParsedFileContent,
+  SaveFileArgs,
+} from '../../../../shared/shared-types';
 import { App } from '../../../Components/App/App';
+import { ButtonText, View } from '../../../enums/enums';
+import {
+  clickOnButtonInHamburgerMenu,
+  expectButtonInHamburgerMenu,
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButton,
   clickOnOpenFileIcon,
@@ -14,32 +29,17 @@ import {
   goToView,
   mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
-import { fireEvent, screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  DiscreteConfidence,
-  PackageInfo,
-  ParsedFileContent,
-  SaveFileArgs,
-} from '../../../../shared/shared-types';
-import { ButtonText, View } from '../../../enums/enums';
 import { clickOnPackageInPackagePanel } from '../../../test-helpers/package-panel-helpers';
-import {
-  clickOnButtonInHamburgerMenu,
-  expectButtonInHamburgerMenu,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
-import {
-  clickOnElementInResourceBrowser,
-  expectResourceBrowserIsNotShown,
-} from '../../../test-helpers/resource-browser-test-helpers';
 import {
   expectReplaceAttributionPopupIsNotShown,
   expectReplaceAttributionPopupIsShown,
   expectUnsavedChangesPopupIsShown,
 } from '../../../test-helpers/popup-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The App in attribution view', () => {
   it('app shows empty AttributionsDetailsViewer for selected Signals', () => {

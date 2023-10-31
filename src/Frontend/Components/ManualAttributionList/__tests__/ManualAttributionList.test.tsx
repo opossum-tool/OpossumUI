@@ -2,22 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, screen } from '@testing-library/react';
+
 import {
   Attributions,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { doNothing } from '../../../util/do-nothing';
-import { ManualAttributionList } from '../ManualAttributionList';
-import {
-  createTestAppStore,
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { ButtonText } from '../../../enums/enums';
+import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   clickOnButtonInPackageContextMenu,
   expectButtonInPackageContextMenu,
@@ -25,9 +19,15 @@ import {
   expectContextMenuForNotPreSelectedAttributionSingleResource,
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { ButtonText } from '../../../enums/enums';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import {
+  createTestAppStore,
+  EnhancedTestStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
 import { DisplayPackageInfos } from '../../../types/types';
-import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
+import { doNothing } from '../../../util/do-nothing';
+import { ManualAttributionList } from '../ManualAttributionList';
 
 function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
   const store = createTestAppStore();

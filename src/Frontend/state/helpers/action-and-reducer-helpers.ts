@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import isEqual from 'lodash/isEqual';
+import objectHash from 'object-hash';
 
 import {
   AttributionData,
@@ -14,14 +16,7 @@ import {
   ResourcesWithAttributedChildren,
   SelectedCriticality,
 } from '../../../shared/shared-types';
-import isEqual from 'lodash/isEqual';
-import { getParents } from './get-parents';
-import {
-  _addParentsToResourcesWithAttributedChildrenNoMutation,
-  deleteChildrenFromAttributedResources,
-} from './save-action-helpers';
-import objectHash from 'object-hash';
-import { ResourceState } from '../reducers/resource-reducer';
+import { LocatePopupFilters } from '../../types/types';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
@@ -29,7 +24,12 @@ import {
   licenseNameContainsSearchTerm,
   packageInfoContainsSearchTerm,
 } from '../../util/search-package-info';
-import { LocatePopupFilters } from '../../types/types';
+import { ResourceState } from '../reducers/resource-reducer';
+import { getParents } from './get-parents';
+import {
+  _addParentsToResourcesWithAttributedChildrenNoMutation,
+  deleteChildrenFromAttributedResources,
+} from './save-action-helpers';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,

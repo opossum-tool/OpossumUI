@@ -2,19 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import * as fs from 'fs';
 // @ts-ignore
 import * as path from 'path';
 import * as upath from 'upath';
+
 import {
   Attributions,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
-import { getHeadersFromColumns, writeCsvToFile } from '../writeCsvToFile';
 import { getPackageInfoKeys } from '../../../shared/shared-util';
-import { KeysOfAttributionInfo } from '../../types/types';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { KeysOfAttributionInfo } from '../../types/types';
+import { getHeadersFromColumns, writeCsvToFile } from '../writeCsvToFile';
 
 const testCsvHeader =
   '"Index";"Confidence";"Comment";"Package Name";"Package Version";"Package Namespace";' +

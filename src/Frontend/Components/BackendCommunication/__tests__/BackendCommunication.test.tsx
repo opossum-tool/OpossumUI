@@ -3,14 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import { Attributions, ExportType } from '../../../../shared/shared-types';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   BackendCommunication,
   getBomAttributions,
 } from '../BackendCommunication';
-import { Attributions, ExportType } from '../../../../shared/shared-types';
 
 describe('BackendCommunication', () => {
   it('renders an Open file icon', () => {

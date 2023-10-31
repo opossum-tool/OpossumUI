@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { getLicenseFetchingInformation } from '../license-fetching-helpers';
-import { convertPypiPayload } from '../pypi-fetching-helpers';
-import { convertNpmPayload } from '../npm-fetching-helpers';
 import { convertGithubPayload } from '../github-fetching-helpers';
+import { getLicenseFetchingInformation } from '../license-fetching-helpers';
+import { convertNpmPayload } from '../npm-fetching-helpers';
+import { convertPypiPayload } from '../pypi-fetching-helpers';
 
 describe('getLicenseFetchingInformation', () => {
   it('returns null for undefined as input', () => {

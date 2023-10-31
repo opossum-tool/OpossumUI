@@ -2,31 +2,31 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+
 import { ButtonText, PopupType, View } from '../../enums/enums';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import {
-  closePopup,
-  openPopup,
-  setTargetView,
-} from '../../state/actions/view-actions/view-actions';
 import {
   navigateToTargetResourceOrAttribution,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetView,
   unlinkAttributionAndSavePackageInfoAndNavigateToTargetView,
 } from '../../state/actions/popup-actions/popup-actions';
+import { setTargetSelectedAttributionId } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { setTargetSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import {
+  closePopup,
+  openPopup,
+  setTargetView,
+} from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getCurrentAttributionId,
   getIsGlobalSavingDisabled,
   getIsSavingDisabled,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
-import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import { getSelectedView } from '../../state/selectors/view-selector';
-import { setTargetSelectedAttributionId } from '../../state/actions/resource-actions/attribution-view-simple-actions';
-import { setTargetSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function NotSavedPopup(): ReactElement {
   const dispatch = useAppDispatch();

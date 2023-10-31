@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import { initialViewState } from '../../../state/reducers/view-reducer';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ErrorBoundary } from '../ErrorBoundary';
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import { screen } from '@testing-library/react';
 
 describe('ErrorBoundary', () => {
   function TestComponent(props: { throws: boolean }): JSX.Element {

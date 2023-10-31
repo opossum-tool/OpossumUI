@@ -2,8 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
+import { ParsedFileContent } from '../../../../shared/shared-types';
 import { App } from '../../../Components/App/App';
+import {
+  ButtonText,
+  CheckboxLabel,
+  FilterType,
+  View,
+} from '../../../enums/enums';
 import {
   clickOnButton,
   clickOnCheckbox,
@@ -14,16 +22,8 @@ import {
   mockElectronBackendOpenFile,
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
-import { screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  ButtonText,
-  CheckboxLabel,
-  FilterType,
-  View,
-} from '../../../enums/enums';
-import { ParsedFileContent } from '../../../../shared/shared-types';
 import { clickOnCardInAttributionList } from '../../../test-helpers/package-panel-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 
 describe('The App integration', () => {
   it('app persists filters when changing views', () => {

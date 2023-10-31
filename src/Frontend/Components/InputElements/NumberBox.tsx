@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import MuiTextField from '@mui/material/TextField';
 import { ReactElement } from 'react';
+
 import { inputElementClasses, InputElementProps } from './shared';
-import MuiBox from '@mui/material/Box';
 
 interface NumericProps extends InputElementProps {
   value?: number;

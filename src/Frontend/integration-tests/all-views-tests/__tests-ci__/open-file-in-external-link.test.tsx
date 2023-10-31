@@ -3,20 +3,20 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { App } from '../../../Components/App/App';
-import {
-  EMPTY_PARSED_FILE_CONTENT,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
-import { ParsedFileContent } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { screen } from '@testing-library/react';
+
+import { ParsedFileContent } from '../../../../shared/shared-types';
+import { App } from '../../../Components/App/App';
 import {
   clickGoToLinkIcon,
   expectGoToLinkIconIsNotVisible,
   expectGoToLinkIconIsVisible,
 } from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  EMPTY_PARSED_FILE_CONTENT,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The go to link button', () => {

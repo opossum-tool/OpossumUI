@@ -2,14 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { PackageInfo } from '../../../shared/shared-types';
-import { convertPypiPayload, getPypiAPIUrl } from './pypi-fetching-helpers';
-import { convertNpmPayload, getNpmAPIUrl } from './npm-fetching-helpers';
 import {
   convertGithubPayload,
   getGithubAPIUrl,
 } from './github-fetching-helpers';
+import { convertNpmPayload, getNpmAPIUrl } from './npm-fetching-helpers';
+import { convertPypiPayload, getPypiAPIUrl } from './pypi-fetching-helpers';
 
 const PYPI_REGEX = new RegExp(
   '^https://(www.)?pypi.org/(pypi|project)/[\\w-+,_]+/?$',

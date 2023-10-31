@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { Attributions } from '../../../shared/shared-types';
 import {
-  getAlphabeticalComparerForAttributions,
   compareAlphabeticalStrings,
+  getAlphabeticalComparerForAttributions,
 } from '../get-alphabetical-comparer';
 
 describe('getAlphabeticalComparerForAttributions', () => {

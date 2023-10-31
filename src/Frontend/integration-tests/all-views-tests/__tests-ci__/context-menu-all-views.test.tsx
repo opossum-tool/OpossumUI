@@ -2,20 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
-import {
-  clickOnButton,
-  expectValuesInTopProgressbarTooltip,
-  getParsedInputFileEnrichedWithTestData,
-  goToView,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
-import { App } from '../../../Components/App/App';
 import {
   Attributions,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { App } from '../../../Components/App/App';
+import { ButtonText, View } from '../../../enums/enums';
+import {
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButtonInPackageContextMenu,
   clickOnButtonInPackageInPackagePanelContextMenu,
@@ -25,9 +24,13 @@ import {
   expectGlobalOnlyContextMenuForNotPreselectedAttribution,
   expectGlobalOnlyContextMenuForPreselectedAttribution,
 } from '../../../test-helpers/context-menu-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, View } from '../../../enums/enums';
-import { screen } from '@testing-library/react';
+import {
+  clickOnButton,
+  expectValuesInTopProgressbarTooltip,
+  getParsedInputFileEnrichedWithTestData,
+  goToView,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
 import {
   clickOnCardInAttributionList,
   clickOnTab,
@@ -35,20 +38,17 @@ import {
   expectPackagePanelShown,
 } from '../../../test-helpers/package-panel-helpers';
 import {
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
-import {
-  clickOnElementInResourceBrowser,
-  expectResourceBrowserIsNotShown,
-} from '../../../test-helpers/resource-browser-test-helpers';
-import {
   clickOnNodeInPopupWithResources,
   closePopup,
   expectConfirmDeletionPopupNotVisible,
   expectConfirmDeletionPopupVisible,
   expectShowResourcesPopupVisible,
 } from '../../../test-helpers/popup-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import {
+  clickOnElementInResourceBrowser,
+  expectResourceBrowserIsNotShown,
+} from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The ContextMenu', () => {
   describe('deletion buttons', () => {

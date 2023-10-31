@@ -2,30 +2,30 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
+import {
+  Attributions,
+  ResourcesToAttributions,
+} from '../../../../shared/shared-types';
+import { PopupType } from '../../../enums/enums';
+import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
+import {
+  setExternalData,
+  setManualData,
+} from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import { GlobalPopup } from '../GlobalPopup';
-import { PopupType } from '../../../enums/enums';
-import { screen } from '@testing-library/react';
-import {
-  Attributions,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
-import { act } from 'react-dom/test-utils';
-import {
-  setExternalData,
-  setManualData,
-} from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { openAttributionWizardPopup } from '../../../state/actions/popup-actions/popup-actions';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 describe('The GlobalPopUp', () => {
   it('does not open by default', () => {

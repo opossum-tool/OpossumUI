@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { PackageURL } from 'packageurl-js';
 
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 import {
   generatePurlAppendix,
   generatePurlFromDisplayPackageInfo,
   ParsedPurl,
   parsePurl,
 } from '../handle-purl';
-import { PackageURL } from 'packageurl-js';
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 
 describe('parsePurl', () => {
   it('returns false for an invalid purl', () => {

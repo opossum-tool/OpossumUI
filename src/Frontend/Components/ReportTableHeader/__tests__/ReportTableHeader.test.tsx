@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { screen } from '@testing-library/react';
 import { ReportTableHeader } from '../ReportTableHeader';
 
 describe('The report view table header', () => {

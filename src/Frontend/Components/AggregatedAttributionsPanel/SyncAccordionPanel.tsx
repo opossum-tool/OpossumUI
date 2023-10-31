@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
+
 import {
   Attributions,
   AttributionsToHashes,
 } from '../../../shared/shared-types';
-import { AccordionPanel } from './AccordionPanel';
 import { PackagePanelTitle } from '../../enums/enums';
 import { AttributionIdWithCount, PanelData } from '../../types/types';
 import { getExternalDisplayPackageInfosWithCount } from './accordion-panel-helpers';
+import { AccordionPanel } from './AccordionPanel';
 
 interface SyncAccordionPanelProps {
   title: PackagePanelTitle;

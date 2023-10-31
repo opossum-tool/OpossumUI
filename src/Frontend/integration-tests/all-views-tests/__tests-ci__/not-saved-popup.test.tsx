@@ -2,8 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { fireEvent, screen } from '@testing-library/react';
 
+import { ParsedFileContent } from '../../../../shared/shared-types';
 import { App } from '../../../Components/App/App';
+import { ButtonText, View } from '../../../enums/enums';
+import {
+  clickOnButtonInHamburgerMenu,
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButton,
   clickOnOpenFileIcon,
@@ -12,10 +21,6 @@ import {
   goToView,
   mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
-import { fireEvent, screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ButtonText, View } from '../../../enums/enums';
-import { ParsedFileContent } from '../../../../shared/shared-types';
 import {
   clickAddIconOnCardInAttributionList,
   clickAddNewAttributionButton,
@@ -26,20 +31,15 @@ import {
   getCardInAttributionList,
 } from '../../../test-helpers/package-panel-helpers';
 import {
-  clickOnButtonInHamburgerMenu,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
+  expectUnsavedChangesPopupIsNotShown,
+  expectUnsavedChangesPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   clickOnElementInResourceBrowser,
   expectResourceBrowserIsNotShown,
   getElementInResourceBrowser,
 } from '../../../test-helpers/resource-browser-test-helpers';
-import {
-  expectUnsavedChangesPopupIsNotShown,
-  expectUnsavedChangesPopupIsShown,
-} from '../../../test-helpers/popup-test-helpers';
 
 describe('Not saved popup of the app', () => {
   function loadMockFileContent(): void {

@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import MuiTypography from '@mui/material/Typography';
-import { tableConfigs } from '../Table/Table';
-import { OpossumColors } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
+import { OpossumColors } from '../../shared-styles';
+import { tableConfigs } from '../Table/Table';
 
 export const reportTableClasses = {
   tableHeader: {

@@ -2,28 +2,28 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { fireEvent, screen } from '@testing-library/react';
-import { EditAttributionPopup } from '../EditAttributionPopup';
+import { act } from 'react-dom/test-utils';
+
 import {
   Attributions,
   DisplayPackageInfo,
   Resources,
 } from '../../../../shared/shared-types';
+import { ButtonText, PopupType, View } from '../../../enums/enums';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   navigateToView,
   openPopup,
 } from '../../../state/actions/view-actions/view-actions';
-import { ButtonText, PopupType, View } from '../../../enums/enums';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import { act } from 'react-dom/test-utils';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
+import { EditAttributionPopup } from '../EditAttributionPopup';
 
 describe('The EditAttributionPopup', () => {
   const testResources: Resources = {

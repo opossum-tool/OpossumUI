@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useState } from 'react';
+
 import { Attributions } from '../../../shared/shared-types';
 import {
-  OpossumColors,
   clickableIcon,
   disabledIcon,
+  OpossumColors,
 } from '../../shared-styles';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';

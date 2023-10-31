@@ -3,15 +3,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { ClearlyDefinedPackageCard } from '../ClearlyDefinedPackageCard';
 import { fireEvent, screen } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { ClearlyDefinedPackageCard } from '../ClearlyDefinedPackageCard';
 
 describe('ClearlyDefinedPackageCard', () => {
   const axiosMock = new MockAdapter(axios);

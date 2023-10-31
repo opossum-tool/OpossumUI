@@ -2,11 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { SxProps } from '@mui/material';
+import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
-import { ProgressBarData, ProgressBarType } from '../../types/types';
+
 import { OpossumColors } from '../../shared-styles';
+import { ProgressBarData, ProgressBarType } from '../../types/types';
 import {
   getCriticalityBarBackground,
   getCriticalityBarTooltipText,
@@ -14,8 +16,6 @@ import {
   getProgressBarTooltipText,
   useOnProgressBarClick,
 } from './progress-bar-helpers';
-import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
 
 const classes = {
   tooltip: {

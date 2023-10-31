@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+
 import { fetchFromClearlyDefined } from '../fetch-from-clearly-defined';
 
 describe('fetchFromClearlyDefined', () => {

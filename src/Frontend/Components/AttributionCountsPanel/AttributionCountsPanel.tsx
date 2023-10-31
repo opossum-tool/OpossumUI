@@ -2,12 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { SxProps } from '@mui/material';
+import MuiTypography from '@mui/material/Typography';
+import pickBy from 'lodash/pickBy';
 import { ReactElement } from 'react';
-import { useAppSelector } from '../../state/hooks';
+
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
-import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
+import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import {
   FollowUpIcon,
   IncompleteAttributionsIcon,
@@ -15,11 +20,6 @@ import {
   NeedsReviewIcon,
   PreSelectedIcon,
 } from '../Icons/Icons';
-import pickBy from 'lodash/pickBy';
-import MuiTypography from '@mui/material/Typography';
-import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
-import { SxProps } from '@mui/material';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 
 const classes = {
   icons: {

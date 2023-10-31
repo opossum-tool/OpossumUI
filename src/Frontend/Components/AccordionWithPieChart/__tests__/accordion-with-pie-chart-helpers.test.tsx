@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { OpossumColors } from '../../../shared-styles';
 import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
-import { getColorsForPieChart } from '../AccordionWithPieChart';
+import { OpossumColors } from '../../../shared-styles';
 import { PieChartData } from '../../../types/types';
+import { getColorsForPieChart } from '../AccordionWithPieChart';
 
 describe('getColorsForPieChart', () => {
   it('obtains pie chart colors for critical signals pie chart', () => {

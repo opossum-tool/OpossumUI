@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import MuiTextField from '@mui/material/TextField';
-import { ReactElement } from 'react';
-import { inputElementClasses, InputElementProps } from './shared';
-import MuiInputAdornment from '@mui/material/InputAdornment';
-import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/material';
-import { HighlightingColor } from '../../enums/enums';
+import MuiBox from '@mui/material/Box';
+import MuiInputAdornment from '@mui/material/InputAdornment';
+import MuiTextField from '@mui/material/TextField';
 import { SystemStyleObject } from '@mui/system/styleFunctionSx';
+import { ReactElement } from 'react';
+
+import { HighlightingColor } from '../../enums/enums';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { inputElementClasses, InputElementProps } from './shared';
 
 interface TextProps extends InputElementProps {
   textFieldSx?: SxProps;

@@ -3,16 +3,16 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import { Component, Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
+import { AnyAction } from 'redux';
+
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { SendErrorInformationArgs } from '../../../shared/shared-types';
-import { AnyAction } from 'redux';
-import { resetViewState } from '../../state/actions/view-actions/view-actions';
-import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { OpossumColors } from '../../shared-styles';
-import MuiBox from '@mui/material/Box';
+import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { resetViewState } from '../../state/actions/view-actions/view-actions';
 
 const classes = {
   root: {

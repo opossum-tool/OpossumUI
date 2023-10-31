@@ -3,30 +3,15 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { App } from '../../../Components/App/App';
-import {
-  clickOnButton,
-  closeProjectStatisticsPopup,
-  EMPTY_PARSED_FILE_CONTENT,
-  expectButton,
-  expectButtonIsNotShown,
-  expectElementsInAutoCompleteAndSelectFirst,
-  expectValuesInTopProgressbarTooltip,
-  mockElectronBackendOpenFile,
-} from '../../../test-helpers/general-test-helpers';
 import { screen } from '@testing-library/react';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+
 import {
   DiscreteConfidence,
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { App } from '../../../Components/App/App';
 import { ButtonText } from '../../../enums/enums';
-import {
-  clickAddNewAttributionButton,
-  expectValueInManualPackagePanel,
-} from '../../../test-helpers/package-panel-helpers';
 import {
   clickOnButtonInHamburgerMenu,
   expectButtonInHamburgerMenu,
@@ -38,6 +23,21 @@ import {
   insertValueIntoTextBox,
   selectConfidenceInDropdown,
 } from '../../../test-helpers/attribution-column-test-helpers';
+import {
+  clickOnButton,
+  closeProjectStatisticsPopup,
+  EMPTY_PARSED_FILE_CONTENT,
+  expectButton,
+  expectButtonIsNotShown,
+  expectElementsInAutoCompleteAndSelectFirst,
+  expectValuesInTopProgressbarTooltip,
+  mockElectronBackendOpenFile,
+} from '../../../test-helpers/general-test-helpers';
+import {
+  clickAddNewAttributionButton,
+  expectValueInManualPackagePanel,
+} from '../../../test-helpers/package-panel-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 describe('The App in Audit View', () => {

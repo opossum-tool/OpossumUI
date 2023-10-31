@@ -3,22 +3,22 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { cloneDeep } from 'lodash';
+
 import {
-  Resources,
-  ResourcesToAttributions,
   Attributions,
+  DisplayPackageInfo,
   ExternalAttributionSources,
   PackageInfo,
-  DisplayPackageInfo,
+  Resources,
+  ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { PathPredicate, State } from '../../../types/types';
 import { getSubtree } from '../../../util/get-attributions-with-resources';
 import {
-  getResources,
   getExternalAttributions,
   getExternalAttributionSources,
+  getResources,
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
 } from '../../selectors/all-views-resource-selectors';

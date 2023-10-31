@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { isEmpty } from 'lodash';
 import { ReactElement } from 'react';
+
 import { getParents } from '../../../state/helpers/get-parents';
 import { NodeIdPredicateForTree, NodesForTree } from '../types';
 import { VirtualizedTreeNodeData } from '../VirtualizedTreeNode';

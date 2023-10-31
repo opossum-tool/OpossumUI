@@ -2,25 +2,25 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { ButtonText } from '../../enums/enums';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { doNothing } from '../../util/do-nothing';
+import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
+import { ButtonText } from '../../enums/enums';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdMarkedForReplacement,
   getCurrentAttributionId,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
-import { PackageCard } from '../PackageCard/PackageCard';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
-import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
-import MuiBox from '@mui/material/Box';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { doNothing } from '../../util/do-nothing';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { PackageCard } from '../PackageCard/PackageCard';
 
 const classes = {
   typography: {

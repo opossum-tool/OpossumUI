@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
+import MuiNavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiTypography from '@mui/material/Typography';
-import MuiNavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { OpossumColors } from '../../shared-styles';
 import { SxProps } from '@mui/system';
+import { ReactElement } from 'react';
+
+import { OpossumColors } from '../../shared-styles';
 
 const classes = {
   breadcrumbs: {

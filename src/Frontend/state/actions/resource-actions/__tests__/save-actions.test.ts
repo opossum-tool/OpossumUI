@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   AttributionData,
   Attributions,
@@ -20,8 +19,10 @@ import {
   PackagePanelTitle,
   PopupType,
 } from '../../../../enums/enums';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
+import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import {
   getAttributionIdMarkedForReplacement,
   getManualAttributions,
@@ -38,6 +39,7 @@ import {
   getSelectedAttributionIdInAttributionView,
 } from '../../../selectors/attribution-view-resource-selectors';
 import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/audit-view-resource-selectors';
+import { getOpenPopup } from '../../../selectors/view-selector';
 import {
   setResources,
   setTemporaryDisplayPackageInfo,
@@ -63,9 +65,6 @@ import {
   setAllowedSaveOperations,
   unlinkAttributionAndSavePackageInfo,
 } from '../save-actions';
-import { getOpenPopup } from '../../../selectors/view-selector';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 
 const testResources: Resources = {
   thirdParty: {

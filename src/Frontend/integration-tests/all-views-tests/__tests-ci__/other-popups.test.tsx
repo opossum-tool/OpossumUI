@@ -3,8 +3,24 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { act, fireEvent, screen } from '@testing-library/react';
 
+import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import {
+  DiscreteConfidence,
+  PackageInfo,
+  ParsedFileContent,
+  SaveFileArgs,
+} from '../../../../shared/shared-types';
 import { App } from '../../../Components/App/App';
+import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
+import { ButtonText } from '../../../enums/enums';
+import {
+  expectButtonInHamburgerMenu,
+  expectValueInTextBox,
+  expectValueNotInTextBox,
+  insertValueIntoTextBox,
+} from '../../../test-helpers/attribution-column-test-helpers';
 import {
   clickOnButton,
   closeProjectStatisticsPopup,
@@ -14,31 +30,6 @@ import {
   mockElectronBackendOpenFile,
   mockElectronIpcRendererOn,
 } from '../../../test-helpers/general-test-helpers';
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import {
-  DiscreteConfidence,
-  PackageInfo,
-  ParsedFileContent,
-  SaveFileArgs,
-} from '../../../../shared/shared-types';
-import { act, fireEvent, screen } from '@testing-library/react';
-import { ButtonText } from '../../../enums/enums';
-import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
-import {
-  expectButtonInHamburgerMenu,
-  expectValueInTextBox,
-  expectValueNotInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
-import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
-import {
-  clickOnNodeInPopupWithResources,
-  expectErrorPopupIsNotShown,
-  expectErrorPopupIsShown,
-  expectUnsavedChangesPopupIsNotShown,
-  expectUnsavedChangesPopupIsShown,
-} from '../../../test-helpers/popup-test-helpers';
 import {
   clickOnCardInAttributionList,
   clickOnTab,
@@ -46,6 +37,15 @@ import {
   expectPackagePanelShown,
   expectValueInAddToAttributionList,
 } from '../../../test-helpers/package-panel-helpers';
+import {
+  clickOnNodeInPopupWithResources,
+  expectErrorPopupIsNotShown,
+  expectErrorPopupIsShown,
+  expectUnsavedChangesPopupIsNotShown,
+  expectUnsavedChangesPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { clickOnElementInResourceBrowser } from '../../../test-helpers/resource-browser-test-helpers';
 
 function mockSaveFileRequestChannel(): void {
   window.electronAPI.on

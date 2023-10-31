@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ElectronApplication, expect, Page, test } from '@playwright/test';
 
 import {
   E2E_TEST_TIMEOUT,
@@ -10,7 +11,6 @@ import {
   getElementWithText,
   LOAD_TIMEOUT,
 } from '../test-helpers/test-helpers';
-import { ElectronApplication, expect, Page, test } from '@playwright/test';
 
 test.setTimeout(E2E_TEST_TIMEOUT);
 

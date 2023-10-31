@@ -3,8 +3,15 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
+import fs from 'fs';
+import each from 'jest-each';
+import JSZip from 'jszip';
+import * as MockDate from 'mockdate';
+import path from 'path';
+import upath from 'upath';
+
+import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import {
   AllowedFrontendChannels,
   IpcChannel,
@@ -18,10 +25,14 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
-import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeJsonToFile } from '../../output/writeJsonToFile';
+import { writeSpdxFile } from '../../output/writeSpdxFile';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
+import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
 import { createWindow } from '../createWindow';
+import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
   _exportFileAndOpenFolder,
@@ -37,19 +48,6 @@ import {
   getSelectBaseURLListener,
   linkHasHttpSchema,
 } from '../listeners';
-
-import * as MockDate from 'mockdate';
-
-import path from 'path';
-import upath from 'upath';
-import { writeSpdxFile } from '../../output/writeSpdxFile';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
-import each from 'jest-each';
-import fs from 'fs';
-import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
-import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
-import JSZip from 'jszip';
 
 jest.mock('electron', () => ({
   app: {

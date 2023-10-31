@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
 import {
   Cell as RcCell,
@@ -12,7 +12,7 @@ import {
   ResponsiveContainer as RcResponsiveContainer,
   Tooltip as RcTooltip,
 } from 'recharts';
-import MuiBox from '@mui/material/Box';
+
 import { OpossumColors } from '../../shared-styles';
 import { PieChartData } from '../../types/types';
 

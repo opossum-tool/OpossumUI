@@ -2,26 +2,26 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
 import { act, screen } from '@testing-library/react';
-import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup';
-import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
+
 import {
   Attributions,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { ButtonText } from '../../../enums/enums';
+import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import {
   clickOnButton,
   getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/general-test-helpers';
-import { ButtonText } from '../../../enums/enums';
-import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
+import {
+  createTestAppStore,
+  renderComponentWithStore,
+} from '../../../test-helpers/render-component-with-store';
+import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup';
 
 describe('The ConfirmMultiSelectDeletionPopup', () => {
   it('renders', () => {

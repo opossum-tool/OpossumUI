@@ -3,14 +3,15 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+
 import {
   DisplayPackageInfo,
   FollowUp,
   FrequentLicenseName,
 } from '../../../shared/shared-types';
-import { AppThunkDispatch } from '../../state/types';
+import { AllowedSaveOperations, View } from '../../enums/enums';
+import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   addResolvedExternalAttribution,
@@ -20,15 +21,14 @@ import {
   saveManualAndResolvedAttributionsToFile,
   setAllowedSaveOperations,
 } from '../../state/actions/resource-actions/save-actions';
-import { useWindowHeight } from '../../util/use-window-height';
+import { AppThunkDispatch } from '../../state/types';
+import { PanelPackage } from '../../types/types';
 import {
   generatePurlFromDisplayPackageInfo,
   parsePurl,
 } from '../../util/handle-purl';
-import { PanelPackage } from '../../types/types';
-import { AllowedSaveOperations, View } from '../../enums/enums';
 import { isExternalPackagePanel } from '../../util/is-external-package-panel';
-import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../shared-constants';
+import { useWindowHeight } from '../../util/use-window-height';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
 const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';

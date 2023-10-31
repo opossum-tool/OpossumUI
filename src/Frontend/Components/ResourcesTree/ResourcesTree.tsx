@@ -2,9 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
+import { SxProps } from '@mui/system';
 import { remove } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
+
 import { Resources } from '../../../shared/shared-types';
 import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import {
@@ -26,7 +27,6 @@ import {
   getInitialExpandedIds,
   getResourcesFromResourcePaths,
 } from './resources-tree-helpers';
-import { SxProps } from '@mui/system';
 
 interface ResourcesTreeProps {
   resourcePaths: Array<string>;

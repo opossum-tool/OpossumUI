@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { screen } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 
+import commitInfo from '../../../../commitInfo.json';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { UpdateAppPopup } from '../UpdateAppPopup';
-import { screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
-import commitInfo from '../../../../commitInfo.json';
 
 describe('UpdateAppPopup', () => {
   const okStatus = 200;

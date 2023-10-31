@@ -2,25 +2,25 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement, useState } from 'react';
-import MuiTypography from '@mui/material/Typography';
-import { useQuery } from '@tanstack/react-query';
-import MuiSkeleton from '@mui/material/Skeleton';
+import PlusIcon from '@mui/icons-material/Add';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
-import MuiAccordion from '@mui/material/Accordion';
-import { IconButton } from '../IconButton/IconButton';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PlusIcon from '@mui/icons-material/Add';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../state/hooks';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { fetchFromClearlyDefined } from './fetch-from-clearly-defined';
-import { Alert } from '../Alert/Alert';
-import { baseIcon } from '../../shared-styles';
 import MuiBox from '@mui/material/Box';
+import MuiSkeleton from '@mui/material/Skeleton';
+import MuiTypography from '@mui/material/Typography';
+import { useQuery } from '@tanstack/react-query';
+import { ReactElement, useState } from 'react';
+
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import { baseIcon } from '../../shared-styles';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
+import { Alert } from '../Alert/Alert';
+import { IconButton } from '../IconButton/IconButton';
+import { fetchFromClearlyDefined } from './fetch-from-clearly-defined';
 
 interface ClearlyDefinedPackageCardProps {
   coordinate: string;

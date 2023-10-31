@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { ReactElement } from 'react';
-import { InputElementProps } from '../InputElements/shared';
+
 import { FrequentLicenseName } from '../../../shared/shared-types';
 import { AutoComplete } from '../InputElements/AutoComplete';
+import { InputElementProps } from '../InputElements/shared';
 
 function isPresentInOptions(
   inputValue: string,

@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
-import { ReactElement } from 'react';
-import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/material/Box';
+import MuiTypography from '@mui/material/Typography';
+import { ReactElement } from 'react';
+
 import { ButtonText } from '../../enums/enums';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
 import { ButtonConfig } from '../../types/types';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { useAppDispatch } from '../../state/hooks';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
 
 const HEADER = 'Warning: Outdated input file format';
 const INFO_TEXT_PART_1 =

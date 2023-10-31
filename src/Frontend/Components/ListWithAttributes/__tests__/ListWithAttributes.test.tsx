@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { ListWithAttributes } from '../ListWithAttributes';
+
 import { ListWithAttributesItem } from '../../../types/types';
 import { doNothing } from '../../../util/do-nothing';
+import { ListWithAttributes } from '../ListWithAttributes';
 
 describe('ListWithAttributes', () => {
   it('renders with title and items containing name and attributes', () => {

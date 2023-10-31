@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import {
   app,
   BrowserWindow,
@@ -10,9 +9,12 @@ import {
   ipcMain,
   systemPreferences,
 } from 'electron';
+import os from 'os';
+
 import { IpcChannel } from '../../shared/ipc-channels';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
+import { installExtensionsForDev } from './installExtensionsForDev';
 import {
   getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
@@ -25,8 +27,6 @@ import {
   getSaveFileListener,
   getSendErrorInformationListener,
 } from './listeners';
-import { installExtensionsForDev } from './installExtensionsForDev';
-import os from 'os';
 import { openFileFromCliIfProvided } from './openFileFromCliIfProvided';
 
 export async function main(): Promise<void> {
