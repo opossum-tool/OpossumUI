@@ -3,8 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { Breakpoint } from '@mui/material';
-
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
   whiteOnHover: 'hsl(220, 41%, 65%)',
@@ -107,7 +105,6 @@ export const tableClasses = {
 
 export const TREE_ROW_HEIGHT = 20;
 export const TREE_ROOT_FOLDER_LABEL = '';
-export const POPUP_MAX_WIDTH_BREAKPOINT: Breakpoint = 'xl';
 
 export const treeClasses = {
   treeItemLabel: {

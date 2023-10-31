@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import MuiBox from '@mui/material/Box';
-import { ReactElement } from 'react';
+import { ReactElement, Fragment } from 'react';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -173,9 +173,9 @@ export function PackagePanel(
   return (
     <MuiBox sx={classes.root}>
       {sortedSources.map((sourceName) => (
-        <div key={`PackageListForSource-${sourceName}`}>
+        <Fragment key={`PackageListForSource-${sourceName}`}>
           {getPackageListForSource(sourceName)}
-        </div>
+        </Fragment>
       ))}
     </MuiBox>
   );

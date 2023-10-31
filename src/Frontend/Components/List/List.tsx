@@ -3,13 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { CSSProperties, ReactElement } from 'react';
-import { FixedSizeList as VirtualizedList } from 'react-window';
-import { Height, NumberOfDisplayedItems } from '../../types/types';
 import MuiBox from '@mui/material/Box';
-import { SxProps } from '@mui/material';
-
-const DEFAULT_CARD_HEIGHT = 24;
+import { ReactElement } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 
 const classes = {
   scrollChild: {
@@ -17,83 +13,67 @@ const classes = {
   },
 };
 
-interface Props {
-  addPaddingBottom?: boolean;
-  allowHorizontalScrolling?: boolean;
-  alwaysShowHorizontalScrollBar?: boolean;
-  cardVerticalDistance?: number;
+type Props = {
+  cardHeight: number;
+  fullHeight?: boolean;
   getListItem(index: number): ReactElement | null;
   indexToScrollTo?: number;
   leftScrollBar?: boolean;
   length: number;
-  max: NumberOfDisplayedItems | Height;
-  sx?: SxProps;
-}
+} & (
+  | { maxHeight?: number; maxNumberOfItems?: never }
+  | { maxHeight?: never; maxNumberOfItems?: number }
+);
 
 export function List({
+  cardHeight,
+  fullHeight,
   getListItem,
-  length,
-  max,
-  addPaddingBottom,
-  allowHorizontalScrolling,
-  alwaysShowHorizontalScrollBar,
-  cardVerticalDistance,
-  indexToScrollTo,
+  indexToScrollTo = 0,
   leftScrollBar,
-  sx,
+  length,
+  ...props
 }: Props): ReactElement {
-  const cardHeight = cardVerticalDistance || DEFAULT_CARD_HEIGHT;
-  const maxHeight =
-    'height' in max ? max.height : max.numberOfDisplayedItems * cardHeight;
+  const maxHeight = ((): number | undefined => {
+    if ('maxHeight' in props) {
+      return props.maxHeight;
+    }
+    if ('maxNumberOfItems' in props && props.maxNumberOfItems) {
+      return props.maxNumberOfItems * cardHeight;
+    }
+    return undefined;
+  })();
   const currentHeight = length * cardHeight;
-  const listHeight = alwaysShowHorizontalScrollBar
-    ? maxHeight
-    : Math.min(currentHeight, maxHeight);
-  const scrollOffset = indexToScrollTo
-    ? indexToScrollTo * cardHeight < maxHeight / 2
-      ? 0
-      : indexToScrollTo * cardHeight - maxHeight / 2
-    : 0;
 
   return (
-    <MuiBox sx={sx} style={{ maxHeight }}>
-      <VirtualizedList
-        initialScrollOffset={scrollOffset}
-        height={listHeight}
-        width={'vertical'}
-        itemSize={cardHeight}
-        itemCount={length}
-        style={{
-          direction: `${leftScrollBar ? 'rtl' : 'ltr'}`,
-          overflow: `${alwaysShowHorizontalScrollBar ? 'scroll' : 'auto'} ${
-            currentHeight < maxHeight ? 'hidden' : 'auto'
-          }`,
-          paddingBottom: `${addPaddingBottom ? '18px' : '0px'}`,
-        }}
-      >
-        {({
-          index,
-          style,
-        }: {
-          index: number;
-          style: CSSProperties;
-        }): ReactElement => (
-          <MuiBox
-            sx={leftScrollBar ? classes.scrollChild : {}}
-            style={
-              allowHorizontalScrolling
-                ? {
-                    ...style,
-                    minWidth: '100%',
-                    width: 'fit-content',
-                  }
-                : style
+    <Virtuoso
+      initialTopMostItemIndex={
+        window?.process?.env.JEST_WORKER_ID // https://github.com/petyosi/react-virtuoso/issues/1001
+          ? undefined
+          : {
+              index: indexToScrollTo,
+              align: 'center',
             }
-          >
-            {getListItem(index)}
-          </MuiBox>
-        )}
-      </VirtualizedList>
-    </MuiBox>
+      }
+      fixedItemHeight={cardHeight}
+      totalCount={length}
+      style={{
+        height: fullHeight ? '100%' : currentHeight,
+        maxHeight,
+        direction: leftScrollBar ? 'rtl' : 'ltr',
+        overflowX: 'auto',
+        overflowY: maxHeight && currentHeight < maxHeight ? 'hidden' : 'auto',
+      }}
+      itemContent={(index): ReactElement => (
+        <MuiBox
+          sx={{
+            ...(leftScrollBar && classes.scrollChild),
+            height: cardHeight,
+          }}
+        >
+          {getListItem(index)}
+        </MuiBox>
+      )}
+    />
   );
 }

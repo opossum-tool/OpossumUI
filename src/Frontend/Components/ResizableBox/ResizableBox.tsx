@@ -3,11 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/system';
 import { Resizable, ResizableProps } from 're-resizable';
 
-interface Props extends ResizableProps {
+interface Props extends Omit<ResizableProps, 'sx' | 'style'> {
   children: React.ReactNode;
   sx?: SxProps;
 }
@@ -28,8 +27,8 @@ export function ResizableBox({
   ...props
 }: Props): React.ReactElement {
   return (
-    <Resizable enable={enable} {...props}>
-      <MuiBox sx={sx}>{children}</MuiBox>
+    <Resizable style={sx as React.CSSProperties} enable={enable} {...props}>
+      {children}
     </Resizable>
   );
 }

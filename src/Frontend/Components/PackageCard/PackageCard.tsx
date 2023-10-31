@@ -85,6 +85,8 @@ const classes = {
 export const CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP =
   'A preferred attribution cannot be added';
 
+export const PACKAGE_CARD_HEIGHT = 41;
+
 interface PackageCardProps {
   cardId: string;
   displayPackageInfo: DisplayPackageInfo;

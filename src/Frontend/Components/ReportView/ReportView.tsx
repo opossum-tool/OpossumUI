@@ -62,12 +62,12 @@ export function ReportView(): ReactElement {
         isFileWithChildren={isFileWithChildren}
         onIconClick={getOnIconClick()}
         topElement={
-          <>
+          <div>
             <FilterMultiSelect sx={{ maxWidth: '300px' }} />
             <AttributionCountsPanel
               sx={{ display: 'inline-block', margin: '20px' }}
             />
-          </>
+          </div>
         }
       />
     </MuiBox>

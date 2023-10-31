@@ -22,7 +22,6 @@ export function getTreeNodeProps(
     node: NodesForTree | 1,
     nodeId: string,
   ) => ReactElement,
-  cardHeight: number,
   locatedResources?: Set<string>,
   resourcesWithLocatedChildren?: Set<string>,
   breakpoints?: Set<string>,
@@ -35,7 +34,6 @@ export function getTreeNodeProps(
 
   for (const nodeName of sortedNodeNames) {
     const node = nodes[nodeName];
-    const nodeHeight = cardHeight - 1;
     const isExpandable =
       canNodeHaveChildren(node) && Object.keys(node).length !== 0;
     const nodeId = getNodeId(nodeName, parentPath, canNodeHaveChildren(node));
@@ -71,7 +69,6 @@ export function getTreeNodeProps(
       node,
       nodeName,
       selected,
-      nodeHeight,
       breakpoints,
       isLocatedNode,
     });
@@ -87,7 +84,6 @@ export function getTreeNodeProps(
           onSelect,
           onToggle,
           getTreeNodeLabel,
-          nodeHeight,
           locatedResources,
           resourcesWithLocatedChildren,
           breakpoints,

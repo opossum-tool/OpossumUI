@@ -6,6 +6,18 @@
 import WestRoundedIcon from '@mui/icons-material/WestRounded';
 import remove from 'lodash/remove';
 import { ReactElement } from 'react';
+import { Resources } from '../../../shared/shared-types';
+import { PopupType } from '../../enums/enums';
+import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
+import {
+  OpossumColors,
+  TREE_ROOT_FOLDER_LABEL,
+  TREE_ROW_HEIGHT,
+  treeClasses,
+} from '../../shared-styles';
+import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { setExpandedIds } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -19,31 +31,17 @@ import {
   getResourcesWithLocatedAttributions,
   getResourcesWithManualAttributedChildren,
 } from '../../state/selectors/all-views-resource-selectors';
-import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { setExpandedIds } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import {
   getExpandedIds,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
+import { isLocateSignalActive } from '../../state/selectors/locate-popup-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
-import { Resources } from '../../../shared/shared-types';
-import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-item-label';
-import { useWindowHeight } from '../../util/use-window-height';
-import { topBarHeight } from '../TopBar/TopBar';
-import {
-  OpossumColors,
-  TREE_ROOT_FOLDER_LABEL,
-  TREE_ROW_HEIGHT,
-  treeClasses,
-} from '../../shared-styles';
-import { isLocateSignalActive } from '../../state/selectors/locate-popup-selectors';
 import { IconButton } from '../IconButton/IconButton';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
-import { PopupType } from '../../enums/enums';
 import { LocateSignalsIcon } from '../Icons/Icons';
+import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-item-label';
 
 const classes = {
   locatorIconContainer: {
@@ -66,7 +64,6 @@ const classes = {
     fontSize: '20px',
   },
   tree: {
-    padding: '4px 0',
     background: OpossumColors.white,
     height: '100%',
     position: 'relative',
@@ -139,9 +136,6 @@ export function ResourceBrowser(): ReactElement | null {
       );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  const maxTreeHeight: number = useWindowHeight() - topBarHeight - 4;
-
   const locateSignalActive = useAppSelector(isLocateSignalActive);
   const locatorIcon = locateSignalActive ? (
     <IconButton
@@ -178,9 +172,7 @@ export function ResourceBrowser(): ReactElement | null {
       getTreeNodeLabel={getTreeItemLabelGetter()}
       breakpoints={attributionBreakpoints}
       cardHeight={TREE_ROW_HEIGHT}
-      maxHeight={maxTreeHeight}
       sx={classes.tree}
-      alwaysShowHorizontalScrollBar={true}
       treeNodeStyle={{
         root: treeClasses.treeItemLabel,
         childrenOfSelected: treeClasses.treeItemLabelChildrenOfSelected,

@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SxProps } from '@mui/system';
 import { remove } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 import { Resources } from '../../../shared/shared-types';
@@ -27,11 +26,11 @@ import {
   getInitialExpandedIds,
   getResourcesFromResourcePaths,
 } from './resources-tree-helpers';
+import { SxProps } from '@mui/system';
 
 interface ResourcesTreeProps {
   resourcePaths: Array<string>;
   highlightSelectedResources: boolean;
-  maxHeight?: number;
   sx?: SxProps;
 }
 
@@ -92,9 +91,7 @@ export function ResourcesTree(props: ResourcesTreeProps): ReactElement {
       selectedNodeId={highlightedResourceId}
       getTreeNodeLabel={getTreeItemLabelGetter()}
       cardHeight={TREE_ROW_HEIGHT}
-      maxHeight={props.maxHeight}
       sx={props.sx}
-      alwaysShowHorizontalScrollBar={true}
       treeNodeStyle={{
         root: treeClasses.treeItemLabel,
         childrenOfSelected: treeClasses.treeItemLabelChildrenOfSelected,

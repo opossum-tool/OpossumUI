@@ -7,7 +7,7 @@ import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import { remove } from 'lodash';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
@@ -29,9 +29,9 @@ import { createPackageCardId } from '../../util/create-package-card-id';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
-import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { SearchPackagesIcon } from '../Icons/Icons';
 import { IconButton } from '../IconButton/IconButton';
+import { SearchPackagesIcon } from '../Icons/Icons';
+import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
   container: {
@@ -39,6 +39,7 @@ const classes = {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    overflowY: 'auto',
   },
   tabsRoot: {
     minHeight: 'fit-content',
@@ -120,14 +121,6 @@ export function ResourceDetailsTabs(
 
   const isAddToPackageEnabled: boolean =
     props.isGlobalTabEnabled && props.isAddToPackageEnabled;
-  const aggregatedAttributionsPanel = useMemo(
-    () => (
-      <AggregatedAttributionsPanel
-        isAddToPackageEnabled={isAddToPackageEnabled}
-      />
-    ),
-    [isAddToPackageEnabled],
-  );
 
   const tabLabels = {
     [Tabs.Local]: 'Local',
@@ -185,9 +178,11 @@ export function ResourceDetailsTabs(
           sx={classes.searchBox}
         />
       ) : null}
-      <MuiBox style={{ overflow: 'auto' }}>
+      <MuiBox sx={classes.container}>
         {selectedTab === Tabs.Local ? (
-          aggregatedAttributionsPanel
+          <AggregatedAttributionsPanel
+            isAddToPackageEnabled={isAddToPackageEnabled}
+          />
         ) : (
           <AllAttributionsPanel
             displayPackageInfos={displayPackageInfos}

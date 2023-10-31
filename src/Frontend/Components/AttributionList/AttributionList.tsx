@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
 import { checkboxClass } from '../../shared-styles';
@@ -11,6 +10,7 @@ import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
+import { SxProps } from '@mui/system';
 
 const classes = {
   ...checkboxClass,
@@ -28,7 +28,6 @@ interface AttributionListProps {
   selectedPackageCardId: string | null;
   onCardClick(packageCardId: string, isButton?: boolean): void;
   sx?: SxProps;
-  maxHeight: number;
   title: string | JSX.Element;
   topRightElement?: JSX.Element;
   filterElement?: JSX.Element;
@@ -75,7 +74,6 @@ export function AttributionList(props: AttributionListProps): ReactElement {
         displayPackageInfos={props.displayPackageInfos}
         sortedPackageCardIds={props.sortedPackageCardIds}
         getAttributionCard={getAttributionCard}
-        max={{ height: props.maxHeight }}
       />
     </ResizableBox>
   );

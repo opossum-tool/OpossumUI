@@ -44,6 +44,7 @@ import {
 } from '../../../test-helpers/resource-browser-test-helpers';
 import {
   clickOnNodeInPopupWithResources,
+  closePopup,
   expectConfirmDeletionPopupNotVisible,
   expectConfirmDeletionPopupVisible,
   expectShowResourcesPopupVisible,
@@ -363,6 +364,7 @@ describe('The ContextMenu', () => {
 
     expectPackageInPackagePanel(screen, 'JQuery, 16.5.0', 'Signals');
 
+    closePopup(screen);
     expectContextMenuForNotPreSelectedAttributionMultipleResources(
       screen,
       'React, 16.5.0',
@@ -377,6 +379,7 @@ describe('The ContextMenu', () => {
 
     expectValueInTextBox(screen, 'Name', 'React');
 
+    closePopup(screen);
     clickOnTab(screen, 'Global Tab');
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(
       screen,

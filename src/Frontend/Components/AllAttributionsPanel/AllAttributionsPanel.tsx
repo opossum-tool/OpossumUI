@@ -19,6 +19,9 @@ const classes = {
   root: {
     padding: '10px',
     backgroundColor: OpossumColors.white,
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
 };
 
@@ -77,8 +80,8 @@ export function AllAttributionsPanel(
         displayPackageInfos={props.displayPackageInfos}
         sortedPackageCardIds={Object.keys(props.displayPackageInfos)}
         getAttributionCard={getPackageCard}
-        maxNumberOfDisplayedItems={20}
         listTitle={PackagePanelTitle.AllAttributions}
+        fullHeight
       />
     </MuiPaper>
   );
