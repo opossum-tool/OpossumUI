@@ -39,6 +39,7 @@ module.exports = {
   ignorePatterns: [
     '.eslintrc.js',
     '.lintstagedrc.js',
+    'build_scripts',
     'generateDotOpossum.js',
     'index.html',
     'jest.config.js',
