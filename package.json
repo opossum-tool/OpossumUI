@@ -174,12 +174,6 @@
       "Chrome 109"
     ]
   },
-  "lint-staged": {
-    "**/*.{ts,tsx}": [
-      "./run_precommit.sh"
-    ],
-    "*": "prettier --write --ignore-unknown"
-  },
   "resolutions": {
     "semver": "^7.5.2"
   },
