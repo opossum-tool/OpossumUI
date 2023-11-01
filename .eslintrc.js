@@ -63,7 +63,7 @@ module.exports = {
     'object-shorthand': 2,
     'react/prop-types': 'off',
     'testing-library/no-node-access': 'off', // TODO: remove this line and fix warnings
-    'filenames/match-regex': [2, '^[a-zA-Z0-9\\-]+(.d|.test)?$', true],
+    'filenames/match-regex': [2, '^[a-zA-Z0-9\\-]+(.d|.test|.styles)?$', true],
     quotes: [2, 'single', { avoidEscape: true }],
   },
 };

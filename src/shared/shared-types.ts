@@ -3,10 +3,17 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { SxProps, Theme } from '@mui/material';
 import { IpcRendererEvent } from 'electron';
-import { ErrorInfo } from 'react';
+import { CSSProperties, ErrorInfo } from 'react';
 
 import { AllowedFrontendChannels } from './ipc-channels';
+
+export type StyleProps<T extends object = object> = {
+  className?: string;
+  style?: CSSProperties;
+  sx?: SxProps<Theme>;
+} & T;
 
 export interface Resources {
   [resourceName: string]: Resources | 1;

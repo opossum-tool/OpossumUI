@@ -2,13 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { createTheme } from '@mui/material';
-import MuiBox from '@mui/material/Box';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { ReactElement } from 'react';
 
 import { View } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import {
   getIsLoading,
@@ -21,71 +18,7 @@ import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { ReportView } from '../ReportView/ReportView';
 import { Spinner } from '../Spinner/Spinner';
 import { TopBar } from '../TopBar/TopBar';
-
-const classes = {
-  root: {
-    width: '100vw',
-    height: '100vh',
-  },
-  panelDiv: {
-    display: 'flex',
-    height: 'calc(100vh - 36px)',
-    width: '100%',
-    overflow: 'hidden',
-  },
-  spinner: {
-    margin: 'auto',
-  },
-};
-
-const theme = createTheme({
-  components: {
-    MuiTypography: {
-      styleOverrides: {
-        body1: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
-    MuiInputBase: {
-      styleOverrides: {
-        root: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
-    MuiFormLabel: {
-      styleOverrides: {
-        root: {
-          fontSize: '0.85rem',
-          letterSpacing: '0.01071em',
-        },
-      },
-    },
-    MuiSwitch: {
-      styleOverrides: {
-        switchBase: {
-          color: OpossumColors.lightestBlue,
-        },
-        colorPrimary: {
-          '&.Mui-checked': {
-            color: OpossumColors.middleBlue,
-          },
-        },
-        track: {
-          opacity: 0.7,
-          backgroundColor: OpossumColors.lightestBlue,
-          '.Mui-checked.Mui-checked + &': {
-            opacity: 0.7,
-            backgroundColor: OpossumColors.middleBlue,
-          },
-        },
-      },
-    },
-  },
-});
+import { PanelContainer, RootContainer, theme } from './App.styles';
 
 export function App(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
@@ -93,7 +26,7 @@ export function App(): ReactElement {
 
   function getSelectedViewContainer(): ReactElement {
     if (isLoading) {
-      return <Spinner sx={classes.spinner} />;
+      return <Spinner sx={{ margin: 'auto' }} />;
     }
 
     switch (selectedView) {
@@ -111,10 +44,10 @@ export function App(): ReactElement {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <GlobalPopup />
-          <MuiBox sx={classes.root}>
+          <RootContainer>
             <TopBar />
-            <MuiBox sx={classes.panelDiv}>{getSelectedViewContainer()}</MuiBox>
-          </MuiBox>
+            <PanelContainer>{getSelectedViewContainer()}</PanelContainer>
+          </RootContainer>
         </ThemeProvider>
       </StyledEngineProvider>
     </ErrorBoundary>
