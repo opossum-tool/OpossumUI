@@ -55,8 +55,10 @@ export function ResourceDetailsAttributionColumn(
   )(selectedResourceId);
   const dispatch = useAppDispatch();
 
-  function dispatchUnlinkAttributionAndSavePackageInfo(): void {
-    if (attributionIdOfSelectedPackageInManualPanel) {
+  function dispatchUnlinkAttributionAndSavePackageInfoOrOpenWasPreferredPopup(): void {
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (attributionIdOfSelectedPackageInManualPanel) {
       dispatch(
         unlinkAttributionAndSavePackageInfo(
           selectedResourceId,
@@ -67,14 +69,18 @@ export function ResourceDetailsAttributionColumn(
     }
   }
 
-  function dispatchSavePackageInfo(): void {
-    dispatch(
-      savePackageInfo(
-        selectedResourceId,
-        attributionIdOfSelectedPackageInManualPanel,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
-      ),
-    );
+  function dispatchSavePackageInfoOrOpenWasPreferredPopup(): void {
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else {
+      dispatch(
+        savePackageInfo(
+          selectedResourceId,
+          attributionIdOfSelectedPackageInManualPanel,
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+        ),
+      );
+    }
   }
 
   function openConfirmDeletionPopup(): void {
@@ -116,24 +122,30 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function saveFileRequestListener(): void {
-    if (showSaveGloballyButton && isGlobalSavingDisabled) {
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (
+      showSaveGloballyButton &&
+      isGlobalSavingDisabled &&
+      attributionIdOfSelectedPackageInManualPanel
+    ) {
       dispatch(
         unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
           selectedResourceId,
-          attributionIdOfSelectedPackageInManualPanel as string, // showSaveGloballyButton is true, so attributionIdOfSelectedPackageInManualPanel is not null
+          attributionIdOfSelectedPackageInManualPanel,
           temporaryDisplayPackageInfo,
         ),
       );
       return;
+    } else {
+      dispatch(
+        savePackageInfoIfSavingIsNotDisabled(
+          selectedResourceId,
+          attributionIdOfSelectedPackageInManualPanel,
+          temporaryDisplayPackageInfo,
+        ),
+      );
     }
-
-    dispatch(
-      savePackageInfoIfSavingIsNotDisabled(
-        selectedResourceId,
-        attributionIdOfSelectedPackageInManualPanel,
-        temporaryDisplayPackageInfo,
-      ),
-    );
   }
 
   const showSaveGloballyButton: boolean = hasAttributionMultipleResources(
@@ -182,10 +194,10 @@ export function ResourceDetailsAttributionColumn(
       hideDeleteButtons={hideDeleteButtons}
       onSaveButtonClick={
         showSaveGloballyButton
-          ? dispatchUnlinkAttributionAndSavePackageInfo
-          : dispatchSavePackageInfo
+          ? dispatchUnlinkAttributionAndSavePackageInfoOrOpenWasPreferredPopup
+          : dispatchSavePackageInfoOrOpenWasPreferredPopup
       }
-      onSaveGloballyButtonClick={dispatchSavePackageInfo}
+      onSaveGloballyButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
       saveFileRequestListener={saveFileRequestListener}
       onDeleteButtonClick={openConfirmDeletionPopup}
       onDeleteGloballyButtonClick={openConfirmDeletionGloballyPopup}

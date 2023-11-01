@@ -15,7 +15,7 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
-import { ButtonText, PackagePanelTitle } from '../../../enums/enums';
+import { ButtonText, PackagePanelTitle, View } from '../../../enums/enums';
 import { setQAMode } from '../../../state/actions/view-actions/view-actions';
 import {
   clickOnButtonInHamburgerMenu,
@@ -32,9 +32,12 @@ import {
   clickOnTopProgressBar,
   closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
+  expectAttributionIsMarkedAsWasPreferred,
+  expectNoAttributionIsMarkedAsWasPreferred,
   getButton,
   getOpenFileIcon,
   getParsedInputFileEnrichedWithTestData,
+  goToView,
   mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
 import {
@@ -52,8 +55,10 @@ import {
   expectValueNotInManualPackagePanel,
 } from '../../../test-helpers/package-panel-helpers';
 import {
+  expectModifyWasPreferredPopupIsShown,
   expectReplaceAttributionPopupIsNotShown,
   expectReplaceAttributionPopupIsShown,
+  expectUnsavedChangesPopupIsShown,
 } from '../../../test-helpers/popup-test-helpers';
 import {
   createTestAppStore,
@@ -795,5 +800,77 @@ describe('The App in Audit View', () => {
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkAsPreferred);
     expect(getButton(screen, ButtonText.SaveGlobally)).toBeDisabled();
+  });
+
+  it('removes was-preferred field when user has saved unsaved changes and navigates away', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: {
+        'something.js': 1,
+        'something-else.js': 1,
+        'something-special.js': 1,
+        'something-extra.js': 1,
+      },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            licenseText: 'Permission is hereby granted',
+            wasPreferred: true,
+          },
+          uuid_2: {
+            packageName: 'License XY',
+            licenseText: 'Permission is hereby granted was well',
+            wasPreferred: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/something.js': ['uuid_1'],
+          '/something-else.js': ['uuid_1'],
+          '/something-special.js': ['uuid_1'],
+          '/something-extra.js': ['uuid_2'],
+        },
+      },
+    };
+
+    mockElectronBackendOpenFile(mockChannelReturn);
+    renderComponentWithStore(<App />);
+    closeProjectStatisticsPopup(screen);
+
+    clickOnElementInResourceBrowser(screen, 'something.js');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
+
+    clickOnButton(screen, ButtonText.Save);
+    expectModifyWasPreferredPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Cancel);
+    expectAttributionIsMarkedAsWasPreferred(screen);
+
+    clickOnButton(screen, ButtonText.SaveGlobally);
+    expectModifyWasPreferredPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Cancel);
+    expectAttributionIsMarkedAsWasPreferred(screen);
+
+    clickOnButton(screen, ButtonText.Save);
+    expectModifyWasPreferredPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Save);
+    expectNoAttributionIsMarkedAsWasPreferred(screen);
+
+    clickOnElementInResourceBrowser(screen, 'something-special.js');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Some special Name',
+    );
+    goToView(screen, View.Attribution);
+    expectUnsavedChangesPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.SaveGlobally);
+    expectModifyWasPreferredPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.SaveGlobally);
+    expectAttributionIsMarkedAsWasPreferred(screen);
   });
 });

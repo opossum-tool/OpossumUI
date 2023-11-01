@@ -4,13 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement, useCallback } from 'react';
 
-import { ButtonText } from '../../enums/enums';
+import { ButtonText, PopupType } from '../../enums/enums';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
+import {
+  closePopup,
+  openPopup,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getIsSavingDisabled,
@@ -29,33 +32,49 @@ export function EditAttributionPopup(): ReactElement {
   );
 
   const saveFileRequestListener = useCallback(() => {
-    dispatch(
-      savePackageInfoIfSavingIsNotDisabled(
-        null,
-        popupAttributionId,
-        temporaryDisplayPackageInfo,
-      ),
-    );
+    if (temporaryDisplayPackageInfo.wasPreferred && popupAttributionId) {
+      dispatch(
+        openPopup(
+          PopupType.ModifyWasPreferredAttributionPopup,
+          popupAttributionId,
+        ),
+      );
+    } else {
+      dispatch(
+        savePackageInfoIfSavingIsNotDisabled(
+          null,
+          popupAttributionId,
+          temporaryDisplayPackageInfo,
+        ),
+      );
+    }
   }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
-  const dispatchSavePackageInfo = useCallback(() => {
-    dispatch(
-      savePackageInfo(
-        null,
-        popupAttributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
-      ),
-    );
+  const dispatchSavePackageInfoOrOpenWasPreferredPopup = useCallback(() => {
+    if (temporaryDisplayPackageInfo.wasPreferred && popupAttributionId) {
+      dispatch(
+        openPopup(
+          PopupType.ModifyWasPreferredAttributionPopup,
+          popupAttributionId,
+        ),
+      );
+    } else {
+      dispatch(
+        savePackageInfo(
+          null,
+          popupAttributionId,
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+        ),
+      );
+      dispatch(closePopup());
+    }
   }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
   function checkForModifiedPackageInfoBeforeClosing(): void {
     popupAttributionId &&
       dispatch(closeEditAttributionPopupOrOpenUnsavedPopup(popupAttributionId));
   }
-  function savePackageInfoBeforeClosing(): void {
-    dispatchSavePackageInfo();
-    dispatch(closePopup());
-  }
+
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
 
   return (
@@ -74,7 +93,7 @@ export function EditAttributionPopup(): ReactElement {
       isOpen={true}
       fullWidth={false}
       leftButtonConfig={{
-        onClick: savePackageInfoBeforeClosing,
+        onClick: dispatchSavePackageInfoOrOpenWasPreferredPopup,
         buttonText: ButtonText.Save,
         disabled: isSavingDisabled,
         isDark: true,

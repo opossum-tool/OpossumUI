@@ -2,34 +2,34 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiDialogContentText from '@mui/material/DialogContentText';
 import { ReactElement } from 'react';
 
 import { ButtonText, View } from '../../enums/enums';
 import {
-  checkIfWasPreferredAndShowWarningOrSave,
-  checkIfWasPreferredAndShowWarningOrUnlinkAndSave,
   closePopupAndUnsetTargets,
-  navigateToTargetResourceOrAttribution,
+  removeWasPreferred,
+  saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
+  unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getCurrentAttributionId,
   getIsGlobalSavingDisabled,
-  getIsSavingDisabled,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
+import { WasPreferredIcon } from '../Icons/Icons';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
-export function NotSavedPopup(): ReactElement {
+export function ModifyWasPreferredAttributionPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const currentAttributionId = useAppSelector(getCurrentAttributionId);
   const attributionsToResources = useAppSelector(
     getManualAttributionsToResources,
   );
   const view = useAppSelector(getSelectedView);
-  const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
   const showSaveGloballyButton =
     view === View.Audit &&
@@ -39,38 +39,43 @@ export function NotSavedPopup(): ReactElement {
     );
 
   function handleSaveClick(): void {
-    dispatch(checkIfWasPreferredAndShowWarningOrUnlinkAndSave());
+    dispatch(removeWasPreferred());
+    dispatch(
+      unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+    );
   }
 
   function handleSaveGloballyClick(): void {
-    dispatch(checkIfWasPreferredAndShowWarningOrSave());
-  }
-
-  function handleUndoClick(): void {
-    dispatch(navigateToTargetResourceOrAttribution());
+    dispatch(removeWasPreferred());
+    dispatch(
+      saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+    );
   }
 
   function handleCancelClick(): void {
     dispatch(closePopupAndUnsetTargets());
   }
 
-  const content = `There are unsaved changes. ${
-    isSavingDisabled ? 'Unable to save.' : ''
-  }`;
+  const content = (
+    <MuiDialogContentText style={{ display: 'flex', alignItems: 'center' }}>
+      You are about to modify an attribution that was preferred in the past. Are
+      you sure you want to continue? The attribution will no longer be marked
+      with a <WasPreferredIcon />.
+    </MuiDialogContentText>
+  );
 
   return (
     <NotificationPopup
       content={content}
       header={'Warning'}
-      leftButtonConfig={{
+      centerLeftButtonConfig={{
         onClick: showSaveGloballyButton
           ? handleSaveClick
           : handleSaveGloballyClick,
         buttonText: ButtonText.Save,
-        disabled: isSavingDisabled,
         isDark: true,
       }}
-      centerLeftButtonConfig={
+      centerRightButtonConfig={
         showSaveGloballyButton
           ? {
               onClick: handleSaveGloballyClick,
@@ -79,10 +84,6 @@ export function NotSavedPopup(): ReactElement {
             }
           : undefined
       }
-      centerRightButtonConfig={{
-        onClick: handleUndoClick,
-        buttonText: ButtonText.Undo,
-      }}
       rightButtonConfig={{
         onClick: handleCancelClick,
         buttonText: ButtonText.Cancel,

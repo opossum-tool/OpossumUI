@@ -61,23 +61,31 @@ export function AttributionDetailsViewer(): ReactElement | null {
   const dispatch = useAppDispatch();
 
   const saveFileRequestListener = useCallback(() => {
-    dispatch(
-      savePackageInfoIfSavingIsNotDisabled(
-        null,
-        selectedAttributionId,
-        temporaryDisplayPackageInfo,
-      ),
-    );
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else {
+      dispatch(
+        savePackageInfoIfSavingIsNotDisabled(
+          null,
+          selectedAttributionId,
+          temporaryDisplayPackageInfo,
+        ),
+      );
+    }
   }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
-  const dispatchSavePackageInfo = useCallback(() => {
-    dispatch(
-      savePackageInfo(
-        null,
-        selectedAttributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
-      ),
-    );
+  const dispatchSavePackageInfoOrOpenWasPreferredPopup = useCallback(() => {
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else {
+      dispatch(
+        savePackageInfo(
+          null,
+          selectedAttributionId,
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+        ),
+      );
+    }
   }, [dispatch, selectedAttributionId, temporaryDisplayPackageInfo]);
 
   function deleteAttribution(): void {
@@ -110,7 +118,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         isEditable={true}
         showManualAttributionData={true}
         areButtonsHidden={false}
-        onSaveButtonClick={dispatchSavePackageInfo}
+        onSaveButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
         onDeleteButtonClick={deleteAttribution}
         saveFileRequestListener={saveFileRequestListener}
       />

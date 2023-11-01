@@ -25,6 +25,7 @@ import {
   getDisplayPackageInfoOfSelected,
   getExternalAttributions,
   getExternalData,
+  getIsSavingDisabled,
   getManualAttributions,
   getManualData,
   getResourcesWithLocatedAttributions,
@@ -161,14 +162,18 @@ export function selectPackageCardInAuditViewOrOpenUnsavedPopup(
   };
 }
 
-export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): AppThunkAction {
+export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
     const attributionId = getCurrentAttributionId(getState()) as string;
     const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
       getState(),
     );
-
+    if (getIsSavingDisabled(getState())) {
+      dispatch(closePopup());
+      dispatch(openPopup(PopupType.UnableToSavePopup));
+      return;
+    }
     dispatch(
       unlinkAttributionAndSavePackageInfo(
         selectedResourceId,
@@ -180,14 +185,42 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetView(): Ap
   };
 }
 
-export function saveTemporaryDisplayPackageInfoAndNavigateToTargetView(): AppThunkAction {
+export function checkIfWasPreferredAndShowWarningOrUnlinkAndSave(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const currentAttributionId = getCurrentAttributionId(getState());
+    const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
+      getState(),
+    );
+
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(closePopup());
+      currentAttributionId &&
+        dispatch(
+          openPopup(
+            PopupType.ModifyWasPreferredAttributionPopup,
+            currentAttributionId,
+          ),
+        );
+    } else {
+      dispatch(
+        unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+      );
+    }
+  };
+}
+
+export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
     const attributionId = getCurrentAttributionId(getState());
     const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
       getState(),
     );
-
+    if (getIsSavingDisabled(getState())) {
+      dispatch(closePopup());
+      dispatch(openPopup(PopupType.UnableToSavePopup));
+      return;
+    }
     dispatch(
       savePackageInfo(
         selectedResourceId,
@@ -199,10 +232,34 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetView(): AppThu
   };
 }
 
+export function checkIfWasPreferredAndShowWarningOrSave(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const currentAttributionId = getCurrentAttributionId(getState());
+    const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
+      getState(),
+    );
+
+    if (temporaryDisplayPackageInfo.wasPreferred) {
+      dispatch(closePopup());
+      currentAttributionId &&
+        dispatch(
+          openPopup(
+            PopupType.ModifyWasPreferredAttributionPopup,
+            currentAttributionId,
+          ),
+        );
+    } else {
+      dispatch(
+        saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+      );
+    }
+  };
+}
+
 export function navigateToTargetResourceOrAttribution(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const targetView = getTargetView(getState());
-
+    const view = getSelectedView(getState());
     dispatch(setSelectedResourceOrAttributionIdToTargetValue());
     if (targetView) {
       dispatch(navigateToView(targetView));
@@ -215,6 +272,18 @@ export function navigateToTargetResourceOrAttribution(): AppThunkAction {
     );
 
     dispatch(closePopup());
+    if (view === View.Report) {
+      dispatch(closePopup());
+    }
+  };
+}
+
+export function closePopupAndUnsetTargets(): AppThunkAction {
+  return (dispatch: AppThunkDispatch): void => {
+    dispatch(setTargetView(null));
+    dispatch(setTargetSelectedResourceId(''));
+    dispatch(setTargetSelectedAttributionId(''));
+    dispatch(closePopup());
   };
 }
 
@@ -222,9 +291,10 @@ export function closeEditAttributionPopupOrOpenUnsavedPopup(
   popupAttributionId: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    dispatch(closePopup());
     if (wereTemporaryDisplayPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
+    } else {
+      dispatch(closePopup());
     }
   };
 }
@@ -414,5 +484,13 @@ export function locateSignalsFromProjectStatisticsPopup(
     if (getSelectedView(getState()) !== View.Audit) {
       dispatch(setViewOrOpenUnsavedPopup(View.Audit));
     }
+  };
+}
+
+export function removeWasPreferred(): AppThunkAction {
+  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    const { wasPreferred, ...temporaryDisplayPackageInfo } =
+      getTemporaryDisplayPackageInfo(getState());
+    dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
   };
 }

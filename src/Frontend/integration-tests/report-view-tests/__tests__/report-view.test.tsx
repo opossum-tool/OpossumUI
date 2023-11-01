@@ -21,9 +21,16 @@ import {
   clickOnOpenFileIcon,
   closeProjectStatisticsPopup,
   EMPTY_PARSED_FILE_CONTENT,
+  expectNoAttributionIsMarkedAsWasPreferred,
   goToView,
   mockElectronBackendOpenFile,
 } from '../../../test-helpers/general-test-helpers';
+import {
+  expectEditAttributionPopupIsNotShown,
+  expectEditAttributionPopupIsShown,
+  expectModifyWasPreferredPopupIsShown,
+  expectUnsavedChangesPopupIsShown,
+} from '../../../test-helpers/popup-test-helpers';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import {
   clickOnElementInResourceBrowser,
@@ -69,7 +76,7 @@ describe('The report view', () => {
     screen.getByText(`${DiscreteConfidence.High}`);
 
     clickOnEditIconForElement(screen, 'jQuery');
-    expect(screen.getByText('Edit Attribution'));
+    expectEditAttributionPopupIsShown(screen);
     expectValueInTextBox(
       screen,
       text.attributionColumn.packageSubPanel.packageName,
@@ -82,7 +89,7 @@ describe('The report view', () => {
     );
     insertValueIntoTextBox(screen, 'Comment', 'Test comment');
     clickOnButton(screen, ButtonText.Save);
-    expect(screen.queryByText('Edit Attribution')).not.toBeInTheDocument();
+    expectEditAttributionPopupIsNotShown(screen);
     expect(screen.getByText('Test comment'));
   });
 
@@ -127,6 +134,7 @@ describe('The report view', () => {
 
     goToView(screen, View.Report);
     screen.getByText('gpl-2.0');
+    // @ts-ignore
     expect(screen.queryByText('frequent license')).not.toBeInTheDocument();
 
     goToView(screen, View.Audit);
@@ -144,5 +152,50 @@ describe('The report view', () => {
     goToView(screen, View.Report);
     screen.getByText('Apache');
     screen.getByText('Apache license text');
+  });
+
+  it('removes was-preferred field when user has saved unsaved changes and navigates away', () => {
+    const mockChannelReturn: ParsedFileContent = {
+      ...EMPTY_PARSED_FILE_CONTENT,
+      resources: { 'something.js': 1 },
+      manualAttributions: {
+        attributions: {
+          uuid_1: {
+            packageName: 'React',
+            packageVersion: '16.5.0',
+            licenseText: 'Permission is hereby granted',
+            wasPreferred: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/something.js': ['uuid_1'],
+        },
+      },
+    };
+
+    mockElectronBackendOpenFile(mockChannelReturn);
+    renderComponentWithStore(<App />);
+
+    goToView(screen, View.Report);
+    clickOnEditIconForElement(screen, 'React');
+    expectEditAttributionPopupIsShown(screen);
+    insertValueIntoTextBox(screen, 'Comment', 'Test comment');
+    clickOnButton(screen, ButtonText.Cancel);
+    expectUnsavedChangesPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Save);
+    expectModifyWasPreferredPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Cancel);
+    expectEditAttributionPopupIsShown(screen);
+
+    expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(0);
+    expectValueInTextBox(screen, 'Comment', 'Test comment');
+
+    clickOnButton(screen, ButtonText.Save);
+    expectModifyWasPreferredPopupIsShown(screen);
+    clickOnButton(screen, ButtonText.Save);
+    expectEditAttributionPopupIsNotShown(screen);
+
+    goToView(screen, View.Attribution);
+    expectNoAttributionIsMarkedAsWasPreferred(screen);
   });
 });

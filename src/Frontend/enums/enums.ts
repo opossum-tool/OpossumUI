@@ -29,6 +29,7 @@ export enum PopupType {
   FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',
   UpdateAppPopup = 'UpdateAppPopup',
   LocatorPopup = 'LocatorPopup',
+  ModifyWasPreferredAttributionPopup = 'ModifyWasPreferredAttributionPopup',
 }
 
 export enum SavePackageInfoOperation {
