@@ -2302,9 +2302,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^5.14.15":
-  version: 5.14.15
-  resolution: "@mui/icons-material@npm:5.14.15"
+"@mui/icons-material@npm:^5.14.16":
+  version: 5.14.16
+  resolution: "@mui/icons-material@npm:5.14.16"
   dependencies:
     "@babel/runtime": "npm:^7.23.2"
   peerDependencies:
@@ -2314,7 +2314,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: cc2a3ec7b82eb89226b6d20af92dfc8d9542b8c688eaf4d9de00543defa42e0377953c837b6be6a246f273c2d43e6582227d8eef805ac1e6d9ed352efc7d5a28
+  checksum: e4dc4071eb68b06c54f25733cd00c749a18c69c16186defc467db5599ea46c32bfb8cc64e40b208e4b85f9186ab8b2e76f0553eac98727e8446c81461d665f58
   languageName: node
   linkType: hard
 
@@ -8930,7 +8930,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.23.2"
     "@emotion/react": "npm:^11.11.1"
     "@emotion/styled": "npm:^11.11.0"
-    "@mui/icons-material": "npm:^5.14.15"
+    "@mui/icons-material": "npm:^5.14.16"
     "@mui/material": "npm:^5.14.16"
     "@mui/system": "npm:^5.14.15"
     "@playwright/test": "npm:^1.39.0"
