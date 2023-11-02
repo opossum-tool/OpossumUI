@@ -3,11 +3,25 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { app } from 'electron';
+import installExtension, {
+  REACT_DEVELOPER_TOOLS,
+  REDUX_DEVTOOLS,
+} from 'electron-devtools-installer';
 
 import { main } from './main/main';
 
-app.whenReady().then(main);
+app.on('ready', main);
 
 app.on('window-all-closed', function () {
   app.quit();
+});
+
+app.on('ready', () => {
+  if (!process.argv.includes('--disable-devtools')) {
+    [REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS].forEach((extension) => {
+      installExtension(extension)
+        .then((name) => console.log(`Added Extension: ${name}`))
+        .catch((err) => console.log('An error occurred: ', err));
+    });
+  }
 });

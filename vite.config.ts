@@ -8,16 +8,21 @@ import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     viteTsconfigPaths(),
     svgrPlugin(),
-    electron({
-      entry: 'src/ElectronBackend/main/main.ts',
-    }),
+    ...(mode === 'e2e'
+      ? []
+      : electron({
+          entry: 'src/ElectronBackend/main/main.ts',
+        })),
   ],
   build: {
     outDir: 'build',
   },
-});
+  optimizeDeps: {
+    include: ['@mui/material/Tooltip'], // https://github.com/mui/material-ui/issues/32727
+  },
+}));

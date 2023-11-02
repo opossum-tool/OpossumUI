@@ -6,10 +6,6 @@ import { dialog, ipcMain } from 'electron';
 
 import { main } from '../main';
 
-jest.mock('../installExtensionsForDev', () => ({
-  installExtensionsForDev: jest.fn(),
-}));
-
 jest.mock('electron', () => ({
   ipcMain: {
     handle: jest.fn(),
@@ -44,9 +40,6 @@ jest.mock('electron', () => ({
 }));
 describe('The App backend', () => {
   it('handles errors', async () => {
-    // we expect warnings that we do not want to see
-    jest.spyOn(console, 'log');
-
     await main();
 
     expect(dialog.showMessageBox).toBeCalledWith(

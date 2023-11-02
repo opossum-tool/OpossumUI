@@ -15,10 +15,6 @@ jest.mock('../createWindow', () => ({
   },
 }));
 
-jest.mock('../installExtensionsForDev', () => ({
-  installExtensionsForDev: jest.fn(),
-}));
-
 jest.mock('electron', () => ({
   ipcMain: {
     handle: jest.fn(),
