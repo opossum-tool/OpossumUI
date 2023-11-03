@@ -14,8 +14,9 @@
 /example-files/performance_tests/*_attributions.json
 /example-files/performance_tests/*_follow_up.csv
 /example-files/performance_tests/*_component_list.csv
-/src/e2e-tests/test-resources/*_attributions.json
+/src/e2e-tests/assets/*_attributions.json
 /temp-folder*
+**/test-results
 
 # production
 /build

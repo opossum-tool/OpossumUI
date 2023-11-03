@@ -11,6 +11,7 @@ on:
       - main
   pull_request:
     types: [opened, reopened, synchronize]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,7 +23,8 @@ jobs:
         include:
           - os: ubuntu-latest
             SHIP: ship-linux
-            E2E: export DISPLAY=:99 && Xvfb $DISPLAY -screen 0 1920x1080x24 & yarn test:e2e
+            # https://github.com/microsoft/playwright/issues/11932
+            E2E: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
           - os: macos-latest
             SHIP: ship-mac
             E2E: yarn test:e2e
@@ -46,9 +48,10 @@ jobs:
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         if: matrix.os == 'ubuntu-latest'
 
-      #   Disable e2e tests as we had many timeouts and issues with the caching of node modules
-      #      - name: Run end2end tests
-      #        run: ${{ matrix.E2E }}
+      - name: Run end-to-end tests
+        run: ${{ matrix.E2E }}
+        env:
+          CI: 'true'
 
       - name: Build app
         run: yarn ${{ matrix.SHIP }}

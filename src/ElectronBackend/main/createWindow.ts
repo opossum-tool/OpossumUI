@@ -12,39 +12,30 @@ import { getIconPath } from './iconHelpers';
 import { createMenu } from './menu';
 
 export async function createWindow(): Promise<BrowserWindow> {
-  const mainWindow: BrowserWindow = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
+      devTools: !process.argv.includes('--disable-devtools'),
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
     icon: getIconPath(),
   });
 
   Menu.setApplicationMenu(createMenu(mainWindow));
-  await loadApplication(mainWindow, '../../index.html', true);
 
-  return mainWindow;
-}
+  if (isDev) {
+    await mainWindow.loadURL('http://localhost:5173/');
 
-async function loadApplication(
-  mainWindow: BrowserWindow,
-  prodEntryPoint: string,
-  openDevTools: boolean,
-): Promise<void> {
-  const devURL = 'http://localhost:5173/';
-
-  if (isDev && devURL) {
-    await mainWindow.loadURL(devURL);
-    if (openDevTools && !process.env.RUNNING_IN_E2E_TEST) {
-      mainWindow.webContents.openDevTools();
-    }
+    mainWindow.webContents.openDevTools();
   } else {
     await mainWindow.loadURL(
-      `file://${path.join(upath.toUnix(__dirname), prodEntryPoint)}`,
+      `file://${path.join(upath.toUnix(__dirname), '../../index.html')}`,
     );
   }
+
+  return mainWindow;
 }

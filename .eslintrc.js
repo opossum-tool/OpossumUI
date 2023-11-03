@@ -68,4 +68,12 @@ module.exports = {
     'filenames/match-regex': [2, '^[a-zA-Z0-9\\-]+(.d|.test)?$', true],
     quotes: [2, 'single', { avoidEscape: true }],
   },
+  overrides: [
+    {
+      files: ['src/e2e-tests/**/*'],
+      rules: {
+        'testing-library/prefer-screen-queries': 'off',
+      },
+    },
+  ],
 };
