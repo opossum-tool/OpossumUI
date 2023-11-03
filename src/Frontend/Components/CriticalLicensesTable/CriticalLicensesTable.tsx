@@ -16,7 +16,7 @@ import { LocateSignalsIcon } from '../Icons/Icons';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 
 const LICENSE_COLUMN_NAME_IN_TABLE = 'License name';
-const COUNT_COLUMN_NAME_IN_TABLE = 'Count';
+const COUNT_COLUMN_NAME_IN_TABLE = 'Signals Count';
 const FOOTER_TITLE = 'Total';
 const TABLE_COLUMN_NAMES = [
   LICENSE_COLUMN_NAME_IN_TABLE,

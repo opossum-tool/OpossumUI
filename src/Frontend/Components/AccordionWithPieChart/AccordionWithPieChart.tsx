@@ -10,7 +10,7 @@ import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
 
 import {
-  CriticalityTypes,
+  PieChartCriticalityNames,
   ProjectStatisticsPopupTitle,
 } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
@@ -51,10 +51,10 @@ export function getColorsForPieChart(
   ) {
     for (const pieChartSegment of pieChartData) {
       switch (pieChartSegment.name) {
-        case CriticalityTypes.HighCriticality:
+        case PieChartCriticalityNames.HighCriticality:
           pieChartColors.push(OpossumColors.orange);
           break;
-        case CriticalityTypes.MediumCriticality:
+        case PieChartCriticalityNames.MediumCriticality:
           pieChartColors.push(OpossumColors.mediumOrange);
           break;
         default:

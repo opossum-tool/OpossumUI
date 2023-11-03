@@ -200,9 +200,21 @@ describe('The ProjectStatisticsPopup', () => {
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
 
-    expect(screen.getByText('Most Frequent Licenses')).toBeInTheDocument();
-    expect(screen.getByText('Critical Signals')).toBeInTheDocument();
-    expect(screen.getAllByText('Incomplete Attributions')).toHaveLength(2);
+    expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(
+        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      ),
+    ).toHaveLength(2);
   });
 
   it('does not render pie charts when there are no attributions', () => {
@@ -218,11 +230,23 @@ describe('The ProjectStatisticsPopup', () => {
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(
-      screen.queryByText('Most Frequent Licenses'),
+      screen.queryByText(
+        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+      ),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('Critical Signals')).not.toBeInTheDocument();
-    expect(screen.getByText('Incomplete Attributions')).toBeInTheDocument();
-    expect(screen.getAllByText('Incomplete Attributions')).not.toHaveLength(2);
+    expect(
+      screen.queryByText(
+        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(
+        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      ),
+    ).not.toHaveLength(2);
   });
 
   it('renders pie charts pie charts related to signals even if there are no attributions', () => {
@@ -254,10 +278,24 @@ describe('The ProjectStatisticsPopup', () => {
     );
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
-    expect(screen.getByText('Most Frequent Licenses')).toBeInTheDocument();
-    expect(screen.getByText('Critical Signals')).toBeInTheDocument();
-    expect(screen.getByText('Incomplete Attributions')).toBeInTheDocument();
-    expect(screen.getAllByText('Incomplete Attributions')).not.toHaveLength(2);
+    expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        ProjectStatisticsPopupTitle.CriticalSignalsCountPieChart,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(ProjectStatisticsPopupTitle.IncompleteLicensesPieChart),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(
+        ProjectStatisticsPopupTitle.IncompleteLicensesPieChart,
+      ),
+    ).not.toHaveLength(2);
   });
 
   it('renders tables when there are no attributions', () => {

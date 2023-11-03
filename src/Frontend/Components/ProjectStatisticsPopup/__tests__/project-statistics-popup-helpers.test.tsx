@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   Attributions,
+  AttributionsToHashes,
   Criticality,
   ExternalAttributionSources,
   FollowUp,
@@ -76,6 +77,14 @@ const testAttributions_1: Attributions = {
     licenseName: 'The MIT License (MIT)',
     firstParty: true,
   },
+  uuid7: {
+    source: {
+      name: 'SC',
+      documentConfidence: 10,
+    },
+    licenseName: 'The MIT License (MIT)',
+    firstParty: true,
+  },
 };
 
 const testAttributions_2: Attributions = {
@@ -128,6 +137,10 @@ const attributionSources: ExternalAttributionSources = {
 
 describe('aggregateLicensesAndSourcesFromAttributions', () => {
   it('counts sources for licenses, criticality', () => {
+    const testExternalAttributionsToHashes: AttributionsToHashes = {
+      uuid6: 'hash',
+      uuid7: 'hash',
+    };
     const expectedAttributionCountPerSourcePerLicense = {
       'Apache License Version 2.0': { ScanCode: 1, reuser: 2 },
       'The MIT License (MIT)': { ScanCode: 2, reuser: 1 },
@@ -145,8 +158,10 @@ describe('aggregateLicensesAndSourcesFromAttributions', () => {
       'The MIT License (MIT)': undefined,
     };
 
-    const strippedLicenseNameToAttribution =
-      getUniqueLicenseNameToAttribution(testAttributions_1);
+    const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
+      testAttributions_1,
+      testExternalAttributionsToHashes,
+    );
     const { licenseCounts, licenseNamesWithCriticality } =
       aggregateLicensesAndSourcesFromAttributions(
         testAttributions_1,
@@ -192,7 +207,7 @@ describe('getLicenseCriticality', () => {
   it('obtains high criticality', () => {
     const expectedLicenseCriticality: Criticality | undefined =
       Criticality.High;
-    const licenseCriticalityCounts = { high: 1, medium: 3, none: 1 };
+    const licenseCriticalityCounts = { high: 1, medium: 3, none: 10 };
 
     const licenseCriticality = getLicenseCriticality(licenseCriticalityCounts);
 
@@ -250,9 +265,9 @@ describe('aggregateAttributionPropertiesFromAttributions', () => {
     } = {
       needsReview: 2,
       followUp: 1,
-      firstParty: 2,
+      firstParty: 3,
       incomplete: 4,
-      [ATTRIBUTION_TOTAL]: 6,
+      [ATTRIBUTION_TOTAL]: 7,
     };
 
     const attributionPropertyCountsObject =
@@ -391,15 +406,15 @@ describe('getCriticalSignalsCount', () => {
   it('counts number of critical signals across all licenses', () => {
     const expectedCriticalSignalCount: Array<PieChartData> = [
       {
-        name: 'High',
+        name: 'Highly critical signals',
         count: 3,
       },
       {
-        name: 'Medium',
+        name: 'Medium critical signals',
         count: 4,
       },
       {
-        name: 'Not critical',
+        name: 'Not critical signals',
         count: 2,
       },
     ];
@@ -445,7 +460,7 @@ describe('getIncompleteAttributionsCount', () => {
     const expectedIncompleteAttributionCount: Array<PieChartData> = [
       {
         name: 'Complete attributions',
-        count: 2,
+        count: 3,
       },
       {
         name: 'Incomplete attributions',

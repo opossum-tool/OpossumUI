@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
+  getExternalAttributionsToHashes,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
@@ -40,8 +41,14 @@ export function ProjectStatisticsPopup(): ReactElement {
   const manualAttributions = useAppSelector(getManualAttributions);
   const externalAttributions = useAppSelector(getExternalAttributions);
   const attributionSources = useAppSelector(getExternalAttributionSources);
-  const strippedLicenseNameToAttribution =
-    getUniqueLicenseNameToAttribution(externalAttributions);
+  const externalAttributionsToHashes = useAppSelector(
+    getExternalAttributionsToHashes,
+  );
+
+  const strippedLicenseNameToAttribution = getUniqueLicenseNameToAttribution(
+    externalAttributions,
+    externalAttributionsToHashes,
+  );
 
   const { licenseCounts, licenseNamesWithCriticality } =
     aggregateLicensesAndSourcesFromAttributions(
@@ -50,15 +57,15 @@ export function ProjectStatisticsPopup(): ReactElement {
       attributionSources,
     );
 
-  const manualAttributionPropertyCounts =
-    aggregateAttributionPropertiesFromAttributions(manualAttributions);
-
   const mostFrequentLicenseCountData = getMostFrequentLicenses(licenseCounts);
 
   const criticalSignalsCountData = getCriticalSignalsCount(
     licenseCounts,
     licenseNamesWithCriticality,
   );
+
+  const manualAttributionPropertyCounts =
+    aggregateAttributionPropertiesFromAttributions(manualAttributions);
 
   const incompleteAttributionsData =
     getIncompleteAttributionsCount(manualAttributions);
