@@ -6,11 +6,12 @@ import { pickBy } from 'lodash';
 
 import {
   Attributions,
+  AttributionsToHashes,
   Criticality,
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { CriticalityTypes } from '../../enums/enums';
+import { PieChartCriticalityNames } from '../../enums/enums';
 import {
   AttributionCountPerSourcePerLicense,
   LicenseCounts,
@@ -173,24 +174,32 @@ export function getLicenseCriticality(licenseCriticalityCounts: {
   medium: number;
   none: number;
 }): Criticality | undefined {
-  return licenseCriticalityCounts['medium'] + licenseCriticalityCounts['high'] >
-    licenseCriticalityCounts['none']
-    ? licenseCriticalityCounts['high']
-      ? Criticality.High
-      : Criticality.Medium
+  return licenseCriticalityCounts['high'] > 0
+    ? Criticality.High
+    : licenseCriticalityCounts['medium'] > 0
+    ? Criticality.Medium
     : undefined;
 }
 
 export function getUniqueLicenseNameToAttribution(
   attributions: Attributions,
+  externalAttributionsToHashes: AttributionsToHashes,
 ): UniqueLicenseNameToAttributions {
   const uniqueLicenseNameToAttributions: UniqueLicenseNameToAttributions = {};
+  const usedHashes = new Set<string>();
   for (const attributionId of Object.keys(attributions)) {
-    const licenseName = attributions[attributionId].licenseName;
+    // We do not take into account duplicating (a.k.a merged) signals
+    if (attributionId in externalAttributionsToHashes) {
+      const hash = externalAttributionsToHashes[attributionId];
+      if (usedHashes.has(hash)) {
+        continue;
+      }
+      usedHashes.add(hash);
+    }
 
+    const licenseName = attributions[attributionId].licenseName;
     if (licenseName) {
       const strippedLicenseName = getStrippedLicenseName(licenseName);
-
       if (!uniqueLicenseNameToAttributions[strippedLicenseName]) {
         uniqueLicenseNameToAttributions[strippedLicenseName] = [];
       }
@@ -312,15 +321,15 @@ export function getCriticalSignalsCount(
 
   const criticalityData = [
     {
-      name: CriticalityTypes.HighCriticality,
+      name: PieChartCriticalityNames.HighCriticality,
       count: licenseCriticalityCounts['high'],
     },
     {
-      name: CriticalityTypes.MediumCriticality,
+      name: PieChartCriticalityNames.MediumCriticality,
       count: licenseCriticalityCounts['medium'],
     },
     {
-      name: CriticalityTypes.NoCriticality,
+      name: PieChartCriticalityNames.NoCriticality,
       count: licenseCriticalityCounts['none'],
     },
   ];

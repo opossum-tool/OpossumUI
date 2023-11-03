@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ProjectStatisticsPopupTitle } from '../../../enums/enums';
+import {
+  PieChartCriticalityNames,
+  ProjectStatisticsPopupTitle,
+} from '../../../enums/enums';
 import { OpossumColors } from '../../../shared-styles';
 import { PieChartData } from '../../../types/types';
 import { getColorsForPieChart } from '../AccordionWithPieChart';
@@ -16,15 +19,15 @@ describe('getColorsForPieChart', () => {
     ];
     const criticalSignalsCount: Array<PieChartData> = [
       {
-        name: 'High',
+        name: PieChartCriticalityNames.HighCriticality,
         count: 3,
       },
       {
-        name: 'Medium',
+        name: PieChartCriticalityNames.MediumCriticality,
         count: 4,
       },
       {
-        name: 'Not critical',
+        name: PieChartCriticalityNames.NoCriticality,
         count: 2,
       },
     ];

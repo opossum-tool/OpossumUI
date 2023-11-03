@@ -106,15 +106,20 @@ export enum ProjectStatisticsPopupTitle {
   CriticalLicensesTable = 'Critical Licenses',
   PieChartsSectionHeader = 'Pie Charts',
   MostFrequentLicenseCountPieChart = 'Most Frequent Licenses',
-  CriticalSignalsCountPieChart = 'Critical Signals',
+  CriticalSignalsCountPieChart = 'Signals by Criticality',
   IncompleteLicensesPieChart = 'Incomplete Attributions',
 }
 
 export enum CriticalityTypes {
   HighCriticality = 'High',
   MediumCriticality = 'Medium',
-  NoCriticality = 'Not critical',
   AnyCriticality = 'Any',
+}
+
+export enum PieChartCriticalityNames {
+  HighCriticality = 'Highly critical signals',
+  MediumCriticality = 'Medium critical signals',
+  NoCriticality = 'Not critical signals',
 }
 
 export enum HighlightingColor {
