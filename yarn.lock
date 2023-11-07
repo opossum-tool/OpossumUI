@@ -3235,10 +3235,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/object-hash@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "@types/object-hash@npm:3.0.5"
-  checksum: 63e96a10c7ea45ee5400d12342729e91872721eecc9c96ed6f6c8e300cf2c489151190bb5bbaa6009ee48f66d0f778e2114138e5a2f104c0250667106fc90bec
+"@types/object-hash@npm:^3.0.6":
+  version: 3.0.6
+  resolution: "@types/object-hash@npm:3.0.6"
+  checksum: 2c7979d4e540af817b99c09fb4c2fed1c0b0e14342df474d8dcde4165a82c440b038341fd66fe998d9f86acdd5cccc65ba8092315e39e7c2114f945fa70aaa56
   languageName: node
   linkType: hard
 
@@ -8898,7 +8898,7 @@ __metadata:
     "@types/jest": "npm:^29.5.7"
     "@types/js-yaml": "npm:^4.0.8"
     "@types/lodash": "npm:^4.14.200"
-    "@types/object-hash": "npm:^3.0.5"
+    "@types/object-hash": "npm:^3.0.6"
     "@types/prop-types": "npm:^15"
     "@types/react": "npm:^18.2.34"
     "@types/react-dom": "npm:^18.2.14"
