@@ -11,6 +11,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { PackagePanelTitle } from '../../../enums/enums';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
@@ -82,10 +83,10 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 
 describe('The ResourceDetailsViewer', () => {
   it('renders an Attribution column', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo = {
       packageName: 'jQuery',
       attributionIds: [],
-    };
+    } satisfies DisplayPackageInfo;
     const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
     act(() => {
       store.dispatch(setSelectedResourceId('test_id'));
@@ -94,11 +95,11 @@ describe('The ResourceDetailsViewer', () => {
       );
     });
 
-    expect(screen.queryAllByText('Name'));
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string,
-      ),
+      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
+    );
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
     );
   });
 

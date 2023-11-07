@@ -5,6 +5,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 
 import { ParsedFileContent } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -105,15 +106,27 @@ describe('Not saved popup of the app', () => {
 
     clickOnElementInResourceBrowser(screen, 'root');
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Attribution);
     expectUnsavedChangesPopupIsShown(screen);
 
     clickOnButton(screen, ButtonText.Cancel);
     getElementInResourceBrowser(screen, 'root');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Attribution);
     expectUnsavedChangesPopupIsShown(screen);
@@ -124,8 +137,16 @@ describe('Not saved popup of the app', () => {
     goToView(screen, View.Audit);
     getElementInResourceBrowser(screen, 'root');
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Attribution);
     expectUnsavedChangesPopupIsShown(screen);
@@ -141,17 +162,33 @@ describe('Not saved popup of the app', () => {
     clickOnOpenFileIcon(screen);
 
     clickOnElementInResourceBrowser(screen, 'root');
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
-    insertValueIntoTextBox(screen, 'Version', '1.1.1');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '1.1.1',
+    );
 
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Report);
     expectUnsavedChangesPopupIsShown(screen);
 
     clickOnButton(screen, ButtonText.Cancel);
     getElementInResourceBrowser(screen, 'root');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Report);
     expectUnsavedChangesPopupIsShown(screen);
@@ -161,7 +198,11 @@ describe('Not saved popup of the app', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByLabelText('edit Angular'));
-    expectValueInTextBox(screen, 'Version', '1.1.1');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '1.1.1',
+    );
   });
 
   it('shows unsaved popup switching from attribution view to standard view', () => {
@@ -174,15 +215,27 @@ describe('Not saved popup of the app', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('React, 16.0.0'));
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
 
     clickOnButton(screen, ButtonText.Cancel);
     expect(screen.getByText('React, 16.0.0'));
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
@@ -193,13 +246,25 @@ describe('Not saved popup of the app', () => {
     clickOnElementInResourceBrowser(screen, 'root');
     clickOnElementInResourceBrowser(screen, 'src');
     clickOnElementInResourceBrowser(screen, 'file_1');
-    expectValueNotInTextBox(screen, 'Name', 'Angular');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Attribution);
     expect(screen.getByText('React, 16.0.0'));
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Audit);
     expectUnsavedChangesPopupIsShown(screen);
@@ -212,8 +277,16 @@ describe('Not saved popup of the app', () => {
 
     goToView(screen, View.Attribution);
     fireEvent.click(screen.getByText('Angular, 16.0.0'));
-    insertValueIntoTextBox(screen, 'Name', 'Vue');
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
     clickOnTopProgressBar(screen);
     expectUnsavedChangesPopupIsShown(screen);
@@ -239,8 +312,16 @@ describe('Not saved popup of the app', () => {
       clickOnElementInResourceBrowser(screen, 'src');
       clickOnElementInResourceBrowser(screen, 'file_2');
 
-      insertValueIntoTextBox(screen, 'Name', 'Angular');
-      expectValueInTextBox(screen, 'Name', 'Angular');
+      insertValueIntoTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
 
       clickAddIconOnCardInAttributionList(screen, 'Vue, 2.6.0');
       expectUnsavedChangesPopupIsShown(screen);
@@ -337,8 +418,16 @@ describe('Not saved popup of the app', () => {
     clickOnElementInResourceBrowser(screen, 'src');
 
     clickAddNewAttributionButton(screen);
-    insertValueIntoTextBox(screen, 'Name', 'My great manual package');
-    expectValueInTextBox(screen, 'Name', 'My great manual package');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'My great manual package',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'My great manual package',
+    );
 
     expectPackagePanelShown(screen, 'Signals in Folder Content');
     expectPackageInPackagePanel(screen, 'JQuery', 'Signals');
@@ -347,7 +436,11 @@ describe('Not saved popup of the app', () => {
     expectUnsavedChangesPopupIsShown(screen);
 
     clickOnButton(screen, ButtonText.Cancel);
-    expectValueInTextBox(screen, 'Name', 'My great manual package');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'My great manual package',
+    );
 
     fireEvent.click(getCardInAttributionList(screen, 'JQuery'));
     expectUnsavedChangesPopupIsShown(screen);
@@ -355,8 +448,16 @@ describe('Not saved popup of the app', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.Undo);
 
     // This behavior could be changed in the future. One could jump to JQuery.
-    expectValueNotInTextBox(screen, 'Name', 'My great manual package');
-    expectValueNotInTextBox(screen, 'Name', 'JQuery');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'My great manual package',
+    );
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'JQuery',
+    );
     expectPackageNotInPackagePanel(
       screen,
       'My great manual package',

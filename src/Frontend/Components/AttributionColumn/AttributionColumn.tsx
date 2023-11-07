@@ -5,10 +5,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import { IpcRendererEvent } from 'electron';
-import { ChangeEvent, ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -72,15 +71,11 @@ interface AttributionColumnProps {
   showParentAttributions?: boolean;
   showManualAttributionData: boolean;
   resetViewIfThisIdChanges?: string;
-  setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string,
-  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSaveButtonClick?(): void;
   onSaveGloballyButtonClick?(): void;
   onDeleteButtonClick?(): void;
   onDeleteGloballyButtonClick?(): void;
   saveFileRequestListener(): void;
-  setTemporaryDisplayPackageInfo(displayPackageInfo: DisplayPackageInfo): void;
   smallerLicenseTextOrCommentField?: boolean;
   addMarginForNeedsReviewCheckbox?: boolean;
 }
@@ -137,7 +132,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       selectedPackage,
       selectedAttributionIdInAttributionView,
     );
-  const nameAndVersionAreEditable = props.isEditable && temporaryPurl === '';
+  const arePurlElementsEditable = props.isEditable && temporaryPurl === '';
   const selectedManualAttributionIdInCurrentView =
     view === View.Attribution
       ? selectedAttributionIdInAttributionView
@@ -302,10 +297,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         handlePurlChange={handlePurlChange}
         isDisplayedPurlValid={isDisplayedPurlValid}
         isEditable={props.isEditable}
-        nameAndVersionAreEditable={nameAndVersionAreEditable}
-        setUpdateTemporaryDisplayPackageInfoFor={
-          props.setUpdateTemporaryDisplayPackageInfoFor
-        }
+        arePurlElementsEditable={arePurlElementsEditable}
         temporaryPurl={temporaryPurl}
         openPackageSearchPopup={(): void => {
           dispatch(openPopup(PopupType.PackageSearchPopup));
@@ -313,9 +305,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         showHighlight={showHighlight}
       />
       <CopyrightSubPanel
-        setUpdateTemporaryDisplayPackageInfoFor={
-          props.setUpdateTemporaryDisplayPackageInfoFor
-        }
         isEditable={props.isEditable}
         displayPackageInfo={temporaryDisplayPackageInfo}
         copyrightRows={copyrightRows}
@@ -325,9 +314,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         isLicenseTextShown={isLicenseTextShown}
         displayPackageInfo={temporaryDisplayPackageInfo}
         isEditable={props.isEditable}
-        setUpdateTemporaryDisplayPackageInfoFor={
-          props.setUpdateTemporaryDisplayPackageInfoFor
-        }
         licenseTextRows={licenseTextRows}
         setIsLicenseTextShown={setIsLicenseTextShown}
         showHighlight={showHighlight}
@@ -335,9 +321,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       <AuditingSubPanel
         commentBoxHeight={commentBoxHeight}
         isCommentsBoxCollapsed={isLicenseTextShown}
-        setUpdateTemporaryDisplayPackageInfoFor={
-          props.setUpdateTemporaryDisplayPackageInfoFor
-        }
         isEditable={props.isEditable}
         displayPackageInfo={temporaryDisplayPackageInfo}
         firstPartyChangeHandler={getFirstPartyChangeHandler(

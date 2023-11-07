@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
-import { doNothing } from '../../../util/do-nothing';
+import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { TextFieldStack } from '../TextFieldStack';
 
 describe('The TextFieldStack', () => {
@@ -20,13 +20,12 @@ describe('The TextFieldStack', () => {
     const isCollapsed = false;
     const commentBoxHeight = 300;
 
-    render(
+    renderComponentWithStore(
       <TextFieldStack
         isEditable={isEditable}
         comments={comments}
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
-        handleChange={(): (() => void) => doNothing}
       />,
     );
     comments.forEach((comment, index) => {
@@ -46,13 +45,12 @@ describe('The TextFieldStack', () => {
     const isCollapsed = true;
     const commentBoxHeight = 300;
 
-    render(
+    renderComponentWithStore(
       <TextFieldStack
         isEditable={isEditable}
         comments={comments}
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
-        handleChange={(): (() => void) => doNothing}
       />,
     );
     expect(screen.getByLabelText('4 comments (collapsed)'));
@@ -64,13 +62,12 @@ describe('The TextFieldStack', () => {
     const isCollapsed = true;
     const commentBoxHeight = 300;
 
-    render(
+    renderComponentWithStore(
       <TextFieldStack
         isEditable={isEditable}
         comments={comments}
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
-        handleChange={(): (() => void) => doNothing}
       />,
     );
     expect(screen.getByLabelText('1 comment (collapsed)'));
@@ -82,13 +79,12 @@ describe('The TextFieldStack', () => {
     const isCollapsed = true;
     const commentBoxHeight = 300;
 
-    render(
+    renderComponentWithStore(
       <TextFieldStack
         isEditable={isEditable}
         comments={comments}
         isCollapsed={isCollapsed}
         commentBoxHeight={commentBoxHeight}
-        handleChange={(): (() => void) => doNothing}
       />,
     );
     expect(screen.getByLabelText('No comments'));

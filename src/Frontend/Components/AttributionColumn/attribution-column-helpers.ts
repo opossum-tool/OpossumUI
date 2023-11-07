@@ -28,6 +28,7 @@ import {
   parsePurl,
 } from '../../util/handle-purl';
 import { isExternalPackagePanel } from '../../util/is-external-package-panel';
+import { isNamespaceRequiredButMissing } from '../../util/is-important-attribution-information-missing';
 import { useWindowHeight } from '../../util/use-window-height';
 
 const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
@@ -261,7 +262,12 @@ export function usePurl(
   updatePurl: (displayPackageInfo: DisplayPackageInfo) => void;
 } {
   const [temporaryPurl, setTemporaryPurl] = useState<string>('');
-  const isDisplayedPurlValid: boolean = parsePurl(temporaryPurl).isValid;
+  const isDisplayedPurlValid: boolean =
+    parsePurl(temporaryPurl).isValid &&
+    !isNamespaceRequiredButMissing(
+      temporaryDisplayPackageInfo.packageType,
+      temporaryDisplayPackageInfo.packageNamespace,
+    );
 
   const isAllSavingDisabled =
     (!packageInfoWereModified || !isDisplayedPurlValid) &&

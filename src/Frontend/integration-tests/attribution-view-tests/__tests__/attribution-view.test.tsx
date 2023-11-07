@@ -11,6 +11,7 @@ import {
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -79,7 +80,11 @@ describe('The App in attribution view', () => {
 
     clickOnElementInResourceBrowser(screen, 'file2');
     clickOnPackageInPackagePanel(screen, 'Angular', 'Signals');
-    expectValueInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
     goToView(screen, View.Attribution);
 
@@ -120,25 +125,57 @@ describe('The App in attribution view', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('Angular, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Version', '16.0.0');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '16.0.0',
+    );
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
     expect(screen.queryByText('jQuery')).not.toBeInTheDocument();
 
-    insertValueIntoTextBox(screen, 'Name', 'jQuery');
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
 
     fireEvent.click(screen.getByText('Vue, 2.6.0') as Element);
     expectUnsavedChangesPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Save);
 
-    expectValueInTextBox(screen, 'Name', 'Vue');
-    expectValueInTextBox(screen, 'Version', '2.6.0');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '2.6.0',
+    );
     expectValueInTextBox(screen, 'Comment', 'ManualPackage 2');
     expect(screen.queryByText('jQuery')).not.toBeInTheDocument();
 
-    insertValueIntoTextBox(screen, 'Name', 'jQuery');
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
   });
 
   it('handles purls correctly', () => {
@@ -176,47 +213,99 @@ describe('The App in attribution view', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('Angular, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'Angular');
-    expectValueInTextBox(screen, 'Version', '16.0.0');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '16.0.0',
+    );
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
 
     insertValueIntoTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed',
     );
     expectValueInTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed',
     );
-    expectValueInTextBox(screen, 'Name', 'curl');
-    expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'curl',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '7.56.1-1.1.',
+    );
 
     fireEvent.click(screen.getByText('Vue, 2.6.0') as Element);
     expectUnsavedChangesPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Save);
-    expectValueInTextBox(screen, 'PURL', '');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      '',
+    );
 
     fireEvent.click(screen.getByText('curl, 7.56.1-1.1.') as Element);
 
     expectValueInTextBox(
       screen,
-      'PURL',
+      text.attributionColumn.packageSubPanel.purl,
       'pkg:rpm/opensuse/curl@7.56.1-1.1.?arch=i386&distro=opensuse-tumbleweed',
     );
-    expectValueInTextBox(screen, 'Name', 'curl');
-    expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'curl',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '7.56.1-1.1.',
+    );
 
-    insertValueIntoTextBox(screen, 'PURL', 'invalid-purl');
-    expectValueInTextBox(screen, 'Name', 'curl');
-    expectValueInTextBox(screen, 'Version', '7.56.1-1.1.');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      'invalid-purl',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'curl',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '7.56.1-1.1.',
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
 
-    insertValueIntoTextBox(screen, 'PURL', 'pkg:test/name@version');
-    expectValueInTextBox(screen, 'Name', 'name');
-    expectValueInTextBox(screen, 'Version', 'version');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      'pkg:test/name@version',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'name',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      'version',
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     clickOnButton(screen, ButtonText.Save);
@@ -317,21 +406,53 @@ describe('The App in attribution view', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'jQuery');
-    expectValueInTextBox(screen, 'Version', '16.0.0');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '16.0.0',
+    );
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
     clickOnButtonInHamburgerMenu(screen, ButtonText.Undo);
 
-    expectValueInTextBox(screen, 'Name', 'jQuery');
-    expectValueNotInTextBox(screen, 'Name', 'Angular');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
 
-    insertValueIntoTextBox(screen, 'Name', 'Angular');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
     clickOnButton(screen, ButtonText.Save);
 
-    expectValueInTextBox(screen, 'Name', 'Angular');
-    expectValueNotInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Angular',
+    );
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
     expect(screen.getByText('Angular, 16.0.0'));
 
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
@@ -388,12 +509,28 @@ describe('The App in attribution view', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'jQuery');
-    expectValueInTextBox(screen, 'Version', '16.0.0');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '16.0.0',
+    );
     expectValueInTextBox(screen, 'Comment', 'ManualPackage');
 
-    insertValueIntoTextBox(screen, 'Name', '');
-    insertValueIntoTextBox(screen, 'Version', '');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      '',
+    );
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageVersion,
+      '',
+    );
     insertValueIntoTextBox(screen, 'Comment', '');
     clickOnButton(screen, ButtonText.Save);
 
@@ -456,13 +593,21 @@ describe('The App in attribution view', () => {
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('jQuery, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'jQuery');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'jQuery',
+    );
     screen.getByText('file_1');
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.MarkForReplacement);
 
     fireEvent.click(screen.getByText('React, 16.0.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     screen.getByText('file_2');
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
@@ -474,7 +619,11 @@ describe('The App in attribution view', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.ReplaceMarked);
     expectReplaceAttributionPopupIsShown(screen);
     clickOnButton(screen, ButtonText.Replace);
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectReplaceAttributionPopupIsNotShown(screen);
     expect(screen.queryByText('jQuery, 16.0.0')).not.toBeInTheDocument();
     screen.getByText('file_1');

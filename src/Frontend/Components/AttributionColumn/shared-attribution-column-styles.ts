@@ -14,17 +14,10 @@ export const attributionColumnClasses = {
   },
   displayRow: {
     display: 'flex',
+    gap: '8px',
   },
   textBox: {
     marginBottom: '4px',
     flex: 1,
-  },
-  rightTextBox: {
-    marginLeft: '8px',
-  },
-  textBoxInvalidInput: {
-    '& textarea, input': {
-      color: OpossumColors.orange,
-    },
   },
 };

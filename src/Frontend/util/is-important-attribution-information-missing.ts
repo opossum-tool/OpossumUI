@@ -38,6 +38,7 @@ export function isImportantAttributionInformationMissing(
     case 'copyright':
     case 'licenseName':
     case 'packageName':
+    case 'packageType':
     case 'packageVersion':
     case 'url':
       return !extendedAttributionInfo[attributionProperty];
@@ -51,7 +52,7 @@ export function isImportantAttributionInformationMissing(
   }
 }
 
-function isNamespaceRequiredButMissing(
+export function isNamespaceRequiredButMissing(
   packageType?: string,
   packageNamespace?: string,
 ): boolean {

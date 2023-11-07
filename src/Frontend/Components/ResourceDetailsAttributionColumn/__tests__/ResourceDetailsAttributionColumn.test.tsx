@@ -10,6 +10,7 @@ import {
   DisplayPackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import {
   setManualData,
   setTemporaryDisplayPackageInfo,
@@ -70,7 +71,7 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
 
 describe('The ResourceDetailsAttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       comments: ['some comment'],
       packageName: 'Some package',
@@ -78,7 +79,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
       copyright: 'Copyright Doe Inc. 2019',
       licenseText: 'Permission is hereby granted',
       attributionIds: [],
-    };
+    } satisfies DisplayPackageInfo;
     const { store } = renderComponentWithStore(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />,
     );
@@ -92,9 +93,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
     expect(screen.queryAllByText('Confidence'));
     expect(
       screen.getByDisplayValue(
-        (
-          testTemporaryDisplayPackageInfo.attributionConfidence as unknown as number
-        ).toString(),
+        testTemporaryDisplayPackageInfo.attributionConfidence.toString(),
       ),
     );
     expect(screen.queryAllByText('Comment'));
@@ -103,24 +102,22 @@ describe('The ResourceDetailsAttributionColumn', () => {
         ? testTemporaryDisplayPackageInfo?.comments[0]
         : '';
     expect(screen.getByDisplayValue(testComment));
-    expect(screen.queryAllByText('Name'));
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageName as string,
+      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
+    );
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
+    );
+    expect(
+      screen.queryAllByText(
+        text.attributionColumn.packageSubPanel.packageVersion,
       ),
     );
-    expect(screen.queryAllByText('Version'));
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageVersion as string,
-      ),
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageVersion),
     );
     expect(screen.queryAllByText('Copyright'));
-    expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.copyright as string,
-      ),
-    );
+    expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright));
     expect(
       screen.queryAllByText('License Text (to appear in attribution document)'),
     );

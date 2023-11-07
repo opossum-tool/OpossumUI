@@ -6,13 +6,18 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
-import { ChangeEvent, ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { HighlightingColor } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import {
+  isImportantAttributionInformationMissing,
+  isNamespaceRequiredButMissing,
+} from '../../util/is-important-attribution-information-missing';
 import { openUrl } from '../../util/open-url';
+import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
 import { SearchPackagesIcon } from '../Icons/Icons';
@@ -23,10 +28,7 @@ const iconClasses = { clickableIcon, disabledIcon };
 
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
-  setUpdateTemporaryDisplayPackageInfoFor(
-    propertyToUpdate: string,
-  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  nameAndVersionAreEditable: boolean;
+  arePurlElementsEditable: boolean;
   isDisplayedPurlValid: boolean;
   isEditable: boolean;
   temporaryPurl: string;
@@ -36,75 +38,131 @@ interface PackageSubPanelProps {
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
-  const openLinkButtonTooltip = props.displayPackageInfo.url
-    ? 'Open link in browser'
-    : 'No link to open. Please enter a URL.';
+  const handleChange = usePackageInfoChangeHandler();
 
   return (
     <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
       <MuiBox sx={attributionColumnClasses.displayRow}>
-        <TextBox
-          sx={attributionColumnClasses.textBox}
-          title={'Name'}
-          text={props.displayPackageInfo.packageName}
-          handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-            'packageName',
-          )}
-          isEditable={props.nameAndVersionAreEditable}
-          endIcon={
-            <IconButton
-              tooltipTitle="Search for package information"
-              tooltipPlacement="right"
-              onClick={props.openPackageSearchPopup}
-              disabled={!props.isEditable}
-              icon={
-                <SearchPackagesIcon
-                  sx={
-                    props.isEditable
-                      ? iconClasses.clickableIcon
-                      : iconClasses.disabledIcon
-                  }
-                />
-              }
-            />
-          }
-          isHighlighted={
-            props.showHighlight &&
-            isImportantAttributionInformationMissing(
-              'packageName',
-              props.displayPackageInfo,
-            )
-          }
-          highlightingColor={HighlightingColor.DarkOrange}
-        />
-        <TextBox
-          sx={{
-            ...attributionColumnClasses.textBox,
-            ...attributionColumnClasses.rightTextBox,
-          }}
-          title={'Version'}
-          text={props.displayPackageInfo.packageVersion}
-          handleChange={props.setUpdateTemporaryDisplayPackageInfoFor(
-            'packageVersion',
-          )}
-          isEditable={props.nameAndVersionAreEditable}
-          isHighlighted={
-            props.showHighlight &&
-            isImportantAttributionInformationMissing(
-              'packageVersion',
-              props.displayPackageInfo,
-            )
-          }
-        />
+        {renderPackageType()}
+        {renderPackageNamespace()}
       </MuiBox>
+      <MuiBox sx={attributionColumnClasses.displayRow}>
+        {renderPackageName()}
+        {renderPackageVersion()}
+      </MuiBox>
+      {renderPurl()}
+      {renderRepositoryUrl()}
+    </MuiPaper>
+  );
+
+  function renderPackageType(): React.ReactElement {
+    return (
       <TextBox
         sx={attributionColumnClasses.textBox}
-        textFieldSx={
-          props.isDisplayedPurlValid
-            ? {}
-            : attributionColumnClasses.textBoxInvalidInput
+        title={text.attributionColumn.packageSubPanel.packageType}
+        text={props.displayPackageInfo.packageType}
+        handleChange={handleChange('packageType')}
+        isEditable={props.arePurlElementsEditable}
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'packageType',
+            props.displayPackageInfo,
+          )
         }
-        title={'PURL'}
+        highlightingColor={HighlightingColor.DarkOrange}
+      />
+    );
+  }
+
+  function renderPackageNamespace(): React.ReactElement {
+    return (
+      <TextBox
+        sx={attributionColumnClasses.textBox}
+        error={isNamespaceRequiredButMissing(
+          props.displayPackageInfo.packageType,
+          props.displayPackageInfo.packageNamespace,
+        )}
+        title={text.attributionColumn.packageSubPanel.packageNamespace}
+        text={props.displayPackageInfo.packageNamespace}
+        handleChange={handleChange('packageNamespace')}
+        isEditable={props.arePurlElementsEditable}
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'packageNamespace',
+            props.displayPackageInfo,
+          )
+        }
+        highlightingColor={HighlightingColor.DarkOrange}
+      />
+    );
+  }
+
+  function renderPackageName(): React.ReactElement {
+    return (
+      <TextBox
+        sx={attributionColumnClasses.textBox}
+        title={text.attributionColumn.packageSubPanel.packageName}
+        text={props.displayPackageInfo.packageName}
+        handleChange={handleChange('packageName')}
+        isEditable={props.arePurlElementsEditable}
+        endIcon={
+          <IconButton
+            tooltipTitle={
+              text.attributionColumn.packageSubPanel.searchForPackage
+            }
+            tooltipPlacement="right"
+            onClick={props.openPackageSearchPopup}
+            disabled={!props.isEditable}
+            icon={
+              <SearchPackagesIcon
+                sx={
+                  props.isEditable
+                    ? iconClasses.clickableIcon
+                    : iconClasses.disabledIcon
+                }
+              />
+            }
+          />
+        }
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'packageName',
+            props.displayPackageInfo,
+          )
+        }
+        highlightingColor={HighlightingColor.DarkOrange}
+      />
+    );
+  }
+
+  function renderPackageVersion(): React.ReactElement {
+    return (
+      <TextBox
+        sx={attributionColumnClasses.textBox}
+        title={text.attributionColumn.packageSubPanel.packageVersion}
+        text={props.displayPackageInfo.packageVersion}
+        handleChange={handleChange('packageVersion')}
+        isEditable={props.arePurlElementsEditable}
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'packageVersion',
+            props.displayPackageInfo,
+          )
+        }
+      />
+    );
+  }
+
+  function renderPurl(): React.ReactElement {
+    return (
+      <TextBox
+        sx={attributionColumnClasses.textBox}
+        error={!props.isDisplayedPurlValid}
+        title={text.attributionColumn.packageSubPanel.purl}
         text={props.temporaryPurl}
         handleChange={props.handlePurlChange}
         isEditable={props.isEditable}
@@ -116,12 +174,21 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           )
         }
       />
+    );
+  }
+
+  function renderRepositoryUrl(): React.ReactElement {
+    const openLinkButtonTooltip = props.displayPackageInfo.url
+      ? text.attributionColumn.packageSubPanel.openLinkInBrowser
+      : text.attributionColumn.packageSubPanel.noLinkToOpen;
+
+    return (
       <TextBox
         isEditable={props.isEditable}
         sx={attributionColumnClasses.textBox}
-        title={'URL'}
+        title={text.attributionColumn.packageSubPanel.repositoryUrl}
         text={props.displayPackageInfo.url}
-        handleChange={props.setUpdateTemporaryDisplayPackageInfoFor('url')}
+        handleChange={handleChange('url')}
         endIcon={
           <>
             <FetchLicenseInformationButton
@@ -158,6 +225,6 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
           )
         }
       />
-    </MuiPaper>
-  );
+    );
+  }
 }

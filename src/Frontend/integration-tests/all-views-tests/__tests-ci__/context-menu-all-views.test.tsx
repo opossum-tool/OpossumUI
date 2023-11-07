@@ -9,6 +9,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -102,7 +103,11 @@ describe('The ContextMenu', () => {
       renderComponentWithStore(<App />);
 
       clickOnElementInResourceBrowser(screen, 'firstResource.js');
-      expectValueInTextBox(screen, 'Name', 'Angular');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
@@ -116,10 +121,18 @@ describe('The ContextMenu', () => {
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
-      expectValueNotInTextBox(screen, 'Name', 'Angular');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
 
       clickOnCardInAttributionList(screen, 'React, 16.5.0');
-      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
         'React, 16.5.0',
@@ -131,19 +144,31 @@ describe('The ContextMenu', () => {
       );
       expectConfirmDeletionPopupVisible(screen);
       clickOnButton(screen, ButtonText.Confirm);
-      expectValueNotInTextBox(screen, 'Name', 'React');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 4, 0, 0);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
-      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       expectContextMenuForNotPreSelectedAttributionMultipleResources(
         screen,
         'React, 16.5.0',
       );
 
       clickOnElementInResourceBrowser(screen, 'fourthResource.js');
-      expectValueInTextBox(screen, 'Name', 'Vue');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Vue',
+      );
       clickOnTab(screen, 'Global Tab');
 
       expectGlobalOnlyContextMenuForNotPreselectedAttribution(
@@ -159,12 +184,20 @@ describe('The ContextMenu', () => {
       clickOnButton(screen, ButtonText.Confirm);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
-      expectValueNotInTextBox(screen, 'Name', 'React');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 2, 0, 0);
 
       clickOnElementInResourceBrowser(screen, 'thirdResource.js');
-      expectValueNotInTextBox(screen, 'Name', 'React');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
 
       goToView(screen, View.Attribution);
       expectResourceBrowserIsNotShown(screen);
@@ -211,7 +244,11 @@ describe('The ContextMenu', () => {
       renderComponentWithStore(<App />);
 
       clickOnElementInResourceBrowser(screen, 'firstResource.js');
-      expectValueInTextBox(screen, 'Name', 'Angular');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
       expectContextMenuForPreSelectedAttributionMultipleResources(
         screen,
         'Angular, 12.2.8',
@@ -222,10 +259,18 @@ describe('The ContextMenu', () => {
         ButtonText.DeleteGlobally,
       );
       expectConfirmDeletionPopupNotVisible(screen);
-      expectValueNotInTextBox(screen, 'Name', 'Angular');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Angular',
+      );
 
       clickOnCardInAttributionList(screen, 'React, 16.5.0');
-      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       expectContextMenuForPreSelectedAttributionMultipleResources(
         screen,
         'React, 16.5.0',
@@ -236,19 +281,31 @@ describe('The ContextMenu', () => {
         ButtonText.Delete,
       );
       expectConfirmDeletionPopupNotVisible(screen);
-      expectValueNotInTextBox(screen, 'Name', 'React');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 4, 0);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
-      expectValueInTextBox(screen, 'Name', 'React');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       expectContextMenuForPreSelectedAttributionMultipleResources(
         screen,
         'React, 16.5.0',
       );
 
       clickOnElementInResourceBrowser(screen, 'fourthResource.js');
-      expectValueInTextBox(screen, 'Name', 'Vue');
+      expectValueInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'Vue',
+      );
       clickOnTab(screen, 'Global Tab');
       expectGlobalOnlyContextMenuForPreselectedAttribution(
         screen,
@@ -262,12 +319,20 @@ describe('The ContextMenu', () => {
       expectConfirmDeletionPopupNotVisible(screen);
 
       clickOnElementInResourceBrowser(screen, 'secondResource.js');
-      expectValueNotInTextBox(screen, 'Name', 'React');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       expectValuesInTopProgressbarTooltip(screen, 5, 0, 2, 0);
 
       clickOnElementInResourceBrowser(screen, 'thirdResource.js');
-      expectValueNotInTextBox(screen, 'Name', 'React');
+      expectValueNotInTextBox(
+        screen,
+        text.attributionColumn.packageSubPanel.packageName,
+        'React',
+      );
 
       goToView(screen, View.Attribution);
       expectResourceBrowserIsNotShown(screen);
@@ -377,7 +442,11 @@ describe('The ContextMenu', () => {
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'thirdResource.js');
 
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
     closePopup(screen);
     clickOnTab(screen, 'Global Tab');
@@ -393,7 +462,11 @@ describe('The ContextMenu', () => {
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'secondResource.js');
 
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
     goToView(screen, View.Attribution);
     expectResourceBrowserIsNotShown(screen);
@@ -410,6 +483,10 @@ describe('The ContextMenu', () => {
     expectShowResourcesPopupVisible(screen);
     clickOnNodeInPopupWithResources(screen, 'secondResource.js');
 
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
   });
 });

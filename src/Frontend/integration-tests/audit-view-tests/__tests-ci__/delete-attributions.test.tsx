@@ -5,6 +5,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 
 import { ParsedFileContent } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { ButtonText, View } from '../../../enums/enums';
 import {
@@ -74,7 +75,11 @@ describe('The App in Audit View', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInConfidenceField(screen, '10');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 5, 0, 0);
@@ -85,12 +90,20 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 4, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
@@ -98,19 +111,31 @@ describe('The App in Audit View', () => {
     clickOnButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
     expectConfirmDeletionPopupVisible(screen);
     clickOnButton(screen, ButtonText.Confirm);
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 2, 0, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Delete);
 
     goToView(screen, View.Attribution);
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('Vue, 1.2.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.DeleteGlobally);
@@ -165,7 +190,11 @@ describe('The App in Audit View', () => {
     renderComponentWithStore(<App />);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectValueInConfidenceField(screen, '10');
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 5, 0);
@@ -175,31 +204,51 @@ describe('The App in Audit View', () => {
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectConfirmDeletionPopupNotVisible(screen);
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 4, 0);
 
     clickOnElementInResourceBrowser(screen, 'secondResource.js');
-    expectValueInTextBox(screen, 'Name', 'React');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
 
     clickOnButtonInHamburgerMenu(screen, ButtonText.DeleteGlobally);
     expectConfirmDeletionPopupNotVisible(screen);
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expectValuesInTopProgressbarTooltip(screen, 5, 0, 2, 0);
 
     clickOnElementInResourceBrowser(screen, 'thirdResource.js');
-    expectValueNotInTextBox(screen, 'Name', 'React');
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'React',
+    );
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.Delete);
 
     goToView(screen, View.Attribution);
     expectResourceBrowserIsNotShown(screen);
 
     fireEvent.click(screen.getByText('Vue, 1.2.0') as Element);
-    expectValueInTextBox(screen, 'Name', 'Vue');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'Vue',
+    );
 
     expectButtonInHamburgerMenu(screen, ButtonText.Delete);
     expectButtonInHamburgerMenuIsNotShown(screen, ButtonText.DeleteGlobally);

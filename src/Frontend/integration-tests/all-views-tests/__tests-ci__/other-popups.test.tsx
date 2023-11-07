@@ -12,6 +12,7 @@ import {
   ParsedFileContent,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { App } from '../../../Components/App/App';
 import { TIME_POPUP_IS_DISPLAYED } from '../../../Components/ErrorPopup/ErrorPopup';
 import { ButtonText } from '../../../enums/enums';
@@ -86,8 +87,16 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
-    insertValueIntoTextBox(screen, 'Name', 'new Name');
-    expectValueInTextBox(screen, 'Name', 'new Name');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'new Name',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'new Name',
+    );
 
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
@@ -97,13 +106,25 @@ describe('Other popups of the app', () => {
 
     clickOnButton(screen, ButtonText.Cancel);
     expectUnsavedChangesPopupIsNotShown(screen);
-    expectValueInTextBox(screen, 'Name', 'new Name');
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'new Name',
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     clickOnButton(screen, ButtonText.Save);
 
-    insertValueIntoTextBox(screen, 'Name', 'another new Name');
-    expectValueInTextBox(screen, 'Name', 'another new Name');
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'another new Name',
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      'another new Name',
+    );
 
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
@@ -141,12 +162,24 @@ describe('Other popups of the app', () => {
     closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', testInitialPackageName);
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testInitialPackageName,
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
 
-    insertValueIntoTextBox(screen, 'Name', testPackageName);
-    expectValueInTextBox(screen, 'Name', testPackageName);
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
@@ -171,7 +204,11 @@ describe('Other popups of the app', () => {
       expectedSaveFileArgs,
     );
     expectUnsavedChangesPopupIsNotShown(screen);
-    expectValueNotInTextBox(screen, 'Name', testPackageName);
+    expectValueNotInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
     expectButton(screen, ButtonText.Save, true);
   });
 
@@ -203,12 +240,24 @@ describe('Other popups of the app', () => {
     closeProjectStatisticsPopup(screen);
 
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
-    expectValueInTextBox(screen, 'Name', testInitialPackageName);
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testInitialPackageName,
+    );
     expectButton(screen, ButtonText.Save, true);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, true);
 
-    insertValueIntoTextBox(screen, 'Name', testPackageName);
-    expectValueInTextBox(screen, 'Name', testPackageName);
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
+    expectValueInTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.packageName,
+      testPackageName,
+    );
     expectButton(screen, ButtonText.Save, false);
     expectButtonInHamburgerMenu(screen, ButtonText.Undo, false);
     expectUnsavedChangesPopupIsNotShown(screen);
@@ -306,7 +355,11 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
 
     mockSaveFileRequestChannel();
-    insertValueIntoTextBox(screen, 'PURL', testInvalidPurl);
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      testInvalidPurl,
+    );
 
     // Trigger sending external attribution in IpcChannel without the clicking on save button
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
@@ -348,7 +401,11 @@ describe('Other popups of the app', () => {
     clickOnElementInResourceBrowser(screen, 'firstResource.js');
 
     mockSaveFileRequestChannel();
-    insertValueIntoTextBox(screen, 'PURL', testValidPurl);
+    insertValueIntoTextBox(
+      screen,
+      text.attributionColumn.packageSubPanel.purl,
+      testValidPurl,
+    );
 
     // Trigger sending external attribution in IpcChannel without the clicking on save button
     clickOnElementInResourceBrowser(screen, 'firstResource.js');

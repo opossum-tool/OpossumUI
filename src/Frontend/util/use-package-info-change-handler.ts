@@ -6,13 +6,18 @@ import { ChangeEvent } from 'react';
 
 import { DisplayPackageInfo } from '../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../state/actions/resource-actions/all-views-simple-actions';
-import { AppThunkDispatch } from '../state/types';
+import { useAppDispatch, useAppSelector } from '../state/hooks';
+import { getTemporaryDisplayPackageInfo } from '../state/selectors/all-views-resource-selectors';
 
-export function setUpdateTemporaryDisplayPackageInfoForCreator(
-  dispatch: AppThunkDispatch,
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-) {
-  return (propertyToUpdate: string) => {
+export function usePackageInfoChangeHandler(): (
+  propertyToUpdate: keyof DisplayPackageInfo,
+) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void {
+  const dispatch = useAppDispatch();
+  const temporaryDisplayPackageInfo = useAppSelector(
+    getTemporaryDisplayPackageInfo,
+  );
+
+  return (propertyToUpdate: keyof DisplayPackageInfo) => {
     return (
       event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ): void => {
