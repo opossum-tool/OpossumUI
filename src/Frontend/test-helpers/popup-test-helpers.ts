@@ -77,3 +77,21 @@ export function expectConfirmMultiSelectDeletionPopupNotVisible(
 ): void {
   expect(screen.queryByText('Confirm Deletion')).not.toBeInTheDocument();
 }
+
+export function expectModifyWasPreferredPopupIsShown(screen: Screen): void {
+  expect(screen.getByText('Warning'));
+  expect(
+    screen.getByText(
+      'You are about to modify an attribution that was preferred in the past.',
+      { exact: false },
+    ),
+  );
+}
+
+export function expectEditAttributionPopupIsShown(screen: Screen): void {
+  expect(screen.getByText('Edit Attribution')).toBeInTheDocument();
+}
+
+export function expectEditAttributionPopupIsNotShown(screen: Screen): void {
+  expect(screen.queryByText('Edit Attribution')).not.toBeInTheDocument();
+}

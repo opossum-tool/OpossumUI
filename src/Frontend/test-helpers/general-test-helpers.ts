@@ -322,3 +322,13 @@ export function getOpenResourcesButtonForPackagePanel(
     name: 'show resources',
   });
 }
+
+export function expectNoAttributionIsMarkedAsWasPreferred(
+  screen: Screen,
+): void {
+  expect(screen.queryByLabelText('Was Preferred icon')).not.toBeInTheDocument();
+}
+
+export function expectAttributionIsMarkedAsWasPreferred(screen: Screen): void {
+  expect(screen.getByLabelText('Was Preferred icon'));
+}
