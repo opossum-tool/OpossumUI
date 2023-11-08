@@ -140,6 +140,7 @@ export function ProjectStatisticsPopup(): ReactElement {
       }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
+      aria-label={'project statistics'}
     />
   );
 }

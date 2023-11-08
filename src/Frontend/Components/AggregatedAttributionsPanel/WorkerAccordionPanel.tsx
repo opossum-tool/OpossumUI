@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ReactElement, useContext, useMemo, useState } from 'react';
+import { ReactElement, useContext, useEffect, useState } from 'react';
 
 import { AttributionsToHashes } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
@@ -74,8 +74,8 @@ export function WorkerAccordionPanel(
       break;
   }
 
-  useMemo(() => {
-    loadDisplayPackageInfosWithCount(
+  useEffect(() => {
+    void loadDisplayPackageInfosWithCount(
       props.workerArgs,
       worker,
       props.title,

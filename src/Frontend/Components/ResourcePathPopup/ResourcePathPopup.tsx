@@ -66,11 +66,13 @@ export function ResourcePathPopup(props: ResourcePathPopupProps): ReactElement {
           resourcePaths={allResourcePaths}
           highlightSelectedResources={true}
           sx={classes.tree}
+          onSelect={props.closePopup}
         />
       }
       isOpen={true}
       fullWidth
       fullHeight
+      aria-label={'resource path'}
     />
   );
 }

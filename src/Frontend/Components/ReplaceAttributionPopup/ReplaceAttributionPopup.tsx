@@ -103,6 +103,7 @@ export function ReplaceAttributionPopup(): ReactElement {
         buttonText: ButtonText.Cancel,
       }}
       isOpen={true}
+      aria-label={'replace attribution popup'}
     />
   );
 }

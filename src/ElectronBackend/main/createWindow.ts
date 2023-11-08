@@ -19,7 +19,6 @@ export async function createWindow(): Promise<BrowserWindow> {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
-      devTools: !process.argv.includes('--disable-devtools'),
       preload: path.join(upath.toUnix(__dirname), '../preload.js'),
     },
     icon: getIconPath(),

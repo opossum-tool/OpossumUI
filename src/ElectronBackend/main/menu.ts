@@ -38,7 +38,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           label: 'Open File',
           accelerator: 'CmdOrCtrl+O',
           click(): void {
-            getOpenFileListener(mainWindow)();
+            void getOpenFileListener(mainWindow)();
           },
         },
         {

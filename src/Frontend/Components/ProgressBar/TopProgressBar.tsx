@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ReactElement, useContext, useMemo, useState } from 'react';
+import { ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { useAppSelector } from '../../state/hooks';
@@ -107,8 +107,8 @@ export function TopProgressBar(): ReactElement {
     ? 'Critical signals progress bar selected'
     : 'Progress bar selected';
 
-  useMemo(() => {
-    loadProgressBarData(
+  useEffect(() => {
+    void loadProgressBarData(
       topProgressBarWorker,
       topProgressBarWorkerArgs,
       setTopProgressBarData,

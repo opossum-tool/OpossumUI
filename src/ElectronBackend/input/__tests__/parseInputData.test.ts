@@ -7,17 +7,14 @@ import { WebContents } from 'electron';
 import {
   Attributions,
   AttributionsToResources,
+  BaseUrlsForSources,
   Criticality,
   FollowUp,
   FrequentLicenses,
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import {
-  RawAttributions,
-  RawBaseUrlsForSources,
-  RawFrequentLicense,
-} from '../../types/types';
+import { RawAttributions, RawFrequentLicense } from '../../types/types';
 import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalAttributions,
@@ -107,7 +104,7 @@ describe('parseRawAttributions', () => {
   it('removes unknown strings from followUp', () => {
     const rawAttributions: RawAttributions = {
       id: {
-        followUp: 'UNKNOWN_STRING',
+        followUp: 'UNKNOWN_STRING' as FollowUp,
       },
     };
     const expectedAttributions: Attributions = {
@@ -245,10 +242,10 @@ describe('parseRawAttributions', () => {
 
 describe('sanitizeRawBaseUrlsForSources', () => {
   it('adds / to path', () => {
-    const rawBaseUrlsForSources: RawBaseUrlsForSources = {
+    const rawBaseUrlsForSources: BaseUrlsForSources = {
       'test/path': 'www.test.it',
     };
-    const expectedBaseUrlsForSources: RawBaseUrlsForSources = {
+    const expectedBaseUrlsForSources: BaseUrlsForSources = {
       'test/path/': 'www.test.it',
     };
 

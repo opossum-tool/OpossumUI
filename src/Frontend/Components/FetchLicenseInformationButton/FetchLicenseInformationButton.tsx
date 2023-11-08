@@ -68,7 +68,7 @@ export enum FetchStatus {
 export function useFetchPackageInfo(props: LicenseFetchingInformation): {
   fetchStatus: FetchStatus;
   errorMessage: string;
-  fetchData: () => Promise<void>;
+  fetchData: () => void;
 } {
   const dispatch = useAppDispatch();
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -82,9 +82,9 @@ export function useFetchPackageInfo(props: LicenseFetchingInformation): {
     packageInfo: PackageInfo;
   }>();
 
-  async function fetchData(): Promise<void> {
+  function fetchData(): void {
     setFetchStatus(FetchStatus.InFlight);
-    await axios
+    axios
       .get(props.url)
       .then((res) => {
         setFetchedPackageInfo({

@@ -29,6 +29,7 @@ export function ProjectMetadataPopup(): ReactElement {
       }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
+      aria-label={'project metadata'}
     />
   );
 }

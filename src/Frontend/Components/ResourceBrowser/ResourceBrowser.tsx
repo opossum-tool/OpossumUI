@@ -168,7 +168,6 @@ export function ResourceBrowser(): ReactElement | null {
       onToggle={handleToggle}
       nodes={{ [TREE_ROOT_FOLDER_LABEL]: resources }}
       selectedNodeId={selectedResourceId}
-      ariaLabel={'resource browser'}
       getTreeNodeLabel={getTreeItemLabelGetter()}
       breakpoints={attributionBreakpoints}
       cardHeight={TREE_ROW_HEIGHT}

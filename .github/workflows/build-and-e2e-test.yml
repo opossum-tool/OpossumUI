@@ -24,13 +24,13 @@ jobs:
           - os: ubuntu-latest
             SHIP: ship-linux
             # https://github.com/microsoft/playwright/issues/11932
-            E2E: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
+            E2E: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e:ci
           - os: macos-latest
             SHIP: ship-mac
-            E2E: yarn test:e2e
+            E2E: yarn test:e2e:ci
           - os: windows-latest
             SHIP: ship-win
-            E2E: yarn test:e2e
+            E2E: yarn test:e2e:ci
 
     steps:
       - name: Check out Git repository
@@ -48,10 +48,8 @@ jobs:
         run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
         if: matrix.os == 'ubuntu-latest'
 
-      - name: Run end-to-end tests
-        run: ${{ matrix.E2E }}
-        env:
-          CI: 'true'
-
       - name: Build app
         run: yarn ${{ matrix.SHIP }}
+
+      - name: Run end-to-end tests
+        run: ${{ matrix.E2E }}

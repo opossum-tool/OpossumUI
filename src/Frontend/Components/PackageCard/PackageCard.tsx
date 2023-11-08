@@ -470,7 +470,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
   ) : undefined;
 
   return (
-    <MuiBox sx={!props.showCheckBox ? classes.multiSelectPackageCard : {}}>
+    <MuiBox
+      aria-label={`package card ${packageLabels[0]}`}
+      sx={!props.showCheckBox ? classes.multiSelectPackageCard : {}}
+    >
       {showAssociatedResourcesPopup &&
         !Boolean(props.hideContextMenuAndMultiSelect) && (
           <ResourcePathPopup

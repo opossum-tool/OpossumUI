@@ -31,6 +31,7 @@ import {
 interface ResourcesTreeProps {
   resourcePaths: Array<string>;
   highlightSelectedResources: boolean;
+  onSelect?: (resourceId: string) => void;
   sx?: SxProps;
 }
 
@@ -64,6 +65,7 @@ export function ResourcesTree(props: ResourcesTreeProps): ReactElement {
 
   function handleSelect(_: React.ChangeEvent<unknown>, nodeId: string): void {
     dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId));
+    props.onSelect?.(nodeId);
   }
 
   function getTreeItemLabelGetter() {

@@ -3,26 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { PlaywrightTestConfig } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
 
-// The timeouts are chosen so large, as some of the machines used in
-// GitHub actions are slow (for Win and Mac).
-const TIMEOUT_VALUE = 60000;
-const EXPECT_TIMEOUT = 15000;
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
-  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
-  timeout: TIMEOUT_VALUE,
-  retries: process.env.CI ? 2 : 0,
   quiet: !!process.env.CI,
-  expect: {
-    timeout: EXPECT_TIMEOUT,
-  },
-  use: {
-    video: 'off',
-    trace: 'off',
-  },
+  globalTeardown:
+    process.env.DEBUG === 'true' ? undefined : './utils/global-teardown.ts',
 };
 
 export default config;

@@ -41,6 +41,7 @@ export function ConfirmationPopup(props: ConfirmationPopupProps): ReactElement {
         buttonText: ButtonText.Cancel,
       }}
       isOpen={true}
+      aria-label={'confirmation popup'}
     />
   );
 }
