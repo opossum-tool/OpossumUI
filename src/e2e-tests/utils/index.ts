@@ -4,3 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 export * from '../../shared/Faker';
 export * from './fixtures';
+export * from './retry';
+
+export { expect, type Locator, type Page } from '@playwright/test';

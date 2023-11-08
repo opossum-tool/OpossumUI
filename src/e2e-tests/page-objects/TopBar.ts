@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Locator, type Page, retry } from '../utils';
 
 export class TopBar {
   readonly window: Page;
@@ -73,31 +73,36 @@ export class TopBar {
       filesWithOnlyPreSelectedAttributions: number;
       filesWithOnlySignals: number;
     }>): Promise<void> => {
-      await this.progressBar.hover();
-      await Promise.all([
-        expect(
-          this.window
-            .getByRole('tooltip')
-            .getByText(`Number of files: ${numberOfFiles}`),
-        ).toBeVisible(),
-        expect(
-          this.window
-            .getByRole('tooltip')
-            .getByText(`Files with attributions: ${filesWithAttributions}`),
-        ).toBeVisible(),
-        expect(
-          this.window
-            .getByRole('tooltip')
-            .getByText(
-              `Files with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
-            ),
-        ).toBeVisible(),
-        expect(
-          this.window
-            .getByRole('tooltip')
-            .getByText(`Files with only signals: ${filesWithOnlySignals}`),
-        ).toBeVisible(),
-      ]);
+      // .hover is flaky on some machines
+      await retry({
+        fn: async () => {
+          await this.progressBar.hover();
+          await Promise.all([
+            expect(
+              this.window
+                .getByRole('tooltip')
+                .getByText(`Number of files: ${numberOfFiles}`),
+            ).toBeVisible(),
+            expect(
+              this.window
+                .getByRole('tooltip')
+                .getByText(`Files with attributions: ${filesWithAttributions}`),
+            ).toBeVisible(),
+            expect(
+              this.window
+                .getByRole('tooltip')
+                .getByText(
+                  `Files with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
+                ),
+            ).toBeVisible(),
+            expect(
+              this.window
+                .getByRole('tooltip')
+                .getByText(`Files with only signals: ${filesWithOnlySignals}`),
+            ).toBeVisible(),
+          ]);
+        },
+      });
     },
   };
 

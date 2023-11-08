@@ -3,17 +3,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { PlaywrightTestConfig } from '@playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+const CI_SINGLE_TEST_TIMEOUT = 60000;
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
-  reporter: process.env.CI ? 'github' : 'list',
+  outputDir: 'artifacts',
+  preserveOutput: process.env.CI ? 'failures-only' : 'always',
   quiet: !!process.env.CI,
-  globalTeardown:
-    process.env.DEBUG === 'true' ? undefined : './utils/global-teardown.ts',
+  reportSlowTests: null,
+  reporter: process.env.CI ? 'github' : 'list',
+  timeout: process.env.CI ? CI_SINGLE_TEST_TIMEOUT : undefined,
+  workers: process.env.CI ? 1 : undefined,
 };
 
 export default config;

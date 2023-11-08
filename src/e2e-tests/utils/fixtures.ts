@@ -33,7 +33,10 @@ const LOAD_TIMEOUT = 15000;
 export { expect } from '@playwright/test';
 export const test = base.extend<{
   window: Page & { app: ElectronApplication };
+  /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
   data: OpossumData | undefined;
+  /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
+  debug: () => void;
   attributionDetails: AttributionDetails;
   attributionList: AttributionList;
   confirmationPopup: ConfirmationPopup;
@@ -50,23 +53,39 @@ export const test = base.extend<{
   topBar: TopBar;
 }>({
   data: undefined,
-  window: async ({ data }, use) => {
-    const filename = data && (await createOpossumFile(data));
+  window: async ({ data }, use, info) => {
+    const filePath = data && (await createOpossumFile({ data, info }));
 
     const [executablePath, main] = getLaunchProps();
 
     const app = await electron.launch({
-      args: [main, ...(filename ? [filename] : [])],
+      args: [main, ...(filePath ? [filePath] : [])],
       executablePath,
     });
 
     const window = await app.firstWindow();
     // eslint-disable-next-line playwright/no-networkidle
     await window.waitForLoadState('networkidle', { timeout: LOAD_TIMEOUT });
+    await window
+      .context()
+      .tracing.start({ screenshots: true, snapshots: true });
 
     await use(Object.assign(window, { app }));
 
+    await window.context().tracing.stop({
+      path: info.error
+        ? info.outputPath(
+            `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
+          )
+        : undefined,
+    });
     await app.close();
+  },
+  debug: async ({ window: _ }, use, info) => {
+    await use(() => {
+      console.log(`DEBUG: ${info.outputPath()}`);
+      info.fixme();
+    });
   },
   projectStatisticsPopup: async ({ window }, use) => {
     await use(new ProjectStatisticsPopup(window));

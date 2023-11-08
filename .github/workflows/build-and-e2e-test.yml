@@ -53,3 +53,10 @@ jobs:
 
       - name: Run end-to-end tests
         run: ${{ matrix.E2E }}
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: artifacts
+          path: src/e2e-tests/artifacts
+          retention-days: 30

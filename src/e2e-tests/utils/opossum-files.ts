@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { TestInfo } from '@playwright/test';
 import { strToU8, zip } from 'fflate';
 import * as fs from 'node:fs/promises';
 
@@ -21,30 +22,26 @@ const OPOSSUM_FILE = {
   COMPRESSION_LEVEL: 5,
   INPUT_NAME: 'input.json',
   OUTPUT_NAME: 'output.json',
-  ASSETS_PATH: 'src/e2e-tests/temp',
 } as const;
 
 export async function createOpossumFile({
-  inputData,
-  outputData,
-  decompress,
-}: OpossumData): Promise<string> {
-  await fs.mkdir(OPOSSUM_FILE.ASSETS_PATH, { recursive: true });
-
+  data: { inputData, outputData, decompress },
+  info,
+}: {
+  data: OpossumData;
+  info: TestInfo;
+}): Promise<string> {
   const filename = inputData.metadata.projectId;
 
   if (decompress) {
-    const filePath = `${OPOSSUM_FILE.ASSETS_PATH}/${filename}.json`;
-    await fs.writeFile(
-      `${OPOSSUM_FILE.ASSETS_PATH}/${filename}.json`,
-      JSON.stringify(inputData),
-    );
+    const filePath = info.outputPath(`${filename}.json`);
+    await fs.writeFile(filePath, JSON.stringify(inputData));
     return filePath;
   }
 
-  const filePath = `${OPOSSUM_FILE.ASSETS_PATH}/${filename}.${OPOSSUM_FILE.EXTENSION}`;
+  const filePath = info.outputPath(`${filename}.${OPOSSUM_FILE.EXTENSION}`);
   await fs.writeFile(
-    `${OPOSSUM_FILE.ASSETS_PATH}/${filename}.${OPOSSUM_FILE.EXTENSION}`,
+    filePath,
     await new Promise<Uint8Array>((resolve) =>
       zip(
         {
@@ -70,8 +67,4 @@ export async function createOpossumFile({
     ),
   );
   return filePath;
-}
-
-export function removeTempAssets(): Promise<void> {
-  return fs.rm(OPOSSUM_FILE.ASSETS_PATH, { recursive: true, force: true });
 }
