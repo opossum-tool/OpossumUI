@@ -8857,7 +8857,7 @@ __metadata:
     mockdate: "npm:^3.0.5"
     nunjucks: "npm:^3.2.4"
     object-hash: "npm:^3.0.0"
-    packageurl-js: "npm:^1.2.0"
+    packageurl-js: "npm:^1.2.1"
     prettier: "npm:^3.0.3"
     prop-types: "npm:^15.8.1"
     proxy-memoize: "npm:^2.0.4"
@@ -8960,10 +8960,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"packageurl-js@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "packageurl-js@npm:1.2.0"
-  checksum: b780ad6cf9f75055effafe8fbed37617eb1924e3dc5b055fb3ecceaaaa93da73ea1508a3874b04bd13342a77bd852b70a4e52596c171cbc57840c4b8452d2d56
+"packageurl-js@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "packageurl-js@npm:1.2.1"
+  checksum: 6d95640077faae520a542ab1c7f7157933e45ebcf1dbd03dc72e21677a0017219d21a757ae3b0be3662e4abf9f116f37ba9a1c1d3bb3dc5baa471e512ff7948c
   languageName: node
   linkType: hard
 
