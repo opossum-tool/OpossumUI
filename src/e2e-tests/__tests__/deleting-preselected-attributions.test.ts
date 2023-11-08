@@ -53,7 +53,7 @@ test.use({
   },
 });
 
-test('deletes pre-selected attributions via context menu without confirmation dialog', async ({
+test('deletes pre-selected attributions via context menu', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
@@ -64,7 +64,7 @@ test('deletes pre-selected attributions via context menu without confirmation di
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await resourceDetails.attributionCard.node(packageInfo3).click();
+  await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
@@ -76,7 +76,7 @@ test('deletes pre-selected attributions via context menu without confirmation di
   await confirmationPopup.assert.isHidden();
   await attributionDetails.assert.isEmpty();
 
-  await resourceDetails.attributionCard.node(packageInfo1).click();
+  await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchPackageInfo(packageInfo1);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
@@ -119,7 +119,7 @@ test('deletes pre-selected attributions via context menu without confirmation di
   });
 });
 
-test('deletes attributions via hamburger menu', async ({
+test('deletes pre-selected attributions via hamburger menu', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
@@ -130,7 +130,7 @@ test('deletes attributions via hamburger menu', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await resourceDetails.attributionCard.node(packageInfo3).click();
+  await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
@@ -146,7 +146,7 @@ test('deletes attributions via hamburger menu', async ({
     filesWithOnlyPreSelectedAttributions: 5,
   });
 
-  await resourceDetails.attributionCard.node(packageInfo1).click();
+  await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchPackageInfo(packageInfo1);
 
   await attributionDetails.openHamburgerMenu();
@@ -172,7 +172,7 @@ test('deletes attributions via hamburger menu', async ({
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 
-  await attributionList.attributionCard.node(packageInfo2).click();
+  await attributionList.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchPackageInfo(packageInfo2);
 
   await attributionDetails.openHamburgerMenu();

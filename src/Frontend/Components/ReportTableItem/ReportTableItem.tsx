@@ -6,6 +6,7 @@ import EditorIcon from '@mui/icons-material/Edit';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
+import { compact } from 'lodash';
 import { ReactElement } from 'react';
 
 import { AttributionInfo } from '../../../shared/shared-types';
@@ -154,6 +155,10 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   ): ReactElement {
     return (
       <MuiBox
+        aria-label={`attribution row ${compact([
+          attributionInfo.packageName,
+          attributionInfo.packageVersion,
+        ]).join(', ')}`}
         key={`table-row-${attributionInfo.packageName}-${attributionId}`}
         sx={reportTableItemClasses.tableRow}
       >

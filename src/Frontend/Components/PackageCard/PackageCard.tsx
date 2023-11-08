@@ -67,9 +67,6 @@ import {
 } from './package-card-helpers';
 
 const classes = {
-  hiddenIcon: {
-    visibility: 'hidden',
-  },
   clickableIcon,
   disabledIcon,
   multiSelectCheckbox: {
@@ -427,30 +424,30 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     ? undefined
     : getLeftElementForManualAttribution();
 
-  const leftIcon = props.onIconClick ? (
-    <IconButton
-      tooltipTitle={
-        props.displayPackageInfo.preferred
-          ? CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP
-          : 'add'
-      }
-      tooltipPlacement="left"
-      disabled={props.displayPackageInfo.preferred}
-      onClick={props.onIconClick}
-      key={getKey('add-icon', props.cardId)}
-      icon={
-        <PlusIcon
-          sx={{
-            ...(props.cardConfig.isResolved ? classes.hiddenIcon : {}),
-            ...(props.displayPackageInfo.preferred
-              ? classes.disabledIcon
-              : classes.clickableIcon),
-          }}
-          aria-label={`add ${packageLabels[0] || ''}`}
-        />
-      }
-    />
-  ) : undefined;
+  const leftIcon =
+    props.onIconClick && !props.cardConfig.isResolved ? (
+      <IconButton
+        tooltipTitle={
+          props.displayPackageInfo.preferred
+            ? CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP
+            : 'add'
+        }
+        tooltipPlacement="left"
+        disabled={props.displayPackageInfo.preferred}
+        onClick={props.onIconClick}
+        key={getKey('add-icon', props.cardId)}
+        icon={
+          <PlusIcon
+            sx={
+              props.displayPackageInfo.preferred
+                ? classes.disabledIcon
+                : classes.clickableIcon
+            }
+            aria-label={`add ${packageLabels[0] || ''}`}
+          />
+        }
+      />
+    ) : undefined;
 
   const openResourcesIcon = props.showOpenResourcesIcon ? (
     <IconButton

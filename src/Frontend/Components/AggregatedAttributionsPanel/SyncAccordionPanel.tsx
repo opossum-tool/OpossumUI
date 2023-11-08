@@ -18,6 +18,7 @@ interface SyncAccordionPanelProps {
   attributionsToHashes: AttributionsToHashes;
   attributions: Attributions;
   isAddToPackageEnabled: boolean;
+  ['aria-label']?: string;
 }
 
 export function SyncAccordionPanel(
@@ -40,6 +41,7 @@ export function SyncAccordionPanel(
     <AccordionPanel
       panelData={panelData}
       isAddToPackageEnabled={props.isAddToPackageEnabled}
+      aria-label={props['aria-label']}
     />
   );
 }

@@ -50,7 +50,7 @@ test.use({
   },
 });
 
-test('updates attributions and confidence when user replaces one attribution or signal with another in audit view', async ({
+test('replaces attributions via context menu in audit view ', async ({
   attributionDetails,
   projectStatisticsPopup,
   replaceAttributionPopup,
@@ -64,7 +64,7 @@ test('updates attributions and confidence when user replaces one attribution or 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.contextMenu.markForReplacementButton.click();
   await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.node(packageInfo2).click();
+  await resourceDetails.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchPackageInfo(packageInfo2);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo2);
@@ -75,7 +75,7 @@ test('updates attributions and confidence when user replaces one attribution or 
   await attributionDetails.assert.matchPackageInfo(packageInfo1);
 
   await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.node(packageInfo2).click();
+  await resourceDetails.attributionCard.click(packageInfo2);
   await resourceDetails.attributionCard.openContextMenu(packageInfo2);
   await resourceDetails.attributionCard.contextMenu.replaceMarkedButton.click();
   await replaceAttributionPopup.replace();
@@ -100,7 +100,59 @@ test('updates attributions and confidence when user replaces one attribution or 
   await resourceDetails.signalCard.assert.isHidden(packageInfo3);
 });
 
-test('updates attributions when user replaces one attribution or signal with another in attribution view', async ({
+test('replaces attributions via hamburger menu in audit view ', async ({
+  attributionDetails,
+  projectStatisticsPopup,
+  replaceAttributionPopup,
+  resourceBrowser,
+  resourceDetails,
+}) => {
+  await projectStatisticsPopup.close();
+  await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
+  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.hamburgerMenu.markForReplacementButton.click();
+  await resourceBrowser.goto(resourceName4);
+  await resourceDetails.attributionCard.click(packageInfo2);
+  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
+  await replaceAttributionPopup.cancel();
+
+  await resourceBrowser.goto(resourceName3);
+  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+
+  await resourceBrowser.goto(resourceName4);
+  await resourceDetails.attributionCard.click(packageInfo2);
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
+  await replaceAttributionPopup.replace();
+  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+
+  await resourceBrowser.goto(resourceName3);
+  await attributionDetails.assert.matchPackageInfo({
+    ...packageInfo2,
+    attributionConfidence: DiscreteConfidence.High,
+  });
+
+  await resourceBrowser.goto(resourceName4);
+  await resourceDetails.attributionCard.assert.isVisible(packageInfo2);
+  await resourceDetails.attributionCard.assert.isVisible(packageInfo3);
+
+  await resourceDetails.attributionCard.click(packageInfo3);
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.hamburgerMenu.markForReplacementButton.click();
+  await resourceDetails.attributionCard.click(packageInfo2);
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
+  await replaceAttributionPopup.replace();
+  await resourceDetails.attributionCard.assert.isVisible(packageInfo2);
+  await resourceDetails.attributionCard.assert.isHidden(packageInfo3);
+});
+
+test('replaces attributions via context menu in attribution view', async ({
   attributionDetails,
   attributionList,
   projectStatisticsPopup,
@@ -112,7 +164,7 @@ test('updates attributions when user replaces one attribution or signal with ano
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 
-  await attributionList.attributionCard.node(packageInfo1).click();
+  await attributionList.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchPackageInfo(packageInfo1);
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsHidden(resourceName4);
@@ -129,7 +181,7 @@ test('updates attributions when user replaces one attribution or signal with ano
   await replaceAttributionPopup.replace();
   await attributionList.attributionCard.assert.isHidden(packageInfo1);
 
-  await attributionList.attributionCard.node(packageInfo2).click();
+  await attributionList.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchPackageInfo(packageInfo2);
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsVisible(resourceName4);

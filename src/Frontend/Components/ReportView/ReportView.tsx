@@ -56,7 +56,7 @@ export function ReportView(): ReactElement {
   }
 
   return (
-    <MuiBox sx={classes.root}>
+    <MuiBox aria-label={'report view'} sx={classes.root}>
       <Table
         attributionsWithResources={useFilters(attributionsWithResources)}
         isFileWithChildren={isFileWithChildren}

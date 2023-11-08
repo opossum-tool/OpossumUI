@@ -11,6 +11,8 @@ export class TopBar {
   readonly attributionViewButton: Locator;
   readonly reportViewButton: Locator;
   readonly progressBar: Locator;
+  readonly openFileButton: Locator;
+  readonly tooltip: Locator;
 
   constructor(window: Page) {
     this.window = window;
@@ -21,9 +23,14 @@ export class TopBar {
     });
     this.reportViewButton = this.node.getByRole('button', { name: 'report' });
     this.progressBar = this.node.getByLabel('TopProgressBar');
+    this.openFileButton = this.node.getByRole('button', { name: 'open file' });
+    this.tooltip = this.window.getByRole('tooltip');
   }
 
   public assert = {
+    openFileButtonIsVisible: async (): Promise<void> => {
+      await expect(this.openFileButton).toBeVisible();
+    },
     modeButtonsAreVisible: async (): Promise<void> => {
       await expect(this.auditViewButton).toBeVisible();
       await expect(this.attributionViewButton).toBeVisible();
@@ -74,34 +81,28 @@ export class TopBar {
       filesWithOnlySignals: number;
     }>): Promise<void> => {
       // .hover is flaky on some machines
-      await retry({
-        fn: async () => {
-          await this.progressBar.hover();
-          await Promise.all([
-            expect(
-              this.window
-                .getByRole('tooltip')
-                .getByText(`Number of files: ${numberOfFiles}`),
-            ).toBeVisible(),
-            expect(
-              this.window
-                .getByRole('tooltip')
-                .getByText(`Files with attributions: ${filesWithAttributions}`),
-            ).toBeVisible(),
-            expect(
-              this.window
-                .getByRole('tooltip')
-                .getByText(
-                  `Files with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
-                ),
-            ).toBeVisible(),
-            expect(
-              this.window
-                .getByRole('tooltip')
-                .getByText(`Files with only signals: ${filesWithOnlySignals}`),
-            ).toBeVisible(),
-          ]);
-        },
+      await retry(async () => {
+        await this.progressBar.hover();
+        await Promise.all([
+          expect(
+            this.tooltip.getByText(`Number of files: ${numberOfFiles}`),
+          ).toBeVisible(),
+          expect(
+            this.tooltip.getByText(
+              `Files with attributions: ${filesWithAttributions}`,
+            ),
+          ).toBeVisible(),
+          expect(
+            this.tooltip.getByText(
+              `Files with only pre-selected attributions: ${filesWithOnlyPreSelectedAttributions}`,
+            ),
+          ).toBeVisible(),
+          expect(
+            this.tooltip.getByText(
+              `Files with only signals: ${filesWithOnlySignals}`,
+            ),
+          ).toBeVisible(),
+        ]);
       });
     },
   };
@@ -116,5 +117,9 @@ export class TopBar {
 
   async gotoReportView(): Promise<void> {
     await this.reportViewButton.click();
+  }
+
+  async closeTooltip(): Promise<void> {
+    await this.window.keyboard.press('Escape');
   }
 }

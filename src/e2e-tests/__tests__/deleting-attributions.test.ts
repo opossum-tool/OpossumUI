@@ -58,7 +58,7 @@ test('deletes attributions via context menu', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await resourceDetails.attributionCard.node(packageInfo3).click();
+  await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
@@ -76,7 +76,7 @@ test('deletes attributions via context menu', async ({
     filesWithAttributions: 5,
   });
 
-  await resourceDetails.attributionCard.node(packageInfo1).click();
+  await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchPackageInfo(packageInfo1);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
@@ -133,7 +133,7 @@ test('deletes attributions via hamburger menu', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await resourceDetails.attributionCard.node(packageInfo3).click();
+  await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
@@ -151,7 +151,7 @@ test('deletes attributions via hamburger menu', async ({
     filesWithAttributions: 5,
   });
 
-  await resourceDetails.attributionCard.node(packageInfo1).click();
+  await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchPackageInfo(packageInfo1);
 
   await attributionDetails.openHamburgerMenu();
@@ -179,7 +179,7 @@ test('deletes attributions via hamburger menu', async ({
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 
-  await attributionList.attributionCard.node(packageInfo2).click();
+  await attributionList.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchPackageInfo(packageInfo2);
 
   await attributionDetails.openHamburgerMenu();

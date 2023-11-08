@@ -38,6 +38,7 @@ const classes = {
 interface AccordionPanelProps {
   panelData: PanelData;
   isAddToPackageEnabled: boolean;
+  ['aria-label']?: string;
 }
 
 export function AccordionPanel(props: AccordionPanelProps): ReactElement {
@@ -66,6 +67,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       expanded={expanded}
       onChange={handleExpansionChange}
       disabled={isEmpty(props.panelData.displayPackageInfosWithCount)}
+      aria-label={props['aria-label']}
     >
       <MuiAccordionSummary
         sx={{

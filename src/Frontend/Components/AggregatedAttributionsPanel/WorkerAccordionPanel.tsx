@@ -49,6 +49,7 @@ interface WorkerAccordionPanelProps {
     workerArgs: ContainedAttributionsAccordionWorkerArgs,
   ): [Array<string>, DisplayPackageInfosWithCount];
   isAddToPackageEnabled: boolean;
+  ['aria-label']?: string;
 }
 
 export function WorkerAccordionPanel(
@@ -110,6 +111,7 @@ export function WorkerAccordionPanel(
     <AccordionPanel
       panelData={panelData}
       isAddToPackageEnabled={props.isAddToPackageEnabled}
+      aria-label={props['aria-label']}
     />
   );
 }
