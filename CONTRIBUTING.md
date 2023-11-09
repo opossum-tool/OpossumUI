@@ -108,10 +108,9 @@ The following software is required for working on the repository:
 ### Building the app
 
 To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`. To build for all three
-systems run `yarn ship`.
-**Important:** wine must be installed to build a Windows installer on a non-Windows system.
+systems run `yarn ship`. The built release(s) can be found under _/release_.
 
-The built release(s) can be found under _/release_
+**Important:** [wine](https://www.winehq.org/) might be required to build a Windows installer on Linux.
 
 ## Creating a new release
 
@@ -120,7 +119,7 @@ Note: You will need Maintain permissions in order to create a new release.
 ### Checklist
 
 1. **Test** on a large real-world example.
-   1. Create a build for your OS using either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`.
+   1. Create a build for your OS using either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win` (see _/release_ folder).
    1. Check performances on a large .opossum file.
    1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpussumUI and resize the window, don't need to change resolution).
    1. Check that the performance of the save operation is good.

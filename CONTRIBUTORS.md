@@ -8,10 +8,12 @@ SPDX-License-Identifier: CC0-1.0
 # Contributors (sorted alphabetically)
 
 - **Adam Woffinden** (<woffindenag@gmail.com>)
+- **[Alexander zur Bonsen](https://github.com/alexzurbonsen)**
 - **Alma Chao** (<alma@almachao.com>)
 - **[Anton Bauhofer](https://github.com/antonbauhofer)** (<anton.bauhofer@tngtech.com>)
 - **[Benedikt Richter](https://github.com/benedikt-richter)** (<benedikt.richter@tngtech.com>)
 - **[Benjamin Petek](https://github.com/b-petek)**
+- **[David Mundelius](https://github.com/davidmundelius)** (<david.mundelius@tngtech.com>)
 - **[Florian Schepers](https://github.com/FlorianSchepers)** (<florian.schepers@tngtech.com>)
 - **[Indira Bhatt](https://github.com/indirabhatt)** (<Indira.bhatt@gmail.com>)
 - **[Jakob Schubert](https://github.com/JakobSchubert)**
@@ -19,12 +21,13 @@ SPDX-License-Identifier: CC0-1.0
 - **[Lennart Holstein](https://github.com/lennartclaas)** (<lennart.holstein@tngtech.com>)
 - **[Leslie Lazzarino](https://github.com/leslielazzarino)** (<leslie.lazzarino@tngtech.com>)
 - **[Markus Obendrauf](https://github.com/MarkusObendrauf)** (<markus.obendrauf@tngtech.com>)
+- **[Maxim Stykow](https://github.com/mstykow)**
 - **[Maximilian Huber](https://github.com/maxhbr)** (<maximilian.huber@tngtech.com>)
+- **[Meret Behrens](https://github.com/meretp)**
 - **[Michael Cheng](https://github.com/syotfs)** (<m@priorart.io>)
 - **[Nico Carl](https://github.com/nicarl)**
 - **[Ruiyun Xie](https://github.com/mayayunx)**
 - **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
 - **[Vasily Pozdnyakov](https://github.com/vasily-pozdnyakov)** (<vasily.pozdnyakov@tngtech.com>)
-- **[David Mundelius](https://github.com/davidmundelius)** (<david.mundelius@tngtech.com>)
 
 [Contributors list on GitHub](https://github.com/opossum-tool/OpossumUI/contributors).
