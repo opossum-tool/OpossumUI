@@ -96,7 +96,7 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
-    "vite-plugin-electron": "^0.15.2",
+    "vite-plugin-electron": "^0.15.4",
     "vite-plugin-svgr": "^4.1.0",
     "vite-tsconfig-paths": "^4.2.1"
   },
