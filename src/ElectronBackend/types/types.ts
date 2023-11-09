@@ -5,12 +5,12 @@
 import {
   AttributionInfo,
   Attributions,
-  Criticality,
+  BaseUrlsForSources,
   ExternalAttributionSources,
+  PackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
-  Source,
 } from '../../shared/shared-types';
 
 export interface JsonParsingError {
@@ -39,31 +39,7 @@ export interface GlobalBackendState {
   inputFileRaw?: Uint8Array;
 }
 
-interface RawPackageInfo {
-  attributionConfidence?: number;
-  comment?: string;
-  packageName?: string;
-  packageVersion?: string;
-  packageNamespace?: string;
-  packageType?: string;
-  packagePURLAppendix?: string;
-  url?: string;
-  copyright?: string;
-  licenseName?: string;
-  licenseText?: string;
-  firstParty?: boolean;
-  followUp?: string;
-  source?: Source;
-  originId?: string;
-  originIds?: Array<string>;
-  preSelected?: boolean;
-  excludeFromNotice?: boolean;
-  criticality?: Criticality;
-  needsReview?: boolean;
-  preferred?: boolean;
-  preferredOverOriginIds?: Array<string>;
-  wasPreferred?: boolean;
-}
+export type RawPackageInfo = PackageInfo & { originId?: string };
 
 export interface RawAttributions {
   [uuid: string]: RawPackageInfo;
@@ -83,12 +59,8 @@ export interface ParsedOpossumInputFile {
   frequentLicenses?: Array<RawFrequentLicense>;
   attributionBreakpoints?: Array<string>;
   filesWithChildren?: Array<string>;
-  baseUrlsForSources?: RawBaseUrlsForSources;
+  baseUrlsForSources?: BaseUrlsForSources;
   externalAttributionSources?: ExternalAttributionSources;
-}
-
-export interface RawBaseUrlsForSources {
-  [path: string]: string | null;
 }
 
 export interface ParsedOpossumOutputFile {

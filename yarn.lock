@@ -1421,7 +1421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron/asar@npm:^3.2.1":
+"@electron/asar@npm:^3.2.1, @electron/asar@npm:^3.2.4":
   version: 3.2.7
   resolution: "@electron/asar@npm:3.2.7"
   dependencies:
@@ -1835,6 +1835,13 @@ __metadata:
   version: 8.53.0
   resolution: "@eslint/js@npm:8.53.0"
   checksum: a372d55aa2bbe0d9399acc8de3c892dcfe507fd914d29fde6826ae54a13452619be626aa7eb70b1ec4d4da5302b6ed8e8ac9bf1f830003f15c0ad56c30b4f520
+  languageName: node
+  linkType: hard
+
+"@faker-js/faker@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@faker-js/faker@npm:8.2.0"
+  checksum: 8be9ce50538b12abdd9c2c94a9e23b991826b42f4706cb703f1d37cac8c9042d6549905959f3fd9abdd3a22f7b6095ddbae6f4269250158bd35a4ca1a5de55e8
   languageName: node
   linkType: hard
 
@@ -5300,6 +5307,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"electron-playwright-helpers@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "electron-playwright-helpers@npm:1.6.0"
+  dependencies:
+    "@electron/asar": "npm:^3.2.4"
+  checksum: f5b5ae206ddd665824d8a48fe11b924d3705f812a522f426298434156f6d402e576315cf7ea51841caef64e51b6984c65c51fef275714320d1326edd40c85040
+  languageName: node
+  linkType: hard
+
 "electron-publish@npm:24.8.0":
   version: 24.8.0
   resolution: "electron-publish@npm:24.8.0"
@@ -5689,6 +5705,21 @@ __metadata:
     "@testing-library/dom":
       optional: true
   checksum: 198f32ab59c9f1483773b0125ad1fbc012d2b644a9ce6f1a10a223499420b047741bce8c17e2bd0f62d3f9b31f87e27a58d40b2be5582f76ba8a2926ad669d0e
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-playwright@npm:^0.18.0":
+  version: 0.18.0
+  resolution: "eslint-plugin-playwright@npm:0.18.0"
+  dependencies:
+    globals: "npm:^13.23.0"
+  peerDependencies:
+    eslint: ">=7"
+    eslint-plugin-jest: ">=25"
+  peerDependenciesMeta:
+    eslint-plugin-jest:
+      optional: true
+  checksum: 5c4adab7c108d8d337a5391df8a3ee5fa4debe58213651055ec0a2f04e9c689ccf6b7d8aaa87eeff6832d9e1d9984f2a495383bf5a3f64f90512220463b6bc04
   languageName: node
   linkType: hard
 
@@ -6455,7 +6486,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^13.19.0":
+"globals@npm:^13.19.0, globals@npm:^13.23.0":
   version: 13.23.0
   resolution: "globals@npm:13.23.0"
   dependencies:
@@ -8845,6 +8876,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.23.2"
     "@emotion/react": "npm:^11.11.1"
     "@emotion/styled": "npm:^11.11.0"
+    "@faker-js/faker": "npm:^8.2.0"
     "@mui/icons-material": "npm:^5.14.16"
     "@mui/material": "npm:^5.14.17"
     "@mui/system": "npm:^5.14.17"
@@ -8880,10 +8912,12 @@ __metadata:
     electron-devtools-installer: "npm:^3.2.0"
     electron-is-dev: "npm:^2.0.0"
     electron-log: "npm:^5.0.0"
+    electron-playwright-helpers: "npm:^1.6.0"
     eslint: "npm:^8.53.0"
     eslint-config-prettier: "npm:^9.0.0"
     eslint-plugin-filenames: "npm:^1.3.2"
     eslint-plugin-jest-dom: "npm:^5.1.0"
+    eslint-plugin-playwright: "npm:^0.18.0"
     eslint-plugin-react: "npm:^7.33.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-plugin-testing-library: "npm:^6.1.0"

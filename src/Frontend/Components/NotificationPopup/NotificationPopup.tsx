@@ -34,6 +34,7 @@ interface NotificationPopupProps {
   fullHeight?: boolean;
   headerSx?: SxProps;
   contentSx?: SxProps;
+  'aria-label'?: string;
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
@@ -69,6 +70,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       disableEscapeKeyDown={true}
       onClose={handleOnClose}
       PaperProps={{ sx: props.fullHeight ? classes.fullHeightPaper : {} }}
+      aria-label={props['aria-label']}
     >
       <MuiDialogTitle
         sx={{ '&.MuiDialogTitle-root': props.headerSx } as SxProps}

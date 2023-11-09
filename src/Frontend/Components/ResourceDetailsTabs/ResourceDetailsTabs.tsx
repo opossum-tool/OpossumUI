@@ -137,7 +137,7 @@ export function ResourceDetailsTabs(
   }
 
   return (
-    <MuiBox sx={classes.container}>
+    <MuiBox aria-label={'resource signals'} sx={classes.container}>
       <MuiTabs
         value={selectedTab}
         onChange={(_: React.SyntheticEvent, newTab: Tabs): void => {

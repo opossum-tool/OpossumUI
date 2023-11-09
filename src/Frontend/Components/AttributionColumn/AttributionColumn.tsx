@@ -291,7 +291,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     temporaryDisplayPackageInfo.attributionIds;
 
   return (
-    <MuiBox sx={classes.root}>
+    <MuiBox aria-label={'attribution column'} sx={classes.root}>
       <PackageSubPanel
         displayPackageInfo={temporaryDisplayPackageInfo}
         handlePurlChange={handlePurlChange}

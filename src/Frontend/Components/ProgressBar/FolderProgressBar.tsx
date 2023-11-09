@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiSkeleton from '@mui/material/Skeleton';
-import { ReactElement, useContext, useMemo, useState } from 'react';
+import { ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { useAppSelector } from '../../state/hooks';
@@ -103,8 +103,8 @@ export function FolderProgressBar(props: FolderProgressBarProps): ReactElement {
     ],
   );
 
-  useMemo(() => {
-    loadProgressBarData(
+  useEffect(() => {
+    void loadProgressBarData(
       folderProgressBarWorker,
       folderProgressBarWorkerArgs,
       setFolderProgressBarDataAndResourceId,

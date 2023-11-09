@@ -97,7 +97,7 @@ function writeOutputJsonToFile(outputFileContent: OpossumOutputFile): void {
   const globalBackendState = getGlobalBackendState();
   const fileLoadedType = getLoadedFileType(globalBackendState);
   if (fileLoadedType === LoadedFileFormat.Opossum) {
-    writeOutputJsonToOpossumFile(
+    void writeOutputJsonToOpossumFile(
       globalBackendState.opossumFilePath as string,
       outputFileContent,
     );

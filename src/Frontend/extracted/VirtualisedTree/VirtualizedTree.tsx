@@ -26,7 +26,6 @@ interface VirtualizedTreeProps {
   isFakeNonExpandableNode: NodeIdPredicateForTree;
   onSelect: (event: React.ChangeEvent<unknown>, nodeId: string) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
-  ariaLabel?: string;
   cardHeight: number;
   width?: number | string;
   expandedNodeIcon?: ReactElement;
@@ -64,7 +63,7 @@ export function VirtualizedTree(
 
   return props.nodes ? (
     <ResizableBox
-      aria-label={props.ariaLabel}
+      aria-label={'resource browser'}
       sx={props.sx}
       defaultSize={{ width: props.width ?? 'auto', height: '100%' }}
       enable={props.resizable === true ? undefined : false}

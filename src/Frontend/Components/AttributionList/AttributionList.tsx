@@ -64,7 +64,11 @@ export function AttributionList(props: AttributionListProps): ReactElement {
   }
 
   return (
-    <ResizableBox sx={props.sx} defaultSize={{ width: '30%', height: 'auto' }}>
+    <ResizableBox
+      aria-label={'attribution list'}
+      sx={props.sx}
+      defaultSize={{ width: '30%', height: 'auto' }}
+    >
       <MuiBox sx={classes.topElements}>
         {props.title}
         {props.topRightElement}

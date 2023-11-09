@@ -93,7 +93,12 @@ export function ManualPackagePanel(
     props.showParentAttributions && !props.overrideParentMode;
 
   return (
-    <MuiPaper sx={classes.root} elevation={0} square={true}>
+    <MuiPaper
+      aria-label={'resource attributions'}
+      sx={classes.root}
+      elevation={0}
+      square={true}
+    >
       <MuiTypography variant={'subtitle1'}>
         {showParentAttributions
           ? 'Attributions (from parents)'

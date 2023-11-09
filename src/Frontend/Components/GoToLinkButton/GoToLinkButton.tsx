@@ -72,7 +72,7 @@ export function GoToLinkButton(): ReactElement {
   const openLinkArgs = getOpenLinkArgs();
 
   function onClick(): void {
-    window.electronAPI.openLink(openLinkArgs.link).then((result) => {
+    void window.electronAPI.openLink(openLinkArgs.link).then((result) => {
       if (result instanceof Error) {
         dispatch(openPopup(PopupType.InvalidLinkPopup));
       }

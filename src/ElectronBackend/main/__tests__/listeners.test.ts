@@ -474,19 +474,21 @@ describe('getConvertInputFileToDotOpossumListener', () => {
     await new Promise<void>((resolve) => {
       fs.readFile(expectedDotOpossumFilePath, (err, data) => {
         if (err) throw err;
-        JSZip.loadAsync(data).then((zip) => {
-          zip.files['input.json']
-            .async('text')
-            .then((content) => {
-              parsedInputJson = content;
-            })
-            .then(resolve);
-          zip.files['output.json']
-            .async('text')
-            .then((content) => {
-              parsedOutputJson = content;
-            })
-            .then(resolve);
+        void JSZip.loadAsync(data).then((zip) => {
+          void Promise.all([
+            zip.files['input.json']
+              .async('text')
+              .then((content) => {
+                parsedInputJson = content;
+              })
+              .then(resolve),
+            zip.files['output.json']
+              .async('text')
+              .then((content) => {
+                parsedOutputJson = content;
+              })
+              .then(resolve),
+          ]);
         });
       });
     });
@@ -675,7 +677,7 @@ describe('getSaveFileListener', () => {
   it(
     'calls createListenerCallBackWithErrorHandling when ' +
       'resourceFilePath, attributionFilePath and projectId are set',
-    () => {
+    async () => {
       const mockCallback = jest.fn();
       const mainWindow = {
         webContents: { send: mockCallback as unknown } as WebContents,
@@ -690,13 +692,13 @@ describe('getSaveFileListener', () => {
         projectId: 'uuid_1',
       });
 
-      listener(AllowedFrontendChannels.SaveFileRequest, {
+      await listener(AllowedFrontendChannels.SaveFileRequest, {
         manualAttributions: {},
         resourcesToAttributions: {},
         resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),
       });
 
-      expect(writeJsonToFile).toBeCalledWith('/attributionFile.json', {
+      expect(writeJsonToFile).toHaveBeenCalledWith('/attributionFile.json', {
         manualAttributions: {},
         metadata: {
           projectId: 'uuid_1',

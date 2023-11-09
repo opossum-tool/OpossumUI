@@ -99,7 +99,7 @@ function performButtonAction(
   switch (buttonIndex) {
     case 0:
       mainWindow.webContents.send(AllowedFrontendChannels.RestoreFrontend);
-      loadInputAndOutputFromFilePath(
+      void loadInputAndOutputFromFilePath(
         mainWindow,
         getLoadedFilePath(globalBackendState) as string,
       );

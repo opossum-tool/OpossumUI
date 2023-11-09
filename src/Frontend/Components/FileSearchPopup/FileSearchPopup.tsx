@@ -42,6 +42,7 @@ export function FileSearchPopup(): ReactElement {
       onEscapeKeyDown={close}
       fullWidth
       fullHeight
+      aria-label={'file search'}
     />
   );
 }

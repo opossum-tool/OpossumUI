@@ -70,13 +70,13 @@ export function TopBar(): ReactElement {
   }
 
   return (
-    <MuiBox sx={classes.root}>
+    <MuiBox aria-label={'top bar'} sx={classes.root}>
       <BackendCommunication />
       <IconButton
         tooltipTitle="open file"
         tooltipPlacement="right"
         onClick={(): void => {
-          window.electronAPI.openFile();
+          void window.electronAPI.openFile();
         }}
         icon={
           <FolderOpenIcon

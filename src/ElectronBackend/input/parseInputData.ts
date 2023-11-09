@@ -16,11 +16,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import {
-  RawAttributions,
-  RawBaseUrlsForSources,
-  RawFrequentLicense,
-} from '../types/types';
+import { RawAttributions, RawFrequentLicense } from '../types/types';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
@@ -184,7 +180,7 @@ export function parseFrequentLicenses(
 }
 
 export function sanitizeRawBaseUrlsForSources(
-  rawBaseUrlsForSources: RawBaseUrlsForSources | undefined,
+  rawBaseUrlsForSources: BaseUrlsForSources | undefined,
 ): BaseUrlsForSources {
   return rawBaseUrlsForSources
     ? Object.fromEntries(

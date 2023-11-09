@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { doNothing } from '../../../util/do-nothing';
 import { Button } from '../Button';
@@ -21,7 +21,7 @@ describe('Button', () => {
     screen.getByText('Test');
   });
 
-  it('renders a tooltip for enabled button', () => {
+  it('renders a tooltip for enabled button', async () => {
     const testTooltipText = 'This button can be clicked';
     render(
       <Button
@@ -36,14 +36,10 @@ describe('Button', () => {
 
     fireEvent.mouseOver(screen.getByRole('button'));
 
-    expect(
-      waitFor(() => {
-        screen.getByLabelText(testTooltipText);
-      }),
-    ).resolves.toBeInTheDocument();
+    expect(await screen.findByText(testTooltipText)).toBeInTheDocument();
   });
 
-  it('renders a tooltip for disabled button', () => {
+  it('renders a tooltip for disabled button', async () => {
     const testTooltipText = 'This button cannot be clicked';
     render(
       <Button
@@ -57,10 +53,6 @@ describe('Button', () => {
     );
     fireEvent.mouseOver(screen.getByRole('button'));
 
-    expect(
-      waitFor(() => {
-        screen.getByLabelText(testTooltipText);
-      }),
-    ).resolves.toBeInTheDocument();
+    expect(await screen.findByText(testTooltipText)).toBeInTheDocument();
   });
 });

@@ -2,8 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { act, renderHook } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { ReactElement, ReactNode } from 'react';
@@ -24,7 +30,11 @@ import {
   FetchStatus,
   useFetchPackageInfo,
 } from '../FetchLicenseInformationButton';
-import { convertGithubPayload } from '../github-fetching-helpers';
+import {
+  convertGithubPayload,
+  getGithubAPIUrl,
+} from '../github-fetching-helpers';
+import { getPypiAPIUrl } from '../pypi-fetching-helpers';
 
 const axiosMock = new MockAdapter(axios);
 
@@ -61,51 +71,48 @@ describe('FetchLicenseInformationButton', () => {
   });
 
   describe('Tooltip', () => {
-    it("shows fetching error 'Network error'", () => {
+    it("shows fetching error tooltip 'Network error'", async () => {
       const MOCK_URL = 'https://pypi.org/pypi/test';
 
-      axiosMock.onGet(MOCK_URL).networkErrorOnce();
+      axiosMock.onGet(getPypiAPIUrl(MOCK_URL)).networkErrorOnce();
 
       renderComponentWithStore(
         <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
       fireEvent.click(screen.getByRole('button'));
+      fireEvent.mouseOver(screen.getByRole('button'));
 
-      expect(
-        waitFor(() => {
-          screen.getByLabelText('Network Error');
-        }),
-      ).resolves.toBeInTheDocument();
+      expect(await screen.findByText('Network Error')).toBeInTheDocument();
     });
 
-    it("shows fetching error 'Request failed with status code 404'", () => {
+    it("shows fetching error tooltip 'Request failed with status code 404'", async () => {
       const MOCK_URL = 'https://github.com/opossum-tool/Oposs';
       const notFoundStatus = 404;
 
-      axiosMock.onGet(MOCK_URL).replyOnce(notFoundStatus, {});
+      axiosMock.onGet(getGithubAPIUrl(MOCK_URL)).replyOnce(notFoundStatus);
 
       renderComponentWithStore(
         <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
       fireEvent.click(screen.getByRole('button'));
+      fireEvent.mouseOver(screen.getByRole('button'));
 
       expect(
-        waitFor(() => {
-          screen.getByLabelText('Request failed with status code 404');
-        }),
-      ).resolves.toBeInTheDocument();
+        await screen.findByText('Request failed with status code 404'),
+      ).toBeInTheDocument();
     });
 
-    it('shows fetch data tooltip after successful fetch', () => {
+    it('shows fetch data tooltip after successful fetch', async () => {
       const MOCK_URL = 'https://pypi.org/project/pip';
       const okStatus = 200;
 
-      axiosMock.onGet(MOCK_URL).replyOnce(okStatus, {
-        license: { spdx_id: 'Apache-2.0' },
-        content: 'TGljZW5zZSBUZXh0', // "License Text" in base64
-        html_url: 'https://github.com/opossum-tool/OpossumUI/blob/main/LICENSE',
+      axiosMock.onGet(getPypiAPIUrl(MOCK_URL)).replyOnce(okStatus, {
+        info: {
+          license: 'Apache-2.0',
+          name: 'react',
+        },
       });
 
       renderComponentWithStore(
@@ -113,12 +120,9 @@ describe('FetchLicenseInformationButton', () => {
       );
 
       fireEvent.click(screen.getByRole('button'));
+      fireEvent.mouseOver(screen.getByRole('button'));
 
-      expect(
-        waitFor(() => {
-          screen.getByLabelText(FETCH_DATA_TOOLTIP);
-        }),
-      ).resolves.toBeInTheDocument();
+      expect(await screen.findByText(FETCH_DATA_TOOLTIP)).toBeInTheDocument();
     });
   });
 });
@@ -178,11 +182,13 @@ describe('useFetchPackageInfo', () => {
       () => useFetchPackageInfo(licenseFetchingInformation),
       { wrapper },
     );
-    await act(async () => {
-      await result.current.fetchData();
+    act(() => {
+      result.current.fetchData();
     });
 
-    expect(result.current.fetchStatus).toBe(FetchStatus.Success);
+    await waitFor(() => {
+      expect(result.current.fetchStatus).toBe(FetchStatus.Success);
+    });
     expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
       licenseName: 'Apache-2.0',
     });
@@ -202,10 +208,12 @@ describe('useFetchPackageInfo', () => {
         wrapper,
       },
     );
-    await act(async () => {
-      await result.current.fetchData();
+    act(() => {
+      result.current.fetchData();
     });
-    expect(result.current.fetchStatus).toBe(FetchStatus.Error);
+    await waitFor(() => {
+      expect(result.current.fetchStatus).toBe(FetchStatus.Error);
+    });
     expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({});
   });
 });

@@ -30,6 +30,7 @@ export function ErrorPopup(props: ErrorPopupProps): ReactElement {
       onBackdropClick={close}
       isOpen={true}
       onEscapeKeyDown={close}
+      aria-label={'error popup'}
     />
   );
 }

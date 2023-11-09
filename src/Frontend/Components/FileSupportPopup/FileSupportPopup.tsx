@@ -71,6 +71,7 @@ export function FileSupportPopup(): ReactElement {
       }
       onBackdropClick={close}
       onEscapeKeyDown={close}
+      aria-label={'file support'}
     />
   );
 }

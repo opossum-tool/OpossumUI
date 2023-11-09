@@ -13,12 +13,12 @@ export function ChangedInputFilePopup(): ReactElement {
   const dispatch = useAppDispatch();
 
   function handleKeepClick(): void {
-    window.electronAPI.keepFile();
+    void window.electronAPI.keepFile();
     dispatch(closePopup());
   }
 
   function handleOverwriteClick(): void {
-    window.electronAPI.deleteFile();
+    void window.electronAPI.deleteFile();
     dispatch(closePopup());
   }
 

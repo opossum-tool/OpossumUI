@@ -104,7 +104,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
   const showProgressBar = isIdOfResourceWithChildren(selectedResourceId);
 
   return selectedResourceId && displayedPackage ? (
-    <MuiBox sx={classes.root}>
+    <MuiBox aria-label={'resource details'} sx={classes.root}>
       <PathBar />
       <MuiBox sx={classes.columnDiv}>
         <ResizableBox
