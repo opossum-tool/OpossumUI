@@ -30,6 +30,7 @@ export enum PopupType {
   UpdateAppPopup = 'UpdateAppPopup',
   LocatorPopup = 'LocatorPopup',
   ModifyWasPreferredAttributionPopup = 'ModifyWasPreferredAttributionPopup',
+  PreferGloballyPopup = 'PreferGloballyPopup',
 }
 
 export enum SavePackageInfoOperation {
@@ -83,6 +84,7 @@ export enum ButtonText {
   OpenDotOpossumFile = 'Open ".opossum" file',
   MarkAsPreferred = 'Mark as preferred',
   UnmarkAsPreferred = 'Unmark as preferred',
+  Ok = 'Ok',
 }
 
 export enum FilterType {

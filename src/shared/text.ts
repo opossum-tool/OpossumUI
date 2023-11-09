@@ -17,4 +17,7 @@ export const text = {
       searchForPackage: 'Search for package information',
     },
   },
+  preferGloballyPopup: {
+    content: 'Do you really want to prefer the attribution globally?',
+  },
 };
