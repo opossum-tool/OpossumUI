@@ -4,9 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, Page } from '@playwright/test';
 
+import { RawFrequentLicense } from '../../ElectronBackend/types/types';
 import { DiscreteConfidence, PackageInfo } from '../../shared/shared-types';
 
 export class AttributionDetails {
+  private readonly window: Page;
   private readonly node: Locator;
   readonly type: Locator;
   readonly namespace: Locator;
@@ -38,6 +40,7 @@ export class AttributionDetails {
   };
 
   constructor(window: Page) {
+    this.window = window;
     this.node = window.getByLabel('attribution column');
     this.type = this.node.getByLabel('Package Type', { exact: true });
     this.namespace = this.node.getByLabel('Package Namespace', {
@@ -238,13 +241,33 @@ export class AttributionDetails {
     ): Promise<void> => {
       await expect(this.hamburgerMenu[button]).toBeHidden();
     },
+    buttonInHamburgerMenuIsEnabled: async (
+      button: keyof typeof this.hamburgerMenu,
+    ): Promise<void> => {
+      await expect(this.hamburgerMenu[button]).toBeEnabled();
+    },
+    buttonInHamburgerMenuIsDisabled: async (
+      button: keyof typeof this.hamburgerMenu,
+    ): Promise<void> => {
+      await expect(this.hamburgerMenu[button]).toBeDisabled();
+    },
   };
 
   async openHamburgerMenu(): Promise<void> {
     await this.hamburgerMenuButton.click();
   }
 
+  async closeHamburgerMenu(): Promise<void> {
+    await this.window.keyboard.press('Escape');
+  }
+
   async toggleLicenseTextVisibility(): Promise<void> {
     await this.licenseTextToggleButton.click();
+  }
+
+  async selectLicense(license: RawFrequentLicense): Promise<void> {
+    await this.window
+      .getByText(`${license.shortName} - ${license.fullName}`)
+      .click();
   }
 }

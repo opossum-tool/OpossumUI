@@ -64,7 +64,8 @@ test('updates progress bar and confidence when user confirms preselected attribu
     'confirmGloballyButton',
   );
 
-  await resourceDetails.attributionCard.contextMenu.confirmButton.click();
+  await resourceDetails.attributionCard.closeContextMenu();
+  await attributionDetails.confirmButton.click();
   await attributionDetails.assert.confidenceIs(DiscreteConfidence.High);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 4,

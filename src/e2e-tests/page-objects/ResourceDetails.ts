@@ -19,6 +19,7 @@ export class ResourceDetails {
   readonly attributionsInFolderContentToggle: Locator;
   readonly openResourceUrlButton: Locator;
   readonly overrideParentButton: Locator;
+  readonly addNewAttributionButton: Locator;
   readonly localTab: Locator;
   readonly globalTab: Locator;
   readonly attributionCard: PackageCard;
@@ -53,6 +54,9 @@ export class ResourceDetails {
     this.overrideParentButton = this.attributions.getByRole('button', {
       name: 'override parent',
     });
+    this.addNewAttributionButton = this.node.getByLabel(
+      'package card Add new attribution',
+    );
     this.localTab = this.node.getByLabel('local tab');
     this.globalTab = this.node.getByLabel('global tab');
     this.attributionCard = new PackageCard(window, this.attributions);
