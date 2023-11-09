@@ -107,9 +107,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
-  const wasPreferredFieldChanged: boolean =
-    initialManualDisplayPackageInfo.preferred !==
-    temporaryDisplayPackageInfo.preferred;
+  const initialIsPreferred = initialManualDisplayPackageInfo.preferred ?? false;
+  const tempIsPreferred =
+    temporaryDisplayPackageInfo.preferred ?? initialIsPreferred;
+  const wasPreferredFieldChanged = initialIsPreferred !== tempIsPreferred;
   const qaMode = useAppSelector(getQAMode);
 
   const {

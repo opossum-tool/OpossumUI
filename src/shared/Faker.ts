@@ -12,6 +12,8 @@ import type {
 import {
   BaseUrlsForSources,
   DiscreteConfidence,
+  ExternalAttributionSource,
+  ExternalAttributionSources,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -83,7 +85,7 @@ class OpossumModule {
   }
 
   public static manualAttribution(
-    props?: ManualPackageInfo,
+    props?: Partial<ManualPackageInfo>,
   ): [attributionId: string, attribution: ManualPackageInfo] {
     return [this.attributionId(), this.manualPackageInfo(props)];
   }
@@ -99,7 +101,7 @@ class OpossumModule {
   }
 
   public static externalAttribution(
-    props?: ExternalPackageInfo,
+    props?: Partial<ExternalPackageInfo>,
   ): [attributionId: string, attribution: ExternalPackageInfo] {
     return [this.attributionId(), this.externalPackageInfo(props)];
   }
@@ -147,6 +149,27 @@ class OpossumModule {
         [faker.system.filePath()]: faker.internet.url(),
       }
     );
+  }
+
+  public static externalAttributionSource(
+    props?: Partial<ExternalAttributionSource>,
+  ): ExternalAttributionSource {
+    return {
+      name: faker.word.words({ count: 3 }),
+      priority: faker.number.int({ min: 1, max: 100 }),
+      ...props,
+    };
+  }
+
+  public static externalAttributionSources(
+    props?: ExternalAttributionSources,
+  ): ExternalAttributionSources {
+    const source = this.externalAttributionSource();
+    return {
+      ...(props || {
+        [source.name]: this.externalAttributionSource(),
+      }),
+    };
   }
 
   public static inputData(

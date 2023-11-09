@@ -192,6 +192,30 @@ export class AttributionDetails {
           : []),
       ]);
     },
+    saveButtonIsVisible: async (): Promise<void> => {
+      await expect(this.saveButton).toBeVisible();
+    },
+    saveButtonIsHidden: async (): Promise<void> => {
+      await expect(this.saveButton).toBeHidden();
+    },
+    saveButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.saveButton).toBeEnabled();
+    },
+    saveButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.saveButton).toBeDisabled();
+    },
+    saveGloballyButtonIsVisible: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeVisible();
+    },
+    saveGloballyButtonIsHidden: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeHidden();
+    },
+    saveGloballyButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeEnabled();
+    },
+    saveGloballyButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeDisabled();
+    },
     confirmButtonIsVisible: async (): Promise<void> => {
       await expect(this.confirmButton).toBeVisible();
     },
