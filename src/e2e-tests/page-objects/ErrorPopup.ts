@@ -7,20 +7,18 @@ import { expect, type Locator, type Page } from '@playwright/test';
 export class ErrorPopup {
   private readonly window: Page;
   private readonly node: Locator;
-  readonly title: Locator;
 
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('error popup');
-    this.title = this.node.getByText('error');
   }
 
   public assert = {
-    titleIsVisible: async (): Promise<void> => {
-      await expect(this.title).toBeVisible();
+    isVisible: async (): Promise<void> => {
+      await expect(this.node).toBeVisible();
     },
-    titleIsHidden: async (): Promise<void> => {
-      await expect(this.title).toBeHidden();
+    isHidden: async (): Promise<void> => {
+      await expect(this.node).toBeHidden();
     },
     errorMessageIsVisible: async (errorMessage: string): Promise<void> => {
       await expect(this.node.getByText(errorMessage)).toBeVisible();

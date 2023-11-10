@@ -72,6 +72,7 @@ export function AttributionWizardPackageStep(
           title={'Package namespace'}
           listSx={props.listSx}
           sortList={sortAttributedPackageItems}
+          aria-label={'package namespace list'}
         />
         <ListWithAttributes
           listItems={props.attributedPackageNames}
@@ -83,6 +84,7 @@ export function AttributionWizardPackageStep(
           title={'Package name'}
           listSx={props.listSx}
           sortList={sortAttributedPackageItems}
+          aria-label={'package name list'}
         />
       </MuiBox>
     </MuiBox>

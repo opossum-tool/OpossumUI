@@ -54,6 +54,7 @@ interface ListWithAttributesProps {
   title?: string;
   listSx?: SxProps;
   emptyTextFallback?: string;
+  ['aria-label']?: string;
   sortList?(
     items: Array<ListWithAttributesItem>,
     highlightedAttributeIds?: Array<string>,
@@ -85,7 +86,7 @@ export function ListWithAttributes(
     : props.listItems;
 
   return (
-    <MuiBox sx={classes.titleAndListBox}>
+    <MuiBox aria-label={props['aria-label']} sx={classes.titleAndListBox}>
       <MuiTypography sx={classes.title} variant={'subtitle1'}>
         {props.title}
       </MuiTypography>

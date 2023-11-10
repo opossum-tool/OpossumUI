@@ -74,6 +74,12 @@ export class ResourceDetails {
         ),
       );
     },
+    openResourceUrlButtonIsVisible: async (): Promise<void> => {
+      await expect(this.openResourceUrlButton).toBeVisible();
+    },
+    openResourceUrlButtonIsHidden: async (): Promise<void> => {
+      await expect(this.openResourceUrlButton).toBeHidden();
+    },
     globalTabIsEnabled: async (): Promise<void> => {
       await expect(this.globalTab).toBeEnabled();
     },

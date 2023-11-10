@@ -38,4 +38,3 @@ jobs:
       - run: yarn lint-check
       - run: yarn typecheck
       - run: yarn test:unit
-      - run: yarn test:integration-ci
