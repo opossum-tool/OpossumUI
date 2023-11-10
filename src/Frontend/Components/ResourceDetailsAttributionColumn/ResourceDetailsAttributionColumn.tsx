@@ -5,6 +5,7 @@
 import { ReactElement } from 'react';
 
 import { PackagePanelTitle, PopupType } from '../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -19,6 +20,7 @@ import {
   getAttributionBreakpoints,
   getIsGlobalSavingDisabled,
   getManualData,
+  getManualDisplayPackageInfoOfSelected,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
@@ -48,6 +50,12 @@ export function ResourceDetailsAttributionColumn(
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
+  const initialManualDisplayPackageInfo =
+    useAppSelector(getManualDisplayPackageInfoOfSelected) ||
+    EMPTY_DISPLAY_PACKAGE_INFO;
+  const preferredFieldChanged: boolean =
+    initialManualDisplayPackageInfo.preferred !==
+    temporaryDisplayPackageInfo.preferred;
   const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
   const selectedResourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
@@ -72,6 +80,8 @@ export function ResourceDetailsAttributionColumn(
   function dispatchSavePackageInfoOrOpenWasPreferredPopup(): void {
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (showSaveGloballyButton && preferredFieldChanged) {
+      dispatch(openPopup(PopupType.PreferGloballyPopup));
     } else {
       dispatch(
         savePackageInfo(
