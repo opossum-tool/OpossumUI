@@ -70,6 +70,8 @@ export function ResourceDetailsAttributionColumn(
   function dispatchSavePackageInfoOrOpenWasPreferredPopup(): void {
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (showSaveGloballyButton && preferredFieldChanged) {
+      dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
     } else {
       dispatch(
         savePackageInfo(
@@ -122,6 +124,12 @@ export function ResourceDetailsAttributionColumn(
   function saveFileRequestListener(): void {
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (
+      showSaveGloballyButton &&
+      !isGlobalSavingDisabled &&
+      preferredFieldChanged
+    ) {
+      dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
     } else if (
       showSaveGloballyButton &&
       isGlobalSavingDisabled &&

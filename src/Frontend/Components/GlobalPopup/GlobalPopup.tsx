@@ -10,6 +10,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWizardPopup';
 import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
+import { ChangePreferredStatusGloballyPopup } from '../ChangePreferredStatusGloballyPopup/ChangePreferredStatusGloballyPopup';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
@@ -67,6 +68,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <LocatorPopup />;
     case PopupType.ModifyWasPreferredAttributionPopup:
       return <ModifyWasPreferredAttributionPopup />;
+    case PopupType.ChangePreferredStatusGloballyPopup:
+      return <ChangePreferredStatusGloballyPopup />;
     default:
       return null;
   }
