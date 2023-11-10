@@ -56,7 +56,7 @@ test('removes was-preferred status from attribution when user saves changes', as
     packageInfo2,
   );
 
-  await attributionDetails.comment.fill(faker.lorem.sentence());
+  await attributionDetails.comment().fill(faker.lorem.sentence());
   await attributionDetails.saveButton.click();
   await modifyWasPreferredAttributionPopup.assert.isVisible();
 
@@ -76,7 +76,7 @@ test('removes was-preferred status from attribution when user saves changes', as
     packageInfo1,
   );
 
-  await attributionDetails.comment.fill(faker.lorem.sentence());
+  await attributionDetails.comment().fill(faker.lorem.sentence());
   await topBar.gotoAttributionView();
   await notSavedPopup.assert.isVisible();
 

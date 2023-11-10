@@ -114,7 +114,7 @@ test('allows user to edit an existing attribution locally and globally', async (
   await attributionDetails.url.fill(newPackageInfo.url!);
   await attributionDetails.copyright.fill(newPackageInfo.copyright!);
   await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
-  await attributionDetails.comment.fill(newPackageInfo.comment!);
+  await attributionDetails.comment().fill(newPackageInfo.comment!);
   await attributionDetails.assert.matchPackageInfo(newPackageInfo);
   await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.assert.saveGloballyButtonIsEnabled();

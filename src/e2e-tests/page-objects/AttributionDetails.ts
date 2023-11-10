@@ -20,7 +20,6 @@ export class AttributionDetails {
   readonly licenseName: Locator;
   readonly licenseText: Locator;
   readonly licenseTextToggleButton: Locator;
-  readonly comment: Locator;
   readonly confidence: Locator;
   readonly confirmButton: Locator;
   readonly confirmGloballyButton: Locator;
@@ -59,7 +58,6 @@ export class AttributionDetails {
       { exact: true },
     );
     this.licenseTextToggleButton = this.node.getByLabel('license text toggle');
-    this.comment = this.node.getByLabel('Comment', { exact: true });
     this.confidence = this.node.getByRole('combobox', {
       name: 'Confidence',
     });
@@ -115,13 +113,25 @@ export class AttributionDetails {
     };
   }
 
+  public comment(number = 0): Locator {
+    return this.node.getByLabel(number ? `Comment ${number}` : 'Comment', {
+      exact: true,
+    });
+  }
+
   public assert = {
+    isVisible: async (): Promise<void> => {
+      await expect(this.node).toBeVisible();
+    },
+    isHidden: async (): Promise<void> => {
+      await expect(this.node).toBeHidden();
+    },
     isEmpty: async (): Promise<void> => {
       await expect(this.name).toBeEmpty();
       await expect(this.version).toBeEmpty();
       await expect(this.purl).toBeEmpty();
       await expect(this.url).toBeEmpty();
-      await expect(this.comment).toBeEmpty();
+      await expect(this.comment()).toBeEmpty();
       await expect(this.licenseName).toBeEmpty();
       await this.assert.confidenceIs(DiscreteConfidence.High);
     },
@@ -163,12 +173,13 @@ export class AttributionDetails {
     licenseTextIsHidden: async (): Promise<void> => {
       await expect(this.licenseText).toBeHidden();
     },
-    commentIs: async (comment: string): Promise<void> => {
-      await expect(this.comment).toHaveValue(comment);
+    commentIs: async (comment: string, number = 0): Promise<void> => {
+      await expect(this.comment(number)).toHaveValue(comment);
     },
     matchPackageInfo: async ({
       attributionConfidence,
       comment,
+      comments,
       copyright,
       licenseName,
       licenseText,
@@ -177,7 +188,7 @@ export class AttributionDetails {
       packageType,
       packageVersion,
       url,
-    }: PackageInfo): Promise<void> => {
+    }: PackageInfo & { comments?: string[] }): Promise<void> => {
       await Promise.all([
         ...(packageType ? [this.assert.typeIs(packageType)] : []),
         ...(packageNamespace
@@ -190,6 +201,11 @@ export class AttributionDetails {
         ...(licenseName ? [this.assert.licenseNameIs(licenseName)] : []),
         ...(licenseText ? [this.assert.licenseTextIs(licenseText)] : []),
         ...(comment ? [this.assert.commentIs(comment)] : []),
+        ...(comments
+          ? comments.map((item, index) =>
+              this.assert.commentIs(item, index + 1),
+            )
+          : []),
         ...(attributionConfidence
           ? [this.assert.confidenceIs(attributionConfidence)]
           : []),
