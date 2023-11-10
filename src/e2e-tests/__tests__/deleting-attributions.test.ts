@@ -194,3 +194,37 @@ test('deletes attributions via hamburger menu', async ({
     filesWithAttributions: 0,
   });
 });
+
+test('deletes multiple attributions at once in attribution view', async ({
+  attributionDetails,
+  attributionList,
+  confirmationPopup,
+  projectStatisticsPopup,
+  resourceBrowser,
+  topBar,
+}) => {
+  await projectStatisticsPopup.close();
+  await topBar.gotoAttributionView();
+  await attributionList.attributionCard.assert.checkboxIsUnchecked(
+    packageInfo1,
+  );
+  await attributionList.attributionCard.assert.checkboxIsUnchecked(
+    packageInfo2,
+  );
+
+  await attributionList.attributionCard.checkbox(packageInfo1).click();
+  await attributionList.attributionCard.checkbox(packageInfo2).click();
+  await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo1);
+  await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo2);
+
+  await attributionList.attributionCard.openContextMenu(packageInfo1);
+  await attributionList.attributionCard.contextMenu.deleteSelectedGloballyButton.click();
+  await confirmationPopup.assert.hasText('2');
+
+  await confirmationPopup.confirm();
+  await confirmationPopup.assert.isHidden();
+  await attributionList.attributionCard.assert.isHidden(packageInfo1);
+  await attributionList.attributionCard.assert.isHidden(packageInfo2);
+  await attributionDetails.assert.isHidden();
+  await resourceBrowser.assert.isHidden();
+});

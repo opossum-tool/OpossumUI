@@ -45,7 +45,7 @@ test.use({
   },
 });
 
-test('adds a new attribution', async ({
+test('adds a new attribution in audit view', async ({
   attributionDetails,
   projectStatisticsPopup,
   resourceBrowser,
@@ -144,6 +144,68 @@ test('allows user to edit an existing attribution locally and globally in audit 
   await attributionDetails.assert.nameIs(newPackageName);
 });
 
+test('displays and edits an existing attribution in attribution view', async ({
+  attributionDetails,
+  attributionList,
+  projectStatisticsPopup,
+  resourceBrowser,
+  topBar,
+}) => {
+  const newPackageInfo = faker.opossum.manualPackageInfo({
+    comment: faker.lorem.sentences(),
+    licenseText: faker.lorem.sentences(),
+    attributionConfidence: packageInfo1.attributionConfidence,
+    packageType: undefined,
+  });
+  await projectStatisticsPopup.close();
+  await topBar.gotoAttributionView();
+  await resourceBrowser.assert.isHidden();
+  await attributionDetails.assert.isHidden();
+
+  await attributionList.attributionCard.click(packageInfo1);
+  await resourceBrowser.assert.isVisible();
+  await attributionDetails.assert.isVisible();
+  await resourceBrowser.assert.resourceIsVisible(resourceName1);
+  await resourceBrowser.assert.resourceIsVisible(resourceName2);
+  await resourceBrowser.assert.resourceIsHidden(resourceName3);
+  await resourceBrowser.assert.resourceIsHidden(resourceName4);
+  await attributionDetails.assert.licenseTextIsHidden();
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.assert.saveButtonIsDisabled();
+
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.assert.buttonInHamburgerMenuIsDisabled('undoButton');
+
+  await attributionDetails.closeHamburgerMenu();
+  await attributionDetails.toggleLicenseTextVisibility();
+  await attributionDetails.assert.licenseTextIsVisible();
+
+  await attributionDetails.licenseText.fill(newPackageInfo.licenseText!);
+  await attributionDetails.assert.licenseTextIs(newPackageInfo.licenseText!);
+
+  await attributionDetails.toggleLicenseTextVisibility();
+  await attributionDetails.assert.licenseTextIsHidden();
+
+  await attributionDetails.name.fill(newPackageInfo.packageName!);
+  await attributionDetails.version.fill(newPackageInfo.packageVersion!);
+  await attributionDetails.url.fill(newPackageInfo.url!);
+  await attributionDetails.copyright.fill(newPackageInfo.copyright!);
+  await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
+  await attributionDetails.comment().fill(newPackageInfo.comment!);
+  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
+  await attributionDetails.assert.saveButtonIsEnabled();
+
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.assert.buttonInHamburgerMenuIsEnabled('undoButton');
+
+  await attributionDetails.closeHamburgerMenu();
+  await attributionDetails.saveButton.click();
+  await attributionDetails.assert.saveButtonIsDisabled();
+
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.assert.buttonInHamburgerMenuIsDisabled('undoButton');
+});
+
 test('allows user to edit an existing attribution in report view', async ({
   attributionDetails,
   editAttributionPopup,
@@ -195,4 +257,34 @@ test('allows user to edit an existing attribution in report view', async ({
     ...newPackageInfo,
     attributionConfidence: DiscreteConfidence.High,
   });
+});
+
+test('adds a new attribution via PURL', async ({
+  attributionDetails,
+  projectStatisticsPopup,
+  resourceBrowser,
+  resourceDetails,
+}) => {
+  const newPackageInfo = faker.opossum.manualPackageInfo({
+    attributionConfidence: DiscreteConfidence.High,
+    packageNamespace: faker.internet.domainWord(),
+    licenseName: undefined,
+    url: undefined,
+    copyright: undefined,
+  });
+  await projectStatisticsPopup.close();
+  await resourceBrowser.goto(resourceName1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+
+  await resourceDetails.addNewAttributionButton.click();
+  await attributionDetails.assert.isEmpty();
+
+  await attributionDetails.purl.fill(
+    `pkg:${newPackageInfo.packageType}/${newPackageInfo.packageNamespace}/${newPackageInfo.packageName}@${newPackageInfo.packageVersion}`,
+  );
+  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
+
+  await attributionDetails.saveButton.click();
+  await attributionDetails.assert.saveButtonIsDisabled();
+  await resourceDetails.attributionCard.assert.isVisible(newPackageInfo);
 });
