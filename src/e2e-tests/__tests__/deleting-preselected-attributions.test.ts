@@ -65,7 +65,7 @@ test('deletes pre-selected attributions via context menu', async ({
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo3);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithOnlyPreSelectedAttributions: 5,
@@ -77,7 +77,7 @@ test('deletes pre-selected attributions via context menu', async ({
   await attributionDetails.assert.isEmpty();
 
   await resourceDetails.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.contextMenu.deleteButton.click();
@@ -88,15 +88,15 @@ test('deletes pre-selected attributions via context menu', async ({
   });
 
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceDetails.gotoGlobalTab();
   await resourceDetails.signalCard.openContextMenu(packageInfo1);
   await resourceDetails.signalCard.contextMenu.deleteGloballyButton.click();
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceBrowser.goto(resourceName2);
   await attributionDetails.assert.isEmpty();
@@ -131,7 +131,7 @@ test('deletes pre-selected attributions via hamburger menu', async ({
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo3);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithOnlyPreSelectedAttributions: 5,
@@ -147,7 +147,7 @@ test('deletes pre-selected attributions via hamburger menu', async ({
   });
 
   await resourceDetails.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.hamburgerMenu.deleteButton.click();
@@ -173,7 +173,7 @@ test('deletes pre-selected attributions via hamburger menu', async ({
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.assert.buttonInHamburgerMenuIsHidden(

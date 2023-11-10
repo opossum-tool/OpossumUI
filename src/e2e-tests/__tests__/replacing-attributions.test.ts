@@ -59,30 +59,30 @@ test('replaces attributions via context menu in audit view ', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.contextMenu.markForReplacementButton.click();
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo2);
   await resourceDetails.attributionCard.contextMenu.replaceMarkedButton.click();
   await replaceAttributionPopup.cancel();
 
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
   await resourceDetails.attributionCard.openContextMenu(packageInfo2);
   await resourceDetails.attributionCard.contextMenu.replaceMarkedButton.click();
   await replaceAttributionPopup.replace();
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo2,
     attributionConfidence: DiscreteConfidence.High,
   });
@@ -109,30 +109,30 @@ test('replaces attributions via hamburger menu in audit view ', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.hamburgerMenu.markForReplacementButton.click();
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
   await replaceAttributionPopup.cancel();
 
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
   await replaceAttributionPopup.replace();
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo2,
     attributionConfidence: DiscreteConfidence.High,
   });
@@ -165,7 +165,7 @@ test('replaces attributions via context menu in attribution view', async ({
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsHidden(resourceName4);
 
@@ -182,7 +182,7 @@ test('replaces attributions via context menu in attribution view', async ({
   await attributionList.attributionCard.assert.isHidden(packageInfo1);
 
   await attributionList.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsVisible(resourceName4);
 });

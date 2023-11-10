@@ -8,10 +8,14 @@ const resourceName1 = faker.opossum.resourceName();
 const resourceName2 = faker.opossum.resourceName();
 const resourceName3 = faker.opossum.resourceName();
 const resourceName4 = faker.opossum.resourceName();
+const resourceName5 = faker.opossum.resourceName();
 const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
   wasPreferred: true,
 });
 const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+  wasPreferred: true,
+});
+const [attributionId3, packageInfo3] = faker.opossum.manualAttribution({
   wasPreferred: true,
 });
 
@@ -23,18 +27,21 @@ test.use({
         [resourceName2]: 1,
         [resourceName3]: 1,
         [resourceName4]: 1,
+        [resourceName5]: 1,
       }),
     }),
     outputData: faker.opossum.outputData({
       manualAttributions: faker.opossum.manualAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
+        [attributionId3]: packageInfo3,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
         [faker.opossum.filePath(resourceName1)]: [attributionId1],
         [faker.opossum.filePath(resourceName2)]: [attributionId1],
         [faker.opossum.filePath(resourceName3)]: [attributionId1],
         [faker.opossum.filePath(resourceName4)]: [attributionId2],
+        [faker.opossum.filePath(resourceName5)]: [attributionId3],
       }),
     }),
   },
@@ -43,9 +50,11 @@ test.use({
 test('removes was-preferred status from attribution when user saves changes', async ({
   attributionDetails,
   attributionList,
+  editAttributionPopup,
   modifyWasPreferredAttributionPopup,
   notSavedPopup,
   projectStatisticsPopup,
+  reportView,
   resourceBrowser,
   resourceDetails,
   topBar,
@@ -84,10 +93,26 @@ test('removes was-preferred status from attribution when user saves changes', as
   await modifyWasPreferredAttributionPopup.assert.isVisible();
 
   await modifyWasPreferredAttributionPopup.saveGloballyButton.click();
+  await attributionList.assert.isVisible();
   await attributionList.attributionCard.assert.wasPreferredIconIsHidden(
     packageInfo2,
   );
   await attributionList.attributionCard.assert.wasPreferredIconIsHidden(
     packageInfo1,
+  );
+  await attributionList.attributionCard.assert.wasPreferredIconIsVisible(
+    packageInfo3,
+  );
+
+  await topBar.gotoReportView();
+  await reportView.editAttribution(packageInfo3);
+  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await editAttributionPopup.saveButton.click();
+  await modifyWasPreferredAttributionPopup.assert.isVisible();
+
+  await modifyWasPreferredAttributionPopup.saveButton.click();
+  await topBar.gotoAttributionView();
+  await attributionList.attributionCard.assert.wasPreferredIconIsHidden(
+    packageInfo3,
   );
 });

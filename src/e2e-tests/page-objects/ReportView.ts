@@ -30,9 +30,35 @@ export class ReportView {
     attributionIsHidden: async (packageInfo: PackageInfo): Promise<void> => {
       await expect(this.attributionRow(packageInfo)).toBeHidden();
     },
+    attributeIsVisible: async (
+      packageInfo: PackageInfo,
+      attribute: keyof PackageInfo,
+    ): Promise<void> => {
+      const value = packageInfo[attribute];
+      if (value) {
+        await expect(
+          this.attributionRow(packageInfo).getByText(value.toString()),
+        ).toBeVisible();
+      }
+    },
+    matchesPackageInfo: async (info: PackageInfo): Promise<void> => {
+      await Promise.all([
+        this.assert.attributeIsVisible(info, 'packageName'),
+        this.assert.attributeIsVisible(info, 'packageVersion'),
+        this.assert.attributeIsVisible(info, 'url'),
+        this.assert.attributeIsVisible(info, 'copyright'),
+        this.assert.attributeIsVisible(info, 'licenseName'),
+        this.assert.attributeIsVisible(info, 'licenseText'),
+        this.assert.attributeIsVisible(info, 'comment'),
+        this.assert.attributeIsVisible(info, 'attributionConfidence'),
+      ]);
+    },
   };
 
   async editAttribution(packageInfo: PackageInfo): Promise<void> {
-    await this.attributionRow(packageInfo).getByLabel('edit').click();
+    await this.attributionRow(packageInfo)
+      .getByRole('button')
+      .getByLabel('edit')
+      .click();
   }
 }

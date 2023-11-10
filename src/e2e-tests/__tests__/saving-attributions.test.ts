@@ -9,14 +9,15 @@ const resourceName1 = faker.opossum.resourceName();
 const resourceName2 = faker.opossum.resourceName();
 const resourceName3 = faker.opossum.resourceName();
 const resourceName4 = faker.opossum.resourceName();
+const license1 = faker.opossum.license();
+const license2 = faker.opossum.license();
 const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
   packageType: undefined,
 });
 const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
   packageType: undefined,
+  licenseName: license1.shortName,
 });
-const license1 = faker.opossum.license();
-const license2 = faker.opossum.license();
 
 test.use({
   data: {
@@ -45,9 +46,9 @@ test.use({
 });
 
 test('adds a new attribution', async ({
+  attributionDetails,
   projectStatisticsPopup,
   resourceBrowser,
-  attributionDetails,
   resourceDetails,
   window,
 }) => {
@@ -60,7 +61,7 @@ test('adds a new attribution', async ({
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.addNewAttributionButton.click({ button: 'right' });
   await expect(window.getByRole('menu')).toBeHidden(); // add new attribution button has no context menu
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.addNewAttributionButton.click();
   await attributionDetails.assert.isEmpty();
@@ -71,17 +72,17 @@ test('adds a new attribution', async ({
   await attributionDetails.copyright.fill(newPackageInfo.copyright!);
   await attributionDetails.licenseName.click();
   await attributionDetails.selectLicense(license1);
-  await attributionDetails.assert.matchPackageInfo(newPackageInfo);
+  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
 
   await attributionDetails.saveButton.click();
   await attributionDetails.assert.saveButtonIsDisabled();
   await resourceDetails.attributionCard.assert.isVisible(newPackageInfo);
 });
 
-test('allows user to edit an existing attribution locally and globally', async ({
+test('allows user to edit an existing attribution locally and globally in audit view', async ({
+  attributionDetails,
   projectStatisticsPopup,
   resourceBrowser,
-  attributionDetails,
 }) => {
   const newPackageInfo = faker.opossum.manualPackageInfo({
     comment: faker.lorem.sentences(),
@@ -92,7 +93,7 @@ test('allows user to edit an existing attribution locally and globally', async (
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await attributionDetails.assert.licenseTextIsHidden();
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.saveGloballyButtonIsDisabled();
 
@@ -115,7 +116,7 @@ test('allows user to edit an existing attribution locally and globally', async (
   await attributionDetails.copyright.fill(newPackageInfo.copyright!);
   await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
   await attributionDetails.comment().fill(newPackageInfo.comment!);
-  await attributionDetails.assert.matchPackageInfo(newPackageInfo);
+  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
   await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.assert.saveGloballyButtonIsEnabled();
 
@@ -132,7 +133,7 @@ test('allows user to edit an existing attribution locally and globally', async (
 
   await attributionDetails.closeHamburgerMenu();
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   const newPackageName = faker.internet.domainWord();
   await resourceBrowser.goto(resourceName3);
@@ -141,4 +142,57 @@ test('allows user to edit an existing attribution locally and globally', async (
 
   await resourceBrowser.goto(resourceName4);
   await attributionDetails.assert.nameIs(newPackageName);
+});
+
+test('allows user to edit an existing attribution in report view', async ({
+  attributionDetails,
+  editAttributionPopup,
+  projectStatisticsPopup,
+  reportView,
+  topBar,
+}) => {
+  const newPackageInfo = faker.opossum.manualPackageInfo({
+    comment: faker.lorem.sentences(),
+    licenseText: faker.lorem.sentences(),
+    attributionConfidence: packageInfo1.attributionConfidence,
+    packageType: undefined,
+  });
+  await projectStatisticsPopup.close();
+  await topBar.gotoReportView();
+  await reportView.assert.matchesPackageInfo(packageInfo1);
+  await reportView.assert.matchesPackageInfo({
+    ...packageInfo2,
+    licenseText: license1.defaultText,
+  });
+
+  await reportView.editAttribution(packageInfo1);
+  await editAttributionPopup.assert.isVisible();
+  await editAttributionPopup.assert.saveButtonIsDisabled();
+  await attributionDetails.assert.licenseTextIsHidden();
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+
+  await attributionDetails.toggleLicenseTextVisibility();
+  await attributionDetails.assert.licenseTextIsVisible();
+
+  await attributionDetails.licenseText.fill(newPackageInfo.licenseText!);
+  await attributionDetails.assert.licenseTextIs(newPackageInfo.licenseText!);
+
+  await attributionDetails.toggleLicenseTextVisibility();
+  await attributionDetails.assert.licenseTextIsHidden();
+
+  await attributionDetails.name.fill(newPackageInfo.packageName!);
+  await attributionDetails.version.fill(newPackageInfo.packageVersion!);
+  await attributionDetails.url.fill(newPackageInfo.url!);
+  await attributionDetails.copyright.fill(newPackageInfo.copyright!);
+  await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
+  await attributionDetails.comment().fill(newPackageInfo.comment!);
+  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
+  await editAttributionPopup.assert.saveButtonIsEnabled();
+
+  await editAttributionPopup.saveButton.click();
+  await editAttributionPopup.assert.isHidden();
+  await reportView.assert.matchesPackageInfo({
+    ...newPackageInfo,
+    attributionConfidence: DiscreteConfidence.High,
+  });
 });

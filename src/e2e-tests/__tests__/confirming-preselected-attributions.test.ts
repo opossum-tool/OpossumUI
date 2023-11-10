@@ -50,7 +50,7 @@ test('updates progress bar and confidence when user confirms preselected attribu
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 4,
     filesWithOnlyPreSelectedAttributions: 4,
@@ -83,7 +83,7 @@ test('updates progress bar and confidence when user confirms preselected attribu
 
   await resourceDetails.attributionCard.closeContextMenu();
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.contextMenu.confirmGloballyButton.click();
@@ -108,7 +108,7 @@ test('updates progress bar and confidence when user confirms preselected attribu
   });
 
   await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo2,
     attributionConfidence: DiscreteConfidence.High,
   });
@@ -142,14 +142,14 @@ test('updates confidence when user confirms preselected attributions in attribut
 
   await attributionList.attributionCard.closeContextMenu();
   await attributionList.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo1,
     attributionConfidence: DiscreteConfidence.High,
   });
 
   await topBar.gotoAuditView();
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo1,
     attributionConfidence: DiscreteConfidence.High,
   });
