@@ -54,7 +54,7 @@
     "@types/babel__core": "^7",
     "@types/electron-devtools-installer": "^2.2.4",
     "@types/jest": "^29.5.8",
-    "@types/js-yaml": "^4.0.8",
+    "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.14.200",
     "@types/object-hash": "^3.0.6",
     "@types/prop-types": "^15",
