@@ -48,6 +48,7 @@ export function ChangePreferredStatusGloballyPopup(): ReactElement {
         buttonText: ButtonText.Cancel,
       }}
       isOpen={true}
+      aria-label={'change preferred status globally popup'}
     />
   );
 }

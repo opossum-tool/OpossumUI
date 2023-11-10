@@ -22,6 +22,7 @@ import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
 import { AttributionWizard } from '../page-objects/AttributionWizard';
+import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
 import { EditAttributionPopup } from '../page-objects/EditAttributionPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
@@ -58,6 +59,7 @@ export const test = base.extend<{
   attributionFilters: AttributionFilters;
   attributionList: AttributionList;
   attributionWizard: AttributionWizard;
+  changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
   confirmationPopup: ConfirmationPopup;
   editAttributionPopup: EditAttributionPopup;
   errorPopup: ErrorPopup;
@@ -143,6 +145,9 @@ export const test = base.extend<{
   },
   fileSearchPopup: async ({ window }, use) => {
     await use(new FileSearchPopup(window));
+  },
+  changePreferredStatusGloballyPopup: async ({ window }, use) => {
+    await use(new ChangePreferredStatusGloballyPopup(window));
   },
   confirmationPopup: async ({ window }, use) => {
     await use(new ConfirmationPopup(window));

@@ -89,6 +89,10 @@ export class PackageCard {
     return this.node(packageInfo).getByRole('button').getByLabel('add');
   }
 
+  public preferredIcon(packageInfo: PackageInfo): Locator {
+    return this.node(packageInfo).getByLabel('Preferred icon', { exact: true });
+  }
+
   public wasPreferredIcon(packageInfo: PackageInfo): Locator {
     return this.node(packageInfo).getByLabel('was preferred icon');
   }
@@ -114,6 +118,12 @@ export class PackageCard {
     },
     addButtonIsHidden: async (packageInfo: PackageInfo): Promise<void> => {
       await expect(this.addButton(packageInfo)).toBeHidden();
+    },
+    preferredIconIsVisible: async (packageInfo: PackageInfo): Promise<void> => {
+      await expect(this.preferredIcon(packageInfo)).toBeVisible();
+    },
+    preferredIconIsHidden: async (packageInfo: PackageInfo): Promise<void> => {
+      await expect(this.preferredIcon(packageInfo)).toBeHidden();
     },
     wasPreferredIconIsVisible: async (
       packageInfo: PackageInfo,
