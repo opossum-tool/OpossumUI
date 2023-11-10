@@ -5,12 +5,15 @@
 import { pick } from 'lodash';
 
 import { Attributions } from '../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { PanelPackage, State } from '../../types/types';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForState } from '../../util/is-attribution-breakpoint';
 import {
   getManualAttributions,
+  getManualDisplayPackageInfoOfSelected,
   getResourcesToManualAttributions,
+  getTemporaryDisplayPackageInfo,
 } from './all-views-resource-selectors';
 
 export function getSelectedResourceId(state: State): string {
@@ -89,4 +92,14 @@ export function getIsAccordionSearchFieldDisplayed(state: State): boolean {
 
 export function getPackageSearchTerm(state: State): string {
   return state.resourceState.auditView.accordionSearchField.searchTerm;
+}
+
+export function getDidPreferredFieldChange(state: State): boolean {
+  const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(state);
+  const initialManualDisplayPackageInfo =
+    getManualDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
+  const initialIsPreferred = initialManualDisplayPackageInfo.preferred ?? false;
+  const tempIsPreferred =
+    temporaryDisplayPackageInfo.preferred ?? initialIsPreferred;
+  return initialIsPreferred !== tempIsPreferred;
 }
