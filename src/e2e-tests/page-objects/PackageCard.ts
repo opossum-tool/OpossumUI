@@ -72,8 +72,11 @@ export class PackageCard {
     return compact([packageName, packageVersion]).join(', ');
   }
 
-  public node(packageInfo: PackageInfo): Locator {
-    return this.context.getByLabel(
+  private node(
+    packageInfo: PackageInfo,
+    { subContext }: { subContext?: Locator } = {},
+  ): Locator {
+    return (subContext ?? this.context).getByLabel(
       `package card ${this.getCardLabel(packageInfo)}`,
     );
   }
@@ -82,25 +85,31 @@ export class PackageCard {
     return this.node(packageInfo).getByRole('checkbox');
   }
 
+  public addButton(packageInfo: PackageInfo): Locator {
+    return this.node(packageInfo).getByRole('button').getByLabel('add');
+  }
+
   public assert = {
     isVisible: async (
       packageInfo: PackageInfo,
-      { count }: { count: number } = { count: 1 },
+      {
+        count = 1,
+        subContext,
+      }: Partial<{ count: number; subContext: Locator }> = {},
     ): Promise<void> => {
-      await expect(this.node(packageInfo)).toHaveCount(count);
+      await expect(this.node(packageInfo, { subContext })).toHaveCount(count);
     },
-    isHidden: async (packageInfo: PackageInfo): Promise<void> => {
-      await expect(this.node(packageInfo)).toBeHidden();
+    isHidden: async (
+      packageInfo: PackageInfo,
+      { subContext }: { subContext?: Locator } = {},
+    ): Promise<void> => {
+      await expect(this.node(packageInfo, { subContext })).toBeHidden();
     },
     addButtonIsVisible: async (packageInfo: PackageInfo): Promise<void> => {
-      await expect(
-        this.node(packageInfo).getByRole('button').getByLabel('add'),
-      ).toBeVisible();
+      await expect(this.addButton(packageInfo)).toBeVisible();
     },
     addButtonIsHidden: async (packageInfo: PackageInfo): Promise<void> => {
-      await expect(
-        this.node(packageInfo).getByRole('button').getByLabel('add'),
-      ).toBeHidden();
+      await expect(this.addButton(packageInfo)).toBeHidden();
     },
     checkboxIsChecked: async (packageInfo: PackageInfo): Promise<void> => {
       await expect(this.checkbox(packageInfo)).toBeChecked();
@@ -139,5 +148,9 @@ export class PackageCard {
 
   async closeContextMenu(): Promise<void> {
     await this.window.keyboard.press('Escape');
+  }
+
+  async click(packageInfo: PackageInfo): Promise<void> {
+    await this.node(packageInfo).click();
   }
 }

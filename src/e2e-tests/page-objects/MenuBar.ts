@@ -15,8 +15,8 @@ export class MenuBar {
   }
 
   public assert = {
-    showsExpectedTitle: async (): Promise<void> => {
-      expect(await this.window.title()).toBe('OpossumUI');
+    hasTitle: async (title: string): Promise<void> => {
+      expect(await this.window.title()).toBe(title);
     },
   };
 

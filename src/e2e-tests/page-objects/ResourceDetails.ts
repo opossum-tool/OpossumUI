@@ -11,9 +11,14 @@ export class ResourceDetails {
   private readonly node: Locator;
   private readonly attributions: Locator;
   private readonly signals: Locator;
-  readonly signalsAccordion: Locator;
-  readonly signalsInFolderContentAccordion: Locator;
+  readonly signalsPanel: Locator;
+  readonly signalsToggle: Locator;
+  readonly signalsInFolderContentPanel: Locator;
+  readonly signalsInFolderContentToggle: Locator;
+  readonly attributionsInFolderContentPanel: Locator;
+  readonly attributionsInFolderContentToggle: Locator;
   readonly openResourceUrlButton: Locator;
+  readonly overrideParentButton: Locator;
   readonly localTab: Locator;
   readonly globalTab: Locator;
   readonly attributionCard: PackageCard;
@@ -23,17 +28,31 @@ export class ResourceDetails {
     this.node = window.getByLabel('resource details');
     this.attributions = this.node.getByLabel('resource attributions');
     this.signals = this.node.getByLabel('resource signals');
-    this.signalsAccordion = this.node.getByRole('button', {
+    this.signalsPanel = this.signals.getByLabel('signals panel');
+    this.signalsToggle = this.node.getByRole('button', {
       name: 'Signals',
       exact: true,
     });
-    this.signalsInFolderContentAccordion = this.node.getByRole('button', {
+    this.signalsInFolderContentPanel = this.signals.getByLabel(
+      'signals in folder content panel',
+    );
+    this.signalsInFolderContentToggle = this.node.getByRole('button', {
       name: 'Signals in Folder Content',
+      exact: true,
+    });
+    this.attributionsInFolderContentPanel = this.signals.getByLabel(
+      'attributions in folder content panel',
+    );
+    this.attributionsInFolderContentToggle = this.node.getByRole('button', {
+      name: 'Attributions in Folder Content',
       exact: true,
     });
     this.openResourceUrlButton = this.node
       .getByRole('button')
       .getByLabel('link to open');
+    this.overrideParentButton = this.attributions.getByRole('button', {
+      name: 'override parent',
+    });
     this.localTab = this.node.getByLabel('local tab');
     this.globalTab = this.node.getByLabel('global tab');
     this.attributionCard = new PackageCard(window, this.attributions);
@@ -47,16 +66,28 @@ export class ResourceDetails {
       ).toBeVisible();
     },
     signalsAccordionIsVisible: async (): Promise<void> => {
-      await expect(this.signalsAccordion).toBeVisible();
+      await expect(this.signalsToggle).toBeVisible();
     },
     signalsAccordionIsHidden: async (): Promise<void> => {
-      await expect(this.signalsAccordion).toBeHidden();
+      await expect(this.signalsToggle).toBeHidden();
     },
     signalsInFolderContentAccordionIsVisible: async (): Promise<void> => {
-      await expect(this.signalsInFolderContentAccordion).toBeVisible();
+      await expect(this.signalsInFolderContentToggle).toBeVisible();
     },
     signalsInFolderContentAccordionIsHidden: async (): Promise<void> => {
-      await expect(this.signalsInFolderContentAccordion).toBeHidden();
+      await expect(this.signalsInFolderContentToggle).toBeHidden();
+    },
+    attributionsInFolderContentAccordionIsVisible: async (): Promise<void> => {
+      await expect(this.attributionsInFolderContentToggle).toBeVisible();
+    },
+    attributionsInFolderContentAccordionIsHidden: async (): Promise<void> => {
+      await expect(this.attributionsInFolderContentToggle).toBeHidden();
+    },
+    overrideParentButtonIsVisible: async (): Promise<void> => {
+      await expect(this.overrideParentButton).toBeVisible();
+    },
+    overrideParentButtonIsHidden: async (): Promise<void> => {
+      await expect(this.overrideParentButton).toBeHidden();
     },
   };
 

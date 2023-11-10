@@ -6,35 +6,44 @@ import { faker, test } from '../utils';
 
 const resourceName1 = faker.opossum.resourceName();
 const resourceName2 = faker.opossum.resourceName();
+const resourceName3 = faker.opossum.resourceName();
+const resourceName4 = faker.opossum.resourceName();
 const [attributionId1, packageInfo1] = faker.opossum.externalAttribution();
 const [attributionId2, packageInfo2] = faker.opossum.externalAttribution();
 const [attributionId3, packageInfo3] = faker.opossum.externalAttribution();
-const attributionId4 = faker.opossum.attributionId();
 
 test.use({
   data: {
     inputData: faker.opossum.inputData({
       resources: faker.opossum.resources({
         [resourceName1]: { [resourceName2]: 1 },
+        [resourceName3]: 1,
+        [resourceName4]: 1,
       }),
       externalAttributions: faker.opossum.externalAttributions({
         [attributionId1]: packageInfo1,
-        [attributionId4]: packageInfo1,
         [attributionId2]: packageInfo2,
         [attributionId3]: packageInfo3,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
         [faker.opossum.filePath(resourceName1, resourceName2)]: [
           attributionId1,
-          attributionId2,
           attributionId3,
         ],
+        [faker.opossum.filePath(resourceName3)]: [attributionId2],
+        [faker.opossum.filePath(resourceName4)]: [
+          attributionId1,
+          attributionId2,
+        ],
       }),
+    }),
+    outputData: faker.opossum.outputData({
+      resolvedExternalAttributions: new Set([attributionId1]),
     }),
   },
 });
 
-test('hides and unhides merged signals via attribution details', async ({
+test('hides and unhides signals via attribution details', async ({
   projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
@@ -42,20 +51,20 @@ test('hides and unhides merged signals via attribution details', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-
-  await resourceDetails.signalCard.click(packageInfo1);
-  await attributionDetails.hideToggleButton.click();
   await resourceDetails.signalCard.assert.isHidden(packageInfo1, {
     subContext: resourceDetails.signalsInFolderContentPanel,
   });
+  await resourceDetails.signalCard.assert.isVisible(packageInfo3, {
+    subContext: resourceDetails.signalsInFolderContentPanel,
+  });
 
-  await resourceBrowser.goto(resourceName2);
+  await resourceDetails.signalCard.click(packageInfo3);
+  await attributionDetails.hideToggleButton.click();
+  await resourceDetails.signalCard.assert.isHidden(packageInfo3, {
+    subContext: resourceDetails.signalsInFolderContentPanel,
+  });
+
+  await resourceBrowser.goto(resourceName4);
   await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
     subContext: resourceDetails.signalsPanel,
   });
@@ -65,33 +74,46 @@ test('hides and unhides merged signals via attribution details', async ({
   await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 
-  await resourceDetails.signalCard.click(packageInfo1);
+  await resourceDetails.signalCard.click(packageInfo2);
   await attributionDetails.hideToggleButton.click();
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo1);
+  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
+  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
+
+  await resourceBrowser.goto(resourceName3);
+  await resourceDetails.signalCard.click(packageInfo2);
+  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
+  await attributionDetails.hideToggleButton.click();
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 });
 
-test('hides and unhides merged signals via context menu', async ({
+test('hides and unhides signals via context menu', async ({
   projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo1);
-  await resourceDetails.signalCard.contextMenu.hideButton.click();
   await resourceDetails.signalCard.assert.isHidden(packageInfo1, {
     subContext: resourceDetails.signalsInFolderContentPanel,
   });
+  await resourceDetails.signalCard.assert.isVisible(packageInfo3, {
+    subContext: resourceDetails.signalsInFolderContentPanel,
+  });
 
-  await resourceBrowser.goto(resourceName2);
+  await resourceDetails.signalCard.openContextMenu(packageInfo3);
+  await resourceDetails.signalCard.assert.contextMenu.buttonsAreVisible(
+    'hideButton',
+  );
+  await resourceDetails.signalCard.assert.contextMenu.buttonsAreHidden(
+    'unhideButton',
+  );
+
+  await resourceDetails.signalCard.contextMenu.hideButton.click();
+  await resourceDetails.signalCard.assert.isHidden(packageInfo3, {
+    subContext: resourceDetails.signalsInFolderContentPanel,
+  });
+
+  await resourceBrowser.goto(resourceName4);
   await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
     subContext: resourceDetails.signalsPanel,
   });
@@ -101,8 +123,15 @@ test('hides and unhides merged signals via context menu', async ({
   await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 
-  await resourceDetails.signalCard.openContextMenu(packageInfo1);
+  await resourceDetails.signalCard.openContextMenu(packageInfo2);
+  await resourceDetails.signalCard.contextMenu.hideButton.click();
+  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
+  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
+
+  await resourceBrowser.goto(resourceName3);
+  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
+
+  await resourceDetails.signalCard.openContextMenu(packageInfo2);
   await resourceDetails.signalCard.contextMenu.unhideButton.click();
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo1);
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 });

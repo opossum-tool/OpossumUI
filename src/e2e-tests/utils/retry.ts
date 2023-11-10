@@ -5,15 +5,16 @@
 
 const RETRY_COUNT = 3;
 
-export async function retry({
-  times = RETRY_COUNT,
-  fn,
-  onError,
-}: {
-  times?: number;
-  fn: () => Promise<void>;
-  onError?: () => Promise<unknown>;
-}): Promise<void> {
+export async function retry(
+  fn: () => Promise<void>,
+  {
+    times = RETRY_COUNT,
+    onError,
+  }: Partial<{
+    times?: number;
+    onError?: () => Promise<unknown>;
+  }> = {},
+): Promise<void> {
   let error;
 
   for (let i = 0; i < times; i++) {

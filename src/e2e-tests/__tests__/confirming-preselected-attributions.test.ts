@@ -140,7 +140,7 @@ test('updates confidence when user confirms preselected attributions in attribut
   );
 
   await attributionList.attributionCard.closeContextMenu();
-  await attributionList.attributionCard.node(packageInfo1).click();
+  await attributionList.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchPackageInfo({
     ...packageInfo1,
     attributionConfidence: DiscreteConfidence.High,

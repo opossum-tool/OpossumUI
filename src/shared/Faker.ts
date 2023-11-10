@@ -11,6 +11,7 @@ import type {
 } from '../ElectronBackend/types/types';
 import {
   BaseUrlsForSources,
+  DiscreteConfidence,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -44,7 +45,7 @@ class OpossumModule {
 
   public static source(props: Partial<Source> = {}): Source {
     return {
-      documentConfidence: faker.number.float({ max: 100, precision: 1 }),
+      documentConfidence: faker.number.int({ max: 100 }),
       name: faker.company.name(),
       ...props,
     };
@@ -54,7 +55,10 @@ class OpossumModule {
     props: Partial<ManualPackageInfo> = {},
   ): ManualPackageInfo {
     return {
-      attributionConfidence: faker.number.float({ max: 100, precision: 1 }),
+      attributionConfidence: faker.number.int({
+        min: DiscreteConfidence.Low + 1,
+        max: DiscreteConfidence.High - 1,
+      }),
       copyright: faker.lorem.sentences(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),

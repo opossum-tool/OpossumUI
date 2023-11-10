@@ -4,8 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { test } from '../utils';
 
-test('enables user to navigate through views', async ({ menuBar, topBar }) => {
-  await menuBar.assert.showsExpectedTitle();
+test('provides expected functionality when no file is open', async ({
+  menuBar,
+  resourceBrowser,
+  topBar,
+}) => {
+  await menuBar.assert.hasTitle('OpossumUI');
+  await resourceBrowser.assert.isHidden();
+  await topBar.assert.openFileButtonIsVisible();
   await topBar.assert.modeButtonsAreVisible();
   await topBar.assert.auditViewIsActive();
 

@@ -12,6 +12,7 @@ const config: PlaywrightTestConfig = {
   preserveOutput: process.env.CI ? 'failures-only' : 'always',
   quiet: !!process.env.CI,
   reportSlowTests: null,
+  retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   timeout: process.env.CI ? CI_SINGLE_TEST_TIMEOUT : undefined,
   workers: process.env.CI ? 1 : undefined,

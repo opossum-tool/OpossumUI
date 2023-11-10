@@ -13,6 +13,7 @@ import * as os from 'os';
 import * as path from 'path';
 
 import { AttributionDetails } from '../page-objects/AttributionDetails';
+import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
@@ -22,6 +23,7 @@ import { MenuBar } from '../page-objects/MenuBar';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
 import { ReplaceAttributionPopup } from '../page-objects/ReplaceAttributionPopup';
+import { ReportView } from '../page-objects/ReportView';
 import { ResourceBrowser } from '../page-objects/ResourceBrowser';
 import { ResourceDetails } from '../page-objects/ResourceDetails';
 import { ResourcePathPopup } from '../page-objects/ResourcePathPopup';
@@ -38,6 +40,7 @@ export const test = base.extend<{
   /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
   debug: () => void;
   attributionDetails: AttributionDetails;
+  attributionFilters: AttributionFilters;
   attributionList: AttributionList;
   confirmationPopup: ConfirmationPopup;
   errorPopup: ErrorPopup;
@@ -47,6 +50,7 @@ export const test = base.extend<{
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
   replaceAttributionPopup: ReplaceAttributionPopup;
+  reportView: ReportView;
   resourceBrowser: ResourceBrowser;
   resourceDetails: ResourceDetails;
   resourcePathPopup: ResourcePathPopup;
@@ -59,7 +63,7 @@ export const test = base.extend<{
     const [executablePath, main] = getLaunchProps();
 
     const app = await electron.launch({
-      args: [main, ...(filePath ? [filePath] : [])],
+      args: [main, ...(!filePath ? [] : [filePath])],
       executablePath,
     });
 
@@ -128,6 +132,12 @@ export const test = base.extend<{
   },
   attributionDetails: async ({ window }, use) => {
     await use(new AttributionDetails(window));
+  },
+  attributionFilters: async ({ window }, use) => {
+    await use(new AttributionFilters(window));
+  },
+  reportView: async ({ window }, use) => {
+    await use(new ReportView(window));
   },
 });
 

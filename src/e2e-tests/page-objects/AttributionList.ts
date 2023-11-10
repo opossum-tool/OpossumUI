@@ -8,11 +8,13 @@ import { PackageCard } from './PackageCard';
 
 export class AttributionList {
   private readonly node: Locator;
-  public readonly attributionCard: PackageCard;
+  readonly attributionCard: PackageCard;
+  readonly filterButton: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('attribution list');
     this.attributionCard = new PackageCard(window, this.node);
+    this.filterButton = this.node.getByLabel('filters');
   }
 
   public assert = {
@@ -23,4 +25,8 @@ export class AttributionList {
       await expect(this.node).toBeHidden();
     },
   };
+
+  async toggleFiltersVisibility(): Promise<void> {
+    await this.filterButton.click();
+  }
 }

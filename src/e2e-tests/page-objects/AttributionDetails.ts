@@ -16,12 +16,15 @@ export class AttributionDetails {
   readonly url: Locator;
   readonly copyright: Locator;
   readonly licenseName: Locator;
+  readonly licenseText: Locator;
+  readonly licenseTextToggleButton: Locator;
   readonly comment: Locator;
   readonly confidence: Locator;
   readonly confirmButton: Locator;
   readonly confirmGloballyButton: Locator;
   readonly saveButton: Locator;
   readonly saveGloballyButton: Locator;
+  readonly hideToggleButton: Locator;
   readonly hamburgerMenuButton: Locator;
   readonly hamburgerMenu: {
     readonly deleteButton: Locator;
@@ -48,6 +51,11 @@ export class AttributionDetails {
     this.licenseName = this.node.getByRole('combobox', {
       name: 'License Name',
     });
+    this.licenseText = this.node.getByLabel(
+      'License Text (to appear in attribution document)',
+      { exact: true },
+    );
+    this.licenseTextToggleButton = this.node.getByLabel('license text toggle');
     this.comment = this.node.getByLabel('Comment', { exact: true });
     this.confidence = this.node.getByRole('combobox', {
       name: 'Confidence',
@@ -68,6 +76,7 @@ export class AttributionDetails {
       name: 'Save globally',
       exact: true,
     });
+    this.hideToggleButton = this.node.getByLabel('resolve attribution');
     this.hamburgerMenuButton = this.node.getByLabel('button-hamburger-menu');
     this.hamburgerMenu = {
       deleteButton: window
@@ -142,9 +151,24 @@ export class AttributionDetails {
     licenseNameIs: async (licenseName: string): Promise<void> => {
       await expect(this.licenseName).toHaveValue(licenseName);
     },
+    licenseTextIs: async (licenseText: string): Promise<void> => {
+      await expect(this.licenseText).toHaveValue(licenseText);
+    },
+    licenseTextIsVisible: async (): Promise<void> => {
+      await expect(this.licenseText).toBeVisible();
+    },
+    licenseTextIsHidden: async (): Promise<void> => {
+      await expect(this.licenseText).toBeHidden();
+    },
+    commentIs: async (comment: string): Promise<void> => {
+      await expect(this.comment).toHaveValue(comment);
+    },
     matchPackageInfo: async ({
       attributionConfidence,
+      comment,
+      copyright,
       licenseName,
+      licenseText,
       packageName,
       packageNamespace,
       packageType,
@@ -159,7 +183,10 @@ export class AttributionDetails {
         ...(packageName ? [this.assert.nameIs(packageName)] : []),
         ...(packageVersion ? [this.assert.versionIs(packageVersion)] : []),
         ...(url ? [this.assert.urlIs(url)] : []),
+        ...(copyright ? [this.assert.copyrightIs(copyright)] : []),
         ...(licenseName ? [this.assert.licenseNameIs(licenseName)] : []),
+        ...(licenseText ? [this.assert.licenseTextIs(licenseText)] : []),
+        ...(comment ? [this.assert.commentIs(comment)] : []),
         ...(attributionConfidence
           ? [this.assert.confidenceIs(attributionConfidence)]
           : []),
@@ -191,5 +218,9 @@ export class AttributionDetails {
 
   async openHamburgerMenu(): Promise<void> {
     await this.hamburgerMenuButton.click();
+  }
+
+  async toggleLicenseTextVisibility(): Promise<void> {
+    await this.licenseTextToggleButton.click();
   }
 }

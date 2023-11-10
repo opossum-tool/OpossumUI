@@ -117,6 +117,7 @@ export const AggregatedAttributionsPanel = memo(
           attributions={externalData.attributions}
           attributionsToHashes={attributionsToHashes}
           isAddToPackageEnabled={props.isAddToPackageEnabled}
+          aria-label={'signals panel'}
         />
         {isIdOfResourceWithChildren(selectedResourceId) ? (
           <>
@@ -128,6 +129,7 @@ export const AggregatedAttributionsPanel = memo(
                 getContainedExternalDisplayPackageInfosWithCount
               }
               isAddToPackageEnabled={props.isAddToPackageEnabled}
+              aria-label={'signals in folder content panel'}
             />
             <WorkerAccordionPanel
               title={PackagePanelTitle.ContainedManualPackages}
@@ -137,6 +139,7 @@ export const AggregatedAttributionsPanel = memo(
                 getContainedManualDisplayPackageInfosWithCount
               }
               isAddToPackageEnabled={props.isAddToPackageEnabled}
+              aria-label={'attributions in folder content panel'}
             />
           </>
         ) : null}

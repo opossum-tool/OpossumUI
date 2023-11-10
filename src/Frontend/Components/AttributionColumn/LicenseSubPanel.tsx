@@ -98,6 +98,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             // This div is needed to fix the Firefox warning.
             <MuiBox sx={licenseSubPanelClasses.expandMoreIcon}>
               <ExpandMoreIcon
+                aria-label={'license text toggle'}
                 sx={licenseSubPanelClasses.expandMoreIcon}
                 onClick={toggleIsLicenseTextShown}
               />
