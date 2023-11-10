@@ -4,9 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { faker, test } from '../utils';
 
-const resourceName1 = faker.opossum.resourceName();
-const resourceName2 = faker.opossum.resourceName();
-const resourceName3 = faker.opossum.resourceName();
+const [resourceName1, resourceName2, resourceName3] =
+  faker.opossum.resourceNames({ count: 3 });
 const [attributionId, packageInfo] = faker.opossum.externalAttribution();
 
 test.use({

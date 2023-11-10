@@ -3,46 +3,43 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: Release
+name: Publish release
 
 on:
   release:
     types: [published]
 
 jobs:
-  publish_artifact:
+  publish-release:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
-            SHIP: ship-linux
             FILE: release/linux/OpossumUI-for-linux.AppImage
           - os: macos-latest
-            SHIP: ship-mac
             FILE: release/mac/OpossumUI-for-mac.zip
           - os: windows-latest
-            SHIP: ship-win
             FILE: release/win/OpossumUI-for-win.exe
 
     steps:
-      - name: Check out git repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Node.js and yarn
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           cache: 'yarn'
           node-version: 18
 
       - run: yarn install --immutable
 
-      - run: yarn ${{ matrix.SHIP }}
+      - run: yarn ship:auto
+
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ matrix.FILE }}
+
       - name: Upload user guide
         uses: softprops/action-gh-release@v1
         with:

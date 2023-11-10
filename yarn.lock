@@ -5297,6 +5297,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.3.1":
+  version: 16.3.1
+  resolution: "dotenv@npm:16.3.1"
+  checksum: dbb778237ef8750e9e3cd1473d3c8eaa9cc3600e33a75c0e36415d0fa0848197f56c3800f77924c70e7828f0b03896818cd52f785b07b9ad4d88dba73fbba83f
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:^9.0.2":
   version: 9.0.2
   resolution: "dotenv@npm:9.0.2"
@@ -8985,6 +8992,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     buffer: "npm:^6.0.3"
     cross-env: "npm:^7.0.3"
+    dotenv: "npm:^16.3.1"
     electron: "npm:^27.1.0"
     electron-builder: "npm:^24.9.0"
     electron-devtools-installer: "npm:^3.2.0"

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: REUSE Compliance Check
+name: Check code quality
 
 on:
   push:
@@ -15,11 +15,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  check-code-quality:
     runs-on: ubuntu-latest
     if: |
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
     steps:
       - uses: actions/checkout@v4
-      - name: REUSE Compliance Check
-        uses: fsfe/reuse-action@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'yarn'
+          node-version: 18
+
+      - run: yarn install --immutable
+
+      - run: yarn format-check
+
+      - run: yarn lint-check
+
+      - run: yarn typecheck
+
+      - run: yarn test:unit

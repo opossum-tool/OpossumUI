@@ -22,6 +22,16 @@ import {
 } from './shared-types';
 
 type ManualPackageInfo = Omit<ExternalPackageInfo, 'source'>;
+type Tuple<N extends number, T> = N extends N
+  ? number extends N
+    ? T[]
+    : _TupleOf<N, T, []>
+  : never;
+type _TupleOf<
+  N extends number,
+  T,
+  L extends Array<unknown>,
+> = L['length'] extends N ? L : _TupleOf<N, T, [T, ...L]>;
 
 class OpossumModule {
   public static metadata(
@@ -36,6 +46,18 @@ class OpossumModule {
 
   public static resourceName(): string {
     return faker.word.words({ count: 3 }).toLowerCase().replace(/\W/g, '-');
+  }
+
+  public static resourceNames<N extends number>({
+    count,
+  }: {
+    count: N;
+  }): Tuple<N, string> {
+    return faker.helpers
+      .multiple(this.resourceName, {
+        count,
+      })
+      .sort() as Tuple<N, string>;
   }
 
   public static resources(props?: Resources): Resources {
@@ -63,7 +85,7 @@ class OpossumModule {
         max: DiscreteConfidence.High - 1,
       }),
       copyright: faker.lorem.sentences(),
-      licenseName: faker.string.alpha({ length: 3 }).toUpperCase(),
+      licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),
       packageVersion: faker.system.semver(),
       url: faker.internet.url(),
