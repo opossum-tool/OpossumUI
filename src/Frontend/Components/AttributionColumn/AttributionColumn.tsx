@@ -107,9 +107,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
-  const wasPreferredFieldChanged: boolean =
-    initialManualDisplayPackageInfo.preferred !==
-    temporaryDisplayPackageInfo.preferred;
   const qaMode = useAppSelector(getQAMode);
 
   const {
@@ -127,7 +124,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     usePurl(
       dispatch,
       packageInfoWereModified,
-      wasPreferredFieldChanged,
       temporaryDisplayPackageInfo,
       selectedPackage,
       selectedAttributionIdInAttributionView,

@@ -251,7 +251,6 @@ export function getMergeButtonsDisplayState(currentState: {
 export function usePurl(
   dispatch: AppThunkDispatch,
   packageInfoWereModified: boolean,
-  wasPreferredFieldChanged: boolean,
   temporaryDisplayPackageInfo: DisplayPackageInfo,
   selectedPackage: PanelPackage | null,
   selectedAttributionId: string | null,
@@ -275,8 +274,6 @@ export function usePurl(
 
   const savingStatus = isAllSavingDisabled
     ? AllowedSaveOperations.None
-    : wasPreferredFieldChanged
-    ? AllowedSaveOperations.Local
     : AllowedSaveOperations.All;
 
   useEffect(() => {
