@@ -3001,10 +3001,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/electron-devtools-installer@npm:^2.2.4":
-  version: 2.2.4
-  resolution: "@types/electron-devtools-installer@npm:2.2.4"
-  checksum: cdf8c9beedfc6b461f6b2715f9f8f935ca01b6af314c4fe1bb62539a7aec9530101284f1eed63bc2e97d400886f80913177a368e5c1c9028785c2f47041243d0
+"@types/electron-devtools-installer@npm:^2.2.5":
+  version: 2.2.5
+  resolution: "@types/electron-devtools-installer@npm:2.2.5"
+  checksum: 0c2d29a27049488dcfd14bf2219e1eaab30749c6a8f435037295d043d05b7e905f96602beeb054f799696b1cd3854bfb71daec3d5c75a3a57242321fce11d612
   languageName: node
   linkType: hard
 
@@ -8887,7 +8887,7 @@ __metadata:
     "@testing-library/react": "npm:^14.1.0"
     "@trivago/prettier-plugin-sort-imports": "npm:^4.3.0"
     "@types/babel__core": "npm:^7"
-    "@types/electron-devtools-installer": "npm:^2.2.4"
+    "@types/electron-devtools-installer": "npm:^2.2.5"
     "@types/jest": "npm:^29.5.8"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.14.201"
