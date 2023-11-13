@@ -56,8 +56,6 @@ describe('The GoToLinkButton', () => {
     store.dispatch(setSelectedResourceId(parentPath));
     store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 
-    expect(screen.getByLabelText('link to open')).toHaveStyle(
-      'visibility: hidden',
-    );
+    expect(screen.queryByLabelText('link to open')).not.toBeInTheDocument();
   });
 });

@@ -2,62 +2,64 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import MuiBox from '@mui/material/Box';
-import MuiTooltip from '@mui/material/Tooltip';
-import MuiTypography from '@mui/material/Typography';
-import { SxProps } from '@mui/system';
+import { compact } from 'lodash';
 import { ReactElement } from 'react';
 
-import { OpossumColors, tooltipStyle } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
-import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
+import { clickableIcon } from '../../shared-styles';
+import { setSelectedResourceIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
+import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
+import { IconButton } from '../IconButton/IconButton';
 
 const classes = {
   root: {
-    paddingLeft: '6px',
-    height: '24px',
+    padding: '0 6px',
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    background: OpossumColors.white,
   },
-  leftEllipsis: {
-    textOverflow: 'ellipsis',
-    overflowX: 'hidden',
-    whiteSpace: 'nowrap',
-    direction: 'rtl',
-  },
-  tooltip: tooltipStyle,
 };
 
-interface PathBarProps {
-  sx?: SxProps;
-}
-export function PathBar(props: PathBarProps): ReactElement | null {
-  const path = useAppSelector(getSelectedResourceId);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
+export function PathBar(): ReactElement | null {
+  const resourceId = useAppSelector(getSelectedResourceId);
+  const dispatch = useAppDispatch();
 
-  return path ? (
-    <MuiBox
-      sx={getSxFromPropsAndClasses({
-        styleClass: classes.root,
-        sxProps: props.sx,
-      })}
-    >
-      <MuiTooltip sx={classes.tooltip} title={path}>
-        <MuiTypography sx={classes.leftEllipsis} variant={'subtitle1'}>
-          <bdi>
-            {removeTrailingSlashIfFileWithChildren(path, isFileWithChildren)}
-          </bdi>
-        </MuiTypography>
-      </MuiTooltip>
+  const pathElements = compact(resourceId.split('/'));
+
+  const getPathToResource = (resourceName: string): string => {
+    const elements = resourceId.split('/');
+    return elements
+      .slice(0, elements.indexOf(resourceName) + 1)
+      .concat('')
+      .join('/');
+  };
+
+  return pathElements.length > 0 ? (
+    <MuiBox aria-label={'path bar'} sx={classes.root}>
+      <IconButton
+        icon={<ContentCopyIcon aria-label={'copy path'} sx={clickableIcon} />}
+        onClick={async (): Promise<void> => {
+          await navigator.clipboard.writeText(pathElements.join('/'));
+        }}
+        tooltipPlacement={'left'}
+        tooltipTitle={'copy path to clipboard'}
+        aria-label={'copy path'}
+      />
       <GoToLinkButton />
+      <Breadcrumbs
+        idsToDisplayValues={pathElements.map((element) => [element, element])}
+        maxItems={5}
+        onClick={(id): void =>
+          dispatch(
+            setSelectedResourceIdOrOpenUnsavedPopup(getPathToResource(id)),
+          )
+        }
+        key={resourceId}
+        selectedId={pathElements[pathElements.length - 1]}
+      />
     </MuiBox>
   ) : null;
 }
