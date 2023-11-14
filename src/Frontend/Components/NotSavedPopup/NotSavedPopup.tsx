@@ -88,6 +88,7 @@ export function NotSavedPopup(): ReactElement {
         buttonText: ButtonText.Cancel,
       }}
       isOpen={true}
+      aria-label={'not saved popup'}
     />
   );
 }

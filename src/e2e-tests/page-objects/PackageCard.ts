@@ -89,6 +89,10 @@ export class PackageCard {
     return this.node(packageInfo).getByRole('button').getByLabel('add');
   }
 
+  public wasPreferredIcon(packageInfo: PackageInfo): Locator {
+    return this.node(packageInfo).getByLabel('was preferred icon');
+  }
+
   public assert = {
     isVisible: async (
       packageInfo: PackageInfo,
@@ -110,6 +114,16 @@ export class PackageCard {
     },
     addButtonIsHidden: async (packageInfo: PackageInfo): Promise<void> => {
       await expect(this.addButton(packageInfo)).toBeHidden();
+    },
+    wasPreferredIconIsVisible: async (
+      packageInfo: PackageInfo,
+    ): Promise<void> => {
+      await expect(this.wasPreferredIcon(packageInfo)).toBeVisible();
+    },
+    wasPreferredIconIsHidden: async (
+      packageInfo: PackageInfo,
+    ): Promise<void> => {
+      await expect(this.wasPreferredIcon(packageInfo)).toBeHidden();
     },
     checkboxIsChecked: async (packageInfo: PackageInfo): Promise<void> => {
       await expect(this.checkbox(packageInfo)).toBeChecked();

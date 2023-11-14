@@ -15,12 +15,9 @@ import { checkboxClass } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { prettifySource } from '../../util/prettify-source';
-import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Dropdown } from '../InputElements/Dropdown';
-import { NumberBox } from '../InputElements/NumberBox';
 import { TextBox } from '../InputElements/TextBox';
 import { TextFieldStack } from '../TextFieldStack/TextFieldStack';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -42,7 +39,6 @@ const classes = {
 interface AuditingSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  showManualAttributionData: boolean;
   isCommentsBoxCollapsed: boolean;
   commentBoxHeight: number;
   followUpChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
@@ -58,7 +54,6 @@ interface AuditingSubPanelProps {
 
 export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
   const attributionSources = useAppSelector(getExternalAttributionSources);
-  const handleChange = usePackageInfoChangeHandler();
 
   return (
     <MuiPaper sx={classes.panel} elevation={0} square={true}>
@@ -84,7 +79,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
           checked={Boolean(props.displayPackageInfo.excludeFromNotice)}
           onChange={props.excludeFromNoticeChangeHandler}
         />
-        {props.showManualAttributionData ? (
+        {
           <Dropdown
             sx={classes.confidenceDropDown}
             isEditable={props.isEditable}
@@ -105,25 +100,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
               },
             ]}
           />
-        ) : (
-          <NumberBox
-            sx={classes.confidenceDropDown}
-            title={'Confidence'}
-            handleChange={handleChange('attributionConfidence')}
-            isEditable={props.isEditable}
-            step={1}
-            min={0}
-            max={100}
-            value={props.displayPackageInfo.attributionConfidence}
-            isHighlighted={
-              props.showHighlight &&
-              isImportantAttributionInformationMissing(
-                'attributionConfidence',
-                props.displayPackageInfo,
-              )
-            }
-          />
-        )}
+        }
         {props.displayPackageInfo.source ? (
           <TextBox
             isEditable={false}

@@ -14,6 +14,7 @@ module.exports = {
   },
   setupFilesAfterEnv: ['./setupTests.ts'],
   watchAll: false,
+  roots: ['<rootDir>/src/Frontend', '<rootDir>/src/ElectronBackend'],
   modulePathIgnorePatterns: ['<rootDir>/build/'],
   watchPlugins: [
     'jest-watch-typeahead/filename',

@@ -4,9 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, Page } from '@playwright/test';
 
+import { RawFrequentLicense } from '../../ElectronBackend/types/types';
 import { DiscreteConfidence, PackageInfo } from '../../shared/shared-types';
 
 export class AttributionDetails {
+  private readonly window: Page;
   private readonly node: Locator;
   readonly type: Locator;
   readonly namespace: Locator;
@@ -18,7 +20,6 @@ export class AttributionDetails {
   readonly licenseName: Locator;
   readonly licenseText: Locator;
   readonly licenseTextToggleButton: Locator;
-  readonly comment: Locator;
   readonly confidence: Locator;
   readonly confirmButton: Locator;
   readonly confirmGloballyButton: Locator;
@@ -38,6 +39,7 @@ export class AttributionDetails {
   };
 
   constructor(window: Page) {
+    this.window = window;
     this.node = window.getByLabel('attribution column');
     this.type = this.node.getByLabel('Package Type', { exact: true });
     this.namespace = this.node.getByLabel('Package Namespace', {
@@ -56,7 +58,6 @@ export class AttributionDetails {
       { exact: true },
     );
     this.licenseTextToggleButton = this.node.getByLabel('license text toggle');
-    this.comment = this.node.getByLabel('Comment', { exact: true });
     this.confidence = this.node.getByRole('combobox', {
       name: 'Confidence',
     });
@@ -112,13 +113,25 @@ export class AttributionDetails {
     };
   }
 
+  public comment(number = 0): Locator {
+    return this.node.getByLabel(number ? `Comment ${number}` : 'Comment', {
+      exact: true,
+    });
+  }
+
   public assert = {
+    isVisible: async (): Promise<void> => {
+      await expect(this.node).toBeVisible();
+    },
+    isHidden: async (): Promise<void> => {
+      await expect(this.node).toBeHidden();
+    },
     isEmpty: async (): Promise<void> => {
       await expect(this.name).toBeEmpty();
       await expect(this.version).toBeEmpty();
       await expect(this.purl).toBeEmpty();
       await expect(this.url).toBeEmpty();
-      await expect(this.comment).toBeEmpty();
+      await expect(this.comment()).toBeEmpty();
       await expect(this.licenseName).toBeEmpty();
       await this.assert.confidenceIs(DiscreteConfidence.High);
     },
@@ -160,12 +173,13 @@ export class AttributionDetails {
     licenseTextIsHidden: async (): Promise<void> => {
       await expect(this.licenseText).toBeHidden();
     },
-    commentIs: async (comment: string): Promise<void> => {
-      await expect(this.comment).toHaveValue(comment);
+    commentIs: async (comment: string, number = 0): Promise<void> => {
+      await expect(this.comment(number)).toHaveValue(comment);
     },
     matchPackageInfo: async ({
       attributionConfidence,
       comment,
+      comments,
       copyright,
       licenseName,
       licenseText,
@@ -174,7 +188,7 @@ export class AttributionDetails {
       packageType,
       packageVersion,
       url,
-    }: PackageInfo): Promise<void> => {
+    }: PackageInfo & { comments?: string[] }): Promise<void> => {
       await Promise.all([
         ...(packageType ? [this.assert.typeIs(packageType)] : []),
         ...(packageNamespace
@@ -187,10 +201,39 @@ export class AttributionDetails {
         ...(licenseName ? [this.assert.licenseNameIs(licenseName)] : []),
         ...(licenseText ? [this.assert.licenseTextIs(licenseText)] : []),
         ...(comment ? [this.assert.commentIs(comment)] : []),
+        ...(comments
+          ? comments.map((item, index) =>
+              this.assert.commentIs(item, index + 1),
+            )
+          : []),
         ...(attributionConfidence
           ? [this.assert.confidenceIs(attributionConfidence)]
           : []),
       ]);
+    },
+    saveButtonIsVisible: async (): Promise<void> => {
+      await expect(this.saveButton).toBeVisible();
+    },
+    saveButtonIsHidden: async (): Promise<void> => {
+      await expect(this.saveButton).toBeHidden();
+    },
+    saveButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.saveButton).toBeEnabled();
+    },
+    saveButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.saveButton).toBeDisabled();
+    },
+    saveGloballyButtonIsVisible: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeVisible();
+    },
+    saveGloballyButtonIsHidden: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeHidden();
+    },
+    saveGloballyButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeEnabled();
+    },
+    saveGloballyButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeDisabled();
     },
     confirmButtonIsVisible: async (): Promise<void> => {
       await expect(this.confirmButton).toBeVisible();
@@ -214,13 +257,33 @@ export class AttributionDetails {
     ): Promise<void> => {
       await expect(this.hamburgerMenu[button]).toBeHidden();
     },
+    buttonInHamburgerMenuIsEnabled: async (
+      button: keyof typeof this.hamburgerMenu,
+    ): Promise<void> => {
+      await expect(this.hamburgerMenu[button]).toBeEnabled();
+    },
+    buttonInHamburgerMenuIsDisabled: async (
+      button: keyof typeof this.hamburgerMenu,
+    ): Promise<void> => {
+      await expect(this.hamburgerMenu[button]).toBeDisabled();
+    },
   };
 
   async openHamburgerMenu(): Promise<void> {
     await this.hamburgerMenuButton.click();
   }
 
+  async closeHamburgerMenu(): Promise<void> {
+    await this.window.keyboard.press('Escape');
+  }
+
   async toggleLicenseTextVisibility(): Promise<void> {
     await this.licenseTextToggleButton.click();
+  }
+
+  async selectLicense(license: RawFrequentLicense): Promise<void> {
+    await this.window
+      .getByText(`${license.shortName} - ${license.fullName}`)
+      .click();
   }
 }

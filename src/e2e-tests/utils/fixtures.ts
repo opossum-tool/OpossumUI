@@ -20,6 +20,8 @@ import { ErrorPopup } from '../page-objects/ErrorPopup';
 import { FileSearchPopup } from '../page-objects/FileSearchPopup';
 import { FileSupportPopup } from '../page-objects/FileSupportPopup';
 import { MenuBar } from '../page-objects/MenuBar';
+import { ModifyWasPreferredAttributionPopup } from '../page-objects/ModifyWasPreferredAttributionPopup';
+import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
 import { ReplaceAttributionPopup } from '../page-objects/ReplaceAttributionPopup';
@@ -47,6 +49,8 @@ export const test = base.extend<{
   fileSearchPopup: FileSearchPopup;
   fileSupportPopup: FileSupportPopup;
   menuBar: MenuBar;
+  modifyWasPreferredAttributionPopup: ModifyWasPreferredAttributionPopup;
+  notSavedPopup: NotSavedPopup;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
   replaceAttributionPopup: ReplaceAttributionPopup;
@@ -138,6 +142,12 @@ export const test = base.extend<{
   },
   reportView: async ({ window }, use) => {
     await use(new ReportView(window));
+  },
+  modifyWasPreferredAttributionPopup: async ({ window }, use) => {
+    await use(new ModifyWasPreferredAttributionPopup(window));
+  },
+  notSavedPopup: async ({ window }, use) => {
+    await use(new NotSavedPopup(window));
   },
 });
 

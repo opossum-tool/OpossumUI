@@ -89,6 +89,7 @@ export function ModifyWasPreferredAttributionPopup(): ReactElement {
         buttonText: ButtonText.Cancel,
       }}
       isOpen={true}
+      aria-label={'modify was preferred attribution popup'}
     />
   );
 }

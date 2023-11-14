@@ -219,12 +219,14 @@ export interface QAModeArgs {
   qaMode: boolean;
 }
 
+export interface ExternalAttributionSource {
+  name: string;
+  priority: number;
+  isRelevantForPreferred?: boolean;
+}
+
 export interface ExternalAttributionSources {
-  [source: string]: {
-    name: string;
-    priority: number;
-    isRelevantForPreferred?: boolean;
-  };
+  [source: string]: ExternalAttributionSource;
 }
 
 export interface FileSupportPopupArgs {
