@@ -340,7 +340,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           temporaryDisplayPackageInfo,
           dispatch,
         )}
-        showManualAttributionData={props.showManualAttributionData}
         showHighlight={showHighlight}
       />
       <ButtonRow

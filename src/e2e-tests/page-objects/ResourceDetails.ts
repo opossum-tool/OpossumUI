@@ -19,6 +19,7 @@ export class ResourceDetails {
   readonly attributionsInFolderContentToggle: Locator;
   readonly openResourceUrlButton: Locator;
   readonly overrideParentButton: Locator;
+  readonly addNewAttributionButton: Locator;
   readonly localTab: Locator;
   readonly globalTab: Locator;
   readonly attributionCard: PackageCard;
@@ -53,6 +54,9 @@ export class ResourceDetails {
     this.overrideParentButton = this.attributions.getByRole('button', {
       name: 'override parent',
     });
+    this.addNewAttributionButton = this.node.getByLabel(
+      'package card Add new attribution',
+    );
     this.localTab = this.node.getByLabel('local tab');
     this.globalTab = this.node.getByLabel('global tab');
     this.attributionCard = new PackageCard(window, this.attributions);
@@ -64,6 +68,12 @@ export class ResourceDetails {
       await expect(
         this.node.getByText(faker.opossum.filePath(...elements)),
       ).toBeVisible();
+    },
+    globalTabIsEnabled: async (): Promise<void> => {
+      await expect(this.globalTab).toBeEnabled();
+    },
+    globalTabIsDisabled: async (): Promise<void> => {
+      await expect(this.globalTab).toBeDisabled();
     },
     signalsAccordionIsVisible: async (): Promise<void> => {
       await expect(this.signalsToggle).toBeVisible();
@@ -88,6 +98,12 @@ export class ResourceDetails {
     },
     overrideParentButtonIsHidden: async (): Promise<void> => {
       await expect(this.overrideParentButton).toBeHidden();
+    },
+    addNewAttributionButtonIsVisible: async (): Promise<void> => {
+      await expect(this.addNewAttributionButton).toBeVisible();
+    },
+    addNewAttributionButtonIsHidden: async (): Promise<void> => {
+      await expect(this.addNewAttributionButton).toBeHidden();
     },
   };
 

@@ -8,6 +8,7 @@ import type {
   RawPackageInfo as ExternalPackageInfo,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
+  RawFrequentLicense,
 } from '../ElectronBackend/types/types';
 import {
   BaseUrlsForSources,
@@ -62,7 +63,7 @@ class OpossumModule {
         max: DiscreteConfidence.High - 1,
       }),
       copyright: faker.lorem.sentences(),
-      licenseName: faker.commerce.productName(),
+      licenseName: faker.string.alpha({ length: 3 }).toUpperCase(),
       packageName: faker.internet.domainWord(),
       packageVersion: faker.system.semver(),
       url: faker.internet.url(),
@@ -169,6 +170,19 @@ class OpossumModule {
       ...(props || {
         [source.name]: this.externalAttributionSource(),
       }),
+    };
+  }
+
+  public static license(
+    props?: Partial<RawFrequentLicense>,
+  ): RawFrequentLicense {
+    const fullName = faker.commerce.productName();
+
+    return {
+      defaultText: faker.lorem.sentences(),
+      fullName,
+      shortName: fullName.match(/\b([A-Z])/g)!.join(''),
+      ...props,
     };
   }
 
