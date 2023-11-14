@@ -5338,16 +5338,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^27.0.3":
-  version: 27.0.3
-  resolution: "electron@npm:27.0.3"
+"electron@npm:^27.0.4":
+  version: 27.0.4
+  resolution: "electron@npm:27.0.4"
   dependencies:
     "@electron/get": "npm:^2.0.0"
     "@types/node": "npm:^18.11.18"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 3abd8e966e0dcd28a11e2297b26bb86ece776756389b127d6d82a0362d3818ade8ef06605fac70af5a70cded19665724e2ebc69d0ef52a8d6dd3ab8fd9a0564b
+  checksum: 71721b1b45f5d13400bf2b289591fbe511653487134699bf5cc9139c85f2ce2b63cdaa4b5716a0f878ecb626ea2edbf0091652ba45c80c041929cacfd95d0183
   languageName: node
   linkType: hard
 
@@ -8907,7 +8907,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     buffer: "npm:^6.0.3"
     cross-env: "npm:^7.0.3"
-    electron: "npm:^27.0.3"
+    electron: "npm:^27.0.4"
     electron-builder: "npm:^24.8.1"
     electron-devtools-installer: "npm:^3.2.0"
     electron-is-dev: "npm:^2.0.0"
