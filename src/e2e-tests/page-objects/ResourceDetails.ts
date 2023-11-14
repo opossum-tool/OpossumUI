@@ -69,6 +69,12 @@ export class ResourceDetails {
         this.node.getByText(faker.opossum.filePath(...elements)),
       ).toBeVisible();
     },
+    globalTabIsEnabled: async (): Promise<void> => {
+      await expect(this.globalTab).toBeEnabled();
+    },
+    globalTabIsDisabled: async (): Promise<void> => {
+      await expect(this.globalTab).toBeDisabled();
+    },
     signalsAccordionIsVisible: async (): Promise<void> => {
       await expect(this.signalsToggle).toBeVisible();
     },
@@ -92,6 +98,12 @@ export class ResourceDetails {
     },
     overrideParentButtonIsHidden: async (): Promise<void> => {
       await expect(this.overrideParentButton).toBeHidden();
+    },
+    addNewAttributionButtonIsVisible: async (): Promise<void> => {
+      await expect(this.addNewAttributionButton).toBeVisible();
+    },
+    addNewAttributionButtonIsHidden: async (): Promise<void> => {
+      await expect(this.addNewAttributionButton).toBeHidden();
     },
   };
 
