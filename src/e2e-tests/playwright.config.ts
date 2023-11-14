@@ -5,6 +5,7 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
 const CI_SINGLE_TEST_TIMEOUT = 60000;
+const GLOBAL_TIMEOUT = 300000;
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
@@ -16,6 +17,7 @@ const config: PlaywrightTestConfig = {
   reporter: process.env.CI ? 'github' : 'list',
   timeout: process.env.CI ? CI_SINGLE_TEST_TIMEOUT : undefined,
   workers: process.env.CI ? 1 : undefined,
+  globalTimeout: process.env.CI ? GLOBAL_TIMEOUT : undefined,
 };
 
 export default config;
