@@ -42,8 +42,8 @@
     "write-file-atomic": "^5.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.2",
-    "@babel/preset-env": "^7.23.2",
+    "@babel/core": "^7.23.3",
+    "@babel/preset-env": "^7.23.3",
     "@faker-js/faker": "^8.2.0",
     "@playwright/test": "^1.39.0",
     "@testing-library/dom": "^9.3.3",
