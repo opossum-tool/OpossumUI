@@ -17,13 +17,9 @@
   minimumReleaseAge: '1 day',
   packageRules: [
     {
-      matchPackagePrefixes: [
-        '@fakerjs/',
-        '@testing-library/',
-        'eslint-',
-        '@babel/',
-      ],
+      matchPackagePrefixes: ['@testing-library/', 'eslint-', '@babel/'],
       matchPackageNames: [
+        '@faker-js/faker',
         '@tanstack/react-query',
         '@trivago/prettier-plugin-sort-imports',
         'axios',
