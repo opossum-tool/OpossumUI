@@ -8,10 +8,11 @@ import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
-import { ReactElement, useEffect } from 'react';
+import { noop } from 'lodash';
+import { ReactElement } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import { ButtonConfig } from '../../types/types';
-import { doNothing } from '../../util/do-nothing';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 import { Button } from '../Button/Button';
 
@@ -38,29 +39,7 @@ interface NotificationPopupProps {
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
-  const onEscapeKeyDown = props.onEscapeKeyDown
-    ? props.onEscapeKeyDown
-    : doNothing;
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        onEscapeKeyDown();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return (): void => window.removeEventListener('keydown', onKeyDown);
-  }, [onEscapeKeyDown]);
-
-  function handleOnClose(_: unknown, reason: string): void {
-    switch (reason) {
-      case 'backdropClick':
-        if (props.onBackdropClick) {
-          props.onBackdropClick();
-        }
-        break;
-    }
-  }
+  useHotkeys('esc', props.onEscapeKeyDown || noop, [props.onEscapeKeyDown]);
 
   return (
     <MuiDialog
@@ -68,7 +47,9 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       maxWidth={'xl'}
       open={props.isOpen}
       disableEscapeKeyDown={true}
-      onClose={handleOnClose}
+      onClose={(_, reason) =>
+        reason === 'backdropClick' && props.onBackdropClick?.()
+      }
       PaperProps={{ sx: props.fullHeight ? classes.fullHeightPaper : {} }}
       aria-label={props['aria-label']}
     >

@@ -39,7 +39,9 @@ describe('The GoToLinkButton', () => {
       });
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(0);
-      expect(screen.getByLabelText('link to open'));
+      expect(
+        screen.getByLabelText('Open resource in browser'),
+      ).toBeInTheDocument();
       clickGoToLinkIcon(screen, 'link to open');
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
@@ -56,6 +58,6 @@ describe('The GoToLinkButton', () => {
     store.dispatch(setSelectedResourceId(parentPath));
     store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 
-    expect(screen.queryByLabelText('link to open')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('No link available')).toBeInTheDocument();
   });
 });

@@ -18,12 +18,15 @@ export class ResourceDetails {
   readonly attributionsInFolderContentToggle: Locator;
   readonly openResourceUrlButton: Locator;
   readonly copyPathButton: Locator;
+  readonly goBackButton: Locator;
+  readonly goForwardButton: Locator;
   readonly overrideParentButton: Locator;
   readonly addNewAttributionButton: Locator;
   readonly localTab: Locator;
   readonly globalTab: Locator;
   readonly attributionCard: PackageCard;
   readonly signalCard: PackageCard;
+  readonly pathBar: Locator;
 
   constructor(window: Page) {
     this.node = window.getByLabel('resource details');
@@ -52,6 +55,10 @@ export class ResourceDetails {
       .getByRole('button')
       .getByLabel('link to open');
     this.copyPathButton = this.node.getByRole('button').getByLabel('copy path');
+    this.goBackButton = this.node.getByRole('button').getByLabel('go back');
+    this.goForwardButton = this.node
+      .getByRole('button')
+      .getByLabel('go forward');
     this.overrideParentButton = this.attributions.getByRole('button', {
       name: 'override parent',
     });
@@ -62,23 +69,29 @@ export class ResourceDetails {
     this.globalTab = this.node.getByLabel('global tab');
     this.attributionCard = new PackageCard(window, this.attributions);
     this.signalCard = new PackageCard(window, this.signals);
+    this.pathBar = this.node.getByLabel('path bar');
   }
 
   public assert = {
-    resourcePathIsVisible: async (...elements: string[]): Promise<void> => {
+    breadcrumbsAreVisible: async (...breadcrumbs: string[]): Promise<void> => {
       await Promise.all(
-        elements.map((element) =>
-          expect(
-            this.node.getByLabel('path bar').getByText(element),
-          ).toBeVisible(),
+        breadcrumbs.map((crumb) =>
+          expect(this.pathBar.getByText(crumb)).toBeVisible(),
         ),
       );
     },
-    openResourceUrlButtonIsVisible: async (): Promise<void> => {
-      await expect(this.openResourceUrlButton).toBeVisible();
+    breadcrumbsAreHidden: async (...breadcrumbs: string[]): Promise<void> => {
+      await Promise.all(
+        breadcrumbs.map((crumb) =>
+          expect(this.pathBar.getByText(crumb)).toBeHidden(),
+        ),
+      );
     },
-    openResourceUrlButtonIsHidden: async (): Promise<void> => {
-      await expect(this.openResourceUrlButton).toBeHidden();
+    openResourceUrlButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.openResourceUrlButton).toBeEnabled();
+    },
+    openResourceUrlButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.openResourceUrlButton).toBeDisabled();
     },
     globalTabIsEnabled: async (): Promise<void> => {
       await expect(this.globalTab).toBeEnabled();
@@ -116,6 +129,18 @@ export class ResourceDetails {
     addNewAttributionButtonIsHidden: async (): Promise<void> => {
       await expect(this.addNewAttributionButton).toBeHidden();
     },
+    goBackButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.goBackButton).toBeDisabled();
+    },
+    goBackButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.goBackButton).toBeEnabled();
+    },
+    goForwardButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.goForwardButton).toBeDisabled();
+    },
+    goForwardButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.goForwardButton).toBeEnabled();
+    },
   };
 
   async openResourceUrl(): Promise<void> {
@@ -128,5 +153,9 @@ export class ResourceDetails {
 
   async gotoGlobalTab(): Promise<void> {
     await this.globalTab.click();
+  }
+
+  async clickOnBreadcrumb(crumb: string): Promise<void> {
+    await this.pathBar.getByText(crumb).click();
   }
 }

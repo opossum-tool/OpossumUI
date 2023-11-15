@@ -3,10 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/system';
-import { ReactElement } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 
 import { List } from '../../Components/List/List';
 import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
+import { usePrevious } from '../../util/use-previous';
 import { NodeIdPredicateForTree, NodesForTree, TreeNodeStyle } from './types';
 import { getTreeNodeProps } from './utils/get-tree-node-props';
 import {
@@ -43,6 +44,7 @@ interface VirtualizedTreeProps {
 export function VirtualizedTree(
   props: VirtualizedTreeProps,
 ): ReactElement | null {
+  const previousSelectedNodeId = usePrevious(props.selectedNodeId);
   const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
     props.nodes,
     '',
@@ -57,9 +59,28 @@ export function VirtualizedTree(
     props.breakpoints,
   );
 
-  const indexToScrollTo = treeNodeProps.findIndex(
-    (itemData) => itemData.nodeId === props.selectedNodeId,
+  const [indexToScrollTo, setIndexToScrollTo] = useState(0);
+  const newIndex = useMemo(
+    () =>
+      treeNodeProps.findIndex((datum) => datum.nodeId === props.selectedNodeId),
+    [props.selectedNodeId, treeNodeProps],
   );
+  const previousIndex = usePrevious(newIndex, 0);
+
+  useEffect(() => {
+    if (
+      (previousSelectedNodeId !== props.selectedNodeId || previousIndex < 0) &&
+      newIndex > 0
+    ) {
+      setIndexToScrollTo(newIndex);
+    }
+  }, [
+    newIndex,
+    previousIndex,
+    previousSelectedNodeId,
+    props.expandedIds,
+    props.selectedNodeId,
+  ]);
 
   return props.nodes ? (
     <ResizableBox

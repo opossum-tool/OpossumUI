@@ -38,11 +38,11 @@ test('displays an error if user attempts to open invalid resource URL', async ({
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1, resourceName3);
-  await resourceDetails.assert.resourcePathIsVisible(
+  await resourceDetails.assert.breadcrumbsAreVisible(
     resourceName1,
     resourceName3,
   );
-  await resourceDetails.assert.openResourceUrlButtonIsVisible();
+  await resourceDetails.assert.openResourceUrlButtonIsEnabled();
 
   await resourceDetails.openResourceUrl();
   await errorPopup.assert.isVisible();
@@ -52,5 +52,5 @@ test('displays an error if user attempts to open invalid resource URL', async ({
   await errorPopup.assert.isHidden();
 
   await resourceBrowser.goto(resourceName2);
-  await resourceDetails.assert.openResourceUrlButtonIsHidden();
+  await resourceDetails.assert.openResourceUrlButtonIsDisabled();
 });

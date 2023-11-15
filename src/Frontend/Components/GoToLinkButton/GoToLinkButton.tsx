@@ -8,7 +8,7 @@ import { ReactElement } from 'react';
 
 import { OpenLinkArgs } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
-import { clickableIcon } from '../../shared-styles';
+import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { getParents } from '../../state/helpers/get-parents';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -79,16 +79,24 @@ export function GoToLinkButton(): ReactElement | null {
     });
   }
 
-  return openLinkArgs.link ? (
+  return (
     <IconButton
       tooltipTitle={
-        isLocalLink(openLinkArgs.link)
-          ? 'open file'
-          : 'open resource in browser'
+        openLinkArgs.link
+          ? isLocalLink(openLinkArgs.link)
+            ? 'Open file'
+            : 'Open resource in browser'
+          : 'No link available'
       }
       tooltipPlacement="left"
       onClick={onClick}
-      icon={<OpenInNewIcon sx={clickableIcon} aria-label={'link to open'} />}
+      icon={
+        <OpenInNewIcon
+          sx={openLinkArgs.link ? clickableIcon : disabledIcon}
+          aria-label={'link to open'}
+        />
+      }
+      disabled={!openLinkArgs.link}
     />
-  ) : null;
+  );
 }

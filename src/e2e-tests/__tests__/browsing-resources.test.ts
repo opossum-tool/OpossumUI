@@ -43,7 +43,7 @@ test.use({
   },
 });
 
-test('shows expected resources as user browses through resources or clicks on progress bar', async ({
+test('shows expected resources as user browses through resources', async ({
   projectStatisticsPopup,
   resourceBrowser,
 }) => {
@@ -92,4 +92,62 @@ test('cycles through resources as user clicks on progress bar', async ({
 
   await topBar.progressBar.click();
   await resourceDetails.signalCard.assert.isVisible(packageInfo2);
+});
+
+test('shows expected breadcrumbs as user navigates through path bar', async ({
+  modKey,
+  projectStatisticsPopup,
+  resourceBrowser,
+  resourceDetails,
+  window,
+}) => {
+  await projectStatisticsPopup.close();
+  await resourceBrowser.gotoRoot();
+  await resourceDetails.assert.goBackButtonIsDisabled();
+  await resourceDetails.assert.goForwardButtonIsDisabled();
+
+  await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
+  await resourceDetails.assert.goBackButtonIsEnabled();
+  await resourceDetails.assert.goForwardButtonIsDisabled();
+  await resourceDetails.assert.breadcrumbsAreVisible(
+    resourceName1,
+    resourceName2,
+    resourceName3,
+  );
+
+  await resourceDetails.goBackButton.click();
+  await resourceDetails.assert.goForwardButtonIsEnabled();
+  await resourceDetails.assert.breadcrumbsAreVisible(
+    resourceName1,
+    resourceName2,
+  );
+  await resourceDetails.assert.breadcrumbsAreHidden(resourceName3);
+
+  await resourceDetails.goForwardButton.click();
+  await resourceDetails.assert.breadcrumbsAreVisible(
+    resourceName1,
+    resourceName2,
+    resourceName3,
+  );
+
+  await resourceDetails.clickOnBreadcrumb(resourceName1);
+  await resourceDetails.assert.breadcrumbsAreVisible(resourceName1);
+  await resourceDetails.assert.breadcrumbsAreHidden(
+    resourceName2,
+    resourceName3,
+  );
+
+  await window.keyboard.press(`${modKey}+ArrowLeft`);
+  await resourceDetails.assert.breadcrumbsAreVisible(
+    resourceName1,
+    resourceName2,
+    resourceName3,
+  );
+
+  await window.keyboard.press(`${modKey}+ArrowRight`);
+  await resourceDetails.assert.breadcrumbsAreVisible(resourceName1);
+  await resourceDetails.assert.breadcrumbsAreHidden(
+    resourceName2,
+    resourceName3,
+  );
 });

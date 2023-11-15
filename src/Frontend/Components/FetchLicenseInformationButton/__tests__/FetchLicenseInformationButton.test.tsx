@@ -36,6 +36,8 @@ import {
 } from '../github-fetching-helpers';
 import { getPypiAPIUrl } from '../pypi-fetching-helpers';
 
+jest.useFakeTimers();
+
 const axiosMock = new MockAdapter(axios);
 
 describe('FetchLicenseInformationButton', () => {
@@ -82,6 +84,7 @@ describe('FetchLicenseInformationButton', () => {
 
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseOver(screen.getByRole('button'));
+      jest.runAllTimers();
 
       expect(await screen.findByText('Network Error')).toBeInTheDocument();
     });
@@ -98,6 +101,7 @@ describe('FetchLicenseInformationButton', () => {
 
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseOver(screen.getByRole('button'));
+      jest.runAllTimers();
 
       expect(
         await screen.findByText('Request failed with status code 404'),
@@ -121,6 +125,7 @@ describe('FetchLicenseInformationButton', () => {
 
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseOver(screen.getByRole('button'));
+      jest.runAllTimers();
 
       expect(await screen.findByText(FETCH_DATA_TOOLTIP)).toBeInTheDocument();
     });
