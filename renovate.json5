@@ -112,5 +112,10 @@
       groupSlug: 'jest',
       automerge: true,
     },
+    {
+      description: 'Ignore "engines" field in package.json',
+      matchDepTypes: ['engines'],
+      enabled: false,
+    },
   ],
 }

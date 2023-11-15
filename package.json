@@ -175,7 +175,7 @@
     "semver": "^7.5.2"
   },
   "engines": {
-    "node": ">=18.18.2"
+    "node": ">=18.0.0"
   },
-  "packageManager": "yarn@4.0.1"
+  "packageManager": "yarn@4.0.2"
 }
