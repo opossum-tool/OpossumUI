@@ -1868,10 +1868,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "@faker-js/faker@npm:8.2.0"
-  checksum: 8be9ce50538b12abdd9c2c94a9e23b991826b42f4706cb703f1d37cac8c9042d6549905959f3fd9abdd3a22f7b6095ddbae6f4269250158bd35a4ca1a5de55e8
+"@faker-js/faker@npm:^8.3.0":
+  version: 8.3.1
+  resolution: "@faker-js/faker@npm:8.3.1"
+  checksum: 66b25cb82af907ff127767b54a5d6e95919c8051cd2de9131a6f5dd45dc539ebfbafad66e590e603e347e4c411f0f83c28e70043024af66faebba49d9868c263
   languageName: node
   linkType: hard
 
@@ -8850,7 +8850,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.23.3"
     "@emotion/react": "npm:^11.11.1"
     "@emotion/styled": "npm:^11.11.0"
-    "@faker-js/faker": "npm:^8.2.0"
+    "@faker-js/faker": "npm:^8.3.0"
     "@mui/icons-material": "npm:^5.14.18"
     "@mui/material": "npm:^5.14.18"
     "@mui/system": "npm:^5.14.18"
