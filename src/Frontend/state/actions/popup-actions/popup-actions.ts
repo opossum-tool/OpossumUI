@@ -166,9 +166,8 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavi
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
     const attributionId = getCurrentAttributionId(getState()) as string;
-    const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
-      getState(),
-    );
+    const temporaryDisplayPackageInfo =
+      getTemporaryDisplayPackageInfo(getState());
     if (getIsSavingDisabled(getState())) {
       dispatch(closePopup());
       dispatch(openPopup(PopupType.UnableToSavePopup));
@@ -188,9 +187,8 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavi
 export function checkIfWasPreferredAndShowWarningOrUnlinkAndSave(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const currentAttributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
-      getState(),
-    );
+    const temporaryDisplayPackageInfo =
+      getTemporaryDisplayPackageInfo(getState());
 
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(closePopup());
@@ -213,9 +211,8 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIs
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
     const attributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
-      getState(),
-    );
+    const temporaryDisplayPackageInfo =
+      getTemporaryDisplayPackageInfo(getState());
     if (getIsSavingDisabled(getState())) {
       dispatch(closePopup());
       dispatch(openPopup(PopupType.UnableToSavePopup));
@@ -235,9 +232,8 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIs
 export function checkIfWasPreferredAndShowWarningOrSave(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const currentAttributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
-      getState(),
-    );
+    const temporaryDisplayPackageInfo =
+      getTemporaryDisplayPackageInfo(getState());
 
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(closePopup());
@@ -306,9 +302,8 @@ export function openAttributionWizardPopup(
     const selectedResourceId = getSelectedResourceId(getState());
     const externalData = getExternalData(getState());
     const manualData = getManualData(getState());
-    const resolvedExternalAttributions = getResolvedExternalAttributions(
-      getState(),
-    );
+    const resolvedExternalAttributions =
+      getResolvedExternalAttributions(getState());
     const manualAttributions = manualData.attributions;
 
     const allAttributionIdsOfResourceAndChildrenWithCounts =

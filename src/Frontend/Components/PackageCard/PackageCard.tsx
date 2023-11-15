@@ -150,8 +150,8 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       criticality: props.cardConfig.isExternalAttribution
         ? props.displayPackageInfo.criticality
         : props.displayPackageInfo.preSelected
-        ? props.displayPackageInfo.criticality
-        : undefined,
+          ? props.displayPackageInfo.criticality
+          : undefined,
     };
     if (!isExternalAttribution) {
       const attributionId = attributionIds[0];

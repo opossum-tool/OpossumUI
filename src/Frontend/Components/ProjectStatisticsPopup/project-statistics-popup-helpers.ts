@@ -177,8 +177,8 @@ export function getLicenseCriticality(licenseCriticalityCounts: {
   return licenseCriticalityCounts['high'] > 0
     ? Criticality.High
     : licenseCriticalityCounts['medium'] > 0
-    ? Criticality.Medium
-    : undefined;
+      ? Criticality.Medium
+      : undefined;
 }
 
 export function getUniqueLicenseNameToAttribution(

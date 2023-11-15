@@ -30,8 +30,8 @@ export function TextBox(props: TextProps): ReactElement {
   const highlightedStyling = isDefaultHighlighting
     ? inputElementClasses.defaultHighlightedTextField
     : props.highlightingColor === HighlightingColor.DarkOrange
-    ? inputElementClasses.strongHighlightedTextField
-    : {};
+      ? inputElementClasses.strongHighlightedTextField
+      : {};
 
   const textBoxSx = getSxFromPropsAndClasses({
     sxProps: props.isHighlighted ? highlightedStyling : {},

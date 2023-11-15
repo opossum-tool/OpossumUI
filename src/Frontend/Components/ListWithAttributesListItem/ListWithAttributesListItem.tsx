@@ -110,13 +110,13 @@ export function ListWithAttributesListItem(
         ...classes.onlySingleListItemButton,
       }
     : props.isFirstItem
-    ? {
-        ...classes.listItemButton,
-        ...classes.firstListItemButton,
-      }
-    : props.isLastItem
-    ? { ...classes.listItemButton, ...classes.lastListItemButton }
-    : classes.listItemButton;
+      ? {
+          ...classes.listItemButton,
+          ...classes.firstListItemButton,
+        }
+      : props.isLastItem
+        ? { ...classes.listItemButton, ...classes.lastListItemButton }
+        : classes.listItemButton;
 
   const text =
     props.item.text || (props.emptyTextFallback ?? ITEM_TEXT_FALLBACK);

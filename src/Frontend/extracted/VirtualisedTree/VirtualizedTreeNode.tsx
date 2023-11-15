@@ -85,14 +85,14 @@ export function VirtualizedTreeNode(
             ...((isSelected(props.nodeId, props.selected)
               ? props.treeNodeStyle?.selected
               : isChildOfSelected(props.nodeId, props.selected)
-              ? !isBreakpointOrChildOfBreakpoint(
-                  props.nodeId,
-                  props.selected,
-                  props.breakpoints,
-                )
-                ? props.treeNodeStyle?.childrenOfSelected
-                : null
-              : null) || {}),
+                ? !isBreakpointOrChildOfBreakpoint(
+                    props.nodeId,
+                    props.selected,
+                    props.breakpoints,
+                  )
+                  ? props.treeNodeStyle?.childrenOfSelected
+                  : null
+                : null) || {}),
           } as SxProps
         }
         onClick={props.onClick}

@@ -88,9 +88,8 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
         dispatch(setTargetSelectedResourceId(null));
       }
     } else if (selectedView === View.Attribution) {
-      const targetSelectedAttributionId = getTargetSelectedAttributionId(
-        getState(),
-      );
+      const targetSelectedAttributionId =
+        getTargetSelectedAttributionId(getState());
       if (targetSelectedAttributionId) {
         dispatch(setSelectedAttributionId(targetSelectedAttributionId));
         dispatch(setTargetSelectedAttributionId(null));

@@ -257,8 +257,8 @@ export function ListCard(props: ListCardProps): ReactElement | null {
           ...(props.cardConfig.criticality === Criticality.High
             ? classes.highCriticality
             : props.cardConfig.criticality === Criticality.Medium
-            ? classes.mediumCriticality
-            : {}),
+              ? classes.mediumCriticality
+              : {}),
         }}
       />
     </MuiBox>

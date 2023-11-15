@@ -120,8 +120,8 @@ export function ContextMenu(props: ContextMenuProps): ReactElement | null {
           onContextMenu: handleClick,
         }
       : props.activation === 'onLeftClick'
-      ? { onClick: handleClick }
-      : { onClick: handleClick, onContextMenu: handleClick };
+        ? { onClick: handleClick }
+        : { onClick: handleClick, onContextMenu: handleClick };
 
   function handleClose(): void {
     if (props.onClose) {

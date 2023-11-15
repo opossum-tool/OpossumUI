@@ -25,8 +25,8 @@ export function usePackageInfoChangeHandler(): (
         event.target.type === 'number'
           ? parseInt(event.target.value)
           : propertyToUpdate === 'comments'
-          ? [event.target.value]
-          : event.target.value;
+            ? [event.target.value]
+            : event.target.value;
 
       dispatch(
         setTemporaryDisplayPackageInfo({

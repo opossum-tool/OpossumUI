@@ -73,11 +73,11 @@ export async function parseOpossumFile(
   return jsonParsingError
     ? jsonParsingError
     : invalidDotOpossumFileError
-    ? invalidDotOpossumFileError
-    : {
-        input: parsedInputData as ParsedOpossumInputFile,
-        output: parsedOutputData as ParsedOpossumOutputFile,
-      };
+      ? invalidDotOpossumFileError
+      : {
+          input: parsedInputData as ParsedOpossumInputFile,
+          output: parsedOutputData as ParsedOpossumOutputFile,
+        };
 }
 
 async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {

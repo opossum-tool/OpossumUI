@@ -68,9 +68,9 @@ export function ProjectLicensesTable(
                           Criticality.High
                           ? { color: OpossumColors.orange }
                           : props.licenseNamesWithCriticality[rowName] ===
-                            Criticality.Medium
-                          ? { color: OpossumColors.mediumOrange }
-                          : {}
+                              Criticality.Medium
+                            ? { color: OpossumColors.mediumOrange }
+                            : {}
                         : {}),
                     }}
                     key={columnIndex}

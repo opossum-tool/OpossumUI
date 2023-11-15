@@ -85,12 +85,12 @@ export function ReportTableHeader(): ReactElement {
                 ...(config.width === 'small'
                   ? reportTableClasses.smallTableCell
                   : config.width === 'wide'
-                  ? reportTableClasses.wideTableCell
-                  : config.width === 'medium'
-                  ? reportTableClasses.mediumTableCell
-                  : config.width === 'verySmall'
-                  ? reportTableClasses.verySmallTableCell
-                  : {}),
+                    ? reportTableClasses.wideTableCell
+                    : config.width === 'medium'
+                      ? reportTableClasses.mediumTableCell
+                      : config.width === 'verySmall'
+                        ? reportTableClasses.verySmallTableCell
+                        : {}),
                 ...reportTableClasses.tableHeader,
               }}
               key={`table-header-${config.attributionProperty}-${config.displayName}`}
