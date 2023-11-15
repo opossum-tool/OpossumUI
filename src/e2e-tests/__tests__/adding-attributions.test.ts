@@ -115,14 +115,14 @@ test('adds attribution and displays it correctly on parent and children', async 
   });
 
   await resourceDetails.signalCard.click(packageInfo4a);
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo4a,
     comment: undefined,
     comments: [packageInfo4a.comment!, packageInfo4b.comment!],
   });
 
   await resourceDetails.signalCard.addButton(packageInfo4a).click();
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo4a,
     attributionConfidence: DiscreteConfidence.High,
     comment: undefined,
@@ -141,7 +141,7 @@ test('adds attribution to child via parent override', async ({
 
   await resourceBrowser.goto(resourceName2);
   await resourceDetails.attributionCard.assert.isVisible(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await resourceDetails.assert.globalTabIsDisabled();
   await resourceDetails.assert.overrideParentButtonIsVisible();
   await attributionDetails.assert.buttonInHamburgerMenuIsHidden('deleteButton');
@@ -157,7 +157,7 @@ test('adds attribution to child via parent override', async ({
   await resourceDetails.signalCard.assert.isVisible(packageInfo3);
 
   await resourceDetails.signalCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.signalCard.addButton(packageInfo1).click();
   await resourceDetails.attributionCard.assert.isVisible(packageInfo1);
@@ -165,7 +165,7 @@ test('adds attribution to child via parent override', async ({
   await resourceDetails.signalCard.assert.isVisible(packageInfo2);
   await resourceDetails.signalCard.assert.isVisible(packageInfo3);
 
-  await attributionDetails.assert.matchPackageInfo({
+  await attributionDetails.assert.matchesPackageInfo({
     ...packageInfo1,
     attributionConfidence: DiscreteConfidence.High,
   });

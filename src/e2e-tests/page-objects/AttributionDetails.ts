@@ -176,7 +176,7 @@ export class AttributionDetails {
     commentIs: async (comment: string, number = 0): Promise<void> => {
       await expect(this.comment(number)).toHaveValue(comment);
     },
-    matchPackageInfo: async ({
+    matchesPackageInfo: async ({
       attributionConfidence,
       comment,
       comments,

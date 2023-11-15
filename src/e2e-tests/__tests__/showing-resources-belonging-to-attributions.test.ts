@@ -72,14 +72,14 @@ test('shows resources belonging to attributions', async ({
   await resourceDetails.attributionCard.contextMenu.showResourcesButton.click();
   await resourcePathPopup.goto(resourceName4);
   await resourceDetails.assert.resourcePathIsVisible(resourceName4);
-  await attributionDetails.assert.matchPackageInfo(manualPackageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo1);
 
   await resourceDetails.gotoGlobalTab();
   await resourceDetails.signalCard.openContextMenu(manualPackageInfo2);
   await resourceDetails.signalCard.contextMenu.showResourcesButton.click();
   await resourcePathPopup.goto(resourceName3);
   await resourceDetails.assert.resourcePathIsVisible(resourceName3);
-  await attributionDetails.assert.matchPackageInfo(manualPackageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo2);
 
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
@@ -87,5 +87,5 @@ test('shows resources belonging to attributions', async ({
   await attributionList.attributionCard.openContextMenu(manualPackageInfo2);
   await attributionList.attributionCard.contextMenu.showResourcesButton.click();
   await resourcePathPopup.goto(resourceName3);
-  await attributionDetails.assert.matchPackageInfo(manualPackageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo2);
 });

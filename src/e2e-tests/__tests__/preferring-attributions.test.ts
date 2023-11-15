@@ -51,7 +51,7 @@ test('allows QA user to mark and unmark attributions as preferred, but not globa
 }) => {
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.assert.matchPackageInfo(manualPackageInfo);
+  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo);
   await attributionDetails.assert.saveGloballyButtonIsDisabled();
   await attributionDetails.comment().fill(faker.lorem.sentence());
   await attributionDetails.assert.saveButtonIsEnabled();

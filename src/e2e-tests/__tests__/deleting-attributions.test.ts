@@ -59,7 +59,7 @@ test('deletes attributions via context menu', async ({
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo3);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithAttributions: 5,
@@ -77,7 +77,7 @@ test('deletes attributions via context menu', async ({
   });
 
   await resourceDetails.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.contextMenu.deleteButton.click();
@@ -89,16 +89,16 @@ test('deletes attributions via context menu', async ({
   });
 
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceDetails.gotoGlobalTab();
   await resourceDetails.signalCard.openContextMenu(packageInfo1);
   await resourceDetails.signalCard.contextMenu.deleteGloballyButton.click();
   await confirmationPopup.confirm();
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await resourceBrowser.goto(resourceName2);
   await attributionDetails.assert.isEmpty();
@@ -134,7 +134,7 @@ test('deletes attributions via hamburger menu', async ({
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.assert.matchPackageInfo(packageInfo3);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo3);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithAttributions: 5,
@@ -152,7 +152,7 @@ test('deletes attributions via hamburger menu', async ({
   });
 
   await resourceDetails.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchPackageInfo(packageInfo1);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.hamburgerMenu.deleteButton.click();
@@ -180,7 +180,7 @@ test('deletes attributions via hamburger menu', async ({
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo2);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
@@ -193,4 +193,38 @@ test('deletes attributions via hamburger menu', async ({
     numberOfFiles: 5,
     filesWithAttributions: 0,
   });
+});
+
+test('deletes multiple attributions at once in attribution view', async ({
+  attributionDetails,
+  attributionList,
+  confirmationPopup,
+  projectStatisticsPopup,
+  resourceBrowser,
+  topBar,
+}) => {
+  await projectStatisticsPopup.close();
+  await topBar.gotoAttributionView();
+  await attributionList.attributionCard.assert.checkboxIsUnchecked(
+    packageInfo1,
+  );
+  await attributionList.attributionCard.assert.checkboxIsUnchecked(
+    packageInfo2,
+  );
+
+  await attributionList.attributionCard.checkbox(packageInfo1).click();
+  await attributionList.attributionCard.checkbox(packageInfo2).click();
+  await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo1);
+  await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo2);
+
+  await attributionList.attributionCard.openContextMenu(packageInfo1);
+  await attributionList.attributionCard.contextMenu.deleteSelectedGloballyButton.click();
+  await confirmationPopup.assert.hasText('2');
+
+  await confirmationPopup.confirm();
+  await confirmationPopup.assert.isHidden();
+  await attributionList.attributionCard.assert.isHidden(packageInfo1);
+  await attributionList.attributionCard.assert.isHidden(packageInfo2);
+  await attributionDetails.assert.isHidden();
+  await resourceBrowser.assert.isHidden();
 });

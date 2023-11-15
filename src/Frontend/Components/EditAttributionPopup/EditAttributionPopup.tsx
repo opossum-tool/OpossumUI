@@ -104,6 +104,7 @@ export function EditAttributionPopup(): ReactElement {
       }}
       onBackdropClick={checkForModifiedPackageInfoBeforeClosing}
       onEscapeKeyDown={checkForModifiedPackageInfoBeforeClosing}
+      aria-label={'edit attribution popup'}
     />
   );
 }

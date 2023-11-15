@@ -49,5 +49,5 @@ test('opens resource search popup which closes and displays resource details whe
   );
 
   await fileSearchPopup.gotoHit(resourceName1, resourceName2);
-  await attributionDetails.assert.matchPackageInfo(packageInfo);
+  await attributionDetails.assert.matchesPackageInfo(packageInfo);
 });
