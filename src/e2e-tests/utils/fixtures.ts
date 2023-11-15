@@ -7,8 +7,10 @@ import {
   _electron as electron,
   ElectronApplication,
   Page,
+  TestInfo,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
+import { cloneDeep } from 'lodash';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -63,6 +65,7 @@ export const test = base.extend<{
   data: undefined,
   window: async ({ data }, use, info) => {
     const filePath = data && (await createOpossumFile({ data, info }));
+    data && (await saveInitialOpossumFile(data, info));
 
     const [executablePath, main] = getLaunchProps();
 
@@ -170,4 +173,14 @@ function getReleasePath(): string {
   }
 
   throw new Error('Unsupported platform');
+}
+
+async function saveInitialOpossumFile(
+  data: OpossumData,
+  info: TestInfo,
+): Promise<void> {
+  const dataInitial = cloneDeep(data);
+  dataInitial.inputData.metadata.projectId =
+    dataInitial?.inputData.metadata.projectId + '_initial';
+  await createOpossumFile({ data: dataInitial, info });
 }
