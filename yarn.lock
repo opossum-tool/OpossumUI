@@ -3219,12 +3219,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.14":
-  version: 18.2.14
-  resolution: "@types/react-dom@npm:18.2.14"
+"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.15":
+  version: 18.2.15
+  resolution: "@types/react-dom@npm:18.2.15"
   dependencies:
     "@types/react": "npm:*"
-  checksum: c7feb6542dbeb3de18c9c03260229377e0a0d47a3d2c0bb91861996e2353375a45c57de7216edb8b88448584e363677244bd4355ddec45c243e70e777c2a150b
+  checksum: 57ea7e9e210d95fa18fde82fc585cb6252c9118c8793a38b37b07ccbba05d09d14f88cf76af46eecda41c430b4400f789a4bbc505eec459a15cbaf13f56f887a
   languageName: node
   linkType: hard
 
@@ -3237,14 +3237,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.34":
-  version: 18.2.34
-  resolution: "@types/react@npm:18.2.34"
+"@types/react@npm:*, @types/react@npm:^18.2.37":
+  version: 18.2.37
+  resolution: "@types/react@npm:18.2.37"
   dependencies:
     "@types/prop-types": "npm:*"
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 6d16f86b384e829edc3710b1dd9ec4eb1d6b26bc079c5cf605bd0cbf77ae6224f15c76949afadb7f53df4544cfe4025c1111fbe36732cd7f660a320fbc2e5866
+  checksum: fab3a5960e710aad6c16ffe57f48a470c6bbbe9e6363f70accf114191ea3192a204e33b5657324f14e64b2095986327db6b728fc15156e05f7d30b6dca0d66a3
   languageName: node
   linkType: hard
 
@@ -8912,8 +8912,8 @@ __metadata:
     "@types/lodash": "npm:^4.14.201"
     "@types/object-hash": "npm:^3.0.6"
     "@types/prop-types": "npm:^15.7.10"
-    "@types/react": "npm:^18.2.34"
-    "@types/react-dom": "npm:^18.2.14"
+    "@types/react": "npm:^18.2.37"
+    "@types/react-dom": "npm:^18.2.15"
     "@types/recharts": "npm:^1.8.27"
     "@types/stream-json": "npm:^1.7.6"
     "@types/uuid": "npm:^9.0.7"
