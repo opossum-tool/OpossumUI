@@ -31,6 +31,10 @@
         'babel-jest',
         'buffer',
         'cross-env',
+        'electron-devtools-installer',
+        'electron-is-dev',
+        'electron-log',
+        'electron-playwright-helpers',
         'eslint',
         'fast-csv',
         'fflate',
@@ -92,12 +96,6 @@
       groupSlug: 'redux',
       matchUpdateTypes: ['patch'],
       automerge: true,
-    },
-    {
-      matchPackagePrefixes: ['electron-'],
-      matchPackageNames: ['electron'],
-      groupName: 'ElectronJS dependencies',
-      groupSlug: 'electron',
     },
     {
       matchPackagePrefixes: ['@vitejs/', 'vite-'],
