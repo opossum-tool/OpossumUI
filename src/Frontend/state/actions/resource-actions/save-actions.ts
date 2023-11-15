@@ -353,9 +353,8 @@ function unlinkAttribtionsIfParentAttributionsAreIdentical(
   resourceId: string,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const attributionsIdsForResource = getAttributionIdsOfSelectedResource(
-      getState(),
-    );
+    const attributionsIdsForResource =
+      getAttributionIdsOfSelectedResource(getState());
     const attributionIdsForClosestParent =
       getAttributionIdsOfSelectedResourceClosestParent(getState());
     if (

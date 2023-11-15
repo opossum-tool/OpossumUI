@@ -218,12 +218,12 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           ...(config.width === 'small'
             ? reportTableItemClasses.smallTableCell
             : config.width === 'wide'
-            ? reportTableItemClasses.wideTableCell
-            : config.width === 'medium'
-            ? reportTableItemClasses.mediumTableCell
-            : config.width === 'verySmall'
-            ? reportTableItemClasses.verySmallTableCell
-            : {}),
+              ? reportTableItemClasses.wideTableCell
+              : config.width === 'medium'
+                ? reportTableItemClasses.mediumTableCell
+                : config.width === 'verySmall'
+                  ? reportTableItemClasses.verySmallTableCell
+                  : {}),
         }}
         key={`table-row-${config.attributionProperty}-${index}`}
       >

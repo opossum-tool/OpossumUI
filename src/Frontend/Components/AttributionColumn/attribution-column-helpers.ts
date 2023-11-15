@@ -276,8 +276,8 @@ export function usePurl(
   const savingStatus = isAllSavingDisabled
     ? AllowedSaveOperations.None
     : wasPreferredFieldChanged
-    ? AllowedSaveOperations.Local
-    : AllowedSaveOperations.All;
+      ? AllowedSaveOperations.Local
+      : AllowedSaveOperations.All;
 
   useEffect(() => {
     dispatch(setAllowedSaveOperations(savingStatus));

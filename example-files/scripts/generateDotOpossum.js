@@ -61,8 +61,8 @@ function getInputAndAttributionFilePaths(exampleFilesDirectory) {
     filePath.endsWith(attributionsFileSuffix)
       ? attributionFilePaths.push(filePath)
       : checkIfJsonFileIsInputJson(filePath)
-      ? inputFilePaths.push(filePath)
-      : null,
+        ? inputFilePaths.push(filePath)
+        : null,
   );
   return { inputFilePaths, attributionFilePaths };
 }

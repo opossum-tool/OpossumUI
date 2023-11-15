@@ -259,8 +259,8 @@ function tryToGetInputFileFromOutputFile(filePath: string): string {
   return fs.existsSync(filePath.replace(outputFileRegex, jsonFileExtension))
     ? filePath.replace(outputFileRegex, jsonFileExtension)
     : fs.existsSync(filePath.replace(outputFileRegex, jsonGzipFileExtension))
-    ? filePath.replace(outputFileRegex, jsonGzipFileExtension)
-    : filePath;
+      ? filePath.replace(outputFileRegex, jsonGzipFileExtension)
+      : filePath;
 }
 
 export async function openFile(
