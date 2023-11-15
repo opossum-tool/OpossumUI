@@ -20,6 +20,6 @@ jobs:
     if: |
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: REUSE Compliance Check
         uses: fsfe/reuse-action@v1
