@@ -2,13 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiNavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MuiBox from '@mui/material/Box';
+import MuiTooltip from '@mui/material/Tooltip';
+import MuiTypography from '@mui/material/Typography';
 import { ReactElement, useState } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
+import { OpossumColors, tooltipStyle } from '../../shared-styles';
 import { closeAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -18,6 +21,7 @@ import {
   setAttributionWizardSelectedPackageIds,
 } from '../../state/actions/resource-actions/attribution-wizard-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getFilesWithChildren } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
@@ -26,12 +30,14 @@ import {
   getAttributionWizardTotalAttributionCount,
   getAttributionWizarOriginalDisplayPackageInfo,
 } from '../../state/selectors/attribution-wizard-selectors';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { ButtonConfig } from '../../types/types';
+import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
 import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
 import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-import { PathBar } from '../PathBar/PathBar';
 import {
   getAttributionWizardListItems,
   getSelectedPackageAttributes,
@@ -59,10 +65,6 @@ const classes = {
     marginTop: '15px',
     height: `calc(100% - ${PATH_BAR_TOTAL_HEIGHT}px - ${BREADCRUMBS_TOTAL_HEIGHT}px)`,
   },
-  pathBar: {
-    margin: '24px 0px 12px 0px',
-    padding: '1px 0px 1px 5px',
-  },
   breadcrumbs: {
     height: `calc(${BREADCRUMBS_TOTAL_HEIGHT}px - 20px)`,
     marginBottom: '20px',
@@ -73,6 +75,22 @@ const classes = {
   list: {
     width: `${TABLE_WIDTH}px`,
   },
+  pathBar: {
+    margin: '24px 0px 12px 0px',
+    padding: '1px 0px 1px 5px',
+    height: '24px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    background: OpossumColors.white,
+  },
+  leftEllipsis: {
+    textOverflow: 'ellipsis',
+    overflowX: 'hidden',
+    whiteSpace: 'nowrap',
+    direction: 'rtl',
+  },
+  tooltip: tooltipStyle,
 };
 
 export function AttributionWizardPopup(): ReactElement {
@@ -90,6 +108,9 @@ export function AttributionWizardPopup(): ReactElement {
   const totalAttributionCount = useAppSelector(
     getAttributionWizardTotalAttributionCount,
   );
+  const path = useAppSelector(getSelectedResourceId);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
+  const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
 
   const {
     selectedPackageNamespace,
@@ -266,11 +287,23 @@ export function AttributionWizardPopup(): ReactElement {
       contentSx={classes.dialogContent}
       content={
         <>
-          <PathBar sx={classes.pathBar} />
+          <MuiBox sx={classes.pathBar}>
+            <MuiTooltip sx={classes.tooltip} title={path}>
+              <MuiTypography sx={classes.leftEllipsis} variant={'subtitle1'}>
+                <bdi>
+                  {removeTrailingSlashIfFileWithChildren(
+                    path,
+                    isFileWithChildren,
+                  )}
+                </bdi>
+              </MuiTypography>
+            </MuiTooltip>
+          </MuiBox>
           <Breadcrumbs
             selectedId={selectedWizardStepId}
             onClick={handleBreadcrumbsClick}
             idsToDisplayValues={wizardStepIdsToDisplayValues}
+            separator={<MuiNavigateNextIcon fontSize="inherit" />}
             sx={classes.breadcrumbs}
           />
           <MuiBox sx={classes.mainContentBox}>

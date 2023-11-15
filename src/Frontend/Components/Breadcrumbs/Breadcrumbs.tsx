@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiNavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiTypography from '@mui/material/Typography';
@@ -47,6 +46,8 @@ interface BreadcrumbsProps {
   onClick: (id: string) => void;
   idsToDisplayValues: Array<[string, string]>;
   sx?: SxProps;
+  maxItems?: number;
+  separator?: React.ReactNode;
 }
 
 export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
@@ -57,7 +58,9 @@ export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
   return (
     <MuiBreadcrumbs
       sx={{ ...classes.breadcrumbs, ...props.sx }}
-      separator={<MuiNavigateNextIcon fontSize="inherit" />}
+      separator={props.separator}
+      maxItems={props.maxItems}
+      itemsAfterCollapse={3}
     >
       {ids.map((id, index) => (
         <MuiListItemButton

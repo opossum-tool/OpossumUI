@@ -120,13 +120,11 @@ function getGoToLinkIcon(screen: Screen, label: string): HTMLElement {
 }
 
 export function expectGoToLinkIconIsVisible(screen: Screen): void {
-  expect(getGoToLinkIcon(screen, 'link to open').parentElement).toBeVisible();
+  expect(getGoToLinkIcon(screen, 'link to open')).toBeInTheDocument();
 }
 
 export function expectGoToLinkIconIsNotVisible(screen: Screen): void {
-  expect(
-    getGoToLinkIcon(screen, 'link to open').parentElement,
-  ).not.toBeVisible();
+  expect(screen.queryByLabelText('link to open')).not.toBeInTheDocument();
 }
 
 export function clickGoToLinkIcon(screen: Screen, label: string): void {

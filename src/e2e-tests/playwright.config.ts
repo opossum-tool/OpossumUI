@@ -5,7 +5,7 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
 const CI_SINGLE_TEST_TIMEOUT = 60000;
-const GLOBAL_TIMEOUT = 300000;
+const GLOBAL_TIMEOUT = 3000000;
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,

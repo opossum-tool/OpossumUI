@@ -20,7 +20,7 @@ import { getSelectedResourceId } from '../../state/selectors/audit-view-resource
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { IconButton } from '../IconButton/IconButton';
 
-export function GoToLinkButton(): ReactElement {
+export function GoToLinkButton(): ReactElement | null {
   const path = useAppSelector(getSelectedResourceId);
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
@@ -79,17 +79,16 @@ export function GoToLinkButton(): ReactElement {
     });
   }
 
-  return (
+  return openLinkArgs.link ? (
     <IconButton
       tooltipTitle={
         isLocalLink(openLinkArgs.link)
           ? 'open file'
           : 'open resource in browser'
       }
-      tooltipPlacement="right"
+      tooltipPlacement="left"
       onClick={onClick}
-      hidden={!openLinkArgs.link}
       icon={<OpenInNewIcon sx={clickableIcon} aria-label={'link to open'} />}
     />
-  );
+  ) : null;
 }

@@ -31,6 +31,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
   return (
     <MuiTooltip
       describeChild={true}
+      disableInteractive
       title={props.hidden ? '' : props.tooltipTitle}
       placement={props.tooltipPlacement}
     >

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
-import { faker } from '../../shared/Faker';
 import { PackageCard } from './PackageCard';
 
 export class ResourceDetails {
@@ -18,6 +17,7 @@ export class ResourceDetails {
   readonly attributionsInFolderContentPanel: Locator;
   readonly attributionsInFolderContentToggle: Locator;
   readonly openResourceUrlButton: Locator;
+  readonly copyPathButton: Locator;
   readonly overrideParentButton: Locator;
   readonly addNewAttributionButton: Locator;
   readonly localTab: Locator;
@@ -51,6 +51,7 @@ export class ResourceDetails {
     this.openResourceUrlButton = this.node
       .getByRole('button')
       .getByLabel('link to open');
+    this.copyPathButton = this.node.getByRole('button').getByLabel('copy path');
     this.overrideParentButton = this.attributions.getByRole('button', {
       name: 'override parent',
     });
@@ -65,9 +66,13 @@ export class ResourceDetails {
 
   public assert = {
     resourcePathIsVisible: async (...elements: string[]): Promise<void> => {
-      await expect(
-        this.node.getByText(faker.opossum.filePath(...elements)),
-      ).toBeVisible();
+      await Promise.all(
+        elements.map((element) =>
+          expect(
+            this.node.getByLabel('path bar').getByText(element),
+          ).toBeVisible(),
+        ),
+      );
     },
     globalTabIsEnabled: async (): Promise<void> => {
       await expect(this.globalTab).toBeEnabled();
