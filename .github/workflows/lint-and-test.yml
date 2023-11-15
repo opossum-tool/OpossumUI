@@ -21,7 +21,7 @@ jobs:
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Node.js and yarn
         uses: actions/setup-node@v3
