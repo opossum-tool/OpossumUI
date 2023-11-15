@@ -17,6 +17,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: |
+      !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
     steps:
       - uses: actions/checkout@v3
       - name: REUSE Compliance Check
