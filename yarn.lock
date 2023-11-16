@@ -2558,6 +2558,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redux-devtools/extension@npm:^3.2.6":
+  version: 3.2.6
+  resolution: "@redux-devtools/extension@npm:3.2.6"
+  dependencies:
+    "@babel/runtime": "npm:^7.23.2"
+    immutable: "npm:^4.3.4"
+  peerDependencies:
+    redux: ^3.1.0 || ^4.0.0
+  checksum: bac42880d1a08f5d9c746c47e30b32472ed1e249d841041276a41d3cd8fcc849a41396e01a3f67f5b2ba3542df38f3c9dca5c19c7a77e34103a7950f7d0c9381
+  languageName: node
+  linkType: hard
+
 "@rollup/pluginutils@npm:^5.0.4":
   version: 5.0.5
   resolution: "@rollup/pluginutils@npm:5.0.5"
@@ -3778,9 +3790,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-builder-lib@npm:24.8.1":
-  version: 24.8.1
-  resolution: "app-builder-lib@npm:24.8.1"
+"app-builder-lib@npm:24.9.0":
+  version: 24.9.0
+  resolution: "app-builder-lib@npm:24.9.0"
   dependencies:
     7zip-bin: "npm:~5.2.0"
     "@develar/schema-utils": "npm:~2.6.5"
@@ -3810,7 +3822,7 @@ __metadata:
     semver: "npm:^7.3.8"
     tar: "npm:^6.1.12"
     temp-file: "npm:^3.4.0"
-  checksum: 8cc2e1e204fce0e707f235f8f92ef4511dd11c877c8f8cae0ce46d6af2266d699081066885e87489ec90b576c7bf68e029dd745470235043c17e99e2d6fe90b0
+  checksum: 029b853ad6145f0230fda0c46ea30f5c5cacfd596da8670f9762f238c83ed07613db85fed45802302283c6e074f5dd65f141ea540caa7ad1726793ab56c5d9ea
   languageName: node
   linkType: hard
 
@@ -5095,11 +5107,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dmg-builder@npm:24.8.1":
-  version: 24.8.1
-  resolution: "dmg-builder@npm:24.8.1"
+"dmg-builder@npm:24.9.0":
+  version: 24.9.0
+  resolution: "dmg-builder@npm:24.9.0"
   dependencies:
-    app-builder-lib: "npm:24.8.1"
+    app-builder-lib: "npm:24.9.0"
     builder-util: "npm:24.8.1"
     builder-util-runtime: "npm:9.2.3"
     dmg-license: "npm:^1.0.11"
@@ -5109,7 +5121,7 @@ __metadata:
   dependenciesMeta:
     dmg-license:
       optional: true
-  checksum: 17c579dfb9add50302b4ac83495fadb7d160580f07bd87a096529ae41968803318f96d8fe1d80d0a4255b82822c3c7223b2db7910928a4c2334645c703de9bc1
+  checksum: c0fe3db01ef892c67ee8b7e6d32ed446cd84060941559625595fb56c5fce4fc91fedb8c8284383ce369e5af174a129d8b4ef4655a8ad26c4369fd1a8521ec95b
   languageName: node
   linkType: hard
 
@@ -5234,14 +5246,14 @@ __metadata:
   linkType: hard
 
 "electron-builder@npm:^24.8.1":
-  version: 24.8.1
-  resolution: "electron-builder@npm:24.8.1"
+  version: 24.9.0
+  resolution: "electron-builder@npm:24.9.0"
   dependencies:
-    app-builder-lib: "npm:24.8.1"
+    app-builder-lib: "npm:24.9.0"
     builder-util: "npm:24.8.1"
     builder-util-runtime: "npm:9.2.3"
     chalk: "npm:^4.1.2"
-    dmg-builder: "npm:24.8.1"
+    dmg-builder: "npm:24.9.0"
     fs-extra: "npm:^10.1.0"
     is-ci: "npm:^3.0.0"
     lazy-val: "npm:^1.0.5"
@@ -5251,7 +5263,7 @@ __metadata:
   bin:
     electron-builder: cli.js
     install-app-deps: install-app-deps.js
-  checksum: a54880411c2b9e7da3ef9edd85d55ee34349b4d491859ad6fb5cf9266d44eb708169db631b9dc1d9602f3ee43a533a9bcf9b992e3a4ebddc91bcda66748b2f48
+  checksum: 35f0d2366423b1f46a57174d2011a1b03e2806a1d5c2750835e84288dc0d212d7d3685099dce026e3e8483811fdeccc1c0a4659807d0870b5a46b8dd3ea4503d
   languageName: node
   linkType: hard
 
@@ -5313,15 +5325,15 @@ __metadata:
   linkType: hard
 
 "electron@npm:^27.0.4":
-  version: 27.0.4
-  resolution: "electron@npm:27.0.4"
+  version: 27.1.0
+  resolution: "electron@npm:27.1.0"
   dependencies:
     "@electron/get": "npm:^2.0.0"
     "@types/node": "npm:^18.11.18"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 71721b1b45f5d13400bf2b289591fbe511653487134699bf5cc9139c85f2ce2b63cdaa4b5716a0f878ecb626ea2edbf0091652ba45c80c041929cacfd95d0183
+  checksum: 8eed880bbda6efd55041cc855b93f632897139557761a913dd56c68a9e24bcb1c222a0b335f70e3df97e9692997f659d62600276bbf3714b374d841fed75bab4
   languageName: node
   linkType: hard
 
@@ -6755,6 +6767,13 @@ __metadata:
   version: 3.0.6
   resolution: "immediate@npm:3.0.6"
   checksum: f9b3486477555997657f70318cc8d3416159f208bec4cca3ff3442fd266bc23f50f0c9bd8547e1371a6b5e82b821ec9a7044a4f7b944798b25aa3cc6d5e63e62
+  languageName: node
+  linkType: hard
+
+"immutable@npm:^4.3.4":
+  version: 4.3.4
+  resolution: "immutable@npm:4.3.4"
+  checksum: ea187acc1eec9dcfaa0823bae59e1ae0ea82e7a40d2ace9fb84d467875d5506ced684a79b68e70451f1e1761a387a958ba724171f93aa10330998b026fcb5d29
   languageName: node
   linkType: hard
 
@@ -8855,6 +8874,7 @@ __metadata:
     "@mui/material": "npm:^5.14.18"
     "@mui/system": "npm:^5.14.18"
     "@playwright/test": "npm:^1.39.0"
+    "@redux-devtools/extension": "npm:^3.2.6"
     "@tanstack/react-query": "npm:^5.8.3"
     "@testing-library/dom": "npm:^9.3.3"
     "@testing-library/jest-dom": "npm:^6.1.4"
@@ -8921,7 +8941,6 @@ __metadata:
     react-virtuoso: "npm:^4.6.2"
     recharts: "npm:^2.9.3"
     redux: "npm:^4.2.1"
-    redux-devtools-extension: "npm:^2.13.9"
     redux-thunk: "npm:^2.4.2"
     run-script-os: "npm:^1.1.6"
     spdx-license-ids: "npm:^3.0.16"
@@ -9632,15 +9651,6 @@ __metadata:
     indent-string: "npm:^4.0.0"
     strip-indent: "npm:^3.0.0"
   checksum: fa1ef20404a2d399235e83cc80bd55a956642e37dd197b4b612ba7327bf87fa32745aeb4a1634b2bab25467164ab4ed9c15be2c307923dd08b0fe7c52431ae6b
-  languageName: node
-  linkType: hard
-
-"redux-devtools-extension@npm:^2.13.9":
-  version: 2.13.9
-  resolution: "redux-devtools-extension@npm:2.13.9"
-  peerDependencies:
-    redux: ^3.1.0 || ^4.0.0
-  checksum: 8d979c95031dee495e62d90cc12cd9923546227a177f6d3fba973a0d022d819854e47eceea7d0c68254cd410632a5eac2eaf84e17644d2fcecf94a1e246fed88
   languageName: node
   linkType: hard
 

@@ -20,6 +20,7 @@
       matchPackagePrefixes: ['@testing-library/', 'eslint-', '@babel/'],
       matchPackageNames: [
         '@faker-js/faker',
+        '@redux-devtools/extension',
         '@tanstack/react-query',
         '@trivago/prettier-plugin-sort-imports',
         'axios',
