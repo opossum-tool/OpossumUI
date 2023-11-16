@@ -2,16 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { composeWithDevToolsDevelopmentOnly } from '@redux-devtools/extension';
 import {
   applyMiddleware,
   legacy_createStore as createStore,
   Store,
 } from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import thunk from 'redux-thunk';
 
 import { reducer } from './reducer';
 
 export function createAppStore(): Store {
-  return createStore(reducer, composeWithDevTools(applyMiddleware(thunk)));
+  return createStore(
+    reducer,
+    composeWithDevToolsDevelopmentOnly(applyMiddleware(thunk)),
+  );
 }
