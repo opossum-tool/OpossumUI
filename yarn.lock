@@ -5324,7 +5324,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^27.0.4":
+"electron@npm:^27.1.0":
   version: 27.1.0
   resolution: "electron@npm:27.1.0"
   dependencies:
@@ -8901,7 +8901,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     buffer: "npm:^6.0.3"
     cross-env: "npm:^7.0.3"
-    electron: "npm:^27.0.4"
+    electron: "npm:^27.1.0"
     electron-builder: "npm:^24.8.1"
     electron-devtools-installer: "npm:^3.2.0"
     electron-is-dev: "npm:^2.0.0"
