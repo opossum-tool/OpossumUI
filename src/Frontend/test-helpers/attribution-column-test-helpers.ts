@@ -2,59 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  fireEvent,
-  getByText,
-  queryByText,
-  Screen,
-  within,
-} from '@testing-library/react';
-
-import { ButtonText } from '../enums/enums';
-import { getButton } from './general-test-helpers';
-
-function getButtonInHamburgerMenu(
-  screen: Screen,
-  buttonLabel: ButtonText,
-): HTMLElement {
-  fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
-  const button = getButton(screen, buttonLabel);
-  fireEvent.click(screen.getByRole('presentation').firstChild as Element);
-
-  return button;
-}
-
-export function clickOnButtonInHamburgerMenu(
-  screen: Screen,
-  buttonLabel: ButtonText,
-): void {
-  fireEvent.click(getButtonInHamburgerMenu(screen, buttonLabel));
-}
-
-export function expectButtonInHamburgerMenu(
-  screen: Screen,
-  buttonLabel: ButtonText,
-  disabled?: boolean,
-): void {
-  const button = getButtonInHamburgerMenu(screen, buttonLabel);
-  const buttonAttribute = button.attributes.getNamedItem('aria-disabled');
-
-  if (disabled) {
-    expect(buttonAttribute && buttonAttribute.value).toBe('true');
-  } else {
-    expect(buttonAttribute).toBe(null);
-  }
-}
-
-export function expectButtonInHamburgerMenuIsNotShown(
-  screen: Screen,
-  buttonLabel: ButtonText,
-): void {
-  fireEvent.click(screen.getByLabelText('button-hamburger-menu'));
-  expect(
-    screen.queryByRole('button', { name: buttonLabel }),
-  ).not.toBeInTheDocument();
-}
+import { fireEvent, queryByText, Screen } from '@testing-library/react';
 
 export function insertValueIntoTextBox(
   screen: Screen,
@@ -65,24 +13,6 @@ export function insertValueIntoTextBox(
   fireEvent.change(textBox, {
     target: { value },
   });
-}
-
-export function expectValueInConfidenceField(
-  screen: Screen,
-  value: string,
-): void {
-  const numberBox = screen.getByLabelText('Confidence');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  getByText(numberBox, value);
-}
-
-export function expectValueNotInConfidenceField(
-  screen: Screen,
-  value: string,
-): void {
-  const numberBox = screen.getByLabelText('Confidence');
-  // eslint-disable-next-line testing-library/prefer-screen-queries
-  expect(queryByText(numberBox, value)).not.toBeInTheDocument();
 }
 
 export function expectValueInTextBox(
@@ -105,26 +35,8 @@ export function expectValueNotInTextBox(
   expect(queryByText(textBox, value)).not.toBeInTheDocument();
 }
 
-export function selectConfidenceInDropdown(
-  screen: Screen,
-  value: string,
-): void {
-  expect(screen.queryByText(value)).not.toBeInTheDocument();
-  fireEvent.mouseDown(screen.getByLabelText('Confidence'));
-  const listbox = within(screen.getByRole('listbox'));
-  fireEvent.click(listbox.getByText(value));
-}
-
 function getGoToLinkIcon(screen: Screen, label: string): HTMLElement {
   return screen.getByLabelText(label);
-}
-
-export function expectGoToLinkIconIsVisible(screen: Screen): void {
-  expect(getGoToLinkIcon(screen, 'link to open')).toBeInTheDocument();
-}
-
-export function expectGoToLinkIconIsNotVisible(screen: Screen): void {
-  expect(screen.queryByLabelText('link to open')).not.toBeInTheDocument();
 }
 
 export function clickGoToLinkIcon(screen: Screen, label: string): void {

@@ -11,7 +11,6 @@ import {
   setSelectedResourceId,
   setTargetSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
   navigateToView,
   openPopup,
@@ -24,7 +23,6 @@ import {
   isAttributionViewSelected,
   isAuditViewSelected,
 } from '../../../state/selectors/view-selector';
-import { EMPTY_PARSED_FILE_CONTENT } from '../../../test-helpers/general-test-helpers';
 import {
   EnhancedTestStore,
   renderComponentWithStore,
@@ -39,7 +37,6 @@ function setupTestState(
   store.dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
   store.dispatch(setTargetSelectedResourceId('test_id'));
   store.dispatch(setSelectedResourceId(''));
-  store.dispatch(loadFromFile(EMPTY_PARSED_FILE_CONTENT));
   targetView && store.dispatch(setTargetView(targetView));
 }
 

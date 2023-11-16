@@ -32,23 +32,26 @@ test.use({
 });
 
 test('displays an error if user attempts to open invalid resource URL', async ({
+  errorPopup,
   projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
-  errorPopup,
 }) => {
   await projectStatisticsPopup.close();
-  await resourceBrowser.goto(resourceName1);
-  await resourceBrowser.goto(resourceName3);
-
+  await resourceBrowser.goto(resourceName1, resourceName3);
   await resourceDetails.assert.resourcePathIsVisible(
     resourceName1,
     resourceName3,
   );
-  await resourceDetails.openResourceUrl();
+  await resourceDetails.assert.openResourceUrlButtonIsVisible();
 
-  await errorPopup.assert.titleIsVisible();
+  await resourceDetails.openResourceUrl();
+  await errorPopup.assert.isVisible();
   await errorPopup.assert.errorMessageIsVisible('Cannot open link.');
+
   await errorPopup.close();
-  await errorPopup.assert.titleIsHidden();
+  await errorPopup.assert.isHidden();
+
+  await resourceBrowser.goto(resourceName2);
+  await resourceDetails.assert.openResourceUrlButtonIsHidden();
 });

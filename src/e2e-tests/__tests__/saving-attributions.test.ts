@@ -47,6 +47,7 @@ test.use({
 
 test('adds a new attribution in audit view', async ({
   attributionDetails,
+  notSavedPopup,
   projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
@@ -74,6 +75,10 @@ test('adds a new attribution in audit view', async ({
   await attributionDetails.selectLicense(license1);
   await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
 
+  await resourceBrowser.goto(resourceName2);
+  await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.cancelButton.click();
   await attributionDetails.saveButton.click();
   await attributionDetails.assert.saveButtonIsDisabled();
   await resourceDetails.attributionCard.assert.isVisible(newPackageInfo);
@@ -287,4 +292,38 @@ test('adds a new attribution via PURL', async ({
   await attributionDetails.saveButton.click();
   await attributionDetails.assert.saveButtonIsDisabled();
   await resourceDetails.attributionCard.assert.isVisible(newPackageInfo);
+});
+
+test('warns user of unsaved changes if user attempts to navigate away before saving', async ({
+  attributionDetails,
+  attributionList,
+  notSavedPopup,
+  projectStatisticsPopup,
+  resourceBrowser,
+  resourceDetails,
+  topBar,
+}) => {
+  await projectStatisticsPopup.close();
+  await resourceBrowser.goto(resourceName1);
+  await attributionDetails.comment().fill(faker.lorem.sentences());
+
+  await resourceDetails.addNewAttributionButton.click();
+  await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.undoButton.click();
+  await attributionDetails.assert.isEmpty();
+
+  await attributionDetails.comment().fill(faker.lorem.sentences());
+  await topBar.gotoReportView();
+  await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.cancelButton.click();
+  await topBar.gotoAttributionView();
+  await notSavedPopup.assert.isVisible();
+
+  await notSavedPopup.undoButton.click();
+  await attributionList.attributionCard.click(packageInfo1);
+  await attributionDetails.comment().fill(faker.lorem.sentences());
+  await topBar.gotoAuditView();
+  await notSavedPopup.assert.isVisible();
 });

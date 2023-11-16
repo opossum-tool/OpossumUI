@@ -15,6 +15,7 @@ import * as path from 'path';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
+import { AttributionWizard } from '../page-objects/AttributionWizard';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
 import { EditAttributionPopup } from '../page-objects/EditAttributionPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
@@ -45,6 +46,7 @@ export const test = base.extend<{
   attributionDetails: AttributionDetails;
   attributionFilters: AttributionFilters;
   attributionList: AttributionList;
+  attributionWizard: AttributionWizard;
   confirmationPopup: ConfirmationPopup;
   editAttributionPopup: EditAttributionPopup;
   errorPopup: ErrorPopup;
@@ -153,6 +155,9 @@ export const test = base.extend<{
   },
   editAttributionPopup: async ({ window }, use) => {
     await use(new EditAttributionPopup(window));
+  },
+  attributionWizard: async ({ window }, use) => {
+    await use(new AttributionWizard(window));
   },
 });
 

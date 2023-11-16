@@ -73,18 +73,10 @@ updates after changes to the frontend, execute:
 yarn start
 ```
 
-Unit tests are provided for all features, aided by integration tests when helpful. The testing framework is jest + react
-testing library. They can be run locally by executing:
-
-```
-yarn test:local
-```
-
-to run a subset of all tests. To run all tests:
+Unit tests are provided for all features. The testing framework is jest + react testing library. They can be run by executing:
 
 ```
 yarn test:unit
-yarn test:integration-ci
 ```
 
 End to end test are available and can be run using:
