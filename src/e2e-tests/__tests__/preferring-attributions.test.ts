@@ -5,8 +5,9 @@
 import { faker, test } from '../utils';
 
 const source = faker.opossum.source();
-const resourceName1 = faker.opossum.resourceName();
-const resourceName2 = faker.opossum.resourceName();
+const [resourceName1, resourceName2] = faker.opossum.resourceNames({
+  count: 2,
+});
 const [externalAttributionId, externalPackageInfo] =
   faker.opossum.externalAttribution({ source });
 const [manualAttributionId, manualPackageInfo] =

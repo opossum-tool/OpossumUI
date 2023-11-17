@@ -5,10 +5,8 @@
 import { DiscreteConfidence } from '../../shared/shared-types';
 import { expect, faker, test } from '../utils';
 
-const resourceName1 = faker.opossum.resourceName();
-const resourceName2 = faker.opossum.resourceName();
-const resourceName3 = faker.opossum.resourceName();
-const resourceName4 = faker.opossum.resourceName();
+const [resourceName1, resourceName2, resourceName3, resourceName4] =
+  faker.opossum.resourceNames({ count: 4 });
 const license1 = faker.opossum.license();
 const license2 = faker.opossum.license();
 const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({

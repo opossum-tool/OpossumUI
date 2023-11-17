@@ -162,7 +162,7 @@ export const test = base.extend<{
 });
 
 function getLaunchProps(): [executablePath: string | undefined, main: string] {
-  if (process.env.CI) {
+  if (process.env.CI || process.env.RELEASE) {
     const appInfo = parseElectronApp(getReleasePath());
     return [appInfo.executable, appInfo.main];
   }

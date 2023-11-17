@@ -97,6 +97,51 @@ The following software is required for working on the repository:
 - [reuse/tool](https://git.fsfe.org/reuse/tool#install) (to check that copyright information is provided, for more context see https://reuse.software/),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
 
+### Running the end-to-end tests
+
+As mentioned above, the end-to-end tests can be run using `yarn test:e2e`. This runs the tests against the dev server. To run the tests against a built version of the app, which is also what the CI/CD pipeline does, run `yarn test:e2e:ci`. See below for how to build the app for your OS.
+
+If you use VSCode, we recommend you install the [Playwright Test for VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright). This will allow you running individual tests from within VSCode, either by clicking the green play button next to a test, or by going to the "testing" tab in the sidebar.
+
+Note that the extension can only run the tests against a built version of the app, so you must have a valid release for your OS in your local `release` folder. In addition, you have to add the following environment variable to your `settings.json`:
+
+```json
+"playwright.env": {
+   "RELEASE": true
+}
+```
+
+### Debugging the end-to-end tests
+
+Each executed end-to-end test creates artifacts in the folder `src/e2e-tests/artifacts`. The artifacts contain the auto-generated .opossum file that the test was run against and, in case the test failed, a Playwright trace file.
+
+The trace file includes screenshots and DOM snapshots at each step of the test up to the failure. You can open this file (do not unzip it!) in your browser by going to the [Playwright Trace Viewer](https://trace.playwright.dev/).
+
+The artifacts just described are also available as a download on the GitHub actions summary tab of any build pipeline that failed due to an end-to-end test.
+
+Last but not least, you can use the `debug` fixture to make any end-to-end test exit at a particular point in a test to then inspect the resulting .opossum file in OpossumUI:
+
+```javascript
+test('updates progress bar and confidence when user confirms preselected attributions in audit view', async ({
+   attributionDetails,
+   projectStatisticsPopup,
+   resourceBrowser,
+   resourceDetails,
+   topBar,
+   debug,
+}) => {
+   await projectStatisticsPopup.close();
+   await resourceBrowser.goto(resourceName1);
+   await attributionDetails.assert.matchPackageInfo(packageInfo1);
+   await topBar.assert.progressBarTooltipShowsValues({
+      numberOfFiles: 4,
+      filesWithOnlyPreSelectedAttributions: 4,
+   });
+   debug(); // the test will exit here
+   await attributionDetails.assert.confirmButtonIsVisible();
+   await attributionDetails.assert.confirmGloballyButtonIsVisible();
+```
+
 ### Building the app
 
 To build for a single OS run either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win`. To build for all three
