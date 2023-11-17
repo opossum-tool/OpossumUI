@@ -7,7 +7,7 @@ import { SxProps } from '@mui/system';
 import { ReactElement } from 'react';
 
 import { checkboxClass } from '../../shared-styles';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
+import { DisplayPackageInfos } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
@@ -34,31 +34,25 @@ interface AttributionListProps {
 }
 
 export function AttributionList(props: AttributionListProps): ReactElement {
-  function getAttributionCard(packageCardId: string): ReactElement {
+  function getAttributionCard(
+    packageCardId: string,
+    { isScrolling }: { isScrolling: boolean },
+  ): ReactElement {
     const displayPackageInfo = props.displayPackageInfos[packageCardId];
-
-    function isSelected(): boolean {
-      return packageCardId === props.selectedPackageCardId;
-    }
-
-    function onClick(): void {
-      props.onCardClick(packageCardId);
-    }
-
-    const cardConfig: PackageCardConfig = {
-      isSelected: isSelected(),
-      isPreSelected: Boolean(displayPackageInfo.preSelected),
-    };
 
     return (
       <PackageCard
         cardId={`attribution-list-${packageCardId}`}
-        onClick={onClick}
-        cardConfig={cardConfig}
+        onClick={() => props.onCardClick(packageCardId)}
+        cardConfig={{
+          isSelected: packageCardId === props.selectedPackageCardId,
+          isPreSelected: displayPackageInfo.preSelected,
+        }}
         key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
         hideResourceSpecificButtons={true}
         showCheckBox={true}
+        isScrolling={isScrolling}
       />
     );
   }

@@ -6,7 +6,7 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { merge } from 'lodash';
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { HighlightingColor } from '../../enums/enums';
@@ -164,7 +164,7 @@ interface ListCardProps {
 }
 
 export function ListCard(props: ListCardProps): ReactElement | null {
-  const displayedCount = ((): string => {
+  const displayedCount = useMemo((): string => {
     const digitsInAThousand = 4;
     const digitsInAMillion = 7;
     const count = props.count ? props.count.toString() : '';
@@ -176,19 +176,26 @@ export function ListCard(props: ListCardProps): ReactElement | null {
     } else {
       return `${count.slice(0, -(digitsInAMillion - 1))}M`;
     }
-  })();
+  }, [props.count]);
 
-  function calculateRightPadding(): number {
-    return Math.max(
-      0,
-      MAX_RIGHT_PADDING -
-        Math.ceil((props.rightIcons?.length || 0) / 2) *
-          PADDING_PER_ICON_COLUMN,
-    );
-  }
+  const paddingRight = useMemo(
+    () =>
+      Math.max(
+        0,
+        MAX_RIGHT_PADDING -
+          Math.ceil((props.rightIcons?.length || 0) / 2) *
+            PADDING_PER_ICON_COLUMN,
+      ),
+    [props.rightIcons?.length],
+  );
 
   return (
-    <MuiBox sx={getSx(props.cardConfig, props.highlighting)}>
+    <MuiBox
+      sx={useMemo(
+        () => getSx(props.cardConfig, props.highlighting),
+        [props.cardConfig, props.highlighting],
+      )}
+    >
       {props.leftElement}
       <MuiBox
         sx={{
@@ -210,7 +217,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
             ...classes.textLines,
             ...(props.cardConfig.isResource ? {} : classes.longTextInFlexbox),
             ...(props.highlighting && {
-              paddingRight: `${calculateRightPadding()}px`,
+              paddingRight: `${paddingRight}px`,
             }),
           }}
         >
@@ -248,9 +255,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
             </MuiTypography>
           ) : null}
         </MuiBox>
-        {props.rightIcons ? (
-          <MuiBox sx={classes.iconColumn}>{props.rightIcons}</MuiBox>
-        ) : null}
+        <MuiBox sx={classes.iconColumn}>{props.rightIcons}</MuiBox>
       </MuiBox>
       <MuiBox
         sx={{

@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiCheckbox from '@mui/material/Checkbox';
@@ -11,11 +13,11 @@ import { ReactElement } from 'react';
 import { OpossumColors } from '../../shared-styles';
 
 const classes = {
-  white: {
-    color: OpossumColors.white,
-  },
   disabledLabel: {
     color: OpossumColors.disabledGrey,
+  },
+  skeleton: {
+    fill: 'rgba(0, 0, 0, 0.6)',
   },
 };
 
@@ -25,35 +27,32 @@ interface CheckboxProps {
   checked: boolean;
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
   sx?: SxProps;
-  white?: boolean;
+  skeleton?: boolean;
 }
 
 export function Checkbox(props: CheckboxProps): ReactElement {
-  const whiteMode = props.white ? classes.white : {};
+  const Icon = props.checked ? CheckBoxIcon : CheckBoxOutlineBlankIcon;
 
   return (
     <MuiBox sx={props.sx}>
-      <MuiCheckbox
-        disabled={props.disabled}
-        checked={props.checked}
-        onChange={props.onChange}
-        inputProps={{
-          'aria-label': `checkbox ${props.label}`,
-        }}
-        color={'default'}
-        sx={{
-          '&.MuiCheckbox-root': whiteMode,
-          '&.MuiCheckbox-checked': whiteMode,
-        }}
-      />
-      <MuiTypography
-        sx={{
-          ...whiteMode,
-          ...(props.disabled ? classes.disabledLabel : {}),
-        }}
-      >
-        {props.label || ''}
-      </MuiTypography>
+      {props.skeleton ? (
+        <Icon sx={classes.skeleton} />
+      ) : (
+        <MuiCheckbox
+          disabled={props.disabled}
+          checked={props.checked}
+          onChange={props.onChange}
+          inputProps={{
+            'aria-label': `checkbox ${props.label}`,
+          }}
+          color={'default'}
+        />
+      )}
+      {props.label ? (
+        <MuiTypography sx={props.disabled ? classes.disabledLabel : {}}>
+          {props.label}
+        </MuiTypography>
+      ) : null}
     </MuiBox>
   );
 }

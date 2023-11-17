@@ -40,8 +40,13 @@ export function getRightIcons(
   cardConfig: ListCardConfig,
   cardId: string,
   openResourcesIcon?: JSX.Element,
+  isScrolling?: boolean,
 ): Array<ReactElement> {
   const rightIcons: Array<JSX.Element> = [];
+
+  if (isScrolling) {
+    return rightIcons;
+  }
 
   if (openResourcesIcon) {
     rightIcons.push(openResourcesIcon);

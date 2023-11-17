@@ -22,7 +22,10 @@ const classes = {
 interface AttributionsViewPackageListProps {
   displayPackageInfos: DisplayPackageInfos;
   sortedPackageCardIds: Array<string>;
-  getAttributionCard(packageCardId: string): ReactElement | null;
+  getAttributionCard(
+    packageCardId: string,
+    props: { isScrolling: boolean },
+  ): ReactElement | null;
 }
 
 export function AttributionsViewPackageList(
@@ -30,8 +33,8 @@ export function AttributionsViewPackageList(
 ): ReactElement {
   const [search, setSearch] = useState('');
 
-  const filteredAndSortedPackageCardIds: Array<string> = useMemo(
-    () =>
+  const filteredAndSortedPackageCardIds = useMemo(
+    (): Array<string> =>
       getFilteredPackageCardIdsFromDisplayPackageInfos(
         props.displayPackageInfos,
         props.sortedPackageCardIds,
@@ -44,8 +47,10 @@ export function AttributionsViewPackageList(
     <MuiBox sx={classes.container}>
       <SearchTextField onInputChange={setSearch} search={search} />
       <List
-        getListItem={(index: number): ReactElement | null =>
-          props.getAttributionCard(filteredAndSortedPackageCardIds[index])
+        getListItem={(index, { isScrolling }): ReactElement | null =>
+          props.getAttributionCard(filteredAndSortedPackageCardIds[index], {
+            isScrolling,
+          })
         }
         length={filteredAndSortedPackageCardIds.length}
         cardHeight={PACKAGE_CARD_HEIGHT}
