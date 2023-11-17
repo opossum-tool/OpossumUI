@@ -32,7 +32,7 @@
     "src/**/*",
     ".eslintrc.js",
     "setupTests.ts",
-    "vite.config.ts",
+    "vite.config.mts",
     "index.html"
   ],
   "exclude": ["src/ElectronBackend/**/*"]

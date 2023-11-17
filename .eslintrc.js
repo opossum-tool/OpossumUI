@@ -67,7 +67,7 @@ module.exports = {
     'index.html',
     'jest.config.js',
     'notices.template.html',
-    'vite.config.ts',
+    'vite.config.mts',
   ],
   reportUnusedDisableDirectives: true,
   rules: {
