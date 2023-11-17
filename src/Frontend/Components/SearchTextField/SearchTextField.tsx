@@ -60,14 +60,15 @@ export function SearchTextField(props: SearchTextFieldProps): ReactElement {
       fullWidth={true}
       onChange={(event): void => props.onInputChange(event.target.value)}
       InputProps={{
-        endAdornment: (
+        endAdornment: props.search ? (
           <InputAdornment position="end">
             <ClearIcon
               onClick={(): void => props.onInputChange('')}
               sx={classes.endAdornment}
+              aria-label={'clear search'}
             />
           </InputAdornment>
-        ),
+        ) : undefined,
       }}
     />
   );
