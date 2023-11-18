@@ -23,9 +23,9 @@ import {
   getManualData,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../../selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../../selectors/all-views-resource-selectors';
 import {
-  getDisplayedPackage,
   getExpandedIds,
   getSelectedResourceId,
 } from '../../../selectors/audit-view-resource-selectors';

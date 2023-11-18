@@ -7,6 +7,7 @@ import { cloneDeep } from 'lodash';
 
 import {
   Attributions,
+  AttributionsToResources,
   DisplayPackageInfo,
   ExternalAttributionSources,
   PackageInfo,
@@ -15,6 +16,8 @@ import {
 } from '../../../../shared/shared-types';
 import { PathPredicate, State } from '../../../types/types';
 import { getSubtree } from '../../../util/get-attributions-with-resources';
+import { CalculatePreferredOverOriginIds } from '../../helpers/save-action-helpers';
+import { ResourceState } from '../../reducers/resource-reducer';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
@@ -147,4 +150,21 @@ function getOriginIdsToPreferOverFromPackageInfos(
   });
 
   return Array.from(new Set(originIds));
+}
+
+export function getCalculatePreferredOverOriginIds(
+  state: ResourceState,
+): CalculatePreferredOverOriginIds {
+  return (
+    pathToResource: string,
+    newManualAttributionToResources: AttributionsToResources,
+  ) =>
+    getOriginIdsToPreferOver(
+      pathToResource,
+      state.allViews.resources ?? {},
+      state.allViews.externalData.resourcesToAttributions,
+      newManualAttributionToResources,
+      state.allViews.externalData.attributions,
+      state.allViews.externalAttributionSources,
+    );
 }

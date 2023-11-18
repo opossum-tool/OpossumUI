@@ -38,10 +38,9 @@ import {
   getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
-import {
-  getSelectedAttributionIdInAttributionView,
-  getTargetSelectedAttributionId,
-} from '../../../selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../../selectors/all-views-resource-selectors';
+import { getTargetSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
 import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,
@@ -51,7 +50,6 @@ import {
   getAttributionWizarOriginalDisplayPackageInfo,
 } from '../../../selectors/attribution-wizard-selectors';
 import {
-  getDisplayedPackage,
   getExpandedIds,
   getSelectedResourceId,
   getTargetSelectedResourceId,

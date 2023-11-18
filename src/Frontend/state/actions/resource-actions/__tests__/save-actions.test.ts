@@ -34,11 +34,9 @@ import {
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../../selectors/all-views-resource-selectors';
-import {
-  getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionIdInAttributionView,
-} from '../../../selectors/attribution-view-resource-selectors';
-import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/audit-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
+import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/all-views-resource-selectors';
+import { getMultiSelectSelectedAttributionIds } from '../../../selectors/attribution-view-resource-selectors';
 import { getOpenPopup } from '../../../selectors/view-selector';
 import {
   setResources,

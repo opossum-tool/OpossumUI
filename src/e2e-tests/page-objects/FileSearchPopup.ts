@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
-import { faker } from '../utils';
+import { faker } from '../../shared/Faker';
 
 export class FileSearchPopup {
   private readonly node: Locator;

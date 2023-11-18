@@ -30,6 +30,7 @@ import {
   _addParentsToResourcesWithAttributedChildrenNoMutation,
   deleteChildrenFromAttributedResources,
 } from './save-action-helpers';
+import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './save-action-helpers';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -87,18 +88,6 @@ export function _addPathAndParentsToResourcesWithAttributedChildren(
       attributedPathIndex,
     );
   });
-}
-
-export function addPathToIndexesIfMissingInResourcesWithAttributedChildren(
-  childrenWithAttributions: ResourcesWithAttributedChildren,
-  path: string,
-): number {
-  if (childrenWithAttributions.pathsToIndices[path] === undefined) {
-    const newLength = childrenWithAttributions.paths.push(path);
-    childrenWithAttributions.pathsToIndices[path] = newLength - 1;
-  }
-
-  return childrenWithAttributions.pathsToIndices[path];
 }
 
 export function getAttributionDataFromSetAttributionDataPayload(payload: {

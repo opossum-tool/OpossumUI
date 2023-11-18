@@ -47,7 +47,6 @@ export async function parseOpossumFile(
   } else {
     getGlobalBackendState().inputFileRaw = zip[INPUT_FILE_NAME];
     const inputJson = fflate.strFromU8(zip[INPUT_FILE_NAME]);
-    JSON.parse(inputJson);
     try {
       parsedInputData = parseAndValidateJson(inputJson, OpossumInputFileSchema);
     } catch (err) {

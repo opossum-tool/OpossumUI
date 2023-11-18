@@ -14,8 +14,8 @@ import {
   getExternalAttributionSources,
   getResourcesToExternalAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
 import {
-  getDisplayedPackage,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';

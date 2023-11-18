@@ -25,16 +25,9 @@ import {
   View,
 } from '../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
-import { State } from '../../types/types';
+import { PanelPackage, State } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
-import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
-import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
-  getDisplayedPackage,
-  getDisplayPackageInfoOfDisplayedPackage,
-  getDisplayPackageInfoOfDisplayedPackageInManualPanel,
-} from './audit-view-resource-selectors';
 import { getPopupAttributionId, getSelectedView } from './view-selector';
 
 export function getResources(state: State): Resources | null {
@@ -253,4 +246,50 @@ export function getResourcesWithLocatedAttributions(state: State): {
 
 export function getIsPreferenceFeatureEnabled(state: State): boolean {
   return state.resourceState.allViews.isPreferenceFeatureEnabled;
+}
+
+export function getSelectedAttributionIdInAttributionView(
+  state: State,
+): string {
+  return state.resourceState.attributionView.selectedAttributionId;
+}
+
+export function getAttributionIdOfDisplayedPackageInManualPanel(
+  state: State,
+): string | null {
+  if (
+    state.resourceState.auditView.displayedPanelPackage?.panel ===
+    PackagePanelTitle.ManualPackages
+  ) {
+    return (
+      state.resourceState.auditView.displayedPanelPackage.displayPackageInfo
+        .attributionIds[0] || null
+    );
+  }
+  return null;
+}
+
+export function getDisplayPackageInfoOfDisplayedPackage(
+  state: State,
+): DisplayPackageInfo | null {
+  const displayedPackage = state.resourceState.auditView.displayedPanelPackage;
+  return displayedPackage ? displayedPackage.displayPackageInfo : null;
+}
+
+export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
+  state: State,
+): DisplayPackageInfo | null {
+  const attributionId: string | null =
+    getAttributionIdOfDisplayedPackageInManualPanel(state);
+  if (attributionId) {
+    const manualAttributions: Attributions = getManualAttributions(state);
+    return convertPackageInfoToDisplayPackageInfo(
+      manualAttributions[attributionId],
+      [attributionId],
+    );
+  }
+  return null;
+}
+export function getDisplayedPackage(state: State): PanelPackage | null {
+  return state.resourceState.auditView.displayedPanelPackage;
 }

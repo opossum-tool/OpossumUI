@@ -5,7 +5,7 @@
 import { AttributionInfo } from '../../../shared/shared-types';
 import { PathPredicate } from '../../types/types';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
-import { TableConfig } from '../Table/Table';
+import { TableConfig } from '../Table/TableConfig';
 
 export function getFormattedCellData(
   config: TableConfig,

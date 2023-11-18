@@ -2,7 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect, type Locator, type Page, retry } from '../utils';
+import { expect, Locator, Page } from '@playwright/test';
+
+import { retry } from '../utils/retry';
 
 export class TopBar {
   readonly window: Page;

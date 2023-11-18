@@ -26,8 +26,8 @@ import {
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { getManualDisplayPackageInfoOfSelected } from '../all-views-resource-selectors';
+import { getAttributionIdOfDisplayedPackageInManualPanel } from '../all-views-resource-selectors';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
   getAttributionIdsOfSelectedResource,
   getAttributionsOfSelectedResourceOrClosestParent,
   getResolvedExternalAttributions,

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, dialog } from 'electron';
 import log from 'electron-log';
 import fs from 'fs';
 import { cloneDeep } from 'lodash';
@@ -17,12 +17,7 @@ import {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import {
-  getMessageBoxForInvalidDotOpossumFileError,
-  getMessageBoxForParsingError,
-} from '../errorHandling/errorHandling';
 import { getGlobalBackendState } from '../main/globalBackendState';
-import { setLoadingState } from '../main/listeners';
 import { writeJsonToFile } from '../output/writeJsonToFile';
 import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 import {
@@ -82,10 +77,11 @@ export async function loadInputAndOutputFromFilePath(
     }
     if (isInvalidDotOpossumFileError(parsingResult)) {
       log.info('Invalid input file.');
-      setLoadingState(mainWindow.webContents, false);
+      mainWindow.webContents.send(AllowedFrontendChannels.FileLoading, {
+        isLoading: false,
+      });
       await getMessageBoxForInvalidDotOpossumFileError(
         parsingResult.filesInArchive,
-        mainWindow,
       );
       return;
     }
@@ -309,4 +305,32 @@ function createJsonOutputFile(
     resourcesToAttributions,
     resolvedExternalAttributions: [],
   };
+}
+
+export async function getMessageBoxForParsingError(
+  errorMessage: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Parsing Error',
+    message: 'Error parsing the input file.',
+    detail: errorMessage,
+  });
+}
+
+export async function getMessageBoxForInvalidDotOpossumFileError(
+  filesInArchive: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Invalid File Error',
+    message: "Error loading '.opossum' file.",
+    detail:
+      "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
+      `Actual files in the archive: ${filesInArchive}.`,
+  });
 }

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, Menu, shell, WebContents } from 'electron';
+import { BrowserWindow, shell, WebContents } from 'electron';
 import log from 'electron-log';
 import fs from 'fs';
 import JSZip from 'jszip';
@@ -52,7 +52,6 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
-import { createMenu } from './menu';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';
@@ -272,8 +271,6 @@ export async function openFile(
   try {
     await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
-    mainWindow.removeMenu();
-    Menu.setApplicationMenu(createMenu(mainWindow));
   } finally {
     setLoadingState(mainWindow.webContents, false);
   }

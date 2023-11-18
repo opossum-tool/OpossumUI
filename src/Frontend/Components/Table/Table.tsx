@@ -5,10 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useMemo } from 'react';
 
-import {
-  AttributionInfo,
-  AttributionsWithResources,
-} from '../../../shared/shared-types';
+import { AttributionsWithResources } from '../../../shared/shared-types';
 import { OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { List } from '../List/List';
@@ -49,57 +46,6 @@ const classes = {
     flex: 1,
   },
 };
-
-export interface TableConfig {
-  attributionProperty: keyof AttributionInfo | 'icons';
-  displayName: string;
-  width?: 'verySmall' | 'small' | 'medium' | 'wide';
-}
-
-export const tableConfigs: Array<TableConfig> = [
-  {
-    attributionProperty: 'icons',
-    displayName: '',
-    width: 'verySmall',
-  },
-  {
-    attributionProperty: 'packageName',
-    displayName: 'Name',
-    width: 'small',
-  },
-  {
-    attributionProperty: 'packageVersion',
-    displayName: 'Version',
-    width: 'small',
-  },
-  {
-    attributionProperty: 'licenseName',
-    displayName: 'License',
-    width: 'small',
-  },
-  {
-    attributionProperty: 'licenseText',
-    displayName: 'License Text',
-    width: 'wide',
-  },
-  { attributionProperty: 'url', displayName: 'URL', width: 'medium' },
-  {
-    attributionProperty: 'resources',
-    displayName: 'Resources',
-    width: 'medium',
-  },
-  {
-    attributionProperty: 'copyright',
-    displayName: 'Copyright',
-    width: 'medium',
-  },
-  {
-    attributionProperty: 'attributionConfidence',
-    displayName: 'Confidence',
-    width: 'small',
-  },
-  { attributionProperty: 'comment', displayName: 'Comment', width: 'small' },
-];
 
 interface TableProps {
   attributionsWithResources: AttributionsWithResources;

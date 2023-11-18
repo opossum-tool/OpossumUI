@@ -21,11 +21,9 @@ import {
   getManualData,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
-  getDisplayedPackage,
-  getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
+import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
+import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { PanelPackage } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';

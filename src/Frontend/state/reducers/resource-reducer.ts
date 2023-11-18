@@ -30,6 +30,7 @@ import {
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
+import { getCalculatePreferredOverOriginIds } from '../actions/resource-actions/preference-actions';
 import {
   ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION,
   ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
@@ -87,7 +88,6 @@ import {
 import {
   createManualAttribution,
   deleteManualAttribution,
-  getCalculatePreferredOverOriginIds,
   linkToAttributionManualData,
   replaceAttributionWithMatchingAttributionId,
   unlinkResourceFromAttributionId,

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AttributionInfo, FollowUp } from '../../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
-import { TableConfig } from '../../Table/Table';
+import { TableConfig } from '../../Table/TableConfig';
 import { getFormattedCellData } from '../report-table-item-helpers';
 
 describe('The table helpers', () => {

@@ -16,10 +16,10 @@ import {
   getDisplayPackageInfoOfSelectedAttributionInAttributionView,
   getManualData,
 } from '../../selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../selectors/all-views-resource-selectors';
+import { getDisplayPackageInfoOfDisplayedPackage } from '../../selectors/all-views-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
 import {
-  getDisplayedPackage,
-  getDisplayPackageInfoOfDisplayedPackage,
   getSelectedResourceId,
   getTargetDisplayedPackage,
   getTargetSelectedResourceId,

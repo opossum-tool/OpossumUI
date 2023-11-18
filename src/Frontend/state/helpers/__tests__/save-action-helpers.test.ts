@@ -15,6 +15,7 @@ import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
 import { initialResourceState } from '../../reducers/resource-reducer';
 import { getManualData } from '../../selectors/all-views-resource-selectors';
 import {
@@ -23,7 +24,6 @@ import {
   _removeManualAttributionFromChildrenIfAllAreIdentical,
   createManualAttribution,
   deleteManualAttribution,
-  getCalculatePreferredOverOriginIds,
   linkToAttributionManualData,
   unlinkResourceFromAttributionId,
   updateManualAttribution,

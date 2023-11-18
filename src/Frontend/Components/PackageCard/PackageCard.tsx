@@ -35,12 +35,10 @@ import {
   getManualAttributionsToResources,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/all-views-resource-selectors';
+import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/all-views-resource-selectors';
+import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
 import {
-  getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionIdInAttributionView,
-} from '../../state/selectors/attribution-view-resource-selectors';
-import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';

@@ -17,9 +17,9 @@ import {
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getManualData } from '../../state/selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
-  getDisplayedPackage,
   getIsAccordionSearchFieldDisplayed,
   getPackageSearchTerm,
   getSelectedResourceId,

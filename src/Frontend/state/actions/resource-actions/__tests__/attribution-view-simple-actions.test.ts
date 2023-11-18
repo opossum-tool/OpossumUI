@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
 import {
   getMultiSelectSelectedAttributionIds,
-  getSelectedAttributionIdInAttributionView,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
 import {
