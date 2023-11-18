@@ -56,7 +56,6 @@
         'upath',
         'url',
         'uuid',
-        'write-file-atomic',
       ],
       matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
