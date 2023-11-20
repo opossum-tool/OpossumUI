@@ -53,6 +53,7 @@ export const test = base.extend<{
   fileSearchPopup: FileSearchPopup;
   fileSupportPopup: FileSupportPopup;
   menuBar: MenuBar;
+  modKey: string;
   modifyWasPreferredAttributionPopup: ModifyWasPreferredAttributionPopup;
   notSavedPopup: NotSavedPopup;
   projectMetadataPopup: ProjectMetadataPopup;
@@ -98,6 +99,9 @@ export const test = base.extend<{
       console.log(`DEBUG: ${info.outputPath()}`);
       info.fixme();
     });
+  },
+  modKey: async ({}, use) => {
+    await use(os.platform() === 'darwin' ? 'Meta' : 'Control');
   },
   projectStatisticsPopup: async ({ window }, use) => {
     await use(new ProjectStatisticsPopup(window));

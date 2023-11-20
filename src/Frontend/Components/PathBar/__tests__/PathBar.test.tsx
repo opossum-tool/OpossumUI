@@ -65,7 +65,7 @@ describe('The PathBar', () => {
       );
     });
 
-    fireEvent.click(screen.getByLabelText('open resource in browser'));
+    fireEvent.click(screen.getByLabelText('link to open'));
 
     expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
   });

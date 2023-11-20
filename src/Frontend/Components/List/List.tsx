@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ReactElement } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import { ReactElement, useEffect, useRef } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 const classes = {
   scrollChild: {
@@ -33,6 +33,7 @@ export function List({
   length,
   ...props
 }: Props): ReactElement {
+  const ref = useRef<VirtuosoHandle>(null);
   const maxHeight = ((): number | undefined => {
     if ('maxHeight' in props) {
       return props.maxHeight;
@@ -44,16 +45,19 @@ export function List({
   })();
   const currentHeight = length * cardHeight;
 
+  useEffect(() => {
+    if (indexToScrollTo && ref.current) {
+      ref.current.scrollToIndex({
+        index: indexToScrollTo,
+        align: 'center',
+        behavior: 'smooth',
+      });
+    }
+  }, [indexToScrollTo]);
+
   return (
     <Virtuoso
-      initialTopMostItemIndex={
-        window?.process?.env.JEST_WORKER_ID // https://github.com/petyosi/react-virtuoso/issues/1001
-          ? undefined
-          : {
-              index: indexToScrollTo,
-              align: 'center',
-            }
-      }
+      ref={ref}
       fixedItemHeight={cardHeight}
       totalCount={length}
       style={{

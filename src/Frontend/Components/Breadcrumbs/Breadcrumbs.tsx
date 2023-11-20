@@ -14,15 +14,12 @@ const classes = {
   breadcrumbs: {
     color: OpossumColors.black,
     '.MuiBreadcrumbs-separator': {
-      margin: '0px',
+      margin: '0 2px',
     },
   },
   breadcrumbsButton: {
     padding: '1px 4px',
     backgroundColor: OpossumColors.lightestBlue,
-    '&:hover': {
-      backgroundColor: OpossumColors.lightestBlue,
-    },
     '&:loading': {
       backgroundColor: OpossumColors.lightestBlue,
     },
@@ -42,7 +39,7 @@ const classes = {
 };
 
 interface BreadcrumbsProps {
-  selectedId: string;
+  selectedId?: string;
   onClick: (id: string) => void;
   idsToDisplayValues: Array<[string, string]>;
   sx?: SxProps;
@@ -69,7 +66,9 @@ export function Breadcrumbs(props: BreadcrumbsProps): ReactElement {
           selected={props.selectedId === id}
           onClick={(): void => props.onClick(id)}
           disableRipple={true}
-          disabled={index >= ids.indexOf(props.selectedId)}
+          disabled={
+            !!props.selectedId && index >= ids.indexOf(props.selectedId)
+          }
         >
           <MuiTypography
             sx={props.selectedId === id ? classes.breadcrumbsSelected : null}
