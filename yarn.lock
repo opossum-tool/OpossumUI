@@ -4595,13 +4595,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.5":
-  version: 2.3.2
-  resolution: "classnames@npm:2.3.2"
-  checksum: ba3151c12e8b6a84c64b340ab4259ad0408947652009314462d828e94631505989c6a7d7e796bec1d309be9295d3111b498ad18a9d533fe3e6f859e51e574cbb
-  languageName: node
-  linkType: hard
-
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -9118,7 +9111,7 @@ __metadata:
     react-hotkeys-hook: "npm:^4.4.1"
     react-redux: "npm:^8.1.3"
     react-virtuoso: "npm:^4.6.2"
-    recharts: "npm:^2.9.3"
+    recharts: "npm:^2.10.1"
     redux: "npm:^4.2.1"
     redux-thunk: "npm:^2.4.2"
     run-script-os: "npm:^1.1.6"
@@ -9715,19 +9708,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-resize-detector@npm:^8.0.4":
-  version: 8.1.0
-  resolution: "react-resize-detector@npm:8.1.0"
-  dependencies:
-    lodash: "npm:^4.17.21"
-  peerDependencies:
-    react: ^16.0.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 5a552a43c67dd38c8c7727d73e74d46f63776e05218cbd562ff8f97764ee1db542c77a35e3bb50ac9e807cd4b26d6c9a41b494b83148375df0d3a7d8e19c1e0b
-  languageName: node
-  linkType: hard
-
-"react-smooth@npm:^2.0.4":
+"react-smooth@npm:^2.0.5":
   version: 2.0.5
   resolution: "react-smooth@npm:2.0.5"
   dependencies:
@@ -9839,16 +9820,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.9.3":
-  version: 2.9.3
-  resolution: "recharts@npm:2.9.3"
+"recharts@npm:^2.10.1":
+  version: 2.10.1
+  resolution: "recharts@npm:2.10.1"
   dependencies:
-    classnames: "npm:^2.2.5"
+    clsx: "npm:^2.0.0"
     eventemitter3: "npm:^4.0.1"
     lodash: "npm:^4.17.19"
     react-is: "npm:^16.10.2"
-    react-resize-detector: "npm:^8.0.4"
-    react-smooth: "npm:^2.0.4"
+    react-smooth: "npm:^2.0.5"
     recharts-scale: "npm:^0.4.4"
     tiny-invariant: "npm:^1.3.1"
     victory-vendor: "npm:^36.6.8"
@@ -9856,7 +9836,7 @@ __metadata:
     prop-types: ^15.6.0
     react: ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 8af66581bd9315095f4b1ef5c23fe216b9bfb233281d986f0b2ed751182418b6a934bca79c3d85d4df3158e95b7113ed32e574e4ceb4a1605cc14644a5228887
+  checksum: 04fad7b1163f87670f7252d2ac50e5df3634aa2589b4177908f00a54ca4d5fccfd4a95c5c2c42b71b3dc2fb7e0c4b2c8954a04bbf6beb335089e343a2e592560
   languageName: node
   linkType: hard
 
