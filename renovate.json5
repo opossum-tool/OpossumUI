@@ -20,6 +20,7 @@
       matchPackagePrefixes: ['@testing-library/', 'eslint-', '@babel/'],
       matchPackageNames: [
         '@faker-js/faker',
+        '@playwright/test',
         '@redux-devtools/extension',
         '@tanstack/react-query',
         '@trivago/prettier-plugin-sort-imports',
@@ -62,7 +63,7 @@
     },
     {
       matchPackageNames: ['yarn'],
-      matchUpdateTypes: ['patch'],
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },
     {
@@ -91,7 +92,7 @@
       matchPackageNames: ['redux', 'react-redux'],
       groupName: 'Redux dependencies',
       groupSlug: 'redux',
-      matchUpdateTypes: ['patch'],
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },
     {
@@ -99,7 +100,7 @@
       matchPackageNames: ['vite'],
       groupName: 'Vite dependencies',
       groupSlug: 'vite',
-      matchUpdateTypes: ['patch'],
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },
     {

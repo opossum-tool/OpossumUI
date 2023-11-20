@@ -2540,14 +2540,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.39.0":
-  version: 1.39.0
-  resolution: "@playwright/test@npm:1.39.0"
+"@playwright/test@npm:^1.40.0":
+  version: 1.40.0
+  resolution: "@playwright/test@npm:1.40.0"
   dependencies:
-    playwright: "npm:1.39.0"
+    playwright: "npm:1.40.0"
   bin:
     playwright: cli.js
-  checksum: 5d039234609395f3eab46b5954b259bdd80dacf79efe531369c1633647dcafce25a78d497e61e671d661274bf66076426a1bd46be585c44addf23bb5bfaa15a2
+  checksum: 46ebd396d37b3e438019229f5c84bf4a8614f455245a51fd2d77a05f6065aefc41af30f26882415607c9e4adc2bb1511bd1f1ba06d7870fae0b5525768240acb
   languageName: node
   linkType: hard
 
@@ -8954,7 +8954,7 @@ __metadata:
     "@mui/icons-material": "npm:^5.14.18"
     "@mui/material": "npm:^5.14.18"
     "@mui/system": "npm:^5.14.18"
-    "@playwright/test": "npm:^1.39.0"
+    "@playwright/test": "npm:^1.40.0"
     "@redux-devtools/extension": "npm:^3.2.6"
     "@tanstack/react-query": "npm:^5.8.4"
     "@testing-library/dom": "npm:^9.3.3"
@@ -9265,27 +9265,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.39.0":
-  version: 1.39.0
-  resolution: "playwright-core@npm:1.39.0"
+"playwright-core@npm:1.40.0":
+  version: 1.40.0
+  resolution: "playwright-core@npm:1.40.0"
   bin:
     playwright-core: cli.js
-  checksum: e4e01ddea024c7564bbfacdba5f545b004a4017b466af08ae90e5184da4f5bc61e74c96e37cc5e30b7d4f97341c0883cfb2038c8cfbfab65316d714f65b82d83
+  checksum: 2ce5245988b0e89ed3359476a83ad724484da349eae42e6c9dd4162a2180b1d37fe1750df45473a5a04a1590cb093d9f0df81e607b7f5c2c161f881436ee1a00
   languageName: node
   linkType: hard
 
-"playwright@npm:1.39.0":
-  version: 1.39.0
-  resolution: "playwright@npm:1.39.0"
+"playwright@npm:1.40.0":
+  version: 1.40.0
+  resolution: "playwright@npm:1.40.0"
   dependencies:
     fsevents: "npm:2.3.2"
-    playwright-core: "npm:1.39.0"
+    playwright-core: "npm:1.40.0"
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 6f6b2f4381fccfbc560c4cd25e164f5093fec4e2046990587282e18618151d723b299b56c16741ce08e44a759c22e38c3e705b716d31238320e08e6ffcfa7319
+  checksum: 56352a177e712598f30bbe6da69027a065cb9ee50df512e186dfc9e479a68bd60bab2fee9278e943ab75d4109ad062b88556f3e7efdabfd1f91f728ccceee631
   languageName: node
   linkType: hard
 
