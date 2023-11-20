@@ -10,8 +10,8 @@ import { PackagePanelTitle } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../../types/types';
 import { getResourcesWithExternalAttributedChildren } from '../../../selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../../selectors/all-views-resource-selectors';
 import {
-  getDisplayedPackage,
   getExpandedIds,
   getResolvedExternalAttributions,
   getSelectedResourceId,

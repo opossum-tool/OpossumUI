@@ -20,10 +20,7 @@ import {
   removeFromSetCloneAndDeleteKeyFromObjectIfEmpty,
   replaceInArray,
 } from '../../util/lodash-extension-utils';
-import { getOriginIdsToPreferOver } from '../actions/resource-actions/preference-actions';
-import { ResourceState } from '../reducers/resource-reducer';
 import { getManualAttributions } from '../selectors/all-views-resource-selectors';
-import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './action-and-reducer-helpers';
 import { getParents } from './get-parents';
 
 export type CalculatePreferredOverOriginIds = (
@@ -363,23 +360,6 @@ function linkAttributionAndResource(
   }
 }
 
-export function getCalculatePreferredOverOriginIds(
-  state: ResourceState,
-): CalculatePreferredOverOriginIds {
-  return (
-    pathToResource: string,
-    newManualAttributionToResources: AttributionsToResources,
-  ) =>
-    getOriginIdsToPreferOver(
-      pathToResource,
-      state.allViews.resources ?? {},
-      state.allViews.externalData.resourcesToAttributions,
-      newManualAttributionToResources,
-      state.allViews.externalData.attributions,
-      state.allViews.externalAttributionSources,
-    );
-}
-
 export function recalulatePreferencesOfParents(
   pathToChangedResource: string,
   newManualData: AttributionData,
@@ -619,4 +599,16 @@ function getAttributionDataShallowCopy(
       ...attributionData.resourcesWithAttributedChildren,
     },
   };
+}
+
+export function addPathToIndexesIfMissingInResourcesWithAttributedChildren(
+  childrenWithAttributions: ResourcesWithAttributedChildren,
+  path: string,
+): number {
+  if (childrenWithAttributions.pathsToIndices[path] === undefined) {
+    const newLength = childrenWithAttributions.paths.push(path);
+    childrenWithAttributions.pathsToIndices[path] = newLength - 1;
+  }
+
+  return childrenWithAttributions.pathsToIndices[path];
 }

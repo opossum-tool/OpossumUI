@@ -15,7 +15,7 @@ import {
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/all-views-resource-selectors';
 import { getActiveFilters } from '../../state/selectors/view-selector';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';

@@ -7,7 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
-import { tableConfigs } from '../Table/Table';
+import { tableConfigs } from '../Table/TableConfig';
 
 export const reportTableClasses = {
   tableHeader: {

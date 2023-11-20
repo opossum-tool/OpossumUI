@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, dialog } from 'electron';
 import log from 'electron-log';
 import fs from 'fs';
 import { cloneDeep } from 'lodash';
@@ -17,14 +17,8 @@ import {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import {
-  getMessageBoxForInvalidDotOpossumFileError,
-  getMessageBoxForParsingError,
-} from '../errorHandling/errorHandling';
+import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
-import { setLoadingState } from '../main/listeners';
-import { writeJsonToFile } from '../output/writeJsonToFile';
-import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 import {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -82,10 +76,11 @@ export async function loadInputAndOutputFromFilePath(
     }
     if (isInvalidDotOpossumFileError(parsingResult)) {
       log.info('Invalid input file.');
-      setLoadingState(mainWindow.webContents, false);
+      mainWindow.webContents.send(AllowedFrontendChannels.FileLoading, {
+        isLoading: false,
+      });
       await getMessageBoxForInvalidDotOpossumFileError(
         parsingResult.filesInArchive,
-        mainWindow,
       );
       return;
     }
@@ -124,7 +119,7 @@ export async function loadInputAndOutputFromFilePath(
         '_attributions.json',
       );
       const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
-      parsedOutputData = parseOrCreateOutputJsonFile(
+      parsedOutputData = await parseOrCreateOutputJsonFile(
         outputJsonPath,
         externalAttributions,
         resourcesToAttributions,
@@ -213,7 +208,11 @@ async function createOutputInOpossumFile(
     resourcesToExternalAttributions,
     projectId,
   );
-  await writeOutputJsonToOpossumFile(filePath, attributionJSON);
+  await writeOpossumFile({
+    path: filePath,
+    input: getGlobalBackendState().inputFileRaw,
+    output: attributionJSON,
+  });
   log.info('... Successfully wrote output in .opossum file.');
 
   log.info(`Starting to parse output file in ${filePath} ...`);
@@ -225,13 +224,13 @@ async function createOutputInOpossumFile(
   return parsedOutputFile;
 }
 
-function parseOrCreateOutputJsonFile(
+async function parseOrCreateOutputJsonFile(
   filePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string,
   inputFileMD5Checksum?: string,
-): ParsedOpossumOutputFile {
+): Promise<ParsedOpossumOutputFile> {
   if (!fs.existsSync(filePath)) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
     const attributionJSON = createJsonOutputFile(
@@ -240,7 +239,7 @@ function parseOrCreateOutputJsonFile(
       projectId,
       inputFileMD5Checksum,
     );
-    writeJsonToFile(filePath, attributionJSON);
+    await writeFile({ path: filePath, content: attributionJSON });
     log.info('... Successfully created output file.');
   }
 
@@ -309,4 +308,32 @@ function createJsonOutputFile(
     resourcesToAttributions,
     resolvedExternalAttributions: [],
   };
+}
+
+export async function getMessageBoxForParsingError(
+  errorMessage: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Parsing Error',
+    message: 'Error parsing the input file.',
+    detail: errorMessage,
+  });
+}
+
+export async function getMessageBoxForInvalidDotOpossumFileError(
+  filesInArchive: string,
+): Promise<void> {
+  await dialog.showMessageBox({
+    type: 'error',
+    buttons: ['OK'],
+    defaultId: 0,
+    title: 'Invalid File Error',
+    message: "Error loading '.opossum' file.",
+    detail:
+      "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
+      `Actual files in the archive: ${filesInArchive}.`,
+  });
 }

@@ -16,10 +16,10 @@ import {
 import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionsOfSelectedResource,
   getAttributionsOfSelectedResourceOrClosestParent,
-  getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { DisplayPackageInfos } from '../../types/types';

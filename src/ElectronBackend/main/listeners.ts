@@ -3,10 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, Menu, shell, WebContents } from 'electron';
+import { BrowserWindow, shell, WebContents } from 'electron';
 import log from 'electron-log';
 import fs from 'fs';
-import JSZip from 'jszip';
 import hash from 'object-hash';
 import upath from 'upath';
 import zlib from 'zlib';
@@ -24,6 +23,11 @@ import {
   SaveFileArgs,
   SendErrorInformationArgs,
 } from '../../shared/shared-types';
+import {
+  OPOSSUM_FILE_EXTENSION,
+  writeFile,
+  writeOpossumFile,
+} from '../../shared/write-file';
 import { LoadedFileFormat } from '../enums/enums';
 import {
   createListenerCallbackWithErrorHandling,
@@ -32,13 +36,7 @@ import {
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
 import { parseOutputJsonFile } from '../input/parseFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
-import { writeJsonToFile } from '../output/writeJsonToFile';
-import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
-import {
-  OPOSSUM_FILE_COMPRESSION_LEVEL,
-  OPOSSUM_FILE_EXTENSION,
-} from '../shared-constants';
 import {
   GlobalBackendState,
   KeysOfAttributionInfo,
@@ -52,13 +50,10 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
-import { createMenu } from './menu';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';
 const jsonFileExtension = '.json';
-const dotOpossumFileInputJson = 'input.json';
-const dotOpossumFileOutputJson = 'output.json';
 
 export function getSaveFileListener(
   mainWindow: BrowserWindow,
@@ -88,24 +83,27 @@ export function getSaveFileListener(
         ),
       };
 
-      writeOutputJsonToFile(outputFileContent);
+      return writeOutputJsonToFile(outputFileContent);
     },
   );
 }
 
-function writeOutputJsonToFile(outputFileContent: OpossumOutputFile): void {
+async function writeOutputJsonToFile(
+  outputFileContent: OpossumOutputFile,
+): Promise<void> {
   const globalBackendState = getGlobalBackendState();
   const fileLoadedType = getLoadedFileType(globalBackendState);
   if (fileLoadedType === LoadedFileFormat.Opossum) {
-    void writeOutputJsonToOpossumFile(
-      globalBackendState.opossumFilePath as string,
-      outputFileContent,
-    );
+    await writeOpossumFile({
+      path: globalBackendState.opossumFilePath as string,
+      input: getGlobalBackendState().inputFileRaw,
+      output: outputFileContent,
+    });
   } else {
-    writeJsonToFile(
-      globalBackendState.attributionFilePath as string,
-      outputFileContent,
-    );
+    await writeFile({
+      path: globalBackendState.attributionFilePath as string,
+      content: outputFileContent,
+    });
   }
 }
 
@@ -272,8 +270,6 @@ export async function openFile(
   try {
     await loadInputAndOutputFromFilePath(mainWindow, filePath);
     setTitle(mainWindow, filePath);
-    mainWindow.removeMenu();
-    Menu.setApplicationMenu(createMenu(mainWindow));
   } finally {
     setLoadingState(mainWindow.webContents, false);
   }
@@ -511,22 +507,12 @@ export function getConvertInputFileToDotOpossumAndOpenListener(
     }
 
     const dotOpossumFilePath = getDotOpossumFilePath(resourceFilePath);
-    const inputJson = getInputJson(resourceFilePath);
 
-    const dotOpossumArchive = new JSZip();
-    const dotOpossumWriteStream = fs.createWriteStream(dotOpossumFilePath);
-    dotOpossumArchive.file(dotOpossumFileInputJson, inputJson);
-
-    addOutputJsonFileToDotOpossum(resourceFilePath, dotOpossumArchive);
-
-    await dotOpossumArchive
-      .generateAsync({
-        type: 'nodebuffer',
-        streamFiles: true,
-        compression: 'DEFLATE',
-        compressionOptions: { level: OPOSSUM_FILE_COMPRESSION_LEVEL },
-      })
-      .then((output) => dotOpossumWriteStream.write(output));
+    await writeOpossumFile({
+      path: dotOpossumFilePath,
+      input: getInputJson(resourceFilePath),
+      output: getOutputJson(resourceFilePath),
+    });
 
     log.info('Updating global backend state');
     initializeGlobalBackendState(dotOpossumFilePath, isOpossumFormat);
@@ -565,20 +551,18 @@ function getInputJson(resourceFilePath: string): string {
   return inputJson;
 }
 
-function addOutputJsonFileToDotOpossum(
-  resourceFilePath: string,
-  dotOpossumArchive: JSZip,
-): void {
+function getOutputJson(resourceFilePath: string): string | undefined {
   const expectedAssociatedAttributionFilePath = getFilePathWithAppendix(
     resourceFilePath,
     outputFileEnding,
   );
   if (fs.existsSync(expectedAssociatedAttributionFilePath)) {
-    const outputJson = fs.readFileSync(expectedAssociatedAttributionFilePath, {
+    return fs.readFileSync(expectedAssociatedAttributionFilePath, {
       encoding: 'utf-8',
     });
-    dotOpossumArchive.file(dotOpossumFileOutputJson, outputJson);
   }
+
+  return undefined;
 }
 
 export function getOpenOutdatedInputFileListener(

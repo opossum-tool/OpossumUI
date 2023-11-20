@@ -4,10 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { pick } from 'lodash';
 
-import { Attributions, DisplayPackageInfo } from '../../../shared/shared-types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { Attributions } from '../../../shared/shared-types';
 import { PanelPackage, State } from '../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForState } from '../../util/is-attribution-breakpoint';
 import {
@@ -25,10 +23,6 @@ export function getTargetSelectedResourceId(state: State): string | null {
 
 export function getExpandedIds(state: State): Array<string> {
   return state.resourceState.auditView.expandedIds;
-}
-
-export function getDisplayedPackage(state: State): PanelPackage | null {
-  return state.resourceState.auditView.displayedPanelPackage;
 }
 
 export function getTargetDisplayedPackage(state: State): PanelPackage | null {
@@ -86,43 +80,6 @@ export function getAttributionsOfSelectedResourceOrClosestParent(
   return Object.keys(attributionsOfSelectedResource).length > 0
     ? attributionsOfSelectedResource
     : getAttributionsOfSelectedResourceClosestParent(state);
-}
-
-export function getAttributionIdOfDisplayedPackageInManualPanel(
-  state: State,
-): string | null {
-  if (
-    state.resourceState.auditView.displayedPanelPackage?.panel ===
-    PackagePanelTitle.ManualPackages
-  ) {
-    return (
-      state.resourceState.auditView.displayedPanelPackage.displayPackageInfo
-        .attributionIds[0] || null
-    );
-  }
-  return null;
-}
-
-export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
-  state: State,
-): DisplayPackageInfo | null {
-  const attributionId: string | null =
-    getAttributionIdOfDisplayedPackageInManualPanel(state);
-  if (attributionId) {
-    const manualAttributions: Attributions = getManualAttributions(state);
-    return convertPackageInfoToDisplayPackageInfo(
-      manualAttributions[attributionId],
-      [attributionId],
-    );
-  }
-  return null;
-}
-
-export function getDisplayPackageInfoOfDisplayedPackage(
-  state: State,
-): DisplayPackageInfo | null {
-  const displayedPackage = state.resourceState.auditView.displayedPanelPackage;
-  return displayedPackage ? displayedPackage.displayPackageInfo : null;
 }
 
 export function getIsAccordionSearchFieldDisplayed(state: State): boolean {

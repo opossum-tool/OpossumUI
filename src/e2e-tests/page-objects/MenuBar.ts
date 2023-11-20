@@ -2,10 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ElectronApplication, Page } from '@playwright/test';
+import { ElectronApplication, expect, Page } from '@playwright/test';
 import { clickMenuItem } from 'electron-playwright-helpers';
-
-import { expect } from '../utils';
 
 export class MenuBar {
   private readonly window: Page & { app: ElectronApplication };

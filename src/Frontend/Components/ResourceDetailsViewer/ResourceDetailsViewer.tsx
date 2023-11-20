@@ -15,10 +15,10 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import { setDisplayedPackage } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
+import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getAttributionIdsOfSelectedResourceClosestParent,
-  getDisplayedPackage,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { PanelPackage } from '../../types/types';

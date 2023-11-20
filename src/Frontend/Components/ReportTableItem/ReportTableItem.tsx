@@ -30,7 +30,7 @@ import {
   PreSelectedIcon,
 } from '../Icons/Icons';
 import { reportTableClasses } from '../ReportTableHeader/ReportTableHeader';
-import { TableConfig, tableConfigs } from '../Table/Table';
+import { TableConfig, tableConfigs } from '../Table/TableConfig';
 import { getFormattedCellData } from './report-table-item-helpers';
 
 export const reportTableRowHeight = 190;

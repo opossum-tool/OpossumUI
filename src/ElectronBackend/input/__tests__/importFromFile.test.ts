@@ -7,7 +7,6 @@ import { BrowserWindow, dialog } from 'electron';
 import * as fs from 'fs';
 import path from 'path';
 import upath from 'upath';
-import writeFileAtomic from 'write-file-atomic';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
@@ -19,19 +18,22 @@ import {
   PackageInfo,
   ParsedFileContent,
 } from '../../../shared/shared-types';
-import { getMessageBoxForParsingError } from '../../errorHandling/errorHandling';
+import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
-import { writeJsonToFile } from '../../output/writeJsonToFile';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 import {
-  createTempFolder,
-  deleteFolder,
-  writeOpossumFile,
-} from '../../test-helpers';
-import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
-import { loadInputAndOutputFromFilePath } from '../importFromFile';
+  JsonParsingError,
+  OpossumOutputFile,
+  ParsedOpossumInputFile,
+} from '../../types/types';
+import {
+  getMessageBoxForInvalidDotOpossumFileError,
+  getMessageBoxForParsingError,
+  loadInputAndOutputFromFilePath,
+} from '../importFromFile';
 
 const externalAttributionUuid = 'ecd692d9-b154-4d4d-be8c-external';
 const manualAttributionUuid = 'ecd692d9-b154-4d4d-be8c-manual';
@@ -44,10 +46,7 @@ jest.mock('electron', () => ({
   BrowserWindow: {
     getFocusedWindow: jest.fn(),
   },
-  app: {
-    getName: jest.fn(),
-    getVersion: jest.fn(),
-  },
+  app: { exit: jest.fn(), getName: jest.fn(), getVersion: jest.fn() },
 }));
 
 jest.mock('electron-log');
@@ -192,7 +191,7 @@ describe('Test of loading function', () => {
       'corrupt_test.json',
     );
     const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
-    writeJsonToFile(jsonPath, inputFileContent);
+    await writeFile({ path: jsonPath, content: inputFileContent });
 
     Date.now = jest.fn(() => 1);
 
@@ -209,7 +208,7 @@ describe('Test of loading function', () => {
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
     const expectedBackendState = getGlobalBackendState();
 
-    writeFileAtomic.sync(corruptJsonPath, '{"name": 3');
+    await writeFile({ path: corruptJsonPath, content: '{"name": 3' });
 
     await loadInputAndOutputFromFilePath(mainWindow, corruptJsonPath);
 
@@ -218,7 +217,6 @@ describe('Test of loading function', () => {
       expectedNumberOfCalls,
     );
 
-    expect(getMessageBoxForParsingError).toHaveBeenCalled();
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
     deleteFolder(temporaryPath);
   });
@@ -240,7 +238,11 @@ describe('Test of loading function', () => {
       },
       resolvedExternalAttributions: [],
     };
-    await writeOpossumFile(opossumPath, inputFileContent, attributions);
+    await writeOpossumFile({
+      input: inputFileContent,
+      output: attributions,
+      path: opossumPath,
+    });
 
     Date.now = jest.fn(() => 1);
 
@@ -270,7 +272,10 @@ describe('Test of loading function', () => {
     const opossumName = 'test.opossum';
     const opossumPath = path.join(upath.toUnix(temporaryPath), opossumName);
 
-    await writeOpossumFile(opossumPath, inputFileContent, null);
+    await writeOpossumFile({
+      input: inputFileContent,
+      path: opossumPath,
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     Date.now = jest.fn(() => 1691761892037);
@@ -292,7 +297,7 @@ describe('Test of loading function', () => {
     it('for json file', async () => {
       const temporaryPath: string = createTempFolder();
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
-      writeJsonToFile(jsonPath, inputFileContent);
+      await writeFile({ path: jsonPath, content: inputFileContent });
 
       Date.now = jest.fn(() => 1);
 
@@ -342,7 +347,7 @@ describe('Test of loading function', () => {
       'test_attributions.json',
     );
 
-    writeJsonToFile(jsonPath, inputFileContent);
+    await writeFile({ path: jsonPath, content: inputFileContent });
     const attributions: OpossumOutputFile = {
       metadata: validMetadata,
       manualAttributions: {
@@ -353,7 +358,7 @@ describe('Test of loading function', () => {
       },
       resolvedExternalAttributions: [],
     };
-    writeJsonToFile(attributionJsonPath, attributions);
+    await writeFile({ path: attributionJsonPath, content: attributions });
 
     Date.now = jest.fn(() => 1);
 
@@ -431,7 +436,10 @@ describe('Test of loading function', () => {
       const jsonName = 'test.json';
       const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
 
-      writeJsonToFile(jsonPath, inputFileContentWithPreselectedAttribution);
+      await writeFile({
+        path: jsonPath,
+        content: inputFileContentWithPreselectedAttribution,
+      });
 
       Date.now = jest.fn(() => 1);
 
@@ -537,7 +545,10 @@ describe('Test of loading function', () => {
     const jsonName = 'test.json';
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
 
-    writeJsonToFile(jsonPath, inputFileContentWithCustomMetadata);
+    await writeFile({
+      path: jsonPath,
+      content: inputFileContentWithCustomMetadata,
+    });
 
     Date.now = jest.fn(() => 1);
 
@@ -578,7 +589,7 @@ describe('Test of loading function', () => {
     const jsonName = 'test.json';
     const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
 
-    writeJsonToFile(jsonPath, inputFileContentWithOriginIds);
+    await writeFile({ path: jsonPath, content: inputFileContentWithOriginIds });
 
     Date.now = jest.fn(() => 1);
 
@@ -637,3 +648,42 @@ function assertFileLoadedCorrectly(testUuid: string): void {
   );
   expect(dialog.showMessageBox).not.toBeCalled();
 }
+
+describe('getMessageBoxForParsingError', () => {
+  it('returns a messageBox', async () => {
+    const parsingError: JsonParsingError = {
+      message: 'parsingErrorMessage',
+      type: 'jsonParsingError',
+    };
+
+    await getMessageBoxForParsingError(parsingError.message);
+
+    expect(dialog.showMessageBox).toBeCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message: 'Error parsing the input file.',
+        detail: 'parsingErrorMessage',
+        buttons: ['OK'],
+      }),
+    );
+  });
+});
+
+describe('getMessageBoxForInvalidDotOpossumFileError', () => {
+  it('returns a message box with correct content', async () => {
+    const testFilesInArchive = 'inpt.json, output.json';
+
+    await getMessageBoxForInvalidDotOpossumFileError(testFilesInArchive);
+
+    expect(dialog.showMessageBox).toBeCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        message: "Error loading '.opossum' file.",
+        detail:
+          "The '.opossum' file is invalid as it does not contain an 'input.json'. " +
+          `Actual files in the archive: ${testFilesInArchive}.`,
+        buttons: ['OK'],
+      }),
+    );
+  });
+});

@@ -23,7 +23,7 @@ import {
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import { getDisplayedPackage } from '../../../state/selectors/audit-view-resource-selectors';
+import { getDisplayedPackage } from '../../../state/selectors/all-views-resource-selectors';
 import {
   expectValueInTextBox,
   expectValueNotInTextBox,

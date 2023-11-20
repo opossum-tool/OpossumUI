@@ -4,9 +4,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
+import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
 import each from 'jest-each';
-import JSZip from 'jszip';
 import * as MockDate from 'mockdate';
 import path from 'path';
 import upath from 'upath';
@@ -24,13 +24,12 @@ import {
   ExportType,
   PackageInfo,
 } from '../../../shared/shared-types';
+import { writeFile } from '../../../shared/write-file';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
-import { writeJsonToFile } from '../../output/writeJsonToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
-import { getFilePathWithAppendix } from '../../utils/getFilePathWithAppendix';
 import { createWindow } from '../createWindow';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
@@ -99,8 +98,9 @@ jest.mock('electron', () => ({
 
 jest.mock('electron-log');
 
-jest.mock('../../output/writeJsonToFile', () => ({
-  writeJsonToFile: jest.fn(),
+jest.mock('../../../shared/write-file', () => ({
+  ...jest.requireActual('../../../shared/write-file'),
+  writeFile: jest.fn(),
 }));
 
 jest.mock('../../output/writeCsvToFile', () => ({
@@ -113,10 +113,6 @@ jest.mock('../../output/writeSpdxFile', () => ({
 
 jest.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: jest.fn(),
-}));
-
-jest.mock('../../utils/getFilePathWithAppendix', () => ({
-  getFilePathWithAppendix: jest.fn(),
 }));
 
 jest.mock('../dialogs', () => ({
@@ -196,8 +192,8 @@ describe('getOpenFileListener', () => {
     } as unknown as BrowserWindow;
 
     // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
+    writeFile.mockImplementationOnce(
+      jest.requireActual('../../../shared/write-file').writeFile,
     );
 
     const temporaryPath: string = createTempFolder();
@@ -207,7 +203,7 @@ describe('getOpenFileListener', () => {
     );
 
     const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json');
-    writeJsonToFile(resourcePath, {});
+    await writeFile({ path: resourcePath, content: {} });
 
     // @ts-ignore
     openFileDialog.mockReturnValueOnce([attributionsPath]);
@@ -231,8 +227,8 @@ describe('getOpenFileListener', () => {
     } as unknown as BrowserWindow;
 
     // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
+    writeFile.mockImplementationOnce(
+      jest.requireActual('../../../shared/write-file').writeFile,
     );
 
     const temporaryPath: string = createTempFolder();
@@ -242,7 +238,7 @@ describe('getOpenFileListener', () => {
     );
 
     const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json.gz');
-    writeJsonToFile(resourcePath, {});
+    await writeFile({ path: resourcePath, content: {} });
 
     // @ts-ignore
     openFileDialog.mockReturnValueOnce([attributionsPath]);
@@ -287,18 +283,6 @@ describe('getUseOutdatedInputFileFormatListener', () => {
         expect.anything(),
         jsonPath,
       );
-      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
-        expect.anything(),
-        '_attributions.json',
-      );
-      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
-        expect.anything(),
-        '_follow_up.csv',
-      );
-      expect(getFilePathWithAppendix).toHaveBeenCalledWith(
-        expect.anything(),
-        '_compact_component_list.csv',
-      );
       expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
       deleteFolder(temporaryPath);
     },
@@ -319,16 +303,11 @@ describe('getUseOutdatedInputFileFormatListener', () => {
     );
 
     // @ts-ignore
-    getFilePathWithAppendix.mockImplementation(
-      jest.requireActual('../../utils/getFilePathWithAppendix')
-        .getFilePathWithAppendix,
-    );
-    // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
+    writeFile.mockImplementationOnce(
+      jest.requireActual('../../../shared/write-file').writeFile,
     );
 
-    writeJsonToFile(resourcesFilePath, {});
+    await writeFile({ path: resourcesFilePath, content: {} });
 
     const attributionsFilePath = path.join(
       upath.toUnix(temporaryPath),
@@ -356,11 +335,11 @@ describe('getUseOutdatedInputFileFormatListener', () => {
     };
 
     // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
+    writeFile.mockImplementationOnce(
+      jest.requireActual('../../../shared/write-file').writeFile,
     );
 
-    writeJsonToFile(attributionsFilePath, attributions_data);
+    await writeFile({ path: attributionsFilePath, content: attributions_data });
 
     setGlobalBackendState({
       resourceFilePath: resourcesFilePath,
@@ -391,13 +370,8 @@ describe('getUseOutdatedInputFileFormatListener', () => {
         .loadInputAndOutputFromFilePath,
     );
     // @ts-ignore
-    getFilePathWithAppendix.mockImplementation(
-      jest.requireActual('../../utils/getFilePathWithAppendix')
-        .getFilePathWithAppendix,
-    );
-    // @ts-ignore
-    writeJsonToFile.mockImplementationOnce(
-      jest.requireActual('../../output/writeJsonToFile').writeJsonToFile,
+    writeFile.mockImplementationOnce(
+      jest.requireActual('../../../shared/write-file').writeFile,
     );
 
     const temporaryPath: string = createTempFolder();
@@ -474,21 +448,13 @@ describe('getConvertInputFileToDotOpossumListener', () => {
     await new Promise<void>((resolve) => {
       fs.readFile(expectedDotOpossumFilePath, (err, data) => {
         if (err) throw err;
-        void JSZip.loadAsync(data).then((zip) => {
-          void Promise.all([
-            zip.files['input.json']
-              .async('text')
-              .then((content) => {
-                parsedInputJson = content;
-              })
-              .then(resolve),
-            zip.files['output.json']
-              .async('text')
-              .then((content) => {
-                parsedOutputJson = content;
-              })
-              .then(resolve),
-          ]);
+
+        unzip(data, (err, unzippedData) => {
+          if (err) throw err;
+          parsedInputJson = strFromU8(unzippedData['input.json']);
+          parsedOutputJson = strFromU8(unzippedData['output.json']);
+
+          resolve();
         });
       });
     });
@@ -612,7 +578,7 @@ describe('getSelectBaseURLListener', () => {
 describe('getSaveFileListener', () => {
   beforeEach(() => {
     // @ts-ignore
-    writeJsonToFile.mockReset();
+    writeFile.mockReset();
   });
 
   it('throws error when projectId is not set', async () => {
@@ -640,7 +606,7 @@ describe('getSaveFileListener', () => {
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeJsonToFile).not.toBeCalled();
+    expect(writeFile).not.toBeCalled();
   });
 
   it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
@@ -671,7 +637,7 @@ describe('getSaveFileListener', () => {
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeJsonToFile).not.toBeCalled();
+    expect(writeFile).not.toBeCalled();
   });
 
   it(
@@ -698,14 +664,17 @@ describe('getSaveFileListener', () => {
         resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),
       });
 
-      expect(writeJsonToFile).toHaveBeenCalledWith('/attributionFile.json', {
-        manualAttributions: {},
-        metadata: {
-          projectId: 'uuid_1',
-          fileCreationDate: `${mockDate}`,
+      expect(writeFile).toHaveBeenCalledWith({
+        path: '/attributionFile.json',
+        content: {
+          manualAttributions: {},
+          metadata: {
+            projectId: 'uuid_1',
+            fileCreationDate: `${mockDate}`,
+          },
+          resourcesToAttributions: {},
+          resolvedExternalAttributions: ['id_1', 'id_2'],
         },
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: ['id_1', 'id_2'],
       });
     },
   );

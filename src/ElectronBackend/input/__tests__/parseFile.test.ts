@@ -6,15 +6,11 @@ import fs from 'fs';
 import { cloneDeep, set } from 'lodash';
 import path from 'path';
 import upath from 'upath';
-// @ts-ignore
 import { NIL as uuidNil } from 'uuid';
 import zlib from 'zlib';
 
-import {
-  createTempFolder,
-  deleteFolder,
-  writeOpossumFile,
-} from '../../test-helpers';
+import { writeOpossumFile } from '../../../shared/write-file';
+import { createTempFolder, deleteFolder } from '../../test-helpers';
 import {
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,
@@ -149,7 +145,10 @@ describe('parseOpossumFile', () => {
       upath.toUnix(temporaryPath),
       'test.opossum',
     );
-    await writeOpossumFile(opossumFilePath, testInputContent, null);
+    await writeOpossumFile({
+      input: testInputContent,
+      path: opossumFilePath,
+    });
 
     const parsingResult = (await parseOpossumFile(
       opossumFilePath,
@@ -168,11 +167,11 @@ describe('parseOpossumFile', () => {
       upath.toUnix(temporaryPath),
       'test.opossum',
     );
-    await writeOpossumFile(
-      opossumFilePath,
-      testInputContent,
-      testOutputContent,
-    );
+    await writeOpossumFile({
+      input: testInputContent,
+      output: testOutputContent,
+      path: opossumFilePath,
+    });
 
     const parsingResult = (await parseOpossumFile(
       opossumFilePath,
@@ -192,11 +191,11 @@ describe('parseOpossumFile', () => {
       'test.opossum',
     );
 
-    await writeOpossumFile(
-      opossumFilePath,
-      testInputContent,
-      testOutputContent,
-    );
+    await writeOpossumFile({
+      input: testInputContent,
+      output: testOutputContent,
+      path: opossumFilePath,
+    });
 
     const result = await parseOpossumFile(opossumFilePath);
     expect(result).toEqual({
