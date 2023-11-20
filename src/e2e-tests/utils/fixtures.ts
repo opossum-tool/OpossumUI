@@ -7,11 +7,17 @@ import {
   _electron as electron,
   ElectronApplication,
   Page,
+  TestInfo,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
 import * as os from 'os';
 import * as path from 'path';
 
+import {
+  ParsedOpossumInputFile,
+  ParsedOpossumOutputFile,
+} from '../../ElectronBackend/types/types';
+import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
@@ -32,9 +38,14 @@ import { ResourceBrowser } from '../page-objects/ResourceBrowser';
 import { ResourceDetails } from '../page-objects/ResourceDetails';
 import { ResourcePathPopup } from '../page-objects/ResourcePathPopup';
 import { TopBar } from '../page-objects/TopBar';
-import { createOpossumFile, OpossumData } from './opossum-files';
 
 const LOAD_TIMEOUT = 15000;
+
+interface OpossumData {
+  inputData: ParsedOpossumInputFile;
+  outputData?: ParsedOpossumOutputFile;
+  decompress?: boolean;
+}
 
 export { expect } from '@playwright/test';
 export const test = base.extend<{
@@ -67,7 +78,7 @@ export const test = base.extend<{
 }>({
   data: undefined,
   window: async ({ data }, use, info) => {
-    const filePath = data && (await createOpossumFile({ data, info }));
+    const filePath = data && (await createTestFile({ data, info }));
 
     const [executablePath, main] = getLaunchProps();
 
@@ -184,4 +195,27 @@ function getReleasePath(): string {
   }
 
   throw new Error('Unsupported platform');
+}
+
+function createTestFile({
+  data: { inputData, outputData, decompress },
+  info,
+}: {
+  data: OpossumData;
+  info: TestInfo;
+}): Promise<string> {
+  const filename = inputData.metadata.projectId;
+
+  if (decompress) {
+    return writeFile({
+      path: info.outputPath(`${filename}.json`),
+      content: inputData,
+    });
+  }
+
+  return writeOpossumFile({
+    input: inputData,
+    path: info.outputPath(`${filename}.opossum`),
+    output: outputData,
+  });
 }

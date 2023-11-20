@@ -17,9 +17,8 @@ import {
   ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
-import { writeJsonToFile } from '../output/writeJsonToFile';
-import { writeOutputJsonToOpossumFile } from '../output/writeJsonToOpossumFile';
 import {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -120,7 +119,7 @@ export async function loadInputAndOutputFromFilePath(
         '_attributions.json',
       );
       const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
-      parsedOutputData = parseOrCreateOutputJsonFile(
+      parsedOutputData = await parseOrCreateOutputJsonFile(
         outputJsonPath,
         externalAttributions,
         resourcesToAttributions,
@@ -209,7 +208,11 @@ async function createOutputInOpossumFile(
     resourcesToExternalAttributions,
     projectId,
   );
-  await writeOutputJsonToOpossumFile(filePath, attributionJSON);
+  await writeOpossumFile({
+    path: filePath,
+    input: getGlobalBackendState().inputFileRaw,
+    output: attributionJSON,
+  });
   log.info('... Successfully wrote output in .opossum file.');
 
   log.info(`Starting to parse output file in ${filePath} ...`);
@@ -221,13 +224,13 @@ async function createOutputInOpossumFile(
   return parsedOutputFile;
 }
 
-function parseOrCreateOutputJsonFile(
+async function parseOrCreateOutputJsonFile(
   filePath: string,
   externalAttributions: Attributions,
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string,
   inputFileMD5Checksum?: string,
-): ParsedOpossumOutputFile {
+): Promise<ParsedOpossumOutputFile> {
   if (!fs.existsSync(filePath)) {
     log.info(`Starting to create output file, project ID is ${projectId}`);
     const attributionJSON = createJsonOutputFile(
@@ -236,7 +239,7 @@ function parseOrCreateOutputJsonFile(
       projectId,
       inputFileMD5Checksum,
     );
-    writeJsonToFile(filePath, attributionJSON);
+    await writeFile({ path: filePath, content: attributionJSON });
     log.info('... Successfully created output file.');
   }
 

@@ -39,8 +39,7 @@
     "stream-json": "^1.8.0",
     "upath": "^2.0.1",
     "url": "^0.11.3",
-    "uuid": "^9.0.1",
-    "write-file-atomic": "^5.0.1"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.3",
@@ -65,7 +64,6 @@
     "@types/recharts": "^1.8.27",
     "@types/stream-json": "^1.7.6",
     "@types/uuid": "^9.0.7",
-    "@types/write-file-atomic": "^4.0.3",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "@vitejs/plugin-react": "^4.2.0",
@@ -122,7 +120,6 @@
     "update-commit-hash": "run-script-os",
     "update-commit-hash:darwin:linux": "COMMIT_INFO=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD); echo \"{\\\"commitInfo\\\" : \\\"$COMMIT_INFO\\\" }\" > \"src/commitInfo.json\"",
     "update-commit-hash:win32": "build_scripts/get_app_version_for_windows.bat",
-    "generate-dot-opossum": "yarn node example-files/scripts/generateDotOpossum.js",
     "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node build_scripts/generateNotices.js",
     "ship-linux": "yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
     "ship-win": "yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
@@ -177,9 +174,6 @@
     "development": [
       "Chrome 109"
     ]
-  },
-  "resolutions": {
-    "semver": "^7.5.2"
   },
   "engines": {
     "node": ">=18.0.0"
