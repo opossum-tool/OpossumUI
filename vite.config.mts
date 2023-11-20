@@ -22,11 +22,6 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'build',
   },
-  resolve: {
-    alias: {
-      path: 'path-browserify',
-    },
-  },
   optimizeDeps: {
     include: ['@mui/material/Tooltip'], // https://github.com/mui/material-ui/issues/32727
   },
