@@ -17,4 +17,9 @@ export const text = {
       searchForPackage: 'Search for package information',
     },
   },
+  changePreferredStatusGloballyPopup: {
+    markAsPreferred: 'Do you really want to prefer the attribution globally?',
+    unmarkAsPreferred:
+      'Do you really want to remove the preferred status globally?',
+  },
 };

@@ -15,6 +15,7 @@ import {
   convertDisplayPackageInfoToPackageInfo,
   convertPackageInfoToDisplayPackageInfo,
 } from '../../../util/convert-package-info';
+import { hasAttributionMultipleResources } from '../../../util/has-attribution-multiple-resources';
 import {
   getAllAttributionIdsWithCountsFromResourceAndChildren,
   getAttributionWizardInitialState,
@@ -27,12 +28,14 @@ import {
   getExternalData,
   getIsSavingDisabled,
   getManualAttributions,
+  getManualAttributionsToResources,
   getManualData,
   getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
 import {
+  getDidPreferredFieldChange,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
@@ -234,6 +237,15 @@ export function checkIfWasPreferredAndShowWarningOrSave(): AppThunkAction {
     const currentAttributionId = getCurrentAttributionId(getState());
     const temporaryDisplayPackageInfo =
       getTemporaryDisplayPackageInfo(getState());
+    const attributionsToResources =
+      getManualAttributionsToResources(getState());
+    const view = getSelectedView(getState());
+    const showSaveGloballyButton =
+      view === View.Audit &&
+      hasAttributionMultipleResources(
+        currentAttributionId,
+        attributionsToResources,
+      );
 
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(closePopup());
@@ -244,6 +256,12 @@ export function checkIfWasPreferredAndShowWarningOrSave(): AppThunkAction {
             currentAttributionId,
           ),
         );
+    } else if (
+      showSaveGloballyButton &&
+      getDidPreferredFieldChange(getState())
+    ) {
+      dispatch(closePopup());
+      dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
     } else {
       dispatch(
         saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),

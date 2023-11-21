@@ -17,13 +17,16 @@ import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
+  getAttributionIdOfDisplayedPackageInManualPanel,
+  getDisplayedPackage,
   getIsGlobalSavingDisabled,
   getManualData,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
-import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import {
+  getDidPreferredFieldChange,
+  getSelectedResourceId,
+} from '../../state/selectors/audit-view-resource-selectors';
 import { PanelPackage } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
@@ -51,6 +54,7 @@ export function ResourceDetailsAttributionColumn(
   const selectedResourceIsAttributionBreakpoint = getAttributionBreakpointCheck(
     attributionBreakpoints,
   )(selectedResourceId);
+  const didPreferredFieldChange = useAppSelector(getDidPreferredFieldChange);
   const dispatch = useAppDispatch();
 
   function dispatchUnlinkAttributionAndSavePackageInfoOrOpenWasPreferredPopup(): void {
@@ -70,6 +74,8 @@ export function ResourceDetailsAttributionColumn(
   function dispatchSavePackageInfoOrOpenWasPreferredPopup(): void {
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (showSaveGloballyButton && didPreferredFieldChange) {
+      dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
     } else {
       dispatch(
         savePackageInfo(
@@ -122,6 +128,12 @@ export function ResourceDetailsAttributionColumn(
   function saveFileRequestListener(): void {
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
+    } else if (
+      showSaveGloballyButton &&
+      !isGlobalSavingDisabled &&
+      didPreferredFieldChange
+    ) {
+      dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
     } else if (
       showSaveGloballyButton &&
       isGlobalSavingDisabled &&

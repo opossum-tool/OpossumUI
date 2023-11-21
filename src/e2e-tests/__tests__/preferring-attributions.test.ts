@@ -76,7 +76,7 @@ test('allows QA user to mark and unmark attributions as preferred, but not globa
 
   await attributionDetails.hamburgerMenu.markAsPreferred.click();
   await attributionDetails.assert.saveButtonIsEnabled();
-  await attributionDetails.assert.saveGloballyButtonIsDisabled();
+  await attributionDetails.assert.saveGloballyButtonIsEnabled();
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.assert.buttonInHamburgerMenuIsVisible(
     'unmarkAsPreferred',
