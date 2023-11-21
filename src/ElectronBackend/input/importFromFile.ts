@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
-import log from 'electron-log';
 import fs from 'fs';
 import { cloneDeep } from 'lodash';
 import { v4 as uuid4 } from 'uuid';
@@ -19,6 +18,7 @@ import {
 } from '../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { getGlobalBackendState } from '../main/globalBackendState';
+import logger from '../main/logger';
 import {
   InvalidDotOpossumFileError,
   JsonParsingError,
@@ -67,15 +67,15 @@ export async function loadInputAndOutputFromFilePath(
   let parsedOutputData: ParsedOpossumOutputFile | null = null;
 
   if (isOpossumFileFormat(filePath)) {
-    log.info(`Starting to read .opossum file ${filePath} ...`);
+    logger.info(`Reading file ${filePath}`);
     const parsingResult = await parseOpossumFile(filePath);
     if (isJsonParsingError(parsingResult)) {
-      log.info('Invalid input file.');
+      logger.info('Invalid input file');
       await getMessageBoxForParsingError(parsingResult.message);
       return;
     }
     if (isInvalidDotOpossumFileError(parsingResult)) {
-      log.info('Invalid input file.');
+      logger.info('Invalid input file');
       mainWindow.webContents.send(AllowedFrontendChannels.FileLoading, {
         isLoading: false,
       });
@@ -86,18 +86,15 @@ export async function loadInputAndOutputFromFilePath(
     }
     parsedInputData = parsingResult.input;
     parsedOutputData = parsingResult.output;
-
-    log.info('... Successfully read .opossum file.');
   } else {
-    log.info(`Starting to parse input file ${filePath}`);
+    logger.info('Parsing input file');
     const parsingResult = await parseInputJsonFile(filePath);
     if (isJsonParsingError(parsingResult)) {
-      log.info('Invalid input file.');
+      logger.info('Invalid input file');
       await getMessageBoxForParsingError(parsingResult.message);
       return;
     }
     parsedInputData = parsingResult;
-    log.info('... Successfully parsed input file.');
   }
 
   const [externalAttributions, inputContainsCriticalExternalAttributions] =
@@ -133,17 +130,17 @@ export async function loadInputAndOutputFromFilePath(
     parsedOutputData.manualAttributions,
   );
 
-  log.info('Parsing frequent licenses from input');
+  logger.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
     parsedInputData.frequentLicenses,
   );
 
-  log.info('Sanitizing external resources to attributions');
+  logger.info('Sanitizing map of resources to signals');
   const resourcesToExternalAttributions = sanitizeResourcesToAttributions(
     parsedInputData.resources,
     parsedInputData.resourcesToAttributions,
   );
-  log.info('Converting and cleaning data');
+  logger.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
     metadata: parsedInputData.metadata,
     resources: parsedInputData.resources,
@@ -152,7 +149,6 @@ export async function loadInputAndOutputFromFilePath(
       // For a time, a bug in the app produced corrupt files,
       // which are fixed by this clean-up.
       resourcesToAttributions: cleanNonExistentAttributions(
-        mainWindow.webContents,
         parsedOutputData.resourcesToAttributions ?? {},
         manualAttributions,
       ),
@@ -163,7 +159,6 @@ export async function loadInputAndOutputFromFilePath(
     },
     frequentLicenses,
     resolvedExternalAttributions: cleanNonExistentResolvedExternalAttributions(
-      mainWindow.webContents,
       parsedOutputData.resolvedExternalAttributions,
       externalAttributions,
     ),
@@ -177,20 +172,17 @@ export async function loadInputAndOutputFromFilePath(
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
   };
-  log.info('Sending data to electron frontend');
+  logger.info('Sending data to user interface');
   mainWindow.webContents.send(
     AllowedFrontendChannels.FileLoaded,
     parsedFileContent,
   );
 
-  log.info('Updating global backend state');
-
+  logger.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;
   getGlobalBackendState().projectId = projectId;
   getGlobalBackendState().inputContainsCriticalExternalAttributions =
     inputContainsCriticalExternalAttributions;
-
-  log.info('File import finished successfully');
 }
 
 async function createOutputInOpossumFile(
@@ -199,10 +191,7 @@ async function createOutputInOpossumFile(
   resourcesToExternalAttributions: AttributionsToResources,
   projectId: string,
 ): Promise<ParsedOpossumOutputFile> {
-  log.info(
-    `Starting to create output in .opossum file, project ID is ${projectId}`,
-  );
-
+  logger.info('Preparing output');
   const attributionJSON = createJsonOutputFile(
     externalAttributions,
     resourcesToExternalAttributions,
@@ -213,14 +202,11 @@ async function createOutputInOpossumFile(
     input: getGlobalBackendState().inputFileRaw,
     output: attributionJSON,
   });
-  log.info('... Successfully wrote output in .opossum file.');
-
-  log.info(`Starting to parse output file in ${filePath} ...`);
+  logger.info('Parsing output');
   const parsingResult = (await parseOpossumFile(
     filePath,
   )) as ParsedOpossumInputAndOutput;
   const parsedOutputFile = parsingResult.output as ParsedOpossumOutputFile;
-  log.info('... Successfully parsed output file.');
   return parsedOutputFile;
 }
 
@@ -232,7 +218,7 @@ async function parseOrCreateOutputJsonFile(
   inputFileMD5Checksum?: string,
 ): Promise<ParsedOpossumOutputFile> {
   if (!fs.existsSync(filePath)) {
-    log.info(`Starting to create output file, project ID is ${projectId}`);
+    logger.info('Preparing output');
     const attributionJSON = createJsonOutputFile(
       externalAttributions,
       resourcesToExternalAttributions,
@@ -240,12 +226,10 @@ async function parseOrCreateOutputJsonFile(
       inputFileMD5Checksum,
     );
     await writeFile({ path: filePath, content: attributionJSON });
-    log.info('... Successfully created output file.');
   }
 
-  log.info(`Starting to parse output file ${filePath} ...`);
+  logger.info('Parsing output');
   const parsedOutputFile = parseOutputJsonFile(filePath);
-  log.info('... Successfully parsed output file.');
   return parsedOutputFile;
 }
 

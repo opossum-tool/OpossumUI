@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import { noop } from 'lodash';
 import { Component, Dispatch, ErrorInfo, ReactNode } from 'react';
 import { connect } from 'react-redux';
 import { AnyAction } from 'redux';
@@ -56,20 +57,25 @@ class ProtoErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
 > {
+  private removeListener: () => void = noop;
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
   override componentDidMount(): void {
-    window.electronAPI.on(AllowedFrontendChannels.RestoreFrontend, () => {
-      this.props.resetState();
-      this.setState({ hasError: false });
-    });
+    this.removeListener = window.electronAPI.on(
+      AllowedFrontendChannels.RestoreFrontend,
+      () => {
+        this.props.resetState();
+        this.setState({ hasError: false });
+      },
+    );
   }
 
   override componentWillUnmount(): void {
-    window.electronAPI.removeListener(AllowedFrontendChannels.RestoreFrontend);
+    this.removeListener();
   }
 
   static getDerivedStateFromError(): ErrorBoundaryState {

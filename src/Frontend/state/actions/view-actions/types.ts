@@ -11,7 +11,6 @@ export const ACTION_OPEN_POPUP = 'ACTION_OPEN_POPUP';
 export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_UPDATE_ACTIVE_FILTERS = 'ACTION_UPDATE_ACTIVE_FILTERS';
-export const ACTION_SET_IS_LOADING = 'ACTION_SET_IS_LOADING';
 export const ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE =
   'ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE';
 
@@ -24,7 +23,6 @@ export type ViewAction =
   | ResetViewStateAction
   | OpenPopupAction
   | UpdateActiveFilters
-  | SetIsLoadingAction
   | SetShowNoSignalsLocatedMessage
   | SetQAModeAction;
 
@@ -54,11 +52,6 @@ export interface OpenPopupAction {
 export interface UpdateActiveFilters {
   type: typeof ACTION_UPDATE_ACTIVE_FILTERS;
   payload: FilterType;
-}
-
-export interface SetIsLoadingAction {
-  type: typeof ACTION_SET_IS_LOADING;
-  payload: boolean;
 }
 
 export interface SetShowNoSignalsLocatedMessage {

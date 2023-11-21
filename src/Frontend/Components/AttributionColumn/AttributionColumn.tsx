@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { IpcRendererEvent } from 'electron';
 import { ReactElement } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
@@ -31,7 +30,10 @@ import {
   getQAMode,
   getSelectedView,
 } from '../../state/selectors/view-selector';
-import { useIpcRenderer } from '../../util/use-ipc-renderer';
+import {
+  ResetStateListener,
+  useIpcRenderer,
+} from '../../util/use-ipc-renderer';
 import { MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import {
@@ -267,14 +269,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     view,
   );
 
-  function listener(_: IpcRendererEvent, resetState: boolean): void {
-    if (resetState) {
-      props.saveFileRequestListener();
-    }
-  }
-  useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, listener, [
-    props.saveFileRequestListener,
-  ]);
+  useIpcRenderer<ResetStateListener>(
+    AllowedFrontendChannels.SaveFileRequest,
+    (resetState) => resetState && props.saveFileRequestListener(),
+    [props.saveFileRequestListener],
+  );
 
   const showHighlight =
     view === View.Attribution &&

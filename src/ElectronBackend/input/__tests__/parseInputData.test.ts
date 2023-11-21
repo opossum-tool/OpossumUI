@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { WebContents } from 'electron';
-
 import {
   Attributions,
   AttributionsToResources,
@@ -14,6 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
+import logger from '../../main/logger';
 import { RawAttributions, RawFrequentLicense } from '../../types/types';
 import {
   cleanNonExistentAttributions,
@@ -25,8 +25,7 @@ import {
   sanitizeResourcesToAttributions,
 } from '../parseInputData';
 
-const mockCallback = jest.fn();
-const webContents = { send: mockCallback as unknown } as WebContents;
+jest.mock('../../main/logger');
 
 describe('cleanNonExistentAttributions', () => {
   afterEach(() => {
@@ -42,7 +41,6 @@ describe('cleanNonExistentAttributions', () => {
     };
     const attributions: Attributions = { attr2: {}, attr4: {} };
     const result = cleanNonExistentAttributions(
-      webContents,
       resourcesToAttributions,
       attributions,
     );
@@ -51,10 +49,19 @@ describe('cleanNonExistentAttributions', () => {
       '/file3': ['attr4'],
     });
     const expectedNumberOfCalls = 3;
-    expect(mockCallback.mock.calls.length).toBe(expectedNumberOfCalls);
-    expect(mockCallback.mock.calls[0][1]).toContain('/file1');
-    expect(mockCallback.mock.calls[1][1]).toContain('/file2');
-    expect(mockCallback.mock.calls[2][1]).toContain('/file4');
+    expect(logger.info).toHaveBeenCalledTimes(expectedNumberOfCalls);
+    expect(logger.info).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('/file1'),
+    );
+    expect(logger.info).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('/file2'),
+    );
+    expect(logger.info).toHaveBeenNthCalledWith(
+      3,
+      expect.stringContaining('/file4'),
+    );
   });
 });
 
@@ -69,14 +76,15 @@ describe('cleanNonExistentResolvedExternalAttributions', () => {
       .add('invalid');
     const externalAttributions: Attributions = { attr2: {}, attr4: {} };
     const result = cleanNonExistentResolvedExternalAttributions(
-      webContents,
       resolvedExternalAttributions,
       externalAttributions,
     );
     expect(result).toEqual(new Set<string>().add('attr2'));
-    expect(mockCallback.mock.calls.length).toBe(1);
-    expect(mockCallback.mock.calls[0][1]).toContain(
-      'WARNING: There was an abandoned resolved external attribution: invalid',
+    expect(logger.info).toHaveBeenCalledTimes(1);
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'WARNING: There was an abandoned resolved external attribution: invalid',
+      ),
     );
   });
 });

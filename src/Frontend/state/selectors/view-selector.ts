@@ -42,10 +42,6 @@ export function getPopupAttributionId(state: State): string | null {
   return (popup.length === 1 && popup[0].attributionId) || null;
 }
 
-export function getIsLoading(state: State): boolean {
-  return state.viewState.isLoading;
-}
-
 export function getQAMode(state: State): boolean {
   return state.viewState.qaMode;
 }

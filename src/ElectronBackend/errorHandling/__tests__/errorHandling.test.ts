@@ -25,8 +25,6 @@ jest.mock('electron', () => ({
   app: { exit: jest.fn(), getName: jest.fn(), getVersion: jest.fn() },
 }));
 
-jest.mock('electron-log');
-
 jest.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: jest.fn(),
 }));

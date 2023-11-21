@@ -12,48 +12,49 @@ import {
   ExportType,
   FileSupportPopupArgs,
   IsLoadingArgs,
+  Log,
   ParsedFileContent,
   QAModeArgs,
 } from '../../shared/shared-types';
 
-type ResetStateListener = (
+export type ResetStateListener = (
   event: IpcRendererEvent,
   resetState: boolean,
 ) => void;
 
-type SetStateListener = (
+export type SetStateListener = (
   event: IpcRendererEvent,
   resourceStructure: ParsedFileContent,
 ) => void;
 
-type ExportFileRequestListener = (
+export type ExportFileRequestListener = (
   event: IpcRendererEvent,
   exportType: ExportType,
 ) => void;
 
-type LoggingListener = (event: IpcRendererEvent, logging: string) => void;
+export type LoggingListener = (event: IpcRendererEvent, log: Log) => void;
 
-type SetBaseURLForRootListener = (
+export type SetBaseURLForRootListener = (
   event: IpcRendererEvent,
   baseURLForRootArgs: BaseURLForRootArgs,
 ) => void;
 
-type IsLoadingListener = (
+export type IsLoadingListener = (
   event: IpcRendererEvent,
   isLoadingArgs: IsLoadingArgs,
 ) => void;
 
-type ShowFileSupportPopupListener = (
+export type ShowFileSupportPopupListener = (
   event: IpcRendererEvent,
   fileSupportPopupArgs: FileSupportPopupArgs,
 ) => void;
 
-type SetQAModeListener = (
+export type SetQAModeListener = (
   event: IpcRendererEvent,
   qaModeArgs: QAModeArgs,
 ) => void;
 
-type Listener =
+export type Listener =
   | ResetStateListener
   | SetStateListener
   | LoggingListener
@@ -63,16 +64,16 @@ type Listener =
   | ShowFileSupportPopupListener
   | SetQAModeListener;
 
-export function useIpcRenderer(
+export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,
-  listener: Listener,
+  listener: T,
   dependencies: Array<unknown>,
 ): void {
   useEffect(() => {
-    window.electronAPI.on(channel, listener);
+    const removeListener = window.electronAPI.on(channel, listener);
 
-    return (): void => {
-      window.electronAPI.removeListener(channel);
+    return () => {
+      removeListener();
     };
     // eslint-disable-next-line
   }, dependencies);

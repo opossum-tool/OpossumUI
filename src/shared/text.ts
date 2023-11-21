@@ -22,4 +22,7 @@ export const text = {
     unmarkAsPreferred:
       'Do you really want to remove the preferred status globally?',
   },
+  processPopup: {
+    title: 'Processing…',
+  },
 };

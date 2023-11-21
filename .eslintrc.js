@@ -22,7 +22,7 @@ const sharedRules = {
   '@typescript-eslint/no-unnecessary-type-assertion': 2,
   '@typescript-eslint/no-unused-vars': 0,
   '@typescript-eslint/require-await': 2,
-  'filenames/match-regex': [2, '^[a-zA-Z0-9\\-]+(.d|.test)?$', true],
+  'filenames/match-regex': [2, '^[a-zA-Z0-9\\-]+(.d|.test|.style)?$', true],
   'object-shorthand': 2,
 };
 

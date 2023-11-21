@@ -3,10 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { WebContents } from 'electron';
-
 import { canResourceHaveChildren } from '../../Frontend/util/can-resource-have-children';
-import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   Attributions,
   BaseUrlsForSources,
@@ -16,6 +13,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import logger from '../main/logger';
 import { RawAttributions, RawFrequentLicense } from '../types/types';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
@@ -75,7 +73,6 @@ export function sanitizeResourcesToAttributions(
 }
 
 export function cleanNonExistentAttributions(
-  webContents: WebContents,
   resourcesToAttributions: ResourcesToAttributions,
   attributions: Attributions,
 ): ResourcesToAttributions {
@@ -89,8 +86,7 @@ export function cleanNonExistentAttributions(
           (attributionId) => attributionIds.has(attributionId),
         );
         if (filteredAttributionIds.length < entryAttributionIds.length) {
-          webContents.send(
-            AllowedFrontendChannels.Logging,
+          logger.info(
             `WARNING: There were abandoned attributions for path ${path}.` +
               ' The import from the attribution file was cleaned up.',
           );
@@ -102,7 +98,6 @@ export function cleanNonExistentAttributions(
 }
 
 export function cleanNonExistentResolvedExternalAttributions(
-  webContents: WebContents,
   resolvedExternalAttributions: Set<string>,
   externalAttributions: Attributions,
 ): Set<string> {
@@ -111,8 +106,7 @@ export function cleanNonExistentResolvedExternalAttributions(
   resolvedExternalAttributions.forEach((resolvedExternalAttributionId) => {
     if (!externalAttributionIds.has(resolvedExternalAttributionId)) {
       resolvedExternalAttributions.delete(resolvedExternalAttributionId);
-      webContents.send(
-        AllowedFrontendChannels.Logging,
+      logger.info(
         `WARNING: There was an abandoned resolved external attribution: ${resolvedExternalAttributionId}.` +
           ' The import from the attribution file was cleaned up.',
       );
