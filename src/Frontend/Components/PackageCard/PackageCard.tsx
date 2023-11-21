@@ -5,7 +5,7 @@
 import PlusIcon from '@mui/icons-material/Add';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import MuiBox from '@mui/material/Box';
-import { ReactElement, useState } from 'react';
+import { memo, ReactElement, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
@@ -69,7 +69,10 @@ const classes = {
   disabledIcon,
   multiSelectCheckbox: {
     height: '40px',
-    marginTop: '1px',
+    width: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   multiSelectPackageCard: {
     flexGrow: 1,
@@ -80,7 +83,7 @@ const classes = {
 export const CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP =
   'A preferred attribution cannot be added';
 
-export const PACKAGE_CARD_HEIGHT = 41;
+export const PACKAGE_CARD_HEIGHT = 42;
 
 interface PackageCardProps {
   cardId: string;
@@ -94,9 +97,11 @@ interface PackageCardProps {
   hideResourceSpecificButtons?: boolean;
   showCheckBox?: boolean;
   hideAttributionWizardContextMenuItem?: boolean;
+  isScrolling?: boolean;
 }
-
-export function PackageCard(props: PackageCardProps): ReactElement | null {
+export const PackageCard = memo(function PackageCard(
+  props: PackageCardProps,
+): ReactElement | null {
   const dispatch = useAppDispatch();
   const selectedView = useSelector(getSelectedView);
   const selectedAttributionIdAttributionView = useSelector(
@@ -135,7 +140,7 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       : selectedAttributionIdAuditView;
 
   const frequentLicenseNames = useAppSelector(getFrequentLicensesNameOrder);
-  function getListCardConfig(): ListCardConfig {
+  const listCardConfig = useMemo((): ListCardConfig => {
     let listCardConfig: ListCardConfig = {
       ...props.cardConfig,
       firstParty: props.displayPackageInfo.firstParty,
@@ -175,9 +180,17 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
     }
 
     return listCardConfig;
-  }
-
-  const listCardConfig = getListCardConfig();
+  }, [
+    attributionIdMarkedForReplacement,
+    attributionIds,
+    frequentLicenseNames,
+    isContextMenuOpen,
+    isExternalAttribution,
+    locatePopupFilter,
+    multiSelectSelectedAttributionIds,
+    props.cardConfig,
+    props.displayPackageInfo,
+  ]);
 
   const highlighting =
     selectedView === View.Attribution
@@ -414,13 +427,10 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
         checked={multiSelectSelectedAttributionIds.includes(attributionId)}
         onChange={handleMultiSelectAttributionSelected}
         sx={classes.multiSelectCheckbox}
+        skeleton={props.isScrolling}
       />
     ) : undefined;
   }
-
-  const leftElement = isExternalAttribution
-    ? undefined
-    : getLeftElementForManualAttribution();
 
   const leftIcon =
     props.onIconClick && !props.cardConfig.isResolved ? (
@@ -447,22 +457,41 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
       />
     ) : undefined;
 
-  const openResourcesIcon = props.showOpenResourcesIcon ? (
-    <IconButton
-      tooltipTitle="show resources"
-      tooltipPlacement="right"
-      onClick={(): void => {
-        setShowAssociatedResourcesPopup(true);
-      }}
-      key={`open-resources-icon-${props.displayPackageInfo.packageName}-${props.displayPackageInfo.packageVersion}`}
-      icon={
-        <OpenInBrowserIcon
-          sx={classes.clickableIcon}
-          aria-label={'show resources'}
+  const openResourcesIcon = useMemo(
+    () =>
+      props.showOpenResourcesIcon ? (
+        <IconButton
+          tooltipTitle="show resources"
+          tooltipPlacement="right"
+          onClick={(): void => {
+            setShowAssociatedResourcesPopup(true);
+          }}
+          key={`open-resources-icon-${props.displayPackageInfo.packageName}-${props.displayPackageInfo.packageVersion}`}
+          icon={
+            <OpenInBrowserIcon
+              sx={classes.clickableIcon}
+              aria-label={'show resources'}
+            />
+          }
         />
-      }
-    />
-  ) : undefined;
+      ) : undefined,
+    [
+      props.displayPackageInfo.packageName,
+      props.displayPackageInfo.packageVersion,
+      props.showOpenResourcesIcon,
+    ],
+  );
+
+  const rightIcons = useMemo(
+    () =>
+      getRightIcons(
+        listCardConfig,
+        props.cardId,
+        openResourcesIcon,
+        props.isScrolling,
+      ),
+    [listCardConfig, openResourcesIcon, props.cardId, props.isScrolling],
+  );
 
   return (
     <MuiBox
@@ -496,15 +525,15 @@ export function PackageCard(props: PackageCardProps): ReactElement | null {
           count={props.packageCount}
           onClick={props.onClick}
           leftIcon={leftIcon}
-          rightIcons={getRightIcons(
-            listCardConfig,
-            props.cardId,
-            openResourcesIcon,
-          )}
-          leftElement={leftElement}
+          rightIcons={rightIcons}
+          leftElement={
+            isExternalAttribution
+              ? undefined
+              : getLeftElementForManualAttribution()
+          }
           highlighting={highlighting}
         />
       </ContextMenu>
     </MuiBox>
   );
-}
+});
