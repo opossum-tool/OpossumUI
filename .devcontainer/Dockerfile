@@ -4,5 +4,5 @@
 # SPDX-License-Identifier: CC0-1.0
 
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.202.3/containers/typescript-node/.devcontainer/base.Dockerfile
-ARG VARIANT="18-bullseye"
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
+ARG VARIANT="20-bullseye"
+FROM mcr.microsoft.com/devcontainers/typescript-node:0-${VARIANT}
