@@ -61,7 +61,7 @@
     "@types/prop-types": "^15.7.11",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
-    "@types/recharts": "^1.8.27",
+    "@types/recharts": "^1.8.28",
     "@types/stream-json": "^1.7.6",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
