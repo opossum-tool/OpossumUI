@@ -20,7 +20,7 @@ import {
   getSaveFileListener,
   getSendErrorInformationListener,
 } from './listeners';
-import { openFileFromCliIfProvided } from './openFileFromCliIfProvided';
+import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 
 export async function main(): Promise<void> {
   try {
@@ -60,7 +60,7 @@ export async function main(): Promise<void> {
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());
 
-    await openFileFromCliIfProvided(mainWindow);
+    await openFileFromCliOrEnvVariableIfProvided(mainWindow);
   } catch (error) {
     if (error instanceof Error) {
       await dialog.showMessageBox(
