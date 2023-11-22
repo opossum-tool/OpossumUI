@@ -22,7 +22,7 @@ issue number.
 
 Example:
 
-```
+```txt
 Short summary of changes (72 characters or less)
 
 More detailed explanatory text, if necessary. This text can have
@@ -69,19 +69,19 @@ All useful scripts are listed in the package.json and can be run through `yarn` 
 repository and installing all dependencies. To start the app based on the current state of the code, including automatic
 updates after changes to the frontend, execute:
 
-```
+```bash
 yarn start
 ```
 
 Unit tests are provided for all features. The testing framework is jest + react testing library. They can be run by executing:
 
-```
+```bash
 yarn test:unit
 ```
 
 End to end test are available and can be run using:
 
-```
+```bash
 yarn test:e2e
 ```
 
@@ -94,7 +94,7 @@ The following software is required for working on the repository:
 - [git](https://git-scm.com/),
 - [node.js](https://nodejs.org/) 20,
 - [yarn](https://yarnpkg.com/en/),
-- [reuse/tool](https://git.fsfe.org/reuse/tool#install) (to check that copyright information is provided, for more context see https://reuse.software/),
+- [reuse/tool](https://git.fsfe.org/reuse/tool#install) (to check that copyright information is provided, for more context see [here](https://reuse.software/)),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
 
 ### Running the end-to-end tests
@@ -151,14 +151,14 @@ systems run `yarn ship`. The built release(s) can be found under _/release_.
 
 ## Creating a new release
 
-Note: You will need Maintain permissions in order to create a new release.
+Note: You will need the "maintain" role in order to create a new release.
 
 ### Checklist
 
 1. **Test** on a large real-world example.
-   1. Create a build for your OS using either `yarn ship-linux`, `yarn ship-mac` or `yarn ship-win` (see _/release_ folder).
+   1. Create a build for your OS using `yarn ship:auto` (see _/release_ folder).
    1. Check performances on a large .opossum file.
-   1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpussumUI and resize the window, don't need to change resolution).
+   1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpossumUI and resize the window, don't need to change resolution).
    1. Check that the performance of the save operation is good.
    1. Check that the notices for the app itself and chromium are accessible via the menu.
 1. **Create** the release via UI (see next section for details).
@@ -168,9 +168,8 @@ Note: You will need Maintain permissions in order to create a new release.
 
 ### Creating a release
 
-1. Go to: https://github.com/opossum-tool/OpossumUI/releases/new
-1. Use the UI to create an new release. The tag should have the format "OpossumUI-2023-$MONTH-$DAY" (in case of a second release on the same day "OpossumUI-2023-$MONTH-$DAY.1").
+1. Go to the [GitHub releases page](https://github.com/opossum-tool/OpossumUI/releases/new) and use the UI to create a new release.
+1. The tag should have the format "OpossumUI-2023-$MONTH-$DAY" (in case of an Nth release on the same day "OpossumUI-2023-$MONTH-$DAY.N").
 1. The title of the release equals the tag.
-1. Click the button "Generate release notes" to get the description for the release. Then, remove all the changes from dependabot (lines that include "Bump").
-
-![release](./docs/release_guide.png)
+1. Click the button "Generate release notes" to get the description for the release. Then, remove all the contributions from @renovate which are just dependency upgrades.
+1. Click "Publish release". This will trigger the CI/CD pipeline which will build the release for all three OSs and upload the artifacts to the release.

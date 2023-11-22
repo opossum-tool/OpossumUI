@@ -125,7 +125,7 @@
     "generate-notice": "mkdirp notices && yarn licenses generate-disclaimer --production > notices/notices.txt && yarn node yarn_scripts/generateNotices.js",
     "ship-linux": "yarn build && electron-builder --linux --x64 --publish never && mkdir -p release/linux && mv 'release/OpossumUI-0.1.0.AppImage' 'release/linux/OpossumUI-for-linux.AppImage'",
     "ship-win": "yarn build && electron-builder --win --x64 --publish never && mkdirp release/win && mv \"release/OpossumUI Setup 0.1.0.exe\" \"release/win/OpossumUI-for-win.exe\"",
-    "ship-mac": "yarn build && electron-builder --mac --x64 --publish never && zip -r -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
+    "ship-mac": "yarn build && electron-builder --mac --x64 --publish never && zip -r -y -q 'release/mac/OpossumUI-for-mac.zip' 'release/mac/'",
     "ship": "yarn ship-linux && yarn ship-win && yarn ship-mac",
     "ship:auto": "run-script-os",
     "ship:auto:darwin": "yarn ship-mac",
