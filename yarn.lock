@@ -3402,13 +3402,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/stream-json@npm:^1.7.6":
-  version: 1.7.6
-  resolution: "@types/stream-json@npm:1.7.6"
+"@types/stream-json@npm:^1.7.7":
+  version: 1.7.7
+  resolution: "@types/stream-json@npm:1.7.7"
   dependencies:
     "@types/node": "npm:*"
     "@types/stream-chain": "npm:*"
-  checksum: 534977bd913c9b2547f580c4b80cb0a5f6688fffc563954e2b1886706d901cd572f7d698c6f9d5cfd2edcf9de91fb3361c7b45d93d6a5ae7670ddb11ee2b2831
+  checksum: a9f1ce0e59a4dd88f72623748b218ccc6d22f41f2e7b1dcc72b6d4ee15006f46d7d2d77b24a19ee4c7d34a3c94b2c6171eb400dfcf4fd2ad5a48a668284ccc03
   languageName: node
   linkType: hard
 
@@ -9060,7 +9060,7 @@ __metadata:
     "@types/react": "npm:^18.2.37"
     "@types/react-dom": "npm:^18.2.15"
     "@types/recharts": "npm:^1.8.28"
-    "@types/stream-json": "npm:^1.7.6"
+    "@types/stream-json": "npm:^1.7.7"
     "@types/uuid": "npm:^9.0.7"
     "@typescript-eslint/eslint-plugin": "npm:^6.11.0"
     "@typescript-eslint/parser": "npm:^6.11.0"
