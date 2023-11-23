@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement, useCallback } from 'react';
 
-import { ButtonText, PopupType } from '../../enums/enums';
+import { ButtonText, CheckboxLabel, PopupType } from '../../enums/enums';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   savePackageInfo,
@@ -21,7 +21,9 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { getNeedsReviewChangeHandler } from '../AttributionColumn/attribution-column-helpers';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
+import { Checkbox } from '../Checkbox/Checkbox';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function EditAttributionPopup(): ReactElement {
@@ -86,7 +88,6 @@ export function EditAttributionPopup(): ReactElement {
           showManualAttributionData
           saveFileRequestListener={saveFileRequestListener}
           smallerLicenseTextOrCommentField
-          addMarginForNeedsReviewCheckbox
         />
       }
       header={'Edit Attribution'}
@@ -105,6 +106,16 @@ export function EditAttributionPopup(): ReactElement {
       onBackdropClick={checkForModifiedPackageInfoBeforeClosing}
       onEscapeKeyDown={checkForModifiedPackageInfoBeforeClosing}
       aria-label={'edit attribution popup'}
+      customAction={
+        <Checkbox
+          label={CheckboxLabel.NeedsReview}
+          checked={!!temporaryDisplayPackageInfo.needsReview}
+          onChange={getNeedsReviewChangeHandler(
+            temporaryDisplayPackageInfo,
+            dispatch,
+          )}
+        />
+      }
     />
   );
 }

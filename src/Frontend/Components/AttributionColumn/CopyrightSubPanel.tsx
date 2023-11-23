@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiBox from '@mui/material/Box';
 import MuiPaper from '@mui/material/Paper';
 import { ReactElement } from 'react';
 
@@ -24,25 +23,23 @@ export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
 
   return (
     <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
-      <MuiBox sx={attributionColumnClasses.displayRow}>
-        <TextBox
-          isEditable={props.isEditable}
-          sx={attributionColumnClasses.textBox}
-          title={'Copyright'}
-          text={props.displayPackageInfo.copyright}
-          minRows={props.copyrightRows}
-          maxRows={props.copyrightRows}
-          multiline={true}
-          handleChange={handleChange('copyright')}
-          isHighlighted={
-            props.showHighlight &&
-            isImportantAttributionInformationMissing(
-              'copyright',
-              props.displayPackageInfo,
-            )
-          }
-        />
-      </MuiBox>
+      <TextBox
+        isEditable={props.isEditable}
+        sx={attributionColumnClasses.textBox}
+        title={'Copyright'}
+        text={props.displayPackageInfo.copyright}
+        minRows={props.copyrightRows}
+        maxRows={props.copyrightRows}
+        multiline={true}
+        handleChange={handleChange('copyright')}
+        isHighlighted={
+          props.showHighlight &&
+          isImportantAttributionInformationMissing(
+            'copyright',
+            props.displayPackageInfo,
+          )
+        }
+      />
     </MuiPaper>
   );
 }

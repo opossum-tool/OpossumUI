@@ -111,7 +111,6 @@ describe('The AttributionColumn', () => {
       screen.queryByText('(Defined in parent folder)'),
     ).not.toBeInTheDocument();
     expect(screen.queryByText('Override parent')).not.toBeInTheDocument();
-    expect(screen.queryByText('Source')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Copyright'));
     expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright));
     expect(screen.getByLabelText('License Name'));

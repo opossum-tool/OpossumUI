@@ -67,13 +67,6 @@ import {
 const classes = {
   clickableIcon,
   disabledIcon,
-  multiSelectCheckbox: {
-    height: '40px',
-    width: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   multiSelectPackageCard: {
     flexGrow: 1,
     minWidth: '0px',
@@ -429,7 +422,6 @@ export const PackageCard = memo(
         <Checkbox
           checked={multiSelectSelectedAttributionIds.includes(attributionId)}
           onChange={handleMultiSelectAttributionSelected}
-          sx={classes.multiSelectCheckbox}
           skeleton={props.isScrolling}
         />
       ) : undefined;

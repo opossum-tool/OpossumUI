@@ -36,6 +36,7 @@ interface NotificationPopupProps {
   headerSx?: SxProps;
   contentSx?: SxProps;
   'aria-label'?: string;
+  customAction?: ReactElement;
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
@@ -71,6 +72,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
         )}
       </MuiDialogContent>
       <MuiDialogActions>
+        {props.customAction}
         {props.leftButtonConfig ? (
           <Button
             buttonText={props.leftButtonConfig.buttonText}
