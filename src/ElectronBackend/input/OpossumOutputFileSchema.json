@@ -43,6 +43,10 @@
                 "description": "How much the information is trusted (0: bad, 100: good)",
                 "minimum": 0,
                 "maximum": 100
+              },
+              "additionalName": {
+                "type": "string",
+                "description": "Original source for suggested signals (e.g. a tool like ScanCode)"
               }
             },
             "required": [

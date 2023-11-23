@@ -23,6 +23,16 @@ import {
 
 type ExternalPackageInfo = RawPackageInfo;
 type ManualPackageInfo = RawPackageInfo;
+type Tuple<N extends number, T> = N extends N
+  ? number extends N
+  ? T[]
+  : _TupleOf<N, T, []>
+  : never;
+type _TupleOf<
+  N extends number,
+  T,
+  L extends Array<unknown>,
+> = L['length'] extends N ? L : _TupleOf<N, T, [T, ...L]>;
 
 class OpossumModule {
   public static metadata(
