@@ -12,7 +12,6 @@ export function getStrippedPackageInfo(
   rawPackageInfo: PackageInfo,
 ): PackageInfo {
   const strippedPackageInfo = pickBy(rawPackageInfo, (value) => Boolean(value));
-  delete strippedPackageInfo.source;
   delete strippedPackageInfo.preSelected;
   delete strippedPackageInfo.criticality;
 
@@ -30,7 +29,6 @@ export function getStrippedDisplayPackageInfo(
   const strippedDisplayPackageInfo = pickBy(rawDisplayPackageInfo, (value) =>
     Boolean(value),
   );
-  delete strippedDisplayPackageInfo.source;
   delete strippedDisplayPackageInfo.preSelected;
   delete strippedDisplayPackageInfo.criticality;
 

@@ -24,20 +24,6 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  it('strips source ', () => {
-    const testPackageInfo: PackageInfo = {
-      packageName: 'React',
-      source: {
-        name: 'HC',
-        documentConfidence: 10,
-      },
-    };
-
-    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
-      packageName: 'React',
-    });
-  });
-
   it('strips preSelected ', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
@@ -77,22 +63,6 @@ describe('The getStrippedDisplayPackageInfo function', () => {
     const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'React',
       packageVersion: '',
-      attributionIds: [],
-    };
-
-    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
-      packageName: 'React',
-      attributionIds: [],
-    });
-  });
-
-  it('strips source ', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      packageName: 'React',
-      source: {
-        name: 'HC',
-        documentConfidence: 10,
-      },
       attributionIds: [],
     };
 

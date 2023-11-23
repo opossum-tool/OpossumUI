@@ -7,6 +7,23 @@
     "metadata": {
       "type": "object",
       "properties": {
+        "source": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Where the information came from (e.g. a tool like ScanCode)"
+            },
+            "documentConfidence": {
+              "type": "number",
+              "description": "How much the information is trusted (0: bad, 100: good)",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "required": ["name", "documentConfidence"],
+          "additionalProperties": false
+        },
         "projectId": {
           "type": "string",
           "description": "An ID for the compliance scan, copied from the input file."
