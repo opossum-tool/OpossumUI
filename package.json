@@ -54,7 +54,7 @@
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/babel__core": "^7.20.5",
     "@types/electron-devtools-installer": "^2.2.5",
-    "@types/jest": "^29.5.9",
+    "@types/jest": "^29.5.10",
     "@types/js-yaml": "^4.0.9",
     "@types/lodash": "^4.14.202",
     "@types/object-hash": "^3.0.6",

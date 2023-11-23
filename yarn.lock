@@ -3210,7 +3210,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.5.9":
+"@types/jest@npm:^29.5.10":
   version: 29.5.10
   resolution: "@types/jest@npm:29.5.10"
   dependencies:
@@ -9052,7 +9052,7 @@ __metadata:
     "@trivago/prettier-plugin-sort-imports": "npm:^4.3.0"
     "@types/babel__core": "npm:^7.20.5"
     "@types/electron-devtools-installer": "npm:^2.2.5"
-    "@types/jest": "npm:^29.5.9"
+    "@types/jest": "npm:^29.5.10"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.14.202"
     "@types/object-hash": "npm:^3.0.6"
