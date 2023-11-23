@@ -14,7 +14,7 @@ import {
 describe('BackendCommunication', () => {
   it('renders an Open file icon', () => {
     renderComponentWithStore(<BackendCommunication />);
-    const expectedNumberOfCalls = 14;
+    const expectedNumberOfCalls = 13;
     expect(window.electronAPI.on).toHaveBeenCalledTimes(expectedNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
@@ -50,10 +50,6 @@ describe('BackendCommunication', () => {
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.FileLoading,
       expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(

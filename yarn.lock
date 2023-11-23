@@ -5038,6 +5038,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dayjs@npm:^1.11.10":
+  version: 1.11.10
+  resolution: "dayjs@npm:1.11.10"
+  checksum: 27e8f5bc01c0a76f36c656e62ab7f08c2e7b040b09e613cd4844abf03fb258e0350f0a83b02c887b84d771c1f11e092deda0beef8c6df2a1afbc3f6c1fade279
+  languageName: node
+  linkType: hard
+
 "debug@npm:4, debug@npm:4.3.4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4":
   version: 4.3.4
   resolution: "debug@npm:4.3.4"
@@ -9070,6 +9077,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     buffer: "npm:^6.0.3"
     cross-env: "npm:^7.0.3"
+    dayjs: "npm:^1.11.10"
     dotenv: "npm:^16.3.1"
     dpdm: "npm:^3.14.0"
     electron: "npm:^27.1.0"

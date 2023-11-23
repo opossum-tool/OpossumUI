@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import dayjs from 'dayjs';
 import { IpcRendererEvent } from 'electron';
 import pick from 'lodash/pick';
 import { ReactElement } from 'react';
@@ -15,7 +16,6 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   FileSupportPopupArgs,
-  IsLoadingArgs,
   ParsedFileContent,
   QAModeArgs,
 } from '../../../shared/shared-types';
@@ -27,7 +27,6 @@ import {
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
 import {
   openPopup,
-  setIsLoading,
   setQAMode,
 } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -46,7 +45,7 @@ import {
 } from '../../util/get-attributions-with-resources';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { useIpcRenderer } from '../../util/use-ipc-renderer';
+import { LoggingListener, useIpcRenderer } from '../../util/use-ipc-renderer';
 
 export function BackendCommunication(): ReactElement | null {
   const resources = useAppSelector(getResources);
@@ -74,7 +73,7 @@ export function BackendCommunication(): ReactElement | null {
       case ExportType.SpdxDocumentYaml:
         return getSpdxDocumentExportListener(exportType);
       case ExportType.FollowUp:
-        return getFollowUpExportListener();
+        return void getFollowUpExportListener();
       case ExportType.CompactBom:
         return getCompactBomExportListener();
       case ExportType.DetailedBom:
@@ -82,7 +81,9 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function getFollowUpExportListener(): void {
+  async function getFollowUpExportListener(): Promise<void> {
+    const RENDER_ALLOWANCE = 200; // allow time for the UI to render the process popup before resource intensive task
+    await new Promise((resolve) => setTimeout(resolve, RENDER_ALLOWANCE));
     const followUpAttributions = pick(
       manualData.attributions,
       Object.keys(manualData.attributions).filter(
@@ -186,12 +187,6 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function loggingListener(_: IpcRendererEvent, logging: string): void {
-    if (logging) {
-      console.log(logging);
-    }
-  }
-
   function showSearchPopupListener(
     _: IpcRendererEvent,
     showSearchPopUp: boolean,
@@ -260,15 +255,6 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function setFileLoadingListener(
-    _: IpcRendererEvent,
-    isLoadingArgs: IsLoadingArgs,
-  ): void {
-    if (isLoadingArgs) {
-      dispatch(setIsLoading(isLoadingArgs.isLoading));
-    }
-  }
-
   function showFileSupportPopupListener(
     _: IpcRendererEvent,
     fileSupportPopupArgs: FileSupportPopupArgs,
@@ -299,7 +285,12 @@ export function BackendCommunication(): ReactElement | null {
     resetLoadedFileListener,
     [dispatch],
   );
-  useIpcRenderer(AllowedFrontendChannels.Logging, loggingListener, [dispatch]);
+  useIpcRenderer<LoggingListener>(
+    AllowedFrontendChannels.Logging,
+    (_, { date, level, message }) =>
+      console[level](`${dayjs(date).format('HH:mm:ss.SSS')} ${message}`),
+    [dispatch],
+  );
   useIpcRenderer(
     AllowedFrontendChannels.ShowSearchPopup,
     showSearchPopupListener,
@@ -340,9 +331,6 @@ export function BackendCommunication(): ReactElement | null {
       filesWithChildren,
     ],
   );
-  useIpcRenderer(AllowedFrontendChannels.FileLoading, setFileLoadingListener, [
-    dispatch,
-  ]);
   useIpcRenderer(
     AllowedFrontendChannels.ShowFileSupportPopup,
     showFileSupportPopupListener,

@@ -18,6 +18,7 @@ import {
   getSelectBaseURLListener,
   setLoadingState,
 } from './listeners';
+import logger from './logger';
 import {
   getPathOfChromiumNoticeDocument,
   getPathOfNoticeDocument,
@@ -69,6 +70,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               ),
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
+                logger.info('Preparing data for follow-up export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.FollowUp,
@@ -83,6 +85,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'Compact component list',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
+                logger.info('Preparing data for compact component list export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.CompactBom,
@@ -97,6 +100,9 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'Detailed component list',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
+                logger.info(
+                  'Preparing data for detailed component list export',
+                );
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.DetailedBom,
@@ -111,6 +117,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'SPDX (yaml)',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
+                logger.info('Preparing data for SPDX (yaml) export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentYaml,
@@ -125,6 +132,7 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
               label: 'SPDX (json)',
               click(): void {
                 setLoadingState(mainWindow.webContents, true);
+                logger.info('Preparing data for SPDX (json) export');
                 webContents.send(
                   AllowedFrontendChannels.ExportFileRequest,
                   ExportType.SpdxDocumentJson,

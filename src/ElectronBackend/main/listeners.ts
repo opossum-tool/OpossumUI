@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell, WebContents } from 'electron';
-import log from 'electron-log';
 import fs from 'fs';
 import hash from 'object-hash';
 import upath from 'upath';
@@ -50,6 +49,7 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from './globalBackendState';
+import logger from './logger';
 
 const outputFileEnding = '_attributions.json';
 const jsonGzipFileExtension = '.json.gz';
@@ -130,7 +130,7 @@ export async function handleOpeningFile(
   filePath: string,
 ): Promise<void> {
   const isOpossumFormat = isOpossumFileFormat(filePath);
-  log.info('Initializing global backend state');
+  logger.info('Initializing global backend state');
   initializeGlobalBackendState(filePath, isOpossumFormat);
 
   if (!isOpossumFormat) {
@@ -145,7 +145,6 @@ export async function handleOpeningFile(
     return;
   }
 
-  log.info('Opening .opossum file');
   await openFile(mainWindow, filePath);
 }
 
@@ -201,7 +200,6 @@ export function getKeepFileListener(
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
     const filePath = getGlobalBackendState().resourceFilePath as string;
-    log.info('Opening file: ', filePath);
     await openFile(mainWindow, filePath);
   });
 }
@@ -213,16 +211,14 @@ export function getDeleteAndCreateNewAttributionFileListener(
     const globalBackendState = getGlobalBackendState();
     const resourceFilePath = globalBackendState.resourceFilePath as string;
 
-    log.info(
-      'Deleting attribution file and opening input file: ',
-      resourceFilePath,
+    logger.info(
+      `Deleting attribution file and opening input file ${resourceFilePath}`,
     );
     if (globalBackendState.attributionFilePath) {
       fs.unlinkSync(globalBackendState.attributionFilePath);
     } else {
       throw new Error(
-        'Failed to delete output file. Attribution file path is incorrect:' +
-          `\n${globalBackendState.attributionFilePath}`,
+        `Failed to delete output file. Attribution file path is incorrect: ${globalBackendState.attributionFilePath}`,
       );
     }
     await openFile(mainWindow, resourceFilePath);
@@ -290,7 +286,7 @@ export function getSendErrorInformationListener(
   mainWindow: BrowserWindow,
 ): (_: unknown, args: SendErrorInformationArgs) => Promise<void> {
   return async (_, args: SendErrorInformationArgs): Promise<void> => {
-    log.error(args.error.message + args.errorInfo.componentStack);
+    logger.error(args.error.message + args.errorInfo.componentStack);
     await getMessageBoxForErrors(
       args.error.message,
       args.errorInfo.componentStack,
@@ -319,10 +315,10 @@ export function getOpenLinkListener(): (
       return await shell.openExternal(args.link);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        log.info(`Cannot open link ${args.link}\n` + error.message);
+        logger.info(`Cannot open link ${args.link}: ${error.message}`);
         return error;
       } else {
-        log.info(`Cannot open link ${args.link}`);
+        logger.info(`Cannot open link ${args.link}`);
         return new Error('Cannot open link');
       }
     }
@@ -382,28 +378,23 @@ export function getExportedFilePathAndFileExporter(
   }
 }
 
-export function _exportFileAndOpenFolder(mainWindow: BrowserWindow) {
+export function exportFile(mainWindow: BrowserWindow) {
   return async (_: unknown, exportArgs: ExportArgsType): Promise<void> => {
     const { exportedFilePath, fileExporter } =
       getExportedFilePathAndFileExporter(exportArgs.type);
 
-    setLoadingState(mainWindow.webContents, true);
-
     try {
       if (exportedFilePath) {
-        log.info(
-          `Starting to create ${exportArgs.type} export to ${exportedFilePath}`,
-        );
+        logger.info(`Writing to ${exportedFilePath}`);
         await fileExporter(exportedFilePath, exportArgs);
       } else {
-        log.error(`Failed to create ${exportArgs.type} export.`);
-        throw new Error(`Failed to create ${exportArgs.type} export.`);
+        logger.error('Failed to create export');
+        throw new Error('Failed to create export');
       }
     } finally {
       setLoadingState(mainWindow.webContents, false);
 
       if (exportedFilePath) {
-        log.info(`... Successfully created ${exportArgs.type} export`);
         shell.showItemInFolder(exportedFilePath);
       }
     }
@@ -415,7 +406,7 @@ export function getExportFileListener(
 ): (_: unknown, args: ExportArgsType) => Promise<void> {
   return createListenerCallbackWithErrorHandling(
     mainWindow,
-    _exportFileAndOpenFolder(mainWindow),
+    exportFile(mainWindow),
   );
 }
 
@@ -496,7 +487,7 @@ export function getConvertInputFileToDotOpossumAndOpenListener(
   mainWindow: BrowserWindow,
 ): () => Promise<void> {
   return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    log.info('Converting file with outdated format to .opossum format');
+    logger.info('Converting .json to .opossum format');
 
     const isOpossumFormat = true;
     const globalBackendState = getGlobalBackendState();
@@ -514,10 +505,9 @@ export function getConvertInputFileToDotOpossumAndOpenListener(
       output: getOutputJson(resourceFilePath),
     });
 
-    log.info('Updating global backend state');
+    logger.info('Updating global backend state');
     initializeGlobalBackendState(dotOpossumFilePath, isOpossumFormat);
 
-    log.info('Opening .opossum file');
     await openFile(mainWindow, dotOpossumFilePath);
   });
 }
@@ -579,7 +569,7 @@ export function getOpenOutdatedInputFileListener(
 
     const checksums = getActualAndParsedChecksums(resourceFilePath);
 
-    log.info('Update global backend state');
+    logger.info('Updating global backend state');
     initializeGlobalBackendState(
       resourceFilePath,
       isOpossumFormat,
@@ -593,7 +583,7 @@ export function getOpenOutdatedInputFileListener(
       checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
 
     if (inputFileChanged) {
-      log.info('Checksum of the input file has changed.');
+      logger.info('Notifying user that checksum of the input file has changed');
       mainWindow.webContents.send(
         AllowedFrontendChannels.ShowChangedInputFilePopup,
         {
@@ -601,8 +591,6 @@ export function getOpenOutdatedInputFileListener(
         },
       );
     } else {
-      log.info('Checksum of the input file has not changed.');
-      log.info('Opening file with old format (not .opossum)');
       await openFile(mainWindow, resourceFilePath);
     }
   });

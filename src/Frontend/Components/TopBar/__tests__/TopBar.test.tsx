@@ -22,7 +22,7 @@ import { TopBar } from '../TopBar';
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
     const { store } = renderComponentWithStore(<TopBar />);
-    const totalNumberOfCalls = 14;
+    const totalNumberOfCalls = 13;
     expect(window.electronAPI.on).toHaveBeenCalledTimes(totalNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.FileLoaded,
@@ -58,10 +58,6 @@ describe('TopBar', () => {
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.FileLoading,
       expect.anything(),
     );
     expect(window.electronAPI.on).toHaveBeenCalledWith(

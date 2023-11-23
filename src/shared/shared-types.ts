@@ -237,7 +237,7 @@ export interface FileSupportPopupArgs {
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
-export interface IElectronAPI {
+export interface ElectronAPI {
   openLink: (link: string) => Promise<unknown>;
   openFile: () => Promise<unknown>;
   deleteFile: () => Promise<unknown>;
@@ -250,12 +250,17 @@ export interface IElectronAPI {
   ) => void;
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
-  on: (channel: AllowedFrontendChannels, listener: Listener) => void;
-  removeListener: (channel: AllowedFrontendChannels) => void;
+  on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
 }
 
 declare global {
   interface Window {
-    electronAPI: IElectronAPI;
+    electronAPI: ElectronAPI;
   }
+}
+
+export interface Log {
+  date: Date;
+  message: string;
+  level: 'info' | 'warn' | 'error';
 }

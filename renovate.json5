@@ -29,6 +29,7 @@
         'babel-jest',
         'buffer',
         'cross-env',
+        'dayjs',
         'electron-devtools-installer',
         'electron-is-dev',
         'electron-log',

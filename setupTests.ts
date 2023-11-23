@@ -5,15 +5,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import '@testing-library/jest-dom';
 
-const TEST_TIMEOUT = 15000;
-//We suppress webworker errors that are due to jest not supporting these.
+import { ElectronAPI } from './src/shared/shared-types';
+
+// We suppress webworker errors that are due to jest not supporting these.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
   'Web worker error in workers context',
   'Error in rendering folder progress bar',
   'Error in rendering top progress bar',
   'Error in ResourceDetailsTab',
 ];
-//We supress recharts warning that is due to our mocking in tests.
+// We suppress the recharts warning that is due to our mocking in tests.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN = [
   'The width(0) and height(0) of chart should be greater than 0,',
 ];
@@ -23,10 +24,9 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
 ];
 
-jest.setTimeout(TEST_TIMEOUT);
-
 jest.mock('./src/Frontend/web-workers/get-new-accordion-workers');
 jest.mock('./src/Frontend/web-workers/get-new-progress-bar-workers');
+jest.mock('./src/ElectronBackend/main/logger.ts');
 
 const originalResizeObserver = window.ResizeObserver;
 const originalConsoleError = console.error;
@@ -53,9 +53,8 @@ beforeAll(() => {
     sendErrorInformation: jest.fn(),
     exportFile: jest.fn(),
     saveFile: jest.fn(),
-    on: jest.fn(),
-    removeListener: jest.fn(),
-  };
+    on: jest.fn().mockReturnValue(jest.fn()),
+  } satisfies ElectronAPI;
 
   mockResizeObserver();
 

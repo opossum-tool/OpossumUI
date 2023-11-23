@@ -34,7 +34,7 @@ import { createWindow } from '../createWindow';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
-  _exportFileAndOpenFolder,
+  exportFile,
   getConvertInputFileToDotOpossumAndOpenListener,
   getDeleteAndCreateNewAttributionFileListener,
   getExportFileListener,
@@ -95,8 +95,6 @@ jest.mock('electron', () => ({
   },
   shell: { showItemInFolder: jest.fn(), openExternal: jest.fn() },
 }));
-
-jest.mock('electron-log');
 
 jest.mock('../../../shared/write-file', () => ({
   ...jest.requireActual('../../../shared/write-file'),
@@ -692,7 +690,7 @@ describe('getExportFollowUpListener', () => {
     expect(dialog.showMessageBox).toBeCalledWith(
       expect.objectContaining({
         type: 'error',
-        message: 'Error in app backend: Failed to create FollowUp export.',
+        message: 'Error in app backend: Failed to create export',
         buttons: ['Reload File', 'Quit'],
       }),
     );
@@ -753,7 +751,7 @@ describe('getExportBomListener', () => {
     expect(dialog.showMessageBox).toBeCalledWith(
       expect.objectContaining({
         type: 'error',
-        message: 'Error in app backend: Failed to create CompactBom export.',
+        message: 'Error in app backend: Failed to create export',
         buttons: ['Reload File', 'Quit'],
       }),
     );
@@ -922,7 +920,7 @@ describe('_exportFileAndOpenFolder', () => {
       spdxAttributions: {},
     };
 
-    await _exportFileAndOpenFolder(mainWindow)(undefined, testArgs);
+    await exportFile(mainWindow)(undefined, testArgs);
 
     expect(writeSpdxFile).toHaveBeenNthCalledWith(
       1,
@@ -940,9 +938,9 @@ describe('_exportFileAndOpenFolder', () => {
       spdxAttributions: {},
     };
 
-    await expect(
-      _exportFileAndOpenFolder(mainWindow)(undefined, testArgs),
-    ).rejects.toThrow('Failed to create SpdxDocumentYaml export.');
+    await expect(exportFile(mainWindow)(undefined, testArgs)).rejects.toThrow(
+      'Failed to create export',
+    );
     expect(writeSpdxFile).not.toBeCalled();
     expect(shell.showItemInFolder).not.toBeCalled();
   });

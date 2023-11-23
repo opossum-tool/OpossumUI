@@ -9,7 +9,8 @@ import MuiTableCell from '@mui/material/TableCell';
 import MuiTableContainer from '@mui/material/TableContainer';
 import MuiTableRow from '@mui/material/TableRow';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
+import dayjs from 'dayjs';
+import React, { ReactElement } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
@@ -36,47 +37,46 @@ export const projectMetadataTableClasses = {
   },
 };
 
-const keyToDisplayName: { [key: string]: string } = {
-  projectTitle: 'Project Title',
-  projectId: 'Project ID',
-  fileCreationDate: 'File Creation Date',
+const values: { [key: string]: { title: string; date: boolean } } = {
+  buildDate: { title: 'Build Date', date: true },
+  expectedReleaseDate: { title: 'Expected Release Date', date: true },
+  fileCreationDate: { title: 'File Creation Date', date: true },
+  projectId: { title: 'Project ID', date: false },
+  projectTitle: { title: 'Project Title', date: false },
+  projectVersion: { title: 'Project Version', date: false },
 };
 
 export function ProjectMetadataTable(): ReactElement {
   const projectMetadata = useAppSelector(getProjectMetadata);
 
-  function mapKeyToDisplayName(key: string): string {
-    return key in keyToDisplayName ? keyToDisplayName[key] : key;
-  }
-
-  function getTableRow(key: string): ReactElement {
-    return (
-      <MuiTableRow key={key}>
-        <MuiTableCell sx={projectMetadataTableClasses.firstColumn}>
-          {mapKeyToDisplayName(key)}
-        </MuiTableCell>
-        <MuiTableCell sx={projectMetadataTableClasses.secondColumn}>
-          <pre>
-            <MuiTypography fontFamily="default">
-              {typeof projectMetadata[key] === 'string'
-                ? (projectMetadata[key] as string)
-                : JSON.stringify(projectMetadata[key], null, 2)}
-            </MuiTypography>
-          </pre>
-        </MuiTableCell>
-      </MuiTableRow>
-    );
-  }
-
   return (
     <MuiBox>
       <MuiTableContainer sx={projectMetadataTableClasses.container}>
         <MuiTable>
-          <MuiTableBody>
-            {Object.keys(projectMetadata).map((key) => getTableRow(key))}
-          </MuiTableBody>
+          <MuiTableBody>{renderRows()}</MuiTableBody>
         </MuiTable>
       </MuiTableContainer>
     </MuiBox>
   );
+
+  function renderRows(): React.ReactNode {
+    return Object.entries(projectMetadata).map(([key, value]) => (
+      <MuiTableRow key={key}>
+        <MuiTableCell sx={projectMetadataTableClasses.firstColumn}>
+          {values[key]?.title ?? key}
+        </MuiTableCell>
+        <MuiTableCell sx={projectMetadataTableClasses.secondColumn}>
+          <pre>
+            <MuiTypography fontFamily="default">
+              {typeof value === 'string'
+                ? values[key]?.date
+                  ? dayjs(value).format('lll')
+                  : value
+                : JSON.stringify(value, null, 2)}
+            </MuiTypography>
+          </pre>
+        </MuiTableCell>
+      </MuiTableRow>
+    ));
+  }
 }

@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { ReactElement, StrictMode } from 'react';
 import { Provider } from 'react-redux';
 
@@ -13,6 +15,8 @@ import {
   AccordionWorkersContextProvider,
   ProgressBarWorkersContextProvider,
 } from '../WorkersContextProvider/WorkersContextProvider';
+
+dayjs.extend(localizedFormat);
 
 const store = createAppStore();
 const queryClient = new QueryClient();

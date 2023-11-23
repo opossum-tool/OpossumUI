@@ -9,7 +9,6 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
-  ACTION_SET_IS_LOADING,
   ACTION_SET_QA_MODE,
   ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
@@ -24,7 +23,6 @@ export interface ViewState {
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
   activeFilters: Set<FilterType>;
-  isLoading: boolean;
   showNoSignalsLocatedMessage: boolean;
   qaMode: boolean;
 }
@@ -34,7 +32,6 @@ export const initialViewState: ViewState = {
   targetView: null,
   popupInfo: [],
   activeFilters: new Set<FilterType>(),
-  isLoading: false,
   showNoSignalsLocatedMessage: false,
   qaMode: false,
 };
@@ -74,11 +71,6 @@ export function viewState(
       return {
         ...state,
         activeFilters: getUpdatedFilters(state.activeFilters, action.payload),
-      };
-    case ACTION_SET_IS_LOADING:
-      return {
-        ...state,
-        isLoading: action.payload,
       };
     case ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE:
       return {

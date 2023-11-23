@@ -10,16 +10,13 @@ import { ReactElement } from 'react';
 import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
-import {
-  getIsLoading,
-  getSelectedView,
-} from '../../state/selectors/view-selector';
+import { getSelectedView } from '../../state/selectors/view-selector';
 import { AttributionView } from '../AttributionView/AttributionView';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
+import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { ReportView } from '../ReportView/ReportView';
-import { Spinner } from '../Spinner/Spinner';
 import { TopBar } from '../TopBar/TopBar';
 
 const classes = {
@@ -89,13 +86,8 @@ const theme = createTheme({
 
 export function App(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
-  const isLoading = useAppSelector(getIsLoading);
 
   function getSelectedViewContainer(): ReactElement {
-    if (isLoading) {
-      return <Spinner sx={classes.spinner} />;
-    }
-
     switch (selectedView) {
       case View.Audit:
         return <AuditView />;
@@ -111,6 +103,7 @@ export function App(): ReactElement {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <GlobalPopup />
+          <ProcessPopup />
           <MuiBox sx={classes.root}>
             <TopBar />
             <MuiBox sx={classes.panelDiv}>{getSelectedViewContainer()}</MuiBox>

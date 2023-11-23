@@ -16,7 +16,6 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
-  ACTION_SET_IS_LOADING,
   ACTION_SET_QA_MODE,
   ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
@@ -25,7 +24,6 @@ import {
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
-  SetIsLoadingAction,
   SetQAModeAction,
   SetShowNoSignalsLocatedMessage,
   SetTargetView,
@@ -97,10 +95,6 @@ export function updateActiveFilters(
     type: ACTION_UPDATE_ACTIVE_FILTERS,
     payload: filterType,
   };
-}
-
-export function setIsLoading(isLoading: boolean): SetIsLoadingAction {
-  return { type: ACTION_SET_IS_LOADING, payload: isLoading };
 }
 
 export function setShowNoSignalsLocatedMessage(
