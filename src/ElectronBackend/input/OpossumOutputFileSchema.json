@@ -7,23 +7,6 @@
     "metadata": {
       "type": "object",
       "properties": {
-        "source": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Where the information came from (e.g. a tool like ScanCode)"
-            },
-            "documentConfidence": {
-              "type": "number",
-              "description": "How much the information is trusted (0: bad, 100: good)",
-              "minimum": 0,
-              "maximum": 100
-            }
-          },
-          "required": ["name", "documentConfidence"],
-          "additionalProperties": false
-        },
         "projectId": {
           "type": "string",
           "description": "An ID for the compliance scan, copied from the input file."
@@ -37,7 +20,10 @@
           "description": "Checksum to check if the input file has changed."
         }
       },
-      "required": ["projectId", "fileCreationDate"],
+      "required": [
+        "projectId",
+        "fileCreationDate"
+      ],
       "additionalProperties": false
     },
     "manualAttributions": {
@@ -45,6 +31,26 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
+          "source": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Where the information came from (e.g. a tool like ScanCode)"
+              },
+              "documentConfidence": {
+                "type": "number",
+                "description": "How much the information is trusted (0: bad, 100: good)",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            "required": [
+              "name",
+              "documentConfidence"
+            ],
+            "additionalProperties": false
+          },
           "packageName": {
             "type": "string",
             "description": "Name of the package (part of a package URL)"
@@ -109,7 +115,9 @@
           },
           "followUp": {
             "type": "string",
-            "enum": ["FOLLOW_UP"],
+            "enum": [
+              "FOLLOW_UP"
+            ],
             "description": "Indicates that an attribution is problematic and needs to be followed up."
           },
           "originId": {
@@ -166,6 +174,10 @@
       }
     }
   },
-  "required": ["metadata", "manualAttributions", "resourcesToAttributions"],
+  "required": [
+    "metadata",
+    "manualAttributions",
+    "resourcesToAttributions"
+  ],
   "additionalProperties": true
 }
