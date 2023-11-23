@@ -256,7 +256,6 @@ function getCurrentSubTree(
         resources[resource] as Resources,
       ),
     };
-  } else {
-    return resources;
   }
+  return resources;
 }

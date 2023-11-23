@@ -23,7 +23,7 @@ import { renderComponentWithStore } from '../../../test-helpers/render-component
 import { ReportView } from '../ReportView';
 
 describe('The ReportView', () => {
-  const testResources: Resources = { ['test resource']: 1 };
+  const testResources: Resources = { 'test resource': 1 };
   const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';
   const testOtherManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120003';
   const testManualAttributions: Attributions = {};

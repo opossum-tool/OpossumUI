@@ -33,9 +33,7 @@ export async function openFileFromCliOrEnvVariableIfProvided(
       inputFileName = inputFileFromEnvVariable;
     } else {
       log.warn(
-        'File "' +
-          inputFileFromEnvVariable +
-          '"  which was provided by env variable is not valid. ' +
+        `File "${inputFileFromEnvVariable}"  which was provided by env variable is not valid. ` +
           'Opening OpossumUI without loading a file.',
       );
     }

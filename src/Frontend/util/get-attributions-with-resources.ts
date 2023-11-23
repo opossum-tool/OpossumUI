@@ -104,9 +104,8 @@ function getResourcesRecursively(
         isFileWithChildren,
       );
       return isFileWithChildren(path) ? childPaths.concat(path) : childPaths;
-    } else {
-      return [path];
     }
+    return [path];
   });
 }
 
@@ -137,7 +136,7 @@ function getAllChildPathsOfFolder(
   for (const directChild of Object.keys(childTree)) {
     const childSubtree = childTree[directChild];
     if (canResourceHaveChildren(childSubtree)) {
-      const directChildPath = folderPath + directChild + '/';
+      const directChildPath = `${folderPath + directChild}/`;
       if (isAttributionBreakpoint(directChildPath)) {
         continue;
       }

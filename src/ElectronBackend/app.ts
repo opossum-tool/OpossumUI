@@ -13,7 +13,7 @@ import { main } from './main/main';
 
 app.on('ready', main);
 
-app.on('window-all-closed', function () {
+app.on('window-all-closed', () => {
   app.quit();
 });
 

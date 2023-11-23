@@ -11,8 +11,9 @@ export function getParents(pathToBeSplit: string): Array<string> {
     characterIndex < pathToBeSplit.length - 1;
     characterIndex++
   ) {
-    if (pathToBeSplit[characterIndex] === '/')
+    if (pathToBeSplit[characterIndex] === '/') {
       parents.push(pathToBeSplit.substr(0, characterIndex + 1));
+    }
   }
   return parents;
 }

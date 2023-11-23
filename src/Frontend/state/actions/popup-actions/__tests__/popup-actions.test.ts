@@ -33,13 +33,13 @@ import { PanelPackage, State } from '../../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import {
   getCurrentAttributionId,
+  getDisplayedPackage,
   getManualAttributions,
   getManualData,
   getResourcesWithLocatedAttributions,
+  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../../selectors/all-views-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
 import {
   getAttributionWizardPackageNames,

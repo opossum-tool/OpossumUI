@@ -79,8 +79,7 @@ export function ProjectLicensesTable(
                     {columnIndex === 0 ? (
                       <>
                         <span>{rowName}</span>
-                        {props.firstColumnIconButtons &&
-                          props.firstColumnIconButtons[rowName]}
+                        {props.firstColumnIconButtons?.[rowName]}
                       </>
                     ) : (
                       props.tableContent[rowName][columnName] ||

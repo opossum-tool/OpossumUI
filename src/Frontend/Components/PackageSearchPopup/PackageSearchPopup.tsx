@@ -75,7 +75,7 @@ function getInitialSearchTerm(packageInfo: PackageInfo): string {
   }
 
   return `${
-    packageInfo.packageNamespace ? packageInfo.packageNamespace + '/' : ''
+    packageInfo.packageNamespace ? `${packageInfo.packageNamespace}/` : ''
   }${packageInfo.packageName}/${packageInfo.packageVersion ?? ''}`;
 }
 

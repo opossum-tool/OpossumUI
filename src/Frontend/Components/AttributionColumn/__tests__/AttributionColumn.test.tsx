@@ -491,7 +491,7 @@ describe('The AttributionColumn', () => {
 
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      'https://' + testTemporaryDisplayPackageInfo.url,
+      `https://${testTemporaryDisplayPackageInfo.url}`,
     );
   });
 

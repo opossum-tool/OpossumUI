@@ -3,8 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { State } from '../../types/types';
-import { getSelectedAttributionIdInAttributionView } from './all-views-resource-selectors';
-import { getManualAttributionsToResources } from './all-views-resource-selectors';
+import {
+  getManualAttributionsToResources,
+  getSelectedAttributionIdInAttributionView,
+} from './all-views-resource-selectors';
 
 export function getTargetSelectedAttributionId(state: State): string | null {
   return state.resourceState.attributionView.targetSelectedAttributionId;

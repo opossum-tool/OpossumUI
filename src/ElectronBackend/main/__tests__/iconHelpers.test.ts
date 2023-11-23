@@ -24,8 +24,12 @@ describe('makeFirstIconVisibleAndSecondHidden', () => {
     toBeHiddenMenuItem = { visible: true };
     (Menu.getApplicationMenu as jest.Mock).mockImplementation(() => ({
       getMenuItemById: jest.fn().mockImplementation((id) => {
-        if (id === 'toBeVisibleMenuItem') return toBeVisibleMenuItem;
-        if (id === 'toBeHiddenMenuItem') return toBeHiddenMenuItem;
+        if (id === 'toBeVisibleMenuItem') {
+          return toBeVisibleMenuItem;
+        }
+        if (id === 'toBeHiddenMenuItem') {
+          return toBeHiddenMenuItem;
+        }
         throw Error('unexpected ID');
       }),
     }));

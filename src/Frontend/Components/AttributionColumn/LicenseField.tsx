@@ -23,7 +23,7 @@ function getFormattedLicenseNamesToShortNameMapping(
   [key: string]: string;
 } {
   function formatLicenseName(licenseName: FrequentLicenseName): string {
-    return licenseName.shortName + ' - ' + licenseName.fullName;
+    return `${licenseName.shortName} - ${licenseName.fullName}`;
   }
 
   return Object.fromEntries(

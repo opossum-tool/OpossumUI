@@ -79,7 +79,7 @@ export function ListWithAttributes(
     setTextBoxInput('');
   }
 
-  const textInputIsInvalid = !textBoxInput || !textBoxInput.trim().length;
+  const textInputIsInvalid = !textBoxInput?.trim().length;
 
   const listItemsToDisplay = props.sortList
     ? props.sortList(props.listItems, props.highlightedAttributeIds)

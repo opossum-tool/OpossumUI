@@ -88,7 +88,9 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function openConfirmDeletionPopup(): void {
-    if (!attributionIdOfSelectedPackageInManualPanel) return;
+    if (!attributionIdOfSelectedPackageInManualPanel) {
+      return;
+    }
     if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(
         deleteAttributionAndSave(
@@ -107,7 +109,9 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function openConfirmDeletionGloballyPopup(): void {
-    if (!attributionIdOfSelectedPackageInManualPanel) return;
+    if (!attributionIdOfSelectedPackageInManualPanel) {
+      return;
+    }
 
     if (temporaryDisplayPackageInfo.preSelected) {
       dispatch(
@@ -146,7 +150,6 @@ export function ResourceDetailsAttributionColumn(
           temporaryDisplayPackageInfo,
         ),
       );
-      return;
     } else {
       dispatch(
         savePackageInfoIfSavingIsNotDisabled(

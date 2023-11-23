@@ -51,7 +51,7 @@ export async function parseOpossumFile(
       parsedInputData = parseAndValidateJson(inputJson, OpossumInputFileSchema);
     } catch (err) {
       jsonParsingError = {
-        message: `Error: ${opossumFilePath} does not contain a valid input file.\n Original error message: ${err}`,
+        message: `Error: ${opossumFilePath} does not contain a valid input file.\n Original error message: ${err?.toString()}`,
         type: 'jsonParsingError',
       };
     }
@@ -62,7 +62,7 @@ export async function parseOpossumFile(
         parsedOutputData = parseOutputJsonContent(outputJson, opossumFilePath);
       } catch (err) {
         jsonParsingError = {
-          message: `Error: ${opossumFilePath} does not contain a valid output file.\n${err}`,
+          message: `Error: ${opossumFilePath} does not contain a valid output file.\n${err?.toString()}`,
           type: 'jsonParsingError',
         };
       }
@@ -82,14 +82,18 @@ export async function parseOpossumFile(
 async function readZipAsync(opossumFilePath: string): Promise<fflate.Unzipped> {
   const originalZipBuffer: Buffer = await new Promise((resolve) => {
     fs.readFile(opossumFilePath, (err, data) => {
-      if (err) throw err;
+      if (err) {
+        throw err;
+      }
       resolve(data);
     });
   });
 
   return new Promise((resolve) => {
     fflate.unzip(new Uint8Array(originalZipBuffer), (err, unzipData) => {
-      if (err) throw err;
+      if (err) {
+        throw err;
+      }
       resolve(unzipData);
     });
   });
@@ -118,7 +122,7 @@ export function parseInputJsonFile(
 
   pipeline.on('error', () => {
     resolveCallback({
-      message: `Error: ${resourceFilePath} is not a valid input file.`,
+      message: `Error: ${resourceFilePath.toString()} is not a valid input file.`,
       type: 'jsonParsingError',
     } as JsonParsingError);
   });
@@ -136,7 +140,7 @@ export function parseInputJsonFile(
       resolveCallback(opossumInputData as ParsedOpossumInputFile);
     } catch (err) {
       resolveCallback({
-        message: `Error: ${resourceFilePath} is not a valid input file.\n${err}`,
+        message: `Error: ${resourceFilePath.toString()} is not a valid input file.\n${err?.toString()}`,
         type: 'jsonParsingError',
       } as JsonParsingError);
     }
@@ -164,7 +168,7 @@ export function parseOutputJsonContent(
     );
   } catch (err) {
     throw new Error(
-      `Error: ${filePath} contains an invalid output file.\n Original error message: ${err}`,
+      `Error: ${filePath.toString()} contains an invalid output file.\n Original error message: ${err?.toString()}`,
     );
   }
 

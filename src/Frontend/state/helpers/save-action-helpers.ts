@@ -171,7 +171,6 @@ export function deleteChildrenFromAttributedResources(
       resourcesWithAttributedChildren.attributedChildren[parentIndex];
 
     if (!childrenIndexes) {
-      return;
     } else if (childrenIndexes.size === 1) {
       delete resourcesWithAttributedChildren.attributedChildren[parentIndex];
     } else {

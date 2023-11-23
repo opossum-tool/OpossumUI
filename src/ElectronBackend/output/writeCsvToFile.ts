@@ -48,7 +48,9 @@ export async function writeCsvToFile(
       writeStream.on('error', reject);
     });
   } catch (error) {
-    throw new Error(`Error while writing the file ${filePath}. \n${error}`);
+    throw new Error(
+      `Error while writing the file ${filePath}. \n${error?.toString()}`,
+    );
   }
 }
 

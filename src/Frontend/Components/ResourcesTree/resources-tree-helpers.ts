@@ -61,7 +61,7 @@ export function getInitialExpandedIds(allResourceIds: string[]): string[] {
     const resourceIdParents = resourceId.split('/').slice(1, -1);
     for (let i = 0; i < resourceIdParents.length; i++) {
       initialExpandedIdsSet.add(
-        '/' + resourceIdParents.slice(0, i + 1).join('/') + '/',
+        `/${resourceIdParents.slice(0, i + 1).join('/')}/`,
       );
     }
   }

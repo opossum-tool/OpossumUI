@@ -19,7 +19,6 @@ import { getLoadedFilePath } from '../utils/getLoadedFile';
 
 export function createListenerCallbackWithErrorHandling(
   mainWindow: BrowserWindow,
-  // @ts-nocheck
   // eslint-disable-next-line @typescript-eslint/ban-types
   func: Function,
 ): (...args: Array<unknown>) => Promise<void> {
@@ -107,6 +106,5 @@ function performButtonAction(
       app.exit(0);
       break;
     default:
-      return;
   }
 }

@@ -23,7 +23,9 @@ export async function writeFile({
     );
     return path;
   } catch (error) {
-    throw new Error(`Error while writing the file ${path}: ${error}`);
+    throw new Error(
+      `Error while writing the file ${path}: ${error?.toString()}`,
+    );
   }
 }
 

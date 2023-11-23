@@ -194,8 +194,7 @@ describe('Test of loading function', () => {
 
     Date.now = jest.fn(() => 1);
 
-    // @ts-ignore
-    dialog.showMessageBox.mockImplementationOnce(
+    (dialog.showMessageBox as jest.Mock).mockImplementationOnce(
       jest.fn(() => {
         return Promise.resolve({
           response: 0,
@@ -276,7 +275,6 @@ describe('Test of loading function', () => {
       path: opossumPath,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     Date.now = jest.fn(() => 1691761892037);
 
     setGlobalBackendState({});

@@ -131,9 +131,7 @@ describe('The load and navigation simple actions', () => {
     const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
       {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(0).add(3),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(0).add(3),
         },
         pathsToIndices: {
@@ -190,9 +188,7 @@ describe('The load and navigation simple actions', () => {
     const expectedResourcesWithAttributedChildren: ResourcesWithAttributedChildren =
       {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(0).add(3),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(0).add(3),
         },
         pathsToIndices: {

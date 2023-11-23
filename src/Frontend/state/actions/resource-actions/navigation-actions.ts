@@ -13,11 +13,11 @@ import { doNothing } from '../../../util/do-nothing';
 import { isExternalPackagePanel } from '../../../util/is-external-package-panel';
 import { getParents } from '../../helpers/get-parents';
 import {
+  getDisplayedPackage,
+  getDisplayPackageInfoOfDisplayedPackage,
   getDisplayPackageInfoOfSelectedAttributionInAttributionView,
   getManualData,
 } from '../../selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../selectors/all-views-resource-selectors';
-import { getDisplayPackageInfoOfDisplayedPackage } from '../../selectors/all-views-resource-selectors';
 import { getTargetSelectedAttributionId } from '../../selectors/attribution-view-resource-selectors';
 import {
   getSelectedResourceId,

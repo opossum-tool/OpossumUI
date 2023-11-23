@@ -135,8 +135,7 @@ describe('getOpenFileListener', () => {
     const jsonPath = path.join(upath.toUnix(temporaryPath), fileName);
 
     fs.writeFileSync(jsonPath, 'dummy resource data');
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([jsonPath]);
+    (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
 
     await getOpenFileListener(mainWindow)();
 
@@ -168,8 +167,7 @@ describe('getOpenFileListener', () => {
     );
     fs.writeFileSync(dotOpossumPath, 'dummy resource data');
 
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([jsonPath]);
+    (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
 
     await getOpenFileListener(mainWindow)();
 
@@ -189,8 +187,7 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    // @ts-ignore
-    writeFile.mockImplementationOnce(
+    (writeFile as jest.Mock).mockImplementationOnce(
       jest.requireActual('../../../shared/write-file').writeFile,
     );
 
@@ -203,8 +200,7 @@ describe('getOpenFileListener', () => {
     const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json');
     await writeFile({ path: resourcePath, content: {} });
 
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([attributionsPath]);
+    (openFileDialog as jest.Mock).mockReturnValueOnce([attributionsPath]);
 
     await getOpenFileListener(mainWindow)();
 
@@ -224,8 +220,7 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    // @ts-ignore
-    writeFile.mockImplementationOnce(
+    (writeFile as jest.Mock).mockImplementationOnce(
       jest.requireActual('../../../shared/write-file').writeFile,
     );
 
@@ -238,8 +233,7 @@ describe('getOpenFileListener', () => {
     const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json.gz');
     await writeFile({ path: resourcePath, content: {} });
 
-    // @ts-ignore
-    openFileDialog.mockReturnValueOnce([attributionsPath]);
+    (openFileDialog as jest.Mock).mockReturnValueOnce([attributionsPath]);
 
     await getOpenFileListener(mainWindow)();
 
@@ -300,8 +294,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       'path.json',
     );
 
-    // @ts-ignore
-    writeFile.mockImplementationOnce(
+    (writeFile as jest.Mock).mockImplementationOnce(
       jest.requireActual('../../../shared/write-file').writeFile,
     );
 
@@ -324,7 +317,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
         inputFileMD5Checksum: 'fake_checksum',
       },
       manualAttributions: {
-        ['test_uuid']: validAttribution,
+        test_uuid: validAttribution,
       },
       resourcesToAttributions: {
         '/path/1': ['test_uuid'],
@@ -332,8 +325,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       resolvedExternalAttributions: [],
     };
 
-    // @ts-ignore
-    writeFile.mockImplementationOnce(
+    (writeFile as jest.Mock).mockImplementationOnce(
       jest.requireActual('../../../shared/write-file').writeFile,
     );
 
@@ -362,13 +354,11 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    // @ts-ignore
-    loadInputAndOutputFromFilePath.mockImplementationOnce(
+    (loadInputAndOutputFromFilePath as jest.Mock).mockImplementationOnce(
       jest.requireActual('../../input/importFromFile')
         .loadInputAndOutputFromFilePath,
     );
-    // @ts-ignore
-    writeFile.mockImplementationOnce(
+    (writeFile as jest.Mock).mockImplementationOnce(
       jest.requireActual('../../../shared/write-file').writeFile,
     );
 
@@ -445,10 +435,14 @@ describe('getConvertInputFileToDotOpossumListener', () => {
 
     await new Promise<void>((resolve) => {
       fs.readFile(expectedDotOpossumFilePath, (err, data) => {
-        if (err) throw err;
+        if (err) {
+          throw err;
+        }
 
         unzip(data, (err, unzippedData) => {
-          if (err) throw err;
+          if (err) {
+            throw err;
+          }
           parsedInputJson = strFromU8(unzippedData['input.json']);
           parsedOutputJson = strFromU8(unzippedData['output.json']);
 
@@ -558,8 +552,7 @@ describe('getSelectBaseURLListener', () => {
     const baseURL = '/Users/path/to/sources';
     const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
 
-    // @ts-ignore
-    selectBaseURLDialog.mockReturnValueOnce([baseURL]);
+    (selectBaseURLDialog as jest.Mock).mockReturnValueOnce([baseURL]);
 
     getSelectBaseURLListener(mainWindow)();
 
@@ -575,8 +568,7 @@ describe('getSelectBaseURLListener', () => {
 
 describe('getSaveFileListener', () => {
   beforeEach(() => {
-    // @ts-ignore
-    writeFile.mockReset();
+    (writeFile as jest.Mock).mockReset();
   });
 
   it('throws error when projectId is not set', async () => {
@@ -840,8 +832,7 @@ describe('getExportBomListener', () => {
 
 describe('getExportSpdxDocumentListener', () => {
   beforeEach(() => {
-    // @ts-ignore
-    writeSpdxFile.mockReset();
+    (writeSpdxFile as jest.Mock).mockReset();
   });
 
   it('throws if path is not set', async () => {
@@ -946,12 +937,11 @@ describe('_exportFileAndOpenFolder', () => {
   });
 });
 
-async function prepareBomSPdxAndFollowUpit(): Promise<BrowserWindow> {
-  // @ts-ignore
-  writeCsvToFile.mockReset();
+function prepareBomSPdxAndFollowUpit(): Promise<BrowserWindow> {
+  (writeCsvToFile as jest.Mock).mockReset();
   setGlobalBackendState({});
 
-  return await createWindow();
+  return createWindow();
 }
 
 describe('linkHasHttpSchema', () => {

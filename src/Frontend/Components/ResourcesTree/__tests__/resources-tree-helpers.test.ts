@@ -44,17 +44,17 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
 
   const expectedResources: Resources = {
     OpossumUI: {
-      ['.idea']: {},
+      '.idea': {},
       src: {
         Frontend: {
-          ['test.txt']: 1,
+          'test.txt': 1,
           Components: {
-            ['file.tsx']: 1,
+            'file.tsx': 1,
           },
         },
-        ['abc.test.tsx']: 1,
+        'abc.test.tsx': 1,
       },
-      ['DCO.md']: 1,
+      'DCO.md': 1,
     },
   };
 
@@ -75,17 +75,17 @@ const testResourcesList: string[] = [
 
 const expectedResources: Resources = {
   OpossumUI: {
-    ['.idea']: {},
+    '.idea': {},
     src: {
       Frontend: {
-        ['test.txt']: 1,
+        'test.txt': 1,
         Components: {
-          ['file.tsx']: 1,
+          'file.tsx': 1,
         },
       },
-      ['abc.test.tsx']: 1,
+      'abc.test.tsx': 1,
     },
-    ['DCO.md']: 1,
+    'DCO.md': 1,
   },
 };
 

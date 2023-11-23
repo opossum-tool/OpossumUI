@@ -330,7 +330,6 @@ describe('The getUpdatedProgressBarData function', () => {
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
     expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
     expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(2);
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(5);
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,

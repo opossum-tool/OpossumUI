@@ -30,5 +30,6 @@ export function getLoadedFileType(
     return LoadedFileFormat.Json;
   } else if (globalBackendState.opossumFilePath) {
     return LoadedFileFormat.Opossum;
-  } else throw Error('Tried to get file type when no file is loaded');
+  }
+  throw Error('Tried to get file type when no file is loaded');
 }

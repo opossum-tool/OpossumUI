@@ -25,17 +25,17 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import {
   getAttributionIdMarkedForReplacement,
+  getAttributionIdOfDisplayedPackageInManualPanel,
   getManualAttributions,
   getManualAttributionsToResources,
   getManualData,
   getManualDisplayPackageInfoOfSelected,
   getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
+  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
-import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../../selectors/all-views-resource-selectors';
 import { getMultiSelectSelectedAttributionIds } from '../../../selectors/attribution-view-resource-selectors';
 import { getOpenPopup } from '../../../selectors/view-selector';
 import {
@@ -364,9 +364,7 @@ describe('The savePackageInfo action', () => {
     const expectedResourcesWithManualAttributedChildren1: ResourcesWithAttributedChildren =
       {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(0).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(0).add(4),
           '3': new Set<number>().add(0),
         },
@@ -388,9 +386,7 @@ describe('The savePackageInfo action', () => {
     const expectedResourcesWithManualAttributedChildren2: ResourcesWithAttributedChildren =
       {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(4),
         },
         pathsToIndices: {

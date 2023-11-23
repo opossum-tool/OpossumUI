@@ -75,7 +75,6 @@ describe('The AllAttributionsPanel', () => {
     renderComponentWithStore(
       <AllAttributionsPanel
         displayPackageInfos={{}}
-        selectedPackageCardId={null}
         isAddToPackageEnabled={true}
       />,
     );
@@ -108,7 +107,6 @@ describe('The AllAttributionsPanel', () => {
     renderComponentWithStore(
       <AllAttributionsPanel
         displayPackageInfos={testDisplayPackageInfos}
-        selectedPackageCardId={null}
         isAddToPackageEnabled={true}
       />,
       { store: testStore },
@@ -203,7 +201,6 @@ describe('The AllAttributionsPanel', () => {
     renderComponentWithStore(
       <AllAttributionsPanel
         displayPackageInfos={testManualDisplayPackageInfos}
-        selectedPackageCardId={null}
         isAddToPackageEnabled={true}
       />,
       { store: testStore },

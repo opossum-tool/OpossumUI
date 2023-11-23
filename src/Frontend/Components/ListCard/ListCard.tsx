@@ -173,9 +173,8 @@ export function ListCard(props: ListCardProps): ReactElement | null {
       return count;
     } else if (count.length < digitsInAMillion) {
       return `${count.slice(0, -(digitsInAThousand - 1))}k`;
-    } else {
-      return `${count.slice(0, -(digitsInAMillion - 1))}M`;
     }
+    return `${count.slice(0, -(digitsInAMillion - 1))}M`;
   }, [props.count]);
 
   const paddingRight = useMemo(
@@ -278,12 +277,10 @@ function getSx(
 
   if (cardConfig.isResource) {
     sxProps = merge(sxProps, classes.resource);
+  } else if (cardConfig.isContextMenuOpen) {
+    sxProps = merge(sxProps, classes.hoveredPackage);
   } else {
-    if (cardConfig.isContextMenuOpen) {
-      sxProps = merge(sxProps, classes.hoveredPackage);
-    } else {
-      sxProps = merge(sxProps, classes.package);
-    }
+    sxProps = merge(sxProps, classes.package);
   }
 
   if (cardConfig.isExternalAttribution) {
@@ -311,15 +308,10 @@ function getSx(
   if (cardConfig.isSelected) {
     if (cardConfig.isContextMenuOpen) {
       sxProps = merge(sxProps, classes.hoveredSelected);
+    } else if (highlighting) {
+      sxProps = merge(sxProps, getHighlightedListCardStyle(highlighting, true));
     } else {
-      if (highlighting) {
-        sxProps = merge(
-          sxProps,
-          getHighlightedListCardStyle(highlighting, true),
-        );
-      } else {
-        sxProps = merge(sxProps, classes.selected);
-      }
+      sxProps = merge(sxProps, classes.selected);
     }
   } else if (highlighting) {
     sxProps = merge(sxProps, getHighlightedListCardStyle(highlighting, false));
@@ -379,11 +371,5 @@ function getHighlightedBackground(
   highlightColor: string,
   backgroundColor: string,
 ): string {
-  return (
-    'linear-gradient(225deg, ' +
-    highlightColor +
-    ' 44.5px, ' +
-    backgroundColor +
-    ' 0) 0 0/100% 40px no-repeat'
-  );
+  return `linear-gradient(225deg, ${highlightColor} 44.5px, ${backgroundColor} 0) 0 0/100% 40px no-repeat`;
 }

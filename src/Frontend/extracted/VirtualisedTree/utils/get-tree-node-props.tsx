@@ -156,7 +156,7 @@ function getNodeIdOfFirstContainedNode(
 }
 
 function getNodeId(nodeName: string, path: string, isFolder: boolean): string {
-  return path + (isFolder ? nodeName + '/' : nodeName);
+  return path + (isFolder ? `${nodeName}/` : nodeName);
 }
 
 function isExpanded(nodeId: string, expandedNodes: Array<string>): boolean {

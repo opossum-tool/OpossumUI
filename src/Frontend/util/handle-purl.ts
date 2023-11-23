@@ -24,10 +24,10 @@ export function parsePurl(potentialPurl: string): ParsedPurl {
       isValid: true,
       purl: {
         packageName: packageURL ? packageURL.name : undefined,
-        packageVersion:
-          packageURL && packageURL.version ? packageURL.version : undefined,
-        packageNamespace:
-          packageURL && packageURL.namespace ? packageURL.namespace : undefined,
+        packageVersion: packageURL?.version ? packageURL.version : undefined,
+        packageNamespace: packageURL?.namespace
+          ? packageURL.namespace
+          : undefined,
         packageType: packageURL ? packageURL.type : undefined,
         packagePURLAppendix,
       },

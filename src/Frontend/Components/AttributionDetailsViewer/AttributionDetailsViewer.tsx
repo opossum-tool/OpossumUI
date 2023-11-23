@@ -15,8 +15,10 @@ import {
 } from '../../state/actions/resource-actions/save-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getSelectedAttributionIdInAttributionView,
+  getTemporaryDisplayPackageInfo,
+} from '../../state/selectors/all-views-resource-selectors';
 import { getResourceIdsOfSelectedAttribution } from '../../state/selectors/attribution-view-resource-selectors';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';

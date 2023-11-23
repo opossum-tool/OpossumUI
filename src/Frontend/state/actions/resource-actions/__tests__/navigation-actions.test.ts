@@ -20,11 +20,11 @@ import { createTestAppStore } from '../../../../test-helpers/render-component-wi
 import { PanelPackage } from '../../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import {
+  getDisplayedPackage,
   getManualData,
+  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../../selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../../selectors/all-views-resource-selectors';
 import {
   getExpandedIds,
   getSelectedResourceId,

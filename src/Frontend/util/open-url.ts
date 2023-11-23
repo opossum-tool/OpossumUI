@@ -5,7 +5,7 @@
 
 export function openUrl(urlString: string): void {
   if (!urlString.startsWith('https://') && !urlString.startsWith('http://')) {
-    urlString = 'https://' + urlString;
+    urlString = `https://${urlString}`;
   }
   void window.electronAPI.openLink(urlString);
 }
