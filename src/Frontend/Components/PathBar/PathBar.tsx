@@ -37,12 +37,16 @@ export function PathBar(): ReactElement | null {
   const resourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
   const dispatch = useAppDispatch();
-  const [history, setHistory] = useState<string[]>([resourceId]);
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const activeResourceId = history[activeIndex];
+  const [history, setHistory] = useState({
+    stack: [resourceId],
+    activeIndex: 0,
+  });
+  const activeResourceId = history.stack[history.activeIndex] as
+    | string
+    | undefined;
   const previousActiveResourceId = usePrevious(activeResourceId);
-  const isGoBackEnabled = !!activeIndex;
-  const isGoForwardEnabled = activeIndex !== history.length - 1;
+  const isGoBackEnabled = !!history.activeIndex;
+  const isGoForwardEnabled = history.activeIndex !== history.stack.length - 1;
 
   const pathElements = compact(resourceId.split('/'));
 
@@ -52,25 +56,29 @@ export function PathBar(): ReactElement | null {
   );
 
   const handleGoBack = useCallback((): void => {
-    if (activeIndex > 0) {
-      setActiveIndex((prev) => prev - 1);
+    if (history.activeIndex > 0) {
+      setHistory((prev) => ({ ...prev, activeIndex: prev.activeIndex - 1 }));
       dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup(history[activeIndex - 1]),
+        setSelectedResourceIdOrOpenUnsavedPopup(
+          history.stack[history.activeIndex - 1],
+        ),
       );
     }
-  }, [activeIndex, dispatch, history]);
+  }, [dispatch, history.activeIndex, history.stack]);
 
   const handleGoForward = useCallback((): void => {
-    if (activeIndex < history.length - 1) {
-      setActiveIndex((prev) => prev + 1);
+    if (history.activeIndex < history.stack.length - 1) {
+      setHistory((prev) => ({ ...prev, activeIndex: prev.activeIndex + 1 }));
       dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup(history[activeIndex + 1]),
+        setSelectedResourceIdOrOpenUnsavedPopup(
+          history.stack[history.activeIndex + 1],
+        ),
       );
     }
-  }, [activeIndex, dispatch, history]);
+  }, [dispatch, history.activeIndex, history.stack]);
 
   useHotkeys('mod+ArrowLeft', handleGoBack, { enabled: isGoBackEnabled }, [
-    activeIndex,
+    history.activeIndex,
     history,
   ]);
 
@@ -78,19 +86,22 @@ export function PathBar(): ReactElement | null {
     'mod+ArrowRight',
     handleGoForward,
     { enabled: isGoForwardEnabled },
-    [activeIndex, history],
+    [history.activeIndex, history],
   );
 
   useEffect(() => {
     if (resourceId && activeResourceId !== resourceId) {
-      setHistory((prev) => prev.slice(0, activeIndex + 1).concat(resourceId));
-      setActiveIndex((prev) => prev + 1);
+      setHistory((prev) => ({
+        stack: prev.stack.slice(0, prev.activeIndex + 1).concat(resourceId),
+        activeIndex: prev.activeIndex + 1,
+      }));
     }
-  }, [activeIndex, activeResourceId, resourceId]);
+  }, [activeResourceId, resourceId]);
 
   useEffect(() => {
     if (
       activeResourceId !== previousActiveResourceId &&
+      activeResourceId &&
       !expandedIds.includes(activeResourceId)
     ) {
       dispatch(
