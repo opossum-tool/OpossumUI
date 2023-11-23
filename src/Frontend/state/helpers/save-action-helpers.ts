@@ -513,8 +513,8 @@ function removeManualAttributionFromChildIfInferable(
 }
 
 function allAttributionsAreEqual(
-  attributions: PackageInfo[],
-  otherAttributions: PackageInfo[],
+  attributions: Array<PackageInfo>,
+  otherAttributions: Array<PackageInfo>,
 ): boolean {
   const hasSameLength = attributions.length === otherAttributions.length;
   const allAttributionsAreInOtherAttributions = attributions.every(

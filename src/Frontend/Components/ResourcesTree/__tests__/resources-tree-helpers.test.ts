@@ -34,7 +34,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     );
   });
 
-  const testResourcesList: string[] = [
+  const testResourcesList: Array<string> = [
     '/OpossumUI/DCO.md',
     '/OpossumUI/src/Frontend/test.txt',
     '/OpossumUI/src/Frontend/Components/file.tsx',
@@ -65,7 +65,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
   });
 });
 
-const testResourcesList: string[] = [
+const testResourcesList: Array<string> = [
   '/OpossumUI/DCO.md',
   '/OpossumUI/src/Frontend/test.txt',
   '/OpossumUI/src/Frontend/Components/file.tsx',

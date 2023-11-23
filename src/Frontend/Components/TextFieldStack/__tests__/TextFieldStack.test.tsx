@@ -75,7 +75,7 @@ describe('The TextFieldStack', () => {
 
   it('renders correct message in case of no comment', () => {
     const isEditable = false;
-    const comments: string[] = [];
+    const comments: Array<string> = [];
     const isCollapsed = true;
     const commentBoxHeight = 300;
 

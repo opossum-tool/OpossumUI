@@ -41,7 +41,7 @@ const icon: Record<
 };
 
 export function ProcessPopup(): React.ReactNode {
-  const [logs, setLogs] = useState<Log[]>([]);
+  const [logs, setLogs] = useState<Array<Log>>([]);
   const [loading, setLoading] = useState(false);
 
   useIpcRenderer<LoggingListener>(

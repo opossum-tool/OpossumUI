@@ -24,7 +24,7 @@ import {
 type ManualPackageInfo = Omit<ExternalPackageInfo, 'source'>;
 type Tuple<N extends number, T> = N extends N
   ? number extends N
-    ? T[]
+    ? Array<T>
     : _TupleOf<N, T, []>
   : never;
 type _TupleOf<
@@ -149,14 +149,14 @@ class OpossumModule {
     );
   }
 
-  public static filePath(...elements: string[]): string {
+  public static filePath(...elements: Array<string>): string {
     if (!elements[0]?.startsWith('/')) {
       elements.unshift('');
     }
     return elements.join('/');
   }
 
-  public static folderPath(...elements: string[]): string {
+  public static folderPath(...elements: Array<string>): string {
     if (!elements[0]?.startsWith('/')) {
       elements.unshift('');
     }

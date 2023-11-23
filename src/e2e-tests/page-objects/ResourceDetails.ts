@@ -73,14 +73,18 @@ export class ResourceDetails {
   }
 
   public assert = {
-    breadcrumbsAreVisible: async (...breadcrumbs: string[]): Promise<void> => {
+    breadcrumbsAreVisible: async (
+      ...breadcrumbs: Array<string>
+    ): Promise<void> => {
       await Promise.all(
         breadcrumbs.map((crumb) =>
           expect(this.pathBar.getByText(crumb)).toBeVisible(),
         ),
       );
     },
-    breadcrumbsAreHidden: async (...breadcrumbs: string[]): Promise<void> => {
+    breadcrumbsAreHidden: async (
+      ...breadcrumbs: Array<string>
+    ): Promise<void> => {
       await Promise.all(
         breadcrumbs.map((crumb) =>
           expect(this.pathBar.getByText(crumb)).toBeHidden(),

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const sharedRules = {
+  '@typescript-eslint/array-type': ['error', { default: 'generic' }],
   '@typescript-eslint/await-thenable': 'error',
   '@typescript-eslint/ban-ts-comment': 'error',
   '@typescript-eslint/explicit-function-return-type': 'off',

@@ -34,7 +34,7 @@ export class ResourceBrowser {
     await this.node.getByText('/', { exact: true }).click();
   }
 
-  async goto(...resourceNames: string[]): Promise<void> {
+  async goto(...resourceNames: Array<string>): Promise<void> {
     for (const resourceName of resourceNames) {
       await this.node.getByText(resourceName, { exact: true }).click();
     }

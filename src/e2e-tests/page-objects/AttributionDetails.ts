@@ -188,7 +188,7 @@ export class AttributionDetails {
       packageType,
       packageVersion,
       url,
-    }: PackageInfo & { comments?: string[] }): Promise<void> => {
+    }: PackageInfo & { comments?: Array<string> }): Promise<void> => {
       await Promise.all([
         ...(packageType ? [this.assert.typeIs(packageType)] : []),
         ...(packageNamespace

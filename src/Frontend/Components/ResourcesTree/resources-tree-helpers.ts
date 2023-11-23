@@ -55,7 +55,9 @@ function addPathToResources(resourcePath: string, resources: Resources): void {
   );
 }
 
-export function getInitialExpandedIds(allResourceIds: string[]): string[] {
+export function getInitialExpandedIds(
+  allResourceIds: Array<string>,
+): Array<string> {
   const initialExpandedIdsSet = new Set<string>().add('/');
   for (const resourceId of allResourceIds) {
     const resourceIdParents = resourceId.split('/').slice(1, -1);

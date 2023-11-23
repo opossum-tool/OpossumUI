@@ -21,7 +21,7 @@ const classes = {
 interface TextFieldStackProps {
   isCollapsed: boolean;
   isEditable: boolean;
-  comments: string[];
+  comments: Array<string>;
   showHighlight?: boolean;
   commentBoxHeight: number;
 }
@@ -72,7 +72,9 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
   );
 }
 
-export function getCollapsedCommentText(filteredComments: string[]): string {
+export function getCollapsedCommentText(
+  filteredComments: Array<string>,
+): string {
   if (filteredComments.length === 1) {
     return filteredComments[0] === '' ? 'No comments' : '1 comment (collapsed)';
   }

@@ -245,7 +245,7 @@ export function getEmptyProgressBarData(): ProgressBarData {
 }
 
 function getCurrentSubTree(
-  parentAndCurrentResources: string[],
+  parentAndCurrentResources: Array<string>,
   resources: Resources,
 ): Resources {
   const resource = parentAndCurrentResources.shift();
