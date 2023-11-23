@@ -33,9 +33,7 @@ test('opens resource search popup which closes and displays resource details whe
   attributionDetails,
   fileSearchPopup,
   menuBar,
-  projectStatisticsPopup,
 }) => {
-  await projectStatisticsPopup.close();
   await menuBar.searchForFilesAndDirectories();
   await fileSearchPopup.assert.titleIsVisible();
 

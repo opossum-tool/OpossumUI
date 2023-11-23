@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { render } from '@testing-library/react';
-import { ReactElement, ReactNode } from 'react';
+import { renderHook as nativeRenderHook, render } from '@testing-library/react';
+import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
-import { Store } from 'redux';
+import { AnyAction, Store } from 'redux';
 
 import { createAppStore } from '../state/configure-store';
 import { AppThunkDispatch } from '../state/types';
@@ -19,23 +19,45 @@ export function createTestAppStore(): EnhancedTestStore {
   return createAppStore();
 }
 
-export const renderComponentWithStore = (
+export function renderComponentWithStore(
   component: ReactElement,
-  { store = createTestAppStore(), ...renderOptions } = {},
-) => {
-  const Wrapper: React.FC<{ children: ReactNode | null }> = ({ children }) => {
-    return (
-      <Provider store={store as Store}>
-        <VirtuosoMockContext.Provider
-          value={{ itemHeight: 200, viewportHeight: 600 }}
-        >
-          {children}
-        </VirtuosoMockContext.Provider>
-      </Provider>
-    );
-  };
+  { store = createTestAppStore() }: { store?: EnhancedTestStore } = {},
+) {
   return {
     store,
-    ...render(component, { wrapper: Wrapper, ...renderOptions }),
+    ...render(component, {
+      wrapper: ({ children }) => (
+        <Provider store={store}>
+          <VirtuosoMockContext.Provider
+            value={{ itemHeight: 200, viewportHeight: 600 }}
+          >
+            {children}
+          </VirtuosoMockContext.Provider>
+        </Provider>
+      ),
+    }),
   };
-};
+}
+
+export function renderHook<P, R>(
+  callback: (props: P) => R,
+  {
+    actions,
+    initialProps,
+    store = createTestAppStore(),
+  }: {
+    initialProps?: P;
+    actions?: Array<AnyAction>;
+    store?: EnhancedTestStore;
+  } = {},
+) {
+  actions?.forEach(store.dispatch);
+
+  return {
+    ...nativeRenderHook(callback, {
+      wrapper: ({ children }) => <Provider store={store}>{children}</Provider>,
+      initialProps,
+    }),
+    store,
+  };
+}

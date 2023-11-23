@@ -14,11 +14,13 @@ import {
 } from '../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../enums/enums';
 import { ResourceState } from '../state/reducers/resource-reducer';
+import { VariablesState } from '../state/reducers/variables-reducer';
 import { ViewState } from '../state/reducers/view-reducer';
 
 export type State = {
   resourceState: ResourceState;
   viewState: ViewState;
+  variablesState: VariablesState;
 };
 
 export interface ProgressBarData {

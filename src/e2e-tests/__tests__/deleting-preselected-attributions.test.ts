@@ -59,12 +59,10 @@ test('deletes pre-selected attributions via context menu', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo3);
@@ -125,12 +123,10 @@ test('deletes pre-selected attributions via hamburger menu', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo3);

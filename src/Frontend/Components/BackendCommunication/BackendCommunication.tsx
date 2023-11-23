@@ -56,12 +56,13 @@ export function BackendCommunication(): ReactElement | null {
   const baseUrlsForSources = useAppSelector(getBaseUrlsForSources);
   const dispatch = useAppDispatch();
 
-  function fileLoadedListener(
+  async function fileLoadedListener(
     _: IpcRendererEvent,
     parsedFileContent: ParsedFileContent,
-  ): void {
+  ): Promise<void> {
     dispatch(loadFromFile(parsedFileContent));
-    dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    (await window.electronAPI.getUserSetting('showProjectStatistics')) &&
+      dispatch(openPopup(PopupType.ProjectStatisticsPopup));
   }
 
   function getExportFileRequestListener(

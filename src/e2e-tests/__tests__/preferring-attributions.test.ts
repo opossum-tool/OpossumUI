@@ -47,10 +47,8 @@ test.use({
 test('allows QA user to mark and unmark attributions as preferred, but not globally', async ({
   attributionDetails,
   menuBar,
-  projectStatisticsPopup,
   resourceBrowser,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await attributionDetails.assert.matchesPackageInfo(manualPackageInfo);
   await attributionDetails.assert.saveGloballyButtonIsDisabled();

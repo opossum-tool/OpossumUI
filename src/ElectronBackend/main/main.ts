@@ -3,9 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { dialog, ipcMain, systemPreferences } from 'electron';
+import settings from 'electron-settings';
+import { isEqual } from 'lodash';
 import os from 'os';
 
 import { IpcChannel } from '../../shared/ipc-channels';
+import { UserSettings } from '../../shared/shared-types';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
 import {
@@ -59,6 +62,12 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());
+    ipcMain.handle(IpcChannel.GetUserSettings, (_, key) => settings.get(key));
+    ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
+      settings.set(key, value),
+    );
+
+    await initializeUserSettings();
 
     await openFileFromCliOrEnvVariableIfProvided(mainWindow);
   } catch (error) {
@@ -71,5 +80,20 @@ export async function main(): Promise<void> {
         getMessageBoxContentForErrorsWrapper(true)('Unexpected internal error'),
       );
     }
+  }
+}
+
+async function initializeUserSettings(): Promise<void> {
+  const current: Partial<UserSettings> = await settings.get();
+
+  const updated = {
+    ...current,
+    showProjectStatistics: process.argv.includes('--skip-statistics')
+      ? false
+      : current?.showProjectStatistics ?? true,
+  } satisfies UserSettings;
+
+  if (!isEqual(current, updated)) {
+    await settings.set(updated);
   }
 }

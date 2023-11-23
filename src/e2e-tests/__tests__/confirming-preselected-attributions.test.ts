@@ -41,12 +41,10 @@ test.use({
 
 test('updates progress bar and confidence when user confirms preselected attributions in audit view', async ({
   attributionDetails,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await topBar.assert.progressBarTooltipShowsValues({
@@ -117,11 +115,9 @@ test('updates progress bar and confidence when user confirms preselected attribu
 test('updates confidence when user confirms preselected attributions in attribution view', async ({
   attributionDetails,
   attributionList,
-  projectStatisticsPopup,
   resourceBrowser,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await topBar.gotoAttributionView();
   await attributionList.attributionCard.openContextMenu(packageInfo1);
   await attributionList.attributionCard.assert.contextMenu.buttonsAreHidden(

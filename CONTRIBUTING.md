@@ -130,13 +130,11 @@ Last but not least, you can use the `debug` fixture to make any end-to-end test 
 ```javascript
 test('updates progress bar and confidence when user confirms preselected attributions in audit view', async ({
    attributionDetails,
-   projectStatisticsPopup,
    resourceBrowser,
    resourceDetails,
    topBar,
    debug,
 }) => {
-   await projectStatisticsPopup.close();
    await resourceBrowser.goto(resourceName1);
    await attributionDetails.assert.matchPackageInfo(packageInfo1);
    await topBar.assert.progressBarTooltipShowsValues({

@@ -54,12 +54,10 @@ test.use({
 
 test('replaces attributions via context menu in audit view ', async ({
   attributionDetails,
-  projectStatisticsPopup,
   replaceAttributionPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
@@ -104,12 +102,10 @@ test('replaces attributions via context menu in audit view ', async ({
 
 test('replaces attributions via hamburger menu in audit view ', async ({
   attributionDetails,
-  projectStatisticsPopup,
   replaceAttributionPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
@@ -157,12 +153,10 @@ test('replaces attributions via hamburger menu in audit view ', async ({
 test('replaces attributions via context menu in attribution view', async ({
   attributionDetails,
   attributionList,
-  projectStatisticsPopup,
   replaceAttributionPopup,
   resourceBrowser,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 

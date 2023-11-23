@@ -25,4 +25,7 @@ export const text = {
   processPopup: {
     title: 'Processing…',
   },
+  projectStatisticsPopup: {
+    toggleStartupCheckbox: 'Show project statistics on startup',
+  },
 };

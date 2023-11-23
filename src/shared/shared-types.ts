@@ -252,6 +252,13 @@ export interface ElectronAPI {
   exportFile: (args: ExportArgsType) => void;
   saveFile: (saveFileArgs: SaveFileArgs) => void;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
+  getUserSetting: <T extends keyof UserSettings>(
+    key: T,
+  ) => Promise<UserSettings[T]>;
+  setUserSetting: <T extends keyof UserSettings>(
+    key: T,
+    value: UserSettings[T],
+  ) => Promise<void>;
 }
 
 declare global {
@@ -264,4 +271,8 @@ export interface Log {
   date: Date;
   message: string;
   level: 'info' | 'warn' | 'error';
+}
+
+export interface UserSettings {
+  showProjectStatistics: boolean;
 }

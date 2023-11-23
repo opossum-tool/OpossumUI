@@ -55,12 +55,10 @@ test.use({
 test('marks and unmarks an attribution as preferred globally if user saves globally via button', async ({
   attributionDetails,
   changePreferredStatusGloballyPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   menuBar,
 }) => {
-  await projectStatisticsPopup.close();
   await menuBar.toggleQaMode();
   const preferLocallyComment = faker.lorem.sentence();
 
@@ -142,13 +140,11 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
   attributionDetails,
   changePreferredStatusGloballyPopup,
   notSavedPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   menuBar,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await menuBar.toggleQaMode();
   const preferLocallyCopyright = faker.lorem.sentence();
 
@@ -217,13 +213,11 @@ test('popup is only shown if necessary and undo reverts preference status only',
   attributionDetails,
   changePreferredStatusGloballyPopup,
   notSavedPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   menuBar,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await menuBar.toggleQaMode();
 
   await test.step('popup is not shown if attribution has a single resource', async () => {
