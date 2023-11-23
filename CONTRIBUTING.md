@@ -111,6 +111,12 @@ Note that the extension can only run the tests against a built version of the ap
 }
 ```
 
+If you use IntelliJ Ultimate, you can install the [Test Automation Plugin](https://plugins.jetbrains.com/plugin/20175-test-automation). This provides green play buttons next to the tests, and the possibility to run tests via the "Run" menu or tab. As for VSCode, please note, that you need to run the test against a built version of the app. Your test configuration should look similar to the one below.
+
+![intellij playwright](./docs/intellij_playwright_plugin_test_config.png)
+
+Please note, that there seem to be some issues with this plugin. It can help to invalidate caches ("File" -> "Invalidate Caches...") and restart IntelliJ.
+
 ### Debugging the end-to-end tests
 
 Each executed end-to-end test creates artifacts in the folder `src/e2e-tests/artifacts`. The artifacts contain the auto-generated .opossum file that the test was run against and, in case the test failed, a Playwright trace file.
