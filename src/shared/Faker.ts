@@ -5,7 +5,7 @@
 import { en, Faker as NativeFaker } from '@faker-js/faker';
 
 import type {
-  RawPackageInfo as ExternalPackageInfo,
+  RawPackageInfo,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   RawFrequentLicense,
@@ -21,17 +21,8 @@ import {
   Source,
 } from './shared-types';
 
-type ManualPackageInfo = Omit<ExternalPackageInfo, 'source'>;
-type Tuple<N extends number, T> = N extends N
-  ? number extends N
-    ? T[]
-    : _TupleOf<N, T, []>
-  : never;
-type _TupleOf<
-  N extends number,
-  T,
-  L extends Array<unknown>,
-> = L['length'] extends N ? L : _TupleOf<N, T, [T, ...L]>;
+type ExternalPackageInfo = RawPackageInfo;
+type ManualPackageInfo = RawPackageInfo;
 
 class OpossumModule {
   public static metadata(
@@ -90,6 +81,7 @@ class OpossumModule {
       packageVersion: faker.system.semver(),
       url: faker.internet.url(),
       packageType: faker.commerce.productMaterial().toLowerCase(),
+      source: this.source(),
       ...props,
     };
   }
@@ -98,7 +90,6 @@ class OpossumModule {
     props: Partial<ExternalPackageInfo> = {},
   ): ExternalPackageInfo {
     return {
-      source: this.source(),
       ...this.manualPackageInfo(props),
     };
   }
