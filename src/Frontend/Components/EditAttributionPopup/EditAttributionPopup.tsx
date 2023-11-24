@@ -44,7 +44,7 @@ export function EditAttributionPopup(): ReactElement {
         savePackageInfoIfSavingIsNotDisabled(
           null,
           popupAttributionId,
-          temporaryDisplayPackageInfo,
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
         ),
       );
     }
