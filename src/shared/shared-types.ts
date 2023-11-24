@@ -72,6 +72,7 @@ export interface DisplayPackageInfo extends PackageInfoCore {
 export interface Source {
   name: string;
   documentConfidence: number;
+  additionalName?: string;
 }
 
 export interface Attributions {

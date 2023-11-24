@@ -10,6 +10,7 @@ import upath from 'upath';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
+import { faker } from '../../../shared/Faker';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
@@ -566,15 +567,16 @@ describe('Test of loading function', () => {
     deleteFolder(temporaryPath);
   });
 
-  it('loads file and parses json successfully, custom metadata', async () => {
+  it('loads file and parses json successfully, origin Ids and original source', async () => {
     const inputFileContentWithOriginIds: ParsedOpossumInputFile = {
       ...inputFileContent,
       externalAttributions: {
         uuid: {
-          source: {
-            name: 'REUSER:HHC',
+          source: faker.opossum.source({
+            name: 'MERGER',
             documentConfidence: 13,
-          },
+            additionalName: 'Original Source',
+          }),
           packageName: 'react',
           originIds: ['abc', 'def'],
         },
@@ -599,10 +601,11 @@ describe('Test of loading function', () => {
       externalAttributions: {
         attributions: {
           uuid: {
-            source: {
-              name: 'REUSER:HHC',
+            source: faker.opossum.source({
+              name: 'MERGER',
               documentConfidence: 13,
-            },
+              additionalName: 'Original Source',
+            }),
             packageName: 'react',
             originIds: ['abc', 'def'],
           },

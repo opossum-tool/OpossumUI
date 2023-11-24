@@ -32,7 +32,8 @@ const classes = {
   },
   sourceField: {
     marginBottom: '4px',
-    flex: 0.5,
+    flex: 0,
+    flexBasis: 100,
   },
 };
 
@@ -107,7 +108,8 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             sx={classes.sourceField}
             title={'Source'}
             text={prettifySource(
-              props.displayPackageInfo.source.name,
+              props.displayPackageInfo.source.additionalName ??
+                props.displayPackageInfo.source.name,
               attributionSources,
             )}
             handleChange={doNothing}

@@ -6,13 +6,13 @@
 import { screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
+import { faker } from '../../../../shared/Faker';
 import {
   DiscreteConfidence,
   DisplayPackageInfo,
   FollowUp,
   FrequentLicenses,
   SaveFileArgs,
-  Source,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { ButtonText, CheckboxLabel } from '../../../enums/enums';
@@ -281,9 +281,9 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  it('renders a TextBox for the source, if it is defined', () => {
+  it('renders a source name, if it is defined', () => {
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      source: { name: 'The Source', documentConfidence: 10 },
+      source: faker.opossum.source(),
       attributionIds: [],
     };
     const { store } = renderComponentWithStore(
@@ -305,8 +305,39 @@ describe('The AttributionColumn', () => {
     });
 
     expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.source!.name),
+    );
+  });
+
+  it('renders the name of the original source, if it is defined', () => {
+    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      source: faker.opossum.source({
+        additionalName: 'Original Source',
+      }),
+      attributionIds: [],
+    };
+
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        onSaveButtonClick={doNothing}
+        onSaveGloballyButtonClick={doNothing}
+        showManualAttributionData={true}
+        saveFileRequestListener={doNothing}
+        onDeleteButtonClick={doNothing}
+        onDeleteGloballyButtonClick={doNothing}
+      />,
+    );
+    act(() => {
+      store.dispatch(setSelectedResourceId('test_id'));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
+      );
+    });
+
+    expect(
       screen.getByDisplayValue(
-        (testTemporaryDisplayPackageInfo.source as Source).name,
+        testTemporaryDisplayPackageInfo.source!.additionalName!,
       ),
     );
   });
