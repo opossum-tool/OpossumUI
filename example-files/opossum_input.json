@@ -156,7 +156,8 @@
     "bb61b094-b5ba-4bd0-b218-8ec96b7c5ae0": {
       "source": {
         "name": "MERGER",
-        "documentConfidence": 50.0
+        "documentConfidence": 50.0,
+        "additionalName": "ScanCode"
       },
       "attributionConfidence": 100,
       "comment": "TypeScript. \nhttps://www.npmjs.com/package/typescript",
@@ -172,7 +173,8 @@
     "bb61b094-b5ba-4bd0-b218-8ec96b7c5af0": {
       "source": {
         "name": "MERGER",
-        "documentConfidence": 50.0
+        "documentConfidence": 50.0,
+        "additionalName": "REUSER"
       },
       "attributionConfidence": 100,
       "comment": "TypeScript. \nhttps://www.npmjs.com/package/typescript",
