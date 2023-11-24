@@ -5,7 +5,7 @@
 import { expect, type Locator, Page } from '@playwright/test';
 
 import { RawFrequentLicense } from '../../ElectronBackend/types/types';
-import { DiscreteConfidence, PackageInfo } from '../../shared/shared-types';
+import { DiscreteConfidence, PackageInfo, Source } from '../../shared/shared-types';
 
 export class AttributionDetails {
   private readonly window: Page;
@@ -25,6 +25,7 @@ export class AttributionDetails {
   readonly confirmGloballyButton: Locator;
   readonly saveButton: Locator;
   readonly saveGloballyButton: Locator;
+  readonly source: Locator;
   readonly hideToggleButton: Locator;
   readonly hamburgerMenuButton: Locator;
   readonly hamburgerMenu: {
@@ -48,6 +49,7 @@ export class AttributionDetails {
     this.name = this.node.getByLabel('Package Name', { exact: true });
     this.version = this.node.getByLabel('Package Version', { exact: true });
     this.purl = this.node.getByLabel('PURL', { exact: true });
+    this.source = this.node.getByLabel('Source', { exact: true });
     this.url = this.node.getByLabel('Repository URL', { exact: true });
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
     this.licenseName = this.node.getByRole('combobox', {
@@ -176,6 +178,12 @@ export class AttributionDetails {
     commentIs: async (comment: string, number = 0): Promise<void> => {
       await expect(this.comment(number)).toHaveValue(comment);
     },
+    sourceIs: async (source: Source): Promise<void> => {
+      await expect(this.source).toHaveValue(source.name);
+      if (source.additionalName) {
+        await expect(this.source).toHaveValue(source.additionalName);
+      }
+    },
     matchesPackageInfo: async ({
       attributionConfidence,
       comment,
@@ -187,9 +195,11 @@ export class AttributionDetails {
       packageNamespace,
       packageType,
       packageVersion,
+      source,
       url,
     }: PackageInfo & { comments?: string[] }): Promise<void> => {
       await Promise.all([
+        ...(source ? [this.assert.sourceIs(source)] : []),
         ...(packageType ? [this.assert.typeIs(packageType)] : []),
         ...(packageNamespace
           ? [this.assert.namespaceIs(packageNamespace)]
@@ -203,8 +213,8 @@ export class AttributionDetails {
         ...(comment ? [this.assert.commentIs(comment)] : []),
         ...(comments
           ? comments.map((item, index) =>
-              this.assert.commentIs(item, index + 1),
-            )
+            this.assert.commentIs(item, index + 1),
+          )
           : []),
         ...(attributionConfidence
           ? [this.assert.confidenceIs(attributionConfidence)]

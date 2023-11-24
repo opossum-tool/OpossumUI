@@ -109,7 +109,7 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
             title={'Source'}
             text={prettifySource(
               props.displayPackageInfo.source.additionalName ??
-                props.displayPackageInfo.source.name,
+              props.displayPackageInfo.source.name,
               attributionSources,
             )}
             handleChange={doNothing}
