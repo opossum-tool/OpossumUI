@@ -271,7 +271,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
 
   useIpcRenderer<ResetStateListener>(
     AllowedFrontendChannels.SaveFileRequest,
-    (resetState) => resetState && props.saveFileRequestListener(),
+    () => props.saveFileRequestListener(),
     [props.saveFileRequestListener],
   );
 
