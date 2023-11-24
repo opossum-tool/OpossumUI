@@ -14,6 +14,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { View } from '../../../enums/enums';
 import { PathPredicate, State } from '../../../types/types';
 import { getSubtree } from '../../../util/get-attributions-with-resources';
 import { CalculatePreferredOverOriginIds } from '../../helpers/save-action-helpers';
@@ -21,12 +22,13 @@ import { ResourceState } from '../../reducers/resource-reducer';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
+  getResourceIdsOfSelectedAttribution,
   getResources,
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
 } from '../../selectors/all-views-resource-selectors';
-import { getResourceIdsOfSelectedAttribution } from '../../selectors/attribution-view-resource-selectors';
 import { getSelectedResourceId } from '../../selectors/audit-view-resource-selectors';
+import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 
@@ -35,6 +37,7 @@ export function toggleIsSelectedPackagePreferred(
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const state = getState();
+    const view = getSelectedView(state);
 
     const newTemporaryDisplayPackageInfo = cloneDeep(packageInfo);
     newTemporaryDisplayPackageInfo.preferred =
@@ -43,7 +46,9 @@ export function toggleIsSelectedPackagePreferred(
     if (newTemporaryDisplayPackageInfo.preferred) {
       newTemporaryDisplayPackageInfo.preferredOverOriginIds =
         getOriginIdsToPreferOver(
-          getSelectedResourceId(state),
+          view === View.Audit
+            ? getSelectedResourceId(state)
+            : getResourceIdsOfSelectedAttribution(state) ?? [],
           getResources(state) ?? {},
           getResourcesToExternalAttributions(state),
           getResourcesToManualAttributions(state),
@@ -53,7 +58,6 @@ export function toggleIsSelectedPackagePreferred(
     } else {
       newTemporaryDisplayPackageInfo.preferredOverOriginIds = undefined;
     }
-
     dispatch(setTemporaryDisplayPackageInfo(newTemporaryDisplayPackageInfo));
   };
 }

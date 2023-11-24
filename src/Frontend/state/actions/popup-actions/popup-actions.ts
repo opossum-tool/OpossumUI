@@ -239,13 +239,10 @@ export function checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(
       getTemporaryDisplayPackageInfo(getState());
     const attributionsToResources =
       getManualAttributionsToResources(getState());
-    const view = getSelectedView(getState());
-    const showSaveGloballyButton =
-      view === View.Audit &&
-      hasAttributionMultipleResources(
-        currentAttributionId,
-        attributionsToResources,
-      );
+    const attributionHasMultipleResources = hasAttributionMultipleResources(
+      currentAttributionId,
+      attributionsToResources,
+    );
 
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(closePopup());
@@ -257,7 +254,7 @@ export function checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(
           ),
         );
     } else if (
-      showSaveGloballyButton &&
+      attributionHasMultipleResources &&
       getDidPreferredFieldChange(getState())
     ) {
       dispatch(closePopup());

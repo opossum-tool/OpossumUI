@@ -44,7 +44,7 @@ test.use({
   },
 });
 
-test('allows QA user to mark and unmark attributions as preferred, but not globally', async ({
+test('allows QA user to mark and unmark attributions as preferred in audit view', async ({
   attributionDetails,
   menuBar,
   resourceBrowser,
@@ -86,6 +86,60 @@ test('allows QA user to mark and unmark attributions as preferred, but not globa
   await attributionDetails.hamburgerMenu.unmarkAsPreferred.click();
   await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.assert.saveGloballyButtonIsEnabled();
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
+    'unmarkAsPreferred',
+  );
+  await attributionDetails.assert.buttonInHamburgerMenuIsVisible(
+    'markAsPreferred',
+  );
+});
+
+test('allows QA user to mark and unmark attributions as preferred in attribution view', async ({
+  attributionDetails,
+  changePreferredStatusGloballyPopup,
+  menuBar,
+  attributionList,
+  topBar,
+}) => {
+  await topBar.gotoAttributionView();
+  await attributionList.attributionCard.click(manualPackageInfo);
+  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo);
+  await attributionDetails.assert.saveButtonIsDisabled();
+  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await attributionDetails.assert.saveButtonIsEnabled();
+
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
+    'unmarkAsPreferred',
+  );
+  await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
+    'markAsPreferred',
+  );
+
+  await menuBar.toggleQaMode();
+  await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
+    'unmarkAsPreferred',
+  );
+  await attributionDetails.assert.buttonInHamburgerMenuIsVisible(
+    'markAsPreferred',
+  );
+
+  await attributionDetails.hamburgerMenu.markAsPreferred.click();
+  await attributionDetails.assert.saveButtonIsEnabled();
+  await attributionDetails.saveButton.click();
+  await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
+  await changePreferredStatusGloballyPopup.okButton.click();
+  await attributionDetails.openHamburgerMenu();
+  await attributionDetails.assert.buttonInHamburgerMenuIsVisible(
+    'unmarkAsPreferred',
+  );
+  await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
+    'markAsPreferred',
+  );
+
+  await attributionDetails.hamburgerMenu.unmarkAsPreferred.click();
+  await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.openHamburgerMenu();
   await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
     'unmarkAsPreferred',

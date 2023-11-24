@@ -21,10 +21,10 @@ import {
   getIsPreferenceFeatureEnabled,
   getIsSavingDisabled,
   getManualDisplayPackageInfoOfSelected,
-  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getQAMode,
@@ -222,7 +222,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     {
       buttonText: ButtonText.MarkAsPreferred,
       onClick: (): void => {
-        if (selectedPackage) {
+        if (selectedManualAttributionIdInCurrentView) {
           dispatch(
             toggleIsSelectedPackagePreferred(temporaryDisplayPackageInfo),
           );
@@ -233,7 +233,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     {
       buttonText: ButtonText.UnmarkAsPreferred,
       onClick: (): void => {
-        if (selectedPackage) {
+        if (selectedManualAttributionIdInCurrentView) {
           dispatch(
             toggleIsSelectedPackagePreferred(temporaryDisplayPackageInfo),
           );
