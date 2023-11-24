@@ -46,7 +46,6 @@ test.use({
 test('adds a new attribution in audit view', async ({
   attributionDetails,
   notSavedPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   window,
@@ -56,7 +55,6 @@ test('adds a new attribution in audit view', async ({
     licenseName: license1.shortName,
     packageType: undefined,
   });
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.addNewAttributionButton.click({ button: 'right' });
   await expect(window.getByRole('menu')).toBeHidden(); // add new attribution button has no context menu
@@ -84,7 +82,6 @@ test('adds a new attribution in audit view', async ({
 
 test('allows user to edit an existing attribution locally and globally in audit view', async ({
   attributionDetails,
-  projectStatisticsPopup,
   resourceBrowser,
 }) => {
   const newPackageInfo = faker.opossum.manualPackageInfo({
@@ -93,7 +90,6 @@ test('allows user to edit an existing attribution locally and globally in audit 
     attributionConfidence: packageInfo1.attributionConfidence,
     packageType: undefined,
   });
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await attributionDetails.assert.licenseTextIsHidden();
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
@@ -150,7 +146,6 @@ test('allows user to edit an existing attribution locally and globally in audit 
 test('displays and edits an existing attribution in attribution view', async ({
   attributionDetails,
   attributionList,
-  projectStatisticsPopup,
   resourceBrowser,
   topBar,
 }) => {
@@ -160,7 +155,6 @@ test('displays and edits an existing attribution in attribution view', async ({
     attributionConfidence: packageInfo1.attributionConfidence,
     packageType: undefined,
   });
-  await projectStatisticsPopup.close();
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
   await attributionDetails.assert.isHidden();
@@ -212,7 +206,6 @@ test('displays and edits an existing attribution in attribution view', async ({
 test('allows user to edit an existing attribution in report view', async ({
   attributionDetails,
   editAttributionPopup,
-  projectStatisticsPopup,
   reportView,
   topBar,
 }) => {
@@ -222,7 +215,6 @@ test('allows user to edit an existing attribution in report view', async ({
     attributionConfidence: packageInfo1.attributionConfidence,
     packageType: undefined,
   });
-  await projectStatisticsPopup.close();
   await topBar.gotoReportView();
   await reportView.assert.matchesPackageInfo(packageInfo1);
   await reportView.assert.matchesPackageInfo({
@@ -264,7 +256,6 @@ test('allows user to edit an existing attribution in report view', async ({
 
 test('adds a new attribution via PURL', async ({
   attributionDetails,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
@@ -275,7 +266,6 @@ test('adds a new attribution via PURL', async ({
     url: undefined,
     copyright: undefined,
   });
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
@@ -296,12 +286,10 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
   attributionDetails,
   attributionList,
   notSavedPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await attributionDetails.comment().fill(faker.lorem.sentences());
 

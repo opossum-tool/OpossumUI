@@ -6,6 +6,7 @@ import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
 
+import { text } from '../../../shared/text';
 import { ButtonText, ProjectStatisticsPopupTitle } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
@@ -15,9 +16,11 @@ import {
   getExternalAttributionsToHashes,
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
+import { useUserSetting } from '../../util/use-user-setting';
 import { AccordionWithPieChart } from '../AccordionWithPieChart/AccordionWithPieChart';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { AttributionPropertyCountTable } from '../AttributionPropertyCountTable/AttributionPropertyCountTable';
+import { Checkbox } from '../Checkbox/Checkbox';
 import { CriticalLicensesTable } from '../CriticalLicensesTable/CriticalLicensesTable';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
@@ -78,6 +81,9 @@ export function ProjectStatisticsPopup(): ReactElement {
   function close(): void {
     dispatch(closePopup());
   }
+
+  const [showProjectStatistics, setShowProjectStatistics, hydrated] =
+    useUserSetting({ defaultValue: true, key: 'showProjectStatistics' });
 
   return (
     <NotificationPopup
@@ -141,6 +147,14 @@ export function ProjectStatisticsPopup(): ReactElement {
       onBackdropClick={close}
       onEscapeKeyDown={close}
       aria-label={'project statistics'}
+      customAction={
+        <Checkbox
+          checked={showProjectStatistics}
+          onChange={(event) => setShowProjectStatistics(event.target.checked)}
+          disabled={!hydrated}
+          label={text.projectStatisticsPopup.toggleStartupCheckbox}
+        />
+      }
     />
   );
 }

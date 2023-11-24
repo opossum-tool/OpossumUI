@@ -65,11 +65,9 @@ test.use({
 
 test('adds attribution and displays it correctly on parent and children', async ({
   attributionDetails,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.gotoRoot();
   await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
     subContext: resourceDetails.attributionsInFolderContentPanel,
@@ -133,11 +131,9 @@ test('adds attribution and displays it correctly on parent and children', async 
 
 test('adds attribution to child via parent override', async ({
   attributionDetails,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.assert.overrideParentButtonIsHidden();
 
@@ -175,11 +171,9 @@ test('adds attribution to child via parent override', async ({
 
 test('does not add attributions to breakpoints', async ({
   attributionDetails,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName5);
   await resourceDetails.assert.addNewAttributionButtonIsHidden();
   await attributionDetails.assert.isHidden();

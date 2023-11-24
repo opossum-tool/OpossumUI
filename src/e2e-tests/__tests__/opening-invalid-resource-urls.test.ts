@@ -32,11 +32,9 @@ test.use({
 
 test('displays an error if user attempts to open invalid resource URL', async ({
   errorPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1, resourceName3);
   await resourceDetails.assert.breadcrumbsAreVisible(
     resourceName1,

@@ -53,12 +53,10 @@ test('deletes attributions via context menu', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo3);
@@ -128,12 +126,10 @@ test('deletes attributions via hamburger menu', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo3);
@@ -201,11 +197,9 @@ test('deletes multiple attributions at once in attribution view', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
-  projectStatisticsPopup,
   resourceBrowser,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await topBar.gotoAttributionView();
   await attributionList.attributionCard.assert.checkboxIsUnchecked(
     packageInfo1,

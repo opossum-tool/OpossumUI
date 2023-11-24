@@ -48,11 +48,9 @@ test.use({
 test('filters attributions and persists selection across attribution and report views', async ({
   attributionFilters,
   attributionList,
-  projectStatisticsPopup,
   reportView,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await topBar.gotoAttributionView();
   await attributionList.attributionCard.assert.isVisible(packageInfo1);
   await attributionList.attributionCard.assert.isVisible(packageInfo2);
