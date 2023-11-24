@@ -6,7 +6,9 @@ import {
   Attributions,
   DiscreteConfidence,
   DisplayPackageInfo,
+  PackageInfo,
   ProjectMetadata,
+  Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
@@ -19,6 +21,7 @@ import {
   setFilesWithChildren,
   setManualData,
   setProjectMetadata,
+  setResources,
 } from '../../actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
 import { setDisplayedPackage } from '../../actions/resource-actions/audit-view-simple-actions';
@@ -29,6 +32,7 @@ import {
   getDisplayPackageInfoOfSelectedAttributionInAttributionView,
   getFilesWithChildren,
   getProjectMetadata,
+  getResourceIdsOfSelectedAttribution,
 } from '../all-views-resource-selectors';
 
 describe('getPackageInfoOfSelectedAttribution', () => {
@@ -193,5 +197,95 @@ describe('get displayPackageInfo', () => {
       testStore.getState(),
     );
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
+  });
+});
+
+describe('The resource actions', () => {
+  const testResources: Resources = {
+    thirdParty: {
+      'package_1.tr.gz': 1,
+      'package_2.tr.gz': 1,
+    },
+    root: {
+      src: {
+        'something.js': 1,
+      },
+      'readme.md': 1,
+    },
+  };
+
+  const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
+  const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
+  const testTemporaryDisplayPackageInfo: PackageInfo = {
+    attributionConfidence: DiscreteConfidence.High,
+    packageVersion: '1.0',
+    packageName: 'test Package',
+    licenseText: ' test License text',
+  };
+  const testSelectedPackage: PanelPackage = {
+    panel: PackagePanelTitle.ManualPackages,
+    packageCardId: 'Attributions-0',
+    displayPackageInfo: {
+      ...testTemporaryDisplayPackageInfo,
+      attributionIds: [testManualAttributionUuid_1],
+    },
+  };
+  const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
+    packageVersion: '2.0',
+    packageName: 'not assigned test Package',
+    licenseText: ' test not assigned License text',
+  };
+  const secondTestSelectedPackage: PanelPackage = {
+    panel: PackagePanelTitle.ManualPackages,
+    packageCardId: 'Attributions-1',
+    displayPackageInfo: {
+      ...secondTestTemporaryDisplayPackageInfo,
+      attributionIds: [testManualAttributionUuid_2],
+    },
+  };
+  const testManualAttributions: Attributions = {
+    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+    [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
+  };
+  const testResourcesToManualAttributions: ResourcesToAttributions = {
+    '/root/src/something.js': [testManualAttributionUuid_1],
+  };
+
+  it('getResourceIdsForSelectedAttributionId returns correct Ids in Audit View', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(navigateToView(View.Audit));
+    testStore.dispatch(setResources(testResources));
+    testStore.dispatch(
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
+    );
+    testStore.dispatch(setDisplayedPackage(testSelectedPackage));
+
+    expect(getResourceIdsOfSelectedAttribution(testStore.getState())).toEqual([
+      '/root/src/something.js',
+    ]);
+
+    testStore.dispatch(setDisplayedPackage(secondTestSelectedPackage));
+    expect(
+      getResourceIdsOfSelectedAttribution(testStore.getState()),
+    ).toBeNull();
+  });
+
+  it('getResourceIdsForSelectedAttributionId returns correct Ids in Attribution View', () => {
+    const testStore = createTestAppStore();
+    testStore.dispatch(navigateToView(View.Attribution));
+    testStore.dispatch(setResources(testResources));
+    testStore.dispatch(
+      setManualData(testManualAttributions, testResourcesToManualAttributions),
+    );
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_1));
+
+    expect(getResourceIdsOfSelectedAttribution(testStore.getState())).toEqual([
+      '/root/src/something.js',
+    ]);
+
+    testStore.dispatch(setSelectedAttributionId(testManualAttributionUuid_2));
+    expect(
+      getResourceIdsOfSelectedAttribution(testStore.getState()),
+    ).toBeNull();
   });
 });

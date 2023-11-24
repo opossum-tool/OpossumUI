@@ -34,10 +34,12 @@ import {
   getFrequentLicensesNameOrder,
   getManualAttributions,
   getManualAttributionsToResources,
-  getSelectedAttributionIdInAttributionView,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
+import {
+  getMultiSelectSelectedAttributionIds,
+  getSelectedAttributionIdInAttributionView,
+} from '../../state/selectors/attribution-view-resource-selectors';
 import {
   getResolvedExternalAttributions,
   getSelectedResourceId,

@@ -22,11 +22,11 @@ import { ResourceState } from '../../reducers/resource-reducer';
 import {
   getExternalAttributions,
   getExternalAttributionSources,
+  getResourceIdsOfSelectedAttribution,
   getResources,
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
 } from '../../selectors/all-views-resource-selectors';
-import { getResourceIdsOfSelectedAttribution } from '../../selectors/attribution-view-resource-selectors';
 import { getSelectedResourceId } from '../../selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
@@ -58,7 +58,6 @@ export function toggleIsSelectedPackagePreferred(
     } else {
       newTemporaryDisplayPackageInfo.preferredOverOriginIds = undefined;
     }
-
     dispatch(setTemporaryDisplayPackageInfo(newTemporaryDisplayPackageInfo));
   };
 }
@@ -195,7 +194,7 @@ export function getCalculatePreferredOverOriginIds(
     newManualAttributionToResources: AttributionsToResources,
   ) =>
     getOriginIdsToPreferOver(
-      pathToResource,
+      [pathToResource],
       state.allViews.resources ?? {},
       state.allViews.externalData.resourcesToAttributions,
       newManualAttributionToResources,

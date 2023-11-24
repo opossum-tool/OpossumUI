@@ -35,7 +35,7 @@ describe('getOriginIdsToPreferOver', () => {
     };
 
     const actualOriginUuids = getOriginIdsToPreferOver(
-      pathToRootResource,
+      [pathToRootResource],
       resources,
       resourcesToExternalAttributions,
       resourcesToManualAttributions,
@@ -70,7 +70,7 @@ describe('getOriginIdsToPreferOver', () => {
     };
 
     const actualOriginUuids = getOriginIdsToPreferOver(
-      pathToRootResource,
+      [pathToRootResource],
       resources,
       resourcesToExternalAttributions,
       resourcesToManualAttributions,
@@ -109,7 +109,7 @@ describe('getOriginIdsToPreferOver', () => {
     };
 
     const actualOriginUuids = getOriginIdsToPreferOver(
-      pathToRootResource,
+      [pathToRootResource],
       resources,
       resourcesToExternalAttributions,
       resourcesToManualAttributions,
@@ -145,7 +145,7 @@ describe('getOriginIdsToPreferOver', () => {
     };
 
     const actualOriginUuids = getOriginIdsToPreferOver(
-      pathToRootResource,
+      [pathToRootResource],
       resources,
       resourcesToExternalAttributions,
       resourcesToManualAttributions,

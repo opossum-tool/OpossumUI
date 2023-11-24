@@ -28,6 +28,7 @@ import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { PanelPackage, State } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
+import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
 import { getPopupAttributionId, getSelectedView } from './view-selector';
 
 export function getResources(state: State): Resources | null {
@@ -248,12 +249,6 @@ export function getIsPreferenceFeatureEnabled(state: State): boolean {
   return state.resourceState.allViews.isPreferenceFeatureEnabled;
 }
 
-export function getSelectedAttributionIdInAttributionView(
-  state: State,
-): string {
-  return state.resourceState.attributionView.selectedAttributionId;
-}
-
 export function getAttributionIdOfDisplayedPackageInManualPanel(
   state: State,
 ): string | null {
@@ -292,4 +287,17 @@ export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
 }
 export function getDisplayedPackage(state: State): PanelPackage | null {
   return state.resourceState.auditView.displayedPanelPackage;
+}
+
+export function getResourceIdsOfSelectedAttribution(
+  state: State,
+): Array<string> | null {
+  const attributionId = getCurrentAttributionId(state);
+  const manualAttributionsToResources = getManualAttributionsToResources(state);
+
+  if (attributionId && attributionId in manualAttributionsToResources) {
+    return manualAttributionsToResources[attributionId];
+  }
+
+  return null;
 }

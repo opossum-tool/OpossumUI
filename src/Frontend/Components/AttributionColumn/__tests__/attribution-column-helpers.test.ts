@@ -261,7 +261,7 @@ describe('getMergeButtonsDisplayState', () => {
     });
   });
 
-  it('hides MarkAsPreferredButton & UnmarkAsPreferredButton in the attribution view', () => {
+  it('show MarkAsPreferredButton in the attribution view', () => {
     expect(
       getMergeButtonsDisplayState({
         attributionIdMarkedForReplacement: 'attr2',
@@ -279,7 +279,7 @@ describe('getMergeButtonsDisplayState', () => {
       hideUnmarkForReplacementButton: true,
       hideReplaceMarkedByButton: false,
       deactivateReplaceMarkedByButton: true,
-      hideMarkAsPreferredButton: true,
+      hideMarkAsPreferredButton: false,
       hideUnmarkAsPreferredButton: true,
     });
   });

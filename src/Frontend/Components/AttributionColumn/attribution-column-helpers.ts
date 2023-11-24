@@ -238,12 +238,10 @@ export function getMergeButtonsDisplayState(currentState: {
     hideMarkAsPreferredButton:
       !currentState.isPreferenceFeatureEnabled ||
       !currentState.selectedAttributionId ||
-      currentState.view !== View.Audit ||
       Boolean(currentState.attributionIsPreferred),
     hideUnmarkAsPreferredButton:
       !currentState.isPreferenceFeatureEnabled ||
       !currentState.selectedAttributionId ||
-      currentState.view !== View.Audit ||
       !currentState.attributionIsPreferred,
   };
 }

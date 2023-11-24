@@ -41,4 +41,8 @@ export class MenuBar {
   async toggleQaMode(): Promise<void> {
     await clickMenuItem(this.window.app, 'label', 'QA Mode');
   }
+
+  async saveChanges(): Promise<void> {
+    await clickMenuItem(this.window.app, 'label', 'Save');
+  }
 }

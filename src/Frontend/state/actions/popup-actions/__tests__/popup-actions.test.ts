@@ -37,10 +37,12 @@ import {
   getManualAttributions,
   getManualData,
   getResourcesWithLocatedAttributions,
-  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
-import { getTargetSelectedAttributionId } from '../../../selectors/attribution-view-resource-selectors';
+import {
+  getSelectedAttributionIdInAttributionView,
+  getTargetSelectedAttributionId,
+} from '../../../selectors/attribution-view-resource-selectors';
 import {
   getAttributionWizardPackageNames,
   getAttributionWizardPackageNamespaces,

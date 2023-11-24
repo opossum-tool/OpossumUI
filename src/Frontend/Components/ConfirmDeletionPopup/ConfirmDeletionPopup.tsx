@@ -10,10 +10,8 @@ import {
   deleteAttributionGloballyAndSave,
 } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
-  getSelectedAttributionIdInAttributionView,
-} from '../../state/selectors/all-views-resource-selectors';
+import { getAttributionIdOfDisplayedPackageInManualPanel } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getPopupAttributionId,

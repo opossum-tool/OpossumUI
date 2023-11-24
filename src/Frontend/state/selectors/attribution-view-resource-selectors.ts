@@ -3,26 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { State } from '../../types/types';
-import {
-  getManualAttributionsToResources,
-  getSelectedAttributionIdInAttributionView,
-} from './all-views-resource-selectors';
 
 export function getTargetSelectedAttributionId(state: State): string | null {
   return state.resourceState.attributionView.targetSelectedAttributionId;
 }
 
-export function getResourceIdsOfSelectedAttribution(
+export function getSelectedAttributionIdInAttributionView(
   state: State,
-): Array<string> | null {
-  const attributionId = getSelectedAttributionIdInAttributionView(state);
-  const manualAttributionsToResources = getManualAttributionsToResources(state);
-
-  if (attributionId in manualAttributionsToResources) {
-    return manualAttributionsToResources[attributionId];
-  }
-
-  return null;
+): string {
+  return state.resourceState.attributionView.selectedAttributionId;
 }
 
 export function getMultiSelectSelectedAttributionIds(
