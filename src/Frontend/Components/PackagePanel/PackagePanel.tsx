@@ -10,11 +10,11 @@ import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/acti
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getDisplayedPackage,
   getExternalAttributions,
   getExternalAttributionSources,
   getResourcesToExternalAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
 import {
   getResolvedExternalAttributions,
   getSelectedResourceId,

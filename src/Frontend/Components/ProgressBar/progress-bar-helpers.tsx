@@ -117,7 +117,7 @@ export function getProgressBarBackground(
     ` ${OpossumColors.pastelMiddleGreen} ${filesWithPreselectedOrManualAttributions}%,` +
     ` ${OpossumColors.pastelRed} ${filesWithPreselectedOrManualAttributions}% ${allFilesWithAttributions}%,` +
     ` ${
-      progressBarType == 'FolderProgressBar'
+      progressBarType === 'FolderProgressBar'
         ? OpossumColors.almostWhiteBlue
         : OpossumColors.lightestBlue
     } ${allFilesWithAttributions}%)`
@@ -128,9 +128,7 @@ export function getCriticalityBarBackground(
   progressBarData: ProgressBarData,
 ): string {
   if (progressBarData.filesWithOnlyExternalAttributionCount === 0) {
-    return (
-      'linear-gradient(to right,' + ` ${OpossumColors.pastelDarkGreen} 0% 100%)`
-    );
+    return `linear-gradient(to right, ${OpossumColors.pastelDarkGreen} 0% 100%)`;
   }
   let filesWithHighlyCriticalExternalAttributions =
     (progressBarData.filesWithHighlyCriticalExternalAttributionsCount /

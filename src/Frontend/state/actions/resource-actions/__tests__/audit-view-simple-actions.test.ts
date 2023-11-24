@@ -9,8 +9,10 @@ import {
 import { PackagePanelTitle } from '../../../../enums/enums';
 import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../../types/types';
-import { getResourcesWithExternalAttributedChildren } from '../../../selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../../selectors/all-views-resource-selectors';
+import {
+  getDisplayedPackage,
+  getResourcesWithExternalAttributedChildren,
+} from '../../../selectors/all-views-resource-selectors';
 import {
   getExpandedIds,
   getResolvedExternalAttributions,
@@ -114,9 +116,7 @@ describe('The audit view simple actions', () => {
       getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toMatchObject({
       attributedChildren: {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '1': new Set<number>().add(0).add(3),
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '2': new Set<number>().add(0).add(3),
       },
       pathsToIndices: {
@@ -225,9 +225,7 @@ describe('The audit view simple actions', () => {
       getResourcesWithExternalAttributedChildren(testStore.getState()),
     ).toEqual({
       attributedChildren: {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '1': new Set<number>().add(3),
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '2': new Set<number>().add(3),
       },
       pathsToIndices: {

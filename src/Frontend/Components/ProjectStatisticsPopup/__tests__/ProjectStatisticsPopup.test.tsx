@@ -311,7 +311,6 @@ describe('The ProjectStatisticsPopup', () => {
 
     renderComponentWithStore(<ProjectStatisticsPopup />, { store });
     expect(screen.getAllByText('License name')).toHaveLength(2);
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     expect(screen.getAllByText('Total')).toHaveLength(3);
     expect(screen.getByText('Follow up')).toBeInTheDocument();
     expect(screen.getByText('First party')).toBeInTheDocument();

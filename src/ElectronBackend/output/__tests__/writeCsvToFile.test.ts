@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import * as fs from 'fs';
-// @ts-ignore
 import * as path from 'path';
 import * as upath from 'upath';
 
@@ -146,10 +145,9 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const expectedResources =
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-      manyResources.slice(0, 225).join('\n') +
-      ' ... (resources shortened, 25 paths are not displayed)';
+    const expectedResources = `${manyResources
+      .slice(0, 225)
+      .join('\n')} ... (resources shortened, 25 paths are not displayed)`;
 
     const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
@@ -440,8 +438,10 @@ describe('writeCsvToFile', () => {
     };
 
     const maxLength = 30000;
-    const expectedLicenseText =
-      testLicenseText.substring(0, maxLength) + '... (text shortened)';
+    const expectedLicenseText = `${testLicenseText.substring(
+      0,
+      maxLength,
+    )}... (text shortened)`;
 
     const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');

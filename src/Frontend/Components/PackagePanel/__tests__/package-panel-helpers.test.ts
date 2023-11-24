@@ -22,7 +22,6 @@ const testSortedPackageCardIds = [
   'Signals-6',
 ];
 
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
   [testSortedPackageCardIds[0]]: {
     count: 5,

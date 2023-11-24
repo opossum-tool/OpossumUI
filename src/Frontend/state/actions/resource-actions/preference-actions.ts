@@ -121,7 +121,7 @@ function getResourceIdsInSubtreeWithBreakpoints(
       resources.push(pathToChildResource);
     } else {
       const results = getResourceIdsInSubtreeWithBreakpoints(
-        pathToChildResource + '/',
+        `${pathToChildResource}/`,
         rootResource[childResourceName] as Resources,
         isBreakpoint,
       );

@@ -43,7 +43,7 @@ describe('The table helpers', () => {
         testAttributionInfo,
         testIsFileWithChildren,
       ),
-    ).toEqual(testPathOfFileWithChildren.slice(0, -1) + '\nb');
+    ).toEqual(`${testPathOfFileWithChildren.slice(0, -1)}\nb`);
   });
 
   it('getFormattedCellData handles first-party boolean', () => {

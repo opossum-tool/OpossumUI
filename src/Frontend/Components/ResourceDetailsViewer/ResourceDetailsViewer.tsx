@@ -14,8 +14,10 @@ import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { setDisplayedPackage } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getAttributionBreakpoints } from '../../state/selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getAttributionBreakpoints,
+  getDisplayedPackage,
+} from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getAttributionIdsOfSelectedResourceClosestParent,

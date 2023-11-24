@@ -18,7 +18,9 @@ interface ExtendedAttributionInfo extends AttributionInfo {
 }
 
 export function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
-  if (!packageInfo) return false;
+  if (!packageInfo) {
+    return false;
+  }
   return getPackageInfoKeys().some((attributionProperty) =>
     isImportantAttributionInformationMissing(attributionProperty, packageInfo),
   );

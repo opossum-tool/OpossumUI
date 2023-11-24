@@ -254,7 +254,7 @@ describe('The PackageCard', () => {
 
     expect(screen.getByText('packageName'));
 
-    (screen.getAllByRole('checkbox') as Element[]).forEach((checkbox) =>
+    (screen.getAllByRole('checkbox') as Array<Element>).forEach((checkbox) =>
       fireEvent.click(checkbox),
     );
     const attributions =

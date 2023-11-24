@@ -33,9 +33,7 @@ interface AggregatedAttributionsPanelProps {
 }
 
 export const AggregatedAttributionsPanel = memo(
-  function AggregatedAttributionsPanel(
-    props: AggregatedAttributionsPanelProps,
-  ): ReactElement {
+  (props: AggregatedAttributionsPanelProps): ReactElement => {
     const manualData = useAppSelector(getManualData);
     const externalData = useAppSelector(getExternalData);
     const attributionsToHashes = useAppSelector(

@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-// @ts-ignore
 import fs from 'fs';
 import path from 'path';
 import upath from 'upath';

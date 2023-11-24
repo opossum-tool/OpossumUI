@@ -5,11 +5,9 @@
 import { SxProps, Theme } from '@mui/material';
 import { SystemStyleObject } from '@mui/system/styleFunctionSx';
 
-export type MuiSx = (
-  | boolean
-  | SystemStyleObject
-  | ((theme: Theme) => SystemStyleObject)
-)[];
+export type MuiSx = Array<
+  boolean | SystemStyleObject | ((theme: Theme) => SystemStyleObject)
+>;
 
 export function getSxFromPropsAndClasses({
   sxProps,

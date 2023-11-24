@@ -202,7 +202,7 @@ function addNonRootPackages(
 
 function getPackageSpdxId(pkg: Package, index: number): string {
   return `SPDXRef-Package-${
-    (pkg.name && pkg.name.replace(/[\s]+/g, '-')) || 'unnamed'
+    pkg.name?.replace(/[\s]+/g, '-') || 'unnamed'
   }-${index}`;
 }
 

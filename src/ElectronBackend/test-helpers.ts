@@ -13,7 +13,6 @@ export function deleteFolder(folderPath: string): void {
   fs.rm(folderPath, { recursive: true }, (err) => {
     if (err) {
       console.error(err.message);
-      return;
     }
   });
 }

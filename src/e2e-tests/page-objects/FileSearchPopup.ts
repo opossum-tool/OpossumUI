@@ -26,14 +26,16 @@ export class FileSearchPopup {
     titleIsHidden: async (): Promise<void> => {
       await expect(this.title).toBeHidden();
     },
-    resourcePathIsVisible: async (...elements: string[]): Promise<void> => {
+    resourcePathIsVisible: async (
+      ...elements: Array<string>
+    ): Promise<void> => {
       await expect(
         this.node.getByText(faker.opossum.filePath(...elements), {
           exact: true,
         }),
       ).toBeVisible();
     },
-    resourcePathIsHidden: async (...elements: string[]): Promise<void> => {
+    resourcePathIsHidden: async (...elements: Array<string>): Promise<void> => {
       await expect(
         this.node.getByText(faker.opossum.filePath(...elements), {
           exact: true,
@@ -46,7 +48,7 @@ export class FileSearchPopup {
     await this.cancelButton.click();
   }
 
-  async gotoHit(...elements: string[]): Promise<void> {
+  async gotoHit(...elements: Array<string>): Promise<void> {
     await this.node
       .getByText(faker.opossum.filePath(...elements), { exact: true })
       .click();

@@ -55,7 +55,7 @@ describe('The Attribution View', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          resources: { ['test resource']: 1 },
+          resources: { 'test resource': 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
@@ -80,7 +80,7 @@ describe('The Attribution View', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          resources: { ['test resource']: 1 },
+          resources: { 'test resource': 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
@@ -106,7 +106,7 @@ describe('The Attribution View', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          resources: { ['test resource']: 1 },
+          resources: { 'test resource': 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
@@ -134,7 +134,7 @@ describe('The Attribution View', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          resources: { ['test resource']: 1 },
+          resources: { 'test resource': 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
@@ -163,7 +163,7 @@ describe('The Attribution View', () => {
   });
 
   it('sorts displayAttributionsWithCount', () => {
-    const testResources: Resources = { ['test resource']: 1 };
+    const testResources: Resources = { 'test resource': 1 };
     const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'zz Test package',

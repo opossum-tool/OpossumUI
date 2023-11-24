@@ -243,7 +243,7 @@ export function getSelectBaseURLListener(
 }
 
 function formatBaseURL(baseURL: string): string {
-  return 'file://' + baseURL + '/{path}';
+  return `file://${baseURL}/{path}`;
 }
 
 function tryToGetInputFileFromOutputFile(filePath: string): string {
@@ -317,10 +317,9 @@ export function getOpenLinkListener(): (
       if (error instanceof Error) {
         logger.info(`Cannot open link ${args.link}: ${error.message}`);
         return error;
-      } else {
-        logger.info(`Cannot open link ${args.link}`);
-        return new Error('Cannot open link');
       }
+      logger.info(`Cannot open link ${args.link}`);
+      return new Error('Cannot open link');
     }
   };
 }
@@ -578,8 +577,7 @@ export function getOpenOutdatedInputFileListener(
 
     const inputFileChanged =
       !isOpossumFormat &&
-      checksums &&
-      checksums.parsedInputFileChecksum &&
+      checksums?.parsedInputFileChecksum &&
       checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
 
     if (inputFileChanged) {

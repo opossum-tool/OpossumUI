@@ -45,7 +45,7 @@ export function getFormattedCellData(
       break;
     default:
       cellData = attributionInfo[config.attributionProperty] || '';
-      cellData = typeof cellData == 'string' ? cellData.trim() : cellData;
+      cellData = typeof cellData === 'string' ? cellData.trim() : cellData;
   }
 
   return cellData;

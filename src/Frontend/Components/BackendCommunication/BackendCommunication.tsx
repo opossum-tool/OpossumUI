@@ -359,7 +359,7 @@ export function getBomAttributions(
         !attributions[attributionId].followUp &&
         !attributions[attributionId].firstParty &&
         !(
-          exportType == ExportType.CompactBom &&
+          exportType === ExportType.CompactBom &&
           attributions[attributionId].excludeFromNotice
         ),
     ),

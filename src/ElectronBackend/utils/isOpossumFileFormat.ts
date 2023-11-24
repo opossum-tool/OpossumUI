@@ -7,6 +7,8 @@ import path from 'path';
 import { OPOSSUM_FILE_EXTENSION } from '../../shared/write-file';
 
 export function isOpossumFileFormat(filePath?: string): boolean {
-  if (!filePath) return false;
+  if (!filePath) {
+    return false;
+  }
   return path.extname(filePath) === OPOSSUM_FILE_EXTENSION;
 }

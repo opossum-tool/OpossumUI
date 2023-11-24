@@ -171,7 +171,6 @@ export function deleteChildrenFromAttributedResources(
       resourcesWithAttributedChildren.attributedChildren[parentIndex];
 
     if (!childrenIndexes) {
-      return;
     } else if (childrenIndexes.size === 1) {
       delete resourcesWithAttributedChildren.attributedChildren[parentIndex];
     } else {
@@ -514,8 +513,8 @@ function removeManualAttributionFromChildIfInferable(
 }
 
 function allAttributionsAreEqual(
-  attributions: PackageInfo[],
-  otherAttributions: PackageInfo[],
+  attributions: Array<PackageInfo>,
+  otherAttributions: Array<PackageInfo>,
 ): boolean {
   const hasSameLength = attributions.length === otherAttributions.length;
   const allAttributionsAreInOtherAttributions = attributions.every(

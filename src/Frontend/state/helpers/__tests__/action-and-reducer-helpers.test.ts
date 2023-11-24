@@ -126,13 +126,9 @@ describe('computeChildrenWithAttributions', () => {
 
     expect(result).toEqual({
       attributedChildren: {
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '0': new Set<number>().add(3),
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '1': new Set<number>().add(0).add(3),
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '2': new Set<number>().add(0).add(3),
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '4': new Set<number>().add(3),
       },
       pathsToIndices: {
@@ -293,7 +289,7 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
           },
           resourcesToAttributions: {
             folder: ['uuid_2', 'uuid_3'],
-            ['folder/file1']: ['uuid_0', 'uuid_1'],
+            'folder/file1': ['uuid_0', 'uuid_1'],
           },
         },
       },

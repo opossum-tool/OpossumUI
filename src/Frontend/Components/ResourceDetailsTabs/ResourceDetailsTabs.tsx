@@ -16,8 +16,10 @@ import {
   toggleAccordionSearchField,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getManualData } from '../../state/selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getDisplayedPackage,
+  getManualData,
+} from '../../state/selectors/all-views-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getIsAccordionSearchFieldDisplayed,
@@ -186,9 +188,7 @@ export function ResourceDetailsTabs(
         ) : (
           <AllAttributionsPanel
             displayPackageInfos={displayPackageInfos}
-            selectedPackageCardId={
-              selectedPackage && selectedPackage.packageCardId
-            }
+            selectedPackageCardId={selectedPackage?.packageCardId}
             isAddToPackageEnabled={
               props.isGlobalTabEnabled && props.isAddToPackageEnabled
             }

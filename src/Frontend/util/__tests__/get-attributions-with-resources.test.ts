@@ -73,10 +73,10 @@ describe('getAttributionsWithAllChildResources', () => {
     };
 
     const testResourcesToAttributions: AttributionsToResources = {
-      ['/some/path1/']: ['uuid1', 'uuid2'],
-      ['/some/file1']: ['uuid1'],
-      ['/some/path3/some_other_thing.js']: ['uuid3'],
-      ['/some/']: ['uuid4'],
+      '/some/path1/': ['uuid1', 'uuid2'],
+      '/some/file1': ['uuid1'],
+      '/some/path3/some_other_thing.js': ['uuid3'],
+      '/some/': ['uuid4'],
     };
 
     const expectedAttributionsWithResources: AttributionsWithResources = {
@@ -131,7 +131,7 @@ describe('getAttributionsWithAllChildResources', () => {
     };
 
     const testResourcesToAttributions: AttributionsToResources = {
-      ['/foo/']: ['uuid1'],
+      '/foo/': ['uuid1'],
     };
 
     const resources: Resources = {
@@ -171,9 +171,9 @@ describe('getAttributionsWithAllChildResources', () => {
     };
 
     const testResourcesToAttributions: AttributionsToResources = {
-      ['/folder/folder/']: ['uuid1'],
-      ['/folder/folder2/']: ['uuid1'],
-      ['/folder/file']: ['uuid1'],
+      '/folder/folder/': ['uuid1'],
+      '/folder/folder2/': ['uuid1'],
+      '/folder/file': ['uuid1'],
     };
 
     const resources: Resources = {
@@ -252,8 +252,8 @@ describe('getAttributionsWithAllChildResources', () => {
     };
 
     const testResourcesToAttributions: AttributionsToResources = {
-      ['/folder/folder/']: ['uuid1'],
-      ['/folder/folder/folder/folder/']: ['uuid2'],
+      '/folder/folder/': ['uuid1'],
+      '/folder/folder/folder/folder/': ['uuid2'],
     };
 
     const resources: Resources = {
@@ -306,8 +306,8 @@ describe('getAttributionsWithAllChildResources', () => {
     };
 
     const testResourcesToAttributions: AttributionsToResources = {
-      ['/fileWithChildren/folder/']: ['uuid1'],
-      ['/fileWithChildren/']: ['uuid2'],
+      '/fileWithChildren/folder/': ['uuid1'],
+      '/fileWithChildren/': ['uuid2'],
     };
 
     const resources: Resources = {
@@ -355,7 +355,7 @@ describe('getAttributionsWithAllChildResources', () => {
       };
 
       const testResourcesToAttributions: AttributionsToResources = {
-        ['/root/']: ['uuid2'],
+        '/root/': ['uuid2'],
       };
 
       const resources: Resources = {

@@ -52,8 +52,12 @@ export function compareAlphabeticalStrings(
   const otherElementIsAlphabetical =
     isElementTitleAlphabetical(trimmedOtherElement);
 
-  if (!elementIsAlphabetical && otherElementIsAlphabetical) return 1;
-  if (elementIsAlphabetical && !otherElementIsAlphabetical) return -1;
+  if (!elementIsAlphabetical && otherElementIsAlphabetical) {
+    return 1;
+  }
+  if (elementIsAlphabetical && !otherElementIsAlphabetical) {
+    return -1;
+  }
 
   return trimmedElement.toLowerCase() < trimmedOtherElement.toLowerCase()
     ? -1

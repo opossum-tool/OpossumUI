@@ -143,7 +143,7 @@ export class PackageCard {
     },
     contextMenu: {
       buttonsAreVisible: async (
-        ...buttons: (keyof typeof this.contextMenu)[]
+        ...buttons: Array<keyof typeof this.contextMenu>
       ): Promise<void> => {
         await Promise.all(
           buttons.map((button) =>
@@ -152,7 +152,7 @@ export class PackageCard {
         );
       },
       buttonsAreHidden: async (
-        ...buttons: (keyof typeof this.contextMenu)[]
+        ...buttons: Array<keyof typeof this.contextMenu>
       ): Promise<void> => {
         await Promise.all(
           buttons.map((button) =>

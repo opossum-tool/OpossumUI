@@ -10,7 +10,6 @@ describe('getAttributedChildren', () => {
     {
       attributedChildren: {
         '0': new Set<number>().add(1).add(2),
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         '3': new Set<number>().add(4),
       },
       pathsToIndices: {

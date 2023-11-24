@@ -6,8 +6,10 @@ import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { FilterType, PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
-import { getDisplayPackageInfoOfSelectedAttributionInAttributionView } from '../../selectors/all-views-resource-selectors';
-import { getDisplayPackageInfoOfDisplayedPackage } from '../../selectors/all-views-resource-selectors';
+import {
+  getDisplayPackageInfoOfDisplayedPackage,
+  getDisplayPackageInfoOfSelectedAttributionInAttributionView,
+} from '../../selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';

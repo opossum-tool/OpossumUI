@@ -179,7 +179,7 @@ export function sanitizeRawBaseUrlsForSources(
   return rawBaseUrlsForSources
     ? Object.fromEntries(
         Object.entries(rawBaseUrlsForSources).map(([path, url]) => {
-          return [path.endsWith('/') ? path : path + '/', url];
+          return [path.endsWith('/') ? path : `${path}/`, url];
         }),
       )
     : {};

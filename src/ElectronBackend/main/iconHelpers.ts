@@ -31,7 +31,11 @@ export function makeFirstIconVisibleAndSecondHidden(
 ): void {
   const itemToMakeVisible =
     Menu.getApplicationMenu()?.getMenuItemById(firstItemId);
-  if (itemToMakeVisible) itemToMakeVisible.visible = true;
+  if (itemToMakeVisible) {
+    itemToMakeVisible.visible = true;
+  }
   const itemToHide = Menu.getApplicationMenu()?.getMenuItemById(secondItemId);
-  if (itemToHide) itemToHide.visible = false;
+  if (itemToHide) {
+    itemToHide.visible = false;
+  }
 }

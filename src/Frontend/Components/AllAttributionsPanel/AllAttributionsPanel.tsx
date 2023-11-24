@@ -27,7 +27,7 @@ const classes = {
 
 interface AllAttributionsPanelProps {
   displayPackageInfos: DisplayPackageInfos;
-  selectedPackageCardId: string | null;
+  selectedPackageCardId?: string;
   isAddToPackageEnabled: boolean;
 }
 

@@ -13,19 +13,19 @@ import { text } from '../../../../shared/text';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
 import { ProcessPopup } from '../ProcessPopup';
 
-type Listener = (event: IpcRendererEvent, ...args: unknown[]) => void;
+type Listener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
 
 const electronAPI: {
   events: Partial<Record<AllowedFrontendChannels, Listener>>;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
-  send: (channel: AllowedFrontendChannels, ...args: unknown[]) => void;
+  send: (channel: AllowedFrontendChannels, ...args: Array<unknown>) => void;
 } = {
   events: {},
   on(channel: AllowedFrontendChannels, listener: Listener): () => void {
     this.events[channel] = listener;
     return noop;
   },
-  send(channel: AllowedFrontendChannels, ...args: unknown[]): void {
+  send(channel: AllowedFrontendChannels, ...args: Array<unknown>): void {
     this.events[channel]?.({} as IpcRendererEvent, ...args);
   },
 };

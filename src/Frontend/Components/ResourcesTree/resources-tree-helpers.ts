@@ -55,13 +55,15 @@ function addPathToResources(resourcePath: string, resources: Resources): void {
   );
 }
 
-export function getInitialExpandedIds(allResourceIds: string[]): string[] {
+export function getInitialExpandedIds(
+  allResourceIds: Array<string>,
+): Array<string> {
   const initialExpandedIdsSet = new Set<string>().add('/');
   for (const resourceId of allResourceIds) {
     const resourceIdParents = resourceId.split('/').slice(1, -1);
     for (let i = 0; i < resourceIdParents.length; i++) {
       initialExpandedIdsSet.add(
-        '/' + resourceIdParents.slice(0, i + 1).join('/') + '/',
+        `/${resourceIdParents.slice(0, i + 1).join('/')}/`,
       );
     }
   }

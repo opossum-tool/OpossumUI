@@ -28,9 +28,9 @@ import { ResourceState } from '../reducers/resource-reducer';
 import { getParents } from './get-parents';
 import {
   _addParentsToResourcesWithAttributedChildrenNoMutation,
+  addPathToIndexesIfMissingInResourcesWithAttributedChildren,
   deleteChildrenFromAttributedResources,
 } from './save-action-helpers';
-import { addPathToIndexesIfMissingInResourcesWithAttributedChildren } from './save-action-helpers';
 
 export function getMatchingAttributionId(
   packageInfoToMatch: PackageInfo,
@@ -195,7 +195,7 @@ export function createExternalAttributionsToHashes(
       >;
       attributionKeys.forEach(
         (key) =>
-          (attribution[key] == null || attribution[key] === '') &&
+          (attribution[key] === null || attribution[key] === '') &&
           delete attribution[key],
       );
 
@@ -307,8 +307,8 @@ export function anyLocateFilterIsSet(
 ): boolean {
   const licenseIsSet = locatePopupFilters.selectedLicenses.size > 0;
   const criticalityIsSet =
-    locatePopupFilters.selectedCriticality != SelectedCriticality.Any;
-  const searchTermIsSet: boolean = locatePopupFilters.searchTerm != '';
+    locatePopupFilters.selectedCriticality !== SelectedCriticality.Any;
+  const searchTermIsSet: boolean = locatePopupFilters.searchTerm !== '';
   return licenseIsSet || criticalityIsSet || searchTermIsSet;
 }
 export function attributionMatchesLocateFilter(
@@ -318,7 +318,7 @@ export function attributionMatchesLocateFilter(
 ): boolean {
   const licenseIsSet = locatePopupFilter.selectedLicenses.size > 0;
   const criticalityIsSet =
-    locatePopupFilter.selectedCriticality != SelectedCriticality.Any;
+    locatePopupFilter.selectedCriticality !== SelectedCriticality.Any;
   const augmentedLicenseNames = augmentFrequentLicenseNamesIfPresent(
     locatePopupFilter.selectedLicenses,
     frequentLicenseNames,
@@ -327,7 +327,7 @@ export function attributionMatchesLocateFilter(
     attribution.licenseName !== undefined &&
     augmentedLicenseNames.has(attribution.licenseName);
   const criticalityMatches =
-    attribution.criticality == locatePopupFilter.selectedCriticality;
+    attribution.criticality === locatePopupFilter.selectedCriticality;
   const searchTermMatches =
     (locatePopupFilter.searchOnlyLicenseName &&
       licenseNameContainsSearchTerm(

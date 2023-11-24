@@ -206,13 +206,18 @@ function containsResourcesWithOnlyExternalAttribution(
   resourcesToExternalAttributions: ResourcesToAttributions,
   resource: Resources | 1,
 ): boolean {
-  if (hasManualAttribution(nodeId, resourcesToManualAttributions)) return false;
-  if (hasExternalAttribution(nodeId, resourcesToExternalAttributions))
+  if (hasManualAttribution(nodeId, resourcesToManualAttributions)) {
+    return false;
+  }
+  if (hasExternalAttribution(nodeId, resourcesToExternalAttributions)) {
     return true;
-  if (resource === 1) return false;
+  }
+  if (resource === 1) {
+    return false;
+  }
   return Object.keys(resource).some((node) =>
     containsResourcesWithOnlyExternalAttribution(
-      resource[node] === 1 ? nodeId + node : nodeId + node + '/',
+      resource[node] === 1 ? nodeId + node : `${nodeId + node}/`,
       resourcesToManualAttributions,
       resourcesToExternalAttributions,
       resource[node],

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { render, RenderResult } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { ReactElement, ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
@@ -15,10 +15,6 @@ export interface EnhancedTestStore extends Store {
   dispatch: AppThunkDispatch;
 }
 
-interface RenderResultWithStore extends RenderResult {
-  store: EnhancedTestStore;
-}
-
 export function createTestAppStore(): EnhancedTestStore {
   return createAppStore();
 }
@@ -26,7 +22,7 @@ export function createTestAppStore(): EnhancedTestStore {
 export const renderComponentWithStore = (
   component: ReactElement,
   { store = createTestAppStore(), ...renderOptions } = {},
-): RenderResultWithStore => {
+) => {
   const Wrapper: React.FC<{ children: ReactNode | null }> = ({ children }) => {
     return (
       <Provider store={store as Store}>
@@ -38,7 +34,6 @@ export const renderComponentWithStore = (
       </Provider>
     );
   };
-  // @ts-ignore
   return {
     store,
     ...render(component, { wrapper: Wrapper, ...renderOptions }),

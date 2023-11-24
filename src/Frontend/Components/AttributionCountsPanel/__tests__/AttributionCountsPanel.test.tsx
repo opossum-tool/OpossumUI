@@ -50,7 +50,7 @@ describe('The Attribution Counts Panel', () => {
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
-          resources: { ['test resource']: 1 },
+          resources: { 'test resource': 1 },
           manualAttributions: testManualAttributions,
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),

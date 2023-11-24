@@ -166,11 +166,9 @@ describe('loadFromFile', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(0).add(4),
           '2': new Set<number>().add(0),
           '3': new Set<number>().add(0),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '5': new Set<number>().add(4),
         },
         pathsToIndices: {

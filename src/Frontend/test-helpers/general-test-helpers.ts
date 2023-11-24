@@ -87,11 +87,9 @@ export function getParsedInputFileEnrichedWithTestData(testData: {
 }
 
 function getResourceIdOfRoot(resources: Resources): string {
-  return (
-    '/' +
-    Object.keys(resources)[0] +
-    (canResourceHaveChildren(resources[Object.keys(resources)[0]]) ? '' : '/')
-  );
+  return `/${Object.keys(resources)[0]}${
+    canResourceHaveChildren(resources[Object.keys(resources)[0]]) ? '' : '/'
+  }`;
 }
 
 function getResourcesToAttributions(

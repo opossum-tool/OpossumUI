@@ -34,7 +34,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     );
   });
 
-  const testResourcesList: string[] = [
+  const testResourcesList: Array<string> = [
     '/OpossumUI/DCO.md',
     '/OpossumUI/src/Frontend/test.txt',
     '/OpossumUI/src/Frontend/Components/file.tsx',
@@ -44,17 +44,17 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
 
   const expectedResources: Resources = {
     OpossumUI: {
-      ['.idea']: {},
+      '.idea': {},
       src: {
         Frontend: {
-          ['test.txt']: 1,
+          'test.txt': 1,
           Components: {
-            ['file.tsx']: 1,
+            'file.tsx': 1,
           },
         },
-        ['abc.test.tsx']: 1,
+        'abc.test.tsx': 1,
       },
-      ['DCO.md']: 1,
+      'DCO.md': 1,
     },
   };
 
@@ -65,7 +65,7 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
   });
 });
 
-const testResourcesList: string[] = [
+const testResourcesList: Array<string> = [
   '/OpossumUI/DCO.md',
   '/OpossumUI/src/Frontend/test.txt',
   '/OpossumUI/src/Frontend/Components/file.tsx',
@@ -75,17 +75,17 @@ const testResourcesList: string[] = [
 
 const expectedResources: Resources = {
   OpossumUI: {
-    ['.idea']: {},
+    '.idea': {},
     src: {
       Frontend: {
-        ['test.txt']: 1,
+        'test.txt': 1,
         Components: {
-          ['file.tsx']: 1,
+          'file.tsx': 1,
         },
       },
-      ['abc.test.tsx']: 1,
+      'abc.test.tsx': 1,
     },
-    ['DCO.md']: 1,
+    'DCO.md': 1,
   },
 };
 

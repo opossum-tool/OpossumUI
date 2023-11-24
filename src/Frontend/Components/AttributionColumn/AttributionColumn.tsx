@@ -16,15 +16,15 @@ import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdMarkedForReplacement,
+  getDisplayedPackage,
   getIsGlobalSavingDisabled,
   getIsPreferenceFeatureEnabled,
   getIsSavingDisabled,
   getManualDisplayPackageInfoOfSelected,
+  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/all-views-resource-selectors';
-import { getDisplayedPackage } from '../../state/selectors/all-views-resource-selectors';
 import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
 import {
   getQAMode,

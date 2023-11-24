@@ -534,11 +534,8 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(2).add(3),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(2).add(3),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3),
         },
         pathsToIndices: {
@@ -616,13 +613,9 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '3': new Set<number>().add(4),
         },
         pathsToIndices: {
@@ -670,13 +663,9 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '3': new Set<number>().add(4),
         },
         pathsToIndices: {
@@ -742,13 +731,9 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '3': new Set<number>().add(4),
         },
         pathsToIndices: {
@@ -798,13 +783,9 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '3': new Set<number>().add(4),
         },
         pathsToIndices: {
@@ -852,13 +833,9 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '3': new Set<number>().add(4),
         },
         pathsToIndices: {
@@ -899,13 +876,9 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       },
       resourcesWithAttributedChildren: {
         attributedChildren: {
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '0': new Set<number>().add(1).add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '1': new Set<number>().add(2).add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '2': new Set<number>().add(3).add(4),
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           '3': new Set<number>().add(4),
         },
         pathsToIndices: {

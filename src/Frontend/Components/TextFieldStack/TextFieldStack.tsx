@@ -21,7 +21,7 @@ const classes = {
 interface TextFieldStackProps {
   isCollapsed: boolean;
   isEditable: boolean;
-  comments: string[];
+  comments: Array<string>;
   showHighlight?: boolean;
   commentBoxHeight: number;
 }
@@ -29,9 +29,9 @@ interface TextFieldStackProps {
 export function TextFieldStack(props: TextFieldStackProps): ReactElement {
   const handleChange = usePackageInfoChangeHandler();
   const filteredComments = props.comments.filter(
-    (comment) => comment.replace(/\s/g, '') != '',
+    (comment) => comment.replace(/\s/g, '') !== '',
   );
-  if (filteredComments.length == 0) {
+  if (filteredComments.length === 0) {
     filteredComments.push('');
   }
 
@@ -56,7 +56,9 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
             <TextBox
               isEditable={props.isEditable}
               sx={classes.textBox}
-              title={`Comment ${filteredComments.length == 1 ? '' : index + 1}`}
+              title={`Comment ${
+                filteredComments.length === 1 ? '' : index + 1
+              }`}
               text={comment}
               minRows={numLines}
               maxRows={numLines}
@@ -70,10 +72,11 @@ export function TextFieldStack(props: TextFieldStackProps): ReactElement {
   );
 }
 
-export function getCollapsedCommentText(filteredComments: string[]): string {
-  if (filteredComments.length == 1) {
-    return filteredComments[0] == '' ? 'No comments' : '1 comment (collapsed)';
-  } else {
-    return `${filteredComments.length} comments (collapsed)`;
+export function getCollapsedCommentText(
+  filteredComments: Array<string>,
+): string {
+  if (filteredComments.length === 1) {
+    return filteredComments[0] === '' ? 'No comments' : '1 comment (collapsed)';
   }
+  return `${filteredComments.length} comments (collapsed)`;
 }
