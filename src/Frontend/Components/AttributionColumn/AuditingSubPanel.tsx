@@ -11,7 +11,6 @@ import {
   DisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { CheckboxLabel } from '../../enums/enums';
-import { checkboxClass } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { doNothing } from '../../util/do-nothing';
@@ -23,17 +22,18 @@ import { TextFieldStack } from '../TextFieldStack/TextFieldStack';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 const classes = {
-  ...checkboxClass,
-  ...attributionColumnClasses,
-  confidenceDropDown: {
-    flex: 0,
-    flexBasis: 100,
-    marginBottom: '4px',
-  },
   sourceField: {
-    marginBottom: '4px',
-    flex: 0,
-    flexBasis: 100,
+    flex: 1,
+  },
+  displayRow: {
+    display: 'flex',
+    gap: '8px',
+  },
+  root: {
+    ...attributionColumnClasses.panel,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
   },
 };
 
@@ -57,64 +57,59 @@ export function AuditingSubPanel(props: AuditingSubPanelProps): ReactElement {
   const attributionSources = useAppSelector(getExternalAttributionSources);
 
   return (
-    <MuiPaper sx={classes.panel} elevation={0} square={true}>
-      <MuiBox sx={classes.displayRow}>
+    <MuiPaper sx={classes.root} elevation={0} square={true}>
+      <MuiBox>
         <Checkbox
-          sx={classes.checkBox}
           label={CheckboxLabel.FirstParty}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.firstParty)}
           onChange={props.firstPartyChangeHandler}
         />
         <Checkbox
-          sx={classes.checkBox}
           label={CheckboxLabel.FollowUp}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.followUp)}
           onChange={props.followUpChangeHandler}
         />
         <Checkbox
-          sx={classes.checkBox}
           label={CheckboxLabel.ExcludeFromNotice}
           disabled={!props.isEditable}
           checked={Boolean(props.displayPackageInfo.excludeFromNotice)}
           onChange={props.excludeFromNoticeChangeHandler}
         />
-        {
-          <Dropdown
-            sx={classes.confidenceDropDown}
-            isEditable={props.isEditable}
-            title={'Confidence'}
-            handleChange={props.discreteConfidenceChangeHandler}
-            value={(
-              props.displayPackageInfo.attributionConfidence ||
-              DiscreteConfidence.High
-            ).toString()}
-            menuItems={[
-              {
-                value: DiscreteConfidence.High.toString(),
-                name: `High (${DiscreteConfidence.High})`,
-              },
-              {
-                value: DiscreteConfidence.Low.toString(),
-                name: `Low (${DiscreteConfidence.Low})`,
-              },
-            ]}
-          />
-        }
-        {props.displayPackageInfo.source ? (
-          <TextBox
-            isEditable={false}
-            sx={classes.sourceField}
-            title={'Source'}
-            text={prettifySource(
-              props.displayPackageInfo.source.additionalName ??
-                props.displayPackageInfo.source.name,
-              attributionSources,
-            )}
-            handleChange={doNothing}
-          />
-        ) : null}
+      </MuiBox>
+      <MuiBox sx={classes.displayRow}>
+        <Dropdown
+          sx={{ width: '120px' }}
+          isEditable={props.isEditable}
+          title={'Confidence'}
+          handleChange={props.discreteConfidenceChangeHandler}
+          value={(
+            props.displayPackageInfo.attributionConfidence ||
+            DiscreteConfidence.High
+          ).toString()}
+          menuItems={[
+            {
+              value: DiscreteConfidence.High.toString(),
+              name: `High (${DiscreteConfidence.High})`,
+            },
+            {
+              value: DiscreteConfidence.Low.toString(),
+              name: `Low (${DiscreteConfidence.Low})`,
+            },
+          ]}
+        />
+        <TextBox
+          isEditable={false}
+          sx={classes.sourceField}
+          title={'Source'}
+          text={prettifySource(
+            props.displayPackageInfo.source?.additionalName ??
+              props.displayPackageInfo.source?.name,
+            attributionSources,
+          )}
+          handleChange={doNothing}
+        />
       </MuiBox>
       <TextFieldStack
         isEditable={props.isEditable}

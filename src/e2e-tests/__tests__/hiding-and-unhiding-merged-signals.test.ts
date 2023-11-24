@@ -36,12 +36,10 @@ test.use({
 });
 
 test('hides and unhides merged signals via attribution details', async ({
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   attributionDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
     subContext: resourceDetails.signalsInFolderContentPanel,
@@ -73,11 +71,9 @@ test('hides and unhides merged signals via attribution details', async ({
 });
 
 test('hides and unhides merged signals via context menu', async ({
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
     subContext: resourceDetails.signalsInFolderContentPanel,

@@ -15,9 +15,7 @@ test.use({
 test('opens, displays, and closes project metadata', async ({
   menuBar,
   projectMetadataPopup,
-  projectStatisticsPopup,
 }) => {
-  await projectStatisticsPopup.close();
   await menuBar.openProjectMetadata();
   await projectMetadataPopup.assert.titleIsVisible();
   await projectMetadataPopup.assert.attributeIsVisible(metadata.projectId);

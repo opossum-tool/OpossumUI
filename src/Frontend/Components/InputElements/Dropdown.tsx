@@ -62,7 +62,9 @@ export function Dropdown(props: DropdownProps): ReactElement {
         {menuItems.map((menuItem) => {
           return (
             <MuiMenuItem value={menuItem.value} key={menuItem.name}>
-              <MuiTypography>{menuItem.name}</MuiTypography>
+              <MuiTypography sx={{ lineHeight: 1.3 }}>
+                {menuItem.name}
+              </MuiTypography>
             </MuiMenuItem>
           );
         })}

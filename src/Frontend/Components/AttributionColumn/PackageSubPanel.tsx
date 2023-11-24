@@ -24,7 +24,12 @@ import { SearchPackagesIcon } from '../Icons/Icons';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
-const iconClasses = { clickableIcon, disabledIcon };
+const classes = {
+  displayRow: {
+    display: 'flex',
+    gap: '8px',
+  },
+};
 
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
@@ -42,11 +47,11 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
 
   return (
     <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
-      <MuiBox sx={attributionColumnClasses.displayRow}>
+      <MuiBox sx={classes.displayRow}>
         {renderPackageType()}
         {renderPackageNamespace()}
       </MuiBox>
-      <MuiBox sx={attributionColumnClasses.displayRow}>
+      <MuiBox sx={classes.displayRow}>
         {renderPackageName()}
         {renderPackageVersion()}
       </MuiBox>
@@ -117,11 +122,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
             disabled={!props.isEditable}
             icon={
               <SearchPackagesIcon
-                sx={
-                  props.isEditable
-                    ? iconClasses.clickableIcon
-                    : iconClasses.disabledIcon
-                }
+                sx={props.isEditable ? clickableIcon : disabledIcon}
               />
             }
           />
@@ -208,9 +209,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
                 <OpenInNewIcon
                   aria-label={'Url icon'}
                   sx={
-                    props.displayPackageInfo.url
-                      ? iconClasses.clickableIcon
-                      : iconClasses.disabledIcon
+                    props.displayPackageInfo.url ? clickableIcon : disabledIcon
                   }
                 />
               }

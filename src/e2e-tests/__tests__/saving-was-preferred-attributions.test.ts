@@ -55,13 +55,11 @@ test('removes was-preferred status from attribution when user saves changes', as
   editAttributionPopup,
   modifyWasPreferredAttributionPopup,
   notSavedPopup,
-  projectStatisticsPopup,
   reportView,
   resourceBrowser,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
     packageInfo2,

@@ -29,12 +29,11 @@ export interface MainButtonConfig {
 interface ButtonGroupProps {
   mainButtonConfigs: Array<MainButtonConfig>;
   hamburgerMenuButtonConfigs?: Array<ContextMenuItem>;
-  isHidden?: boolean;
   sx?: SxProps;
 }
 
-export function ButtonGroup(props: ButtonGroupProps): ReactElement | null {
-  return props.isHidden ? null : (
+export function ButtonGroup(props: ButtonGroupProps): ReactElement {
+  return (
     <MuiBox
       sx={getSxFromPropsAndClasses({
         styleClass: classes.root,

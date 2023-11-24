@@ -77,7 +77,6 @@ interface AttributionColumnProps {
   onDeleteGloballyButtonClick?(): void;
   saveFileRequestListener(): void;
   smallerLicenseTextOrCommentField?: boolean;
-  addMarginForNeedsReviewCheckbox?: boolean;
 }
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
@@ -355,7 +354,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           temporaryDisplayPackageInfo,
           dispatch,
         )}
-        addMarginForNeedsReviewCheckbox={props.addMarginForNeedsReviewCheckbox}
       />
     </MuiBox>
   );

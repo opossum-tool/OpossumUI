@@ -54,6 +54,8 @@ beforeAll(() => {
     exportFile: jest.fn(),
     saveFile: jest.fn(),
     on: jest.fn().mockReturnValue(jest.fn()),
+    getUserSetting: jest.fn().mockReturnValue(undefined),
+    setUserSetting: jest.fn(),
   } satisfies ElectronAPI;
 
   mockResizeObserver();

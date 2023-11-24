@@ -47,13 +47,11 @@ test.use({
 test('shows resources belonging to attributions', async ({
   attributionDetails,
   attributionList,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   resourcePathPopup,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.gotoRoot();
   await resourceDetails.assert.signalsInFolderContentAccordionIsVisible();
   await resourceDetails.signalCard.assert.isVisible(externalPackageInfo);

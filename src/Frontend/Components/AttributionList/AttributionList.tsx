@@ -6,14 +6,12 @@ import MuiBox from '@mui/material/Box';
 import { SxProps } from '@mui/system';
 import { ReactElement } from 'react';
 
-import { checkboxClass } from '../../shared-styles';
 import { DisplayPackageInfos } from '../../types/types';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPackageList';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 
 const classes = {
-  ...checkboxClass,
   topElements: {
     display: 'flex',
     alignItems: 'center',

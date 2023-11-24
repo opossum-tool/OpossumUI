@@ -28,11 +28,9 @@ test.use({
 test('modifies attribution via attribution wizard', async ({
   attributionDetails,
   attributionWizard,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName);
   await resourceDetails.attributionCard.openContextMenu(packageInfo);
   await resourceDetails.attributionCard.contextMenu.openAttributionWizardButton.click();

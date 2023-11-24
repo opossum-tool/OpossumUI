@@ -70,16 +70,6 @@ export const disabledIcon = {
   color: OpossumColors.disabledButtonGrey,
 };
 
-export const checkboxClass = {
-  checkBox: {
-    height: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    marginRight: '12px',
-    marginLeft: '-2px',
-  },
-};
-
 export const tableClasses = {
   head: {
     fontSize: 13,

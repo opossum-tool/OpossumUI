@@ -44,10 +44,8 @@ test.use({
 });
 
 test('shows expected resources as user browses through resources', async ({
-  projectStatisticsPopup,
   resourceBrowser,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.assert.resourceIsVisible(resourceName1);
   await resourceBrowser.assert.resourceIsVisible(resourceName4);
   await resourceBrowser.assert.resourceIsVisible(resourceName5);
@@ -64,11 +62,9 @@ test('shows expected resources as user browses through resources', async ({
 });
 
 test('cycles through resources as user clicks on progress bar', async ({
-  projectStatisticsPopup,
   resourceDetails,
   topBar,
 }) => {
-  await projectStatisticsPopup.close();
   await topBar.progressBar.click();
   await resourceDetails.signalCard.assert.isVisible(packageInfo1);
   await resourceDetails.signalCard.click(packageInfo1);
@@ -96,12 +92,10 @@ test('cycles through resources as user clicks on progress bar', async ({
 
 test('shows expected breadcrumbs as user navigates through path bar', async ({
   modKey,
-  projectStatisticsPopup,
   resourceBrowser,
   resourceDetails,
   window,
 }) => {
-  await projectStatisticsPopup.close();
   await resourceBrowser.gotoRoot();
   await resourceDetails.assert.goBackButtonIsDisabled();
   await resourceDetails.assert.goForwardButtonIsDisabled();

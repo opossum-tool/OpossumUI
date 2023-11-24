@@ -2,13 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   Attributions,
   Criticality,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import {
   PopupType,
   ProjectStatisticsPopupTitle,
@@ -100,7 +102,7 @@ describe('The ProjectStatisticsPopup', () => {
     expect(iconButtonMIT).toBeEnabled();
   });
 
-  it('locates attributions when clicking on a search license icon', () => {
+  it('locates attributions when clicking on a search license icon', async () => {
     const store = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -132,7 +134,7 @@ describe('The ProjectStatisticsPopup', () => {
     const iconButtonMIT = screen.getByRole('button', {
       name: 'locate signals with "MIT"',
     });
-    fireEvent.click(iconButtonMIT);
+    await userEvent.click(iconButtonMIT);
 
     const { locatedResources, resourcesWithLocatedChildren } =
       getResourcesWithLocatedAttributions(store.getState());
@@ -314,5 +316,21 @@ describe('The ProjectStatisticsPopup', () => {
     expect(screen.getAllByText('Total')).toHaveLength(3);
     expect(screen.getByText('Follow up')).toBeInTheDocument();
     expect(screen.getByText('First party')).toBeInTheDocument();
+  });
+
+  it('allows toggling of show-on-startup checkbox', async () => {
+    renderComponentWithStore(<ProjectStatisticsPopup />);
+
+    expect(
+      screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),
+    ).toBeChecked();
+
+    await userEvent.click(
+      screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),
+    );
+
+    expect(
+      screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),
+    ).not.toBeChecked();
   });
 });

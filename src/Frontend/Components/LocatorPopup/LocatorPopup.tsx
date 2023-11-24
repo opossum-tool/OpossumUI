@@ -54,10 +54,6 @@ const classes = {
   dialogContent: {
     width: '25vw',
   },
-  checkboxContainer: {
-    display: 'flex',
-    alignItems: 'center',
-  },
   search: {
     padding: '8px',
     border: '1px solid lightgrey',
@@ -164,7 +160,6 @@ export function LocatorPopup(): ReactElement {
           search={searchedSignal}
         />
         <Checkbox
-          sx={classes.checkboxContainer}
           label={CheckboxLabel.OnlyLicenseName}
           checked={displaySearchOnlyLicenseName}
           onChange={(): void => {

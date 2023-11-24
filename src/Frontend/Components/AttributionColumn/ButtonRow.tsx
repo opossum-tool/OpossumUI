@@ -8,14 +8,12 @@ import { ReactElement } from 'react';
 
 import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 import { ButtonText, CheckboxLabel } from '../../enums/enums';
-import { checkboxClass } from '../../shared-styles';
 import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { ToggleButton } from '../ToggleButton/ToggleButton';
 
 const classes = {
-  ...checkboxClass,
   root: {
     marginLeft: '10px',
     marginTop: '5px',
@@ -51,14 +49,9 @@ interface ButtonRowProps {
   isEditable: boolean;
   displayPackageInfo: PackageInfo | DisplayPackageInfo;
   needsReviewChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
-  addMarginForNeedsReviewCheckbox?: boolean;
 }
 
 export function ButtonRow(props: ButtonRowProps): ReactElement {
-  const marginForNeedsReviewCheckbox = props.addMarginForNeedsReviewCheckbox
-    ? classes.checkboxForPopUp
-    : {};
-
   return (
     <MuiBox sx={classes.root}>
       {props.displayTexts.map((text, index) => (
@@ -66,39 +59,36 @@ export function ButtonRow(props: ButtonRowProps): ReactElement {
           {text}
         </MuiTypography>
       ))}
-      <MuiBox sx={classes.buttonRow}>
-        {props.showButtonGroup ? (
-          <>
-            <Checkbox
-              sx={{
-                ...classes.checkBox,
-                ...marginForNeedsReviewCheckbox,
-              }}
-              label={CheckboxLabel.NeedsReview}
-              disabled={!props.isEditable}
-              checked={Boolean(props.displayPackageInfo.needsReview)}
-              onChange={props.needsReviewChangeHandler}
+      {props.areButtonsHidden && props.showButtonGroup ? null : (
+        <MuiBox sx={classes.buttonRow}>
+          {props.showButtonGroup ? (
+            <>
+              <Checkbox
+                label={CheckboxLabel.NeedsReview}
+                disabled={!props.isEditable}
+                checked={Boolean(props.displayPackageInfo.needsReview)}
+                onChange={props.needsReviewChangeHandler}
+              />
+              <ButtonGroup
+                mainButtonConfigs={props.mainButtonConfigs}
+                hamburgerMenuButtonConfigs={props.hamburgerMenuButtonConfigs}
+              />
+            </>
+          ) : (
+            <ToggleButton
+              buttonText={
+                props.selectedPackageIsResolved
+                  ? ButtonText.Unhide
+                  : ButtonText.Hide
+              }
+              sx={classes.resolveButton}
+              selected={props.selectedPackageIsResolved}
+              handleChange={props.resolvedToggleHandler}
+              ariaLabel={'resolve attribution'}
             />
-            <ButtonGroup
-              isHidden={props.areButtonsHidden}
-              mainButtonConfigs={props.mainButtonConfigs}
-              hamburgerMenuButtonConfigs={props.hamburgerMenuButtonConfigs}
-            />
-          </>
-        ) : (
-          <ToggleButton
-            buttonText={
-              props.selectedPackageIsResolved
-                ? ButtonText.Unhide
-                : ButtonText.Hide
-            }
-            sx={classes.resolveButton}
-            selected={props.selectedPackageIsResolved}
-            handleChange={props.resolvedToggleHandler}
-            ariaLabel={'resolve attribution'}
-          />
-        )}
-      </MuiBox>
+          )}
+        </MuiBox>
+      )}
     </MuiBox>
   );
 }

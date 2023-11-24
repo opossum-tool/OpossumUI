@@ -12,10 +12,6 @@ export const attributionColumnClasses = {
     background: OpossumColors.lightestBlue,
     border: `1px ${OpossumColors.lightestBlue} solid`,
   },
-  displayRow: {
-    display: 'flex',
-    gap: '8px',
-  },
   textBox: {
     marginBottom: '4px',
     flex: 1,
