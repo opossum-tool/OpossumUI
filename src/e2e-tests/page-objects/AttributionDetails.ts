@@ -5,7 +5,11 @@
 import { expect, type Locator, Page } from '@playwright/test';
 
 import { RawFrequentLicense } from '../../ElectronBackend/types/types';
-import { DiscreteConfidence, PackageInfo, Source } from '../../shared/shared-types';
+import {
+  DiscreteConfidence,
+  PackageInfo,
+  Source,
+} from '../../shared/shared-types';
 
 export class AttributionDetails {
   private readonly window: Page;
@@ -213,8 +217,8 @@ export class AttributionDetails {
         ...(comment ? [this.assert.commentIs(comment)] : []),
         ...(comments
           ? comments.map((item, index) =>
-            this.assert.commentIs(item, index + 1),
-          )
+              this.assert.commentIs(item, index + 1),
+            )
           : []),
         ...(attributionConfidence
           ? [this.assert.confidenceIs(attributionConfidence)]

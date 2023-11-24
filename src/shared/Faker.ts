@@ -5,10 +5,10 @@
 import { en, Faker as NativeFaker } from '@faker-js/faker';
 
 import type {
-  RawPackageInfo,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   RawFrequentLicense,
+  RawPackageInfo,
 } from '../ElectronBackend/types/types';
 import {
   BaseUrlsForSources,
@@ -25,8 +25,8 @@ type ExternalPackageInfo = RawPackageInfo;
 type ManualPackageInfo = RawPackageInfo;
 type Tuple<N extends number, T> = N extends N
   ? number extends N
-  ? T[]
-  : _TupleOf<N, T, []>
+    ? T[]
+    : _TupleOf<N, T, []>
   : never;
 type _TupleOf<
   N extends number,

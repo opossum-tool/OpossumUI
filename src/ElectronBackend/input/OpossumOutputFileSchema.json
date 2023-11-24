@@ -20,10 +20,7 @@
           "description": "Checksum to check if the input file has changed."
         }
       },
-      "required": [
-        "projectId",
-        "fileCreationDate"
-      ],
+      "required": ["projectId", "fileCreationDate"],
       "additionalProperties": false
     },
     "manualAttributions": {
@@ -49,10 +46,7 @@
                 "description": "Original source for suggested signals (e.g. a tool like ScanCode)"
               }
             },
-            "required": [
-              "name",
-              "documentConfidence"
-            ],
+            "required": ["name", "documentConfidence"],
             "additionalProperties": false
           },
           "packageName": {
@@ -119,9 +113,7 @@
           },
           "followUp": {
             "type": "string",
-            "enum": [
-              "FOLLOW_UP"
-            ],
+            "enum": ["FOLLOW_UP"],
             "description": "Indicates that an attribution is problematic and needs to be followed up."
           },
           "originId": {
@@ -178,10 +170,6 @@
       }
     }
   },
-  "required": [
-    "metadata",
-    "manualAttributions",
-    "resourcesToAttributions"
-  ],
+  "required": ["metadata", "manualAttributions", "resourcesToAttributions"],
   "additionalProperties": true
 }

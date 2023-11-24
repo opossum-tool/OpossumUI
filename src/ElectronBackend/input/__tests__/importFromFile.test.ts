@@ -177,7 +177,7 @@ const validAttribution: PackageInfo = {
     name: 'Merger',
     documentConfidence: 50,
     additionalName: 'Scancode',
-  }
+  },
 };
 
 const validMetadata = {
@@ -391,53 +391,53 @@ describe('Test of loading function', () => {
 
   it(
     'loads file and parses json successfully, ' +
-    'attribution file and preSelected attributions',
+      'attribution file and preSelected attributions',
     async () => {
       const inputFileContentWithPreselectedAttribution: ParsedOpossumInputFile =
-      {
-        metadata: EMPTY_PROJECT_METADATA,
-        resources: {
-          a: 1,
-        },
-        externalAttributions: {
-          [externalAttributionUuid]: {
-            source: {
-              name: 'REUSER:HHC',
-              documentConfidence: 13,
+        {
+          metadata: EMPTY_PROJECT_METADATA,
+          resources: {
+            a: 1,
+          },
+          externalAttributions: {
+            [externalAttributionUuid]: {
+              source: {
+                name: 'REUSER:HHC',
+                documentConfidence: 13,
+              },
+              packageName: 'my app',
+              packageVersion: '1.2.3',
+              copyright: '(c) first party',
+              preSelected: true,
+              attributionConfidence: 17,
+              comment: 'some comment',
+              preferred: true,
+              preferredOverOriginIds: ['test-id'],
             },
-            packageName: 'my app',
-            packageVersion: '1.2.3',
-            copyright: '(c) first party',
-            preSelected: true,
-            attributionConfidence: 17,
-            comment: 'some comment',
-            preferred: true,
-            preferredOverOriginIds: ['test-id'],
           },
-        },
-        frequentLicenses: [
-          {
-            shortName: 'MIT',
-            fullName: 'MIT license',
-            defaultText: 'MIT license text',
+          frequentLicenses: [
+            {
+              shortName: 'MIT',
+              fullName: 'MIT license',
+              defaultText: 'MIT license text',
+            },
+            {
+              shortName: 'GPL',
+              fullName: 'General Public License',
+              defaultText: 'GPL license text',
+            },
+          ],
+          resourcesToAttributions: { '/a': [externalAttributionUuid] },
+          attributionBreakpoints: ['/some/path/', '/another/path/'],
+          filesWithChildren: ['/some/package.json/'],
+          baseUrlsForSources: {
+            '/': 'https://github.com/opossum-tool/opossumUI/',
           },
-          {
-            shortName: 'GPL',
-            fullName: 'General Public License',
-            defaultText: 'GPL license text',
+          externalAttributionSources: {
+            SC: { name: 'ScanCode', priority: 1000 },
+            OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
           },
-        ],
-        resourcesToAttributions: { '/a': [externalAttributionUuid] },
-        attributionBreakpoints: ['/some/path/', '/another/path/'],
-        filesWithChildren: ['/some/package.json/'],
-        baseUrlsForSources: {
-          '/': 'https://github.com/opossum-tool/opossumUI/',
-        },
-        externalAttributionSources: {
-          SC: { name: 'ScanCode', priority: 1000 },
-          OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
-        },
-      };
+        };
       const temporaryPath: string = createTempFolder();
       const jsonName = 'test.json';
       const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
@@ -643,9 +643,9 @@ function assertFileLoadedCorrectly(testUuid: string): void {
           licenseText: 'MIT',
           followUp: FollowUp,
           source: {
-            additionalName: "Scancode",
+            additionalName: 'Scancode',
             documentConfidence: 50,
-            name: "Merger",
+            name: 'Merger',
           },
         },
       },
