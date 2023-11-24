@@ -55,6 +55,7 @@ test('adds a new attribution in audit view', async ({
     attributionConfidence: DiscreteConfidence.High,
     licenseName: license1.shortName,
     packageType: undefined,
+    source: undefined,
   });
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
@@ -92,6 +93,7 @@ test('allows user to edit an existing attribution locally and globally in audit 
     licenseText: faker.lorem.sentences(),
     attributionConfidence: packageInfo1.attributionConfidence,
     packageType: undefined,
+    source: undefined,
   });
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
@@ -159,6 +161,7 @@ test('displays and edits an existing attribution in attribution view', async ({
     licenseText: faker.lorem.sentences(),
     attributionConfidence: packageInfo1.attributionConfidence,
     packageType: undefined,
+    source: undefined,
   });
   await projectStatisticsPopup.close();
   await topBar.gotoAttributionView();
@@ -221,6 +224,7 @@ test('allows user to edit an existing attribution in report view', async ({
     licenseText: faker.lorem.sentences(),
     attributionConfidence: packageInfo1.attributionConfidence,
     packageType: undefined,
+    source: undefined,
   });
   await projectStatisticsPopup.close();
   await topBar.gotoReportView();
@@ -274,6 +278,7 @@ test('adds a new attribution via PURL', async ({
     licenseName: undefined,
     url: undefined,
     copyright: undefined,
+    source: undefined,
   });
   await projectStatisticsPopup.close();
   await resourceBrowser.goto(resourceName1);
