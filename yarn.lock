@@ -2861,18 +2861,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.8.3":
-  version: 5.8.3
-  resolution: "@tanstack/query-core@npm:5.8.3"
-  checksum: cf27b4e69c2667ad2169e57c8e714e4417dc409ca03f83247d4c811e5dc7bc0d1ac99a1080047c90523110f68f8340a9b1b7d95a3a31f977f50c32734c074254
+"@tanstack/query-core@npm:5.8.7":
+  version: 5.8.7
+  resolution: "@tanstack/query-core@npm:5.8.7"
+  checksum: 743a18ec0a28d4397a7c2bde9e696a038d305d04a1f1b044763085bcb96e6ed1f8e01bbb8cd0c67d47ce1747e1517d9890b01625eff1e7b1d79e74a6a7af5750
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.8.4":
-  version: 5.8.4
-  resolution: "@tanstack/react-query@npm:5.8.4"
+"@tanstack/react-query@npm:^5.8.6":
+  version: 5.8.7
+  resolution: "@tanstack/react-query@npm:5.8.7"
   dependencies:
-    "@tanstack/query-core": "npm:5.8.3"
+    "@tanstack/query-core": "npm:5.8.7"
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
@@ -2882,7 +2882,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: e9408ab94ddda08296169bfcdfb7f9bf13fdb73e29eaf54bcf54b1744b4687cb48a3b7e6a7523c050ff1124b50b129330a3f650c261cf0470b01e3531fcaafcc
+  checksum: c8489b37928fe86e24da661de28433565ed9d7b2d43c0d8a30eba1ee6668f5bd6282c7a2ac34e556f51e007d971248821d41408a1e6b9d2536d1542dac7b8f12
   languageName: node
   linkType: hard
 
@@ -9102,7 +9102,7 @@ __metadata:
     "@mui/system": "npm:^5.14.18"
     "@playwright/test": "npm:^1.40.0"
     "@redux-devtools/extension": "npm:^3.2.6"
-    "@tanstack/react-query": "npm:^5.8.4"
+    "@tanstack/react-query": "npm:^5.8.6"
     "@testing-library/dom": "npm:^9.3.3"
     "@testing-library/jest-dom": "npm:^6.1.4"
     "@testing-library/react": "npm:^14.1.2"
