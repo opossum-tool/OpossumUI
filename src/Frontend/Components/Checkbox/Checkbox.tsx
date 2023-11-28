@@ -15,6 +15,7 @@ import { ReactElement } from 'react';
 const classes = {
   skeleton: {
     fill: 'rgba(0, 0, 0, 0.6)',
+    width: '42px',
   },
 };
 

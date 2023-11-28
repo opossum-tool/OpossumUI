@@ -478,14 +478,8 @@ export const PackageCard = memo(
     );
 
     const rightIcons = useMemo(
-      () =>
-        getRightIcons(
-          listCardConfig,
-          props.cardId,
-          openResourcesIcon,
-          props.isScrolling,
-        ),
-      [listCardConfig, openResourcesIcon, props.cardId, props.isScrolling],
+      () => getRightIcons(listCardConfig, props.cardId, openResourcesIcon),
+      [listCardConfig, openResourcesIcon, props.cardId],
     );
 
     return (
