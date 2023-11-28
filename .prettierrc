@@ -11,7 +11,7 @@
   ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-sh"],
   "semi": true,
   "singleQuote": true,
   "trailingComma": "all",

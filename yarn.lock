@@ -8824,6 +8824,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mvdan-sh@npm:^0.10.1":
+  version: 0.10.1
+  resolution: "mvdan-sh@npm:0.10.1"
+  checksum: bbb6e83ea20f1ab785aa97cadc793d3715768f5ff1d919204bc602d2f1cb3b21efe4034e194db168b1d3867f61274b22d0cd23486c0f3735ad4fb431335dc8fa
+  languageName: node
+  linkType: hard
+
 "nanoid@npm:^3.3.6":
   version: 3.3.6
   resolution: "nanoid@npm:3.3.6"
@@ -9163,6 +9170,7 @@ __metadata:
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^1.2.1"
     prettier: "npm:^3.1.0"
+    prettier-plugin-sh: "npm:^0.13.1"
     prop-types: "npm:^15.8.1"
     proxy-memoize: "npm:^2.0.4"
     re-resizable: "npm:^6.9.11"
@@ -9481,6 +9489,18 @@ __metadata:
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
   checksum: 0b9d2c76801ca652a7f64892dd37b7e3fab149a37d2424920099bf894acccc62abb4424af2155ab36dea8744843060a2d8ddc983518d0b1e22265a22324b72ed
+  languageName: node
+  linkType: hard
+
+"prettier-plugin-sh@npm:^0.13.1":
+  version: 0.13.1
+  resolution: "prettier-plugin-sh@npm:0.13.1"
+  dependencies:
+    mvdan-sh: "npm:^0.10.1"
+    sh-syntax: "npm:^0.4.1"
+  peerDependencies:
+    prettier: ^3.0.0
+  checksum: 1cf824cf2e87e7f3517a69779a5d3224668a1628c34ac9a0acdc45bb8dbb6e9c717590c493e1bdc4983839a115febdb22f60070395edbbaaed1960e8da2eaf67
   languageName: node
   linkType: hard
 
@@ -10417,6 +10437,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sh-syntax@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "sh-syntax@npm:0.4.1"
+  dependencies:
+    tslib: "npm:^2.6.0"
+  checksum: 52ab7923575dc8312df0fad30256dafc6682667f49f0a765666fb94a17fde9eb9712e8d739c4fcc130691c0a17a7da8904d1069894eef5145e5a7df8083b6a6b
+  languageName: node
+  linkType: hard
+
 "shebang-command@npm:^2.0.0":
   version: 2.0.0
   resolution: "shebang-command@npm:2.0.0"
@@ -11123,7 +11152,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.6.2":
+"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.6.0, tslib@npm:^2.6.2":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: bd26c22d36736513980091a1e356378e8b662ded04204453d353a7f34a4c21ed0afc59b5f90719d4ba756e581a162ecbf93118dc9c6be5acf70aa309188166ca
