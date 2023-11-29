@@ -3465,7 +3465,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^6.13.0":
+"@typescript-eslint/eslint-plugin@npm:^6.13.1":
   version: 6.13.1
   resolution: "@typescript-eslint/eslint-plugin@npm:6.13.1"
   dependencies:
@@ -3490,7 +3490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^6.13.0":
+"@typescript-eslint/parser@npm:^6.13.1":
   version: 6.13.1
   resolution: "@typescript-eslint/parser@npm:6.13.1"
   dependencies:
@@ -9120,8 +9120,8 @@ __metadata:
     "@types/recharts": "npm:^1.8.28"
     "@types/stream-json": "npm:^1.7.7"
     "@types/uuid": "npm:^9.0.7"
-    "@typescript-eslint/eslint-plugin": "npm:^6.13.0"
-    "@typescript-eslint/parser": "npm:^6.13.0"
+    "@typescript-eslint/eslint-plugin": "npm:^6.13.1"
+    "@typescript-eslint/parser": "npm:^6.13.1"
     "@vitejs/plugin-react": "npm:^4.2.0"
     axios: "npm:^1.6.2"
     axios-mock-adapter: "npm:^1.22.0"
