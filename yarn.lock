@@ -2868,9 +2868,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.8.7":
-  version: 5.8.7
-  resolution: "@tanstack/react-query@npm:5.8.7"
+"@tanstack/react-query@npm:^5.8.9":
+  version: 5.9.0
+  resolution: "@tanstack/react-query@npm:5.9.0"
   dependencies:
     "@tanstack/query-core": "npm:5.8.7"
   peerDependencies:
@@ -2882,7 +2882,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: c8489b37928fe86e24da661de28433565ed9d7b2d43c0d8a30eba1ee6668f5bd6282c7a2ac34e556f51e007d971248821d41408a1e6b9d2536d1542dac7b8f12
+  checksum: 2b46851095e9cd0651b6853e0717ef0d3e795e594554f54f5ee667af96398c3ed541bcee612021ec974b13d80bfd2930a8d6d282b2d1c24fb619d0b87e9f946c
   languageName: node
   linkType: hard
 
@@ -9102,7 +9102,7 @@ __metadata:
     "@mui/system": "npm:^5.14.18"
     "@playwright/test": "npm:^1.40.0"
     "@redux-devtools/extension": "npm:^3.2.6"
-    "@tanstack/react-query": "npm:^5.8.7"
+    "@tanstack/react-query": "npm:^5.8.9"
     "@testing-library/dom": "npm:^9.3.3"
     "@testing-library/jest-dom": "npm:^6.1.4"
     "@testing-library/react": "npm:^14.1.2"
