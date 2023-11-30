@@ -9171,7 +9171,7 @@ __metadata:
     react-hotkeys-hook: "npm:^4.4.1"
     react-redux: "npm:^8.1.3"
     react-virtuoso: "npm:^4.6.2"
-    recharts: "npm:^2.10.1"
+    recharts: "npm:^2.10.2"
     redux: "npm:^4.2.1"
     redux-thunk: "npm:^2.4.2"
     run-script-os: "npm:^1.1.6"
@@ -9880,9 +9880,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:^2.10.1":
-  version: 2.10.1
-  resolution: "recharts@npm:2.10.1"
+"recharts@npm:^2.10.2":
+  version: 2.10.2
+  resolution: "recharts@npm:2.10.2"
   dependencies:
     clsx: "npm:^2.0.0"
     eventemitter3: "npm:^4.0.1"
@@ -9896,7 +9896,7 @@ __metadata:
     prop-types: ^15.6.0
     react: ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 04fad7b1163f87670f7252d2ac50e5df3634aa2589b4177908f00a54ca4d5fccfd4a95c5c2c42b71b3dc2fb7e0c4b2c8954a04bbf6beb335089e343a2e592560
+  checksum: ad60b102b524822efc3fb08d12369336a98e1b81ceead44b77d06a0c1a03e8cd1b6cf28c267ca5b96edbd0b7098ac4b770afbfcee33865c5b1bbd1bed42b6cda
   languageName: node
   linkType: hard
 
