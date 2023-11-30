@@ -106,7 +106,9 @@ Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from
 
 ## Working with OpossumUI
 
-For an in-depth explanation, read the [Users's Guide](USER_GUIDE.md).
+Check out our [short video](https://youtu.be/bqGX9IQYpJY?si=BjNeCi9osPWy7z1H), which presents a basic workflow.
+
+For an in-depth explanation, please read the [Users's Guide](USER_GUIDE.md).
 
 ## <a id="file_formats"></a> File formats
 
