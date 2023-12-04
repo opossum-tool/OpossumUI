@@ -10,17 +10,17 @@ import { useVariable } from '../use-variable';
 
 describe('useVariable', () => {
   it('returns initial value', () => {
-    const key = faker.lorem.word();
-    const initialValue = faker.lorem.word();
+    const key = faker.string.sample();
+    const initialValue = faker.string.sample();
     const { result } = renderHook(() => useVariable(key, initialValue));
 
     expect(result.current[0]).toBe(initialValue);
   });
 
   it('updates variable and persists it in store', () => {
-    const key = faker.lorem.word();
-    const initialValue = faker.lorem.word();
-    const newValue = faker.lorem.word();
+    const key = faker.string.sample();
+    const initialValue = faker.string.sample();
+    const newValue = faker.string.sample();
     const { result } = renderHook(() => useVariable(key, initialValue));
 
     act(() => {

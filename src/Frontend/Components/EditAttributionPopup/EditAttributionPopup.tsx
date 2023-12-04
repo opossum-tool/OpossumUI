@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { noop } from 'lodash';
 import { ReactElement, useCallback } from 'react';
 
 import { ButtonText, PopupType } from '../../enums/enums';
@@ -93,7 +92,6 @@ export function EditAttributionPopup(): ReactElement {
       customAction={
         <ButtonRow
           displayPackageInfo={temporaryDisplayPackageInfo}
-          updatePurl={noop}
           onSaveButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
           additionalActions={[
             {

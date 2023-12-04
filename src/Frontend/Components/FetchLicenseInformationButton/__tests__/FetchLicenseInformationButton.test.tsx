@@ -17,15 +17,13 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 
 import { PackageInfo } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
 import {
-  FETCH_DATA_FOR_SIGNALS_TOOLTIP,
-  FETCH_DATA_INVALID_DOMAIN_TOOLTIP,
-  FETCH_DATA_TOOLTIP,
   FetchLicenseInformationButton,
   FetchStatus,
   useFetchPackageInfo,
@@ -41,16 +39,14 @@ jest.useFakeTimers();
 const axiosMock = new MockAdapter(axios);
 
 describe('FetchLicenseInformationButton', () => {
-  it('renders disabled button', () => {
-    render(
+  it('renders no button when disabled', () => {
+    const { container } = render(
       <FetchLicenseInformationButton
         disabled={true}
         url={'https://github.com/reactchartjs/react-chartjs-2/tree/d8c'}
       />,
     );
-    expect(
-      screen.getByLabelText(FETCH_DATA_FOR_SIGNALS_TOOLTIP),
-    ).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('renders tooltip vor invalid domain', () => {
@@ -58,7 +54,9 @@ describe('FetchLicenseInformationButton', () => {
       <FetchLicenseInformationButton disabled={false} url={'invalid url'} />,
     );
     expect(
-      screen.getByLabelText(FETCH_DATA_INVALID_DOMAIN_TOOLTIP),
+      screen.getByLabelText(
+        text.attributionColumn.packageSubPanel.fetchPackageInfoNotPossible,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -127,7 +125,11 @@ describe('FetchLicenseInformationButton', () => {
       fireEvent.mouseOver(screen.getByRole('button'));
       jest.runAllTimers();
 
-      expect(await screen.findByText(FETCH_DATA_TOOLTIP)).toBeInTheDocument();
+      expect(
+        await screen.findByText(
+          text.attributionColumn.packageSubPanel.fetchPackageInfo,
+        ),
+      ).toBeInTheDocument();
     });
   });
 });

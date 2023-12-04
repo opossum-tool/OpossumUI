@@ -102,7 +102,7 @@ test('allows QA user to mark and unmark attributions as preferred in attribution
   await attributionList.attributionCard.click(manualPackageInfo);
   await attributionDetails.assert.matchesPackageInfo(manualPackageInfo);
   await attributionDetails.assert.saveButtonIsDisabled();
-  
+
   await attributionDetails.comment().fill(faker.lorem.sentence());
   await attributionDetails.assert.saveButtonIsEnabled();
 
@@ -119,16 +119,18 @@ test('allows QA user to mark and unmark attributions as preferred in attribution
   await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
   await attributionDetails.closeAuditingOptionsMenu();
   await attributionDetails.assert.saveButtonIsEnabled();
-  
+
   await attributionDetails.saveButton.click();
   await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
-  
+
   await changePreferredStatusGloballyPopup.okButton.click();
-  await attributionDetails.assert.auditingLabelIsVisible('currentlyPreferredLabel')
+  await attributionDetails.assert.auditingLabelIsVisible(
+    'currentlyPreferredLabel',
+  );
 
   await attributionDetails.removeAuditingLabel('currentlyPreferredLabel');
   await attributionDetails.assert.saveButtonIsEnabled();
-  
+
   await attributionDetails.openAuditingOptionsMenu();
   await attributionDetails.assert.auditingMenuOptionIsVisible(
     'currentlyPreferredOption',

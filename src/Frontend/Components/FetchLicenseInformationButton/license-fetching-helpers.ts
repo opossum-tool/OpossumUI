@@ -31,6 +31,12 @@ export function getLicenseFetchingInformation(
     return null;
   }
 
+  try {
+    new URL(url);
+  } catch {
+    return null;
+  }
+
   if (PYPI_REGEX.test(url)) {
     return {
       url: getPypiAPIUrl(url),
