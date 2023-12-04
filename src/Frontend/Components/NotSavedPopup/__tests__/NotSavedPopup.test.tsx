@@ -79,7 +79,7 @@ describe('NotSavedPopup and do not change view', () => {
       attributionIds: [],
     });
 
-    fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
+    fireEvent.click(screen.getByText(ButtonText.Discard));
     expect(getOpenPopup(store.getState())).toBe(null);
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -141,7 +141,7 @@ describe('NotSavedPopup and change view', () => {
       attributionIds: [],
     });
 
-    fireEvent.click(screen.queryByText(ButtonText.Undo) as Element);
+    fireEvent.click(screen.getByText(ButtonText.Discard));
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(

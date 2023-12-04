@@ -69,8 +69,9 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
     );
 
     await attributionDetails.comment().fill(preferLocallyComment);
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await attributionDetails.openAuditingOptionsMenu();
+    await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
+    await attributionDetails.closeAuditingOptionsMenu();
     await attributionDetails.saveButton.click();
     await changePreferredStatusGloballyPopup.assert.isHidden();
 
@@ -86,8 +87,10 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
       packageInfo1,
     );
 
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await attributionDetails.openAuditingOptionsMenu();
+    await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
+    await attributionDetails.closeAuditingOptionsMenu();
+    await attributionDetails.selectSaveMenuOption('saveGlobally');
     await attributionDetails.saveGloballyButton.click();
     await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
 
@@ -103,9 +106,8 @@ test('marks and unmarks an attribution as preferred globally if user saves globa
   });
 
   await test.step('unmark preferred globally', async () => {
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.unmarkAsPreferred.click();
-
+    await attributionDetails.removeAuditingLabel('currentlyPreferredLabel');
+    await attributionDetails.selectSaveMenuOption('saveGlobally');
     await attributionDetails.saveGloballyButton.click();
     await changePreferredStatusGloballyPopup.assert.unmarkAsPreferredWarningIsVisible();
 
@@ -154,8 +156,9 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
       packageInfo1,
     );
     await attributionDetails.copyright.fill(preferLocallyCopyright);
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await attributionDetails.openAuditingOptionsMenu();
+    await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
+    await attributionDetails.closeAuditingOptionsMenu();
     await topBar.gotoAttributionView();
     await notSavedPopup.assert.isVisible();
 
@@ -175,8 +178,9 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
     await resourceDetails.attributionCard.assert.preferredIconIsHidden(
       packageInfo1,
     );
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await attributionDetails.openAuditingOptionsMenu();
+    await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
+    await attributionDetails.closeAuditingOptionsMenu();
     await resourceBrowser.goto(resourceName3);
     await notSavedPopup.assert.isVisible();
 
@@ -194,8 +198,7 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
       packageInfo1,
     );
 
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.unmarkAsPreferred.click();
+    await attributionDetails.removeAuditingLabel('currentlyPreferredLabel');
     await resourceBrowser.goto(resourceName2);
     await notSavedPopup.assert.isVisible();
 
@@ -226,13 +229,14 @@ test('popup is only shown if necessary and undo reverts preference status only',
       packageInfo2,
     );
 
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.markAsPreferred.click();
-    await attributionDetails.saveGloballyButton.isHidden();
+    await attributionDetails.openAuditingOptionsMenu();
+    await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
+    await attributionDetails.closeAuditingOptionsMenu();
+    await attributionDetails.assert.saveGloballyButtonIsHidden();
     await resourceBrowser.goto(resourceName3);
     await notSavedPopup.assert.isVisible();
+    await notSavedPopup.assert.saveGloballyButtonIsHidden();
 
-    await notSavedPopup.saveGloballyButton.isHidden();
     await notSavedPopup.saveButton.click();
     await changePreferredStatusGloballyPopup.assert.isHidden();
   });
@@ -245,8 +249,9 @@ test('popup is only shown if necessary and undo reverts preference status only',
       packageInfo1,
     );
 
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await attributionDetails.openAuditingOptionsMenu();
+    await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
+    await attributionDetails.closeAuditingOptionsMenu();
 
     await attributionDetails.comment().fill(comment);
     await topBar.gotoAttributionView();
@@ -261,10 +266,8 @@ test('popup is only shown if necessary and undo reverts preference status only',
       packageInfo1,
     );
     await attributionDetails.assert.commentIs(comment);
-
-    await attributionDetails.openHamburgerMenu();
-    await attributionDetails.assert.buttonInHamburgerMenuIsVisible(
-      'unmarkAsPreferred',
+    await attributionDetails.assert.auditingLabelIsVisible(
+      'currentlyPreferredLabel',
     );
   });
 });

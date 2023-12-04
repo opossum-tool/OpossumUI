@@ -55,7 +55,7 @@ test('hides and unhides signals via attribution details', async ({
   });
 
   await resourceDetails.signalCard.click(packageInfo3);
-  await attributionDetails.hideToggleButton.click();
+  await attributionDetails.showHideSignalButton.click();
   await resourceDetails.signalCard.assert.isHidden(packageInfo3, {
     subContext: resourceDetails.signalsInFolderContentPanel,
   });
@@ -71,14 +71,14 @@ test('hides and unhides signals via attribution details', async ({
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 
   await resourceDetails.signalCard.click(packageInfo2);
-  await attributionDetails.hideToggleButton.click();
+  await attributionDetails.showHideSignalButton.click();
   await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
   await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
 
   await resourceBrowser.goto(resourceName3);
   await resourceDetails.signalCard.click(packageInfo2);
   await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
-  await attributionDetails.hideToggleButton.click();
+  await attributionDetails.showHideSignalButton.click();
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 });
 

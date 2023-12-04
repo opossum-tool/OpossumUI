@@ -63,6 +63,7 @@ test('replaces attributions via context menu in audit view', async ({
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.contextMenu.markForReplacementButton.click();
+
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchesPackageInfo(packageInfo2);
@@ -100,7 +101,7 @@ test('replaces attributions via context menu in audit view', async ({
   await resourceDetails.signalCard.assert.isHidden(packageInfo3);
 });
 
-test('replaces attributions via hamburger menu in audit view', async ({
+test('replaces attributions via attribution details buttons in audit view', async ({
   attributionDetails,
   replaceAttributionPopup,
   resourceBrowser,
@@ -109,23 +110,19 @@ test('replaces attributions via hamburger menu in audit view', async ({
   await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.markForReplacementButton.click();
+  await attributionDetails.selectReplaceMenuOption('markForReplacement');
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
+  await attributionDetails.selectReplaceMenuOption('replaceMarked');
   await replaceAttributionPopup.cancel();
-
   await resourceBrowser.goto(resourceName3);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceBrowser.goto(resourceName4);
   await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
+  await attributionDetails.selectReplaceMenuOption('replaceMarked');
   await replaceAttributionPopup.replace();
   await attributionDetails.assert.matchesPackageInfo(packageInfo2);
 
@@ -140,11 +137,9 @@ test('replaces attributions via hamburger menu in audit view', async ({
   await resourceDetails.attributionCard.assert.isVisible(packageInfo3);
 
   await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.markForReplacementButton.click();
+  await attributionDetails.selectReplaceMenuOption('markForReplacement');
   await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.replaceMarkedButton.click();
+  await attributionDetails.selectReplaceMenuOption('replaceMarked');
   await replaceAttributionPopup.replace();
   await resourceDetails.attributionCard.assert.isVisible(packageInfo2);
   await resourceDetails.attributionCard.assert.isHidden(packageInfo3);
@@ -167,6 +162,7 @@ test('replaces attributions via context menu in attribution view', async ({
 
   await attributionList.attributionCard.openContextMenu(packageInfo1);
   await attributionList.attributionCard.contextMenu.markForReplacementButton.click();
+
   await attributionList.attributionCard.openContextMenu(packageInfo2);
   await attributionList.attributionCard.contextMenu.replaceMarkedButton.click();
   await replaceAttributionPopup.cancel();

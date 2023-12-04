@@ -3,92 +3,228 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
 
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
-import { ButtonText, CheckboxLabel } from '../../enums/enums';
-import { ButtonGroup, MainButtonConfig } from '../ButtonGroup/ButtonGroup';
-import { Checkbox } from '../Checkbox/Checkbox';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
-import { ToggleButton } from '../ToggleButton/ToggleButton';
-
-const classes = {
-  root: {
-    marginLeft: '10px',
-    marginTop: '5px',
-  },
-  buttonRow: {
-    display: 'flex',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: '0px',
-    right: '0px',
-    marginRight: '8px',
-    marginBottom: '16px',
-    marginLeft: 'auto',
-  },
-  resolveButton: {
-    marginTop: '0px',
-    marginRight: '0px',
-  },
-  checkboxForPopUp: {
-    marginRight: '190px',
-    marginBottom: '-8px',
-  },
-};
+import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { ButtonText, PopupType, View } from '../../enums/enums';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import {
+  getAttributionIdMarkedForReplacement,
+  getDisplayedPackage,
+  getIsGlobalSavingDisabled,
+  getIsSavingDisabled,
+  getManualDisplayPackageInfoOfSelected,
+  getSelectedAttributionIdInAttributionView,
+  wereTemporaryDisplayPackageInfoModified,
+} from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedView } from '../../state/selectors/view-selector';
+import { Button, ButtonProps } from '../Button/Button';
+import { MenuButton } from '../MenuButton/MenuButton';
+import { SplitButton } from '../SplitButton/SplitButton';
+import { getSelectedManualAttributionIdForAuditView } from './attribution-column-helpers';
 
 interface ButtonRowProps {
-  showButtonGroup: boolean;
   areButtonsHidden?: boolean;
-  selectedPackageIsResolved: boolean;
-  resolvedToggleHandler(): void;
-  displayTexts: Array<string>;
-  mainButtonConfigs: Array<MainButtonConfig>;
-  hamburgerMenuButtonConfigs?: Array<ContextMenuItem>;
-  isEditable: boolean;
-  displayPackageInfo: PackageInfo | DisplayPackageInfo;
-  needsReviewChangeHandler(event: React.ChangeEvent<HTMLInputElement>): void;
+  displayPackageInfo: DisplayPackageInfo;
+  updatePurl(displayPackageInfo: DisplayPackageInfo): void;
+  onSaveButtonClick?(): void;
+  onSaveGloballyButtonClick?(): void;
+  onDeleteButtonClick?(): void;
+  onDeleteGloballyButtonClick?(): void;
+  showSaveGloballyButton?: boolean;
+  hideDeleteButtons?: boolean;
+  additionalActions?: Array<ButtonProps>;
 }
 
-export function ButtonRow(props: ButtonRowProps): ReactElement {
-  return (
-    <MuiBox sx={classes.root}>
-      {props.displayTexts.map((text, index) => (
-        <MuiTypography variant={'subtitle1'} key={`${text}-${index}`}>
-          {text}
-        </MuiTypography>
-      ))}
-      {props.areButtonsHidden && props.showButtonGroup ? null : (
-        <MuiBox sx={classes.buttonRow}>
-          {props.showButtonGroup ? (
-            <>
-              <Checkbox
-                label={CheckboxLabel.NeedsReview}
-                disabled={!props.isEditable}
-                checked={Boolean(props.displayPackageInfo.needsReview)}
-                onChange={props.needsReviewChangeHandler}
-              />
-              <ButtonGroup
-                mainButtonConfigs={props.mainButtonConfigs}
-                hamburgerMenuButtonConfigs={props.hamburgerMenuButtonConfigs}
-              />
-            </>
-          ) : (
-            <ToggleButton
-              buttonText={
-                props.selectedPackageIsResolved
-                  ? ButtonText.Unhide
-                  : ButtonText.Hide
-              }
-              sx={classes.resolveButton}
-              selected={props.selectedPackageIsResolved}
-              handleChange={props.resolvedToggleHandler}
-              ariaLabel={'resolve attribution'}
-            />
-          )}
-        </MuiBox>
-      )}
-    </MuiBox>
+export function ButtonRow({
+  displayPackageInfo,
+  areButtonsHidden,
+  updatePurl,
+  onDeleteButtonClick,
+  onDeleteGloballyButtonClick,
+  onSaveButtonClick,
+  onSaveGloballyButtonClick,
+  hideDeleteButtons,
+  showSaveGloballyButton,
+  additionalActions = [],
+}: ButtonRowProps): React.ReactNode {
+  const dispatch = useAppDispatch();
+  const attributionIdMarkedForReplacement = useAppSelector(
+    getAttributionIdMarkedForReplacement,
   );
+  const selectedPackage = useAppSelector(getDisplayedPackage);
+  const view = useAppSelector(getSelectedView);
+  const selectedAttributionIdInAttributionView = useAppSelector(
+    getSelectedAttributionIdInAttributionView,
+  );
+  const packageInfoWereModified = useAppSelector(
+    wereTemporaryDisplayPackageInfoModified,
+  );
+  const initialManualDisplayPackageInfo =
+    useAppSelector(getManualDisplayPackageInfoOfSelected) ||
+    EMPTY_DISPLAY_PACKAGE_INFO;
+  const isSavingDisabled = useAppSelector(getIsSavingDisabled);
+  const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
+
+  const selectedAttributionId =
+    view === View.Attribution
+      ? selectedAttributionIdInAttributionView
+      : getSelectedManualAttributionIdForAuditView(selectedPackage);
+
+  return (
+    !areButtonsHidden && (
+      <MuiBox
+        sx={{
+          display: 'flex',
+          gap: '8px',
+          justifyContent: 'flex-end',
+          flexWrap: 'wrap',
+        }}
+      >
+        {renderSaveButton()}
+        {renderDeleteButton()}
+        {renderReplaceButton()}
+        {renderRevertButton()}
+        {renderAdditionalActions()}
+      </MuiBox>
+    )
+  );
+
+  function renderSaveButton() {
+    return (
+      <SplitButton
+        minWidth={141}
+        menuButtonProps={{ 'aria-label': 'save menu button' }}
+        options={[
+          {
+            buttonText: displayPackageInfo.preSelected
+              ? ButtonText.Confirm
+              : ButtonText.Save,
+            disabled: isSavingDisabled,
+            onClick: () => {
+              updatePurl(displayPackageInfo);
+              onSaveButtonClick?.();
+            },
+            hidden: !onSaveButtonClick,
+          },
+          {
+            buttonText: displayPackageInfo.preSelected
+              ? ButtonText.ConfirmGlobally
+              : ButtonText.SaveGlobally,
+            disabled: isGlobalSavingDisabled,
+            onClick: () => {
+              updatePurl(displayPackageInfo);
+              onSaveGloballyButtonClick?.();
+            },
+            hidden: !onSaveGloballyButtonClick || !showSaveGloballyButton,
+          },
+        ]}
+      />
+    );
+  }
+
+  function renderDeleteButton() {
+    return (
+      <SplitButton
+        color={'error'}
+        minWidth={130}
+        menuButtonProps={{ 'aria-label': 'delete menu button' }}
+        options={[
+          {
+            buttonText: ButtonText.Delete,
+            onClick: () => onDeleteButtonClick?.(),
+            hidden: !onDeleteButtonClick || hideDeleteButtons,
+          },
+          {
+            buttonText: ButtonText.DeleteGlobally,
+            onClick: () => onDeleteGloballyButtonClick?.(),
+            hidden:
+              !onDeleteGloballyButtonClick ||
+              hideDeleteButtons ||
+              !showSaveGloballyButton,
+          },
+        ]}
+      />
+    );
+  }
+
+  function renderReplaceButton() {
+    if (!selectedAttributionId) {
+      return null;
+    }
+
+    return (
+      <MenuButton
+        title={ButtonText.Replace}
+        color={'secondary'}
+        options={[
+          {
+            buttonText: ButtonText.ReplaceMarked,
+            onClick: () => {
+              dispatch(
+                openPopup(
+                  PopupType.ReplaceAttributionPopup,
+                  selectedAttributionId,
+                ),
+              );
+            },
+            disabled:
+              displayPackageInfo.preSelected ||
+              packageInfoWereModified ||
+              !attributionIdMarkedForReplacement ||
+              selectedAttributionId === attributionIdMarkedForReplacement,
+          },
+          {
+            buttonText: ButtonText.MarkForReplacement,
+            onClick: () => {
+              dispatch(
+                setAttributionIdMarkedForReplacement(selectedAttributionId),
+              );
+            },
+            disabled:
+              selectedAttributionId === attributionIdMarkedForReplacement,
+          },
+          {
+            buttonText: ButtonText.UnmarkForReplacement,
+            onClick: () => {
+              dispatch(setAttributionIdMarkedForReplacement(''));
+            },
+            disabled:
+              selectedAttributionId !== attributionIdMarkedForReplacement,
+          },
+        ]}
+      />
+    );
+  }
+
+  function renderRevertButton() {
+    return (
+      <Button
+        color={'secondary'}
+        buttonText={ButtonText.Revert}
+        disabled={!packageInfoWereModified}
+        onClick={() => {
+          updatePurl(initialManualDisplayPackageInfo);
+          dispatch(
+            setTemporaryDisplayPackageInfo(initialManualDisplayPackageInfo),
+          );
+        }}
+      />
+    );
+  }
+
+  function renderAdditionalActions() {
+    return additionalActions.map((action) => (
+      <Button
+        key={action.buttonText}
+        color={action.color}
+        buttonText={action.buttonText}
+        onClick={action.onClick}
+        disabled={action.disabled}
+      />
+    ));
+  }
 }

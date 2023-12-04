@@ -35,14 +35,17 @@ import { ResourceDetailsTabs } from '../ResourceDetailsTabs/ResourceDetailsTabs'
 
 const classes = {
   root: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
     background: OpossumColors.lightestBlue,
-    flex: 1,
     padding: '8px',
   },
   columnDiv: {
     display: 'flex',
     marginTop: '8px',
-    height: 'calc(100% - 32px)',
+    flex: 1,
+    overflow: 'auto',
   },
   packageColumn: {
     display: 'flex',

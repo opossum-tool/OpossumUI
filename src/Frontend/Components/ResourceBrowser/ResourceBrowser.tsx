@@ -185,7 +185,7 @@ export function ResourceBrowser(): ReactElement | null {
         resourcesWithLocatedAttributions.resourcesWithLocatedChildren
       }
       resizable
-      width={420}
+      width={300}
     />
   ) : null;
 }

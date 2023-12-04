@@ -5,13 +5,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import MuiBox from '@mui/material/Box';
-import MuiPaper from '@mui/material/Paper';
-import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { HighlightingColor } from '../../enums/enums';
+import { HighlightingColor, PopupType } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { useAppDispatch } from '../../state/hooks';
 import {
   isImportantAttributionInformationMissing,
   isNamespaceRequiredButMissing,
@@ -38,29 +38,29 @@ interface PackageSubPanelProps {
   isEditable: boolean;
   temporaryPurl: string;
   handlePurlChange(event: React.ChangeEvent<{ value: string }>): void;
-  openPackageSearchPopup(): void;
   showHighlight?: boolean;
 }
 
-export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
+export function PackageSubPanel(props: PackageSubPanelProps) {
+  const dispatch = useAppDispatch();
   const handleChange = usePackageInfoChangeHandler();
 
   return (
-    <MuiPaper sx={attributionColumnClasses.panel} elevation={0} square={true}>
+    <MuiBox sx={attributionColumnClasses.panel}>
       <MuiBox sx={classes.displayRow}>
-        {renderPackageType()}
+        {renderPackageName()}
         {renderPackageNamespace()}
       </MuiBox>
       <MuiBox sx={classes.displayRow}>
-        {renderPackageName()}
         {renderPackageVersion()}
+        {renderPackageType()}
       </MuiBox>
       {renderPurl()}
       {renderRepositoryUrl()}
-    </MuiPaper>
+    </MuiBox>
   );
 
-  function renderPackageType(): React.ReactElement {
+  function renderPackageType() {
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
@@ -80,7 +80,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
     );
   }
 
-  function renderPackageNamespace(): React.ReactElement {
+  function renderPackageNamespace() {
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
@@ -104,7 +104,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
     );
   }
 
-  function renderPackageName(): React.ReactElement {
+  function renderPackageName() {
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
@@ -118,7 +118,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
               text.attributionColumn.packageSubPanel.searchForPackage
             }
             tooltipPlacement="right"
-            onClick={props.openPackageSearchPopup}
+            onClick={() => dispatch(openPopup(PopupType.PackageSearchPopup))}
             disabled={!props.isEditable}
             icon={
               <SearchPackagesIcon
@@ -139,7 +139,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
     );
   }
 
-  function renderPackageVersion(): React.ReactElement {
+  function renderPackageVersion() {
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
@@ -158,7 +158,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
     );
   }
 
-  function renderPurl(): React.ReactElement {
+  function renderPurl() {
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
@@ -178,7 +178,7 @@ export function PackageSubPanel(props: PackageSubPanelProps): ReactElement {
     );
   }
 
-  function renderRepositoryUrl(): React.ReactElement {
+  function renderRepositoryUrl() {
     const openLinkButtonTooltip = props.displayPackageInfo.url
       ? text.attributionColumn.packageSubPanel.openLinkInBrowser
       : text.attributionColumn.packageSubPanel.noLinkToOpen;

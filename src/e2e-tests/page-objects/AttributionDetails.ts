@@ -6,6 +6,7 @@ import { expect, type Locator, Page } from '@playwright/test';
 
 import { RawFrequentLicense } from '../../ElectronBackend/types/types';
 import { DiscreteConfidence, PackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 
 export class AttributionDetails {
   private readonly window: Page;
@@ -20,35 +21,84 @@ export class AttributionDetails {
   readonly licenseName: Locator;
   readonly licenseText: Locator;
   readonly licenseTextToggleButton: Locator;
-  readonly confidence: Locator;
-  readonly confirmButton: Locator;
-  readonly confirmGloballyButton: Locator;
+  readonly attributionType: Locator;
   readonly saveButton: Locator;
   readonly saveGloballyButton: Locator;
-  readonly hideToggleButton: Locator;
-  readonly hamburgerMenuButton: Locator;
-  readonly hamburgerMenu: {
-    readonly deleteButton: Locator;
-    readonly deleteGloballyButton: Locator;
-    readonly markAsPreferred: Locator;
-    readonly markForReplacementButton: Locator;
-    readonly replaceMarkedButton: Locator;
-    readonly undoButton: Locator;
-    readonly unmarkAsPreferred: Locator;
-    readonly unmarkForReplacementButton: Locator;
+  readonly saveMenuButton: Locator;
+  readonly saveMenuOptions: {
+    readonly save: Locator;
+    readonly saveGlobally: Locator;
+  };
+  readonly confirmButton: Locator;
+  readonly confirmGloballyButton: Locator;
+  readonly confirmMenuButton: Locator;
+  readonly confirmMenuOptions: {
+    readonly confirm: Locator;
+    readonly confirmGlobally: Locator;
+  };
+  readonly deleteButton: Locator;
+  readonly deleteGloballyButton: Locator;
+  readonly deleteMenuButton: Locator;
+  readonly deleteMenuOptions: {
+    readonly delete: Locator;
+    readonly deleteGlobally: Locator;
+  };
+  readonly replaceMenuButton: Locator;
+  readonly replaceMenuOptions: {
+    readonly replaceMarked: Locator;
+    readonly markForReplacement: Locator;
+    readonly unmarkForReplacement: Locator;
+  };
+  readonly revertButton: Locator;
+  readonly showHideSignalButton: Locator;
+  readonly addAuditingOptionButton: Locator;
+  readonly auditingOptionsMenu: {
+    readonly currentlyPreferredOption: Locator;
+    readonly needsFollowUpOption: Locator;
+    readonly needsReviewOption: Locator;
+    readonly excludedFromNoticeOption: Locator;
+  };
+  readonly auditingLabels: {
+    readonly confidenceLabel: Locator;
+    readonly currentlyPreferredLabel: Locator;
+    readonly excludedFromNoticeLabel: Locator;
+    readonly followUpLabel: Locator;
+    readonly needsReviewLabel: Locator;
+    readonly preselectedLabel: Locator;
+    readonly previouslyPreferredLabel: Locator;
+    readonly sourceLabel: Locator;
   };
 
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('attribution column');
-    this.type = this.node.getByLabel('Package Type', { exact: true });
-    this.namespace = this.node.getByLabel('Package Namespace', {
-      exact: true,
-    });
-    this.name = this.node.getByLabel('Package Name', { exact: true });
-    this.version = this.node.getByLabel('Package Version', { exact: true });
-    this.purl = this.node.getByLabel('PURL', { exact: true });
-    this.url = this.node.getByLabel('Repository URL', { exact: true });
+    this.type = this.node.getByLabel(
+      text.attributionColumn.packageSubPanel.packageType,
+      { exact: true },
+    );
+    this.namespace = this.node.getByLabel(
+      text.attributionColumn.packageSubPanel.packageNamespace,
+      {
+        exact: true,
+      },
+    );
+    this.attributionType = this.node.getByRole('group');
+    this.name = this.node.getByLabel(
+      text.attributionColumn.packageSubPanel.packageName,
+      { exact: true },
+    );
+    this.version = this.node.getByLabel(
+      text.attributionColumn.packageSubPanel.packageVersion,
+      { exact: true },
+    );
+    this.purl = this.node.getByLabel(
+      text.attributionColumn.packageSubPanel.purl,
+      { exact: true },
+    );
+    this.url = this.node.getByLabel(
+      text.attributionColumn.packageSubPanel.repositoryUrl,
+      { exact: true },
+    );
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
     this.licenseName = this.node.getByRole('combobox', {
       name: 'License Name',
@@ -58,9 +108,6 @@ export class AttributionDetails {
       { exact: true },
     );
     this.licenseTextToggleButton = this.node.getByLabel('license text toggle');
-    this.confidence = this.node.getByRole('combobox', {
-      name: 'Confidence',
-    });
     this.confirmButton = this.node.getByRole('button', {
       name: 'Confirm',
       exact: true,
@@ -69,47 +116,103 @@ export class AttributionDetails {
       name: 'Confirm globally',
       exact: true,
     });
+    this.confirmMenuButton = this.node.getByLabel('confirm menu button');
+    this.confirmMenuOptions = {
+      confirm: this.window.getByRole('menuitem').getByText('Confirm', {
+        exact: true,
+      }),
+      confirmGlobally: this.window
+        .getByRole('menuitem')
+        .getByText('Confirm globally', { exact: true }),
+    };
     this.saveButton = this.node.getByRole('button', {
       name: 'Save',
       exact: true,
     });
+    this.saveMenuButton = this.node.getByLabel('save menu button');
+    this.saveMenuOptions = {
+      save: this.window.getByRole('menuitem').getByText('Save', {
+        exact: true,
+      }),
+      saveGlobally: this.window
+        .getByRole('menuitem')
+        .getByText('Save globally', {
+          exact: true,
+        }),
+    };
     this.saveGloballyButton = this.node.getByRole('button', {
       name: 'Save globally',
       exact: true,
     });
-    this.hideToggleButton = this.node.getByLabel('resolve attribution');
-    this.hamburgerMenuButton = this.node.getByLabel('button-hamburger-menu');
-    this.hamburgerMenu = {
-      deleteButton: window
-        .getByRole('menu')
-        .getByRole('button', { name: 'Delete', exact: true }),
-      deleteGloballyButton: window.getByRole('menu').getByRole('button', {
-        name: 'Delete globally',
-        exact: true,
-      }),
-      markAsPreferred: window.getByRole('menu').getByRole('button', {
-        name: 'Mark as preferred',
-        exact: true,
-      }),
-      markForReplacementButton: window.getByRole('menu').getByRole('button', {
-        name: 'Mark for replacement',
-        exact: true,
-      }),
-      replaceMarkedButton: window.getByRole('menu').getByRole('button', {
-        name: 'Replace marked',
-        exact: true,
-      }),
-      undoButton: window
-        .getByRole('menu')
-        .getByRole('button', { name: 'Undo', exact: true }),
-      unmarkAsPreferred: window.getByRole('menu').getByRole('button', {
-        name: 'Unmark as preferred',
-        exact: true,
-      }),
-      unmarkForReplacementButton: window.getByRole('menu').getByRole('button', {
-        name: 'Unmark for replacement',
-        exact: true,
-      }),
+    this.deleteButton = this.node.getByRole('button', {
+      name: 'Delete',
+      exact: true,
+    });
+    this.deleteGloballyButton = this.node.getByRole('button', {
+      name: 'Delete globally',
+      exact: true,
+    });
+    this.deleteMenuButton = this.node.getByLabel('delete menu button');
+    this.deleteMenuOptions = {
+      delete: this.window
+        .getByRole('menuitem')
+        .getByText('Delete', { exact: true }),
+      deleteGlobally: this.window
+        .getByRole('menuitem')
+        .getByText('Delete globally', { exact: true }),
+    };
+    this.replaceMenuButton = this.node.getByRole('button', {
+      name: 'Replace',
+      exact: true,
+    });
+    this.replaceMenuOptions = {
+      replaceMarked: this.window
+        .getByRole('menuitem')
+        .getByText('Replace marked with current', { exact: true }),
+      markForReplacement: this.window
+        .getByRole('menuitem')
+        .getByText('Mark current for replacement', { exact: true }),
+      unmarkForReplacement: this.window
+        .getByRole('menuitem')
+        .getByText('Unmark current for replacement', { exact: true }),
+    };
+    this.revertButton = this.node.getByRole('button', {
+      name: 'Revert',
+      exact: true,
+    });
+    this.showHideSignalButton = this.node.getByLabel('resolve attribution');
+    this.auditingLabels = {
+      sourceLabel: this.node.getByTestId('auditing-option-source'),
+      confidenceLabel: this.node.getByTestId('auditing-option-confidence'),
+      preselectedLabel: this.node.getByTestId('auditing-option-pre-selected'),
+      currentlyPreferredLabel: this.node.getByTestId(
+        'auditing-option-preferred',
+      ),
+      previouslyPreferredLabel: this.node.getByTestId(
+        'auditing-option-was-preferred',
+      ),
+      followUpLabel: this.node.getByTestId('auditing-option-follow-up'),
+      needsReviewLabel: this.node.getByTestId('auditing-option-needs-review'),
+      excludedFromNoticeLabel: this.node.getByTestId(
+        'auditing-option-excluded-from-notice',
+      ),
+    };
+    this.addAuditingOptionButton = this.node.getByRole('button', {
+      name: text.auditingOptions.add,
+    });
+    this.auditingOptionsMenu = {
+      currentlyPreferredOption: window
+        .getByRole('menuitem')
+        .getByText(text.auditingOptions.currentlyPreferred),
+      needsFollowUpOption: window
+        .getByRole('menuitem')
+        .getByText(text.auditingOptions.followUp),
+      needsReviewOption: window
+        .getByRole('menuitem')
+        .getByText(text.auditingOptions.needsReview),
+      excludedFromNoticeOption: window
+        .getByRole('menuitem')
+        .getByText(text.auditingOptions.excludedFromNotice),
     };
   }
 
@@ -134,6 +237,7 @@ export class AttributionDetails {
       await expect(this.comment()).toBeEmpty();
       await expect(this.licenseName).toBeEmpty();
       await this.assert.confidenceIs(DiscreteConfidence.High);
+      await this.assert.attributionTypeIs('Third Party');
     },
     typeIs: async (type: string): Promise<void> => {
       await expect(this.type).toHaveValue(type);
@@ -158,8 +262,15 @@ export class AttributionDetails {
     },
     confidenceIs: async (confidence: number): Promise<void> => {
       await expect(
-        this.confidence.getByText(confidence.toString()),
-      ).toBeVisible();
+        this.auditingLabels.confidenceLabel.getByLabel(
+          `confidence of ${Math.round((confidence / 100) * 5)}`,
+        ),
+      ).toHaveAttribute('aria-disabled', 'false');
+    },
+    attributionTypeIs: async (type: string): Promise<void> => {
+      await expect(
+        this.attributionType.getByRole('button', { name: type, exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true');
     },
     licenseNameIs: async (licenseName: string): Promise<void> => {
       await expect(this.licenseName).toHaveValue(licenseName);
@@ -181,6 +292,7 @@ export class AttributionDetails {
       comment,
       comments,
       copyright,
+      firstParty,
       licenseName,
       licenseText,
       packageName,
@@ -197,8 +309,21 @@ export class AttributionDetails {
         ...(packageName ? [this.assert.nameIs(packageName)] : []),
         ...(packageVersion ? [this.assert.versionIs(packageVersion)] : []),
         ...(url ? [this.assert.urlIs(url)] : []),
-        ...(copyright ? [this.assert.copyrightIs(copyright)] : []),
-        ...(licenseName ? [this.assert.licenseNameIs(licenseName)] : []),
+        ...(copyright
+          ? [
+              firstParty
+                ? await expect(this.copyright).toBeHidden()
+                : this.assert.copyrightIs(copyright),
+            ]
+          : []),
+        ...(firstParty ? [this.assert.attributionTypeIs('First Party')] : []),
+        ...(licenseName
+          ? [
+              firstParty
+                ? await expect(this.licenseName).toBeHidden()
+                : this.assert.licenseNameIs(licenseName),
+            ]
+          : []),
         ...(licenseText ? [this.assert.licenseTextIs(licenseText)] : []),
         ...(comment ? [this.assert.commentIs(comment)] : []),
         ...(comments
@@ -222,6 +347,12 @@ export class AttributionDetails {
     },
     saveButtonIsDisabled: async (): Promise<void> => {
       await expect(this.saveButton).toBeDisabled();
+    },
+    revertButtonIsEnabled: async (): Promise<void> => {
+      await expect(this.revertButton).toBeEnabled();
+    },
+    revertButtonIsDisabled: async (): Promise<void> => {
+      await expect(this.revertButton).toBeDisabled();
     },
     saveGloballyButtonIsVisible: async (): Promise<void> => {
       await expect(this.saveGloballyButton).toBeVisible();
@@ -247,33 +378,57 @@ export class AttributionDetails {
     confirmGloballyButtonIsHidden: async (): Promise<void> => {
       await expect(this.confirmGloballyButton).toBeHidden();
     },
-    buttonInHamburgerMenuIsVisible: async (
-      button: keyof typeof this.hamburgerMenu,
-    ): Promise<void> => {
-      await expect(this.hamburgerMenu[button]).toBeVisible();
+    deleteButtonIsVisible: async (): Promise<void> => {
+      await expect(this.deleteButton).toBeVisible();
     },
-    buttonInHamburgerMenuIsHidden: async (
-      button: keyof typeof this.hamburgerMenu,
-    ): Promise<void> => {
-      await expect(this.hamburgerMenu[button]).toBeHidden();
+    deleteButtonIsHidden: async (): Promise<void> => {
+      await expect(this.deleteButton).toBeHidden();
     },
-    buttonInHamburgerMenuIsEnabled: async (
-      button: keyof typeof this.hamburgerMenu,
-    ): Promise<void> => {
-      await expect(this.hamburgerMenu[button]).toBeEnabled();
+    deleteGloballyButtonIsVisible: async (): Promise<void> => {
+      await expect(this.deleteGloballyButton).toBeVisible();
     },
-    buttonInHamburgerMenuIsDisabled: async (
-      button: keyof typeof this.hamburgerMenu,
+    deleteGloballyButtonIsHidden: async (): Promise<void> => {
+      await expect(this.deleteGloballyButton).toBeHidden();
+    },
+    revertButtonIsVisible: async (): Promise<void> => {
+      await expect(this.revertButton).toBeVisible();
+    },
+    revertButtonIsHidden: async (): Promise<void> => {
+      await expect(this.revertButton).toBeHidden();
+    },
+    showHideSignalButtonIsVisible: async (): Promise<void> => {
+      await expect(this.showHideSignalButton).toBeVisible();
+    },
+    showHideSignalButtonIsHidden: async (): Promise<void> => {
+      await expect(this.showHideSignalButton).toBeHidden();
+    },
+    auditingMenuOptionIsVisible: async (
+      option: keyof typeof this.auditingOptionsMenu,
     ): Promise<void> => {
-      await expect(this.hamburgerMenu[button]).toBeDisabled();
+      await expect(this.auditingOptionsMenu[option]).toBeVisible();
+    },
+    auditingMenuOptionIsHidden: async (
+      option: keyof typeof this.auditingOptionsMenu,
+    ): Promise<void> => {
+      await expect(this.auditingOptionsMenu[option]).toBeHidden();
+    },
+    auditingLabelIsVisible: async (
+      label: keyof typeof this.auditingLabels,
+    ): Promise<void> => {
+      await expect(this.auditingLabels[label]).toBeVisible();
+    },
+    auditingLabelIsHidden: async (
+      label: keyof typeof this.auditingLabels,
+    ): Promise<void> => {
+      await expect(this.auditingLabels[label]).toBeHidden();
     },
   };
 
-  async openHamburgerMenu(): Promise<void> {
-    await this.hamburgerMenuButton.click();
+  async openAuditingOptionsMenu(): Promise<void> {
+    await this.addAuditingOptionButton.click();
   }
 
-  async closeHamburgerMenu(): Promise<void> {
+  async closeAuditingOptionsMenu(): Promise<void> {
     await this.window.keyboard.press('Escape');
   }
 
@@ -285,5 +440,45 @@ export class AttributionDetails {
     await this.window
       .getByText(`${license.shortName} - ${license.fullName}`)
       .click();
+  }
+
+  async removeAuditingLabel(
+    label: keyof typeof this.auditingLabels,
+  ): Promise<void> {
+    await this.auditingLabels[label].getByTestId('CancelIcon').click();
+  }
+
+  async selectAttributionType(type: string): Promise<void> {
+    await this.attributionType
+      .getByRole('button', { name: type, exact: true })
+      .click();
+  }
+
+  async selectSaveMenuOption(
+    option: keyof typeof this.saveMenuOptions,
+  ): Promise<void> {
+    await this.saveMenuButton.click();
+    await this.saveMenuOptions[option].click();
+  }
+
+  async selectConfirmMenuOption(
+    option: keyof typeof this.confirmMenuOptions,
+  ): Promise<void> {
+    await this.confirmMenuButton.click();
+    await this.confirmMenuOptions[option].click();
+  }
+
+  async selectDeleteMenuOption(
+    option: keyof typeof this.deleteMenuOptions,
+  ): Promise<void> {
+    await this.deleteMenuButton.click();
+    await this.deleteMenuOptions[option].click();
+  }
+
+  async selectReplaceMenuOption(
+    option: keyof typeof this.replaceMenuOptions,
+  ): Promise<void> {
+    await this.replaceMenuButton.click();
+    await this.replaceMenuOptions[option].click();
   }
 }

@@ -308,7 +308,7 @@ The `Attribution Details Column`, if editable, shows the following buttons:
 - _CONFIRM GLOBALLY_, (shown only if the attribution of the selected resource is also linked to other resources) removes
   the **pre-selected** attribute from the attribution for all linked resources.
 - _..._, opens a menu with the following buttons:
-  - _Undo_, discards the changes,
+  - _Revert_, discards the changes,
   - _Delete_, deletes the attribution of the selected resource only.
   - _Delete Globally_, (shown only if the attribution of the selected resource is also linked to other resources)
     deletes the attribution for all the linked resources.
@@ -316,7 +316,7 @@ The `Attribution Details Column`, if editable, shows the following buttons:
   One can navigate to another attribution and press the _Replace marked_ button. This opens a popup. In the popup,
   clicking the _Replace_ button removes the marked attribution and replaces it by the currently selected one.
 
-The _SAVE_ / _SAVE GLOBALLY_ and _Undo_ buttons are disabled if no change has been made.
+The _SAVE_ / _SAVE GLOBALLY_ and _Revert_ buttons are disabled if no change has been made.
 
 When all fields except for the _confidence_ field are empty, pressing the _SAVE_ or the _SAVE GLOBALLY_ button deletes
 the respective attribution.

@@ -90,11 +90,12 @@ describe('The ResourceDetailsAttributionColumn', () => {
       );
     });
 
-    expect(screen.queryAllByText('Confidence'));
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.attributionConfidence.toString(),
-      ),
+      screen.getByText(text.attributionColumn.packageSubPanel.confidence),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('confidence of 4')).toHaveAttribute(
+      'aria-disabled',
+      'false',
     );
     expect(screen.queryAllByText('Comment'));
     const testComment =

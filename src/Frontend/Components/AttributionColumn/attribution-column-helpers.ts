@@ -3,11 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   DisplayPackageInfo,
-  FollowUp,
   FrequentLicenseName,
 } from '../../../shared/shared-types';
 import { AllowedSaveOperations, View } from '../../enums/enums';
@@ -29,100 +28,6 @@ import {
 } from '../../util/handle-purl';
 import { isExternalPackagePanel } from '../../util/is-external-package-panel';
 import { isNamespaceRequiredButMissing } from '../../util/is-important-attribution-information-missing';
-import { useWindowHeight } from '../../util/use-window-height';
-
-const PRE_SELECTED_LABEL = 'Attribution was pre-selected';
-const MARKED_FOR_REPLACEMENT_LABEL = 'Attribution is marked for replacement';
-const HEIGHT_OF_TEXT_BOXES_IN_ATTRIBUTION_VIEW = 480;
-const HEIGHT_OF_TEXT_BOXES_IN_AUDIT_VIEW = 514;
-const ROW_HEIGHT = 19;
-
-export function getDisplayTexts(
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  selectedAttributionId: string,
-  attributionIdMarkedForReplacement: string,
-  view: View,
-): Array<string> {
-  const displayTexts: Array<string> = [];
-  if (temporaryDisplayPackageInfo.preSelected) {
-    displayTexts.push(PRE_SELECTED_LABEL);
-  }
-  if (
-    view === 'Attribution' &&
-    selectedAttributionId === attributionIdMarkedForReplacement
-  ) {
-    displayTexts.push(MARKED_FOR_REPLACEMENT_LABEL);
-  }
-  return displayTexts;
-}
-
-export function getLicenseTextMaxRows(
-  windowHeight: number,
-  view: View,
-): number {
-  const heightOfNonLicenseTextComponents =
-    view === View.Audit
-      ? HEIGHT_OF_TEXT_BOXES_IN_AUDIT_VIEW
-      : HEIGHT_OF_TEXT_BOXES_IN_ATTRIBUTION_VIEW;
-  const licenseTextMaxHeight = windowHeight - heightOfNonLicenseTextComponents;
-  return Math.floor(licenseTextMaxHeight / ROW_HEIGHT);
-}
-
-export function getDiscreteConfidenceChangeHandler(
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch,
-): (event: React.ChangeEvent<{ value: unknown }>) => void {
-  return (event): void => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...temporaryDisplayPackageInfo,
-        attributionConfidence: Number(event.target.value),
-      }),
-    );
-  };
-}
-
-export function getFollowUpChangeHandler(
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch,
-): (event: React.ChangeEvent<HTMLInputElement>) => void {
-  return (event): void => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...temporaryDisplayPackageInfo,
-        followUp: event.target.checked ? FollowUp : undefined,
-      }),
-    );
-  };
-}
-
-export function getExcludeFromNoticeChangeHandler(
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch,
-): (event: React.ChangeEvent<HTMLInputElement>) => void {
-  return (event): void => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...temporaryDisplayPackageInfo,
-        excludeFromNotice: event.target.checked ? true : undefined,
-      }),
-    );
-  };
-}
-
-export function getFirstPartyChangeHandler(
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch,
-): (event: React.ChangeEvent<HTMLInputElement>) => void {
-  return (event): void => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...temporaryDisplayPackageInfo,
-        firstParty: event.target.checked,
-      }),
-    );
-  };
-}
 
 export function getResolvedToggleHandler(
   attributionIds: Array<string>,
@@ -142,20 +47,6 @@ export function getResolvedToggleHandler(
       }
     }
     dispatch(saveManualAndResolvedAttributionsToFile());
-  };
-}
-
-export function getNeedsReviewChangeHandler(
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  dispatch: AppThunkDispatch,
-): (event: React.ChangeEvent<HTMLInputElement>) => void {
-  return (event): void => {
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...temporaryDisplayPackageInfo,
-        needsReview: event.target.checked,
-      }),
-    );
   };
 }
 
@@ -327,45 +218,6 @@ export function usePurl(
     isDisplayedPurlValid,
     handlePurlChange,
     updatePurl,
-  };
-}
-
-export function useRows(
-  view: View,
-  resetViewIfThisIdChanges = '',
-  smallerLicenseTextOrCommentField?: boolean,
-): {
-  isLicenseTextShown: boolean;
-  setIsLicenseTextShown: Dispatch<SetStateAction<boolean>>;
-  licenseTextRows: number;
-  copyrightRows: number;
-  commentBoxHeight: number;
-} {
-  const [isLicenseTextShown, setIsLicenseTextShown] = useState<boolean>(false);
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  const reduceRowsCount = smallerLicenseTextOrCommentField ? 5 : 1;
-  const licenseTextRows =
-    getLicenseTextMaxRows(useWindowHeight(), view) - reduceRowsCount;
-
-  useEffect(() => {
-    setIsLicenseTextShown(false);
-  }, [resetViewIfThisIdChanges]);
-
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  const copyrightRows = isLicenseTextShown ? 1 : 6;
-  const commentRows = isLicenseTextShown
-    ? 1
-    : Math.max(licenseTextRows - 2, 1) - reduceRowsCount;
-  const commentBoxHeight = isLicenseTextShown
-    ? ROW_HEIGHT
-    : commentRows * ROW_HEIGHT;
-
-  return {
-    isLicenseTextShown,
-    setIsLicenseTextShown,
-    licenseTextRows,
-    copyrightRows,
-    commentBoxHeight,
   };
 }
 
