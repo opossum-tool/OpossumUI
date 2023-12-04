@@ -2,16 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiAutocomplete from '@mui/material/Autocomplete';
 import MuiBox from '@mui/material/Box';
-import MuiTextField from '@mui/material/TextField';
 import MuiTypography from '@mui/material/Typography';
-import { ChangeEvent, ReactElement, useState } from 'react';
+import { compact, sortBy, uniq } from 'lodash';
+import { ChangeEvent, ReactElement, useMemo, useState } from 'react';
 
-import {
-  Attributions,
-  SelectedCriticality,
-} from '../../../shared/shared-types';
+import { SelectedCriticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { ButtonText, CriticalityTypes } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
@@ -27,33 +23,20 @@ import {
   getLocatePopupFilters,
   getShowNoSignalsLocatedMessage,
 } from '../../state/selectors/locate-popup-selectors';
-import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
+import { Autocomplete } from '../Autocomplete/Autocomplete';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { Dropdown, MenuItem } from '../InputElements/Dropdown';
-import { inputElementClasses } from '../InputElements/shared';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
-  ...inputElementClasses,
   dropdown: {
     marginTop: '8px',
   },
   autocomplete: { marginTop: '12px' },
-  autocompleteInput: {
-    '& .MuiInputLabel-root': {
-      top: '2px',
-    },
-    '& .MuiInputBase-input': {
-      height: '24px',
-    },
-    '& .MuiInputBase-root': {
-      borderRadius: '0px',
-    },
-  },
   noSignalsMessage: { color: OpossumColors.red, marginTop: '8px' },
   dialogContent: {
-    width: '25vw',
+    width: '400px',
   },
   search: {
     padding: '8px',
@@ -78,18 +61,6 @@ const criticalityMenuItems: Array<MenuItem> = [
   },
 ];
 
-// exported for testing
-export function getLicenseNames(attributions: Attributions): Array<string> {
-  const licenseNames: Set<string> = new Set();
-  for (const attribution of Object.values(attributions)) {
-    const licenseName = attribution.licenseName;
-    if (licenseName) {
-      licenseNames.add(licenseName);
-    }
-  }
-  return Array.from(licenseNames.values());
-}
-
 export function LocatorPopup(): ReactElement {
   const dispatch = useAppDispatch();
   const externalAttributions = useAppSelector(getExternalAttributions);
@@ -103,7 +74,20 @@ export function LocatorPopup(): ReactElement {
     getShowNoSignalsLocatedMessage,
   );
 
-  const licenseNameOptions = getLicenseNames(externalAttributions);
+  const licenseNameOptions = useMemo(
+    () =>
+      sortBy(
+        compact(
+          uniq(
+            Object.values(externalAttributions).map(
+              ({ licenseName }) => licenseName,
+            ),
+          ),
+        ),
+        (licenseName) => licenseName.toLowerCase(),
+      ),
+    [externalAttributions],
+  );
 
   const [searchedLicenses, setSearchedLicenses] = useState(selectedLicenses);
 
@@ -176,28 +160,17 @@ export function LocatorPopup(): ReactElement {
         menuItems={criticalityMenuItems}
         handleChange={updateCriticalityDropdownChoice}
       />
-      <MuiAutocomplete
-        title={'License'}
+      <Autocomplete
         sx={classes.autocomplete}
+        options={licenseNameOptions}
+        optionText={{ primary: (option) => option }}
         multiple
-        options={licenseNameOptions.sort((a, b) =>
-          compareAlphabeticalStrings(a, b),
-        )}
-        size={'small'}
-        filterSelectedOptions
+        title={text.locatorPopup.license}
         aria-label={'auto complete'}
-        getOptionLabel={(option): string => option}
         value={[...searchedLicenses]}
-        onChange={(_event, searchedLicenses): void => {
-          setSearchedLicenses(new Set(searchedLicenses));
+        onChange={(_, value) => {
+          setSearchedLicenses(new Set(value));
         }}
-        renderInput={(params): ReactElement => (
-          <MuiTextField
-            {...params}
-            label="License"
-            sx={classes.autocompleteInput}
-          />
-        )}
       />
       {showNoSignalsLocatedMessage ? (
         <MuiTypography variant={'subtitle2'} sx={classes.noSignalsMessage}>

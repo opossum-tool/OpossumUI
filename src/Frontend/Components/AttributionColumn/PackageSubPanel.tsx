@@ -7,30 +7,44 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import MuiBox from '@mui/material/Box';
+import { styled } from '@mui/system';
+import { useMemo } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { HighlightingColor, PopupType } from '../../enums/enums';
-import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { PopupType } from '../../enums/enums';
+import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { generatePurl, parsePurl } from '../../util/handle-purl';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { openUrl } from '../../util/open-url';
-import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
 import { SearchPackagesIcon } from '../Icons/Icons';
 import { TextBox } from '../InputElements/TextBox';
+import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
-const classes = {
-  displayRow: {
-    display: 'flex',
-    gap: '8px',
-  },
-};
+const COMMON_PACKAGE_TYPES = [
+  'bitbucket',
+  'cargo',
+  'deb',
+  'docker',
+  'gem',
+  'github',
+  'golang',
+  'maven',
+  'npm',
+  'nuget',
+  'pypi',
+  'rpm',
+];
+
+const DisplayRow = styled('div')({
+  display: 'flex',
+  gap: '8px',
+});
 
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
@@ -40,113 +54,88 @@ interface PackageSubPanelProps {
 
 export function PackageSubPanel(props: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
-  const handleChange = usePackageInfoChangeHandler();
+  const defaultPackageTypes = useMemo(
+    () =>
+      COMMON_PACKAGE_TYPES.map<PackageInfo>((packageType) => ({
+        packageType,
+        source: {
+          name: text.attributionColumn.commonEcosystems,
+          documentConfidence: 100,
+        },
+      })),
+    [],
+  );
 
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
-      <MuiBox sx={classes.displayRow}>
+      <DisplayRow>
         {renderPackageName()}
         {renderPackageNamespace()}
-      </MuiBox>
-      <MuiBox sx={classes.displayRow}>
+      </DisplayRow>
+      <DisplayRow>
         {renderPackageVersion()}
         {renderPackageType()}
-      </MuiBox>
+      </DisplayRow>
       {renderPurl()}
       {renderRepositoryUrl()}
     </MuiBox>
   );
 
-  function renderPackageType() {
-    return (
-      <TextBox
-        sx={attributionColumnClasses.textBox}
-        title={text.attributionColumn.packageSubPanel.packageType}
-        text={props.displayPackageInfo.packageType}
-        handleChange={handleChange('packageType')}
-        isEditable={props.isEditable}
-        isHighlighted={
-          props.showHighlight &&
-          isImportantAttributionInformationMissing(
-            'packageType',
-            props.displayPackageInfo,
-          )
-        }
-        highlightingColor={HighlightingColor.DarkOrange}
-      />
-    );
-  }
-
-  function renderPackageNamespace() {
-    return (
-      <TextBox
-        sx={attributionColumnClasses.textBox}
-        title={text.attributionColumn.packageSubPanel.packageNamespace}
-        text={props.displayPackageInfo.packageNamespace}
-        handleChange={handleChange('packageNamespace')}
-        isEditable={props.isEditable}
-        isHighlighted={
-          props.showHighlight &&
-          isImportantAttributionInformationMissing(
-            'packageNamespace',
-            props.displayPackageInfo,
-          )
-        }
-        highlightingColor={HighlightingColor.DarkOrange}
-      />
-    );
-  }
-
   function renderPackageName() {
     return (
-      <TextBox
-        sx={attributionColumnClasses.textBox}
+      <PackageAutocomplete
+        attribute={'packageName'}
         title={text.attributionColumn.packageSubPanel.packageName}
-        text={props.displayPackageInfo.packageName}
-        handleChange={handleChange('packageName')}
-        isEditable={props.isEditable}
-        endIcon={
+        highlight={'dark'}
+        disabled={!props.isEditable}
+        showHighlight={props.showHighlight}
+        endAdornment={
           <IconButton
             tooltipTitle={
               text.attributionColumn.packageSubPanel.searchForPackage
             }
             tooltipPlacement="right"
             onClick={() => dispatch(openPopup(PopupType.PackageSearchPopup))}
-            disabled={!props.isEditable}
-            icon={
-              <SearchPackagesIcon
-                sx={props.isEditable ? clickableIcon : disabledIcon}
-              />
-            }
+            hidden={!props.isEditable}
+            icon={<SearchPackagesIcon sx={clickableIcon} />}
           />
         }
-        isHighlighted={
-          props.showHighlight &&
-          isImportantAttributionInformationMissing(
-            'packageName',
-            props.displayPackageInfo,
-          )
-        }
-        highlightingColor={HighlightingColor.DarkOrange}
+      />
+    );
+  }
+
+  function renderPackageNamespace() {
+    return (
+      <PackageAutocomplete
+        attribute={'packageNamespace'}
+        title={text.attributionColumn.packageSubPanel.packageNamespace}
+        highlight={'dark'}
+        disabled={!props.isEditable}
+        showHighlight={props.showHighlight}
       />
     );
   }
 
   function renderPackageVersion() {
     return (
-      <TextBox
-        sx={attributionColumnClasses.textBox}
+      <PackageAutocomplete
+        attribute={'packageVersion'}
         title={text.attributionColumn.packageSubPanel.packageVersion}
-        text={props.displayPackageInfo.packageVersion}
-        handleChange={handleChange('packageVersion')}
-        isEditable={props.isEditable}
-        isHighlighted={
-          props.showHighlight &&
-          isImportantAttributionInformationMissing(
-            'packageVersion',
-            props.displayPackageInfo,
-          )
-        }
+        disabled={!props.isEditable}
+        showHighlight={props.showHighlight}
+      />
+    );
+  }
+
+  function renderPackageType() {
+    return (
+      <PackageAutocomplete
+        attribute={'packageType'}
+        title={text.attributionColumn.packageSubPanel.packageType}
+        highlight={'dark'}
+        disabled={!props.isEditable}
+        showHighlight={props.showHighlight}
+        defaults={defaultPackageTypes}
       />
     );
   }
@@ -208,44 +197,35 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     );
   }
 
-  function renderRepositoryUrl(): React.ReactElement {
+  function renderRepositoryUrl() {
     return (
-      <TextBox
-        isEditable={props.isEditable}
-        sx={attributionColumnClasses.textBox}
+      <PackageAutocomplete
+        attribute={'url'}
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
-        text={props.displayPackageInfo.url}
-        handleChange={handleChange('url')}
-        endIcon={
+        disabled={!props.isEditable}
+        showHighlight={props.showHighlight}
+        endAdornment={
           <>
             <FetchLicenseInformationButton
               url={props.displayPackageInfo.url}
               version={props.displayPackageInfo.packageVersion}
               disabled={!props.isEditable}
             />
-            {!!props.displayPackageInfo.url && (
-              <IconButton
-                tooltipTitle={
-                  text.attributionColumn.packageSubPanel.openLinkInBrowser
-                }
-                tooltipPlacement="right"
-                onClick={(): void => {
-                  props.displayPackageInfo.url &&
-                    openUrl(props.displayPackageInfo.url);
-                }}
-                icon={
-                  <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
-                }
-              />
-            )}
+            <IconButton
+              tooltipTitle={
+                text.attributionColumn.packageSubPanel.openLinkInBrowser
+              }
+              tooltipPlacement="right"
+              onClick={(): void => {
+                props.displayPackageInfo.url &&
+                  openUrl(props.displayPackageInfo.url);
+              }}
+              hidden={!props.displayPackageInfo.url}
+              icon={
+                <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
+              }
+            />
           </>
-        }
-        isHighlighted={
-          props.showHighlight &&
-          isImportantAttributionInformationMissing(
-            'url',
-            props.displayPackageInfo,
-          )
         }
       />
     );

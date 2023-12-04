@@ -437,9 +437,7 @@ export class AttributionDetails {
   }
 
   async selectLicense(license: RawFrequentLicense): Promise<void> {
-    await this.window
-      .getByText(`${license.shortName} - ${license.fullName}`)
-      .click();
+    await this.window.getByText(license.fullName).click();
   }
 
   async removeAuditingLabel(
