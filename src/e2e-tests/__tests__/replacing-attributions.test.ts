@@ -52,7 +52,7 @@ test.use({
   },
 });
 
-test('replaces attributions via context menu in audit view ', async ({
+test('replaces attributions via context menu in audit view', async ({
   attributionDetails,
   replaceAttributionPopup,
   resourceBrowser,
@@ -100,7 +100,7 @@ test('replaces attributions via context menu in audit view ', async ({
   await resourceDetails.signalCard.assert.isHidden(packageInfo3);
 });
 
-test('replaces attributions via hamburger menu in audit view ', async ({
+test('replaces attributions via hamburger menu in audit view', async ({
   attributionDetails,
   replaceAttributionPopup,
   resourceBrowser,
