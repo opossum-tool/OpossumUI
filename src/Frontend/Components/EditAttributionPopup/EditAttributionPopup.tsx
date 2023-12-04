@@ -2,9 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { noop } from 'lodash';
 import { ReactElement, useCallback } from 'react';
 
-import { ButtonText, CheckboxLabel, PopupType } from '../../enums/enums';
+import { ButtonText, PopupType } from '../../enums/enums';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   savePackageInfo,
@@ -15,15 +16,11 @@ import {
   openPopup,
 } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getIsSavingDisabled,
-  getTemporaryDisplayPackageInfo,
-} from '../../state/selectors/all-views-resource-selectors';
+import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
-import { getNeedsReviewChangeHandler } from '../AttributionColumn/attribution-column-helpers';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
-import { Checkbox } from '../Checkbox/Checkbox';
+import { ButtonRow } from '../AttributionColumn/ButtonRow';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function EditAttributionPopup(): ReactElement {
@@ -77,43 +74,34 @@ export function EditAttributionPopup(): ReactElement {
       dispatch(closeEditAttributionPopupOrOpenUnsavedPopup(popupAttributionId));
   }
 
-  const isSavingDisabled = useAppSelector(getIsSavingDisabled);
-
   return (
     <NotificationPopup
       content={
         <AttributionColumn
           isEditable
           areButtonsHidden
-          showManualAttributionData
           saveFileRequestListener={saveFileRequestListener}
-          smallerLicenseTextOrCommentField
         />
       }
+      background={'lightestBlue'}
       header={'Edit Attribution'}
       isOpen={true}
-      fullWidth={false}
-      leftButtonConfig={{
-        onClick: dispatchSavePackageInfoOrOpenWasPreferredPopup,
-        buttonText: ButtonText.Save,
-        disabled: isSavingDisabled,
-      }}
-      rightButtonConfig={{
-        onClick: checkForModifiedPackageInfoBeforeClosing,
-        buttonText: ButtonText.Cancel,
-        color: 'secondary',
-      }}
+      fullWidth
       onBackdropClick={checkForModifiedPackageInfoBeforeClosing}
       onEscapeKeyDown={checkForModifiedPackageInfoBeforeClosing}
       aria-label={'edit attribution popup'}
       customAction={
-        <Checkbox
-          label={CheckboxLabel.NeedsReview}
-          checked={!!temporaryDisplayPackageInfo.needsReview}
-          onChange={getNeedsReviewChangeHandler(
-            temporaryDisplayPackageInfo,
-            dispatch,
-          )}
+        <ButtonRow
+          displayPackageInfo={temporaryDisplayPackageInfo}
+          updatePurl={noop}
+          onSaveButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
+          additionalActions={[
+            {
+              onClick: checkForModifiedPackageInfoBeforeClosing,
+              buttonText: ButtonText.Cancel,
+              color: 'secondary',
+            },
+          ]}
         />
       }
     />

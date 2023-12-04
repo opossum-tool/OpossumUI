@@ -306,7 +306,7 @@ describe('The ResourceDetailsViewer', () => {
         source: { name: 'HC', documentConfidence: 1 },
         packageName: 'React',
         copyright: 'Meta 2022',
-        attributionConfidence: 50,
+        attributionConfidence: 80,
         comment: 'Comment 1',
       },
       uuid_2: {
@@ -339,7 +339,10 @@ describe('The ResourceDetailsViewer', () => {
 
     expect(screen.getByDisplayValue('Comment 1'));
     expect(screen.getByDisplayValue('Comment 2'));
-    expect(screen.getByDisplayValue('40'));
+    expect(screen.getByLabelText('confidence of 2')).toHaveAttribute(
+      'aria-disabled',
+      'false',
+    );
     expect(
       screen.queryByRole('button', { name: 'Save' }),
     ).not.toBeInTheDocument();

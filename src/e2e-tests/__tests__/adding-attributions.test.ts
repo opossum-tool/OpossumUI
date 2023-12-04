@@ -142,7 +142,7 @@ test('adds attribution to child via parent override', async ({
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await resourceDetails.assert.globalTabIsDisabled();
   await resourceDetails.assert.overrideParentButtonIsVisible();
-  await attributionDetails.assert.buttonInHamburgerMenuIsHidden('deleteButton');
+  await attributionDetails.assert.deleteButtonIsHidden();
 
   await resourceDetails.overrideParentButton.click();
   await resourceDetails.assert.globalTabIsEnabled();

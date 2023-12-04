@@ -43,7 +43,7 @@ test.use({
   },
 });
 
-test('adds a new attribution in audit view', async ({
+test('adds a new third-party attribution in audit view', async ({
   attributionDetails,
   notSavedPopup,
   resourceBrowser,
@@ -94,12 +94,9 @@ test('allows user to edit an existing attribution locally and globally in audit 
   await attributionDetails.assert.licenseTextIsHidden();
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await attributionDetails.assert.saveButtonIsDisabled();
-  await attributionDetails.assert.saveGloballyButtonIsDisabled();
+  await attributionDetails.assert.saveGloballyButtonIsHidden();
+  await attributionDetails.assert.revertButtonIsDisabled();
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsDisabled('undoButton');
-
-  await attributionDetails.closeHamburgerMenu();
   await attributionDetails.toggleLicenseTextVisibility();
   await attributionDetails.assert.licenseTextIsVisible();
 
@@ -109,6 +106,13 @@ test('allows user to edit an existing attribution locally and globally in audit 
   await attributionDetails.toggleLicenseTextVisibility();
   await attributionDetails.assert.licenseTextIsHidden();
 
+  await attributionDetails.selectAttributionType('First Party');
+  await attributionDetails.assert.matchesPackageInfo({
+    ...packageInfo1,
+    firstParty: true,
+  });
+
+  await attributionDetails.selectAttributionType('Third Party');
   await attributionDetails.name.fill(newPackageInfo.packageName!);
   await attributionDetails.version.fill(newPackageInfo.packageVersion!);
   await attributionDetails.url.fill(newPackageInfo.url!);
@@ -117,28 +121,23 @@ test('allows user to edit an existing attribution locally and globally in audit 
   await attributionDetails.comment().fill(newPackageInfo.comment!);
   await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
   await attributionDetails.assert.saveButtonIsEnabled();
-  await attributionDetails.assert.saveGloballyButtonIsEnabled();
+  await attributionDetails.assert.revertButtonIsEnabled();
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsEnabled('undoButton');
-
-  await attributionDetails.closeHamburgerMenu();
   await attributionDetails.saveButton.click();
   await attributionDetails.assert.saveButtonIsDisabled();
-  await attributionDetails.assert.saveGloballyButtonIsHidden();
+  await attributionDetails.assert.revertButtonIsDisabled();
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsDisabled('undoButton');
-
-  await attributionDetails.closeHamburgerMenu();
   await resourceBrowser.goto(resourceName2);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   const newPackageName = faker.internet.domainWord();
   await resourceBrowser.goto(resourceName3);
   await attributionDetails.name.fill(newPackageName);
-  await attributionDetails.saveGloballyButton.click();
+  await attributionDetails.selectSaveMenuOption('saveGlobally');
+  await attributionDetails.assert.saveButtonIsHidden();
+  await attributionDetails.assert.saveGloballyButtonIsVisible();
 
+  await attributionDetails.saveGloballyButton.click();
   await resourceBrowser.goto(resourceName4);
   await attributionDetails.assert.nameIs(newPackageName);
 });
@@ -169,11 +168,8 @@ test('displays and edits an existing attribution in attribution view', async ({
   await attributionDetails.assert.licenseTextIsHidden();
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
   await attributionDetails.assert.saveButtonIsDisabled();
+  await attributionDetails.assert.revertButtonIsDisabled();
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsDisabled('undoButton');
-
-  await attributionDetails.closeHamburgerMenu();
   await attributionDetails.toggleLicenseTextVisibility();
   await attributionDetails.assert.licenseTextIsVisible();
 
@@ -191,16 +187,11 @@ test('displays and edits an existing attribution in attribution view', async ({
   await attributionDetails.comment().fill(newPackageInfo.comment!);
   await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
   await attributionDetails.assert.saveButtonIsEnabled();
+  await attributionDetails.assert.revertButtonIsEnabled();
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsEnabled('undoButton');
-
-  await attributionDetails.closeHamburgerMenu();
   await attributionDetails.saveButton.click();
   await attributionDetails.assert.saveButtonIsDisabled();
-
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsDisabled('undoButton');
+  await attributionDetails.assert.revertButtonIsDisabled();
 });
 
 test('allows user to edit an existing attribution in report view', async ({
@@ -248,10 +239,7 @@ test('allows user to edit an existing attribution in report view', async ({
 
   await editAttributionPopup.saveButton.click();
   await editAttributionPopup.assert.isHidden();
-  await reportView.assert.matchesPackageInfo({
-    ...newPackageInfo,
-    attributionConfidence: DiscreteConfidence.High,
-  });
+  await reportView.assert.matchesPackageInfo(newPackageInfo);
 });
 
 test('adds a new attribution via PURL', async ({
@@ -296,7 +284,7 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
   await resourceDetails.addNewAttributionButton.click();
   await notSavedPopup.assert.isVisible();
 
-  await notSavedPopup.undoButton.click();
+  await notSavedPopup.discardButton.click();
   await attributionDetails.assert.isEmpty();
 
   await attributionDetails.comment().fill(faker.lorem.sentences());
@@ -307,7 +295,7 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
   await topBar.gotoAttributionView();
   await notSavedPopup.assert.isVisible();
 
-  await notSavedPopup.undoButton.click();
+  await notSavedPopup.discardButton.click();
   await attributionList.attributionCard.click(packageInfo1);
   await attributionDetails.comment().fill(faker.lorem.sentences());
   await topBar.gotoAuditView();

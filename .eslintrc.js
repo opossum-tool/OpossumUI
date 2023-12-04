@@ -143,7 +143,12 @@ module.exports = {
       },
     },
     {
-      files: ['**/*.test.ts', '**/*.test.tsx', 'src/shared/Faker.ts'],
+      files: [
+        '**/*.test.ts',
+        '**/*.test.tsx',
+        'src/shared/Faker.ts',
+        'src/e2e-tests/**/*',
+      ],
       rules: {
         '@typescript-eslint/no-magic-numbers': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
