@@ -14,7 +14,7 @@ export const Group = styled('div')({
   top: '-8px',
   position: 'sticky',
   padding: '4px 10px',
-  zIndex: 1,
+  zIndex: 10, // needs to be higher than that of elements rendered as start or end icon
   backgroundColor: OpossumColors.lightBlue,
 });
 

@@ -5,6 +5,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import ExploreIcon from '@mui/icons-material/Explore';
+import StarIcon from '@mui/icons-material/Star';
+import { styled } from '@mui/material';
+import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
@@ -59,6 +62,13 @@ interface Props {
   showHighlight: boolean | undefined;
 }
 
+const Badge = styled(MuiBadge)({
+  '& .MuiBadge-badge': {
+    top: '1px',
+    right: '14px',
+  },
+});
+
 export function PackageAutocomplete({
   attribute,
   title,
@@ -99,22 +109,7 @@ export function PackageAutocomplete({
               generatePurl(option),
             ]).join()
       }
-      renderOptionStartIcon={(option) =>
-        option.count && (
-          <MuiTooltip
-            title={`${maybePluralize(
-              option.count,
-              text.attributionColumn.occurrence,
-            )} ${text.attributionColumn.amongSignals}`}
-          >
-            <MuiChip
-              label={option.count}
-              size={'small'}
-              sx={{ marginRight: '12px' }}
-            />
-          </MuiTooltip>
-        )
-      }
+      renderOptionStartIcon={renderOptionStartIcon}
       renderOptionEndIcon={renderOptionEndIcon}
       value={packageInfo as SignalWithCount}
       isOptionEqualToValue={(option, value) =>
@@ -151,6 +146,53 @@ export function PackageAutocomplete({
       endAdornment={endAdornment}
     />
   );
+
+  function renderOptionStartIcon(option: SignalWithCount) {
+    if (!option.count) {
+      return null;
+    }
+
+    const showStar = option.preferred || option.wasPreferred;
+    const baseTitle = `${maybePluralize(
+      option.count,
+      text.attributionColumn.occurrence,
+    )} ${text.attributionColumn.amongSignals}`;
+
+    return (
+      <MuiTooltip
+        title={
+          showStar
+            ? `${baseTitle} (${
+                option.preferred
+                  ? text.auditingOptions.currentlyPreferred
+                  : text.auditingOptions.previouslyPreferred
+              })`
+            : baseTitle
+        }
+      >
+        <Badge
+          badgeContent={
+            showStar && (
+              <StarIcon
+                sx={{
+                  ...baseIcon,
+                  color: option.preferred
+                    ? OpossumColors.mediumOrange
+                    : OpossumColors.mediumGrey,
+                }}
+              />
+            )
+          }
+        >
+          <MuiChip
+            label={option.count}
+            size={'small'}
+            sx={{ marginRight: '12px' }}
+          />
+        </Badge>
+      </MuiTooltip>
+    );
+  }
 
   function renderOptionEndIcon(
     {
@@ -271,6 +313,8 @@ function useSignals({ attribute }: Pick<Props, 'attribute'>) {
           acc[dupeIndex] = {
             ...acc[dupeIndex],
             count: (acc[dupeIndex].count ?? 0) + 1,
+            preferred: acc[dupeIndex].preferred || signal.preferred,
+            wasPreferred: acc[dupeIndex].wasPreferred || signal.wasPreferred,
             preSelected: acc[dupeIndex].preSelected || signal.preSelected,
           };
         }
@@ -282,9 +326,11 @@ function useSignals({ attribute }: Pick<Props, 'attribute'>) {
         signals,
         [
           ({ source }) => (source && sources[source.name])?.priority ?? 0,
+          'preferred',
+          'wasPreferred',
           'count',
         ],
-        ['desc', 'desc'],
+        ['desc', 'asc', 'asc', 'desc'],
       );
     }, [
       externalData.resourcesToAttributions,

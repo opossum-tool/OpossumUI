@@ -211,6 +211,7 @@
       "attributionConfidence": 100,
       "comment": "TypeScript. \nhttps://www.npmjs.com/package/typescript",
       "packageName": "TypeScript",
+      "packageType": "github",
       "preSelected": true,
       "criticality": "medium",
       "packageVersion": "3.9.6",
