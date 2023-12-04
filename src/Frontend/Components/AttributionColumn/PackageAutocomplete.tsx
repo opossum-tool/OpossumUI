@@ -5,6 +5,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import ExploreIcon from '@mui/icons-material/Explore';
+import StarIcon from '@mui/icons-material/Star';
+import { styled } from '@mui/material';
+import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
@@ -15,9 +18,10 @@ import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
+import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getAttributionIdOfDisplayedPackageInManualPanel,
   getExternalAttributionSources,
   getExternalData,
   getManualData,
@@ -27,7 +31,6 @@ import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import {
   getContainedExternalPackages,
   getContainedManualPackages,
@@ -59,6 +62,13 @@ interface Props {
   showHighlight: boolean | undefined;
 }
 
+const Badge = styled(MuiBadge)({
+  '& .MuiBadge-badge': {
+    top: '1px',
+    right: '14px',
+  },
+});
+
 export function PackageAutocomplete({
   attribute,
   title,
@@ -70,7 +80,11 @@ export function PackageAutocomplete({
 }: Props) {
   const { signals, sources } = useSignals({ attribute });
   const dispatch = useAppDispatch();
-  const packageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
+  const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
+  const resourceId = useAppSelector(getSelectedResourceId);
+  const attributionIdOfSelectedPackageInManualPanel = useAppSelector(
+    getAttributionIdOfDisplayedPackageInManualPanel,
+  );
 
   return (
     <Autocomplete
@@ -81,7 +95,10 @@ export function PackageAutocomplete({
       freeSolo
       highlight={
         showHighlight &&
-        isImportantAttributionInformationMissing(attribute, packageInfo)
+        isImportantAttributionInformationMissing(
+          attribute,
+          temporaryPackageInfo,
+        )
           ? highlight
           : undefined
       }
@@ -99,24 +116,9 @@ export function PackageAutocomplete({
               generatePurl(option),
             ]).join()
       }
-      renderOptionStartIcon={(option) =>
-        option.count && (
-          <MuiTooltip
-            title={`${maybePluralize(
-              option.count,
-              text.attributionColumn.occurrence,
-            )} ${text.attributionColumn.amongSignals}`}
-          >
-            <MuiChip
-              label={option.count}
-              size={'small'}
-              sx={{ marginRight: '12px' }}
-            />
-          </MuiTooltip>
-        )
-      }
+      renderOptionStartIcon={renderOptionStartIcon}
       renderOptionEndIcon={renderOptionEndIcon}
-      value={packageInfo as SignalWithCount}
+      value={temporaryPackageInfo as SignalWithCount}
       isOptionEqualToValue={(option, value) =>
         option[attribute] === value[attribute]
       }
@@ -140,10 +142,10 @@ export function PackageAutocomplete({
           typeof option === 'string' ? option : generatePurl(option),
       }}
       onInputChange={(_, value) => {
-        packageInfo[attribute] !== value &&
+        temporaryPackageInfo[attribute] !== value &&
           dispatch(
             setTemporaryDisplayPackageInfo({
-              ...packageInfo,
+              ...temporaryPackageInfo,
               [attribute]: value,
             }),
           );
@@ -152,24 +154,58 @@ export function PackageAutocomplete({
     />
   );
 
+  function renderOptionStartIcon(option: SignalWithCount) {
+    if (!option.count) {
+      return null;
+    }
+
+    const showStar = option.preferred || option.wasPreferred;
+    const baseTitle = `${maybePluralize(
+      option.count,
+      text.attributionColumn.occurrence,
+    )} ${text.attributionColumn.amongSignals}`;
+
+    return (
+      <MuiTooltip
+        title={
+          showStar
+            ? `${baseTitle} (${
+                option.preferred
+                  ? text.auditingOptions.currentlyPreferred
+                  : text.auditingOptions.previouslyPreferred
+              })`
+            : baseTitle
+        }
+      >
+        <Badge
+          badgeContent={
+            showStar && (
+              <StarIcon
+                sx={{
+                  ...baseIcon,
+                  color: option.preferred
+                    ? OpossumColors.mediumOrange
+                    : OpossumColors.mediumGrey,
+                }}
+              />
+            )
+          }
+        >
+          <MuiChip
+            label={option.count}
+            size={'small'}
+            sx={{ marginRight: '12px' }}
+          />
+        </Badge>
+      </MuiTooltip>
+    );
+  }
+
   function renderOptionEndIcon(
-    {
-      copyright,
-      licenseName,
-      licenseText,
-      originIds,
-      packageName,
-      packageNamespace,
-      packageType,
-      packageVersion,
-      preferred,
-      source,
-      url,
-      wasPreferred,
-    }: PackageInfo,
+    { preSelected, ...option }: PackageInfo,
     { closePopper }: { closePopper: () => void },
   ) {
-    if (!packageName || !packageType) {
+    if (!option.packageName || !option.packageType) {
       return null;
     }
 
@@ -182,23 +218,12 @@ export function PackageAutocomplete({
           onClick={(event) => {
             event.stopPropagation();
             dispatch(
-              addToSelectedResource(
-                convertDisplayPackageInfoToPackageInfo({
-                  attributionConfidence: packageInfo.attributionConfidence,
-                  attributionIds: packageInfo.attributionIds,
-                  copyright,
-                  licenseName,
-                  licenseText,
-                  originIds,
-                  packageName,
-                  packageNamespace,
-                  packageType,
-                  packageVersion,
-                  preferred,
-                  source,
-                  url,
-                  wasPreferred,
-                }),
+              savePackageInfo(
+                resourceId,
+                attributionIdOfSelectedPackageInManualPanel,
+                option,
+                undefined,
+                true,
               ),
             );
             closePopper();
@@ -271,6 +296,8 @@ function useSignals({ attribute }: Pick<Props, 'attribute'>) {
           acc[dupeIndex] = {
             ...acc[dupeIndex],
             count: (acc[dupeIndex].count ?? 0) + 1,
+            preferred: acc[dupeIndex].preferred || signal.preferred,
+            wasPreferred: acc[dupeIndex].wasPreferred || signal.wasPreferred,
             preSelected: acc[dupeIndex].preSelected || signal.preSelected,
           };
         }
@@ -282,9 +309,11 @@ function useSignals({ attribute }: Pick<Props, 'attribute'>) {
         signals,
         [
           ({ source }) => (source && sources[source.name])?.priority ?? 0,
-          'count',
+          ({ preferred }) => (preferred ? 1 : 0),
+          ({ wasPreferred }) => (wasPreferred ? 1 : 0),
+          ({ count }) => count ?? 0,
         ],
-        ['desc', 'desc'],
+        ['desc', 'desc', 'desc', 'desc'],
       );
     }, [
       externalData.resourcesToAttributions,

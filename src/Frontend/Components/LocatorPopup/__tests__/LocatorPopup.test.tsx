@@ -328,7 +328,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       criticality: Criticality.Medium,
     },
     GPLMediumAttribution: {
-      licenseName: 'General Public License',
+      licenseName: 'GPL',
       criticality: Criticality.Medium,
       packageVersion: '2.0',
     },
@@ -552,7 +552,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
 
     const criticality = SelectedCriticality.High;
-    const licenseNames = new Set(['General Public License']);
+    const licenseNames = new Set(['GPL']);
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: criticality,
