@@ -7,7 +7,6 @@ import {
   Attributions,
   Criticality,
   DisplayPackageInfo,
-  PackageInfo,
   Resources,
   ResourcesToAttributions,
   SelectedCriticality,
@@ -40,10 +39,6 @@ export interface PanelPackage {
   packageCardId: string;
   displayPackageInfo: DisplayPackageInfo;
 }
-
-export type KeysOfPackageInfo = keyof PackageInfo;
-
-export type KeysOfDisplayPackageInfo = keyof DisplayPackageInfo;
 
 export interface PackageCardConfig {
   isExternalAttribution?: boolean;

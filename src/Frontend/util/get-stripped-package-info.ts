@@ -2,46 +2,87 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pick, pickBy } from 'lodash';
+import { pickBy } from 'lodash';
 
-import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
-import { getPackageInfoKeys } from '../../shared/shared-util';
-import { getDisplayPackageInfoKeys } from './get-display-package-info-keys';
+import {
+  DisplayPackageInfo,
+  PackageInfo,
+  PackageInfoCore,
+} from '../../shared/shared-types';
 
-export function getStrippedPackageInfo(
-  rawPackageInfo: PackageInfo,
-): PackageInfo {
-  const strippedPackageInfo = pickBy(rawPackageInfo, (value) => Boolean(value));
-  delete strippedPackageInfo.source;
-  delete strippedPackageInfo.preSelected;
-  delete strippedPackageInfo.criticality;
-
-  return removeExcessProperties(strippedPackageInfo);
-}
-
-function removeExcessProperties(rawPackageInfo: PackageInfo): PackageInfo {
-  const packageInfoKeys = getPackageInfoKeys();
-  return pick(rawPackageInfo, packageInfoKeys);
-}
-
-export function getStrippedDisplayPackageInfo(
-  rawDisplayPackageInfo: DisplayPackageInfo,
-): DisplayPackageInfo {
-  const strippedDisplayPackageInfo = pickBy(rawDisplayPackageInfo, (value) =>
-    Boolean(value),
-  );
-  delete strippedDisplayPackageInfo.source;
-  delete strippedDisplayPackageInfo.preSelected;
-  delete strippedDisplayPackageInfo.criticality;
-
-  return removeExcessPropertiesOfDisplayPackageInfo(
-    strippedDisplayPackageInfo as DisplayPackageInfo,
+export function getStrippedPackageInfo(packageInfo: PackageInfo): PackageInfo {
+  return pickBy(
+    packageInfo,
+    (value, key) =>
+      key in strippedPackageInfoTemplate &&
+      (packageInfo.firstParty
+        ? !thirdPartyKeys.includes(key as keyof PackageInfo)
+        : true) &&
+      strippedPackageInfoTemplate[key as keyof PackageInfo] &&
+      !!value,
   );
 }
 
-function removeExcessPropertiesOfDisplayPackageInfo(
-  rawDisplayPackageInfo: DisplayPackageInfo,
-): DisplayPackageInfo {
-  const displayPackageInfoKeys = getDisplayPackageInfoKeys();
-  return pick(rawDisplayPackageInfo, displayPackageInfoKeys);
+export function getStrippedDisplayPackageInfo(packageInfo: DisplayPackageInfo) {
+  return pickBy(
+    packageInfo,
+    (value, key) =>
+      key in strippedDisplayPackageInfoTemplate &&
+      (packageInfo.firstParty
+        ? !thirdPartyKeys.includes(key as keyof PackageInfo)
+        : true) &&
+      strippedDisplayPackageInfoTemplate[key as keyof DisplayPackageInfo] &&
+      !!value,
+  );
 }
+
+const thirdPartyKeys: Array<keyof PackageInfo> = [
+  'copyright',
+  'licenseName',
+  'licenseText',
+];
+
+const strippedPackageInfoCoreTemplate: {
+  [P in keyof Required<PackageInfoCore>]: boolean;
+} = {
+  attributionConfidence: true,
+  copyright: true,
+  criticality: false,
+  excludeFromNotice: true,
+  firstParty: true,
+  followUp: true,
+  licenseName: true,
+  licenseText: true,
+  needsReview: true,
+  originIds: true,
+  packageName: true,
+  packageNamespace: true,
+  packagePURLAppendix: true,
+  packageType: true,
+  packageVersion: true,
+  preSelected: false,
+  preferred: true,
+  preferredOverOriginIds: true,
+  source: false,
+  url: true,
+  wasPreferred: true,
+};
+
+const strippedPackageInfoTemplate: {
+  [P in keyof Required<PackageInfo>]: boolean;
+} = {
+  ...strippedPackageInfoCoreTemplate,
+  comment: true,
+};
+
+const strippedDisplayPackageInfoTemplate: {
+  [P in keyof Required<DisplayPackageInfo>]: boolean;
+} = {
+  ...strippedPackageInfoCoreTemplate,
+  attributionIds: true,
+  comments: true,
+};
+
+export const packageInfoKeys = Object.keys(
+  strippedPackageInfoTemplate,
+) as Array<keyof PackageInfo>;
