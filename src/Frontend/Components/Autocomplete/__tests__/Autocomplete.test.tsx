@@ -10,8 +10,10 @@ import { Autocomplete } from '../Autocomplete';
 
 describe('Autocomplete', () => {
   it('renders label and value', () => {
-    const title = faker.lorem.word();
-    const options = faker.helpers.multiple(faker.lorem.word);
+    const title = faker.string.alpha({ length: 8 });
+    const options = faker.helpers.multiple(() =>
+      faker.string.alpha({ length: 8 }),
+    );
     render(
       <Autocomplete
         title={title}
@@ -29,8 +31,10 @@ describe('Autocomplete', () => {
   });
 
   it('renders options when clicked', async () => {
-    const title = faker.lorem.word();
-    const options = faker.helpers.multiple(faker.lorem.word);
+    const title = faker.string.alpha({ length: 8 });
+    const options = faker.helpers.multiple(() =>
+      faker.string.alpha({ length: 8 }),
+    );
     render(
       <Autocomplete
         title={title}
@@ -48,9 +52,11 @@ describe('Autocomplete', () => {
   });
 
   it('displays only filtered options', async () => {
-    const title = faker.lorem.word();
-    const option = faker.lorem.word();
-    const options = faker.helpers.multiple(faker.lorem.word);
+    const title = faker.string.alpha({ length: 8 });
+    const option = faker.string.alpha({ length: 8 });
+    const options = faker.helpers.multiple(() =>
+      faker.string.alpha({ length: 8 }),
+    );
     render(
       <Autocomplete
         title={title}

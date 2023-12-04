@@ -108,6 +108,7 @@ export function savePackageInfo(
   attributionId: string | null,
   packageInfo: PackageInfo,
   applyContextMenuActionOnDifferentAttribution?: boolean,
+  noReplace?: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
@@ -124,6 +125,7 @@ export function savePackageInfo(
       attributionId,
       resourceId,
       strippedPackageInfo,
+      noReplace,
       state,
     );
 
@@ -183,6 +185,7 @@ function getSavePackageInfoOperation(
   attributionId: string | null,
   resourceId: string | null,
   strippedPackageInfo: PackageInfo,
+  noReplace: boolean | undefined,
   state: State,
 ): SavePackageInfoOperation {
   if (packageInfoHasNoSignificantFields(strippedPackageInfo)) {
@@ -190,6 +193,7 @@ function getSavePackageInfoOperation(
   }
 
   if (
+    !noReplace &&
     attributionForTemporaryDisplayPackageInfoExists(strippedPackageInfo, state)
   ) {
     return attributionId
