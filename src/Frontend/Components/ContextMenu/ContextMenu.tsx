@@ -39,9 +39,7 @@ const classes = {
   },
 };
 
-const BUTTON_TITLE_TO_ICON_MAP: {
-  [buttonText in ButtonText]?: JSX.Element;
-} = {
+const BUTTON_TITLE_TO_ICON_MAP: Record<string, React.ReactElement> = {
   [ButtonText.Confirm]: <DoneIcon fontSize="small" />,
   [ButtonText.ConfirmGlobally]: <DoneOutlineIcon fontSize="small" />,
   [ButtonText.ConfirmSelectedGlobally]: <DoneAllIcon fontSize="small" />,
@@ -64,7 +62,7 @@ const BUTTON_TITLE_TO_ICON_MAP: {
 
 export interface ContextMenuItem {
   onClick(): void;
-  buttonText: ButtonText;
+  buttonText: string;
   disabled?: boolean;
   hidden?: boolean;
 }
