@@ -12,7 +12,7 @@ import { SplitButton } from '../SplitButton';
 function fakeMenuItem(props: Partial<ContextMenuItem> = {}): ContextMenuItem {
   return {
     onClick: jest.fn(),
-    buttonText: faker.lorem.word(),
+    buttonText: faker.string.sample(),
     ...props,
   };
 }

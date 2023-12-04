@@ -12,14 +12,14 @@ import { MenuButton } from '../MenuButton';
 function fakeMenuItem(props: Partial<ContextMenuItem> = {}): ContextMenuItem {
   return {
     onClick: jest.fn(),
-    buttonText: faker.lorem.word(),
+    buttonText: faker.string.sample(),
     ...props,
   };
 }
 
 describe('MenuButton', () => {
   it('renders button title', () => {
-    const title = faker.lorem.word();
+    const title = faker.string.sample();
     render(<MenuButton title={title} options={[fakeMenuItem()]} />);
 
     expect(screen.getByText(title)).toBeInTheDocument();
@@ -27,7 +27,7 @@ describe('MenuButton', () => {
 
   it('selects option', async () => {
     const menuItem = fakeMenuItem();
-    render(<MenuButton title={faker.lorem.word()} options={[menuItem]} />);
+    render(<MenuButton title={faker.string.sample()} options={[menuItem]} />);
 
     await userEvent.click(screen.getByRole('button'));
     await userEvent.click(screen.getByText(menuItem.buttonText));
@@ -41,7 +41,7 @@ describe('MenuButton', () => {
     const hiddenMenuItem = fakeMenuItem({ hidden: true });
     render(
       <MenuButton
-        title={faker.lorem.word()}
+        title={faker.string.sample()}
         options={[visibleMenuItem, hiddenMenuItem]}
       />,
     );
@@ -57,7 +57,7 @@ describe('MenuButton', () => {
   it('does not display menu trigger at all if all options are hidden', () => {
     const menuItem = fakeMenuItem({ hidden: true });
     const { container } = render(
-      <MenuButton title={faker.lorem.word()} options={[menuItem]} />,
+      <MenuButton title={faker.string.sample()} options={[menuItem]} />,
     );
 
     expect(container).toBeEmptyDOMElement();

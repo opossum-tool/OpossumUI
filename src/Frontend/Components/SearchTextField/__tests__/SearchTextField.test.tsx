@@ -13,8 +13,8 @@ describe('The SearchTextField', () => {
   it('clears and updates the search term', async () => {
     // given
     const onInputChange = jest.fn();
-    const initialSearchTerm = faker.lorem.word();
-    const newSearchTerm = faker.lorem.word();
+    const initialSearchTerm = faker.string.sample();
+    const newSearchTerm = faker.string.sample();
     renderComponentWithStore(
       <SearchTextField
         onInputChange={onInputChange}

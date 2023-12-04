@@ -42,7 +42,7 @@ export function AutoComplete(props: AutoCompleteProps): ReactElement {
       event &&
       (event.type === 'click' || enterWasPressed(event as KeyboardEvent))
     ) {
-      props.handleChange({
+      props.handleChange?.({
         target: {
           value:
             props.formatOptionForDisplay && typeof value === 'string'
