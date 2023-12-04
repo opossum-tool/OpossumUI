@@ -8,10 +8,10 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import DescriptionIcon from '@mui/icons-material/Description';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import FolderOutlinedIcon from '@mui/icons-material/Folder';
-import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import RectangleIcon from '@mui/icons-material/Rectangle';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -24,6 +24,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import {
   baseIcon,
   clickableIcon,
@@ -108,8 +109,11 @@ export function CommentIcon(props: IconProps): ReactElement {
 
 export function ExcludeFromNoticeIcon(props: IconProps): ReactElement {
   return (
-    <MuiTooltip sx={classes.tooltip} title="excluded from notice">
-      <IndeterminateCheckBoxIcon
+    <MuiTooltip
+      sx={classes.tooltip}
+      title={text.auditingOptions.excludedFromNotice}
+    >
+      <PlaylistRemoveIcon
         aria-label={'Exclude from notice icon'}
         sx={getSxFromPropsAndClasses({
           styleClass: classes.nonClickableIcon,
@@ -122,7 +126,7 @@ export function ExcludeFromNoticeIcon(props: IconProps): ReactElement {
 
 export function FollowUpIcon(props: IconProps): ReactElement {
   return (
-    <MuiTooltip sx={classes.tooltip} title="has follow-up">
+    <MuiTooltip sx={classes.tooltip} title={text.auditingOptions.followUp}>
       <ReplayIcon
         aria-label={'Follow-up icon'}
         sx={getSxFromPropsAndClasses({
@@ -136,7 +140,7 @@ export function FollowUpIcon(props: IconProps): ReactElement {
 
 export function NeedsReviewIcon(props: IconProps): ReactElement {
   return (
-    <MuiTooltip sx={classes.tooltip} title="needs review">
+    <MuiTooltip sx={classes.tooltip} title={text.auditingOptions.needsReview}>
       <QuestionMarkIcon
         aria-label={'Needs-review icon'}
         sx={getSxFromPropsAndClasses({
@@ -222,7 +226,7 @@ export function FileIcon({
 
 export function PreSelectedIcon(props: IconProps): ReactElement {
   return (
-    <MuiTooltip sx={classes.tooltip} title="was pre-selected">
+    <MuiTooltip sx={classes.tooltip} title={text.auditingOptions.preselected}>
       <LocalParkingIcon
         aria-label={'Pre-selected icon'}
         sx={getSxFromPropsAndClasses({
@@ -303,7 +307,10 @@ export function LocateSignalsIconWithTooltip(): ReactElement {
 
 export function PreferredIcon(props: IconProps): ReactElement {
   return (
-    <MuiTooltip sx={classes.tooltip} title="is preferred">
+    <MuiTooltip
+      sx={classes.tooltip}
+      title={text.auditingOptions.currentlyPreferred}
+    >
       <StarIcon
         aria-label={'Preferred icon'}
         sx={getSxFromPropsAndClasses({
@@ -318,7 +325,10 @@ export function PreferredIcon(props: IconProps): ReactElement {
 
 export function WasPreferredIcon(props: IconProps): ReactElement {
   return (
-    <MuiTooltip sx={classes.tooltip} title="was previously preferred">
+    <MuiTooltip
+      sx={classes.tooltip}
+      title={text.auditingOptions.previouslyPreferred}
+    >
       <StarIcon
         aria-label={'Was Preferred icon'}
         sx={getSxFromPropsAndClasses({

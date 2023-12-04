@@ -7,14 +7,12 @@ import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiBox from '@mui/material/Box';
-import MuiPaper from '@mui/material/Paper';
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
-import { doNothing } from '../../util/do-nothing';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { TextBox } from '../InputElements/TextBox';
@@ -24,17 +22,15 @@ import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 const classes = {
   expansionPanel: {
-    backgroundColor: OpossumColors.lighterBlue,
-  },
-  expansionPanelExpanded: {
+    backgroundColor: OpossumColors.lightestBlue,
     '&.MuiAccordion-expanded': {
       margin: '0px 0px 6px 0px !important',
     },
   },
   expansionPanelSummary: {
-    minHeight: '12px !important',
+    backgroundColor: `${OpossumColors.lightestBlue} !important`,
+    minHeight: '36px',
     padding: '0px',
-    paddingRight: '12px',
     '& div.MuiAccordionSummary-content': {
       margin: '0px',
     },
@@ -43,62 +39,54 @@ const classes = {
     },
   },
   expansionPanelDetails: {
-    height: '100%',
     padding: '0px',
+    width: 'calc(100% - 36px)',
   },
   expandMoreIcon: {
-    height: '37px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '36px',
+    width: '36px',
   },
   licenseText: {
-    marginTop: '11px',
+    marginTop: '12px',
   },
 };
 
 interface LicenseSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  isLicenseTextShown: boolean;
-  licenseTextRows: number;
   showHighlight?: boolean;
-  setIsLicenseTextShown(isLicenseTextShown: boolean): void;
 }
 
 export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
+  const [expanded, setExpanded] = useState(false);
   const licenseSubPanelClasses = { ...attributionColumnClasses, ...classes };
 
   const frequentLicensesNameOrder = useAppSelector(
     getFrequentLicensesNameOrder,
   );
 
-  function toggleIsLicenseTextShown(): void {
-    props.setIsLicenseTextShown(!props.isLicenseTextShown);
-  }
-
   const handleChange = usePackageInfoChangeHandler();
 
   return (
-    <MuiPaper sx={licenseSubPanelClasses.panel} elevation={0} square={true}>
+    <MuiBox sx={licenseSubPanelClasses.panel}>
       <MuiAccordion
-        sx={{
-          ...licenseSubPanelClasses.expansionPanelExpanded,
-          ...licenseSubPanelClasses.textBox,
-          ...licenseSubPanelClasses.expansionPanel,
-        }}
+        sx={licenseSubPanelClasses.expansionPanel}
         elevation={0}
         key={'License'}
-        expanded={props.isLicenseTextShown}
-        onChange={doNothing}
+        disableGutters
+        expanded={expanded}
       >
         <MuiAccordionSummary
           sx={licenseSubPanelClasses.expansionPanelSummary}
           expandIcon={
-            // This div is needed to fix the Firefox warning.
-            <MuiBox sx={licenseSubPanelClasses.expandMoreIcon}>
-              <ExpandMoreIcon
-                aria-label={'license text toggle'}
-                sx={licenseSubPanelClasses.expandMoreIcon}
-                onClick={toggleIsLicenseTextShown}
-              />
+            <MuiBox
+              sx={licenseSubPanelClasses.expandMoreIcon}
+              onClick={() => setExpanded((prev) => !prev)}
+            >
+              <ExpandMoreIcon aria-label={'license text toggle'} />
             </MuiBox>
           }
         >
@@ -109,9 +97,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
             frequentLicenseNames={frequentLicensesNameOrder}
             handleChange={handleChange('licenseName')}
             endAdornmentText={
-              props.displayPackageInfo.licenseText
-                ? '(Licence text modified)'
-                : ''
+              props.displayPackageInfo.licenseText && '(License text modified)'
             }
             isHighlighted={
               props.showHighlight &&
@@ -126,8 +112,8 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
           <TextBox
             isEditable={props.isEditable}
             sx={licenseSubPanelClasses.licenseText}
-            minRows={props.licenseTextRows}
-            maxRows={props.licenseTextRows}
+            minRows={3}
+            maxRows={10}
             multiline={true}
             title={getLicenseTextLabelText(
               props.displayPackageInfo.licenseName,
@@ -139,6 +125,6 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
           />
         </MuiAccordionDetails>
       </MuiAccordion>
-    </MuiPaper>
+    </MuiBox>
   );
 }

@@ -38,7 +38,8 @@ const classes = {
     paddingRight: '8px',
   },
   typography: {
-    marginTop: '8px',
+    padding: '4px',
+    background: OpossumColors.white,
   },
   tree: {
     background: OpossumColors.white,
@@ -115,9 +116,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         />
       </ResizableBox>
       <AttributionColumn
-        isEditable={true}
-        showManualAttributionData={true}
-        areButtonsHidden={false}
+        isEditable
         onSaveButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
         onDeleteButtonClick={deleteAttribution}
         saveFileRequestListener={saveFileRequestListener}

@@ -10,7 +10,7 @@ export class NotSavedPopup {
   readonly cancelButton: Locator;
   readonly saveButton: Locator;
   readonly saveGloballyButton: Locator;
-  readonly undoButton: Locator;
+  readonly discardButton: Locator;
 
   constructor(window: Page) {
     this.window = window;
@@ -27,8 +27,8 @@ export class NotSavedPopup {
       name: 'Save globally',
       exact: true,
     });
-    this.undoButton = this.node.getByRole('button', {
-      name: 'Undo',
+    this.discardButton = this.node.getByRole('button', {
+      name: 'Discard',
       exact: true,
     });
   }
@@ -39,6 +39,12 @@ export class NotSavedPopup {
     },
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
+    },
+    saveGloballyButtonIsVisible: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeVisible();
+    },
+    saveGloballyButtonIsHidden: async (): Promise<void> => {
+      await expect(this.saveGloballyButton).toBeHidden();
     },
   };
 

@@ -49,7 +49,7 @@ test('hides and unhides merged signals via attribution details', async ({
   });
 
   await resourceDetails.signalCard.click(packageInfo1);
-  await attributionDetails.hideToggleButton.click();
+  await attributionDetails.showHideSignalButton.click();
   await resourceDetails.signalCard.assert.isHidden(packageInfo1, {
     subContext: resourceDetails.signalsInFolderContentPanel,
   });
@@ -65,7 +65,7 @@ test('hides and unhides merged signals via attribution details', async ({
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 
   await resourceDetails.signalCard.click(packageInfo1);
-  await attributionDetails.hideToggleButton.click();
+  await attributionDetails.showHideSignalButton.click();
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo1);
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 });

@@ -110,9 +110,7 @@ export function savePackageInfo(
   applyContextMenuActionOnDifferentAttribution?: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const strippedPackageInfo: PackageInfo = getStrippedPackageInfo(
-      getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(packageInfo),
-    );
+    const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
     const state = getState();
 
     if (
@@ -438,16 +436,4 @@ function getPackageInfoWithDefaultConfidence(
         ...packageInfo,
         attributionConfidence: DiscreteConfidence.High,
       };
-}
-
-function getPackageInfoWithDefaultConfidenceIfNotLowOrHigh(
-  packageInfo: PackageInfo,
-): PackageInfo {
-  return packageInfo.attributionConfidence &&
-    [
-      DiscreteConfidence.Low.valueOf(),
-      DiscreteConfidence.High.valueOf(),
-    ].includes(packageInfo.attributionConfidence)
-    ? packageInfo
-    : getPackageInfoWithDefaultConfidence(packageInfo);
 }

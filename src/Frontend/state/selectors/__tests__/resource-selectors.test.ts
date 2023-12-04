@@ -109,21 +109,12 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
     );
   });
 
-  it('returns false when only confidence is set and true when attribution is created', () => {
+  it('returns true when attribution is created', () => {
     const testStore = createTestAppStore();
     testStore.dispatch(
       loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
     );
     testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
-    expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
-      false,
-    );
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo({
-        attributionConfidence: DiscreteConfidence.Low,
-        attributionIds: [],
-      }),
-    );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
       false,
     );

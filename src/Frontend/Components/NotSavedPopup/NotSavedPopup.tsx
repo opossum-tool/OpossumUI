@@ -46,7 +46,7 @@ export function NotSavedPopup(): ReactElement {
     dispatch(checkIfWasPreferredAndShowWarningOrSave());
   }
 
-  function handleUndoClick(): void {
+  function handleDiscardClick(): void {
     dispatch(navigateToTargetResourceOrAttribution());
   }
 
@@ -80,8 +80,8 @@ export function NotSavedPopup(): ReactElement {
           : undefined
       }
       centerRightButtonConfig={{
-        onClick: handleUndoClick,
-        buttonText: ButtonText.Undo,
+        onClick: handleDiscardClick,
+        buttonText: ButtonText.Discard,
         color: 'secondary',
       }}
       rightButtonConfig={{
