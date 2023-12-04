@@ -28,10 +28,8 @@ export const inputElementClasses = {
       padding: '0px',
     },
     '& legend': {
-      marginLeft: '6px',
       '& span': {
-        paddingLeft: '0px',
-        paddingRight: '0px',
+        display: 'none',
       },
     },
   },
