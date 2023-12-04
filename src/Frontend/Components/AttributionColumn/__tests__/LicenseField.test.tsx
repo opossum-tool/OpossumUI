@@ -3,11 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ChangeEvent } from 'react';
+import { noop } from 'lodash';
 
 import { FrequentLicenseName } from '../../../../shared/shared-types';
 import { expectElementsInAutoCompleteAndSelectFirst } from '../../../test-helpers/general-test-helpers';
-import { doNothing } from '../../../util/do-nothing';
 import { LicenseField } from '../LicenseField';
 
 describe('The LicenseField', () => {
@@ -22,11 +21,7 @@ describe('The LicenseField', () => {
         frequentLicenseNames={testLicenseNames}
         text={'MIT License'}
         endAdornmentText={'Test Adornment Text'}
-        handleChange={
-          doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) => void
-        }
+        handleChange={noop}
       />,
     );
 
@@ -46,11 +41,8 @@ describe('The LicenseField', () => {
         title={'Test Title'}
         frequentLicenseNames={testLicenseNames}
         text={'Public Lic'}
-        handleChange={
-          doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) => void
-        }
+        handleChange={noop}
+        endAdornmentText={'Test Adornment Text'}
       />,
     );
 
@@ -70,11 +62,7 @@ describe('The LicenseField', () => {
         frequentLicenseNames={testLicenseNames}
         text={''}
         endAdornmentText={'Test Adornment Text'}
-        handleChange={
-          doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) => void
-        }
+        handleChange={noop}
       />,
     );
 

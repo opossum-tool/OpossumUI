@@ -69,8 +69,7 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText('Test other package, 2.0'));
 
-    fireEvent.click(screen.getByText('Test package, 1.0') as Element);
-    expect(screen.getByDisplayValue('Test package'));
+    fireEvent.click(screen.getByText('Test package, 1.0'));
     expect(screen.getByRole('button', { name: 'Save' }));
     expect(screen.getByText('test resource'));
   });

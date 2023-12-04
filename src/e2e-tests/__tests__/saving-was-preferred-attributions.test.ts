@@ -64,6 +64,9 @@ test('removes was-preferred status from attribution when user saves changes', as
   await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
     packageInfo2,
   );
+  await attributionDetails.assert.auditingLabelIsVisible(
+    'previouslyPreferredLabel',
+  );
 
   await attributionDetails.comment().fill(faker.lorem.sentence());
   await attributionDetails.saveButton.click();
@@ -78,6 +81,9 @@ test('removes was-preferred status from attribution when user saves changes', as
   await modifyWasPreferredAttributionPopup.saveButton.click();
   await resourceDetails.attributionCard.assert.wasPreferredIconIsHidden(
     packageInfo2,
+  );
+  await attributionDetails.assert.auditingLabelIsHidden(
+    'previouslyPreferredLabel',
   );
 
   await resourceBrowser.goto(resourceName2);

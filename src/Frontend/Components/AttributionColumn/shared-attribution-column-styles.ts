@@ -6,14 +6,12 @@ import { OpossumColors } from '../../shared-styles';
 
 export const attributionColumnClasses = {
   panel: {
-    marginBottom: '5px',
-    padding: '6px',
-    paddingBottom: '0px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
     background: OpossumColors.lightestBlue,
-    border: `1px ${OpossumColors.lightestBlue} solid`,
   },
   textBox: {
-    marginBottom: '4px',
     flex: 1,
   },
 };

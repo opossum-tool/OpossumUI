@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
+  DiscreteConfidence,
   DisplayPackageInfo,
   FrequentLicenses,
   ProjectMetadata,
@@ -31,6 +32,7 @@ export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
 };
 
 export const EMPTY_DISPLAY_PACKAGE_INFO: DisplayPackageInfo = {
+  attributionConfidence: DiscreteConfidence.High,
   attributionIds: [],
 };
 

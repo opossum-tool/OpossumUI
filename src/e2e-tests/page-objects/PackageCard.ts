@@ -43,7 +43,10 @@ export class PackageCard {
         .getByRole('button', { name: 'Delete globally', exact: true }),
       markForReplacementButton: this.window
         .getByRole('menu')
-        .getByRole('button', { name: 'Mark for replacement', exact: true }),
+        .getByRole('button', {
+          name: 'Mark current for replacement',
+          exact: true,
+        }),
       openAttributionWizardButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Open attribution wizard', exact: true }),
@@ -55,16 +58,20 @@ export class PackageCard {
         .getByRole('button', { name: 'Unhide', exact: true }),
       unmarkForReplacementButton: this.window
         .getByRole('menu')
-        .getByRole('button', { name: 'Unmark for replacement', exact: true }),
+        .getByRole('button', {
+          name: 'Unmark current for replacement',
+          exact: true,
+        }),
       deleteSelectedGloballyButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Delete selected globally', exact: true }),
       hideButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Hide', exact: true }),
-      replaceMarkedButton: this.window
-        .getByRole('menu')
-        .getByRole('button', { name: 'Replace marked', exact: true }),
+      replaceMarkedButton: this.window.getByRole('menu').getByRole('button', {
+        name: 'Replace marked with current',
+        exact: true,
+      }),
     };
   }
 

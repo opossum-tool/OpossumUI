@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { noop } from 'lodash';
 import { act } from 'react-dom/test-utils';
 
 import { faker } from '../../../../shared/Faker';
@@ -15,8 +17,7 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { ButtonText, CheckboxLabel } from '../../../enums/enums';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import { AttributionType, ButtonText } from '../../../enums/enums';
 import {
   setFrequentLicenses,
   setTemporaryDisplayPackageInfo,
@@ -29,12 +30,8 @@ import {
   expectValueInTextBox,
   insertValueIntoTextBox,
 } from '../../../test-helpers/attribution-column-test-helpers';
-import {
-  clickOnButton,
-  clickOnCheckbox,
-} from '../../../test-helpers/general-test-helpers';
+import { clickOnButton } from '../../../test-helpers/general-test-helpers';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
-import { doNothing } from '../../../util/do-nothing';
 import { AttributionColumn } from '../AttributionColumn';
 
 describe('The AttributionColumn', () => {
@@ -56,12 +53,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -71,11 +67,12 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    expect(screen.queryAllByText('Confidence')).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.attributionConfidence.toString(),
-      ),
+      screen.getByText(text.attributionColumn.packageSubPanel.confidence),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('confidence of 1')).toHaveAttribute(
+      'aria-disabled',
+      'false',
     );
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.packageType),
@@ -160,12 +157,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -206,12 +202,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -252,12 +247,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -288,12 +282,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -303,15 +296,13 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.source!.name),
-    );
+    expect(screen.getByText(testTemporaryDisplayPackageInfo.source!.name));
   });
 
   it('renders the name of the original source, if it is defined', () => {
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       source: faker.opossum.source({
-        additionalName: 'Original Source',
+        additionalName: faker.company.name(),
       }),
       attributionIds: [],
     };
@@ -319,125 +310,101 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
       store.dispatch(
         setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
       );
     });
 
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.source!.additionalName!,
-      ),
+      screen.getByText(testTemporaryDisplayPackageInfo.source!.additionalName!),
     );
   });
 
-  it('renders a checkbox for Follow-up', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      attributionIds: [],
-    };
+  it('renders a chip for follow-up', async () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).followUp,
     ).toBeUndefined();
 
-    clickOnCheckbox(screen, CheckboxLabel.FollowUp);
+    await userEvent.click(screen.getByText(text.auditingOptions.add));
+    await userEvent.click(screen.getByText(text.auditingOptions.followUp));
+    await userEvent.keyboard('{Escape}');
+
     expect(getTemporaryDisplayPackageInfo(store.getState()).followUp).toBe(
       FollowUp,
     );
   });
 
-  it('renders a checkbox for Exclude from notice', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      attributionIds: [],
-    };
+  it('renders a chip for exclude from notice', async () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice,
     ).toBeUndefined();
 
-    clickOnCheckbox(screen, CheckboxLabel.ExcludeFromNotice);
+    await userEvent.click(screen.getByText(text.auditingOptions.add));
+    await userEvent.click(
+      screen.getByText(text.auditingOptions.excludedFromNotice),
+    );
+    await userEvent.keyboard('{Escape}');
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).excludeFromNotice,
     ).toBe(true);
   });
 
-  it('renders a checkbox for needs review', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.High,
-      attributionIds: [],
-    };
+  it('renders a chip for needs review', async () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).needsReview,
     ).toBeUndefined();
 
-    clickOnCheckbox(screen, CheckboxLabel.NeedsReview);
+    await userEvent.click(screen.getByText(text.auditingOptions.add));
+    await userEvent.click(screen.getByText(text.auditingOptions.needsReview));
+    await userEvent.keyboard('{Escape}');
+
     expect(getTemporaryDisplayPackageInfo(store.getState()).needsReview).toBe(
       true,
     );
   });
 
-  it('renders an url icon and opens a link in browser', () => {
+  it('renders a URL icon and opens a link in browser', () => {
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: 'https://www.testurl.com/',
       attributionIds: [],
@@ -445,12 +412,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -474,12 +440,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -502,12 +467,11 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponentWithStore(
       <AttributionColumn
         isEditable={true}
-        onSaveButtonClick={doNothing}
-        onSaveGloballyButtonClick={doNothing}
-        showManualAttributionData={true}
-        saveFileRequestListener={doNothing}
-        onDeleteButtonClick={doNothing}
-        onDeleteGloballyButtonClick={doNothing}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
       />,
     );
     act(() => {
@@ -530,12 +494,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          onSaveButtonClick={doNothing}
-          onSaveGloballyButtonClick={doNothing}
-          showManualAttributionData={true}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteGloballyButtonClick={doNothing}
+          onSaveButtonClick={noop}
+          onSaveGloballyButtonClick={noop}
+          saveFileRequestListener={noop}
+          onDeleteButtonClick={noop}
+          onDeleteGloballyButtonClick={noop}
         />,
       );
       act(() => {
@@ -560,12 +523,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={false}
-          onSaveButtonClick={doNothing}
-          onSaveGloballyButtonClick={doNothing}
-          showManualAttributionData={true}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteGloballyButtonClick={doNothing}
+          onSaveButtonClick={noop}
+          onSaveGloballyButtonClick={noop}
+          saveFileRequestListener={noop}
+          onDeleteButtonClick={noop}
+          onDeleteGloballyButtonClick={noop}
         />,
       );
       act(() => {
@@ -593,12 +555,11 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          onSaveButtonClick={doNothing}
-          onSaveGloballyButtonClick={doNothing}
-          showManualAttributionData={true}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteGloballyButtonClick={doNothing}
+          onSaveButtonClick={noop}
+          onSaveGloballyButtonClick={noop}
+          saveFileRequestListener={noop}
+          onDeleteButtonClick={noop}
+          onDeleteGloballyButtonClick={noop}
         />,
       );
       act(() => {
@@ -623,68 +584,31 @@ describe('The AttributionColumn', () => {
   });
 
   describe('while changing the first party value', () => {
-    it('sets first party flag when checking first party', () => {
-      const testTemporaryDisplayPackageInfo: DisplayPackageInfo =
-        EMPTY_DISPLAY_PACKAGE_INFO;
+    it('sets first party flag and hides third party inputs when choosing first party', async () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          onSaveButtonClick={doNothing}
-          onSaveGloballyButtonClick={doNothing}
-          showManualAttributionData={true}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteGloballyButtonClick={doNothing}
+          onSaveButtonClick={noop}
+          onSaveGloballyButtonClick={noop}
+          saveFileRequestListener={noop}
+          onDeleteButtonClick={noop}
+          onDeleteGloballyButtonClick={noop}
         />,
       );
-      act(() => {
-        store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-        );
-      });
 
       expect(
         getTemporaryDisplayPackageInfo(store.getState()).copyright,
       ).toBeUndefined();
 
-      clickOnCheckbox(screen, CheckboxLabel.FirstParty);
+      await userEvent.click(
+        screen.getByRole('button', { name: AttributionType.FirstParty }),
+      );
+
       expect(getTemporaryDisplayPackageInfo(store.getState()).firstParty).toBe(
         true,
       );
-    });
-
-    it('leaves copyright unchanged when checking first party', () => {
-      const testCopyright = 'Test Copyright';
-      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-        copyright: testCopyright,
-        firstParty: true,
-        attributionIds: [],
-      };
-      const { store } = renderComponentWithStore(
-        <AttributionColumn
-          isEditable={true}
-          onSaveButtonClick={doNothing}
-          onSaveGloballyButtonClick={doNothing}
-          showManualAttributionData={true}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteGloballyButtonClick={doNothing}
-        />,
-      );
-      act(() => {
-        store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-        );
-      });
-
-      expect(getTemporaryDisplayPackageInfo(store.getState()).copyright).toBe(
-        testCopyright,
-      );
-
-      clickOnCheckbox(screen, CheckboxLabel.FirstParty);
-      expect(getTemporaryDisplayPackageInfo(store.getState()).copyright).toBe(
-        testCopyright,
-      );
+      expect(screen.queryByLabelText('Copyright')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('License Name')).not.toBeInTheDocument();
     });
   });
 
@@ -701,12 +625,12 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponentWithStore(
         <AttributionColumn
           isEditable={true}
-          onSaveButtonClick={doNothing}
-          onSaveGloballyButtonClick={doNothing}
-          showManualAttributionData={false}
-          saveFileRequestListener={doNothing}
-          onDeleteButtonClick={doNothing}
-          onDeleteGloballyButtonClick={doNothing}
+          onSaveButtonClick={noop}
+          onSaveGloballyButtonClick={noop}
+          saveFileRequestListener={noop}
+          onDeleteButtonClick={noop}
+          onDeleteGloballyButtonClick={noop}
+          showHideButton
         />,
       );
       act(() => {

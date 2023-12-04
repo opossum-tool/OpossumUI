@@ -58,9 +58,9 @@ export enum PackagePanelTitle {
 export enum ButtonText {
   Apply = 'Apply',
   Back = 'Back',
-  Close = 'Close',
   Cancel = 'Cancel',
   Clear = 'Clear',
+  Close = 'Close',
   Confirm = 'Confirm',
   ConfirmGlobally = 'Confirm globally',
   ConfirmSelectedGlobally = 'Confirm selected globally',
@@ -68,23 +68,22 @@ export enum ButtonText {
   Delete = 'Delete',
   DeleteGlobally = 'Delete globally',
   DeleteSelectedGlobally = 'Delete selected globally',
+  Discard = 'Discard',
   Hide = 'Hide',
   Keep = 'Keep',
-  MarkForReplacement = 'Mark for replacement',
+  MarkForReplacement = 'Mark current for replacement',
   Next = 'Next',
+  Ok = 'Ok',
   OpenAttributionWizardPopup = 'Open attribution wizard',
+  OpenDotOpossumFile = 'Open ".opossum" file',
   Replace = 'Replace',
-  ReplaceMarked = 'Replace marked',
+  ReplaceMarked = 'Replace marked with current',
+  Revert = 'Revert',
   Save = 'Save',
   SaveGlobally = 'Save globally',
   ShowResources = 'Show resources',
-  Undo = 'Undo',
-  UnmarkForReplacement = 'Unmark for replacement',
   Unhide = 'Unhide',
-  OpenDotOpossumFile = 'Open ".opossum" file',
-  MarkAsPreferred = 'Mark as preferred',
-  UnmarkAsPreferred = 'Unmark as preferred',
-  Ok = 'Ok',
+  UnmarkForReplacement = 'Unmark current for replacement',
 }
 
 export enum FilterType {
@@ -93,14 +92,6 @@ export enum FilterType {
   OnlyFollowUp = 'Only Follow Up',
   OnlyNeedsReview = 'Only Needs Review',
   OnlyPreferred = 'Only Preferred',
-}
-
-export enum CheckboxLabel {
-  FirstParty = '1st Party',
-  FollowUp = 'Follow-up',
-  ExcludeFromNotice = 'Exclude From Notice',
-  NeedsReview = 'Needs Review',
-  OnlyLicenseName = 'Only search license names',
 }
 
 export enum ProjectStatisticsPopupTitle {
@@ -128,4 +119,9 @@ export enum PieChartCriticalityNames {
 export enum HighlightingColor {
   LightOrange = 'Light Orange',
   DarkOrange = 'Dark Orange',
+}
+
+export enum AttributionType {
+  FirstParty = 'First Party',
+  ThirdParty = 'Third Party',
 }

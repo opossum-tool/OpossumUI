@@ -6,29 +6,12 @@ import { PackagePanelTitle, View } from '../../../enums/enums';
 import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../../shared-constants';
 import { PanelPackage } from '../../../types/types';
 import {
-  getLicenseTextMaxRows,
   getMergeButtonsDisplayState,
   getSelectedManualAttributionIdForAuditView,
   selectedPackagesAreResolved,
 } from '../attribution-column-helpers';
 
 describe('The AttributionColumn helpers', () => {
-  const windowHeight = 1080;
-
-  it('getLicenseTextMaxRows in audit view', () => {
-    const expectedLicenseTextMaxRows = 29;
-    expect(getLicenseTextMaxRows(windowHeight, View.Audit)).toEqual(
-      expectedLicenseTextMaxRows,
-    );
-  });
-
-  it('getLicenseTextMaxRows in attribution view', () => {
-    const expectedLicenseTextMaxRows = 31;
-    expect(getLicenseTextMaxRows(windowHeight, View.Attribution)).toEqual(
-      expectedLicenseTextMaxRows,
-    );
-  });
-
   it('selectedPackageIsResolved returns true', () => {
     expect(
       selectedPackagesAreResolved(['123'], new Set<string>().add('123')),

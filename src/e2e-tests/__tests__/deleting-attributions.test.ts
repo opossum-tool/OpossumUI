@@ -122,7 +122,7 @@ test('deletes attributions via context menu', async ({
   });
 });
 
-test('deletes attributions via hamburger menu', async ({
+test('deletes attributions via attribution details button', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
@@ -138,8 +138,8 @@ test('deletes attributions via hamburger menu', async ({
     filesWithAttributions: 5,
   });
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.deleteGloballyButton.click();
+  await attributionDetails.selectDeleteMenuOption('deleteGlobally');
+  await attributionDetails.deleteGloballyButton.click();
   await confirmationPopup.assert.isVisible();
 
   await confirmationPopup.confirm();
@@ -152,8 +152,7 @@ test('deletes attributions via hamburger menu', async ({
   await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.deleteButton.click();
+  await attributionDetails.deleteButton.click();
   await confirmationPopup.confirm();
   await attributionDetails.assert.isEmpty();
   await topBar.assert.progressBarTooltipShowsValues({
@@ -162,8 +161,8 @@ test('deletes attributions via hamburger menu', async ({
   });
 
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.hamburgerMenu.deleteGloballyButton.click();
+  await attributionDetails.selectDeleteMenuOption('deleteGlobally');
+  await attributionDetails.deleteGloballyButton.click();
   await confirmationPopup.confirm();
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
@@ -172,20 +171,18 @@ test('deletes attributions via hamburger menu', async ({
 
   await resourceBrowser.goto(resourceName3);
   await attributionDetails.assert.isEmpty();
-  await attributionDetails.assert.buttonInHamburgerMenuIsHidden('deleteButton');
+  await attributionDetails.assert.deleteButtonIsHidden();
+  await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo2);
   await attributionDetails.assert.matchesPackageInfo(packageInfo2);
+  await attributionDetails.assert.deleteButtonIsVisible();
+  await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
-  await attributionDetails.openHamburgerMenu();
-  await attributionDetails.assert.buttonInHamburgerMenuIsHidden(
-    'deleteGloballyButton',
-  );
-
-  await attributionDetails.hamburgerMenu.deleteButton.click();
+  await attributionDetails.deleteButton.click();
   await confirmationPopup.confirm();
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
