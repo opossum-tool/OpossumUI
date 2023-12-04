@@ -31,12 +31,12 @@ import {
   getAttributionWizarOriginalDisplayPackageInfo,
 } from '../../state/selectors/attribution-wizard-selectors';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
-import { ButtonConfig } from '../../types/types';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { AttributionWizardPackageStep } from '../AttributionWizardPackageStep/AttributionWizardPackageStep';
 import { AttributionWizardVersionStep } from '../AttributionWizardVersionStep/AttributionWizardVersionStep';
 import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
+import { ButtonProps } from '../Button/Button';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   getAttributionWizardListItems,
@@ -240,32 +240,30 @@ export function AttributionWizardPopup(): ReactElement {
     closeAttributionWizardPopupHandler();
   }
 
-  const nextButtonConfig: ButtonConfig = {
+  const nextButtonConfig: ButtonProps = {
     buttonText: ButtonText.Next,
     onClick: handleNextClick,
     disabled: !selectedPackageNameIsValid,
-    isDark: true,
     tooltipText: !selectedPackageNameIsValid
       ? 'Please select a valid package name to continue'
       : '',
     tooltipPlacement: 'top',
   };
-  const backButtonConfig: ButtonConfig = {
+  const backButtonConfig: ButtonProps = {
     buttonText: ButtonText.Back,
     onClick: handleBackClick,
     disabled: false,
-    isDark: false,
+    color: 'secondary',
   };
-  const cancelButtonConfig: ButtonConfig = {
+  const cancelButtonConfig: ButtonProps = {
     buttonText: ButtonText.Cancel,
     onClick: closeAttributionWizardPopupHandler,
     disabled: false,
-    isDark: false,
+    color: 'secondary',
   };
-  const applyButtonConfig: ButtonConfig = {
+  const applyButtonConfig: ButtonProps = {
     buttonText: ButtonText.Apply,
     onClick: handleApplyClick,
-    isDark: true,
   };
 
   return (

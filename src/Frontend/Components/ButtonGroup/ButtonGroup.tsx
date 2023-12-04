@@ -46,8 +46,8 @@ export function ButtonGroup(props: ButtonGroupProps): ReactElement {
           .map((buttonConfig, idx) => (
             <Button
               {...buttonConfig}
-              isDark={false}
               key={`button-group-${buttonConfig.buttonText}-${idx}`}
+              color={'secondary'}
             />
           ))}
         {props.hamburgerMenuButtonConfigs ? (

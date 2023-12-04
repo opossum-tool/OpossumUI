@@ -9,7 +9,6 @@ import { ReactElement } from 'react';
 import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { ButtonConfig } from '../../types/types';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 const HEADER = 'Warning: Outdated input file format';
@@ -47,21 +46,18 @@ export function FileSupportPopup(): ReactElement {
     close();
   };
 
-  const createAndProceedButtonConfig: ButtonConfig = {
-    onClick: handleCreateAndProceedButtonClick,
-    buttonText: ButtonText.CreateAndProceed,
-    isDark: true,
-  };
-  const keepButtonConfig: ButtonConfig = {
-    onClick: handleKeepButtonClick,
-    buttonText: ButtonText.Keep,
-  };
-
   return (
     <NotificationPopup
       header={HEADER}
-      leftButtonConfig={createAndProceedButtonConfig}
-      rightButtonConfig={keepButtonConfig}
+      leftButtonConfig={{
+        onClick: handleCreateAndProceedButtonClick,
+        buttonText: ButtonText.CreateAndProceed,
+      }}
+      rightButtonConfig={{
+        onClick: handleKeepButtonClick,
+        buttonText: ButtonText.Keep,
+        color: 'secondary',
+      }}
       isOpen={true}
       content={
         <MuiBox sx={classes.content}>

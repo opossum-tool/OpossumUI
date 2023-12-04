@@ -3,20 +3,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, render, screen } from '@testing-library/react';
+import { noop } from 'lodash';
 
-import { doNothing } from '../../../util/do-nothing';
 import { Button } from '../Button';
 
 describe('Button', () => {
   it('renders a button', () => {
-    render(
-      <Button
-        buttonText={'Test'}
-        disabled={false}
-        isDark={false}
-        onClick={doNothing}
-      />,
-    );
+    render(<Button buttonText={'Test'} disabled={false} onClick={noop} />);
 
     screen.getByText('Test');
   });
@@ -27,8 +20,7 @@ describe('Button', () => {
       <Button
         buttonText={'Test'}
         disabled={false}
-        isDark={false}
-        onClick={doNothing}
+        onClick={noop}
         tooltipText={testTooltipText}
         tooltipPlacement={'left'}
       />,
@@ -45,8 +37,7 @@ describe('Button', () => {
       <Button
         buttonText={'Test'}
         disabled={true}
-        isDark={false}
-        onClick={doNothing}
+        onClick={noop}
         tooltipText={testTooltipText}
         tooltipPlacement={'left'}
       />,

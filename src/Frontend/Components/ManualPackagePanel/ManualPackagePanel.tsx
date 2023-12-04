@@ -117,7 +117,6 @@ export function ManualPackagePanel(
         {showParentAttributions && (
           <Button
             buttonText={'Override parent'}
-            isDark={true}
             onClick={props.onOverrideParentClick}
           />
         )}

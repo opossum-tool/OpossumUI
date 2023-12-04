@@ -68,7 +68,6 @@ export function NotSavedPopup(): ReactElement {
           : handleSaveGloballyClick,
         buttonText: ButtonText.Save,
         disabled: isSavingDisabled,
-        isDark: true,
       }}
       centerLeftButtonConfig={
         showSaveGloballyButton
@@ -76,16 +75,19 @@ export function NotSavedPopup(): ReactElement {
               onClick: handleSaveGloballyClick,
               buttonText: ButtonText.SaveGlobally,
               disabled: isGlobalSavingDisabled,
+              color: 'secondary',
             }
           : undefined
       }
       centerRightButtonConfig={{
         onClick: handleUndoClick,
         buttonText: ButtonText.Undo,
+        color: 'secondary',
       }}
       rightButtonConfig={{
         onClick: handleCancelClick,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       isOpen={true}
       aria-label={'not saved popup'}

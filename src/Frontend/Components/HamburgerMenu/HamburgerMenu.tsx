@@ -6,7 +6,6 @@ import MuiMoreVertIcon from '@mui/icons-material/MoreVert';
 import MuiButton from '@mui/material/Button';
 import { ReactElement } from 'react';
 
-import { buttonStyles } from '../Button/button-styles';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 
 interface HamburgerMenuProps {
@@ -28,12 +27,8 @@ export function HamburgerMenu(props: HamburgerMenuProps): ReactElement | null {
         aria-label={'button-hamburger-menu'}
         key={'button-group-hamburger-menu'}
         className={'MuiButtonGroup-grouped MuiButtonGroup-groupedHorizontal'}
-        sx={
-          !contextMenuIsDisabled
-            ? buttonStyles.light
-            : buttonStyles.disabledLight
-        }
         disabled={contextMenuIsDisabled}
+        color={'secondary'}
       >
         <MuiMoreVertIcon />
       </MuiButton>

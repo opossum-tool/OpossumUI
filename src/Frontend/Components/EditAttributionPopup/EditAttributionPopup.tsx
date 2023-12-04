@@ -97,11 +97,11 @@ export function EditAttributionPopup(): ReactElement {
         onClick: dispatchSavePackageInfoOrOpenWasPreferredPopup,
         buttonText: ButtonText.Save,
         disabled: isSavingDisabled,
-        isDark: true,
       }}
       rightButtonConfig={{
         onClick: checkForModifiedPackageInfoBeforeClosing,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       onBackdropClick={checkForModifiedPackageInfoBeforeClosing}
       onEscapeKeyDown={checkForModifiedPackageInfoBeforeClosing}

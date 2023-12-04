@@ -41,11 +41,11 @@ export function ChangePreferredStatusGloballyPopup(): ReactElement {
       centerRightButtonConfig={{
         onClick: handleOkClick,
         buttonText: ButtonText.Ok,
-        isDark: true,
       }}
       rightButtonConfig={{
         onClick: handleCancelClick,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       isOpen={true}
       aria-label={'change preferred status globally popup'}

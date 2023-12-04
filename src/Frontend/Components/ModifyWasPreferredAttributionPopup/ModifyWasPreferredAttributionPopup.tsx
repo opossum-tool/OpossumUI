@@ -73,7 +73,6 @@ export function ModifyWasPreferredAttributionPopup(): ReactElement {
           ? handleSaveClick
           : handleSaveGloballyClick,
         buttonText: ButtonText.Save,
-        isDark: true,
       }}
       centerRightButtonConfig={
         showSaveGloballyButton
@@ -81,12 +80,14 @@ export function ModifyWasPreferredAttributionPopup(): ReactElement {
               onClick: handleSaveGloballyClick,
               buttonText: ButtonText.SaveGlobally,
               disabled: isGlobalSavingDisabled,
+              color: 'secondary',
             }
           : undefined
       }
       rightButtonConfig={{
         onClick: handleCancelClick,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       isOpen={true}
       aria-label={'modify was preferred attribution popup'}
