@@ -47,7 +47,11 @@ export function TextBox(props: TextProps): ReactElement {
         InputProps={{
           inputProps: {
             'aria-label': props.title,
-            sx: props.textFieldInputSx,
+            sx: {
+              ...props.textFieldInputSx,
+              overflowX: 'hidden',
+              textOverflow: 'ellipsis',
+            },
           },
           endAdornment: props.endIcon && (
             <MuiInputAdornment position="end">
@@ -56,8 +60,8 @@ export function TextBox(props: TextProps): ReactElement {
           ),
         }}
         multiline={props.multiline}
-        minRows={props.minRows ? props.minRows : 1}
-        maxRows={props.maxRows ? props.maxRows : 1}
+        minRows={props.minRows}
+        maxRows={props.maxRows}
         variant="outlined"
         size="small"
         value={props.text || ''}

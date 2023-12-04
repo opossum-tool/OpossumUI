@@ -63,7 +63,7 @@ export function LicenseField(props: LicenseFieldProps): ReactElement {
   return (
     <AutoComplete
       isEditable={props.isEditable}
-      sx={props.sx}
+      fullWidth
       title={props.title}
       handleChange={props.handleChange}
       isHighlighted={props.isHighlighted}
