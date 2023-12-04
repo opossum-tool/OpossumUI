@@ -71,7 +71,7 @@ export function ResourceDetailsAttributionColumn(
     }
   }
 
-  function dispatchSavePackageInfoOrOpenWasPreferredPopup(): void {
+  function dispatchSavePackageInfoOrOpenPreferGloballyOrWasPreferredPopup(): void {
     if (temporaryDisplayPackageInfo.wasPreferred) {
       dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
     } else if (showSaveGloballyButton && didPreferredFieldChange) {
@@ -208,9 +208,11 @@ export function ResourceDetailsAttributionColumn(
       onSaveButtonClick={
         showSaveGloballyButton
           ? dispatchUnlinkAttributionAndSavePackageInfoOrOpenWasPreferredPopup
-          : dispatchSavePackageInfoOrOpenWasPreferredPopup
+          : dispatchSavePackageInfoOrOpenPreferGloballyOrWasPreferredPopup
       }
-      onSaveGloballyButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
+      onSaveGloballyButtonClick={
+        dispatchSavePackageInfoOrOpenPreferGloballyOrWasPreferredPopup
+      }
       saveFileRequestListener={saveFileRequestListener}
       onDeleteButtonClick={openConfirmDeletionPopup}
       onDeleteGloballyButtonClick={openConfirmDeletionGloballyPopup}

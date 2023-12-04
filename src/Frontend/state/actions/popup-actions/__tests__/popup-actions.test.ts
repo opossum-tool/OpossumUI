@@ -85,8 +85,8 @@ import {
 } from '../../view-actions/view-actions';
 import {
   changeSelectedAttributionIdOrOpenUnsavedPopup,
-  checkIfWasPreferredAndShowWarningOrSave,
   checkIfWasPreferredAndShowWarningOrUnlinkAndSave,
+  checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave,
   closePopupAndUnsetTargets,
   locateSignalsFromLocatorPopup,
   locateSignalsFromProjectStatisticsPopup,
@@ -533,7 +533,7 @@ describe('The actions called from the unsaved popup', () => {
   );
 
   describe.each(views)(
-    'checkIfWasPreferredAndShowWarningOrSave in %s View',
+    'checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave in %s View',
     (view: View) => {
       const notSelectedViews = views.filter(
         (viewCandidate) => viewCandidate !== view,
@@ -547,7 +547,9 @@ describe('The actions called from the unsaved popup', () => {
         const testStore = prepareTestStore(view, testDisplayPackageInfo);
         testStore.dispatch(setTargetView(notSelectedViews[0]));
 
-        testStore.dispatch(checkIfWasPreferredAndShowWarningOrSave());
+        testStore.dispatch(
+          checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(),
+        );
         expect(getCurrentAttributionId(testStore.getState())).toBe('id1');
         expect(getOpenPopup(testStore.getState())).toBe(
           PopupType.ModifyWasPreferredAttributionPopup,
@@ -563,7 +565,9 @@ describe('The actions called from the unsaved popup', () => {
         const testStore = prepareTestStore(view, testDisplayPackageInfo);
         testStore.dispatch(setTargetView(notSelectedViews[0]));
 
-        testStore.dispatch(checkIfWasPreferredAndShowWarningOrSave());
+        testStore.dispatch(
+          checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(),
+        );
         expect(getSelectedView(testStore.getState())).toBe(notSelectedViews[0]);
       });
     },

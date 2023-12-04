@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { faker } from '../../../../../shared/Faker';
 import { Resources } from '../../../../../shared/shared-types';
 import { getOriginIdsToPreferOver } from '../preference-actions';
 
@@ -153,6 +154,55 @@ describe('getOriginIdsToPreferOver', () => {
     );
 
     const expectedOriginUuids = ['originUuid1'];
+    expect(actualOriginUuids).toEqual(expectedOriginUuids);
+  });
+
+  it('finds all origin ids for attribution with multiple root resources', () => {
+    const testSource = faker.opossum.source();
+    const file1 = faker.opossum.resourceName();
+    const file2 = faker.opossum.resourceName();
+    const pathFile1 = `/${file1}`;
+    const pathFile2 = `/${file2}`;
+    const uuid1 = faker.string.uuid();
+    const uuid2 = faker.string.uuid();
+    const resources: Resources = faker.opossum.resources({
+      [file1]: 1,
+      [file2]: 1,
+    });
+    const pathsToRootResources = [pathFile1, pathFile2];
+    const resourcesToExternalAttributions =
+      faker.opossum.resourcesToAttributions({
+        [pathFile1]: [uuid1],
+        [pathFile2]: [uuid2],
+      });
+
+    const originUuid1 = faker.string.uuid();
+    const originUuid2 = faker.string.uuid();
+    const externalAttributions = faker.opossum.externalAttributions({
+      [uuid1]: { originIds: [originUuid1], source: testSource },
+      [uuid2]: { originIds: [originUuid2], source: testSource },
+    });
+
+    const externalAttributionSource = faker.opossum.externalAttributionSource({
+      isRelevantForPreferred: true,
+    });
+    const externalAttributionsSources =
+      faker.opossum.externalAttributionSources({
+        [testSource.name]: externalAttributionSource,
+      });
+
+    const resourcesToManualAttributions = {};
+
+    const actualOriginUuids = getOriginIdsToPreferOver(
+      pathsToRootResources,
+      resources,
+      resourcesToExternalAttributions,
+      resourcesToManualAttributions,
+      externalAttributions,
+      externalAttributionsSources,
+    );
+
+    const expectedOriginUuids = [originUuid1, originUuid2];
     expect(actualOriginUuids).toEqual(expectedOriginUuids);
   });
 });

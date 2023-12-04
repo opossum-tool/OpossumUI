@@ -5,13 +5,15 @@
 import { ReactElement } from 'react';
 
 import { text } from '../../../shared/text';
-import { ButtonText } from '../../enums/enums';
+import { ButtonText, View } from '../../enums/enums';
 import {
   closePopupAndUnsetTargets,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
 } from '../../state/actions/popup-actions/popup-actions';
+import { setOriginIdsToPreferOverGlobally } from '../../state/actions/resource-actions/preference-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
+import { getSelectedView } from '../../state/selectors/view-selector';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function ChangePreferredStatusGloballyPopup(): ReactElement {
@@ -19,8 +21,12 @@ export function ChangePreferredStatusGloballyPopup(): ReactElement {
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
+  const view = useAppSelector(getSelectedView);
 
   function handleOkClick(): void {
+    if (view === View.Audit) {
+      dispatch(setOriginIdsToPreferOverGlobally(temporaryDisplayPackageInfo));
+    }
     dispatch(
       saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
     );
