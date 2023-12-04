@@ -5,54 +5,40 @@
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiButtonBase from '@mui/material/ButtonBase';
-import MuiTooltip from '@mui/material/Tooltip';
+import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip';
 import { ReactElement } from 'react';
 
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-
-const classes = {
-  hidden: {
-    visibility: 'hidden',
-  },
-};
-
 interface IconButtonProps {
-  tooltipTitle: string;
-  tooltipPlacement: 'left' | 'right';
+  tooltipTitle?: string;
+  tooltipPlacement?: TooltipProps['placement'];
   iconSx?: SxProps;
   containerSx?: SxProps;
-  onClick(): void;
+  onClick?(): void;
   icon: ReactElement;
   disabled?: boolean;
   hidden?: boolean;
 }
 
-export function IconButton(props: IconButtonProps): ReactElement {
+export function IconButton(props: IconButtonProps) {
+  if (props.hidden) {
+    return null;
+  }
+
   return (
     <MuiTooltip
       describeChild={true}
       disableInteractive
-      title={props.hidden ? '' : props.tooltipTitle}
+      title={props.tooltipTitle}
       placement={props.tooltipPlacement}
-      enterDelay={1500}
+      enterDelay={1200}
     >
       <MuiBox component="span" sx={props.containerSx}>
-        {
-          // the container is needed to enable tooltips for disabled buttons
-        }
         <MuiButtonBase
           aria-label={props.tooltipTitle}
-          sx={
-            props.hidden
-              ? getSxFromPropsAndClasses({
-                  styleClass: classes.hidden,
-                  sxProps: props.iconSx,
-                })
-              : props.iconSx
-          }
-          onClick={(event): void => {
+          sx={props.iconSx}
+          onClick={(event) => {
             event.stopPropagation();
-            props.onClick();
+            props.onClick?.();
           }}
           disabled={props.disabled}
         >

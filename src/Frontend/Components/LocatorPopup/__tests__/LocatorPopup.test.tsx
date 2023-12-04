@@ -27,7 +27,7 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { getLicenseNames, LocatorPopup } from '../LocatorPopup';
+import { LocatorPopup } from '../LocatorPopup';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -306,26 +306,6 @@ describe('Locator popup ', () => {
 
     renderComponentWithStore(<LocatorPopup />, { store: testStore });
     expect(screen.getByText('MIT')).toBeInTheDocument();
-  });
-});
-
-describe('getLicenseNamesFromExternalAttributions', () => {
-  it('collects the correct license names', () => {
-    const testExternalMITAttribution: PackageInfo = {
-      licenseName: 'MIT',
-    };
-    const testExternalApacheAttribution: PackageInfo = {
-      licenseName: 'Apache-2.0',
-    };
-
-    const testExternalAttributions: Attributions = {
-      uuid_1: testExternalMITAttribution,
-      uuid_2: testExternalApacheAttribution,
-    };
-
-    const licenseNames = getLicenseNames(testExternalAttributions);
-    const expectedLicenseNames = ['MIT', 'Apache-2.0'];
-    expect(licenseNames).toEqual(expectedLicenseNames);
   });
 });
 
