@@ -10,15 +10,12 @@ import {
   Attributions,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
-import { getPackageInfoKeys } from '../../../shared/shared-util';
 import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { KeysOfAttributionInfo } from '../../types/types';
 import { getHeadersFromColumns, writeCsvToFile } from '../writeCsvToFile';
 
 const testCsvHeader =
-  '"Index";"Confidence";"Comment";"Package Name";"Package Version";"Package Namespace";' +
-  '"Package Type";"PURL Appendix";"URL";"Copyright";"License Name";"License Text (truncated)";"Source";"First Party";' +
-  '"Follow-up";"Origin Attribution IDs";"pre-selected";"exclude-from-notice";"criticality";"needs-review";"preferred";"preferred-over-origin-ids";"was-preferred";"Resources"';
+  '"Index";"Package Name";"Follow-up";"License Text (truncated)";"First Party";"Resources"';
 
 describe('writeCsvToFile', () => {
   it('writeCsvToFile short', async () => {
@@ -38,21 +35,20 @@ describe('writeCsvToFile', () => {
     const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
-      ...getPackageInfoKeys(),
+      'packageName',
+      'followUp',
+      'licenseText',
+      'firstParty',
       'resources',
     ]);
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"";"";"";"/test.file"',
+      '"1";"";"";"license text, with; commas";"true";"/test.file"',
     );
-    expect(content).toContain(
-      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm"',
-    );
-    expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/b"',
-    );
+    expect(content).toContain('"2";"Fancy name,: tt";"";"";"";"/a/c/bla.mm"');
+    expect(content).toContain('"2";"";"";"";"";"/b"');
     deleteFolder(temporaryPath);
   });
 
@@ -109,18 +105,17 @@ describe('writeCsvToFile', () => {
     await writeCsvToFile(
       csvPath,
       testFollowUpAttributionsWithResources,
-      [...getPackageInfoKeys(), 'resources'],
+      ['packageName', 'followUp', 'licenseText', 'firstParty', 'resources'],
       true,
     );
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"";"";"";"/test.file"',
+      '"1";"";"";"license text, with; commas";"true";"/test.file"',
     );
     expect(content).toContain(
-      '"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/c/bla.mm\n' +
-        '/b"',
+      '"2";"Fancy name,: tt";"";"";"";"/a/c/bla.mm\n/b"',
     );
     deleteFolder(temporaryPath);
   });
@@ -154,17 +149,17 @@ describe('writeCsvToFile', () => {
     await writeCsvToFile(
       csvPath,
       testFollowUpAttributionsWithResources,
-      [...getPackageInfoKeys(), 'resources'],
+      ['packageName', 'followUp', 'licenseText', 'firstParty', 'resources'],
       true,
     );
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"";"";"";"/test.file"',
+      '"1";"";"";"license text, with; commas";"true";"/test.file"',
     );
     expect(content).toContain(
-      `"2";"";"";"Fancy name,: tt";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"${expectedResources}"`,
+      `"2";"Fancy name,: tt";"";"";"";"${expectedResources}"`,
     );
     deleteFolder(temporaryPath);
   });
@@ -446,33 +441,26 @@ describe('writeCsvToFile', () => {
     const temporaryPath: string = createTempFolder();
     const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
     await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
-      ...getPackageInfoKeys(),
+      'packageName',
+      'followUp',
+      'licenseText',
+      'firstParty',
       'resources',
     ]);
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
     expect(content).toContain(testCsvHeader);
     expect(content).toContain(
-      '"1";"";"";"";"";"";"";"";"";"";"";"license text, with; commas";"";"true";"";"";"";"";"";"";"";"";"";"/test.file"',
+      '"1";"";"";"license text, with; commas";"true";"/test.file"',
     );
     expect(content).toContain(
-      `"2";"";"";"Fancy name with long license";"";"";"";"";"";"";"";"${expectedLicenseText}";"";"";"";"";"";"";"";"";"";"";"";"/a"`,
+      `"2";"Fancy name with long license";"";"${expectedLicenseText}";"";"/a"`,
     );
-    expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b"',
-    );
-    expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c"',
-    );
-    expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.bla"',
-    );
-    expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/a/b/c/testi.blub"',
-    );
-    expect(content).toContain(
-      '"2";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"/other"',
-    );
+    expect(content).toContain('"2";"";"";"";"";"/a/b"');
+    expect(content).toContain('"2";"";"";"";"";"/a/b/c"');
+    expect(content).toContain('"2";"";"";"";"";"/a/b/c/testi.bla"');
+    expect(content).toContain('"2";"";"";"";"";"/a/b/c/testi.blub"');
+    expect(content).toContain('"2";"";"";"";"";"/other"');
     deleteFolder(temporaryPath);
   });
 });
