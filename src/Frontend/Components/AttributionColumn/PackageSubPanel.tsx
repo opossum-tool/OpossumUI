@@ -3,6 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import MuiBox from '@mui/material/Box';
 
@@ -10,12 +12,11 @@ import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { HighlightingColor, PopupType } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  isImportantAttributionInformationMissing,
-  isNamespaceRequiredButMissing,
-} from '../../util/is-important-attribution-information-missing';
+import { generatePurl, parsePurl } from '../../util/handle-purl';
+import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { openUrl } from '../../util/open-url';
 import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
@@ -33,11 +34,7 @@ const classes = {
 
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
-  arePurlElementsEditable: boolean;
-  isDisplayedPurlValid: boolean;
   isEditable: boolean;
-  temporaryPurl: string;
-  handlePurlChange(event: React.ChangeEvent<{ value: string }>): void;
   showHighlight?: boolean;
 }
 
@@ -67,7 +64,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.packageType}
         text={props.displayPackageInfo.packageType}
         handleChange={handleChange('packageType')}
-        isEditable={props.arePurlElementsEditable}
+        isEditable={props.isEditable}
         isHighlighted={
           props.showHighlight &&
           isImportantAttributionInformationMissing(
@@ -84,14 +81,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
-        error={isNamespaceRequiredButMissing(
-          props.displayPackageInfo.packageType,
-          props.displayPackageInfo.packageNamespace,
-        )}
         title={text.attributionColumn.packageSubPanel.packageNamespace}
         text={props.displayPackageInfo.packageNamespace}
         handleChange={handleChange('packageNamespace')}
-        isEditable={props.arePurlElementsEditable}
+        isEditable={props.isEditable}
         isHighlighted={
           props.showHighlight &&
           isImportantAttributionInformationMissing(
@@ -111,7 +104,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.packageName}
         text={props.displayPackageInfo.packageName}
         handleChange={handleChange('packageName')}
-        isEditable={props.arePurlElementsEditable}
+        isEditable={props.isEditable}
         endIcon={
           <IconButton
             tooltipTitle={
@@ -146,7 +139,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.packageVersion}
         text={props.displayPackageInfo.packageVersion}
         handleChange={handleChange('packageVersion')}
-        isEditable={props.arePurlElementsEditable}
+        isEditable={props.isEditable}
         isHighlighted={
           props.showHighlight &&
           isImportantAttributionInformationMissing(
@@ -158,31 +151,64 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     );
   }
 
-  function renderPurl() {
+  function renderPurl(): React.ReactElement {
+    const purl = generatePurl(props.displayPackageInfo);
+    const pasteFromClipboard = async () => {
+      const parsedPurl = parsePurl(await navigator.clipboard.readText());
+      if (parsedPurl) {
+        dispatch(
+          setTemporaryDisplayPackageInfo({
+            ...props.displayPackageInfo,
+            packageName: parsedPurl.name,
+            packageVersion: parsedPurl.version ?? undefined,
+            packageType: parsedPurl.type,
+            packageNamespace: parsedPurl.namespace ?? undefined,
+          }),
+        );
+      }
+    };
+
     return (
       <TextBox
         sx={attributionColumnClasses.textBox}
-        error={!props.isDisplayedPurlValid}
         title={text.attributionColumn.packageSubPanel.purl}
-        text={props.temporaryPurl}
-        handleChange={props.handlePurlChange}
-        isEditable={props.isEditable}
-        isHighlighted={
-          props.showHighlight &&
-          isImportantAttributionInformationMissing(
-            'packageNamespace',
-            props.displayPackageInfo,
-          )
+        text={purl}
+        isEditable={false}
+        endIcon={
+          <>
+            {!!purl && (
+              <IconButton
+                tooltipTitle={
+                  text.attributionColumn.packageSubPanel.copyToClipboard
+                }
+                tooltipPlacement="left"
+                onClick={() => navigator.clipboard.writeText(purl)}
+                icon={<ContentCopyIcon sx={clickableIcon} />}
+                aria-label={
+                  text.attributionColumn.packageSubPanel.copyToClipboard
+                }
+              />
+            )}
+            {props.isEditable && (
+              <IconButton
+                tooltipTitle={
+                  text.attributionColumn.packageSubPanel.pasteFromClipboard
+                }
+                tooltipPlacement="left"
+                onClick={pasteFromClipboard}
+                icon={<ContentPasteIcon sx={clickableIcon} />}
+                aria-label={
+                  text.attributionColumn.packageSubPanel.pasteFromClipboard
+                }
+              />
+            )}
+          </>
         }
       />
     );
   }
 
-  function renderRepositoryUrl() {
-    const openLinkButtonTooltip = props.displayPackageInfo.url
-      ? text.attributionColumn.packageSubPanel.openLinkInBrowser
-      : text.attributionColumn.packageSubPanel.noLinkToOpen;
-
+  function renderRepositoryUrl(): React.ReactElement {
     return (
       <TextBox
         isEditable={props.isEditable}
@@ -197,23 +223,21 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
               version={props.displayPackageInfo.packageVersion}
               disabled={!props.isEditable}
             />
-            <IconButton
-              tooltipTitle={openLinkButtonTooltip}
-              tooltipPlacement="right"
-              onClick={(): void => {
-                props.displayPackageInfo.url &&
-                  openUrl(props.displayPackageInfo.url);
-              }}
-              disabled={!props.displayPackageInfo.url}
-              icon={
-                <OpenInNewIcon
-                  aria-label={'Url icon'}
-                  sx={
-                    props.displayPackageInfo.url ? clickableIcon : disabledIcon
-                  }
-                />
-              }
-            />
+            {!!props.displayPackageInfo.url && (
+              <IconButton
+                tooltipTitle={
+                  text.attributionColumn.packageSubPanel.openLinkInBrowser
+                }
+                tooltipPlacement="right"
+                onClick={(): void => {
+                  props.displayPackageInfo.url &&
+                    openUrl(props.displayPackageInfo.url);
+                }}
+                icon={
+                  <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
+                }
+              />
+            )}
           </>
         }
         isHighlighted={

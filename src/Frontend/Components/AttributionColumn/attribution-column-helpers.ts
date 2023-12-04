@@ -3,31 +3,17 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useEffect, useState } from 'react';
-
-import {
-  DisplayPackageInfo,
-  FrequentLicenseName,
-} from '../../../shared/shared-types';
-import { AllowedSaveOperations, View } from '../../enums/enums';
+import { FrequentLicenseName } from '../../../shared/shared-types';
+import { View } from '../../enums/enums';
 import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../shared-constants';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import {
   addResolvedExternalAttribution,
   removeResolvedExternalAttribution,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
-import {
-  saveManualAndResolvedAttributionsToFile,
-  setAllowedSaveOperations,
-} from '../../state/actions/resource-actions/save-actions';
+import { saveManualAndResolvedAttributionsToFile } from '../../state/actions/resource-actions/save-actions';
 import { AppThunkDispatch } from '../../state/types';
 import { PanelPackage } from '../../types/types';
-import {
-  generatePurlFromDisplayPackageInfo,
-  parsePurl,
-} from '../../util/handle-purl';
 import { isExternalPackagePanel } from '../../util/is-external-package-panel';
-import { isNamespaceRequiredButMissing } from '../../util/is-important-attribution-information-missing';
 
 export function getResolvedToggleHandler(
   attributionIds: Array<string>,
@@ -136,88 +122,6 @@ export function getMergeButtonsDisplayState(currentState: {
       !currentState.selectedAttributionId ||
       currentState.view !== View.Audit ||
       !currentState.attributionIsPreferred,
-  };
-}
-
-export function usePurl(
-  dispatch: AppThunkDispatch,
-  packageInfoWereModified: boolean,
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
-  selectedPackage: PanelPackage | null,
-  selectedAttributionId: string | null,
-): {
-  temporaryPurl: string;
-  isDisplayedPurlValid: boolean;
-  handlePurlChange: (event: React.ChangeEvent<{ value: string }>) => void;
-  updatePurl: (displayPackageInfo: DisplayPackageInfo) => void;
-} {
-  const [temporaryPurl, setTemporaryPurl] = useState<string>('');
-  const isDisplayedPurlValid: boolean =
-    parsePurl(temporaryPurl).isValid &&
-    !isNamespaceRequiredButMissing(
-      temporaryDisplayPackageInfo.packageType,
-      temporaryDisplayPackageInfo.packageNamespace,
-    );
-
-  const isAllSavingDisabled =
-    (!packageInfoWereModified || !isDisplayedPurlValid) &&
-    !temporaryDisplayPackageInfo.preSelected;
-
-  const savingStatus = isAllSavingDisabled
-    ? AllowedSaveOperations.None
-    : AllowedSaveOperations.All;
-
-  useEffect(() => {
-    dispatch(setAllowedSaveOperations(savingStatus));
-  }, [dispatch, savingStatus]);
-
-  useEffect(
-    () => {
-      setTemporaryPurl(
-        generatePurlFromDisplayPackageInfo(temporaryDisplayPackageInfo) || '',
-      );
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      selectedPackage?.panel,
-      selectedPackage?.packageCardId,
-      selectedAttributionId,
-      temporaryDisplayPackageInfo.packageType,
-      temporaryDisplayPackageInfo.packageNamespace,
-      temporaryDisplayPackageInfo.packageName,
-      temporaryDisplayPackageInfo.packageVersion,
-    ],
-  );
-
-  function handlePurlChange(event: React.ChangeEvent<{ value: string }>): void {
-    const enteredPurl = event.target.value;
-    setTemporaryPurl(enteredPurl);
-    const { isValid, purl } = parsePurl(enteredPurl);
-
-    if (isValid && purl) {
-      dispatch(
-        setTemporaryDisplayPackageInfo({
-          ...temporaryDisplayPackageInfo,
-          packageName: purl.packageName,
-          packageVersion: purl.packageVersion,
-          packageNamespace: purl.packageNamespace,
-          packageType: purl.packageType,
-          packagePURLAppendix: purl.packagePURLAppendix,
-        }),
-      );
-    }
-  }
-
-  function updatePurl(displayPackageInfo: DisplayPackageInfo): void {
-    const purl = generatePurlFromDisplayPackageInfo(displayPackageInfo);
-    setTemporaryPurl(purl);
-  }
-
-  return {
-    temporaryPurl,
-    isDisplayedPurlValid,
-    handlePurlChange,
-    updatePurl,
   };
 }
 

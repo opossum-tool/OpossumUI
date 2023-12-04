@@ -17,21 +17,17 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { AttributionType, ButtonText } from '../../../enums/enums';
+import { AttributionType } from '../../../enums/enums';
 import {
   setFrequentLicenses,
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import {
-  clickGoToLinkIcon,
-  expectGoToLinkButtonIsDisabled,
-  expectValueInTextBox,
-  insertValueIntoTextBox,
-} from '../../../test-helpers/attribution-column-test-helpers';
+import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnButton } from '../../../test-helpers/general-test-helpers';
 import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
 
 describe('The AttributionColumn', () => {
@@ -134,144 +130,69 @@ describe('The AttributionColumn', () => {
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.purl),
     ).toHaveLength(2);
+    expect(screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0'));
+  });
+
+  it('copies PURL to clipboard', async () => {
+    const writeText = jest.fn();
+    (navigator.clipboard as unknown) = { writeText };
+    const packageInfo = faker.opossum.displayPackageInfo();
+    const { store } = renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
+      />,
+    );
+
+    act(() => {
+      store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
+    });
+    await userEvent.click(
+      screen.getByLabelText(
+        text.attributionColumn.packageSubPanel.copyToClipboard,
+      ),
+    );
+
+    expect(writeText).toHaveBeenCalledTimes(1);
+    expect(writeText).toHaveBeenCalledWith(generatePurl(packageInfo));
+  });
+
+  it('pastes PURL from clipboard', async () => {
+    const packageInfo = faker.opossum.displayPackageInfo();
+    const purl = generatePurl(packageInfo);
+    const readText = jest.fn().mockReturnValue(purl.toString());
+    (navigator.clipboard as unknown) = { readText };
+    renderComponentWithStore(
+      <AttributionColumn
+        isEditable={true}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByLabelText(
+        text.attributionColumn.packageSubPanel.pasteFromClipboard,
+      ),
+    );
+
+    expect(readText).toHaveBeenCalledTimes(1);
     expect(
-      screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0?appendix'),
-    );
-  });
-
-  it('renders qualifier in the purl correctly', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.Low,
-      packageName: 'jQuery',
-      packageVersion: '16.5.0',
-      packagePURLAppendix: '?appendix',
-      packageNamespace: 'namespace',
-      packageType: 'type',
-      comments: ['some comment'],
-      copyright: 'Copyright Doe Inc. 2019',
-      licenseText: 'Permission is hereby granted',
-      licenseName: 'Made up license name',
-      url: 'www.1999.com',
-      attributionIds: [],
-    };
-    const { store } = renderComponentWithStore(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
-    act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
-
-    insertValueIntoTextBox(
-      screen,
-      text.attributionColumn.packageSubPanel.purl,
-      'pkg:type/namespace/jQuery@16.5.0?appendix&#test',
-    );
-    clickOnButton(screen, ButtonText.Save);
-    expectValueInTextBox(
-      screen,
-      text.attributionColumn.packageSubPanel.purl,
-      'pkg:type/namespace/jQuery@16.5.0?appendix=#test',
-    );
-  });
-
-  it('sorts qualifier in the purl alphabetically', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.Low,
-      packageName: 'jQuery',
-      packageVersion: '16.5.0',
-      packagePURLAppendix: '?appendix',
-      packageNamespace: 'namespace',
-      packageType: 'type',
-      comments: ['some comment'],
-      copyright: 'Copyright Doe Inc. 2019',
-      licenseText: 'Permission is hereby granted',
-      licenseName: 'Made up license name',
-      url: 'www.1999.com',
-      attributionIds: [],
-    };
-    const { store } = renderComponentWithStore(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
-    act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
-
-    insertValueIntoTextBox(
-      screen,
-      text.attributionColumn.packageSubPanel.purl,
-      'pkg:type/namespace/jQuery@16.5.0?test=appendix&appendix=test#test',
-    );
-    clickOnButton(screen, ButtonText.Save);
-    expectValueInTextBox(
-      screen,
-      text.attributionColumn.packageSubPanel.purl,
-      'pkg:type/namespace/jQuery@16.5.0?appendix=test&test=appendix#test',
-    );
-  });
-
-  it('removes special symbol from the end of the purl if nothing follows', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-      attributionConfidence: DiscreteConfidence.Low,
-      packageName: 'jQuery',
-      packageVersion: '16.5.0',
-      packagePURLAppendix: '?appendix',
-      packageNamespace: 'namespace',
-      packageType: 'type',
-      comments: ['some comment'],
-      copyright: 'Copyright Doe Inc. 2019',
-      licenseText: 'Permission is hereby granted',
-      licenseName: 'Made up license name',
-      url: 'www.1999.com',
-      attributionIds: [],
-    };
-    const { store } = renderComponentWithStore(
-      <AttributionColumn
-        isEditable={true}
-        onSaveButtonClick={noop}
-        onSaveGloballyButtonClick={noop}
-        saveFileRequestListener={noop}
-        onDeleteButtonClick={noop}
-        onDeleteGloballyButtonClick={noop}
-      />,
-    );
-    act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
-
-    insertValueIntoTextBox(
-      screen,
-      text.attributionColumn.packageSubPanel.purl,
-      'pkg:type/namespace/jQuery@16.5.0?',
-    );
-    clickOnButton(screen, ButtonText.Save);
-    expectValueInTextBox(
-      screen,
-      text.attributionColumn.packageSubPanel.purl,
-      'pkg:type/namespace/jQuery@16.5.0',
-    );
+      screen.getByDisplayValue(packageInfo.packageName!),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(packageInfo.packageVersion!),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(packageInfo.packageType!),
+    ).toBeInTheDocument();
   });
 
   it('renders a source name, if it is defined', () => {
@@ -299,7 +220,7 @@ describe('The AttributionColumn', () => {
     expect(screen.getByText(testTemporaryDisplayPackageInfo.source!.name));
   });
 
-  it('renders the name of the original source, if it is defined', () => {
+  it('renders the name of the original source', () => {
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       source: faker.opossum.source({
         additionalName: faker.company.name(),
@@ -459,7 +380,7 @@ describe('The AttributionColumn', () => {
     );
   });
 
-  it('disables url icon if empty url', () => {
+  it('hides url icon if empty url', () => {
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: '',
       attributionIds: [],
@@ -480,9 +401,7 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    clickGoToLinkIcon(screen, 'Url icon');
-    expect(global.window.electronAPI.openLink).not.toHaveBeenCalled();
-    expectGoToLinkButtonIsDisabled(screen);
+    expect(screen.queryByLabelText('Url icon')).not.toBeInTheDocument();
   });
 
   describe('there are different license text labels', () => {

@@ -8,17 +8,21 @@ import MuiDivider from '@mui/material/Divider';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
-import { AttributionType, ButtonText, View } from '../../enums/enums';
+import {
+  AllowedSaveOperations,
+  AttributionType,
+  ButtonText,
+  View,
+} from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { setAllowedSaveOperations } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getDisplayedPackage,
-  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -32,7 +36,6 @@ import { TextFieldStack } from '../TextFieldStack/TextFieldStack';
 import {
   getResolvedToggleHandler,
   selectedPackagesAreResolved,
-  usePurl,
 } from './attribution-column-helpers';
 import { AuditingOptions } from './AuditingOptions';
 import { ButtonRow } from './ButtonRow';
@@ -90,7 +93,6 @@ interface AttributionColumnProps {
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const dispatch = useAppDispatch();
-  const selectedPackage = useAppSelector(getDisplayedPackage);
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );
@@ -100,20 +102,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const packageInfoWereModified = useAppSelector(
     wereTemporaryDisplayPackageInfoModified,
   );
-  const selectedAttributionIdInAttributionView = useAppSelector(
-    getSelectedAttributionIdInAttributionView,
-  );
   const view = useAppSelector(getSelectedView);
-
-  const { temporaryPurl, isDisplayedPurlValid, handlePurlChange, updatePurl } =
-    usePurl(
-      dispatch,
-      packageInfoWereModified,
-      temporaryDisplayPackageInfo,
-      selectedPackage,
-      selectedAttributionIdInAttributionView,
-    );
-  const arePurlElementsEditable = props.isEditable && temporaryPurl === '';
 
   useIpcRenderer<ResetStateListener>(
     AllowedFrontendChannels.SaveFileRequest,
@@ -131,6 +120,20 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     resolvedExternalAttributions,
   );
 
+  useEffect(() => {
+    dispatch(
+      setAllowedSaveOperations(
+        packageInfoWereModified || temporaryDisplayPackageInfo.preSelected
+          ? AllowedSaveOperations.All
+          : AllowedSaveOperations.None,
+      ),
+    );
+  }, [
+    dispatch,
+    packageInfoWereModified,
+    temporaryDisplayPackageInfo.preSelected,
+  ]);
+
   return (
     <MuiBox aria-label={'attribution column'} sx={classes.root}>
       <MuiBox sx={classes.panelsContainer}>
@@ -145,11 +148,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         </MuiDivider>
         <PackageSubPanel
           displayPackageInfo={temporaryDisplayPackageInfo}
-          handlePurlChange={handlePurlChange}
-          isDisplayedPurlValid={isDisplayedPurlValid}
           isEditable={props.isEditable}
-          arePurlElementsEditable={arePurlElementsEditable}
-          temporaryPurl={temporaryPurl}
           showHighlight={showHighlight}
         />
         <MuiDivider variant={'middle'}>
@@ -184,7 +183,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           <ButtonRow
             areButtonsHidden={props.areButtonsHidden}
             displayPackageInfo={temporaryDisplayPackageInfo}
-            updatePurl={updatePurl}
             hideDeleteButtons={props.hideDeleteButtons}
             onDeleteButtonClick={props.onDeleteButtonClick}
             onDeleteGloballyButtonClick={props.onDeleteGloballyButtonClick}

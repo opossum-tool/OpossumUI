@@ -29,7 +29,6 @@ import { getSelectedManualAttributionIdForAuditView } from './attribution-column
 interface ButtonRowProps {
   areButtonsHidden?: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  updatePurl(displayPackageInfo: DisplayPackageInfo): void;
   onSaveButtonClick?(): void;
   onSaveGloballyButtonClick?(): void;
   onDeleteButtonClick?(): void;
@@ -42,7 +41,6 @@ interface ButtonRowProps {
 export function ButtonRow({
   displayPackageInfo,
   areButtonsHidden,
-  updatePurl,
   onDeleteButtonClick,
   onDeleteGloballyButtonClick,
   onSaveButtonClick,
@@ -105,7 +103,6 @@ export function ButtonRow({
               : ButtonText.Save,
             disabled: isSavingDisabled,
             onClick: () => {
-              updatePurl(displayPackageInfo);
               onSaveButtonClick?.();
             },
             hidden: !onSaveButtonClick,
@@ -116,7 +113,6 @@ export function ButtonRow({
               : ButtonText.SaveGlobally,
             disabled: isGlobalSavingDisabled,
             onClick: () => {
-              updatePurl(displayPackageInfo);
               onSaveGloballyButtonClick?.();
             },
             hidden: !onSaveGloballyButtonClick || !showSaveGloballyButton,
@@ -207,7 +203,6 @@ export function ButtonRow({
         buttonText={ButtonText.Revert}
         disabled={!packageInfoWereModified}
         onClick={() => {
-          updatePurl(initialManualDisplayPackageInfo);
           dispatch(
             setTemporaryDisplayPackageInfo(initialManualDisplayPackageInfo),
           );
