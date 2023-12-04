@@ -9,7 +9,7 @@ import {
   checkIfWasPreferredAndShowWarningOrUnlinkAndSave,
   checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave,
   closePopupAndUnsetTargets,
-  navigateToTargetResourceOrAttribution,
+  navigateToTargetResourceOrAttributionOrOpenFileDialog,
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -47,7 +47,7 @@ export function NotSavedPopup(): ReactElement {
   }
 
   function handleDiscardClick(): void {
-    dispatch(navigateToTargetResourceOrAttribution());
+    dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
   }
 
   function handleCancelClick(): void {

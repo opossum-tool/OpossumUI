@@ -9,6 +9,7 @@ import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
+  ACTION_SET_OPEN_FILE_REQUEST,
   ACTION_SET_QA_MODE,
   ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
@@ -25,6 +26,7 @@ export interface ViewState {
   activeFilters: Set<FilterType>;
   showNoSignalsLocatedMessage: boolean;
   qaMode: boolean;
+  openFileRequest: boolean;
 }
 
 export const initialViewState: ViewState = {
@@ -34,6 +36,7 @@ export const initialViewState: ViewState = {
   activeFilters: new Set<FilterType>(),
   showNoSignalsLocatedMessage: false,
   qaMode: false,
+  openFileRequest: false,
 };
 
 export function viewState(
@@ -81,6 +84,11 @@ export function viewState(
       return {
         ...state,
         qaMode: action.payload,
+      };
+    case ACTION_SET_OPEN_FILE_REQUEST:
+      return {
+        ...state,
+        openFileRequest: action.payload,
       };
     default:
       return state;
