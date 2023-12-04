@@ -49,9 +49,6 @@ const classes = {
   expandMoreIcon: {
     height: '37px',
   },
-  licenseTextBox: {
-    flex: 1,
-  },
   licenseText: {
     marginTop: '11px',
   },
@@ -107,7 +104,6 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
         >
           <LicenseField
             isEditable={props.isEditable}
-            sx={licenseSubPanelClasses.licenseTextBox}
             title={'License Name'}
             text={props.displayPackageInfo.licenseName}
             frequentLicenseNames={frequentLicensesNameOrder}
@@ -129,10 +125,7 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
         <MuiAccordionDetails sx={licenseSubPanelClasses.expansionPanelDetails}>
           <TextBox
             isEditable={props.isEditable}
-            sx={{
-              ...licenseSubPanelClasses.licenseTextBox,
-              ...licenseSubPanelClasses.licenseText,
-            }}
+            sx={licenseSubPanelClasses.licenseText}
             minRows={props.licenseTextRows}
             maxRows={props.licenseTextRows}
             multiline={true}
