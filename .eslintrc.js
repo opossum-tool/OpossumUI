@@ -49,6 +49,13 @@ const sharedRules = {
   'no-multi-assign': 'error',
   'no-nested-ternary': 'off',
   'no-new-func': 'error',
+  'no-restricted-imports': [
+    'error',
+    {
+      name: '@faker-js/faker',
+      message: 'Please use shared faker instead.',
+    },
+  ],
   'no-return-assign': 'error',
   'no-return-await': 'error',
   'no-self-compare': 'error',

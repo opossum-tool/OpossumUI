@@ -14,7 +14,7 @@ const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
 });
 const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
   packageType: undefined,
-  licenseName: license1.shortName,
+  licenseName: license1.fullName,
 });
 
 test.use({
@@ -52,7 +52,7 @@ test('adds a new third-party attribution in audit view', async ({
 }) => {
   const newPackageInfo = faker.opossum.manualPackageInfo({
     attributionConfidence: DiscreteConfidence.High,
-    licenseName: license1.shortName,
+    licenseName: license1.fullName,
     packageType: undefined,
   });
   await resourceBrowser.goto(resourceName1);

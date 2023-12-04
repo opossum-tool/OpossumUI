@@ -53,8 +53,8 @@ describe('IconButton', () => {
     expect(screen.queryByTitle('Test')).not.toBeInTheDocument();
   });
 
-  it('checks for successful application of hidden visibility style', () => {
-    render(
+  it('hides button', () => {
+    const { container } = render(
       <IconButton
         tooltipTitle={'Test'}
         tooltipPlacement="left"
@@ -65,6 +65,6 @@ describe('IconButton', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Test')).toHaveStyle('visibility: hidden');
+    expect(container).toBeEmptyDOMElement();
   });
 });

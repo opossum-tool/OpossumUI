@@ -7,20 +7,23 @@ import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiBox from '@mui/material/Box';
-import { ReactElement, useState } from 'react';
+import MuiInputAdornment from '@mui/material/InputAdornment';
+import { sortBy } from 'lodash';
+import { ReactElement, useMemo, useState } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
-import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
 import { TextBox } from '../InputElements/TextBox';
 import { getLicenseTextLabelText } from './attribution-column-helpers';
-import { LicenseField } from './LicenseField';
+import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 const classes = {
+  ...attributionColumnClasses,
   expansionPanel: {
     backgroundColor: OpossumColors.lightestBlue,
     '&.MuiAccordion-expanded': {
@@ -52,6 +55,10 @@ const classes = {
   licenseText: {
     marginTop: '12px',
   },
+  endAdornment: {
+    paddingRight: '6px',
+    paddingTop: '2px',
+  },
 };
 
 interface LicenseSubPanelProps {
@@ -62,63 +69,70 @@ interface LicenseSubPanelProps {
 
 export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
   const [expanded, setExpanded] = useState(false);
-  const licenseSubPanelClasses = { ...attributionColumnClasses, ...classes };
-
-  const frequentLicensesNameOrder = useAppSelector(
-    getFrequentLicensesNameOrder,
+  const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
+  const defaultLicenses = useMemo(
+    () =>
+      sortBy(
+        frequentLicensesNames.map<PackageInfo>(({ fullName }) => ({
+          licenseName: fullName,
+          source: {
+            documentConfidence: 100,
+            name: text.attributionColumn.commonLicenses,
+          },
+        })),
+        ({ licenseName }) => licenseName?.toLowerCase(),
+      ),
+    [frequentLicensesNames],
   );
 
   const handleChange = usePackageInfoChangeHandler();
 
   return (
-    <MuiBox sx={licenseSubPanelClasses.panel}>
+    <MuiBox sx={classes.panel}>
       <MuiAccordion
-        sx={licenseSubPanelClasses.expansionPanel}
+        sx={classes.expansionPanel}
         elevation={0}
         key={'License'}
         disableGutters
         expanded={expanded}
       >
         <MuiAccordionSummary
-          sx={licenseSubPanelClasses.expansionPanelSummary}
+          sx={classes.expansionPanelSummary}
           expandIcon={
             <MuiBox
-              sx={licenseSubPanelClasses.expandMoreIcon}
+              sx={classes.expandMoreIcon}
               onClick={() => setExpanded((prev) => !prev)}
             >
               <ExpandMoreIcon aria-label={'license text toggle'} />
             </MuiBox>
           }
         >
-          <LicenseField
-            isEditable={props.isEditable}
-            title={'License Name'}
-            text={props.displayPackageInfo.licenseName}
-            frequentLicenseNames={frequentLicensesNameOrder}
-            handleChange={handleChange('licenseName')}
-            endAdornmentText={
-              props.displayPackageInfo.licenseText && '(License text modified)'
+          <PackageAutocomplete
+            attribute={'licenseName'}
+            title={text.attributionColumn.licenseName}
+            disabled={!props.isEditable}
+            showHighlight={props.showHighlight}
+            endAdornment={
+              props.displayPackageInfo.licenseText ? (
+                <MuiInputAdornment position="end" sx={classes.endAdornment}>
+                  {text.attributionColumn.licenseTextModified}
+                </MuiInputAdornment>
+              ) : undefined
             }
-            isHighlighted={
-              props.showHighlight &&
-              isImportantAttributionInformationMissing(
-                'licenseName',
-                props.displayPackageInfo,
-              )
-            }
+            defaults={defaultLicenses}
           />
         </MuiAccordionSummary>
-        <MuiAccordionDetails sx={licenseSubPanelClasses.expansionPanelDetails}>
+        <MuiAccordionDetails sx={classes.expansionPanelDetails}>
           <TextBox
             isEditable={props.isEditable}
-            sx={licenseSubPanelClasses.licenseText}
+            sx={classes.licenseText}
             minRows={3}
             maxRows={10}
             multiline={true}
             title={getLicenseTextLabelText(
               props.displayPackageInfo.licenseName,
               props.isEditable,
-              frequentLicensesNameOrder,
+              frequentLicensesNames,
             )}
             text={props.displayPackageInfo.licenseText}
             handleChange={handleChange('licenseText')}
