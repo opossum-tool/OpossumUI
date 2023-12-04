@@ -6,8 +6,8 @@ import { ReactElement } from 'react';
 
 import { ButtonText, View } from '../../enums/enums';
 import {
-  checkIfWasPreferredAndShowWarningOrSave,
   checkIfWasPreferredAndShowWarningOrUnlinkAndSave,
+  checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave,
   closePopupAndUnsetTargets,
   navigateToTargetResourceOrAttribution,
 } from '../../state/actions/popup-actions/popup-actions';
@@ -43,7 +43,7 @@ export function NotSavedPopup(): ReactElement {
   }
 
   function handleSaveGloballyClick(): void {
-    dispatch(checkIfWasPreferredAndShowWarningOrSave());
+    dispatch(checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave());
   }
 
   function handleUndoClick(): void {

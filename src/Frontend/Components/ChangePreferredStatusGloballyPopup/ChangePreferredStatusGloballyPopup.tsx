@@ -10,6 +10,7 @@ import {
   closePopupAndUnsetTargets,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
 } from '../../state/actions/popup-actions/popup-actions';
+import { setOriginIdsToPreferOverGlobally } from '../../state/actions/resource-actions/preference-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -21,6 +22,7 @@ export function ChangePreferredStatusGloballyPopup(): ReactElement {
   );
 
   function handleOkClick(): void {
+    dispatch(setOriginIdsToPreferOverGlobally(temporaryDisplayPackageInfo));
     dispatch(
       saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
     );
