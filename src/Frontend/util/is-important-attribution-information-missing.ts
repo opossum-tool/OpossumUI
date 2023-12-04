@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionInfo, PackageInfo } from '../../shared/shared-types';
-import { getPackageInfoKeys } from '../../shared/shared-util';
+import { PackageInfo } from '../../shared/shared-types';
+import { packageInfoKeys } from './get-stripped-package-info';
 
 const TYPES_REQUIRING_NAMESPACE = [
   'bitbucket',
@@ -13,27 +13,18 @@ const TYPES_REQUIRING_NAMESPACE = [
   'github',
   'maven',
 ];
-interface ExtendedAttributionInfo extends AttributionInfo {
-  icons: unknown;
-}
 
 export function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
-  if (!packageInfo) {
-    return false;
-  }
-  return getPackageInfoKeys().some((attributionProperty) =>
+  return packageInfoKeys.some((attributionProperty) =>
     isImportantAttributionInformationMissing(attributionProperty, packageInfo),
   );
 }
 
 export function isImportantAttributionInformationMissing(
-  attributionProperty: keyof AttributionInfo | 'icons',
-  extendedAttributionInfo: Partial<ExtendedAttributionInfo>,
+  attributionProperty: string,
+  packageInfo: PackageInfo,
 ): boolean {
-  if (
-    extendedAttributionInfo.excludeFromNotice ||
-    extendedAttributionInfo.firstParty
-  ) {
+  if (packageInfo.excludeFromNotice || packageInfo.firstParty) {
     return false;
   }
   switch (attributionProperty) {
@@ -43,27 +34,15 @@ export function isImportantAttributionInformationMissing(
     case 'packageType':
     case 'packageVersion':
     case 'url':
-      return !extendedAttributionInfo[attributionProperty];
+      return !packageInfo[attributionProperty];
     case 'packageNamespace':
-      return isNamespaceRequiredButMissing(
-        extendedAttributionInfo['packageType'],
-        extendedAttributionInfo[attributionProperty],
+      const packageType = packageInfo['packageType'];
+      return (
+        !!packageType &&
+        TYPES_REQUIRING_NAMESPACE.includes(packageType) &&
+        !packageInfo[attributionProperty]
       );
     default:
       return false;
   }
-}
-
-export function isNamespaceRequiredButMissing(
-  packageType?: string,
-  packageNamespace?: string,
-): boolean {
-  if (
-    packageType &&
-    TYPES_REQUIRING_NAMESPACE.includes(packageType) &&
-    !packageNamespace
-  ) {
-    return true;
-  }
-  return false;
 }
