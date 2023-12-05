@@ -53,7 +53,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.21.3, @babel/core@npm:^7.23.3, @babel/core@npm:^7.23.5":
+"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.21.3, @babel/core@npm:^7.23.5":
   version: 7.23.5
   resolution: "@babel/core@npm:7.23.5"
   dependencies:
@@ -2982,7 +2982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.20.4, @types/babel__core@npm:^7.20.5":
+"@types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.20.5":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
   dependencies:
@@ -3650,18 +3650,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-react@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "@vitejs/plugin-react@npm:4.2.0"
+"@vitejs/plugin-react@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "@vitejs/plugin-react@npm:4.2.1"
   dependencies:
-    "@babel/core": "npm:^7.23.3"
+    "@babel/core": "npm:^7.23.5"
     "@babel/plugin-transform-react-jsx-self": "npm:^7.23.3"
     "@babel/plugin-transform-react-jsx-source": "npm:^7.23.3"
-    "@types/babel__core": "npm:^7.20.4"
+    "@types/babel__core": "npm:^7.20.5"
     react-refresh: "npm:^0.14.0"
   peerDependencies:
     vite: ^4.2.0 || ^5.0.0
-  checksum: 989d465f92588ed16902b822e1efe5c33bb13594b25d8d9d2ec4e7b23dd54847ff232b4318c0309c08acf38e1f27c182774bccf37122a4d04d0cba41c2ef7e67
+  checksum: d7fa6dacd3c246bcee482ff4b7037b2978b6ca002b79780ad4921e91ae4bc85ab234cfb94f8d4d825fed8488a0acdda2ff02b47c27b3055187c0727b18fc725e
   languageName: node
   linkType: hard
 
@@ -9136,7 +9136,7 @@ __metadata:
     "@types/uuid": "npm:^9.0.7"
     "@typescript-eslint/eslint-plugin": "npm:^6.13.1"
     "@typescript-eslint/parser": "npm:^6.13.1"
-    "@vitejs/plugin-react": "npm:^4.2.0"
+    "@vitejs/plugin-react": "npm:^4.2.1"
     axios: "npm:^1.6.2"
     axios-mock-adapter: "npm:^1.22.0"
     babel-jest: "npm:^29.7.0"
