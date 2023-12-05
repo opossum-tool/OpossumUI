@@ -141,6 +141,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
       </ResizableBox>
       <AttributionColumn
         isEditable
+        isExternalAttribution
         onSaveButtonClick={dispatchSavePackageInfoOrOpenWasPreferredPopup}
         onDeleteButtonClick={deleteAttribution}
         saveFileRequestListener={saveFileRequestListener}

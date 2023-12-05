@@ -91,6 +91,10 @@ export interface AttributionsToHashes {
   [uuid: string]: string;
 }
 
+export interface OriginIdsToAttributions {
+  [uuid: string]: string;
+}
+
 export interface ResourcesWithAttributedChildren {
   paths: Array<string>;
   pathsToIndices: { [path: string]: number };

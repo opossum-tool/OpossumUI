@@ -9,6 +9,7 @@ import {
   DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
+  OriginIdsToAttributions,
   ProjectMetadata,
   Resources,
   SelectedCriticality,
@@ -50,6 +51,7 @@ import {
   ACTION_SET_LOCATE_POPUP_FILTERS,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
   ACTION_SET_MULTI_SELECT_SELECTED_ATTRIBUTION_IDS,
+  ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_PACKAGE_SEARCH_TERM,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS,
@@ -98,6 +100,7 @@ export const initialResourceState: ResourceState = {
     externalAttributionSources: {},
     attributionIdMarkedForReplacement: '',
     externalAttributionsToHashes: {},
+    originIdsToExternalAttributions: {},
     resourcesWithLocatedAttributions: {
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
@@ -147,6 +150,7 @@ export type ResourceState = {
     externalAttributionSources: ExternalAttributionSources;
     attributionIdMarkedForReplacement: string;
     externalAttributionsToHashes: AttributionsToHashes;
+    originIdsToExternalAttributions: OriginIdsToAttributions;
     resourcesWithLocatedAttributions: {
       resourcesWithLocatedChildren: Set<string>;
       locatedResources: Set<string>;
@@ -770,6 +774,14 @@ export const resourceState = (
         allViews: {
           ...state.allViews,
           externalAttributionsToHashes: action.payload,
+        },
+      };
+    case ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS:
+      return {
+        ...state,
+        allViews: {
+          ...state.allViews,
+          originIdsToExternalAttributions: action.payload,
         },
       };
     case ACTION_SET_ENABLE_PREFERENCE_FEATURE:

@@ -79,6 +79,7 @@ const classes = {
 
 interface AttributionColumnProps {
   isEditable: boolean;
+  isExternalAttribution: boolean;
   areButtonsHidden?: boolean;
   showSaveGloballyButton?: boolean;
   hideDeleteButtons?: boolean;
@@ -140,6 +141,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         <AuditingOptions
           packageInfo={temporaryDisplayPackageInfo}
           isEditable={props.isEditable}
+          isExternalAttribution={props.isExternalAttribution}
         />
         <MuiDivider variant={'middle'}>
           <MuiTypography>

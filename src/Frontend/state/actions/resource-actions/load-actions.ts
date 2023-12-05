@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { ParsedFileContent } from '../../../../shared/shared-types';
-import { createExternalAttributionsToHashes } from '../../helpers/action-and-reducer-helpers';
+import { createHashAndOriginIdMappingsForExternalAttributions } from '../../helpers/action-and-reducer-helpers';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
   setAttributionBreakpoints,
@@ -15,6 +15,7 @@ import {
   setFrequentLicenses,
   setIsPreferenceFeatureEnabled,
   setManualData,
+  setOriginIdsToExternalAttributions,
   setProjectMetadata,
   setResources,
 } from './all-views-simple-actions';
@@ -70,10 +71,13 @@ export function loadFromFile(
       dispatch(addResolvedExternalAttribution(attribution)),
     );
 
-    const externalAttributionsToHashes = createExternalAttributionsToHashes(
-      parsedFileContent.externalAttributions.attributions,
-    );
-
+    const [externalAttributionsToHashes, originIdsToExternalAttributions] =
+      createHashAndOriginIdMappingsForExternalAttributions(
+        parsedFileContent.externalAttributions.attributions,
+      );
     dispatch(setExternalAttributionsToHashes(externalAttributionsToHashes));
+    dispatch(
+      setOriginIdsToExternalAttributions(originIdsToExternalAttributions),
+    );
   };
 }

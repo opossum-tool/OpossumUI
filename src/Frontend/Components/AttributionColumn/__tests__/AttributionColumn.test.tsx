@@ -10,10 +10,13 @@ import { act } from 'react-dom/test-utils';
 
 import { faker } from '../../../../shared/Faker';
 import {
+  Attributions,
   DiscreteConfidence,
   DisplayPackageInfo,
   FollowUp,
   FrequentLicenses,
+  Resources,
+  ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -23,10 +26,15 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
-import { clickOnButton } from '../../../test-helpers/general-test-helpers';
+import {
+  clickOnButton,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
 
@@ -49,6 +57,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -146,6 +155,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -175,6 +185,7 @@ describe('The AttributionColumn', () => {
     renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -209,6 +220,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -239,6 +251,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -257,10 +270,79 @@ describe('The AttributionColumn', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders original signal source for manual attributions', () => {
+    const [testResourceName] = faker.opossum.resourceNames({ count: 1 });
+    const testResources: Resources = faker.opossum.resources({
+      [testResourceName]: 1,
+    });
+    const originId = faker.string.uuid();
+    const [externalAttributionId, externalPackageInfo] =
+      faker.opossum.externalAttribution({ originIds: [originId] });
+    const testExternalAttributions: Attributions =
+      faker.opossum.externalAttributions({
+        [externalAttributionId]: externalPackageInfo,
+      });
+    const testResourcesToExternalAttributions: ResourcesToAttributions =
+      faker.opossum.resourcesToAttributions({
+        [faker.opossum.folderPath(testResourceName)]: [externalAttributionId],
+      });
+    const [manualAttributionId, manualPackageInfo] =
+      faker.opossum.manualAttribution({
+        originIds: externalPackageInfo.originIds,
+      });
+    const testManualAttributions: Attributions =
+      faker.opossum.manualAttributions({
+        [manualAttributionId]: manualPackageInfo,
+      });
+    const testResourcesToManualAttributions: ResourcesToAttributions =
+      faker.opossum.resourcesToAttributions({
+        [faker.opossum.folderPath(testResourceName)]: [manualAttributionId],
+      });
+
+    const { store } = renderComponent(
+      <AttributionColumn
+        isEditable={true}
+        isExternalAttribution={false}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
+      />,
+    );
+
+    store.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testManualAttributions,
+          resourcesToManualAttributions: testResourcesToManualAttributions,
+          externalAttributions: testExternalAttributions,
+          resourcesToExternalAttributions: testResourcesToExternalAttributions,
+        }),
+      ),
+    );
+
+    act(() => {
+      store.dispatch(
+        setTemporaryDisplayPackageInfo(
+          convertPackageInfoToDisplayPackageInfo(manualPackageInfo, [
+            manualAttributionId,
+          ]),
+        ),
+      );
+    });
+
+    expect(
+      screen.getByText(externalPackageInfo.source!.name),
+    ).toBeInTheDocument();
+  });
+
   it('renders a chip for follow-up', async () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -286,6 +368,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -312,6 +395,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -341,6 +425,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -369,6 +454,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -396,6 +482,7 @@ describe('The AttributionColumn', () => {
     const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
+        isExternalAttribution={true}
         onSaveButtonClick={noop}
         onSaveGloballyButtonClick={noop}
         saveFileRequestListener={noop}
@@ -421,6 +508,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
+          isExternalAttribution={true}
           onSaveButtonClick={noop}
           onSaveGloballyButtonClick={noop}
           saveFileRequestListener={noop}
@@ -450,6 +538,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponent(
         <AttributionColumn
           isEditable={false}
+          isExternalAttribution={true}
           onSaveButtonClick={noop}
           onSaveGloballyButtonClick={noop}
           saveFileRequestListener={noop}
@@ -484,6 +573,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
+          isExternalAttribution={true}
           onSaveButtonClick={noop}
           onSaveGloballyButtonClick={noop}
           saveFileRequestListener={noop}
@@ -517,6 +607,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
+          isExternalAttribution={true}
           onSaveButtonClick={noop}
           onSaveGloballyButtonClick={noop}
           saveFileRequestListener={noop}
@@ -554,6 +645,7 @@ describe('The AttributionColumn', () => {
       const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
+          isExternalAttribution={false}
           onSaveButtonClick={noop}
           onSaveGloballyButtonClick={noop}
           saveFileRequestListener={noop}

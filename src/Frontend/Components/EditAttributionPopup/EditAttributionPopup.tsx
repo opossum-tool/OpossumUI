@@ -78,6 +78,7 @@ export function EditAttributionPopup(): ReactElement {
       content={
         <AttributionColumn
           isEditable
+          isExternalAttribution
           areButtonsHidden
           saveFileRequestListener={saveFileRequestListener}
         />

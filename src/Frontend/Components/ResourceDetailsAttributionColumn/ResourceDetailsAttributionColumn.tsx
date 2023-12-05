@@ -195,6 +195,7 @@ export function ResourceDetailsAttributionColumn(
     !manualAttributionsOfBreakpointSelected ? (
     <AttributionColumn
       isEditable={isShownDataEditable}
+      isExternalAttribution={shownDataIsFromExternalAttribution()}
       showHideButton={shownDataIsFromExternalAttribution()}
       areButtonsHidden={
         displayedPackage.panel !== PackagePanelTitle.ManualPackages

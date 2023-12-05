@@ -14,6 +14,7 @@ import {
   ExternalAttributionSources,
   FrequentLicenseName,
   LicenseTexts,
+  OriginIdsToAttributions,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -236,6 +237,12 @@ export function getExternalAttributionsToHashes(
   state: State,
 ): AttributionsToHashes {
   return state.resourceState.allViews.externalAttributionsToHashes;
+}
+
+export function getOriginIdsToExternalAttributions(
+  state: State,
+): OriginIdsToAttributions {
+  return state.resourceState.allViews.originIdsToExternalAttributions;
 }
 
 export function getResourcesWithLocatedAttributions(state: State): {

@@ -10,6 +10,7 @@ import {
   DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
+  OriginIdsToAttributions,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -77,6 +78,8 @@ export const ACTION_TOGGLE_ACCORDION_SEARCH_FIELD =
 export const ACTION_SET_PACKAGE_SEARCH_TERM = 'ACTION_SET_PACKAGE_SEARCH_TERM';
 export const ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES =
   'ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES';
+export const ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS =
+  'ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS';
 export const ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS =
   'ACTION_SET_RESOURCES_WITH_LOCATED_ATTRIBUTIONS';
 export const ACTION_SET_ENABLE_PREFERENCE_FEATURE =
@@ -119,6 +122,7 @@ export type ResourceAction =
   | ToggleAccordionSearchField
   | SetPackageSearchTerm
   | SetExternalAttributionsToHashes
+  | SetOriginIdsToExternalAttributions
   | SetIsPreferenceFeatureEnabled
   | SetLocatePopupFilters;
 
@@ -309,6 +313,11 @@ export interface SetPackageSearchTerm {
 export interface SetExternalAttributionsToHashes {
   type: typeof ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES;
   payload: AttributionsToHashes;
+}
+
+export interface SetOriginIdsToExternalAttributions {
+  type: typeof ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS;
+  payload: OriginIdsToAttributions;
 }
 
 export interface SetIsPreferenceFeatureEnabled {

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { NIL as uuidNil } from 'uuid';
 
+import { faker } from '../../../../e2e-tests/utils';
 import {
   AttributionData,
   Attributions,
@@ -29,7 +30,7 @@ import {
   attributionMatchesLocateFilter,
   calculateResourcesWithLocatedAttributions,
   computeChildrenWithAttributions,
-  createExternalAttributionsToHashes,
+  createHashAndOriginIdMappingsForExternalAttributions,
   getAttributionDataFromSetAttributionDataPayload,
   getAttributionIdOfFirstPackageCardInManualPackagePanel,
   getIndexOfAttributionInManualPackagePanel,
@@ -149,66 +150,93 @@ describe('computeChildrenWithAttributions', () => {
   });
 });
 
-describe('createExternalAttributionsToHashes', () => {
+describe('createHashAndOriginIdMappingsForExternalAttributions', () => {
   it('yields correct results', () => {
-    const testExternalAttributions: Attributions = {
-      uuid1: {
-        attributionConfidence: 1,
-        comment: 'comment1',
-        packageName: 'name',
-        originIds: ['abc'],
-        preSelected: true,
-        wasPreferred: false,
-      },
-      uuid2: {
-        attributionConfidence: 2,
-        comment: 'comment2',
-        packageName: 'name',
-        originIds: ['def'],
-        preSelected: false,
-        wasPreferred: true,
-      },
-      uuid3: {
-        packageName: 'name',
-      },
-      uuid4: {
-        licenseName: '',
-        firstParty: true,
-      },
-      uuid5: {
-        firstParty: true,
-      },
-      uuid6: {
-        packageName: '',
-      },
-      uuid7: {
-        firstParty: false,
-      },
-    };
+    const originId1 = faker.string.uuid();
+    const [attributionId1, packageInfo1] = faker.opossum.externalAttribution({
+      packageName: faker.internet.domainWord(),
+      comment: faker.lorem.sentence(),
+      attributionConfidence: faker.opossum.attributionConfidence(),
+      originIds: [originId1],
+      preSelected: faker.datatype.boolean(),
+      wasPreferred: faker.datatype.boolean(),
+    });
+    const originId2 = faker.string.uuid();
+    const [attributionId2, packageInfo2] = faker.opossum.externalAttribution({
+      ...packageInfo1,
+      comment: faker.lorem.sentence(),
+      attributionConfidence: faker.opossum.attributionConfidence(),
+      originIds: [originId2],
+      preSelected: faker.datatype.boolean(),
+      wasPreferred: faker.datatype.boolean(),
+    });
+    const [attributionId3, packageInfo3] = faker.opossum.externalAttribution({
+      ...packageInfo1,
+      comment: undefined,
+      attributionConfidence: undefined,
+      originIds: undefined,
+      preSelected: undefined,
+      wasPreferred: undefined,
+    });
+    const [attributionId4, packageInfo4] = faker.opossum.externalAttribution({
+      licenseName: '',
+      firstParty: true,
+    });
+    const [attributionId5, packageInfo5] = faker.opossum.externalAttribution({
+      ...packageInfo4,
+      firstParty: true,
+    });
+    const [attributionId6, packageInfo6] = faker.opossum.externalAttribution({
+      packageName: '',
+    });
+    const [attributionId7, packageInfo7] = faker.opossum.externalAttribution({
+      firstParty: false,
+    });
 
-    const testExternalAttributionsToHashes = createExternalAttributionsToHashes(
+    const testExternalAttributions = faker.opossum.externalAttributions({
+      [attributionId1]: packageInfo1,
+      [attributionId2]: packageInfo2,
+      [attributionId3]: packageInfo3,
+      [attributionId4]: packageInfo4,
+      [attributionId5]: packageInfo5,
+      [attributionId6]: packageInfo6,
+      [attributionId7]: packageInfo7,
+    });
+
+    const [
+      testExternalAttributionsToHashes,
+      testOriginIdsToExternalAttributions,
+    ] = createHashAndOriginIdMappingsForExternalAttributions(
       testExternalAttributions,
     );
 
-    expect(testExternalAttributionsToHashes.uuid1).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid2).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid3).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid4).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid5).toBeDefined();
-    expect(testExternalAttributionsToHashes.uuid6).toBeUndefined();
-    expect(testExternalAttributionsToHashes.uuid7).toBeUndefined();
+    expect(testExternalAttributionsToHashes[attributionId1]).toBeDefined();
+    expect(testExternalAttributionsToHashes[attributionId2]).toBeDefined();
+    expect(testExternalAttributionsToHashes[attributionId3]).toBeDefined();
+    expect(testExternalAttributionsToHashes[attributionId4]).toBeDefined();
+    expect(testExternalAttributionsToHashes[attributionId5]).toBeDefined();
+    expect(testExternalAttributionsToHashes[attributionId6]).toBeUndefined();
+    expect(testExternalAttributionsToHashes[attributionId7]).toBeUndefined();
 
-    expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid2,
+    expect(testExternalAttributionsToHashes[attributionId1]).toEqual(
+      testExternalAttributionsToHashes[attributionId2],
     );
-    expect(testExternalAttributionsToHashes.uuid1).toEqual(
-      testExternalAttributionsToHashes.uuid3,
+    expect(testExternalAttributionsToHashes[attributionId1]).toEqual(
+      testExternalAttributionsToHashes[attributionId3],
     );
-    expect(testExternalAttributionsToHashes.uuid1).not.toEqual(
-      testExternalAttributionsToHashes.uuid4,
+    expect(testExternalAttributionsToHashes[attributionId1]).not.toEqual(
+      testExternalAttributionsToHashes[attributionId4],
     );
-    expect(testExternalAttributionsToHashes.uuid4).toEqual(
-      testExternalAttributionsToHashes.uuid5,
+    expect(testExternalAttributionsToHashes[attributionId4]).toEqual(
+      testExternalAttributionsToHashes[attributionId5],
+    );
+
+    expect(Object.keys(testOriginIdsToExternalAttributions)).toHaveLength(2);
+    expect(testOriginIdsToExternalAttributions[originId1]).toEqual(
+      attributionId1,
+    );
+    expect(testOriginIdsToExternalAttributions[originId2]).toEqual(
+      attributionId2,
     );
   });
 });

@@ -11,6 +11,7 @@ import {
   AttributionsToHashes,
   AttributionsToResources,
   FrequentLicenseName,
+  OriginIdsToAttributions,
   PackageInfo,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
@@ -167,9 +168,9 @@ export function removeResolvedAttributionsFromResourcesWithAttributedChildren(
   });
 }
 
-export function createExternalAttributionsToHashes(
+export function createHashAndOriginIdMappingsForExternalAttributions(
   externalAttributions: Attributions,
-): AttributionsToHashes {
+): [AttributionsToHashes, OriginIdsToAttributions] {
   const excludeKeys = function (key: string): boolean {
     return [
       'comment',
@@ -185,10 +186,13 @@ export function createExternalAttributionsToHashes(
 
   const externalAttributionsToHashes: AttributionsToHashes = {};
   const hashesToExternalAttributions: { [hash: string]: Array<string> } = {};
-
+  const originIdsToExternalAttributions: OriginIdsToAttributions = {};
   for (const [attributionId, attribution] of Object.entries(
     externalAttributions,
   )) {
+    if (attribution.originIds?.[0]) {
+      originIdsToExternalAttributions[attribution.originIds[0]] = attributionId;
+    }
     if (attribution.firstParty || attribution.packageName) {
       const attributionKeys = Object.keys(attribution) as Array<
         keyof PackageInfo
@@ -209,6 +213,8 @@ export function createExternalAttributionsToHashes(
 
   Object.entries(hashesToExternalAttributions).forEach(
     ([hash, attributionIds]) => {
+      //'externalAttributionsToHashes' will be used to identify identical attributions later on
+      //Reduce memory consumption by only storing attributions with at least one dublicate
       if (attributionIds.length > 1) {
         attributionIds.forEach(
           (attributionId) =>
@@ -218,7 +224,7 @@ export function createExternalAttributionsToHashes(
     },
   );
 
-  return externalAttributionsToHashes;
+  return [externalAttributionsToHashes, originIdsToExternalAttributions];
 }
 
 export function getAttributionIdOfFirstPackageCardInManualPackagePanel(

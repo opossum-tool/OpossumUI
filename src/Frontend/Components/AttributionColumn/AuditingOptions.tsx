@@ -26,14 +26,22 @@ import MuiRating from '@mui/material/Rating';
 import { SxProps } from '@mui/system';
 import { useMemo, useState } from 'react';
 
-import { DisplayPackageInfo, FollowUp } from '../../../shared/shared-types';
+import {
+  Attributions,
+  DisplayPackageInfo,
+  FollowUp,
+  OriginIdsToAttributions,
+  Source,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector, useAppStore } from '../../state/hooks';
 import {
+  getExternalAttributions,
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
+  getOriginIdsToExternalAttributions,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getQAMode } from '../../state/selectors/view-selector';
@@ -62,6 +70,7 @@ const classes = {
 
 interface ChipDatum {
   active: boolean;
+  title: string;
   option: string;
   icon?: React.ReactElement;
   interactive: boolean;
@@ -73,13 +82,15 @@ interface ChipDatum {
 interface Props {
   packageInfo: DisplayPackageInfo;
   isEditable: boolean;
+  isExternalAttribution: boolean;
 }
 
 export function AuditingOptions({
   packageInfo,
   isEditable,
+  isExternalAttribution,
 }: Props): React.ReactNode {
-  const chips = useChips({ packageInfo, isEditable });
+  const chips = useChips({ packageInfo, isEditable, isExternalAttribution });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [pendingOptions, setPendingOptions] = useState<Array<string>>([]);
   const inactiveChips = chips.filter(
@@ -116,9 +127,10 @@ export function AuditingOptions({
 
   function renderActiveChips() {
     return chips.map(
-      ({ label, icon, active, onDelete, interactive, option }, index) =>
+      ({ title, label, icon, active, onDelete, interactive, option }, index) =>
         active ? (
           <MuiChip
+            title={title}
             key={index}
             label={label}
             size={'small'}
@@ -193,9 +205,11 @@ export function AuditingOptions({
 function useChips({
   packageInfo,
   isEditable,
+  isExternalAttribution,
 }: {
   packageInfo: DisplayPackageInfo;
   isEditable: boolean;
+  isExternalAttribution: boolean;
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
@@ -204,12 +218,28 @@ function useChips({
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
-  const sourceName =
-    packageInfo.source?.additionalName || packageInfo.source?.name;
+  const originIds = packageInfo.originIds;
+  const originIdsToExternalAttributions = useAppSelector(
+    getOriginIdsToExternalAttributions,
+  );
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const originSource = getOriginSourceFromOriginId(
+    originIds ?? [],
+    originIdsToExternalAttributions,
+    externalAttributions,
+  );
+  const sourceName = !isExternalAttribution
+    ? originSource?.additionalName || originSource?.name
+    : packageInfo.source?.additionalName || packageInfo.source?.name;
+  const attributionTypeName = !isExternalAttribution ? 'Attribution' : 'Signal';
+  const sourceChipTitle = !isExternalAttribution
+    ? 'Source of attribution origin'
+    : 'Signal source';
 
   return useMemo<Array<ChipDatum>>(
     () => [
       {
+        title: `${attributionTypeName} marked as preferred`,
         option: 'preferred',
         label: text.auditingOptions.currentlyPreferred,
         icon: (
@@ -238,6 +268,7 @@ function useChips({
         interactive: isPreferenceFeatureEnabled && qaMode,
       },
       {
+        title: `${attributionTypeName} originates from a preferred attribution.`,
         option: 'was-preferred',
         label: text.auditingOptions.previouslyPreferred,
         icon: (
@@ -252,6 +283,7 @@ function useChips({
         interactive: false,
       },
       {
+        title: `Pre-selected ${attributionTypeName.toLowerCase()}`,
         option: 'pre-selected',
         label: text.auditingOptions.preselected,
         icon: (
@@ -266,6 +298,7 @@ function useChips({
         interactive: false,
       },
       {
+        title: `${attributionTypeName} requires a follow-up`,
         option: 'follow-up',
         label: text.auditingOptions.followUp,
         icon: (
@@ -294,6 +327,7 @@ function useChips({
         interactive: true,
       },
       {
+        title: `${attributionTypeName} needs review.`,
         option: 'needs-review',
         label: text.auditingOptions.needsReview,
         icon: (
@@ -322,6 +356,7 @@ function useChips({
         interactive: true,
       },
       {
+        title: `${attributionTypeName} should be excluded from the notice document`,
         option: 'excluded-from-notice',
         label: text.auditingOptions.excludedFromNotice,
         icon: (
@@ -350,13 +385,18 @@ function useChips({
         interactive: true,
       },
       {
+        title: sourceChipTitle,
         option: 'source',
         label: prettifySource(sourceName, attributionSources),
         icon: (
           <ExploreIcon
             sx={{
               ...baseIcon,
-              color: `${OpossumColors.black} !important`,
+              color: `${
+                !isExternalAttribution
+                  ? OpossumColors.grey
+                  : OpossumColors.black
+              } !important`,
             }}
           />
         ),
@@ -364,6 +404,7 @@ function useChips({
         interactive: false,
       },
       {
+        title: `${attributionTypeName} confidence`,
         option: 'confidence',
         label: text.auditingOptions.confidence,
         icon: (
@@ -407,8 +448,10 @@ function useChips({
     ],
     [
       attributionSources,
+      attributionTypeName,
       dispatch,
       isEditable,
+      isExternalAttribution,
       isPreferenceFeatureEnabled,
       packageInfo.attributionConfidence,
       packageInfo.excludeFromNotice,
@@ -418,10 +461,23 @@ function useChips({
       packageInfo.preferred,
       packageInfo.wasPreferred,
       qaMode,
+      sourceChipTitle,
       sourceName,
       store,
     ],
   );
+}
+
+function getOriginSourceFromOriginId(
+  originIds: Array<string>,
+  originIdsToExternalAttributions: OriginIdsToAttributions,
+  externalAttributions: Attributions,
+): Source | null {
+  if (originIds.length > 0) {
+    const externalAttributionId = originIdsToExternalAttributions[originIds[0]];
+    return externalAttributions[externalAttributionId]?.source ?? null;
+  }
+  return null;
 }
 
 function getSatisfaction(value: number): React.ReactNode {

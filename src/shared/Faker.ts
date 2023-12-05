@@ -13,6 +13,7 @@ import type {
 } from '../ElectronBackend/types/types';
 import {
   AttributionData,
+  Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
   DiscreteConfidence,
@@ -81,14 +82,18 @@ class OpossumModule {
     };
   }
 
+  public static attributionConfidence(): number {
+    return faker.number.int({
+      min: DiscreteConfidence.Low + 1,
+      max: DiscreteConfidence.High - 1,
+    });
+  }
+
   public static manualPackageInfo(
     props: Partial<ManualPackageInfo> = {},
   ): ManualPackageInfo {
     return {
-      attributionConfidence: faker.number.int({
-        min: DiscreteConfidence.Low + 1,
-        max: DiscreteConfidence.High - 1,
-      }),
+      attributionConfidence: faker.opossum.attributionConfidence(),
       copyright: faker.lorem.sentences(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),
@@ -145,7 +150,7 @@ class OpossumModule {
 
   public static externalAttributions(
     props?: Record<string, ExternalPackageInfo>,
-  ): Record<string, ExternalPackageInfo> {
+  ): Attributions {
     return (
       props || {
         [this.attributionId()]: this.externalPackageInfo(),

@@ -9,6 +9,7 @@ import {
   DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
+  OriginIdsToAttributions,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -25,6 +26,7 @@ import {
   ACTION_SET_FILES_WITH_CHILDREN,
   ACTION_SET_FREQUENT_LICENSES,
   ACTION_SET_MANUAL_ATTRIBUTION_DATA,
+  ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS,
   ACTION_SET_PROJECT_METADATA,
   ACTION_SET_RESOURCES,
   ACTION_SET_TEMPORARY_PACKAGE_INFO,
@@ -38,6 +40,7 @@ import {
   SetFrequentLicensesAction,
   SetIsPreferenceFeatureEnabled,
   SetManualDataAction,
+  SetOriginIdsToExternalAttributions,
   SetProjectMetadata,
   SetResourcesAction,
   SetTemporaryDisplayPackageInfoAction,
@@ -140,6 +143,15 @@ export function setExternalAttributionsToHashes(
   return {
     type: ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES,
     payload: externalAttributionsToHashes,
+  };
+}
+
+export function setOriginIdsToExternalAttributions(
+  originIdsToExternalAttributions: OriginIdsToAttributions,
+): SetOriginIdsToExternalAttributions {
+  return {
+    type: ACTION_SET_ORIGINIDS_TO_EXTERNAL_ATTRIBUTIONS,
+    payload: originIdsToExternalAttributions,
   };
 }
 
