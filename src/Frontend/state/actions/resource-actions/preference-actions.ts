@@ -25,6 +25,7 @@ import {
   getResourcesToExternalAttributions,
   getResourcesToManualAttributions,
 } from '../../selectors/all-views-resource-selectors';
+import { getResourceIdsOfSelectedAttribution } from '../../selectors/attribution-view-resource-selectors';
 import { getSelectedResourceId } from '../../selectors/audit-view-resource-selectors';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
@@ -57,35 +58,66 @@ export function toggleIsSelectedPackagePreferred(
   };
 }
 
+export function setOriginIdsToPreferOverGlobally(
+  packageInfo: DisplayPackageInfo,
+): AppThunkAction {
+  return (dispatch, getState): void => {
+    const state = getState();
+
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...packageInfo,
+        preferredOverOriginIds: getOriginIdsToPreferOver(
+          getResourceIdsOfSelectedAttribution(state) ?? [],
+          getResources(state) ?? {},
+          getResourcesToExternalAttributions(state),
+          getResourcesToManualAttributions(state),
+          getExternalAttributions(state),
+          getExternalAttributionSources(state),
+        ),
+      }),
+    );
+  };
+}
+
 export function getOriginIdsToPreferOver(
-  pathToRootResource: string,
+  pathsToRootResources: string | Array<string>,
   resources: Resources,
   resourcesToExternalAttributions: ResourcesToAttributions,
   resourcesToManualAttributions: ResourcesToAttributions,
   externalAttributions: Attributions,
   externalAttributionSources: ExternalAttributionSources,
 ): Array<string> {
-  const rootResource = getSubtree(resources, pathToRootResource);
-
+  let originIds: Array<string> = [];
   const isBreakpoint: PathPredicate = (path: string) =>
     path in resourcesToManualAttributions;
 
-  const subtreeResourcesIds = getResourceIdsInSubtreeWithBreakpoints(
-    pathToRootResource,
-    rootResource,
-    isBreakpoint,
-  );
+  if (typeof pathsToRootResources === 'string') {
+    pathsToRootResources = [pathsToRootResources];
+  }
 
-  const packageInfos = getPackageInfosFromResources(
-    subtreeResourcesIds,
-    resourcesToExternalAttributions,
-    externalAttributions,
-  );
+  for (const pathToRootResource of pathsToRootResources) {
+    const rootResource = getSubtree(resources, pathToRootResource);
 
-  const originIds = getOriginIdsToPreferOverFromPackageInfos(
-    packageInfos,
-    externalAttributionSources,
-  );
+    const subtreeResourcesIds = getResourceIdsInSubtreeWithBreakpoints(
+      pathToRootResource,
+      rootResource,
+      isBreakpoint,
+    );
+
+    const packageInfos = getPackageInfosFromResources(
+      subtreeResourcesIds,
+      resourcesToExternalAttributions,
+      externalAttributions,
+    );
+
+    const originIdsForResource = getOriginIdsToPreferOverFromPackageInfos(
+      packageInfos,
+      externalAttributionSources,
+    );
+
+    originIds = originIds.concat(originIdsForResource);
+  }
 
   return originIds;
 }

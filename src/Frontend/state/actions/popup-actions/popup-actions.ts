@@ -232,7 +232,7 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIs
   };
 }
 
-export function checkIfWasPreferredAndShowWarningOrSave(): AppThunkAction {
+export function checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const currentAttributionId = getCurrentAttributionId(getState());
     const temporaryDisplayPackageInfo =
