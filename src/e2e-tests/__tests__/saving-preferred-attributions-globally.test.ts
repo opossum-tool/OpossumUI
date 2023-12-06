@@ -209,7 +209,7 @@ test('marks and unmarks an attribution as preferred globally if user navigates a
   });
 });
 
-test('popup is only shown if necessary and undo reverts preference status only', async ({
+test('show prefer globally warning only if necessary and do nothing on cancel', async ({
   attributionDetails,
   changePreferredStatusGloballyPopup,
   notSavedPopup,
@@ -265,6 +265,61 @@ test('popup is only shown if necessary and undo reverts preference status only',
     await attributionDetails.openHamburgerMenu();
     await attributionDetails.assert.buttonInHamburgerMenuIsVisible(
       'unmarkAsPreferred',
+    );
+  });
+});
+
+test('show prefer globally warning if attribution is marked as preferred and saved in attribution view', async ({
+  attributionDetails,
+  attributionList,
+  changePreferredStatusGloballyPopup,
+  menuBar,
+  topBar,
+}) => {
+  await menuBar.toggleQaMode();
+
+  await test.step('prefer attribution with multiple resources and click save button', async () => {
+    await topBar.gotoAttributionView();
+    await attributionList.attributionCard.click(packageInfo1);
+    await attributionList.attributionCard.assert.preferredIconIsHidden(
+      packageInfo1,
+    );
+
+    await attributionDetails.openHamburgerMenu();
+    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await attributionDetails.saveButton.click();
+    await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
+
+    await changePreferredStatusGloballyPopup.okButton.click();
+    await attributionList.attributionCard.assert.preferredIconIsVisible(
+      packageInfo1,
+    );
+  });
+
+  await test.step('prefer attribution with multiple resources and save via menu', async () => {
+    await attributionDetails.openHamburgerMenu();
+    await attributionDetails.hamburgerMenu.unmarkAsPreferred.click();
+    await menuBar.saveChanges();
+    await changePreferredStatusGloballyPopup.assert.unmarkAsPreferredWarningIsVisible();
+
+    await changePreferredStatusGloballyPopup.okButton.click();
+    await attributionList.attributionCard.assert.preferredIconIsHidden(
+      packageInfo1,
+    );
+  });
+
+  await test.step('do not show warning if attribution with single resource is marked as preferred', async () => {
+    await attributionList.attributionCard.click(packageInfo2);
+    await attributionList.attributionCard.assert.preferredIconIsHidden(
+      packageInfo2,
+    );
+
+    await attributionDetails.openHamburgerMenu();
+    await attributionDetails.hamburgerMenu.markAsPreferred.click();
+    await menuBar.saveChanges();
+    await changePreferredStatusGloballyPopup.assert.isHidden();
+    await attributionList.attributionCard.assert.preferredIconIsVisible(
+      packageInfo2,
     );
   });
 });

@@ -32,11 +32,13 @@ import {
   getManualDisplayPackageInfoOfSelected,
   getResourcesToManualAttributions,
   getResourcesWithManualAttributedChildren,
-  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../../selectors/all-views-resource-selectors';
-import { getMultiSelectSelectedAttributionIds } from '../../../selectors/attribution-view-resource-selectors';
+import {
+  getMultiSelectSelectedAttributionIds,
+  getSelectedAttributionIdInAttributionView,
+} from '../../../selectors/attribution-view-resource-selectors';
 import { getOpenPopup } from '../../../selectors/view-selector';
 import {
   setResources,

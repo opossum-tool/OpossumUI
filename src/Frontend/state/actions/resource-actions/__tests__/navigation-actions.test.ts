@@ -22,9 +22,9 @@ import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert
 import {
   getDisplayedPackage,
   getManualData,
-  getSelectedAttributionIdInAttributionView,
   getTemporaryDisplayPackageInfo,
 } from '../../../selectors/all-views-resource-selectors';
+import { getSelectedAttributionIdInAttributionView } from '../../../selectors/attribution-view-resource-selectors';
 import {
   getExpandedIds,
   getSelectedResourceId,
