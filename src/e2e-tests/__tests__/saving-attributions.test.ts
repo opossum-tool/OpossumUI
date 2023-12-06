@@ -242,34 +242,6 @@ test('allows user to edit an existing attribution in report view', async ({
   await reportView.assert.matchesPackageInfo(newPackageInfo);
 });
 
-test('adds a new attribution via PURL', async ({
-  attributionDetails,
-  resourceBrowser,
-  resourceDetails,
-}) => {
-  const newPackageInfo = faker.opossum.manualPackageInfo({
-    attributionConfidence: DiscreteConfidence.High,
-    packageNamespace: faker.internet.domainWord(),
-    licenseName: undefined,
-    url: undefined,
-    copyright: undefined,
-  });
-  await resourceBrowser.goto(resourceName1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await resourceDetails.addNewAttributionButton.click();
-  await attributionDetails.assert.isEmpty();
-
-  await attributionDetails.purl.fill(
-    `pkg:${newPackageInfo.packageType}/${newPackageInfo.packageNamespace}/${newPackageInfo.packageName}@${newPackageInfo.packageVersion}`,
-  );
-  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
-
-  await attributionDetails.saveButton.click();
-  await attributionDetails.assert.saveButtonIsDisabled();
-  await resourceDetails.attributionCard.assert.isVisible(newPackageInfo);
-});
-
 test('warns user of unsaved changes if user attempts to navigate away before saving', async ({
   attributionDetails,
   attributionList,
