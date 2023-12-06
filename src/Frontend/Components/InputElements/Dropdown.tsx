@@ -12,10 +12,10 @@ import { inputElementClasses, InputElementProps } from './shared';
 
 interface DropdownProps extends InputElementProps {
   value: string;
-  menuItems: Array<menuItem>;
+  menuItems: Array<MenuItem>;
 }
 
-export interface menuItem {
+export interface MenuItem {
   value: string;
   name: string;
 }
@@ -23,7 +23,7 @@ export interface menuItem {
 export function Dropdown(props: DropdownProps): ReactElement {
   const menuItems = getMenuItemsWithSelectedValueIncluded();
 
-  function getMenuItemsWithSelectedValueIncluded(): Array<menuItem> {
+  function getMenuItemsWithSelectedValueIncluded(): Array<MenuItem> {
     const availableValues = props.menuItems.map((menuItem) => menuItem.value);
 
     return props.value && !availableValues.includes(props.value)

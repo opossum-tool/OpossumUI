@@ -12,9 +12,8 @@ import { noop } from 'lodash';
 import { ReactElement } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
-import { ButtonConfig } from '../../types/types';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
-import { Button } from '../Button/Button';
+import { Button, ButtonProps } from '../Button/Button';
 
 const classes = {
   content: { display: 'flex', flexDirection: 'column' },
@@ -24,10 +23,10 @@ const classes = {
 interface NotificationPopupProps {
   header: string;
   content: ReactElement | string;
-  leftButtonConfig?: ButtonConfig;
-  rightButtonConfig?: ButtonConfig;
-  centerLeftButtonConfig?: ButtonConfig;
-  centerRightButtonConfig?: ButtonConfig;
+  leftButtonConfig?: ButtonProps;
+  rightButtonConfig?: ButtonProps;
+  centerLeftButtonConfig?: ButtonProps;
+  centerRightButtonConfig?: ButtonProps;
   onBackdropClick?(): void;
   onEscapeKeyDown?(): void;
   isOpen: boolean;
@@ -77,40 +76,40 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
           <Button
             buttonText={props.leftButtonConfig.buttonText}
             onClick={props.leftButtonConfig.onClick}
-            isDark={Boolean(props.leftButtonConfig?.isDark)}
+            color={props.leftButtonConfig.color}
             disabled={props.leftButtonConfig.disabled}
-            tooltipText={props.leftButtonConfig?.tooltipText ?? ''}
-            tooltipPlacement={props.leftButtonConfig?.tooltipPlacement}
+            tooltipText={props.leftButtonConfig.tooltipText ?? ''}
+            tooltipPlacement={props.leftButtonConfig.tooltipPlacement}
           />
         ) : null}
         {props.centerLeftButtonConfig ? (
           <Button
             buttonText={props.centerLeftButtonConfig.buttonText}
             onClick={props.centerLeftButtonConfig.onClick}
-            isDark={Boolean(props.centerLeftButtonConfig?.isDark)}
+            color={props.centerLeftButtonConfig.color}
             disabled={props.centerLeftButtonConfig.disabled}
-            tooltipText={props.centerLeftButtonConfig?.tooltipText ?? ''}
-            tooltipPlacement={props.centerLeftButtonConfig?.tooltipPlacement}
+            tooltipText={props.centerLeftButtonConfig.tooltipText ?? ''}
+            tooltipPlacement={props.centerLeftButtonConfig.tooltipPlacement}
           />
         ) : null}
         {props.centerRightButtonConfig ? (
           <Button
             buttonText={props.centerRightButtonConfig.buttonText}
             onClick={props.centerRightButtonConfig.onClick}
-            isDark={Boolean(props.centerRightButtonConfig?.isDark)}
+            color={props.centerRightButtonConfig.color}
             disabled={props.centerRightButtonConfig.disabled}
-            tooltipText={props.centerRightButtonConfig?.tooltipText ?? ''}
-            tooltipPlacement={props.centerRightButtonConfig?.tooltipPlacement}
+            tooltipText={props.centerRightButtonConfig.tooltipText ?? ''}
+            tooltipPlacement={props.centerRightButtonConfig.tooltipPlacement}
           />
         ) : null}
         {props.rightButtonConfig ? (
           <Button
             buttonText={props.rightButtonConfig.buttonText}
             onClick={props.rightButtonConfig.onClick}
-            isDark={Boolean(props.rightButtonConfig?.isDark)}
+            color={props.rightButtonConfig.color}
             disabled={props.rightButtonConfig.disabled}
-            tooltipText={props.rightButtonConfig?.tooltipText ?? ''}
-            tooltipPlacement={props.rightButtonConfig?.tooltipPlacement}
+            tooltipText={props.rightButtonConfig.tooltipText ?? ''}
+            tooltipPlacement={props.rightButtonConfig.tooltipPlacement}
           />
         ) : null}
       </MuiDialogActions>

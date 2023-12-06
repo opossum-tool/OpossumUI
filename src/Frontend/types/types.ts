@@ -86,15 +86,6 @@ export interface PopupInfo {
   attributionId?: string;
 }
 
-export interface ButtonConfig {
-  onClick(event: React.MouseEvent<HTMLButtonElement>): void;
-  buttonText: string;
-  disabled?: boolean;
-  isDark?: boolean;
-  tooltipText?: string;
-  tooltipPlacement?: 'left' | 'right' | 'top' | 'bottom';
-}
-
 export interface PanelData {
   title: PackagePanelTitle;
   sortedPackageCardIds: Array<string>;

@@ -34,11 +34,11 @@ export function ConfirmationPopup(props: ConfirmationPopupProps): ReactElement {
       leftButtonConfig={{
         onClick: handleDeletionClick,
         buttonText: ButtonText.Confirm,
-        isDark: true,
       }}
       rightButtonConfig={{
         onClick: handleCancelClick,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       isOpen={true}
       aria-label={'confirmation popup'}

@@ -36,6 +36,23 @@ const classes = {
 };
 
 const theme = createTheme({
+  palette: {
+    primary: {
+      main: OpossumColors.darkBlue,
+    },
+    secondary: {
+      main: OpossumColors.white,
+    },
+    error: {
+      main: OpossumColors.red,
+    },
+    warning: {
+      main: OpossumColors.orange,
+    },
+    success: {
+      main: OpossumColors.green,
+    },
+  },
   components: {
     MuiTypography: {
       styleOverrides: {

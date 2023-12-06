@@ -96,11 +96,11 @@ export function ReplaceAttributionPopup(): ReactElement {
       leftButtonConfig={{
         onClick: handleReplaceClick,
         buttonText: ButtonText.Replace,
-        isDark: true,
       }}
       rightButtonConfig={{
         onClick: handleCancelClick,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       isOpen={true}
       aria-label={'replace attribution popup'}

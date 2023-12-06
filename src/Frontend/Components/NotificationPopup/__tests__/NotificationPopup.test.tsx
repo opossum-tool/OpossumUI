@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { ButtonConfig } from '../../../types/types';
 import { NotificationPopup } from '../NotificationPopup';
 
 describe('NotificationPopup', () => {
@@ -14,30 +13,26 @@ describe('NotificationPopup', () => {
     const onCenterLeftButtonClick = jest.fn();
     const onCenterRightButtonClick = jest.fn();
 
-    const leftButtonConfig: ButtonConfig = {
-      onClick: onLeftButtonClick,
-      buttonText: 'leftButtonText',
-    };
-    const rightButtonConfig: ButtonConfig = {
-      onClick: onRightButtonClick,
-      buttonText: 'rightButtonText',
-    };
-    const centerLeftButtonConfig: ButtonConfig = {
-      onClick: onCenterLeftButtonClick,
-      buttonText: 'centerLeftButtonText',
-    };
-    const centerRightButtonConfig: ButtonConfig = {
-      onClick: onCenterRightButtonClick,
-      buttonText: 'centerRightButtonText',
-    };
     render(
       <NotificationPopup
         content={'content text'}
         header={'header text'}
-        leftButtonConfig={leftButtonConfig}
-        rightButtonConfig={rightButtonConfig}
-        centerLeftButtonConfig={centerLeftButtonConfig}
-        centerRightButtonConfig={centerRightButtonConfig}
+        leftButtonConfig={{
+          onClick: onLeftButtonClick,
+          buttonText: 'leftButtonText',
+        }}
+        rightButtonConfig={{
+          onClick: onRightButtonClick,
+          buttonText: 'rightButtonText',
+        }}
+        centerLeftButtonConfig={{
+          onClick: onCenterLeftButtonClick,
+          buttonText: 'centerLeftButtonText',
+        }}
+        centerRightButtonConfig={{
+          onClick: onCenterRightButtonClick,
+          buttonText: 'centerRightButtonText',
+        }}
         isOpen={true}
       />,
     );

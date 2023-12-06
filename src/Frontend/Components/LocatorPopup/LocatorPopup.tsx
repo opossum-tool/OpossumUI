@@ -28,7 +28,7 @@ import {
 } from '../../state/selectors/locate-popup-selectors';
 import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { Checkbox } from '../Checkbox/Checkbox';
-import { Dropdown, menuItem } from '../InputElements/Dropdown';
+import { Dropdown, MenuItem } from '../InputElements/Dropdown';
 import { inputElementClasses } from '../InputElements/shared';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
@@ -62,7 +62,7 @@ const classes = {
   },
 };
 
-const criticalityMenuItems: Array<menuItem> = [
+const criticalityMenuItems: Array<MenuItem> = [
   {
     value: SelectedCriticality.High,
     name: CriticalityTypes.HighCriticality,
@@ -218,15 +218,16 @@ export function LocatorPopup(): ReactElement {
       leftButtonConfig={{
         onClick: handleClearClick,
         buttonText: ButtonText.Clear,
+        color: 'secondary',
       }}
       centerLeftButtonConfig={{
         onClick: handleApplyClick,
         buttonText: ButtonText.Apply,
-        isDark: true,
       }}
       rightButtonConfig={{
         onClick: close,
         buttonText: ButtonText.Cancel,
+        color: 'secondary',
       }}
       onBackdropClick={close}
       onEscapeKeyDown={close}

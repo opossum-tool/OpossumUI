@@ -9,7 +9,6 @@ import { ReactElement } from 'react';
 import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { ButtonConfig } from '../../types/types';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 const HEADER = 'Warning: Outdated input file format';
@@ -43,16 +42,13 @@ export function FileSupportDotOpossumAlreadyExistsPopup(): ReactElement {
     close();
   };
 
-  const OpenDotOpossumButtonConfig: ButtonConfig = {
-    onClick: handleOpenDotOpossumButtonClick,
-    buttonText: ButtonText.OpenDotOpossumFile,
-    isDark: true,
-  };
-
   return (
     <NotificationPopup
       header={HEADER}
-      rightButtonConfig={OpenDotOpossumButtonConfig}
+      rightButtonConfig={{
+        onClick: handleOpenDotOpossumButtonClick,
+        buttonText: ButtonText.OpenDotOpossumFile,
+      }}
       isOpen={true}
       content={
         <MuiBox sx={classes.content}>
