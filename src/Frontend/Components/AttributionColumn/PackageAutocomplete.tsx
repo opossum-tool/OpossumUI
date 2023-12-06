@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
-// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
@@ -11,10 +10,10 @@ import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { compact, orderBy } from 'lodash';
+import { compact } from 'lodash';
 import { useMemo } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { PackageInfo, SignalWithCount } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -23,38 +22,29 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getExternalAttributionSources,
-  getExternalData,
-  getManualData,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import {
-  getResolvedExternalAttributions,
-  getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
-import {
-  getContainedExternalPackages,
-  getContainedManualPackages,
-} from '../../util/get-contained-packages';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
 
-type SignalWithCount = PackageInfo & {
-  count?: number;
-};
+type AutocompleteAttribute = Extract<
+  keyof PackageInfo,
+  | 'packageType'
+  | 'packageNamespace'
+  | 'packageName'
+  | 'packageVersion'
+  | 'url'
+  | 'licenseName'
+>;
 
 interface Props {
   title: string;
-  attribute: Extract<
-    keyof PackageInfo,
-    | 'packageType'
-    | 'packageNamespace'
-    | 'packageName'
-    | 'packageVersion'
-    | 'url'
-    | 'licenseName'
-  >;
+  attribute: AutocompleteAttribute;
   highlight?: 'default' | 'dark';
   endAdornment?: React.ReactElement;
   defaults?: Array<SignalWithCount>;
@@ -78,12 +68,24 @@ export function PackageAutocomplete({
   disabled,
   showHighlight,
 }: Props) {
-  const { signals, sources } = useSignals({ attribute });
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
   const resourceId = useAppSelector(getSelectedResourceId);
   const attributionIdOfSelectedPackageInManualPanel = useAppSelector(
     getAttributionIdOfDisplayedPackageInManualPanel,
+  );
+  const sources = useAppSelector(getExternalAttributionSources);
+  const isAuditView = useAppSelector(isAuditViewSelected);
+
+  const signals = useAutocompleteSignals();
+  const filteredSignals = useMemo(
+    () =>
+      isAuditView
+        ? signals
+            .filter((signal) => !['', undefined].includes(signal[attribute]))
+            .concat(defaults)
+        : [],
+    [isAuditView, signals, defaults, attribute],
   );
 
   return (
@@ -102,7 +104,7 @@ export function PackageAutocomplete({
           ? highlight
           : undefined
       }
-      options={signals.concat(defaults)}
+      options={filteredSignals}
       getOptionLabel={(option) =>
         typeof option === 'string' ? option : option[attribute] || ''
       }
@@ -235,95 +237,4 @@ export function PackageAutocomplete({
       </MuiTooltip>
     );
   }
-}
-
-function useSignals({ attribute }: Pick<Props, 'attribute'>) {
-  const resourceId = useAppSelector(getSelectedResourceId);
-  const externalData = useAppSelector(getExternalData);
-  const manualData = useAppSelector(getManualData);
-  const sources = useAppSelector(getExternalAttributionSources);
-  const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions,
-  );
-
-  return {
-    sources,
-    signals: useMemo(() => {
-      const signalsOnResource = (
-        externalData.resourcesToAttributions[resourceId] || []
-      ).map((id) => externalData.attributions[id]);
-      const signalsOnChildren = getContainedExternalPackages(
-        resourceId,
-        externalData.resourcesWithAttributedChildren,
-        externalData.resourcesToAttributions,
-        resolvedExternalAttributions,
-      ).map(({ attributionId }) => externalData.attributions[attributionId]);
-      const attributionsOnChildren = getContainedManualPackages(
-        resourceId,
-        manualData,
-      ).map(({ attributionId }) => manualData.attributions[attributionId]);
-
-      const getUniqueKey = (item: PackageInfo) =>
-        compact([
-          item.source && sources[item.source.name]?.name,
-          item.copyright,
-          item.licenseName,
-          item[attribute],
-          generatePurl(item),
-        ]).join();
-
-      const signals = [
-        ...signalsOnResource,
-        ...signalsOnChildren,
-        ...attributionsOnChildren,
-      ].reduce<Array<SignalWithCount>>((acc, signal) => {
-        if (
-          ['', undefined].includes(signal[attribute]) ||
-          !generatePurl(signal)
-        ) {
-          return acc;
-        }
-
-        const key = getUniqueKey(signal);
-        const dupeIndex = acc.findIndex((item) => getUniqueKey(item) === key);
-
-        if (dupeIndex === -1) {
-          acc.push({
-            count: 1,
-            ...signal,
-          });
-        } else {
-          acc[dupeIndex] = {
-            ...acc[dupeIndex],
-            count: (acc[dupeIndex].count ?? 0) + 1,
-            preferred: acc[dupeIndex].preferred || signal.preferred,
-            wasPreferred: acc[dupeIndex].wasPreferred || signal.wasPreferred,
-            preSelected: acc[dupeIndex].preSelected || signal.preSelected,
-          };
-        }
-
-        return acc;
-      }, []);
-
-      return orderBy(
-        signals,
-        [
-          ({ source }) => (source && sources[source.name])?.priority ?? 0,
-          ({ preferred }) => (preferred ? 1 : 0),
-          ({ wasPreferred }) => (wasPreferred ? 1 : 0),
-          ({ count }) => count ?? 0,
-        ],
-        ['desc', 'desc', 'desc', 'desc'],
-      );
-    }, [
-      externalData.resourcesToAttributions,
-      externalData.resourcesWithAttributedChildren,
-      externalData.attributions,
-      resourceId,
-      resolvedExternalAttributions,
-      manualData,
-      attribute,
-      sources,
-    ]),
-  };
 }
