@@ -11,6 +11,7 @@ import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
+import { useSignalsWorker } from '../../web-workers/use-signals-worker';
 import { AttributionView } from '../AttributionView/AttributionView';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
@@ -102,6 +103,8 @@ const theme = createTheme({
 });
 
 export function App(): ReactElement {
+  useSignalsWorker();
+
   const selectedView = useAppSelector(getSelectedView);
 
   function getSelectedViewContainer(): ReactElement {

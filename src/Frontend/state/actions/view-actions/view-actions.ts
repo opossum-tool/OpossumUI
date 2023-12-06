@@ -61,7 +61,7 @@ export function navigateToView(view: View): AppThunkAction {
   };
 }
 
-function setView(view: View): SetView {
+export function setView(view: View): SetView {
   return {
     type: ACTION_SET_VIEW,
     payload: view,
