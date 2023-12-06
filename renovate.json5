@@ -27,6 +27,7 @@
         'axios',
         'axios-mock-adapter',
         'babel-jest',
+        'babel-plugin-transform-import-meta',
         'buffer',
         'cross-env',
         'dayjs',
@@ -106,7 +107,7 @@
     },
     {
       matchPackagePrefixes: ['jest-'],
-      matchPackageNames: ['jest', 'ts-jest', 'babel-jest'],
+      matchPackageNames: ['jest', 'babel-jest'],
       groupName: 'Jest dependencies',
       groupSlug: 'jest',
       automerge: true,

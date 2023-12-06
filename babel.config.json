@@ -1,3 +1,21 @@
 {
-  "presets": ["@babel/preset-env"]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "@babel/preset-typescript",
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic"
+      }
+    ]
+  ],
+  // https://github.com/vitejs/vite/issues/1149
+  "plugins": ["babel-plugin-transform-import-meta"]
 }
