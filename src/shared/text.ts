@@ -6,16 +6,26 @@
 export const text = {
   attributionColumn: {
     packageSubPanel: {
-      packageType: 'Package Type',
-      packageNamespace: 'Package Namespace',
+      attributionType: 'Attribution Type',
+      confidence: 'Confidence',
+      copyToClipboard: 'Copy to clipboard',
+      fetchPackageInfo: 'Fetch package information',
+      fetchPackageInfoNotPossible:
+        'Fetching package information is not possible. Please enter a valid URL with one of the following domains: pypi.org, npmjs.com, github.com.',
+      fetching: 'Fetching...',
+      noLinkToOpen: 'No link to open. Please enter a URL.',
+      openLinkInBrowser: 'Open repository URL in browser',
       packageName: 'Package Name',
+      packageNamespace: 'Package Namespace',
+      packageType: 'Package Type',
       packageVersion: 'Package Version',
+      pasteFromClipboard: 'Paste from clipboard',
       purl: 'PURL',
       repositoryUrl: 'Repository URL',
-      openLinkInBrowser: 'Open link in browser',
-      noLinkToOpen: 'No link to open. Please enter a URL.',
       searchForPackage: 'Search for package information',
     },
+    packageCoordinates: 'Package Coordinates',
+    legalInformation: 'Legal Information',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
@@ -27,5 +37,18 @@ export const text = {
   },
   projectStatisticsPopup: {
     toggleStartupCheckbox: 'Show project statistics on startup',
+  },
+  auditingOptions: {
+    add: 'Add Auditing Option',
+    confidence: 'Confidence',
+    currentlyPreferred: 'Currently Preferred',
+    excludedFromNotice: 'Excluded from Notice',
+    followUp: 'Needs Follow-Up',
+    needsReview: 'Needs Review by QA',
+    preselected: 'Pre-selected',
+    previouslyPreferred: 'Previously Preferred',
+  },
+  locatorPopup: {
+    onlySearchLicenseNames: 'Only search license names',
   },
 };

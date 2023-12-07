@@ -13,9 +13,6 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import MergeTypeIcon from '@mui/icons-material/MergeType';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
-import StarIcon from '@mui/icons-material/Star';
-import StarOutlineIcon from '@mui/icons-material/StarOutline';
-import UndoIcon from '@mui/icons-material/Undo';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { PopoverPosition, PopoverReference } from '@mui/material';
@@ -39,32 +36,27 @@ const classes = {
   },
 };
 
-const BUTTON_TITLE_TO_ICON_MAP: {
-  [buttonText in ButtonText]?: JSX.Element;
-} = {
+const BUTTON_TITLE_TO_ICON_MAP: Record<string, React.ReactElement> = {
   [ButtonText.Confirm]: <DoneIcon fontSize="small" />,
   [ButtonText.ConfirmGlobally]: <DoneOutlineIcon fontSize="small" />,
   [ButtonText.ConfirmSelectedGlobally]: <DoneAllIcon fontSize="small" />,
-  [ButtonText.Delete]: <DeleteOutlineIcon fontSize="small" />,
   [ButtonText.DeleteGlobally]: <DeleteIcon fontSize="small" />,
   [ButtonText.DeleteSelectedGlobally]: <DeleteSweepIcon fontSize="small" />,
-  [ButtonText.Undo]: <UndoIcon fontSize="small" />,
+  [ButtonText.Delete]: <DeleteOutlineIcon fontSize="small" />,
+  [ButtonText.Hide]: <VisibilityOffIcon fontSize="small" />,
   [ButtonText.MarkForReplacement]: (
     <CheckBoxOutlineBlankIcon fontSize="small" />
   ),
-  [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
+  [ButtonText.OpenAttributionWizardPopup]: <AutoFixHighIcon fontSize="small" />,
   [ButtonText.ReplaceMarked]: <MergeTypeIcon fontSize="small" />,
   [ButtonText.ShowResources]: <OpenInBrowserIcon fontSize="small" />,
-  [ButtonText.Hide]: <VisibilityOffIcon fontSize="small" />,
   [ButtonText.Unhide]: <VisibilityIcon fontSize="small" />,
-  [ButtonText.OpenAttributionWizardPopup]: <AutoFixHighIcon fontSize="small" />,
-  [ButtonText.MarkAsPreferred]: <StarOutlineIcon fontSize="small" />,
-  [ButtonText.UnmarkAsPreferred]: <StarIcon fontSize="small" />,
+  [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {
   onClick(): void;
-  buttonText: ButtonText;
+  buttonText: string;
   disabled?: boolean;
   hidden?: boolean;
 }

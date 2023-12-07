@@ -28,10 +28,8 @@ export const inputElementClasses = {
       padding: '0px',
     },
     '& legend': {
-      marginLeft: '6px',
       '& span': {
-        paddingLeft: '0px',
-        paddingRight: '0px',
+        display: 'none',
       },
     },
   },
@@ -74,7 +72,7 @@ export interface InputElementProps {
   isEditable?: boolean;
   text?: string;
   sx?: SxProps;
-  handleChange(
+  handleChange?(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void;
   isHighlighted?: boolean;

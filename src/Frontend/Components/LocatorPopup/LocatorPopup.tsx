@@ -12,7 +12,8 @@ import {
   Attributions,
   SelectedCriticality,
 } from '../../../shared/shared-types';
-import { ButtonText, CheckboxLabel, CriticalityTypes } from '../../enums/enums';
+import { text } from '../../../shared/text';
+import { ButtonText, CriticalityTypes } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { locateSignalsFromLocatorPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setLocatePopupFilters } from '../../state/actions/resource-actions/locate-popup-actions';
@@ -160,7 +161,7 @@ export function LocatorPopup(): ReactElement {
           search={searchedSignal}
         />
         <Checkbox
-          label={CheckboxLabel.OnlyLicenseName}
+          label={text.locatorPopup.onlySearchLicenseNames}
           checked={displaySearchOnlyLicenseName}
           onChange={(): void => {
             setDisplaySearchOnlyLicenseName(!displaySearchOnlyLicenseName);

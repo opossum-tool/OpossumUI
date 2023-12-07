@@ -8,6 +8,7 @@ import axios from 'axios';
 import { ReactElement, useEffect, useState } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import {
   baseIcon,
   clickableIcon,
@@ -51,12 +52,6 @@ const classes = {
     },
   },
 };
-
-export const FETCH_DATA_TOOLTIP = 'Fetch data';
-export const FETCH_DATA_INVALID_DOMAIN_TOOLTIP =
-  'Fetching data is not possible. Please enter a URL with one of the following domains: pypi.org, npmjs.com, github.com.';
-export const FETCH_DATA_FOR_SIGNALS_TOOLTIP =
-  'Fetching data is not possible. Signals cannot be modified.';
 
 export enum FetchStatus {
   Idle = 'Idle',
@@ -174,11 +169,11 @@ export function EnabledFetchLicenseInformationButton(
   function getTooltip(): string {
     switch (fetchStatus) {
       case FetchStatus.InFlight:
-        return 'Fetching data';
+        return text.attributionColumn.packageSubPanel.fetching;
       case FetchStatus.Error:
         return errorMessage;
       default:
-        return FETCH_DATA_TOOLTIP;
+        return text.attributionColumn.packageSubPanel.fetchPackageInfo;
     }
   }
 
@@ -196,12 +191,16 @@ export function FetchLicenseInformationButton(props: {
   url?: string;
   version?: string;
   disabled: boolean;
-}): ReactElement {
+}): React.ReactNode {
+  if (props.disabled) {
+    return null;
+  }
+
   const licenseFetchingInformation = getLicenseFetchingInformation(
     props.url,
     props.version,
   );
-  return !props.disabled && licenseFetchingInformation ? (
+  return licenseFetchingInformation ? (
     <EnabledFetchLicenseInformationButton
       url={licenseFetchingInformation.url}
       convertPayload={licenseFetchingInformation.convertPayload}
@@ -209,9 +208,7 @@ export function FetchLicenseInformationButton(props: {
   ) : (
     <DisabledFetchLicenseInformationButton
       tooltipText={
-        props.disabled
-          ? FETCH_DATA_FOR_SIGNALS_TOOLTIP
-          : FETCH_DATA_INVALID_DOMAIN_TOOLTIP
+        text.attributionColumn.packageSubPanel.fetchPackageInfoNotPossible
       }
     />
   );

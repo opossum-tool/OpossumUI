@@ -6,7 +6,6 @@ import { act, fireEvent, screen } from '@testing-library/react';
 
 import {
   Attributions,
-  DiscreteConfidence,
   Resources,
   ResourcesToAttributions,
   SelectedCriticality,
@@ -101,7 +100,6 @@ describe('The PackageCard', () => {
       ],
     ).toEqual({
       ...testAttributions[testAttributionId],
-      attributionConfidence: DiscreteConfidence.High,
       preSelected: undefined,
     });
   });
@@ -153,7 +151,6 @@ describe('The PackageCard', () => {
       ],
     ).toEqual({
       ...testAttributions[testAttributionId],
-      attributionConfidence: DiscreteConfidence.High,
       preSelected: undefined,
     });
   });

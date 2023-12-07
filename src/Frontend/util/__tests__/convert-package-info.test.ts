@@ -3,12 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
-import { getPackageInfoKeys } from '../../../shared/shared-util';
 import {
   convertDisplayPackageInfoToPackageInfo,
   convertPackageInfoToDisplayPackageInfo,
 } from '../convert-package-info';
-import { getDisplayPackageInfoKeys } from '../get-display-package-info-keys';
 
 describe('convertPackageInfoToDisplayPackageInfo', () => {
   it('yields correct results', () => {
@@ -27,36 +25,6 @@ describe('convertPackageInfoToDisplayPackageInfo', () => {
       [testAttributionId],
     );
     expect(testDisplayPackageInfo).toEqual(expectedDisplayPackageInfo);
-  });
-
-  // This test ensures that newly added PackageInfo keys are considered when converting
-  it('does not allow excess keys', () => {
-    const testKeysOfPackageInfo = getPackageInfoKeys();
-    const expectedKeysOfPackageInfo = [
-      'attributionConfidence',
-      'comment',
-      'packageName',
-      'packageVersion',
-      'packageNamespace',
-      'packageType',
-      'packagePURLAppendix',
-      'url',
-      'copyright',
-      'licenseName',
-      'licenseText',
-      'source',
-      'firstParty',
-      'followUp',
-      'originIds',
-      'preSelected',
-      'excludeFromNotice',
-      'criticality',
-      'needsReview',
-      'preferred',
-      'preferredOverOriginIds',
-      'wasPreferred',
-    ];
-    expect(testKeysOfPackageInfo).toEqual(expectedKeysOfPackageInfo);
   });
 });
 
@@ -109,38 +77,5 @@ describe('convertDisplayPackageInfoToPackageInfo', () => {
       testDisplayPackageInfo,
     );
     expect(testPackageInfo).toEqual(expectedPackageInfo);
-  });
-
-  // This test ensures that newly added DisplayPackageInfo keys are considered when converting
-  it('does not allow excess keys', () => {
-    const testKeysOfDisplayPackageInfo = getDisplayPackageInfoKeys();
-    const expectedKeysOfDisplayPackageInfo = [
-      'attributionConfidence',
-      'packageName',
-      'packageVersion',
-      'packageNamespace',
-      'packageType',
-      'packagePURLAppendix',
-      'url',
-      'copyright',
-      'licenseName',
-      'licenseText',
-      'source',
-      'firstParty',
-      'followUp',
-      'originIds',
-      'preSelected',
-      'needsReview',
-      'excludeFromNotice',
-      'criticality',
-      'comments',
-      'attributionIds',
-      'preferred',
-      'preferredOverOriginIds',
-      'wasPreferred',
-    ];
-    expect(testKeysOfDisplayPackageInfo).toEqual(
-      expectedKeysOfDisplayPackageInfo,
-    );
   });
 });

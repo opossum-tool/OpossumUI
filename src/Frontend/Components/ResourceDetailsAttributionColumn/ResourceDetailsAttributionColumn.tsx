@@ -182,8 +182,6 @@ export function ResourceDetailsAttributionColumn(
     );
   }
 
-  const showManualAttributionData: boolean =
-    !shownDataIsFromExternalAttribution() || isShownDataEditable;
   const hideDeleteButtons =
     attributionIdOfSelectedPackageInManualPanel === null ||
     props.showParentAttributions;
@@ -197,8 +195,7 @@ export function ResourceDetailsAttributionColumn(
     !manualAttributionsOfBreakpointSelected ? (
     <AttributionColumn
       isEditable={isShownDataEditable}
-      resetViewIfThisIdChanges={selectedResourceId}
-      showManualAttributionData={showManualAttributionData}
+      showHideButton={shownDataIsFromExternalAttribution()}
       areButtonsHidden={
         displayedPackage.panel !== PackagePanelTitle.ManualPackages
       }

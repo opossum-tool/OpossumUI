@@ -13,6 +13,7 @@ import type {
 import {
   BaseUrlsForSources,
   DiscreteConfidence,
+  DisplayPackageInfo,
   ExternalAttributionSource,
   ExternalAttributionSources,
   ProjectMetadata,
@@ -91,6 +92,15 @@ class OpossumModule {
       url: faker.internet.url(),
       packageType: faker.commerce.productMaterial().toLowerCase(),
       ...props,
+    };
+  }
+
+  public static displayPackageInfo(
+    props: Partial<ManualPackageInfo> = {},
+  ): DisplayPackageInfo {
+    return {
+      ...this.manualPackageInfo(props),
+      attributionIds: [faker.string.uuid()],
     };
   }
 

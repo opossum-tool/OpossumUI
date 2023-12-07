@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DiscreteConfidence } from '../../shared/shared-types';
 import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
@@ -52,7 +51,8 @@ test('updates progress bar and confidence when user confirms preselected attribu
     filesWithOnlyPreSelectedAttributions: 4,
   });
   await attributionDetails.assert.confirmButtonIsVisible();
-  await attributionDetails.assert.confirmGloballyButtonIsVisible();
+  await attributionDetails.assert.confirmGloballyButtonIsHidden();
+  await attributionDetails.assert.auditingLabelIsVisible('preselectedLabel');
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.assert.contextMenu.buttonsAreVisible(
@@ -62,7 +62,6 @@ test('updates progress bar and confidence when user confirms preselected attribu
 
   await resourceDetails.attributionCard.closeContextMenu();
   await attributionDetails.confirmButton.click();
-  await attributionDetails.assert.confidenceIs(DiscreteConfidence.High);
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 4,
     filesWithAttributions: 1,
@@ -70,6 +69,7 @@ test('updates progress bar and confidence when user confirms preselected attribu
   });
   await attributionDetails.assert.confirmButtonIsHidden();
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
+  await attributionDetails.assert.auditingLabelIsHidden('preselectedLabel');
 
   await resourceDetails.attributionCard.openContextMenu(packageInfo1);
   await resourceDetails.attributionCard.assert.contextMenu.buttonsAreHidden(
@@ -90,7 +90,6 @@ test('updates progress bar and confidence when user confirms preselected attribu
   });
 
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.confidenceIs(DiscreteConfidence.High);
   await attributionDetails.assert.confirmButtonIsHidden();
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
 
@@ -104,10 +103,7 @@ test('updates progress bar and confidence when user confirms preselected attribu
   });
 
   await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.matchesPackageInfo({
-    ...packageInfo2,
-    attributionConfidence: DiscreteConfidence.High,
-  });
+  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
   await attributionDetails.assert.confirmButtonIsHidden();
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
 });
@@ -136,15 +132,9 @@ test('updates confidence when user confirms preselected attributions in attribut
 
   await attributionList.attributionCard.closeContextMenu();
   await attributionList.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo({
-    ...packageInfo1,
-    attributionConfidence: DiscreteConfidence.High,
-  });
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await topBar.gotoAuditView();
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchesPackageInfo({
-    ...packageInfo1,
-    attributionConfidence: DiscreteConfidence.High,
-  });
+  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 });

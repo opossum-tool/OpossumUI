@@ -12,6 +12,7 @@ import { noop } from 'lodash';
 import { ReactElement } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
+import { OpossumColors } from '../../shared-styles';
 import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
 import { Button, ButtonProps } from '../Button/Button';
 
@@ -36,6 +37,7 @@ interface NotificationPopupProps {
   contentSx?: SxProps;
   'aria-label'?: string;
   customAction?: ReactElement;
+  background?: keyof typeof OpossumColors;
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
@@ -50,7 +52,14 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       onClose={(_, reason) =>
         reason === 'backdropClick' && props.onBackdropClick?.()
       }
-      PaperProps={{ sx: props.fullHeight ? classes.fullHeightPaper : {} }}
+      PaperProps={{
+        sx: {
+          ...(props.fullHeight && classes.fullHeightPaper),
+          ...(props.background && {
+            background: OpossumColors[props.background],
+          }),
+        },
+      }}
       aria-label={props['aria-label']}
     >
       <MuiDialogTitle

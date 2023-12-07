@@ -12,11 +12,6 @@ import { ContextMenu, ContextMenuItem } from '../ContextMenu';
 const onClickMock = jest.fn();
 const testMenuItems: Array<ContextMenuItem> = [
   {
-    buttonText: ButtonText.Undo,
-    disabled: true,
-    onClick: doNothing,
-  },
-  {
     buttonText: ButtonText.Save,
     disabled: false,
     onClick: onClickMock,
@@ -30,13 +25,11 @@ const testMenuItems: Array<ContextMenuItem> = [
 ];
 
 function expectContextMenuIsNotShown(): void {
-  expect(screen.queryByText(ButtonText.Undo)).not.toBeInTheDocument();
   expect(screen.queryByText(ButtonText.Save)).not.toBeInTheDocument();
   expect(screen.queryByText(ButtonText.SaveGlobally)).not.toBeInTheDocument();
 }
 
 function expectContextMenuIsShown(): void {
-  expect(screen.getByText(ButtonText.Undo));
   expect(screen.getByText(ButtonText.Save));
   expect(screen.queryByText(ButtonText.SaveGlobally)).not.toBeInTheDocument();
 }
@@ -149,7 +142,7 @@ describe('The ContextMenu', () => {
 
   it('is disabled when all menu items are disabled', () => {
     const menuItem: ContextMenuItem = {
-      buttonText: ButtonText.Undo,
+      buttonText: ButtonText.Save,
       disabled: true,
       onClick: noop,
       hidden: false,
@@ -168,7 +161,7 @@ describe('The ContextMenu', () => {
 
   it('only displays visible menu items', () => {
     const visibleMenuItem: ContextMenuItem = {
-      buttonText: ButtonText.Undo,
+      buttonText: ButtonText.Save,
       onClick: noop,
       hidden: false,
     };

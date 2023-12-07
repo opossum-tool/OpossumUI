@@ -13,7 +13,7 @@ import {
 } from '../../shared-styles';
 import { ListWithAttributesItem } from '../../types/types';
 import { doNothing } from '../../util/do-nothing';
-import { generatePurlFromDisplayPackageInfo } from '../../util/handle-purl';
+import { generatePurl } from '../../util/handle-purl';
 import { TextBox } from '../InputElements/TextBox';
 import { ListWithAttributes } from '../ListWithAttributes/ListWithAttributes';
 import { sortAttributedPackageItems } from './attribution-wizard-package-step-helpers';
@@ -46,9 +46,7 @@ export function AttributionWizardPackageStep(
     ...props.selectedDisplayPackageInfo,
     packageVersion: undefined,
   };
-  const temporaryPurl = generatePurlFromDisplayPackageInfo(
-    selectedPackageInfoWithoutVersion,
-  );
+  const temporaryPurl = generatePurl(selectedPackageInfoWithoutVersion);
 
   return (
     <MuiBox sx={attributionWizardStepClasses.root}>
