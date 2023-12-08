@@ -8,7 +8,7 @@ import {
   AttributionsToHashes,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import { AttributionIdWithCount, PanelData } from '../../types/types';
+import { AttributionIdWithCount } from '../../types/types';
 import { getExternalDisplayPackageInfosWithCount } from './accordion-panel-helpers';
 import { AccordionPanel } from './AccordionPanel';
 
@@ -31,15 +31,14 @@ export function SyncAccordionPanel(
       props.attributionsToHashes,
       props.title,
     );
-  const panelData: PanelData = {
-    title: props.title,
-    sortedPackageCardIds,
-    displayPackageInfosWithCount,
-  };
 
   return (
     <AccordionPanel
-      panelData={panelData}
+      panelData={{
+        sortedPackageCardIds,
+        displayPackageInfosWithCount,
+      }}
+      title={props.title}
       isAddToPackageEnabled={props.isAddToPackageEnabled}
       aria-label={props['aria-label']}
     />

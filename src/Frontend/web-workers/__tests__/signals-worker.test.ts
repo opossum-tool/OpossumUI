@@ -20,7 +20,6 @@ describe('SignalsWorker', () => {
       data: faker.opossum.resourceName(),
     });
 
-    expect(dispatch).toHaveBeenCalledTimes(1);
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'autocompleteSignals',
       data: [],
@@ -36,6 +35,71 @@ describe('SignalsWorker', () => {
       sources: faker.opossum.externalAttributionSources(),
     });
 
-    expect(dispatch).not.toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'autocompleteSignals',
+      data: [],
+    });
+  });
+
+  it('dispatches attributions in folder content when dependencies are met', () => {
+    const dispatch = jest.fn();
+    const worker = new SignalsWorker(dispatch, {
+      manualData: faker.opossum.manualAttributionData(),
+    });
+
+    worker.processInput({
+      name: 'resourceId',
+      data: faker.opossum.resourceName(),
+    });
+
+    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'attributionsInFolderContent',
+      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+    });
+  });
+
+  it('does not dispatch attributions in folder content when dependencies are missing', () => {
+    const dispatch = jest.fn();
+    new SignalsWorker(dispatch, {
+      manualData: faker.opossum.manualAttributionData(),
+    });
+
+    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'attributionsInFolderContent',
+      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+    });
+  });
+
+  it('dispatches signals in folder content when dependencies are met', () => {
+    const dispatch = jest.fn();
+    const worker = new SignalsWorker(dispatch, {
+      externalData: faker.opossum.externalAttributionData(),
+      resolvedExternalAttributions: new Set<string>(),
+      attributionsToHashes: {},
+    });
+
+    worker.processInput({
+      name: 'resourceId',
+      data: faker.opossum.resourceName(),
+    });
+
+    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'signalsInFolderContent',
+      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+    });
+  });
+
+  it('does not dispatch signals in folder content when dependencies are missing', () => {
+    const dispatch = jest.fn();
+    new SignalsWorker(dispatch, {
+      externalData: faker.opossum.externalAttributionData(),
+      resolvedExternalAttributions: new Set<string>(),
+      attributionsToHashes: {},
+    });
+
+    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'signalsInFolderContent',
+      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+    });
   });
 });

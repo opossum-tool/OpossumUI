@@ -8,6 +8,7 @@ import { SignalWithCount } from '../../shared/shared-types';
 import { useAppSelector } from '../state/hooks';
 import {
   getExternalAttributionSources,
+  getExternalAttributionsToHashes,
   getExternalData,
   getManualData,
   getProjectMetadata,
@@ -17,10 +18,29 @@ import {
   getSelectedResourceId,
 } from '../state/selectors/audit-view-resource-selectors';
 import { isAuditViewSelected } from '../state/selectors/view-selector';
+import { PanelData } from '../types/types';
+import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { useVariable } from '../util/use-variable';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
 const REDUX_KEY_AUTOCOMPLETE_SIGNALS = 'autocomplete-signals';
+const REDUX_KEY_PANEL_DATA = 'panel-data';
+
+interface WorkerPanelData {
+  attributionsInFolderContent: PanelData;
+  signalsInFolderContent: PanelData;
+}
+
+const initialWorkerPanelData: WorkerPanelData = {
+  attributionsInFolderContent: {
+    sortedPackageCardIds: [],
+    displayPackageInfosWithCount: {},
+  },
+  signalsInFolderContent: {
+    sortedPackageCardIds: [],
+    displayPackageInfosWithCount: {},
+  },
+};
 
 export function useAutocompleteSignals() {
   const [autocompleteSignals] = useVariable<Array<SignalWithCount>>(
@@ -31,6 +51,15 @@ export function useAutocompleteSignals() {
   return autocompleteSignals;
 }
 
+export function usePanelData() {
+  const [panelData] = useVariable<WorkerPanelData>(
+    REDUX_KEY_PANEL_DATA,
+    initialWorkerPanelData,
+  );
+
+  return panelData;
+}
+
 export function useSignalsWorker() {
   const resourceId = useAppSelector(getSelectedResourceId);
   const externalData = useAppSelector(getExternalData);
@@ -39,6 +68,7 @@ export function useSignalsWorker() {
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );
+  const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
   const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
 
@@ -46,6 +76,10 @@ export function useSignalsWorker() {
   const [_, setAutocompleteSignals] = useVariable<Array<SignalWithCount>>(
     REDUX_KEY_AUTOCOMPLETE_SIGNALS,
     [],
+  );
+  const [, setPanelData] = useVariable<WorkerPanelData>(
+    REDUX_KEY_PANEL_DATA,
+    initialWorkerPanelData,
   );
 
   useEffect(() => {
@@ -67,10 +101,28 @@ export function useSignalsWorker() {
   useEffect(() => {
     if (worker) {
       worker.onmessage = ({ data }: MessageEvent<SignalsWorkerOutput>) => {
-        setAutocompleteSignals(data.data);
+        switch (data.name) {
+          case 'autocompleteSignals':
+            setAutocompleteSignals(data.data);
+            break;
+          case 'attributionsInFolderContent':
+            setPanelData((panelData) => ({
+              ...panelData,
+              attributionsInFolderContent: data.data,
+            }));
+            break;
+          case 'signalsInFolderContent':
+            setPanelData((panelData) => ({
+              ...panelData,
+              signalsInFolderContent: data.data,
+            }));
+            break;
+          default:
+            shouldNotBeCalled(data);
+        }
       };
     }
-  }, [setAutocompleteSignals, worker]);
+  }, [setAutocompleteSignals, setPanelData, worker]);
 
   useEffect(() => {
     worker?.postMessage({
@@ -99,6 +151,13 @@ export function useSignalsWorker() {
       data: sources,
     } satisfies SignalsWorkerInput);
   }, [sources, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'attributionsToHashes',
+      data: attributionsToHashes,
+    } satisfies SignalsWorkerInput);
+  }, [attributionsToHashes, worker]);
 
   useEffect(() => {
     if (isAuditView && resourceId) {

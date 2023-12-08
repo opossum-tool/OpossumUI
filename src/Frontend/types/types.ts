@@ -82,7 +82,6 @@ export interface PopupInfo {
 }
 
 export interface PanelData {
-  title: PackagePanelTitle;
   sortedPackageCardIds: Array<string>;
   displayPackageInfosWithCount: DisplayPackageInfosWithCount;
 }
