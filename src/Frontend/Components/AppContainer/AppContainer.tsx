@@ -11,7 +11,6 @@ import { Provider } from 'react-redux';
 
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
-import { ProgressBarWorkersContextProvider } from '../WorkersContextProvider/WorkersContextProvider';
 
 dayjs.extend(localizedFormat);
 
@@ -22,11 +21,9 @@ export function AppContainer(): ReactElement {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <ProgressBarWorkersContextProvider>
-          <StrictMode>
-            <App />
-          </StrictMode>
-        </ProgressBarWorkersContextProvider>
+        <StrictMode>
+          <App />
+        </StrictMode>
       </QueryClientProvider>
     </Provider>
   );

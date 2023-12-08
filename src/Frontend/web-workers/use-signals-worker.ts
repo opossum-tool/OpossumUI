@@ -7,24 +7,31 @@ import { useEffect, useState } from 'react';
 import { SignalWithCount } from '../../shared/shared-types';
 import { useAppSelector } from '../state/hooks';
 import {
+  getAttributionBreakpoints,
   getExternalAttributionSources,
   getExternalAttributionsToHashes,
   getExternalData,
+  getFilesWithChildren,
   getManualData,
   getProjectMetadata,
+  getResources,
 } from '../state/selectors/all-views-resource-selectors';
 import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../state/selectors/audit-view-resource-selectors';
 import { isAuditViewSelected } from '../state/selectors/view-selector';
-import { PanelData } from '../types/types';
+import { PanelData, ProgressBarData } from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { useVariable } from '../util/use-variable';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
-const REDUX_KEY_AUTOCOMPLETE_SIGNALS = 'autocomplete-signals';
-const REDUX_KEY_PANEL_DATA = 'panel-data';
+export enum WORKER_REDUX_KEYS {
+  AUTOCOMPLETE_SIGNALS = 'autocomplete-signals',
+  PANEL_DATA = 'panel-data',
+  OVERALL_PROGRESS_DATA = 'overall-progress-data',
+  FOLDER_PROGRESS_DATA = 'folder-progress-data',
+}
 
 interface WorkerPanelData {
   attributionsInFolderContent: PanelData;
@@ -44,7 +51,7 @@ const initialWorkerPanelData: WorkerPanelData = {
 
 export function useAutocompleteSignals() {
   const [autocompleteSignals] = useVariable<Array<SignalWithCount>>(
-    REDUX_KEY_AUTOCOMPLETE_SIGNALS,
+    WORKER_REDUX_KEYS.AUTOCOMPLETE_SIGNALS,
     [],
   );
 
@@ -53,11 +60,29 @@ export function useAutocompleteSignals() {
 
 export function usePanelData() {
   const [panelData] = useVariable<WorkerPanelData>(
-    REDUX_KEY_PANEL_DATA,
+    WORKER_REDUX_KEYS.PANEL_DATA,
     initialWorkerPanelData,
   );
 
   return panelData;
+}
+
+export function useOverallProgressData() {
+  const [overallProgressData] = useVariable<ProgressBarData | null>(
+    WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA,
+    null,
+  );
+
+  return overallProgressData;
+}
+
+export function useFolderProgressData() {
+  const [folderProgressData] = useVariable<ProgressBarData | null>(
+    WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA,
+    null,
+  );
+
+  return folderProgressData;
 }
 
 export function useSignalsWorker() {
@@ -69,17 +94,28 @@ export function useSignalsWorker() {
     getResolvedExternalAttributions,
   );
   const attributionsToHashes = useAppSelector(getExternalAttributionsToHashes);
+  const resources = useAppSelector(getResources);
+  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
+  const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
 
   const [worker, setWorker] = useState<Worker>();
-  const [_, setAutocompleteSignals] = useVariable<Array<SignalWithCount>>(
-    REDUX_KEY_AUTOCOMPLETE_SIGNALS,
+  const [, setAutocompleteSignals] = useVariable<Array<SignalWithCount>>(
+    WORKER_REDUX_KEYS.AUTOCOMPLETE_SIGNALS,
     [],
   );
   const [, setPanelData] = useVariable<WorkerPanelData>(
-    REDUX_KEY_PANEL_DATA,
+    WORKER_REDUX_KEYS.PANEL_DATA,
     initialWorkerPanelData,
+  );
+  const [, setOverallProgressData] = useVariable<ProgressBarData | null>(
+    WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA,
+    null,
+  );
+  const [, setFolderProgressData] = useVariable<ProgressBarData | null>(
+    WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA,
+    null,
   );
 
   useEffect(() => {
@@ -117,24 +153,55 @@ export function useSignalsWorker() {
               signalsInFolderContent: data.data,
             }));
             break;
+          case 'overallProgressData':
+            setOverallProgressData(data.data);
+            break;
+          case 'folderProgressData':
+            setFolderProgressData(data.data);
+            break;
           default:
             shouldNotBeCalled(data);
         }
       };
     }
-  }, [setAutocompleteSignals, setPanelData, worker]);
+  }, [
+    setAutocompleteSignals,
+    setFolderProgressData,
+    setOverallProgressData,
+    setPanelData,
+    worker,
+  ]);
+
+  useEffect(() => {
+    if (isAuditView && resourceId) {
+      worker?.postMessage({
+        name: 'resourceId',
+        data: resourceId,
+      } satisfies SignalsWorkerInput);
+    }
+  }, [isAuditView, resourceId, worker]);
 
   useEffect(() => {
     worker?.postMessage({
       name: 'externalData',
-      data: externalData,
+      data: {
+        attributions: externalData.attributions,
+        resourcesWithAttributedChildren:
+          externalData.resourcesWithAttributedChildren,
+        resourcesToAttributions: externalData.resourcesToAttributions,
+      },
     } satisfies SignalsWorkerInput);
   }, [externalData, worker]);
 
   useEffect(() => {
     worker?.postMessage({
       name: 'manualData',
-      data: manualData,
+      data: {
+        attributions: manualData.attributions,
+        resourcesWithAttributedChildren:
+          manualData.resourcesWithAttributedChildren,
+        resourcesToAttributions: manualData.resourcesToAttributions,
+      },
     } satisfies SignalsWorkerInput);
   }, [manualData, worker]);
 
@@ -160,11 +227,25 @@ export function useSignalsWorker() {
   }, [attributionsToHashes, worker]);
 
   useEffect(() => {
-    if (isAuditView && resourceId) {
+    worker?.postMessage({
+      name: 'attributionBreakpoints',
+      data: attributionBreakpoints,
+    } satisfies SignalsWorkerInput);
+  }, [attributionBreakpoints, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'filesWithChildren',
+      data: filesWithChildren,
+    } satisfies SignalsWorkerInput);
+  }, [filesWithChildren, worker]);
+
+  useEffect(() => {
+    if (resources) {
       worker?.postMessage({
-        name: 'resourceId',
-        data: resourceId,
+        name: 'resources',
+        data: resources,
       } satisfies SignalsWorkerInput);
     }
-  }, [isAuditView, resourceId, worker]);
+  }, [resources, worker]);
 }

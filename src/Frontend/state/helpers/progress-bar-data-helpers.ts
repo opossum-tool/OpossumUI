@@ -8,11 +8,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../shared/shared-types';
-import {
-  PathPredicate,
-  ProgressBarData,
-  ProgressBarWorkerArgs,
-} from '../../types/types';
+import { PathPredicate, ProgressBarData } from '../../types/types';
 import { canResourceHaveChildren } from '../../util/can-resource-have-children';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
@@ -50,7 +46,7 @@ function updateProgressBarDataForResources(
   hasParentExternalAttribution = false,
 ): void {
   for (const resourceName of Object.keys(resources)) {
-    const resource: Resources | 1 = resources[resourceName];
+    const resource = resources[resourceName] as Resources | 1 | undefined;
     const path = `${parentPath}${resourceName}${
       canResourceHaveChildren(resource) ? '/' : ''
     }`;
@@ -196,9 +192,17 @@ export function resourceHasOnlyPreSelectedAttributions(
   );
 }
 
-export function getUpdatedProgressBarData(
-  args: ProgressBarWorkerArgs,
-): ProgressBarData {
+export function getUpdatedProgressBarData(args: {
+  resources: Resources | null;
+  resourceId: string;
+  manualAttributions: Attributions;
+  externalAttributions: Attributions;
+  resourcesToManualAttributions: ResourcesToAttributions;
+  resourcesToExternalAttributions: ResourcesToAttributions;
+  resolvedExternalAttributions: Set<string>;
+  attributionBreakpoints: Set<string>;
+  filesWithChildren: Set<string>;
+}): ProgressBarData {
   const isAttributionBreakpoint = getAttributionBreakpointCheck(
     args.attributionBreakpoints,
   );
