@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { isFunction } from 'lodash';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { setVariable } from '../state/actions/variables-actions/variables-actions';
+import { useAppStore } from '../state/hooks';
 import { State } from '../types/types';
 
 /**
@@ -17,22 +19,34 @@ import { State } from '../types/types';
 export function useVariable<T>(
   name: string,
   initialValue: T,
-): [T, (newValue: T) => void] {
+): [T, (newValue: T | ((prev: T) => T)) => void] {
   const dispatch = useDispatch();
-
-  return [
-    useSelector<State, T>((state) => {
+  const store = useAppStore();
+  const getValue = useCallback(
+    (state: State) => {
       if (name in state.variablesState) {
         return state.variablesState[name] as T;
       }
 
       return initialValue;
-    }),
+    },
+    [initialValue, name],
+  );
+
+  return [
+    useSelector<State, T>(getValue),
     useCallback(
-      (value: T) => {
-        dispatch(setVariable(name, value));
+      (newValue: T | ((prev: T) => T)) => {
+        dispatch(
+          setVariable(
+            name,
+            isFunction(newValue)
+              ? newValue(getValue(store.getState()))
+              : newValue,
+          ),
+        );
       },
-      [dispatch, name],
+      [dispatch, getValue, name, store],
     ),
   ];
 }

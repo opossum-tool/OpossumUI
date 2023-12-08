@@ -24,7 +24,6 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
 ];
 
-jest.mock('./src/Frontend/web-workers/get-new-accordion-workers');
 jest.mock('./src/Frontend/web-workers/get-new-progress-bar-workers');
 jest.mock('./src/ElectronBackend/main/logger.ts');
 
