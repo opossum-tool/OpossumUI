@@ -6,13 +6,13 @@ import { SET_VARIABLE } from './types';
 
 export type VariablesAction = SetVariable;
 
-export interface SetVariable {
+export interface SetVariable<T = unknown> {
   type: SET_VARIABLE;
   name: string;
-  value: unknown;
+  value: T;
 }
 
-export function setVariable(name: string, value: unknown): SetVariable {
+export function setVariable<T>(name: string, value: T): SetVariable<T> {
   return {
     type: SET_VARIABLE,
     name,

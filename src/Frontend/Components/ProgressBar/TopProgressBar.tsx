@@ -3,23 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useState } from 'react';
 
-import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
-import { useAppSelector } from '../../state/hooks';
-import {
-  getAttributionBreakpoints,
-  getExternalAttributions,
-  getFilesWithChildren,
-  getManualAttributions,
-  getResources,
-  getResourcesToExternalAttributions,
-  getResourcesToManualAttributions,
-} from '../../state/selectors/all-views-resource-selectors';
-import { getResolvedExternalAttributions } from '../../state/selectors/audit-view-resource-selectors';
-import { ProgressBarData, ProgressBarWorkerArgs } from '../../types/types';
+import { useOverallProgressData } from '../../web-workers/use-signals-worker';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
-import { ProgressBarWorkersContext } from '../WorkersContextProvider/WorkersContextProvider';
 import { ProgressBar } from './ProgressBar';
 
 const classes = {
@@ -35,68 +22,6 @@ const classes = {
 };
 
 export function TopProgressBar(): ReactElement {
-  const resources = useAppSelector(getResources);
-  const manualAttributions = useAppSelector(getManualAttributions);
-  const externalAttributions = useAppSelector(getExternalAttributions);
-  const resourcesToManualAttributions = useAppSelector(
-    getResourcesToManualAttributions,
-  );
-  const resourcesToExternalAttributions = useAppSelector(
-    getResourcesToExternalAttributions,
-  );
-  const resolvedExternalAttributions = useAppSelector(
-    getResolvedExternalAttributions,
-  );
-  const attributionBreakpoints = useAppSelector(getAttributionBreakpoints);
-  const filesWithChildren = useAppSelector(getFilesWithChildren);
-
-  const [topProgressBarData, setTopProgressBarData] =
-    useState<ProgressBarData | null>(null);
-
-  const topProgressBarWorker = useContext(
-    ProgressBarWorkersContext,
-  ).TopProgressBarWorker;
-
-  const topProgressBarWorkerArgs = useMemo(
-    () => ({
-      resourceId: '/',
-      manualAttributions,
-      externalAttributions,
-      resourcesToManualAttributions,
-      resolvedExternalAttributions,
-    }),
-    [
-      manualAttributions,
-      externalAttributions,
-      resourcesToManualAttributions,
-      resolvedExternalAttributions,
-    ],
-  );
-
-  const topProgressBarSyncFallbackArgs = useMemo(
-    () => ({
-      resources,
-      resourceId: '/',
-      manualAttributions,
-      externalAttributions,
-      resourcesToManualAttributions,
-      resourcesToExternalAttributions,
-      resolvedExternalAttributions,
-      attributionBreakpoints,
-      filesWithChildren,
-    }),
-    [
-      resources,
-      manualAttributions,
-      externalAttributions,
-      resourcesToManualAttributions,
-      resourcesToExternalAttributions,
-      resolvedExternalAttributions,
-      attributionBreakpoints,
-      filesWithChildren,
-    ],
-  );
-
   const [progressBarCriticalityState, setProgressBarCriticalityState] =
     useState<boolean>(false);
 
@@ -107,21 +32,14 @@ export function TopProgressBar(): ReactElement {
     ? 'Critical signals progress bar selected'
     : 'Progress bar selected';
 
-  useEffect(() => {
-    void loadProgressBarData(
-      topProgressBarWorker,
-      topProgressBarWorkerArgs,
-      setTopProgressBarData,
-      topProgressBarSyncFallbackArgs,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topProgressBarWorker, topProgressBarWorkerArgs]);
-  return topProgressBarData ? (
+  const progressData = useOverallProgressData();
+
+  return progressData ? (
     <MuiBox sx={classes.root}>
       <ProgressBar
         sx={classes.root}
         progressBarType={'TopProgressBar'}
-        progressBarData={topProgressBarData}
+        progressBarData={progressData}
         progressBarCriticalityState={progressBarCriticalityState}
       />
       <SwitchWithTooltip
@@ -129,51 +47,9 @@ export function TopProgressBar(): ReactElement {
         switchToolTipText={switchToolTipText}
         isChecked={progressBarCriticalityState}
         handleSwitchClick={handleSwitchClick}
-        ariaLabel="CriticalityStateSwitch"
       />
     </MuiBox>
   ) : (
-    <MuiBox sx={classes.root} />
+    <MuiBox aria-label={'TopProgressBar'} sx={classes.root} />
   );
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async function loadProgressBarData(
-    worker: Worker,
-    workerArgs: Partial<ProgressBarWorkerArgs>,
-    setTopProgressBarData: (progressBarData: ProgressBarData | null) => void,
-    syncFallbackArgs: ProgressBarWorkerArgs,
-  ): Promise<void> {
-    try {
-      worker.postMessage(workerArgs);
-
-      worker.onmessage = ({ data: { output } }): void => {
-        if (!output) {
-          logErrorAndComputeInMainProcess(
-            Error('Web Worker execution error.'),
-            setTopProgressBarData,
-            syncFallbackArgs,
-          );
-        } else {
-          setTopProgressBarData(output.progressBarData);
-        }
-      };
-    } catch (error) {
-      logErrorAndComputeInMainProcess(
-        error,
-        setTopProgressBarData,
-        syncFallbackArgs,
-      );
-    }
-  }
-
-  function logErrorAndComputeInMainProcess(
-    error: unknown,
-    setTopProgressBarData: (topProgressBarData: ProgressBarData | null) => void,
-    syncFallbackArgs: ProgressBarWorkerArgs,
-  ): void {
-    console.info('Error in rendering top progress bar: ', error);
-    const progressBarData = getUpdatedProgressBarData(syncFallbackArgs);
-
-    setTopProgressBarData(progressBarData);
-  }
 }

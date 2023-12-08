@@ -12,14 +12,12 @@ interface SwitchWithTooltipProps {
   switchToolTipText: string;
   isChecked: boolean;
   handleSwitchClick: () => void;
-  ariaLabel: string;
 }
 
 export function SwitchWithTooltip(props: SwitchWithTooltipProps): ReactElement {
   return (
     <MuiTooltip title={props.switchToolTipText}>
       <MuiSwitch
-        aria-label={props.ariaLabel}
         checked={props.isChecked}
         onChange={props.handleSwitchClick}
         size="small"

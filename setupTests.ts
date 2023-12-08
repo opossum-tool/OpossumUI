@@ -7,13 +7,6 @@ import '@testing-library/jest-dom';
 
 import { ElectronAPI } from './src/shared/shared-types';
 
-// We suppress webworker errors that are due to jest not supporting these.
-const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO = [
-  'Web worker error in workers context',
-  'Error in rendering folder progress bar',
-  'Error in rendering top progress bar',
-  'Error in ResourceDetailsTab',
-];
 // We suppress the recharts warning that is due to our mocking in tests.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN = [
   'The width(0) and height(0) of chart should be greater than 0,',
@@ -24,7 +17,6 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
 ];
 
-jest.mock('./src/Frontend/web-workers/get-new-progress-bar-workers');
 jest.mock('./src/ElectronBackend/main/logger.ts');
 
 const originalResizeObserver = window.ResizeObserver;
@@ -59,7 +51,6 @@ beforeAll(() => {
 
   mockResizeObserver();
 
-  mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_INFO, 'info');
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN, 'warn');
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR, 'error');
 });

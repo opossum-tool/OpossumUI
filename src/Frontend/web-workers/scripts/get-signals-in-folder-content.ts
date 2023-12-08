@@ -2,16 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  AttributionData,
-  AttributionsToHashes,
-} from '../../../shared/shared-types';
+import { AttributionsToHashes } from '../../../shared/shared-types';
 import { getContainedExternalDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
 import { PackagePanelTitle } from '../../enums/enums';
 import { PanelData } from '../../types/types';
+import { PanelAttributionData } from '../../util/get-contained-packages';
 
 interface Props {
-  externalData: AttributionData;
+  externalData: PanelAttributionData;
   attributionsToHashes: AttributionsToHashes;
   resolvedExternalAttributions: Set<string>;
   resourceId: string;
