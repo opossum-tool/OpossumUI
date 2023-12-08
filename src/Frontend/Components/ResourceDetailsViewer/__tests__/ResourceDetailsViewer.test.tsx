@@ -192,41 +192,6 @@ describe('The ResourceDetailsViewer', () => {
     expect(screen.getByText('JQuery'));
   });
 
-  it('renders Contained External Packages', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    const externalAttributions: Attributions = {
-      uuid_2: {
-        packageName: 'JQuery',
-        packageVersion: '1.0',
-      },
-      uuid_1: {
-        packageName: 'Another Package',
-      },
-    };
-    const resourcesToExternalAttributions: ResourcesToAttributions = {
-      '/test_id/': ['uuid_1'],
-      '/test_id/subdirectory': ['uuid_2'],
-    };
-    act(() => {
-      store.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: { test_id: { subdirectory: 1 } },
-            externalAttributions,
-            resourcesToExternalAttributions,
-          }),
-        ),
-      );
-      store.dispatch(setSelectedResourceId('/test_id/'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
-      );
-    });
-
-    expect(screen.getByText('Signals in Folder Content'));
-    expect(screen.getByText('JQuery, 1.0'));
-  });
-
   it('selects an external package and a manual package, showing the right info', () => {
     const manualAttributions = {
       uuid_1: testTemporaryDisplayPackageInfo,

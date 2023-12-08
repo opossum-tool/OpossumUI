@@ -77,15 +77,15 @@ export function PackageAutocomplete({
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
 
-  const signals = useAutocompleteSignals();
+  const autocompleteSignals = useAutocompleteSignals();
   const filteredSignals = useMemo(
     () =>
       isAuditView
-        ? signals
+        ? autocompleteSignals
             .filter((signal) => !['', undefined].includes(signal[attribute]))
             .concat(defaults)
         : [],
-    [isAuditView, signals, defaults, attribute],
+    [isAuditView, autocompleteSignals, defaults, attribute],
   );
 
   return (
