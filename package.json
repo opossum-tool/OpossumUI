@@ -50,7 +50,7 @@
     "@babel/preset-typescript": "^7.23.3",
     "@faker-js/faker": "^8.3.1",
     "@playwright/test": "^1.40.1",
-    "@redux-devtools/extension": "^3.2.6",
+    "@redux-devtools/extension": "^3.3.0",
     "@testing-library/dom": "^9.3.3",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",

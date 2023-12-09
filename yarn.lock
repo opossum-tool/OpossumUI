@@ -2652,15 +2652,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redux-devtools/extension@npm:^3.2.6":
-  version: 3.2.6
-  resolution: "@redux-devtools/extension@npm:3.2.6"
+"@redux-devtools/extension@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@redux-devtools/extension@npm:3.3.0"
   dependencies:
     "@babel/runtime": "npm:^7.23.2"
     immutable: "npm:^4.3.4"
   peerDependencies:
-    redux: ^3.1.0 || ^4.0.0
-  checksum: bac42880d1a08f5d9c746c47e30b32472ed1e249d841041276a41d3cd8fcc849a41396e01a3f67f5b2ba3542df38f3c9dca5c19c7a77e34103a7950f7d0c9381
+    redux: ^3.1.0 || ^4.0.0 || ^5.0.0
+  checksum: 07c2bb6f786900f29509f1e414ae0af845cb276a471e1e0e961d3a6a7dc16485ffe620bf01a1e0a545181d550058d197525760bbddb2c172acac25ddbe9dbd0d
   languageName: node
   linkType: hard
 
@@ -9190,7 +9190,7 @@ __metadata:
     "@mui/material": "npm:^5.14.20"
     "@mui/system": "npm:^5.14.20"
     "@playwright/test": "npm:^1.40.1"
-    "@redux-devtools/extension": "npm:^3.2.6"
+    "@redux-devtools/extension": "npm:^3.3.0"
     "@tanstack/react-query": "npm:^5.12.2"
     "@testing-library/dom": "npm:^9.3.3"
     "@testing-library/jest-dom": "npm:^6.1.5"
