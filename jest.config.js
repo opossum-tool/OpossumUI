@@ -7,7 +7,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   resetMocks: false,
   transformIgnorePatterns: ['/node_modules/(?!d3-*|internmap|axios)'],
-  setupFilesAfterEnv: ['./setupTests.ts'],
+  setupFilesAfterEnv: ['./src/shared/setupTests.ts'],
   watchAll: false,
   roots: ['<rootDir>/src/Frontend', '<rootDir>/src/ElectronBackend'],
   modulePathIgnorePatterns: ['<rootDir>/build/'],

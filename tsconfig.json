@@ -28,12 +28,6 @@
       "@testing-library/jest-dom"
     ]
   },
-  "include": [
-    "src/**/*",
-    ".eslintrc.js",
-    "setupTests.ts",
-    "vite.config.mts",
-    "index.html"
-  ],
+  "include": ["src/**/*", "typings"],
   "exclude": ["src/ElectronBackend/**/*"]
 }
