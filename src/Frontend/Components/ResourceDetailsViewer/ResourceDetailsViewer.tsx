@@ -125,9 +125,7 @@ export function ResourceDetailsViewer(): ReactElement | null {
               onOverrideParentClick={onOverrideParentClick}
             />
           )}
-          {showProgressBar && (
-            <FolderProgressBar resourceId={selectedResourceId} />
-          )}
+          {showProgressBar && <FolderProgressBar />}
           <MuiBox sx={classes.tabsDiv}>
             <ResourceDetailsTabs
               isGlobalTabEnabled={!showParentAttributions}

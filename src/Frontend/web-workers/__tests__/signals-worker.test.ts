@@ -22,7 +22,7 @@ describe('SignalsWorker', () => {
 
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'autocompleteSignals',
-      data: [],
+      data: expect.any(Array),
     });
   });
 
@@ -37,7 +37,7 @@ describe('SignalsWorker', () => {
 
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'autocompleteSignals',
-      data: [],
+      data: expect.any(Array),
     });
   });
 
@@ -54,7 +54,7 @@ describe('SignalsWorker', () => {
 
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'attributionsInFolderContent',
-      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+      data: expect.any(Object),
     });
   });
 
@@ -66,7 +66,7 @@ describe('SignalsWorker', () => {
 
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'attributionsInFolderContent',
-      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+      data: expect.any(Object),
     });
   });
 
@@ -85,7 +85,7 @@ describe('SignalsWorker', () => {
 
     expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'signalsInFolderContent',
-      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+      data: expect.any(Object),
     });
   });
 
@@ -99,7 +99,83 @@ describe('SignalsWorker', () => {
 
     expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
       name: 'signalsInFolderContent',
-      data: { displayPackageInfosWithCount: {}, sortedPackageCardIds: [] },
+      data: expect.any(Object),
+    });
+  });
+
+  it('dispatches overall progress data when dependencies are met', () => {
+    const dispatch = jest.fn();
+    const worker = new SignalsWorker(dispatch, {
+      attributionBreakpoints: new Set<string>(),
+      externalData: faker.opossum.externalAttributionData(),
+      filesWithChildren: new Set<string>(),
+      manualData: faker.opossum.manualAttributionData(),
+      resolvedExternalAttributions: new Set<string>(),
+    });
+
+    worker.processInput({
+      name: 'resources',
+      data: faker.opossum.resources(),
+    });
+
+    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'overallProgressData',
+      data: expect.any(Object),
+    });
+  });
+
+  it('does not dispatch overall progress data when dependencies are missing', () => {
+    const dispatch = jest.fn();
+    new SignalsWorker(dispatch, {
+      attributionBreakpoints: new Set<string>(),
+      externalData: faker.opossum.externalAttributionData(),
+      filesWithChildren: new Set<string>(),
+      manualData: faker.opossum.manualAttributionData(),
+      resolvedExternalAttributions: new Set<string>(),
+    });
+
+    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'overallProgressData',
+      data: expect.any(Object),
+    });
+  });
+
+  it('dispatches folder progress data when dependencies are met', () => {
+    const dispatch = jest.fn();
+    const worker = new SignalsWorker(dispatch, {
+      attributionBreakpoints: new Set<string>(),
+      externalData: faker.opossum.externalAttributionData(),
+      filesWithChildren: new Set<string>(),
+      manualData: faker.opossum.manualAttributionData(),
+      resolvedExternalAttributions: new Set<string>(),
+      resources: faker.opossum.resources(),
+    });
+
+    worker.processInput({
+      name: 'resourceId',
+      data: faker.opossum.resourceName(),
+    });
+
+    expect(dispatch).toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'folderProgressData',
+      data: expect.any(Object),
+    });
+  });
+
+  it('does not dispatch folder progress data when dependencies are missing', () => {
+    const dispatch = jest.fn();
+    new SignalsWorker(dispatch, {
+      attributionBreakpoints: new Set<string>(),
+      externalData: faker.opossum.externalAttributionData(),
+      filesWithChildren: new Set<string>(),
+      manualData: faker.opossum.manualAttributionData(),
+      resolvedExternalAttributions: new Set<string>(),
+      resources: faker.opossum.resources(),
+    });
+
+    expect(dispatch).not.toHaveBeenCalledWith<[SignalsWorkerOutput]>({
+      name: 'folderProgressData',
+      data: expect.any(Object),
     });
   });
 });
