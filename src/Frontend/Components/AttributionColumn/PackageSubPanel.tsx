@@ -19,6 +19,7 @@ import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { generatePurl, parsePurl } from '../../util/handle-purl';
 import { openUrl } from '../../util/open-url';
+import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
 import { SearchPackagesIcon } from '../Icons/Icons';
@@ -64,6 +65,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         },
       })),
     [],
+  );
+
+  PackageSearchHooks.usePackageSearchSuggestions(
+    props.displayPackageInfo.packageName,
   );
 
   return (
