@@ -2,12 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook as nativeRenderHook, render } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { Action, createAppStore } from '../state/configure-store';
+
+function makeReactQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+}
 
 export function renderComponent(
   component: ReactElement,
@@ -25,11 +36,13 @@ export function renderComponent(
     ...render(component, {
       wrapper: ({ children }) => (
         <Provider store={store}>
-          <VirtuosoMockContext.Provider
-            value={{ itemHeight: 200, viewportHeight: 600 }}
-          >
-            {children}
-          </VirtuosoMockContext.Provider>
+          <QueryClientProvider client={makeReactQueryClient()}>
+            <VirtuosoMockContext.Provider
+              value={{ itemHeight: 200, viewportHeight: 600 }}
+            >
+              {children}
+            </VirtuosoMockContext.Provider>
+          </QueryClientProvider>
         </Provider>
       ),
     }),

@@ -114,6 +114,7 @@ module.exports = {
     'plugin:jest/recommended',
     'plugin:jest/style',
     'plugin:jest-dom/recommended',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
   ],
   globals: {
     Atomics: 'readonly',
