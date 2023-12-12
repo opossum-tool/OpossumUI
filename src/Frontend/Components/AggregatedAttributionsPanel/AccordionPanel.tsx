@@ -9,6 +9,7 @@ import MuiTypography from '@mui/material/Typography';
 import { isEmpty } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 
+import { PackagePanelTitle } from '../../enums/enums';
 import { PanelData } from '../../types/types';
 import { PackagePanel } from '../PackagePanel/PackagePanel';
 
@@ -37,6 +38,7 @@ const classes = {
 
 interface AccordionPanelProps {
   panelData: PanelData;
+  title: PackagePanelTitle;
   isAddToPackageEnabled: boolean;
   ['aria-label']?: string;
 }
@@ -63,7 +65,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       }}
       elevation={0}
       square={true}
-      key={`PackagePanel-${props.panelData.title}`}
+      key={`PackagePanel-${props.title}`}
       expanded={expanded}
       onChange={handleExpansionChange}
       disabled={isEmpty(props.panelData.displayPackageInfosWithCount)}
@@ -75,7 +77,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
         }}
         expandIcon={<ExpandMoreIcon />}
       >
-        <MuiTypography>{props.panelData.title}</MuiTypography>
+        <MuiTypography>{props.title}</MuiTypography>
       </MuiAccordionSummary>
       <MuiAccordionDetails
         sx={{
@@ -83,7 +85,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
         }}
       >
         <PackagePanel
-          title={props.panelData.title}
+          title={props.title}
           displayPackageInfosWithCount={
             props.panelData.displayPackageInfosWithCount
           }

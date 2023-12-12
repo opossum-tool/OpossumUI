@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker } from '@faker-js/faker';
 import { act, screen, within } from '@testing-library/react';
 import { IpcRendererEvent } from 'electron';
 import { noop } from 'lodash';
 
+import { faker } from '../../../../shared/Faker';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { ElectronAPI, Log } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';

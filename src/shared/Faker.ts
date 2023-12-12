@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { en, Faker as NativeFaker } from '@faker-js/faker';
+// eslint-disable-next-line no-restricted-imports
+import { base, en, Faker as NativeFaker } from '@faker-js/faker';
 
 import type {
   RawPackageInfo as ExternalPackageInfo,
@@ -11,6 +12,8 @@ import type {
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
 import {
+  AttributionData,
+  AttributionsToResources,
   BaseUrlsForSources,
   DiscreteConfidence,
   DisplayPackageInfo,
@@ -19,6 +22,7 @@ import {
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
+  ResourcesWithAttributedChildren,
   Source,
 } from './shared-types';
 
@@ -159,6 +163,16 @@ class OpossumModule {
     );
   }
 
+  public static attributionsToResources(
+    props?: AttributionsToResources,
+  ): AttributionsToResources {
+    return (
+      props || {
+        [faker.string.uuid()]: [faker.system.filePath()],
+      }
+    );
+  }
+
   public static filePath(...elements: Array<string>): string {
     if (!elements[0]?.startsWith('/')) {
       elements.unshift('');
@@ -241,10 +255,45 @@ class OpossumModule {
       ...props,
     };
   }
+
+  public static resourcesWithAttributedChildren(
+    props: Partial<ResourcesWithAttributedChildren> = {},
+  ): ResourcesWithAttributedChildren {
+    return {
+      paths: [],
+      pathsToIndices: {},
+      attributedChildren: {},
+      ...props,
+    };
+  }
+
+  public static manualAttributionData(
+    props: Partial<AttributionData> = {},
+  ): AttributionData {
+    return {
+      attributions: this.manualAttributions(),
+      attributionsToResources: this.attributionsToResources(),
+      resourcesToAttributions: this.resourcesToAttributions(),
+      resourcesWithAttributedChildren: this.resourcesWithAttributedChildren(),
+      ...props,
+    };
+  }
+
+  public static externalAttributionData(
+    props: Partial<AttributionData> = {},
+  ): AttributionData {
+    return {
+      attributions: this.externalAttributions(),
+      attributionsToResources: this.attributionsToResources(),
+      resourcesToAttributions: this.resourcesToAttributions(),
+      resourcesWithAttributedChildren: this.resourcesWithAttributedChildren(),
+      ...props,
+    };
+  }
 }
 
 class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
 }
 
-export const faker = new Faker({ locale: [en] });
+export const faker = new Faker({ locale: [en, base] });

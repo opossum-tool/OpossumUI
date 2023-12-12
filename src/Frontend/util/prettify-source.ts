@@ -9,7 +9,7 @@ export function prettifySource(
   attributionSources: ExternalAttributionSources,
 ): string {
   if (!source) {
-    return 'none';
+    return '';
   }
   return attributionSources[source] ? attributionSources[source].name : source;
 }

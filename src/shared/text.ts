@@ -6,7 +6,6 @@
 export const text = {
   attributionColumn: {
     packageSubPanel: {
-      attributionType: 'Attribution Type',
       confidence: 'Confidence',
       copyToClipboard: 'Copy to clipboard',
       fetchPackageInfo: 'Fetch package information',
@@ -24,8 +23,17 @@ export const text = {
       repositoryUrl: 'Repository URL',
       searchForPackage: 'Search for package information',
     },
-    packageCoordinates: 'Package Coordinates',
+    amongSignals: 'among signals',
+    commonEcosystems: 'Common Ecosystems',
+    commonLicenses: 'Common Licenses',
     legalInformation: 'Legal Information',
+    licenseName: 'License Name',
+    licenseTextModified: '(License text modified)',
+    manualAttributions: 'Manual Attributions',
+    occurrence: 'occurrence',
+    packageCoordinates: 'Package Coordinates',
+    useAutocompleteSuggestion:
+      'Adopt all coordinates and legal information from suggestion',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
@@ -50,5 +58,6 @@ export const text = {
   },
   locatorPopup: {
     onlySearchLicenseNames: 'Only search license names',
+    license: 'License',
   },
 };

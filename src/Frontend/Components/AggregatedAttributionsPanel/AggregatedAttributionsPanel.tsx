@@ -2,31 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { memo, ReactElement, useMemo } from 'react';
+import { memo, ReactElement } from 'react';
 
 import { PackagePanelTitle } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import {
   getExternalAttributionsToHashes,
   getExternalData,
-  getManualData,
 } from '../../state/selectors/all-views-resource-selectors';
-import {
-  getResolvedExternalAttributions,
-  getSelectedResourceId,
-} from '../../state/selectors/audit-view-resource-selectors';
+import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { AttributionIdWithCount } from '../../types/types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
-import {
-  getExternalAttributionIdsWithCount,
-  PanelAttributionData,
-} from '../../util/get-contained-packages';
-import {
-  getContainedExternalDisplayPackageInfosWithCount,
-  getContainedManualDisplayPackageInfosWithCount,
-} from './accordion-panel-helpers';
+import { getExternalAttributionIdsWithCount } from '../../util/get-contained-packages';
+import { usePanelData } from '../../web-workers/use-signals-worker';
+import { AccordionPanel } from './AccordionPanel';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
-import { WorkerAccordionPanel } from './WorkerAccordionPanel';
 
 interface AggregatedAttributionsPanelProps {
   isAddToPackageEnabled: boolean;
@@ -34,74 +24,14 @@ interface AggregatedAttributionsPanelProps {
 
 export const AggregatedAttributionsPanel = memo(
   (props: AggregatedAttributionsPanelProps): ReactElement => {
-    const manualData = useAppSelector(getManualData);
     const externalData = useAppSelector(getExternalData);
     const attributionsToHashes = useAppSelector(
       getExternalAttributionsToHashes,
     );
-
     const selectedResourceId = useAppSelector(getSelectedResourceId);
-    const resolvedExternalAttributions: Set<string> = useAppSelector(
-      getResolvedExternalAttributions,
-    );
 
-    const containedExternalPackagesWorkerArgs = useMemo(
-      () => ({
-        selectedResourceId,
-        resolvedExternalAttributions,
-        panelTitle: PackagePanelTitle.ContainedExternalPackages,
-      }),
-      [selectedResourceId, resolvedExternalAttributions],
-    );
-    const containedExternalPackagesSyncFallbackArgs = useMemo(
-      () => ({
-        selectedResourceId,
-        externalData,
-        resolvedExternalAttributions,
-        attributionsToHashes,
-        panelTitle: PackagePanelTitle.ContainedExternalPackages,
-      }),
-      [
-        selectedResourceId,
-        externalData,
-        resolvedExternalAttributions,
-        attributionsToHashes,
-      ],
-    );
-
-    const containedManualPackagesWorkerArgs = useMemo(
-      () => ({
-        selectedResourceId,
-        panelTitle: PackagePanelTitle.ContainedManualPackages,
-      }),
-
-      //  manualData is excluded from dependencies on purpose to avoid recalculation
-      //  when it changes. Usually this is not an issue as the displayed data
-      //  remains correct. Therefore, the panelData is eventually consistent.
-      //  We still need manualData.resourcesToAttributions in the dependencies to
-      //  update panelData, when replaceAttributionPopup was called. This is
-      //  relevant for manual attributions in the attributions in folder content panel.
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [selectedResourceId, manualData.resourcesToAttributions],
-    );
-
-    const manualPanelData: PanelAttributionData = {
-      attributions: manualData.attributions,
-      resourcesToAttributions: manualData.resourcesToAttributions,
-      resourcesWithAttributedChildren:
-        manualData.resourcesWithAttributedChildren,
-    };
-    const containedManualPackagesSyncFallbackArgs = useMemo(
-      () => ({
-        selectedResourceId,
-        manualData: manualPanelData,
-        panelTitle: PackagePanelTitle.ContainedManualPackages,
-      }),
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [selectedResourceId, manualData],
-    );
+    const { signalsInFolderContent, attributionsInFolderContent } =
+      usePanelData();
 
     return (
       <>
@@ -119,23 +49,15 @@ export const AggregatedAttributionsPanel = memo(
         />
         {isIdOfResourceWithChildren(selectedResourceId) ? (
           <>
-            <WorkerAccordionPanel
+            <AccordionPanel
               title={PackagePanelTitle.ContainedExternalPackages}
-              workerArgs={containedExternalPackagesWorkerArgs}
-              syncFallbackArgs={containedExternalPackagesSyncFallbackArgs}
-              getDisplayPackageInfosWithCount={
-                getContainedExternalDisplayPackageInfosWithCount
-              }
+              panelData={signalsInFolderContent}
               isAddToPackageEnabled={props.isAddToPackageEnabled}
               aria-label={'signals in folder content panel'}
             />
-            <WorkerAccordionPanel
+            <AccordionPanel
               title={PackagePanelTitle.ContainedManualPackages}
-              workerArgs={containedManualPackagesWorkerArgs}
-              syncFallbackArgs={containedManualPackagesSyncFallbackArgs}
-              getDisplayPackageInfosWithCount={
-                getContainedManualDisplayPackageInfosWithCount
-              }
+              panelData={attributionsInFolderContent}
               isAddToPackageEnabled={props.isAddToPackageEnabled}
               aria-label={'attributions in folder content panel'}
             />

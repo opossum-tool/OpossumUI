@@ -100,9 +100,12 @@ export class AttributionDetails {
       { exact: true },
     );
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
-    this.licenseName = this.node.getByRole('combobox', {
-      name: 'License Name',
-    });
+    this.licenseName = this.node.getByLabel(
+      text.attributionColumn.licenseName,
+      {
+        exact: true,
+      },
+    );
     this.licenseText = this.node.getByLabel(
       'License Text (to appear in attribution document)',
       { exact: true },
@@ -437,9 +440,7 @@ export class AttributionDetails {
   }
 
   async selectLicense(license: RawFrequentLicense): Promise<void> {
-    await this.window
-      .getByText(`${license.shortName} - ${license.fullName}`)
-      .click();
+    await this.window.getByText(license.fullName).click();
   }
 
   async removeAuditingLabel(

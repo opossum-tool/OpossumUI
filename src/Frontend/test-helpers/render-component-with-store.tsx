@@ -21,8 +21,13 @@ export function createTestAppStore(): EnhancedTestStore {
 
 export function renderComponentWithStore(
   component: ReactElement,
-  { store = createTestAppStore() }: { store?: EnhancedTestStore } = {},
+  {
+    store = createTestAppStore(),
+    actions,
+  }: { store?: EnhancedTestStore; actions?: Array<AnyAction> } = {},
 ) {
+  actions?.forEach(store.dispatch);
+
   return {
     store,
     ...render(component, {

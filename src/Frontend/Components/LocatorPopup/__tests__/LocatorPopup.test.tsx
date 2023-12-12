@@ -27,7 +27,7 @@ import {
   createTestAppStore,
   renderComponentWithStore,
 } from '../../../test-helpers/render-component-with-store';
-import { getLicenseNames, LocatorPopup } from '../LocatorPopup';
+import { LocatorPopup } from '../LocatorPopup';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
@@ -46,9 +46,7 @@ describe('Locator popup ', () => {
     ).not.toBeChecked();
     expect(screen.getByLabelText('Criticality')).toBeInTheDocument();
     expect(screen.getByText('Any')).toBeInTheDocument();
-    expect(
-      screen.getByRole('combobox', { name: 'License' }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('auto complete')).toBeInTheDocument();
   });
 
   it('selects criticality values using the dropdown', () => {
@@ -309,26 +307,6 @@ describe('Locator popup ', () => {
   });
 });
 
-describe('getLicenseNamesFromExternalAttributions', () => {
-  it('collects the correct license names', () => {
-    const testExternalMITAttribution: PackageInfo = {
-      licenseName: 'MIT',
-    };
-    const testExternalApacheAttribution: PackageInfo = {
-      licenseName: 'Apache-2.0',
-    };
-
-    const testExternalAttributions: Attributions = {
-      uuid_1: testExternalMITAttribution,
-      uuid_2: testExternalApacheAttribution,
-    };
-
-    const licenseNames = getLicenseNames(testExternalAttributions);
-    const expectedLicenseNames = ['MIT', 'Apache-2.0'];
-    expect(licenseNames).toEqual(expectedLicenseNames);
-  });
-});
-
 describe('locateResourcesByCriticalityAndLicense', () => {
   const testAttributions: Attributions = {
     MITHighAttribution: {
@@ -348,7 +326,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       criticality: Criticality.Medium,
     },
     GPLMediumAttribution: {
-      licenseName: 'General Public License',
+      licenseName: 'GPL',
       criticality: Criticality.Medium,
       packageVersion: '2.0',
     },
@@ -572,7 +550,7 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
 
     const criticality = SelectedCriticality.High;
-    const licenseNames = new Set(['General Public License']);
+    const licenseNames = new Set(['GPL']);
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: criticality,

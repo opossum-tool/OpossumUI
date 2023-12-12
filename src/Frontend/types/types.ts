@@ -4,11 +4,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  Attributions,
   Criticality,
   DisplayPackageInfo,
-  Resources,
-  ResourcesToAttributions,
   SelectedCriticality,
 } from '../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../enums/enums';
@@ -82,7 +79,6 @@ export interface PopupInfo {
 }
 
 export interface PanelData {
-  title: PackagePanelTitle;
   sortedPackageCardIds: Array<string>;
   displayPackageInfosWithCount: DisplayPackageInfosWithCount;
 }
@@ -96,18 +92,6 @@ export interface DisplayPackageInfosWithCountAndResourceId {
 export interface ProgressBarDataAndResourceId {
   progressBarData: ProgressBarData | null;
   resourceId: string;
-}
-
-export interface ProgressBarWorkerArgs {
-  resources: Resources | null;
-  resourceId: string;
-  manualAttributions: Attributions;
-  externalAttributions: Attributions;
-  resourcesToManualAttributions: ResourcesToAttributions;
-  resourcesToExternalAttributions: ResourcesToAttributions;
-  resolvedExternalAttributions: Set<string>;
-  attributionBreakpoints: Set<string>;
-  filesWithChildren: Set<string>;
 }
 
 export interface PieChartData {
