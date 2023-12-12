@@ -9,11 +9,18 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { ReactElement } from 'react';
 
-import { View } from '../../enums/enums';
+import { PopupType, View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { setViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import {
+  openPopup,
+  setOpenFileRequest,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getResources } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getResources,
+  wereTemporaryDisplayPackageInfoModified,
+} from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import { CommitInfoDisplay } from '../CommitInfoDisplay/CommitInfoDisplay';
@@ -61,12 +68,24 @@ export function TopBar(): ReactElement {
   const selectedView = useAppSelector(getSelectedView);
   const showTopProgressBar = useAppSelector(getResources) !== null;
   const dispatch = useAppDispatch();
+  const isTemporaryPackageInfoModified = useAppSelector(
+    wereTemporaryDisplayPackageInfoModified,
+  );
 
   function handleClick(
     _: React.MouseEvent<HTMLElement>,
     selectedView: View,
   ): void {
     dispatch(setViewOrOpenUnsavedPopup(selectedView));
+  }
+
+  function handleOpenFileClick(): void {
+    if (isTemporaryPackageInfoModified) {
+      dispatch(setOpenFileRequest(true));
+      dispatch(openPopup(PopupType.NotSavedPopup));
+    } else {
+      void window.electronAPI.openFile();
+    }
   }
 
   return (
@@ -76,7 +95,7 @@ export function TopBar(): ReactElement {
         tooltipTitle="open file"
         tooltipPlacement="right"
         onClick={(): void => {
-          void window.electronAPI.openFile();
+          handleOpenFileClick();
         }}
         icon={
           <FolderOpenIcon
