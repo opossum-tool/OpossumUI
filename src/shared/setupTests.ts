@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '@testing-library/jest-dom';
 
+import { faker } from './Faker';
 import { ElectronAPI } from './shared-types';
 
 // We suppress the recharts warning that is due to our mocking in tests.
@@ -53,6 +54,7 @@ beforeAll(() => {
 
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN, 'warn');
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR, 'error');
+  faker.packageSearch.usePackageSearchSuggestions();
 });
 
 beforeEach(() => jest.clearAllMocks());
