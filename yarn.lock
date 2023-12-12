@@ -3430,13 +3430,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/recharts@npm:^1.8.28":
-  version: 1.8.28
-  resolution: "@types/recharts@npm:1.8.28"
+"@types/recharts@npm:^1.8.29":
+  version: 1.8.29
+  resolution: "@types/recharts@npm:1.8.29"
   dependencies:
     "@types/d3-shape": "npm:^1"
     "@types/react": "npm:*"
-  checksum: a8d7f12afde91961d6970a2266cac6714aa5b5500606a7140d6717cd8ccfde94c83c69868e75c932e7e236a0def5b1c48989bf0b9847a8c1336e50dcbd4c54da
+  checksum: 436a5abf70b4c0902c1d3f5b9e56da1f886943e183fbdd45cce4fa73a326b390f86d4614d285e9ce3a0461d35070ee9aa604680d17bd2a12df50208d68a871be
   languageName: node
   linkType: hard
 
@@ -9206,7 +9206,7 @@ __metadata:
     "@types/prop-types": "npm:^15.7.11"
     "@types/react": "npm:^18.2.43"
     "@types/react-dom": "npm:^18.2.17"
-    "@types/recharts": "npm:^1.8.28"
+    "@types/recharts": "npm:^1.8.29"
     "@types/stream-json": "npm:^1.7.7"
     "@types/uuid": "npm:^9.0.7"
     "@typescript-eslint/eslint-plugin": "npm:^6.13.2"
