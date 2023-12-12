@@ -93,7 +93,7 @@ import {
   locateSignalsFromLocatorPopup,
   locateSignalsFromProjectStatisticsPopup,
   navigateToSelectedPathOrOpenUnsavedPopup,
-  navigateToTargetResourceOrAttribution,
+  navigateToTargetResourceOrAttributionOrOpenFileDialog,
   openAttributionWizardPopup,
   removeWasPreferred,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
@@ -592,7 +592,9 @@ describe('The actions called from the unsaved popup', () => {
       testStore.dispatch(setTargetView(View.Attribution));
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
       testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-      testStore.dispatch(navigateToTargetResourceOrAttribution());
+      testStore.dispatch(
+        navigateToTargetResourceOrAttributionOrOpenFileDialog(),
+      );
       return testStore.getState();
     }
 

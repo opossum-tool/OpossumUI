@@ -16,6 +16,8 @@ export const ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE =
 
 export const ACTION_SET_QA_MODE = 'ACTION_SET_QA_MODE';
 
+export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
+
 export type ViewAction =
   | SetView
   | SetTargetView
@@ -24,7 +26,8 @@ export type ViewAction =
   | OpenPopupAction
   | UpdateActiveFilters
   | SetShowNoSignalsLocatedMessage
-  | SetQAModeAction;
+  | SetQAModeAction
+  | SetOpenFileRequestAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -61,5 +64,10 @@ export interface SetShowNoSignalsLocatedMessage {
 
 export interface SetQAModeAction {
   type: typeof ACTION_SET_QA_MODE;
+  payload: boolean;
+}
+
+export interface SetOpenFileRequestAction {
+  type: typeof ACTION_SET_OPEN_FILE_REQUEST;
   payload: boolean;
 }

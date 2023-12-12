@@ -9252,7 +9252,7 @@ __metadata:
     nunjucks: "npm:^3.2.4"
     object-hash: "npm:^3.0.0"
     packageurl-js: "npm:^1.2.1"
-    prettier: "npm:^3.1.0"
+    prettier: "npm:^3.1.1"
     prettier-plugin-sh: "npm:^0.13.1"
     prop-types: "npm:^15.8.1"
     proxy-memoize: "npm:^2.0.4"
@@ -9260,7 +9260,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-hotkeys-hook: "npm:^4.4.1"
-    react-redux: "npm:^9.0.2"
+    react-redux: "npm:^9.0.3"
     react-virtuoso: "npm:^4.6.2"
     recharts: "npm:^2.10.3"
     redux: "npm:^4.2.1"
@@ -9586,12 +9586,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "prettier@npm:3.1.0"
+"prettier@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "prettier@npm:3.1.1"
   bin:
     prettier: bin/prettier.cjs
-  checksum: e95e8f93c6b9aea2ac1e86bebe329bee90c8c50d9a23d1f593eba8d7f39b33b3641eb28785001505b6723c47895a5322ad12a2fb855b289cb7bae450ffc34425
+  checksum: 26a249f321b97d26c04483f1bf2eeb22e082a76f4222a2c922bebdc60111691aad4ec3979610e83942e0b956058ec361d9e9c81c185172264eb6db9aa678082b
   languageName: node
   linkType: hard
 
@@ -9831,31 +9831,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-redux@npm:^9.0.2":
-  version: 9.0.2
-  resolution: "react-redux@npm:9.0.2"
+"react-redux@npm:^9.0.3":
+  version: 9.0.4
+  resolution: "react-redux@npm:9.0.4"
   dependencies:
     "@types/use-sync-external-store": "npm:^0.0.3"
     use-sync-external-store: "npm:^1.0.0"
   peerDependencies:
-    "@types/react": ^18.2.41
-    "@types/react-dom": ^18.2.17
+    "@types/react": ^18.2.25
     react: ^18.0
-    react-dom: ^18.0
-    react-native: ">=0.71"
+    react-native: ">=0.69"
     redux: ^5.0.0
   peerDependenciesMeta:
     "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-    react-dom:
       optional: true
     react-native:
       optional: true
     redux:
       optional: true
-  checksum: 9f9ef00f84a86c3ab6fc8fb1c51eac26f9dff733aa5f4ae573bb2bb34dfb40ec3c6fc107b6db9946f511b21a816d0505aed424ec6831d3d16bca719735fef85e
+  checksum: e6a4237ee887083408bd3b73bba506e2af893df2dcf960b019128f2028d9363079cdd3765fea73a6f1da607ccdbc24ec722fb2003f5e21b049d55aa271a61055
   languageName: node
   linkType: hard
 

@@ -39,7 +39,11 @@ import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
-import { getSelectedView, getTargetView } from '../../selectors/view-selector';
+import {
+  getOpenFileRequest,
+  getSelectedView,
+  getTargetView,
+} from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
 import {
@@ -73,6 +77,7 @@ import {
   closePopup,
   navigateToView,
   openPopup,
+  setOpenFileRequest,
   setShowNoSignalsLocatedMessage,
   setTargetView,
 } from '../view-actions/view-actions';
@@ -183,7 +188,7 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavi
         temporaryDisplayPackageInfo,
       ),
     );
-    dispatch(navigateToTargetResourceOrAttribution());
+    dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
   };
 }
 
@@ -228,7 +233,7 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIs
         convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
       ),
     );
-    dispatch(navigateToTargetResourceOrAttribution());
+    dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
   };
 }
 
@@ -267,10 +272,19 @@ export function checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(
   };
 }
 
-export function navigateToTargetResourceOrAttribution(): AppThunkAction {
+export function navigateToTargetResourceOrAttributionOrOpenFileDialog(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const targetView = getTargetView(getState());
     const view = getSelectedView(getState());
+    const openFileRequest = getOpenFileRequest(getState());
+
+    dispatch(closePopup());
+    if (openFileRequest) {
+      void window.electronAPI.openFile();
+      dispatch(setOpenFileRequest(false));
+      return;
+    }
+
     dispatch(setSelectedResourceOrAttributionIdToTargetValue());
     if (targetView) {
       dispatch(navigateToView(targetView));
@@ -282,7 +296,6 @@ export function navigateToTargetResourceOrAttribution(): AppThunkAction {
       ),
     );
 
-    dispatch(closePopup());
     if (view === View.Report) {
       dispatch(closePopup());
     }
@@ -295,6 +308,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setTargetSelectedResourceId(''));
     dispatch(setTargetSelectedAttributionId(''));
     dispatch(closePopup());
+    dispatch(setOpenFileRequest(false));
   };
 }
 

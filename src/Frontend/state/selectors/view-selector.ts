@@ -45,3 +45,7 @@ export function getPopupAttributionId(state: State): string | null {
 export function getQAMode(state: State): boolean {
   return state.viewState.qaMode;
 }
+
+export function getOpenFileRequest(state: State): boolean {
+  return state.viewState.openFileRequest;
+}
