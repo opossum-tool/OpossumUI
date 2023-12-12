@@ -56,6 +56,7 @@ const Badge = styled(MuiBadge)({
   '& .MuiBadge-badge': {
     top: '1px',
     right: '14px',
+    zIndex: 0,
   },
 });
 

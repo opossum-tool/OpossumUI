@@ -100,9 +100,12 @@ export class AttributionDetails {
       { exact: true },
     );
     this.copyright = this.node.getByLabel('Copyright', { exact: true });
-    this.licenseName = this.node.getByRole('combobox', {
-      name: 'License Name',
-    });
+    this.licenseName = this.node.getByLabel(
+      text.attributionColumn.licenseName,
+      {
+        exact: true,
+      },
+    );
     this.licenseText = this.node.getByLabel(
       'License Text (to appear in attribution document)',
       { exact: true },

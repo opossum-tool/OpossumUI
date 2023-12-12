@@ -46,9 +46,7 @@ describe('Locator popup ', () => {
     ).not.toBeChecked();
     expect(screen.getByLabelText('Criticality')).toBeInTheDocument();
     expect(screen.getByText('Any')).toBeInTheDocument();
-    expect(
-      screen.getByRole('combobox', { name: 'License' }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('auto complete')).toBeInTheDocument();
   });
 
   it('selects criticality values using the dropdown', () => {

@@ -127,6 +127,7 @@ module.exports = {
     'jest.config.js',
     'notices.template.html',
     'vite.config.mts',
+    'typings',
   ],
   reportUnusedDisableDirectives: true,
   rules: {

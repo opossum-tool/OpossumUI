@@ -166,11 +166,12 @@ export function LocatorPopup(): ReactElement {
         optionText={{ primary: (option) => option }}
         multiple
         title={text.locatorPopup.license}
-        aria-label={'auto complete'}
         value={[...searchedLicenses]}
         onChange={(_, value) => {
           setSearchedLicenses(new Set(value));
         }}
+        filterSelectedOptions
+        inputProps={{ 'aria-label': 'auto complete' }}
       />
       {showNoSignalsLocatedMessage ? (
         <MuiTypography variant={'subtitle2'} sx={classes.noSignalsMessage}>

@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '@testing-library/jest-dom';
 
-import { ElectronAPI } from './src/shared/shared-types';
+import { ElectronAPI } from './shared-types';
 
 // We suppress the recharts warning that is due to our mocking in tests.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN = [
@@ -17,7 +17,7 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
   'should be wrapped into act(...)',
 ];
 
-jest.mock('./src/ElectronBackend/main/logger.ts');
+jest.mock('../ElectronBackend/main/logger.ts');
 
 const originalResizeObserver = window.ResizeObserver;
 const originalConsoleError = console.error;

@@ -8,6 +8,7 @@ import MuiTextField from '@mui/material/TextField';
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
 
+import { StyledPopupIndicator } from './Dropdown.style';
 import { inputElementClasses, InputElementProps } from './shared';
 
 interface DropdownProps extends InputElementProps {
@@ -47,6 +48,7 @@ export function Dropdown(props: DropdownProps): ReactElement {
             : {}),
         }}
         select
+        SelectProps={{ IconComponent: StyledPopupIndicator }}
         label={props.title}
         InputProps={{
           inputProps: {
@@ -59,15 +61,13 @@ export function Dropdown(props: DropdownProps): ReactElement {
         variant="outlined"
         size="small"
       >
-        {menuItems.map((menuItem) => {
-          return (
-            <MuiMenuItem value={menuItem.value} key={menuItem.name}>
-              <MuiTypography sx={{ lineHeight: 1.3 }}>
-                {menuItem.name}
-              </MuiTypography>
-            </MuiMenuItem>
-          );
-        })}
+        {menuItems.map((menuItem) => (
+          <MuiMenuItem value={menuItem.value} key={menuItem.name}>
+            <MuiTypography sx={{ lineHeight: 1.3, paddingTop: '2px' }}>
+              {menuItem.name}
+            </MuiTypography>
+          </MuiMenuItem>
+        ))}
       </MuiTextField>
     </MuiBox>
   );
