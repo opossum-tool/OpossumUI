@@ -83,7 +83,7 @@ export const test = base.extend<{
     const filePath = data && (await createTestFile({ data, info }));
 
     const [executablePath, main] = getLaunchProps();
-    const args = ['--skip-statistics'];
+    const args = ['--reset'];
 
     const app = await electron.launch({
       args: [main, ...(!filePath ? args : args.concat([filePath]))],

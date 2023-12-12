@@ -3,13 +3,12 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow, Menu } from 'electron';
+import { BrowserWindow } from 'electron';
 import isDev from 'electron-is-dev';
 import path from 'path';
 import upath from 'upath';
 
 import { getIconPath } from './iconHelpers';
-import { createMenu } from './menu';
 
 export async function createWindow(): Promise<BrowserWindow> {
   const mainWindow = new BrowserWindow({
@@ -23,8 +22,6 @@ export async function createWindow(): Promise<BrowserWindow> {
     },
     icon: getIconPath(),
   });
-
-  Menu.setApplicationMenu(createMenu(mainWindow));
 
   if (isDev) {
     await mainWindow.loadURL('http://localhost:5173/');
