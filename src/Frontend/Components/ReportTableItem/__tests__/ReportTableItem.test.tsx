@@ -38,22 +38,22 @@ describe('The ReportTableItem', () => {
         }
       />,
     );
-    expect(screen.getByText('1.0'));
+    expect(screen.getByText('1.0')).toBeInTheDocument();
 
-    expect(screen.getByText('React'));
-    expect(screen.getByText('licenseName'));
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('licenseName')).toBeInTheDocument();
 
-    expect(screen.getByText('test copyright'));
+    expect(screen.getByText('test copyright')).toBeInTheDocument();
 
-    expect(screen.getByText('licenseText'));
+    expect(screen.getByText('licenseText')).toBeInTheDocument();
 
-    expect(screen.getByText('20'));
+    expect(screen.getByText('20')).toBeInTheDocument();
 
-    expect(screen.getByText('test comment'));
+    expect(screen.getByText('test comment')).toBeInTheDocument();
 
-    expect(screen.getByText('packageWebsite'));
+    expect(screen.getByText('packageWebsite')).toBeInTheDocument();
 
-    expect(screen.getByText('/'));
+    expect(screen.getByText('/')).toBeInTheDocument();
   });
 
   it('renders icons correctly', () => {
@@ -100,11 +100,13 @@ describe('The ReportTableItem', () => {
       </>,
     );
 
-    expect(screen.getByLabelText('Comment icon'));
-    expect(screen.getByLabelText('First party icon'));
-    expect(screen.getByLabelText('Follow-up icon'));
-    expect(screen.getByLabelText('Exclude from notice icon'));
-    expect(screen.getByLabelText('Needs-review icon'));
-    expect(screen.getByLabelText('Preferred icon'));
+    expect(screen.getByLabelText('Comment icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('First party icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Follow-up icon')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Exclude from notice icon'),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Needs-review icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Preferred icon')).toBeInTheDocument();
   });
 });

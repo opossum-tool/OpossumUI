@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { getByText, screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 import {
   Attributions,
@@ -81,9 +81,9 @@ describe('The PackagePanel', () => {
       },
     );
 
-    expect(screen.getByText('React, 16.5.0'));
-    expect(screen.getByText('JQuery'));
-    expect(screen.getAllByLabelText('show resources'));
+    expect(screen.getByText('React, 16.5.0')).toBeInTheDocument();
+    expect(screen.getByText('JQuery')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('show resources')).not.toHaveLength(0);
   });
 
   it('groups by source and prettifies known sources', () => {
@@ -156,14 +156,14 @@ describe('The PackagePanel', () => {
     );
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;
-    // eslint-disable-next-line testing-library/prefer-screen-queries
-    expect(getByText(hhcPanel, 'JQuery'));
+    expect(within(hhcPanel).getByText('JQuery')).toBeInTheDocument();
 
     const highComputePanel = screen.getByText('other')
       .parentElement as HTMLElement;
-    // eslint-disable-next-line testing-library/prefer-screen-queries
-    expect(getByText(highComputePanel, 'React, 16.5.0'));
+    expect(
+      within(highComputePanel).getByText('React, 16.5.0'),
+    ).toBeInTheDocument();
 
-    expect(screen.getByText('JQuery 2'));
+    expect(screen.getByText('JQuery 2')).toBeInTheDocument();
   });
 });

@@ -22,8 +22,8 @@ describe('The TextFieldStack', () => {
       <TextFieldStack isEditable={isEditable} comments={comments} />,
     );
     comments.forEach((comment, index) => {
-      expect(screen.getByLabelText(`Comment ${index + 1}`));
-      expect(screen.getByDisplayValue(comment));
+      expect(screen.getByLabelText(`Comment ${index + 1}`)).toBeInTheDocument();
+      expect(screen.getByDisplayValue(comment)).toBeInTheDocument();
     });
   });
 });

@@ -56,7 +56,7 @@ describe('The VirtualizedTree', () => {
       'docs',
       'readme.md',
     ]) {
-      expect(screen.getByText(label));
+      expect(screen.getByText(label)).toBeInTheDocument();
     }
 
     expect(

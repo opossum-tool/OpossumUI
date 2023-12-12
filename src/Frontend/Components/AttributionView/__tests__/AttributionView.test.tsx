@@ -65,13 +65,15 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/));
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByText('Test other package, 2.0'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Test package, 1.0'));
-    expect(screen.getByRole('button', { name: 'Save' }));
-    expect(screen.getByText('test resource'));
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByText('test resource')).toBeInTheDocument();
   });
 
   it('filters Follow-ups', () => {
@@ -89,14 +91,16 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/));
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByText('Test other package, 2.0'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFollowUp);
 
-    expect(screen.getByText('Test other package, 2.0'));
+    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 
@@ -115,14 +119,16 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/));
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByText('Test other package, 2.0'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFirstParty);
 
-    expect(screen.getByText('Test package, 1.0'));
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
     expect(
       screen.queryByText('Test other package, 2.0'),
     ).not.toBeInTheDocument();
@@ -143,9 +149,11 @@ describe('The Attribution View', () => {
       store.dispatch(navigateToView(View.Attribution));
     });
 
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/));
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByText('Test other package, 2.0'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 1/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFirstParty);
@@ -157,7 +165,7 @@ describe('The Attribution View', () => {
     ).not.toBeInTheDocument();
 
     clickOnFilter(screen, FilterType.HideFirstParty);
-    expect(screen.getByText('Test other package, 2.0'));
+    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 

@@ -67,7 +67,7 @@ describe('error handling', () => {
 
       await createListenerCallbackWithErrorHandling(mainWindow, testFunction)();
 
-      expect(dialog.showMessageBox).toBeCalledWith(
+      expect(dialog.showMessageBox).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'error',
           message: 'Error in app backend: TEST_ERROR',
@@ -88,7 +88,7 @@ describe('error handling', () => {
       expect(messageBoxContentForBackendErrors.detail).toContain(
         'Error: TEST_ERROR',
       );
-      expect(messageBoxContentForBackendErrors.message).toEqual(
+      expect(messageBoxContentForBackendErrors.message).toBe(
         'Error in app backend: TEST_ERROR',
       );
     });
@@ -103,7 +103,7 @@ describe('error handling', () => {
       expect(messageBoxContentForBackendErrors.detail).toContain(
         'Error: TEST_ERROR',
       );
-      expect(messageBoxContentForBackendErrors.message).toEqual(
+      expect(messageBoxContentForBackendErrors.message).toBe(
         'Error in app frontend: TEST_ERROR',
       );
     });
@@ -128,7 +128,7 @@ describe('error handling', () => {
         false,
       );
 
-      expect(dialog.showMessageBox).toBeCalledWith(
+      expect(dialog.showMessageBox).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'error',
           message: 'Error in app frontend: errorMessage',
@@ -137,11 +137,11 @@ describe('error handling', () => {
         }),
       );
 
-      expect(mockCallback.mock.calls.length).toBe(1);
+      expect(mockCallback.mock.calls).toHaveLength(1);
       expect(mockCallback.mock.calls[0][0]).toContain(
         AllowedFrontendChannels.RestoreFrontend,
       );
-      expect(loadInputAndOutputFromFilePath).toBeCalled();
+      expect(loadInputAndOutputFromFilePath).toHaveBeenCalled();
     });
   });
 });

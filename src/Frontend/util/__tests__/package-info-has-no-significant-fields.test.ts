@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import each from 'jest-each';
-
 import {
   Criticality,
   FollowUp,
@@ -12,7 +10,7 @@ import {
 import { packageInfoHasNoSignificantFields } from '../package-info-has-no-significant-fields';
 
 describe('The test package', () => {
-  each([
+  it.each([
     {},
     { attributionConfidence: 30 },
     { originIds: ['some-uuid'] },
@@ -27,15 +25,18 @@ describe('The test package', () => {
         documentConfidence: 1,
       },
     },
-  ]).it('has no significant fields', (packageInfo: PackageInfo) => {
-    expect(packageInfoHasNoSignificantFields(packageInfo)).toBe(true);
-  });
+  ] satisfies Array<PackageInfo>)(
+    'has no significant fields',
+    (packageInfo) => {
+      expect(packageInfoHasNoSignificantFields(packageInfo)).toBe(true);
+    },
+  );
 
-  each([
+  it.each([
     { comment: 'Not so sure about this...' },
     { attributionConfidence: 30, packageName: 'React' },
     { originIds: ['some-uuid'], url: 'https://www.test.com' },
-  ]).it('has significant fields', (packageInfo: PackageInfo) => {
+  ] satisfies Array<PackageInfo>)('has significant fields', (packageInfo) => {
     expect(packageInfoHasNoSignificantFields(packageInfo)).toBe(false);
   });
 });

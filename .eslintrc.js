@@ -108,10 +108,12 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
     'plugin:@typescript-eslint/recommended',
-    'plugin:jest-dom/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:testing-library/react',
+    'plugin:jest/recommended',
+    'plugin:jest/style',
+    'plugin:jest-dom/recommended',
   ],
   globals: {
     Atomics: 'readonly',

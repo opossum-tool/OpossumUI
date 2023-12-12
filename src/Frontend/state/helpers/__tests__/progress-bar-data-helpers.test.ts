@@ -110,7 +110,7 @@ describe('The getUpdatedProgressBarData function', () => {
     const expectedNumberOfFiles = 5;
     const expectedNumberOfFilesWithOnlyExternalAttribution = 3;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
+    expect(progressBarData.filesWithManualAttributionCount).toBe(1);
     expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(
       expectedNumberOfFilesWithOnlyExternalAttribution,
     );
@@ -123,13 +123,13 @@ describe('The getUpdatedProgressBarData function', () => {
     ]);
     expect(
       progressBarData.filesWithHighlyCriticalExternalAttributionsCount,
-    ).toEqual(1);
+    ).toBe(1);
     expect(
       progressBarData.resourcesWithHighlyCriticalExternalAttributions,
     ).toEqual(['/thirdParty/package_1.tr.gz']);
     expect(
       progressBarData.filesWithMediumCriticalExternalAttributionsCount,
-    ).toEqual(1);
+    ).toBe(1);
     expect(
       progressBarData.resourcesWithMediumCriticalExternalAttributions,
     ).toEqual(['/thirdParty/package/', '/thirdParty/package_2.tr.gz']);
@@ -225,8 +225,8 @@ describe('The getUpdatedProgressBarData function', () => {
     });
     const expectedNumberOfFiles = 4;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toEqual(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(1);
+    expect(progressBarData.filesWithManualAttributionCount).toBe(1);
+    expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(1);
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual(['/thirdParty/package_1.tr.gz']);
@@ -328,9 +328,9 @@ describe('The getUpdatedProgressBarData function', () => {
     });
     const expectedNumberOfFiles = 12;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
-    expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(2);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(5);
+    expect(progressBarData.filesWithManualAttributionCount).toBe(2);
+    expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toBe(2);
+    expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(5);
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([
@@ -396,9 +396,9 @@ describe('The getUpdatedProgressBarData function', () => {
     });
     const expectedNumberOfFiles = 3;
     expect(progressBarData.fileCount).toEqual(expectedNumberOfFiles);
-    expect(progressBarData.filesWithManualAttributionCount).toEqual(2);
-    expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toEqual(1);
-    expect(progressBarData.filesWithOnlyExternalAttributionCount).toEqual(0);
+    expect(progressBarData.filesWithManualAttributionCount).toBe(2);
+    expect(progressBarData.filesWithOnlyPreSelectedAttributionCount).toBe(1);
+    expect(progressBarData.filesWithOnlyExternalAttributionCount).toBe(0);
     expect(
       progressBarData.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
@@ -482,9 +482,9 @@ describe('The getUpdatedProgressBarData function', () => {
       attributionBreakpoints: new Set<string>(),
       filesWithChildren: new Set<string>(),
     });
-    expect(progressBarData?.fileCount).toEqual(2);
-    expect(progressBarData?.filesWithManualAttributionCount).toEqual(1);
-    expect(progressBarData?.filesWithOnlyExternalAttributionCount).toEqual(0);
+    expect(progressBarData?.fileCount).toBe(2);
+    expect(progressBarData?.filesWithManualAttributionCount).toBe(1);
+    expect(progressBarData?.filesWithOnlyExternalAttributionCount).toBe(0);
     expect(
       progressBarData?.resourcesWithNonInheritedExternalAttributionOnly,
     ).toEqual([]);
@@ -637,7 +637,7 @@ describe('The getHighestCriticalityOfExternalAttributions function', () => {
       testExternalAttributions,
     );
 
-    expect(criticality).toEqual(null);
+    expect(criticality).toBeNull();
   });
 });
 

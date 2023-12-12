@@ -23,7 +23,7 @@ describe('The TextBox', () => {
     );
 
     expect(screen.queryAllByText('Test Title')).toHaveLength(2);
-    expect(screen.getByDisplayValue('Test Content'));
+    expect(screen.getByDisplayValue('Test Content')).toBeInTheDocument();
   });
 
   it('renders icon', () => {
@@ -40,6 +40,6 @@ describe('The TextBox', () => {
       />,
     );
 
-    expect(screen.getByText('Test Icon'));
+    expect(screen.getByText('Test Icon')).toBeInTheDocument();
   });
 });

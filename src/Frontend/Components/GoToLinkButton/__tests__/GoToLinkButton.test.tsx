@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
-import each from 'jest-each';
 import { act } from 'react-dom/test-utils';
 
 import { BaseUrlsForSources } from '../../../../shared/shared-types';
@@ -15,7 +14,7 @@ import { renderComponent } from '../../../test-helpers/render';
 import { GoToLinkButton } from '../GoToLinkButton';
 
 describe('The GoToLinkButton', () => {
-  each([
+  it.each([
     [
       '/parent_directory/child_directory/directory_in_source_tree/file',
       'https://www.testurl.com/code/directory_in_source_tree/file?base=123456789',
@@ -24,7 +23,7 @@ describe('The GoToLinkButton', () => {
       '/parent_directory/child_directory/',
       'https://www.testurl.com/code/?base=123456789',
     ],
-  ]).it(
+  ])(
     'navigates to correct link for %s',
     (path: string, expected_link: string) => {
       const testBaseUrlsForSources: BaseUrlsForSources = {
@@ -49,7 +48,7 @@ describe('The GoToLinkButton', () => {
     },
   );
 
-  it('does not show link if base url of parent is null ', () => {
+  it('does not show link if base url of parent is null', () => {
     const parentPath = '/parent_directory/';
     const testBaseUrlsForSources: BaseUrlsForSources = {
       [parentPath]: null,

@@ -154,7 +154,7 @@ describe('parseOpossumFile', () => {
       opossumFilePath,
     )) as ParsedOpossumInputAndOutput;
     expect(parsingResult.input).toStrictEqual(testInputContent);
-    expect(parsingResult.output).toBeNull;
+    expect(parsingResult.output).toBeNull();
 
     deleteFolder(temporaryPath);
   });

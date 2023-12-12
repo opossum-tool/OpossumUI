@@ -10,7 +10,7 @@ import { doNothing } from '../../../util/do-nothing';
 import { Dropdown } from '../Dropdown';
 
 describe('The Dropdown', () => {
-  it('renders value ', () => {
+  it('renders value', () => {
     render(
       <Dropdown
         isEditable={true}
@@ -34,7 +34,7 @@ describe('The Dropdown', () => {
       />,
     );
 
-    expect(screen.getByText('High (80)'));
+    expect(screen.getByText('High (80)')).toBeInTheDocument();
   });
 
   it('renders value not in menuItems', () => {
@@ -61,6 +61,6 @@ describe('The Dropdown', () => {
       />,
     );
 
-    expect(screen.getByText('10'));
+    expect(screen.getByText('10')).toBeInTheDocument();
   });
 });

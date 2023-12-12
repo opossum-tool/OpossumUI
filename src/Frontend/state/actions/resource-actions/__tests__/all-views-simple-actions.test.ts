@@ -328,8 +328,8 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets isPreferenceFeatureEnabled', () => {
     const testStore = createAppStore();
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(false);
     testStore.dispatch(setIsPreferenceFeatureEnabled(true));
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(true);
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
   });
 });

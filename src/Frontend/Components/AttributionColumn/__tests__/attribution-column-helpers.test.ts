@@ -15,31 +15,31 @@ describe('The AttributionColumn helpers', () => {
   it('selectedPackageIsResolved returns true', () => {
     expect(
       selectedPackagesAreResolved(['123'], new Set<string>().add('123')),
-    ).toEqual(true);
+    ).toBe(true);
   });
 
   it('selectedPackageIsResolved returns false if empty attributionId', () => {
     expect(
       selectedPackagesAreResolved([''], new Set<string>().add('123')),
-    ).toEqual(false);
+    ).toBe(false);
   });
 
   it('selectedPackageIsResolved returns false if empty array of attributionIds', () => {
-    expect(
-      selectedPackagesAreResolved([], new Set<string>().add('123')),
-    ).toEqual(false);
+    expect(selectedPackagesAreResolved([], new Set<string>().add('123'))).toBe(
+      false,
+    );
   });
 
   it('selectedPackageIsResolved returns false if id does not match', () => {
     expect(
       selectedPackagesAreResolved(['123'], new Set<string>().add('321')),
-    ).toEqual(false);
+    ).toBe(false);
   });
 
   it('selectedPackageIsResolved returns false if only a subset matches', () => {
     expect(
       selectedPackagesAreResolved(['123', '456'], new Set<string>().add('123')),
-    ).toEqual(false);
+    ).toBe(false);
   });
 });
 

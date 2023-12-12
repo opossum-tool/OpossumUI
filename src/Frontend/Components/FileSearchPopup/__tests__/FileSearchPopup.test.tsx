@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
-import each from 'jest-each';
 import { act } from 'react-dom/test-utils';
 
 import { Resources } from '../../../../shared/shared-types';
@@ -12,7 +11,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { renderComponent } from '../../../test-helpers/render';
 import { FileSearchPopup } from '../FileSearchPopup';
 
-describe('FileSearch popup ', () => {
+describe('FileSearch popup', () => {
   const testResources: Resources = {
     thirdParty: {
       'package_1.tr.gz': 1,
@@ -38,12 +37,12 @@ describe('FileSearch popup ', () => {
     ).toBeInTheDocument();
   });
 
-  each([
+  it.each([
     ['eagleBlu', 4],
     ['test.js', 2],
     ['non-existing-file', 0],
     ['eagleblu', 4],
-  ]).it(
+  ])(
     'search for %s results in %s results',
     (search: string, expected_results: number) => {
       renderComponent(<FileSearchPopup />, {

@@ -31,7 +31,7 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets targetSelectedAttributionId', () => {
     const testStore = createAppStore();
-    expect(getTargetSelectedAttributionId(testStore.getState())).toBe(null);
+    expect(getTargetSelectedAttributionId(testStore.getState())).toBeNull();
 
     testStore.dispatch(setTargetSelectedAttributionId('test'));
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('test');

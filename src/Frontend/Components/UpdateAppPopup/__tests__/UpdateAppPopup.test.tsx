@@ -37,13 +37,13 @@ describe('UpdateAppPopup', () => {
         <UpdateAppPopup />
       </QueryClientProvider>,
     );
-    expect(screen.getByText('Check for updates'));
+    expect(screen.getByText('Check for updates')).toBeInTheDocument();
     expect(
       await screen.findByText(
         'There is a new release! You can download it using the following link:',
       ),
-    );
-    expect(await screen.findByText('Latest release'));
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Latest release')).toBeInTheDocument();
   });
 
   it('shows the popup with no newer release', async () => {
@@ -60,8 +60,10 @@ describe('UpdateAppPopup', () => {
         <UpdateAppPopup />
       </QueryClientProvider>,
     );
-    expect(screen.getByText('Check for updates'));
-    expect(await screen.findByText('You have the latest version of the app.'));
+    expect(screen.getByText('Check for updates')).toBeInTheDocument();
+    expect(
+      await screen.findByText('You have the latest version of the app.'),
+    ).toBeInTheDocument();
   });
 
   it('shows the popup with no info found', async () => {
@@ -75,8 +77,10 @@ describe('UpdateAppPopup', () => {
         <UpdateAppPopup />
       </QueryClientProvider>,
     );
-    expect(screen.getByText('Check for updates'));
-    expect(await screen.findByText('No information found.'));
+    expect(screen.getByText('Check for updates')).toBeInTheDocument();
+    expect(
+      await screen.findByText('No information found.'),
+    ).toBeInTheDocument();
   });
 
   it('shows the popup with error', async () => {
@@ -90,11 +94,11 @@ describe('UpdateAppPopup', () => {
         <UpdateAppPopup />
       </QueryClientProvider>,
     );
-    expect(screen.getByText('Check for updates'));
+    expect(screen.getByText('Check for updates')).toBeInTheDocument();
     expect(
       await screen.findByText(
         'Failed while fetching release data: Request failed with status code 404',
       ),
-    );
+    ).toBeInTheDocument();
   });
 });

@@ -104,8 +104,8 @@ describe('PackageSearchPopup', () => {
       target: { value: 'sqlalchemy' },
     });
 
-    expect(await screen.findByText('sqlalchemy/1.3.0'));
-    expect(screen.getByText('sqlalchemy/1.4.1'));
+    expect(await screen.findByText('sqlalchemy/1.3.0')).toBeInTheDocument();
+    expect(screen.getByText('sqlalchemy/1.4.1')).toBeInTheDocument();
     expect(screen.getAllByText('MIT')).toHaveLength(2);
   });
 
@@ -126,7 +126,7 @@ describe('PackageSearchPopup', () => {
       await screen.findByText(
         'Failed while fetching data: Request failed with status code 404',
       ),
-    );
+    ).toBeInTheDocument();
   });
 
   it('shows a message when nothing is found', async () => {
@@ -142,6 +142,6 @@ describe('PackageSearchPopup', () => {
       target: { value: 'sqlalchemy' },
     });
 
-    expect(await screen.findByText('No results found'));
+    expect(await screen.findByText('No results found')).toBeInTheDocument();
   });
 });

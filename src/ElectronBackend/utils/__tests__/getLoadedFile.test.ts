@@ -37,7 +37,7 @@ describe('getLoadedFilePath', () => {
     const globalBackendState: GlobalBackendState = {};
 
     const loadedFilePath = getLoadedFilePath(globalBackendState);
-    expect(loadedFilePath).toBeNull;
+    expect(loadedFilePath).toBeNull();
   });
 });
 
@@ -48,7 +48,7 @@ describe('isFileLoaded', () => {
       resourceFilePath,
     };
 
-    expect(isFileLoaded(globalBackendState));
+    expect(isFileLoaded(globalBackendState)).toBe(true);
   });
 
   it('Finds opossum file', () => {
@@ -57,13 +57,13 @@ describe('isFileLoaded', () => {
       opossumFilePath,
     };
 
-    expect(isFileLoaded(globalBackendState));
+    expect(isFileLoaded(globalBackendState)).toBe(true);
   });
 
   it('Returns false', () => {
     const globalBackendState: GlobalBackendState = {};
 
-    expect(!isFileLoaded(globalBackendState));
+    expect(isFileLoaded(globalBackendState)).toBe(false);
   });
 });
 

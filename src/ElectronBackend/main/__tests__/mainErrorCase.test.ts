@@ -42,7 +42,7 @@ describe('The App backend', () => {
   it('handles errors', async () => {
     await main();
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         title: 'Error',

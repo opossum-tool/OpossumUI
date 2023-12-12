@@ -11,14 +11,14 @@ describe('The report view table header', () => {
   it('renders', () => {
     renderComponent(<ReportTableHeader />);
 
-    expect(screen.getByText('License'));
-    expect(screen.getByText('Version'));
-    expect(screen.getAllByText('Name').length).toBe(1);
-    expect(screen.getByText('Copyright'));
-    expect(screen.getByText('License Text'));
-    expect(screen.getByText('Confidence'));
-    expect(screen.getByText('Comment'));
-    expect(screen.getByText('URL'));
-    expect(screen.getByText('Resources'));
+    expect(screen.getByText('License')).toBeInTheDocument();
+    expect(screen.getByText('Version')).toBeInTheDocument();
+    expect(screen.getAllByText('Name')).toHaveLength(1);
+    expect(screen.getByText('Copyright')).toBeInTheDocument();
+    expect(screen.getByText('License Text')).toBeInTheDocument();
+    expect(screen.getByText('Confidence')).toBeInTheDocument();
+    expect(screen.getByText('Comment')).toBeInTheDocument();
+    expect(screen.getByText('URL')).toBeInTheDocument();
+    expect(screen.getByText('Resources')).toBeInTheDocument();
   });
 });

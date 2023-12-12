@@ -221,19 +221,19 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
 
 describe('Test addPreambleToCopyright', () => {
   it('adds preamble to copyright', () => {
-    expect(addPreambleToCopyright('Test copyright without preamble')).toEqual(
+    expect(addPreambleToCopyright('Test copyright without preamble')).toBe(
       '(c) Test copyright without preamble',
     );
   });
   it('does not add preamble to copyright', () => {
-    expect(
-      addPreambleToCopyright('(C)Test copyright without preamble'),
-    ).toEqual('(C)Test copyright without preamble');
-    expect(
-      addPreambleToCopyright('(c)Test copyright without preamble'),
-    ).toEqual('(c)Test copyright without preamble');
+    expect(addPreambleToCopyright('(C)Test copyright without preamble')).toBe(
+      '(C)Test copyright without preamble',
+    );
+    expect(addPreambleToCopyright('(c)Test copyright without preamble')).toBe(
+      '(c)Test copyright without preamble',
+    );
     expect(
       addPreambleToCopyright('Copyright Test copyright without preamble'),
-    ).toEqual('Copyright Test copyright without preamble');
+    ).toBe('Copyright Test copyright without preamble');
   });
 });

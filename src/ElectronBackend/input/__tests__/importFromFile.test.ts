@@ -286,7 +286,7 @@ describe('Test of loading function', () => {
     );
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
 
-    expect(dialog.showMessageBox).not.toBeCalled();
+    expect(dialog.showMessageBox).not.toHaveBeenCalled();
     deleteFolder(temporaryPath);
   });
 
@@ -307,7 +307,7 @@ describe('Test of loading function', () => {
         expectedFileContent,
       );
 
-      expect(dialog.showMessageBox).not.toBeCalled();
+      expect(dialog.showMessageBox).not.toHaveBeenCalled();
       deleteFolder(temporaryPath);
     });
 
@@ -329,7 +329,7 @@ describe('Test of loading function', () => {
         AllowedFrontendChannels.FileLoaded,
         expectedFileContent,
       );
-      expect(dialog.showMessageBox).not.toBeCalled();
+      expect(dialog.showMessageBox).not.toHaveBeenCalled();
       deleteFolder(temporaryPath);
     });
   });
@@ -514,11 +514,11 @@ describe('Test of loading function', () => {
         },
       };
 
-      expect(mainWindow.webContents.send).lastCalledWith(
+      expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
         AllowedFrontendChannels.FileLoaded,
         expectedLoadedFile,
       );
-      expect(dialog.showMessageBox).not.toBeCalled();
+      expect(dialog.showMessageBox).not.toHaveBeenCalled();
 
       deleteFolder(temporaryPath);
     },
@@ -557,11 +557,11 @@ describe('Test of loading function', () => {
       metadata: inputFileContentWithCustomMetadata.metadata,
     };
 
-    expect(mainWindow.webContents.send).lastCalledWith(
+    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expectedLoadedFile,
     );
-    expect(dialog.showMessageBox).not.toBeCalled();
+    expect(dialog.showMessageBox).not.toHaveBeenCalled();
     deleteFolder(temporaryPath);
   });
 
@@ -614,8 +614,8 @@ describe('Test of loading function', () => {
       },
     };
 
-    expect(mainWindow.webContents.send).toBeCalledTimes(2);
-    expect(mainWindow.webContents.send).lastCalledWith(
+    expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
+    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
       AllowedFrontendChannels.FileLoaded,
       expectedLoadedFile,
     );
@@ -641,11 +641,11 @@ function assertFileLoadedCorrectly(testUuid: string): void {
     },
   };
 
-  expect(mainWindow.webContents.send).toBeCalledWith(
+  expect(mainWindow.webContents.send).toHaveBeenCalledWith(
     AllowedFrontendChannels.FileLoaded,
     expectedLoadedFile,
   );
-  expect(dialog.showMessageBox).not.toBeCalled();
+  expect(dialog.showMessageBox).not.toHaveBeenCalled();
 }
 
 describe('getMessageBoxForParsingError', () => {
@@ -657,7 +657,7 @@ describe('getMessageBoxForParsingError', () => {
 
     await getMessageBoxForParsingError(parsingError.message);
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         message: 'Error parsing the input file.',
@@ -674,7 +674,7 @@ describe('getMessageBoxForInvalidDotOpossumFileError', () => {
 
     await getMessageBoxForInvalidDotOpossumFileError(testFilesInArchive);
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         message: "Error loading '.opossum' file.",

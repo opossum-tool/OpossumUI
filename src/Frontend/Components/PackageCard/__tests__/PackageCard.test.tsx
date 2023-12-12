@@ -73,7 +73,7 @@ describe('The PackageCard', () => {
         ],
       },
     );
-    expect(screen.getByText('packageName'));
+    expect(screen.getByText('packageName')).toBeInTheDocument();
 
     expect(
       store.getState().resourceState.allViews.manualData.attributions[
@@ -124,7 +124,7 @@ describe('The PackageCard', () => {
       },
     );
 
-    expect(screen.getByText('packageName'));
+    expect(screen.getByText('packageName')).toBeInTheDocument();
 
     expect(
       store.getState().resourceState.allViews.manualData.attributions[
@@ -177,7 +177,7 @@ describe('The PackageCard', () => {
       },
     );
 
-    expect(screen.getByText('packageName'));
+    expect(screen.getByText('packageName')).toBeInTheDocument();
     expect(screen.queryByText('checkbox')).not.toBeInTheDocument();
     act(() => {
       store.dispatch(
@@ -240,7 +240,7 @@ describe('The PackageCard', () => {
       },
     );
 
-    expect(screen.getByText('packageName'));
+    expect(screen.getByText('packageName')).toBeInTheDocument();
 
     (screen.getAllByRole('checkbox') as Array<Element>).forEach((checkbox) =>
       fireEvent.click(checkbox),

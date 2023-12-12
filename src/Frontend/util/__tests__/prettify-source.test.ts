@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import each from 'jest-each';
-
 import { ExternalAttributionSources } from '../../../shared/shared-types';
 import { prettifySource } from '../prettify-source';
 
@@ -22,7 +20,7 @@ const testAttributionSources: ExternalAttributionSources = {
 };
 
 describe('prettifySource', () => {
-  each([
+  it.each([
     ['HC', 'High Compute'],
     ['HHC', 'High High Compute'],
     ['SC', 'ScanCode'],
@@ -34,7 +32,7 @@ describe('prettifySource', () => {
     ['REUSER:Crystal Ball', 'REUSER:Crystal Ball'],
     ['MS', 'Metadata Scanner'],
     ['REUSER:MS', 'Metadata Scanner (old scan)'],
-  ]).it(
+  ])(
     'transforms known sources and only those',
     (src: string, expectedResult: string) => {
       expect(prettifySource(src, testAttributionSources)).toBe(expectedResult);
