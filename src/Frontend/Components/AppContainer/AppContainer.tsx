@@ -15,7 +15,9 @@ import { App } from '../App/App';
 dayjs.extend(localizedFormat);
 
 const store = createAppStore();
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false } },
+});
 
 export function AppContainer(): ReactElement {
   return (
