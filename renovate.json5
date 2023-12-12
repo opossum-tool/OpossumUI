@@ -21,7 +21,6 @@
       matchPackageNames: [
         '@faker-js/faker',
         '@playwright/test',
-        '@tanstack/react-query',
         '@trivago/prettier-plugin-sort-imports',
         'axios',
         'axios-mock-adapter',
@@ -82,6 +81,11 @@
       matchPackagePrefixes: ['@emotion/'],
       groupName: 'Emotion dependencies',
       groupSlug: 'emotion',
+    },
+    {
+      matchPackagePrefixes: ['@tanstack/'],
+      groupName: 'Tanstack dependencies',
+      groupSlug: 'tanstack',
     },
     {
       matchPackageNames: ['react', 'react-dom'],
