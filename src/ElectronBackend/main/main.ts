@@ -37,6 +37,25 @@ export async function main(): Promise<void> {
 
     const mainWindow = await createWindow();
 
+    mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+      (details, callback) => {
+        callback({
+          requestHeaders: { ...details.requestHeaders, Origin: '*' },
+        });
+      },
+    );
+
+    mainWindow.webContents.session.webRequest.onHeadersReceived(
+      (details, callback) => {
+        callback({
+          responseHeaders: {
+            ...details.responseHeaders,
+            'Access-Control-Allow-Origin': ['*'],
+          },
+        });
+      },
+    );
+
     ipcMain.handle(
       IpcChannel.ConvertInputFile,
       getConvertInputFileToDotOpossumAndOpenListener(mainWindow),
