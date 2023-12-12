@@ -11,6 +11,7 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { PackageSearchHooks } from '../Frontend/util/package-search-hooks';
 import {
   AttributionData,
   AttributionsToResources,
@@ -292,8 +293,21 @@ class OpossumModule {
   }
 }
 
+class PackageSearchModule {
+  public static usePackageSearchSuggestions() {
+    jest
+      .spyOn(PackageSearchHooks, 'usePackageSearchSuggestions')
+      .mockReturnValue({
+        data: [],
+        error: null,
+        isLoading: false,
+      });
+  }
+}
+
 class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
+  public readonly packageSearch = PackageSearchModule;
 }
 
 export const faker = new Faker({ locale: [en, base] });
