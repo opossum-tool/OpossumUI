@@ -8,7 +8,6 @@ import { ReactElement } from 'react';
 import { PopupType } from '../../enums/enums';
 import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
-import { AttributionWizardPopup } from '../AttributionWizardPopup/AttributionWizardPopup';
 import { ChangedInputFilePopup } from '../ChangedInputFilePopup/ChangedInputFilePopup';
 import { ChangePreferredStatusGloballyPopup } from '../ChangePreferredStatusGloballyPopup/ChangePreferredStatusGloballyPopup';
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
@@ -56,8 +55,6 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <PackageSearchPopup />;
     case PopupType.ChangedInputFilePopup:
       return <ChangedInputFilePopup />;
-    case PopupType.AttributionWizardPopup:
-      return <AttributionWizardPopup />;
     case PopupType.FileSupportPopup:
       return <FileSupportPopup />;
     case PopupType.FileSupportDotOpossumAlreadyExistsPopup:

@@ -111,7 +111,6 @@ export function ManualPackagePanel(
         selectedPackageCardId={selectedPackage?.packageCardId}
         onCardClick={onCardClick}
         isAddNewAttributionItemShown={props.showAddNewAttributionButton}
-        attributionsFromParent={showParentAttributions}
       />
       <MuiBox sx={classes.buttonDiv}>
         {showParentAttributions && (

@@ -4,7 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { expect } from '@playwright/test';
-import { act } from 'react-dom/test-utils';
 
 import {
   AttributionData,
@@ -26,7 +25,6 @@ import {
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage, State } from '../../../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
   getCurrentAttributionId,
@@ -41,14 +39,6 @@ import {
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
 import {
-  getAttributionWizardPackageNames,
-  getAttributionWizardPackageNamespaces,
-  getAttributionWizardPackageVersions,
-  getAttributionWizardSelectedPackageAttributeIds,
-  getAttributionWizardTotalAttributionCount,
-  getAttributionWizarOriginalDisplayPackageInfo,
-} from '../../../selectors/attribution-wizard-selectors';
-import {
   getExpandedIds,
   getSelectedResourceId,
   getTargetSelectedResourceId,
@@ -61,8 +51,6 @@ import {
   getTargetView,
 } from '../../../selectors/view-selector';
 import {
-  setExternalData,
-  setManualData,
   setResources,
   setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
@@ -91,7 +79,6 @@ import {
   locateSignalsFromProjectStatisticsPopup,
   navigateToSelectedPathOrOpenUnsavedPopup,
   navigateToTargetResourceOrAttributionOrOpenFileDialog,
-  openAttributionWizardPopup,
   removeWasPreferred,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
   selectPackageCardInAuditViewOrOpenUnsavedPopup,
@@ -860,125 +847,6 @@ describe('Action used by NotSavedPopup and ModifyWasPreferredAttributionPopup', 
       expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
       expect(getOpenPopup(testStore.getState())).toBe(null);
     });
-  });
-});
-
-describe('openAttributionWizardPopup', () => {
-  const selectedResourceId = '/samplepath/';
-  const testManualAttributions: Attributions = {
-    uuid_0: {
-      packageType: 'generic',
-      packageName: 'react',
-      packageNamespace: 'npm',
-      packageVersion: '18.2.0',
-    },
-  };
-  const testManualResourcesToAttributions: ResourcesToAttributions = {
-    [selectedResourceId]: ['uuid_0'],
-  };
-  const testExternalAttributions: Attributions = {
-    uuid_1: {
-      packageType: 'generic',
-      packageName: 'numpy',
-      packageNamespace: 'pip',
-      packageVersion: '1.24.1',
-    },
-  };
-  const testExternalResourcesToAttributions: ResourcesToAttributions = {
-    '/samplepath/file': ['uuid_1'],
-  };
-
-  it('writes initial attribution wizard state into store', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions,
-      ),
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions),
-    );
-    act(() => {
-      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
-    });
-    const expectedOriginalAttribution: PackageInfo = {
-      packageType: 'generic',
-      packageName: 'react',
-      packageNamespace: 'npm',
-      packageVersion: '18.2.0',
-    };
-    const expectedPackageNamespacesValues = [
-      { text: 'pip', count: 1 },
-      { text: 'npm', count: 1 },
-    ];
-    const expectedPackageNamesValues = [
-      { text: 'numpy', count: 1 },
-      { text: 'react', count: 1 },
-    ];
-    const expectedPackageVersionsValues = [
-      { text: '1.24.1' },
-      { text: '18.2.0' },
-    ];
-    const expectedTotalAttributionCount = 2;
-
-    const testOriginalDisplayPackageInfo =
-      getAttributionWizarOriginalDisplayPackageInfo(testStore.getState());
-    const testPackageNamespaces = getAttributionWizardPackageNamespaces(
-      testStore.getState(),
-    );
-    const testPackageNames = getAttributionWizardPackageNames(
-      testStore.getState(),
-    );
-    const testPackageVersions = getAttributionWizardPackageVersions(
-      testStore.getState(),
-    );
-    const testSelectedPackageAttributeIds =
-      getAttributionWizardSelectedPackageAttributeIds(testStore.getState());
-    const testTotalAttributionCount = getAttributionWizardTotalAttributionCount(
-      testStore.getState(),
-    );
-
-    expect(
-      convertDisplayPackageInfoToPackageInfo(testOriginalDisplayPackageInfo),
-    ).toEqual(expectedOriginalAttribution);
-    expect(Object.values(testPackageNamespaces)).toEqual(
-      expectedPackageNamespacesValues,
-    );
-    expect(Object.values(testPackageNames)).toEqual(expectedPackageNamesValues);
-    Object.values(testPackageVersions).forEach((packageVersion, index) => {
-      expect(packageVersion.text).toBe(
-        expectedPackageVersionsValues[index].text,
-      );
-      expect(packageVersion).toHaveProperty('relatedIds');
-    });
-    expect(testTotalAttributionCount).toBe(expectedTotalAttributionCount);
-    expect(testSelectedPackageAttributeIds.namespaceId.length).toBeGreaterThan(
-      0,
-    );
-    expect(testSelectedPackageAttributeIds.nameId.length).toBeGreaterThan(0);
-    expect(testSelectedPackageAttributeIds.versionId.length).toBeGreaterThan(0);
-  });
-
-  it('opens popup', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions,
-      ),
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions),
-    );
-    act(() => {
-      testStore.dispatch(openAttributionWizardPopup('uuid_0'));
-    });
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.AttributionWizardPopup,
-    );
   });
 });
 

@@ -11,7 +11,6 @@ import { useSelector } from 'react-redux';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
-import { openAttributionWizardPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   setAttributionIdMarkedForReplacement,
   setMultiSelectSelectedAttributionIds,
@@ -91,7 +90,6 @@ interface PackageCardProps {
   hideContextMenuAndMultiSelect?: boolean;
   hideResourceSpecificButtons?: boolean;
   showCheckBox?: boolean;
-  hideAttributionWizardContextMenuItem?: boolean;
   isScrolling?: boolean;
 }
 export const PackageCard = memo(
@@ -357,17 +355,6 @@ export const PackageCard = memo(
                 );
               },
               hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
-            },
-            {
-              buttonText: ButtonText.OpenAttributionWizardPopup,
-              disabled: false,
-              hidden:
-                isExternalAttribution ||
-                hideResourceSpecificButtons ||
-                props.hideAttributionWizardContextMenuItem,
-              onClick: (): void => {
-                dispatch(openAttributionWizardPopup(attributionId));
-              },
             },
           ];
     }

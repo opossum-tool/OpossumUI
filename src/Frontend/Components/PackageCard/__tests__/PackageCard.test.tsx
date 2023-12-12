@@ -10,17 +10,11 @@ import {
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
-import { ButtonText, PopupType } from '../../../enums/enums';
-import {
-  setExternalData,
-  setManualData,
-} from '../../../state/actions/resource-actions/all-views-simple-actions';
+import { ButtonText } from '../../../enums/enums';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -269,69 +263,6 @@ describe('The PackageCard', () => {
       store.getState().resourceState.allViews.manualData.attributions;
     expect(updatedAttributions[testAttributionId].preSelected).toBeFalsy();
     expect(updatedAttributions[anotherAttributionId].preSelected).toBeFalsy();
-  });
-
-  it('opens AttributionWizardPopup via context menu', () => {
-    const selectedResourceId = '/samplepath/';
-    const testManualAttributions: Attributions = {
-      uuid_0: {
-        packageType: 'generic',
-        packageName: 'react',
-        packageNamespace: 'npm',
-        packageVersion: '18.2.0',
-      },
-    };
-    const testManualResourcesToAttributions: ResourcesToAttributions = {
-      [selectedResourceId]: ['uuid_0'],
-    };
-    const testExternalAttributions: Attributions = {
-      uuid_1: {
-        packageType: 'generic',
-        packageName: 'numpy',
-        packageNamespace: 'pip',
-        packageVersion: '1.24.1',
-      },
-    };
-    const testExternalResourcesToAttributions: ResourcesToAttributions = {
-      '/samplepath/file': ['uuid_1'],
-    };
-
-    const { store } = renderComponent(
-      <PackageCard
-        cardId={'testCardId'}
-        displayPackageInfo={{
-          packageName: 'testPackage',
-          attributionIds: ['uuid_0'],
-        }}
-        cardConfig={{ isExternalAttribution: false, isSelected: true }}
-        onClick={doNothing}
-        hideContextMenuAndMultiSelect={false}
-        showCheckBox={false}
-      />,
-      {
-        actions: [
-          setSelectedResourceId(selectedResourceId),
-          setExternalData(
-            testExternalAttributions,
-            testExternalResourcesToAttributions,
-          ),
-          setManualData(
-            testManualAttributions,
-            testManualResourcesToAttributions,
-          ),
-        ],
-      },
-    );
-
-    clickOnButtonInPackageContextMenu(
-      screen,
-      'testPackage',
-      ButtonText.OpenAttributionWizardPopup,
-    );
-
-    expect(getOpenPopup(store.getState())).toBe(
-      PopupType.AttributionWizardPopup,
-    );
   });
 
   it('add button for preferred attribution is disabled', () => {

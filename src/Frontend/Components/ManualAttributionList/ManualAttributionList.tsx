@@ -27,7 +27,6 @@ interface ManualAttributionListProps {
   selectedPackageCardId?: string;
   onCardClick(packageCardId: string, isButton?: boolean): void;
   isAddNewAttributionItemShown?: boolean;
-  attributionsFromParent?: boolean;
 }
 
 export function ManualAttributionList(
@@ -63,7 +62,6 @@ export function ManualAttributionList(
         cardId={`manual-${props.selectedResourceId}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
         showOpenResourcesIcon={!isButton}
-        hideAttributionWizardContextMenuItem={props.attributionsFromParent}
       />
     );
   }

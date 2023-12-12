@@ -21,12 +21,7 @@ import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
 } from '../../shared-constants';
-import {
-  LocatePopupFilters,
-  PackageAttributeIds,
-  PackageAttributes,
-  PanelPackage,
-} from '../../types/types';
+import { LocatePopupFilters, PanelPackage } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
@@ -42,12 +37,6 @@ import {
   ACTION_SET_ALLOWED_SAVE_OPERATIONS,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
   ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
-  ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION,
-  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES,
-  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES,
-  ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS,
-  ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS,
-  ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
@@ -135,18 +124,6 @@ export const initialResourceState: ResourceState = {
   fileSearchPopup: {
     fileSearch: '',
   },
-  attributionWizard: {
-    originalDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
-    packageNamespaces: {},
-    packageNames: {},
-    packageVersions: {},
-    selectedPackageAttributeIds: {
-      namespaceId: '',
-      nameId: '',
-      versionId: '',
-    },
-    totalAttributionCount: null,
-  },
   locatePopup: {
     selectedCriticality: SelectedCriticality.Any,
     selectedLicenses: new Set<string>(),
@@ -195,14 +172,6 @@ export type ResourceState = {
   };
   fileSearchPopup: {
     fileSearch: string;
-  };
-  attributionWizard: {
-    originalDisplayPackageInfo: DisplayPackageInfo;
-    packageNamespaces: PackageAttributes;
-    packageNames: PackageAttributes;
-    packageVersions: PackageAttributes;
-    selectedPackageAttributeIds: PackageAttributeIds;
-    totalAttributionCount: number | null;
   };
   locatePopup: LocatePopupFilters;
 };
@@ -793,55 +762,6 @@ export const resourceState = (
             ...state.auditView.accordionSearchField,
             searchTerm: action.payload,
           },
-        },
-      };
-
-    case ACTION_SET_ATTRIBUTION_WIZARD_ORIGINAL_ATTRIBUTION:
-      return {
-        ...state,
-        attributionWizard: {
-          ...state.attributionWizard,
-          originalDisplayPackageInfo: action.payload,
-        },
-      };
-    case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMESPACES:
-      return {
-        ...state,
-        attributionWizard: {
-          ...state.attributionWizard,
-          packageNamespaces: action.payload,
-        },
-      };
-    case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_NAMES:
-      return {
-        ...state,
-        attributionWizard: {
-          ...state.attributionWizard,
-          packageNames: action.payload,
-        },
-      };
-    case ACTION_SET_ATTRIBUTION_WIZARD_PACKAGE_VERSIONS:
-      return {
-        ...state,
-        attributionWizard: {
-          ...state.attributionWizard,
-          packageVersions: action.payload,
-        },
-      };
-    case ACTION_SET_ATTRIBUTION_WIZARD_SELECTED_PACKAGE_IDS:
-      return {
-        ...state,
-        attributionWizard: {
-          ...state.attributionWizard,
-          selectedPackageAttributeIds: action.payload,
-        },
-      };
-    case ACTION_SET_ATTRIBUTION_WIZARD_TOTAL_ATTRIBUTION_COUNT:
-      return {
-        ...state,
-        attributionWizard: {
-          ...state.attributionWizard,
-          totalAttributionCount: action.payload,
         },
       };
     case ACTION_SET_EXTERNAL_ATTRIBUTIONS_TO_HASHES:
