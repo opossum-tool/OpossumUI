@@ -5,7 +5,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { ReactElement } from 'react';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { DisplayPackageInfos } from '../../../types/types';
 import { AttributionsViewPackageList } from '../AttributionsViewPackageList';
 
@@ -38,7 +38,7 @@ describe('The AttributionsViewPackageList', () => {
       },
     };
 
-    renderComponentWithStore(
+    renderComponent(
       <AttributionsViewPackageList
         displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}

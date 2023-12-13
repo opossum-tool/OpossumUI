@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { createAppStore } from '../../../configure-store';
 import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
 import {
   getMultiSelectSelectedAttributionIds,
@@ -18,7 +18,7 @@ import {
 
 describe('The load and navigation simple actions', () => {
   it('sets and gets selectedAttributionId', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(
       getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('');
@@ -30,7 +30,7 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets targetSelectedAttributionId', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe(null);
 
     testStore.dispatch(setTargetSelectedAttributionId('test'));
@@ -38,7 +38,7 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets attributionIdMarkedForReplacement', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe('');
 
     testStore.dispatch(setAttributionIdMarkedForReplacement('test'));
@@ -48,7 +48,7 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets multiSelectSelectedAttributionIds', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(
       getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual([]);

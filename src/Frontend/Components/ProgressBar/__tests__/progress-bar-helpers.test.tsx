@@ -14,7 +14,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
 import {
   getCriticalityBarBackground,
@@ -32,7 +32,7 @@ function TestComponent(props: { resourceIds: Array<string> }): JSX.Element {
 
 describe('ProgressBar helpers', () => {
   it('useOnProgressBarClickHook sets correct resourceId', () => {
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <TestComponent resourceIds={['id_1', 'id_2']} />,
     );
 
@@ -53,9 +53,7 @@ describe('ProgressBar helpers', () => {
   });
 
   it('useOnProgressBarClickHook selects audit view', () => {
-    const { store } = renderComponentWithStore(
-      <TestComponent resourceIds={['id_1']} />,
-    );
+    const { store } = renderComponent(<TestComponent resourceIds={['id_1']} />);
     store.dispatch(navigateToView(View.Attribution));
 
     expect(getSelectedResourceId(store.getState())).toEqual('');
@@ -69,9 +67,7 @@ describe('ProgressBar helpers', () => {
   });
 
   it('useOnProgressBarClickHook works with empty list', () => {
-    const { store } = renderComponentWithStore(
-      <TestComponent resourceIds={[]} />,
-    );
+    const { store } = renderComponent(<TestComponent resourceIds={[]} />);
     store.dispatch(setExpandedIds(['test_id']));
 
     expect(getSelectedResourceId(store.getState())).toEqual('');

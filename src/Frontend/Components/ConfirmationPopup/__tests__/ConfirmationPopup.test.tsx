@@ -5,7 +5,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 
 import { ButtonText } from '../../../enums/enums';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmationPopup } from '../ConfirmationPopup';
 
 describe('The ConfirmationPopup', () => {
@@ -13,7 +13,7 @@ describe('The ConfirmationPopup', () => {
     const onClick = jest.fn();
     const content = 'Confirmation Popup';
     const header = 'Confirmation Header';
-    renderComponentWithStore(
+    renderComponent(
       <ConfirmationPopup
         onConfirmation={onClick}
         content={content}

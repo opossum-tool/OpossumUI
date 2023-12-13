@@ -2,8 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, screen } from '@testing-library/react';
 
 import {
   Attributions,
@@ -30,10 +29,7 @@ import {
 } from '../../../test-helpers/attribution-column-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
-import {
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { PanelPackage } from '../../../types/types';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
 
@@ -54,11 +50,10 @@ const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
   attributionIds: [],
 };
 
-function getTestTemporaryAndExternalStateWithParentAttribution(
-  store: EnhancedTestStore,
+function getActions(
   selectedResourceId: string,
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-): void {
+) {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryDisplayPackageInfo,
     uuid_2: testTemporaryDisplayPackageInfo2,
@@ -67,18 +62,17 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
     '/test_parent': ['uuid_1'],
     '/test_parent/test_child_with_own_attr': ['uuid_2'],
   };
-  act(() => {
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions,
-          resourcesToManualAttributions,
-        }),
-      ),
-    );
-    store.dispatch(setSelectedResourceId(selectedResourceId));
-    store.dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
-  });
+
+  return [
+    loadFromFile(
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        resourcesToManualAttributions,
+      }),
+    ),
+    setSelectedResourceId(selectedResourceId),
+    setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+  ];
 }
 
 describe('The ResourceDetailsViewer', () => {
@@ -87,12 +81,11 @@ describe('The ResourceDetailsViewer', () => {
       packageName: 'jQuery',
       attributionIds: [],
     } satisfies DisplayPackageInfo;
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('test_id'),
         setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
+      ],
     });
 
     expect(
@@ -126,9 +119,8 @@ describe('The ResourceDetailsViewer', () => {
           attributionIds: ['alphabetically_first'],
         },
       };
-      const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-      act(() => {
-        store.dispatch(
+      const { store } = renderComponent(<ResourceDetailsViewer />, {
+        actions: [
           loadFromFile(
             getParsedInputFileEnrichedWithTestData({
               resources: { '/': { file: 1 } },
@@ -138,8 +130,8 @@ describe('The ResourceDetailsViewer', () => {
               },
             }),
           ),
-        );
-        store.dispatch(setSelectedResourceId('/'));
+          setSelectedResourceId('/'),
+        ],
       });
 
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
@@ -149,7 +141,9 @@ describe('The ResourceDetailsViewer', () => {
         expectedPanelPackage,
       );
 
-      store.dispatch(setSelectedResourceId('/file'));
+      act(() => {
+        store.dispatch(setSelectedResourceId('/file'));
+      });
       expect(screen.queryAllByText('MIT')[0].parentElement).toHaveTextContent(
         'aaaaa',
       );
@@ -160,8 +154,6 @@ describe('The ResourceDetailsViewer', () => {
   );
 
   it('renders a ExternalPackageCard', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(setSelectedResourceId('/test_id'));
     const externalAttributions: Attributions = {
       uuid_1: {
         source: { name: 'HC', documentConfidence: -1 },
@@ -171,21 +163,18 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_1'],
     };
-    act(() => {
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('/test_id'),
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             externalAttributions,
             resourcesToExternalAttributions,
           }),
         ),
-      );
-      store.dispatch(
         setExternalData(externalAttributions, resourcesToExternalAttributions),
-      );
-      store.dispatch(
         setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
-      );
+      ],
     });
 
     expect(screen.getByText('Signals'));
@@ -205,10 +194,9 @@ describe('The ResourceDetailsViewer', () => {
       },
     };
     const resourcesToExternalAttributions = { '/test_id': ['uuid_2'] };
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    act(() => {
-      store.dispatch(setSelectedResourceId('/test_id'));
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('/test_id'),
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             resources: { a: { b: 1 } },
@@ -218,7 +206,7 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToExternalAttributions,
           }),
         ),
-      );
+      ],
     });
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
@@ -285,10 +273,9 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions = {
       '/test_id': ['uuid_1', 'uuid_2'],
     };
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    act(() => {
-      store.dispatch(setSelectedResourceId('/test_id'));
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('/test_id'),
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             resources: { a: { b: 1 } },
@@ -296,7 +283,7 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToExternalAttributions,
           }),
         ),
-      );
+      ],
     });
 
     expect(screen.getByText('React'));
@@ -330,10 +317,9 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_2'],
     };
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    act(() => {
-      store.dispatch(setSelectedResourceId('/test_id'));
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('/test_id'),
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             resources: { a: { b: 1 } },
@@ -343,7 +329,7 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToExternalAttributions,
           }),
         ),
-      );
+      ],
     });
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
@@ -398,8 +384,6 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   it('selects the manual package view after you added an external package', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-
     const manualAttributions: Attributions = {
       uuid_1: testTemporaryDisplayPackageInfo,
     };
@@ -421,9 +405,9 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_2', 'uuid_3'],
     };
-    act(() => {
-      store.dispatch(setSelectedResourceId('/test_id'));
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('/test_id'),
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             resources: { a: { b: 1 } },
@@ -433,7 +417,7 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToExternalAttributions,
           }),
         ),
-      );
+      ],
     });
 
     fireEvent.click(screen.getByText('Other package') as Element);
@@ -472,12 +456,12 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   it('shows parent attribution if child has no other attribution', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    getTestTemporaryAndExternalStateWithParentAttribution(
-      store,
-      '/test_parent/test_child',
-      testTemporaryDisplayPackageInfo,
-    );
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: getActions(
+        '/test_parent/test_child',
+        testTemporaryDisplayPackageInfo,
+      ),
+    });
 
     expect(screen.getByDisplayValue('jQuery'));
     expect(screen.getByDisplayValue('16.5.0'));
@@ -489,12 +473,12 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   it('does not show parent attribution if child has another attribution', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    getTestTemporaryAndExternalStateWithParentAttribution(
-      store,
-      '/test_parent/test_child_with_own_attr',
-      testTemporaryDisplayPackageInfo2,
-    );
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: getActions(
+        '/test_parent/test_child_with_own_attr',
+        testTemporaryDisplayPackageInfo2,
+      ),
+    });
 
     expect(screen.getByDisplayValue('Vue.js'));
     expect(screen.getByDisplayValue('2.6.11'));
@@ -518,18 +502,17 @@ describe('The ResourceDetailsViewer', () => {
       fileWithoutAttribution: ['uuid_1'],
     };
     const manualPackagePanelLabel = `${testTemporaryDisplayPackageInfo.packageName}, ${testTemporaryDisplayPackageInfo.packageVersion}`;
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions,
-          resourcesToManualAttributions,
-        }),
-      ),
-    );
-    act(() => {
-      store.dispatch(setSelectedResourceId('/root/'));
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions,
+            resourcesToManualAttributions,
+          }),
+        ),
+        setSelectedResourceId('/root/'),
+      ],
     });
     expect(screen.getByText('Signals'));
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
@@ -553,18 +536,17 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/fileWithAttribution': ['uuid_1'],
     };
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions,
-          resourcesToManualAttributions,
-        }),
-      ),
-    );
-    act(() => {
-      store.dispatch(setSelectedResourceId('/fileWithAttribution'));
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions,
+            resourcesToManualAttributions,
+          }),
+        ),
+        setSelectedResourceId('/fileWithAttribution'),
+      ],
     });
     expect(screen.getByText('Signals'));
 
@@ -583,9 +565,8 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/folderWithAttribution/': ['uuid_1'],
     };
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-    act(() => {
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
             resources: testResources,
@@ -593,10 +574,8 @@ describe('The ResourceDetailsViewer', () => {
             resourcesToManualAttributions,
           }),
         ),
-      );
-      store.dispatch(
         setSelectedResourceId('/folderWithAttribution/childrenFile'),
-      );
+      ],
     });
 
     expect(screen.getByText('Signals'));
@@ -606,8 +585,6 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   it('hides the package info for attribution breakpoints unless a signal is selected', () => {
-    const { store } = renderComponentWithStore(<ResourceDetailsViewer />);
-
     const manualAttributions: Attributions = {};
     const resourcesToManualAttributions: ResourcesToAttributions = {};
     const externalAttributions: Attributions = {
@@ -620,9 +597,9 @@ describe('The ResourceDetailsViewer', () => {
     const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_id': ['uuid_3'],
     };
-    act(() => {
-      store.dispatch(setSelectedResourceId('/test_id'));
-      store.dispatch(
+    renderComponent(<ResourceDetailsViewer />, {
+      actions: [
+        setSelectedResourceId('/test_id'),
         loadFromFile({
           ...getParsedInputFileEnrichedWithTestData({
             resources: { a: { b: 1 } },
@@ -633,7 +610,7 @@ describe('The ResourceDetailsViewer', () => {
           }),
           attributionBreakpoints: new Set(['/test_id']),
         }),
-      );
+      ],
     });
 
     expect(screen.queryByText('Attributions')).not.toBeInTheDocument();

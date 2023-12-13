@@ -6,44 +6,38 @@ import { screen } from '@testing-library/react';
 
 import { ProjectMetadata } from '../../../../shared/shared-types';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
 
 describe('The ProjectMetadataPopup', () => {
   it('displays metadata', () => {
-    const store = createTestAppStore();
     const testMetadata: ProjectMetadata = {
       projectId: 'test-id',
       fileCreationDate: 'test-date',
     };
 
-    store.dispatch(setProjectMetadata(testMetadata));
-
-    renderComponentWithStore(<ProjectMetadataPopup />, { store });
+    renderComponent(<ProjectMetadataPopup />, {
+      actions: [setProjectMetadata(testMetadata)],
+    });
     expect(screen.getByText('test-id')).toBeInTheDocument();
   });
 
   it('formats projectId, projectTitle and fileCreationDate', () => {
-    const store = createTestAppStore();
     const testMetadata: ProjectMetadata = {
       projectTitle: 'Title',
       projectId: 'test-id',
       fileCreationDate: 'test-date',
     };
 
-    store.dispatch(setProjectMetadata(testMetadata));
-
-    renderComponentWithStore(<ProjectMetadataPopup />, { store });
+    renderComponent(<ProjectMetadataPopup />, {
+      actions: [setProjectMetadata(testMetadata)],
+    });
     expect(screen.getByText('Project Title')).toBeInTheDocument();
     expect(screen.getByText('Project ID')).toBeInTheDocument();
     expect(screen.getByText('File Creation Date')).toBeInTheDocument();
   });
 
   it('displays custom user metadata', () => {
-    const store = createTestAppStore();
     const testMetadata: ProjectMetadata = {
       projectId: 'test-id',
       fileCreationDate: 'test-date',
@@ -52,9 +46,9 @@ describe('The ProjectMetadataPopup', () => {
       },
     };
 
-    store.dispatch(setProjectMetadata(testMetadata));
-
-    renderComponentWithStore(<ProjectMetadataPopup />, { store });
+    renderComponent(<ProjectMetadataPopup />, {
+      actions: [setProjectMetadata(testMetadata)],
+    });
     expect(screen.getByText('foo', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('bar', { exact: false })).toBeInTheDocument();
     expect(

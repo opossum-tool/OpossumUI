@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup';
 
 describe('The ConfirmDeletionPopup', () => {
@@ -13,7 +13,7 @@ describe('The ConfirmDeletionPopup', () => {
       'Do you really want to delete this attribution for the current file?';
     const expectedHeader = 'Confirm Deletion';
 
-    renderComponentWithStore(<ConfirmDeletionPopup />);
+    renderComponent(<ConfirmDeletionPopup />);
 
     expect(screen.getByText(expectedContent)).toBeInTheDocument();
     expect(screen.getByText(expectedHeader)).toBeInTheDocument();

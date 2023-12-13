@@ -6,7 +6,7 @@ import { Button } from '@mui/material';
 import { screen } from '@testing-library/react';
 import { ReactElement } from 'react';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { NodesForTree } from '../types';
 import { VirtualizedTree } from '../VirtualizedTree';
 
@@ -28,7 +28,7 @@ describe('The VirtualizedTree', () => {
   };
 
   it('renders VirtualizedTree, no locator icon', () => {
-    renderComponentWithStore(
+    renderComponent(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
         isFakeNonExpandableNode={(path: string): boolean => Boolean(path)}
@@ -66,7 +66,7 @@ describe('The VirtualizedTree', () => {
 
   it('renders VirtualizedTree with the locator icon', () => {
     const locatorIcon = <Button aria-label={'locator icon'} />;
-    renderComponentWithStore(
+    renderComponent(
       <VirtualizedTree
         expandedIds={['/', '/thirdParty/', '/root/', '/root/src/', 'docs/']}
         isFakeNonExpandableNode={(path: string): boolean => Boolean(path)}

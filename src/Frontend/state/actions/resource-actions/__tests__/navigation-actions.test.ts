@@ -16,9 +16,9 @@ import {
   EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
+import { createAppStore } from '../../../configure-store';
 import {
   getDisplayedPackage,
   getManualData,
@@ -79,7 +79,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
       attributionIds: [],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -117,7 +117,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
       attributionIds: [],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -145,7 +145,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
 
 describe('setSelectedResourceOrAttributionIdFromTarget', () => {
   it('setSelectedResourceId in case of Audit View', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setSelectedResourceId('previousResourceId'));
     testStore.dispatch(setSelectedAttributionId('previousAttributionId'));
@@ -162,7 +162,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
   });
 
   it('setSelectedAttributionId in case of attribution view and targetView Resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(setSelectedResourceId('previousResourceId'));
@@ -180,7 +180,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
   });
 
   it('setSelectedAttributionId in case of attribution view and stay on attribution view', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setTargetView(View.Attribution));
     testStore.dispatch(setSelectedResourceId('previousResourceId'));
@@ -199,7 +199,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
   });
 
   it('setDisplayedPackage in case of audit view', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(
       setDisplayedPackage({
@@ -229,7 +229,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
 
 describe('setSelectedResourceIdAndExpand', () => {
   it('sets the selectedResourceId', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
     const state = testStore.getState();
     expect(getSelectedResourceId(state)).toBe('/folder1/folder2/test');
@@ -237,7 +237,7 @@ describe('setSelectedResourceIdAndExpand', () => {
   });
 
   it('sets the expandedIds', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
     const state = testStore.getState();
     expect(getExpandedIds(state)).toMatchObject([
@@ -271,7 +271,7 @@ describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
       displayPackageInfo: testDisplayPackageInfo,
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -334,7 +334,7 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
       displayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({

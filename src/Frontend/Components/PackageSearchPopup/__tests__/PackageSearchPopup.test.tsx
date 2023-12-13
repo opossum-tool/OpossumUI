@@ -8,7 +8,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { PackageSearchPopup } from '../PackageSearchPopup';
 
 describe('PackageSearchPopup', () => {
@@ -95,7 +95,7 @@ describe('PackageSearchPopup', () => {
         },
       });
 
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <PackageSearchPopup />
       </QueryClientProvider>,
@@ -112,7 +112,7 @@ describe('PackageSearchPopup', () => {
   it('shows an error message', async () => {
     axiosMock.onGet(requestURLSearchEndpoint).replyOnce(notFoundStatus);
 
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <PackageSearchPopup />
       </QueryClientProvider>,
@@ -132,7 +132,7 @@ describe('PackageSearchPopup', () => {
   it('shows a message when nothing is found', async () => {
     axiosMock.onGet(requestURLSearchEndpoint).reply(okStatus, []);
 
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <PackageSearchPopup />
       </QueryClientProvider>,

@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { isEqual } from 'lodash';
 
 import { faker } from '../../../../shared/Faker';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { Autocomplete } from '../Autocomplete';
 
 describe('Autocomplete', () => {
@@ -16,7 +16,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -37,7 +37,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -54,7 +54,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -73,7 +73,7 @@ describe('Autocomplete', () => {
       faker.string.alpha({ length: 8 }),
     );
     const testId = faker.string.sample();
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -91,7 +91,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -113,7 +113,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={[...options, option]}
@@ -135,7 +135,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -158,7 +158,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -182,7 +182,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -199,7 +199,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -215,7 +215,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -233,7 +233,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -251,7 +251,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -271,7 +271,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -291,7 +291,7 @@ describe('Autocomplete', () => {
     const options = faker.helpers.multiple(() =>
       faker.string.alpha({ length: 8 }),
     );
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -315,7 +315,7 @@ describe('Autocomplete', () => {
       faker.string.alpha({ length: 8 }),
     );
     const testId = faker.string.sample();
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -341,7 +341,7 @@ describe('Autocomplete', () => {
       faker.string.alpha({ length: 8 }),
     );
     const testId = faker.string.sample();
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -367,7 +367,7 @@ describe('Autocomplete', () => {
       group: faker.string.alpha({ length: 8 }),
       value: faker.string.alpha({ length: 8 }),
     }));
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}
@@ -396,7 +396,7 @@ describe('Autocomplete', () => {
       group: faker.string.alpha({ length: 8 }),
       value: faker.string.alpha({ length: 8 }),
     }));
-    renderComponentWithStore(
+    renderComponent(
       <Autocomplete
         title={title}
         options={options}

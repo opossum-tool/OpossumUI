@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, getByText, screen } from '@testing-library/react';
+import { getByText, screen } from '@testing-library/react';
 
 import {
   Attributions,
@@ -12,10 +12,7 @@ import { PackagePanelTitle } from '../../../enums/enums';
 import { setExternalAttributionSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { DisplayPackageInfosWithCount } from '../../../types/types';
 import { PackagePanel } from '../PackagePanel';
 
@@ -66,22 +63,22 @@ describe('The PackagePanel', () => {
       },
       uuid3: { source: testSource },
     };
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <PackagePanel
         displayPackageInfosWithCount={testDisplayPackageInfosWithCount}
         sortedPackageCardIds={testSortedPackageCardIds}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              externalAttributions: testAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expect(screen.getByText('React, 16.5.0'));
@@ -139,26 +136,24 @@ describe('The PackagePanel', () => {
     const testAttributionSources: ExternalAttributionSources = {
       SC: { name: 'ScanCode', priority: 3 },
     };
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <PackagePanel
         displayPackageInfosWithCount={testDisplayPackageInfosWithCount}
         sortedPackageCardIds={testSortedPackageCardIds}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              externalAttributions: testAttributions,
+            }),
+          ),
+          setExternalAttributionSources(testAttributionSources),
+        ],
+      },
     );
-    act(() => {
-      testStore.dispatch(setExternalAttributionSources(testAttributionSources));
-    });
 
     const hhcPanel = screen.getByText('ScanCode').parentElement as HTMLElement;
     // eslint-disable-next-line testing-library/prefer-screen-queries

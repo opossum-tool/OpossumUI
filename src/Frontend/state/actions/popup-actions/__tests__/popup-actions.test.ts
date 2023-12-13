@@ -25,12 +25,9 @@ import {
 } from '../../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  EnhancedTestStore,
-} from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage, State } from '../../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
+import { createAppStore } from '../../../configure-store';
 import {
   getCurrentAttributionId,
   getDisplayedPackage,
@@ -106,7 +103,7 @@ import {
 describe('The actions checking for unsaved changes', () => {
   describe('navigateToSelectedPathOrOpenUnsavedPopup', () => {
     it('sets view, selectedResourceId and expandedResources', () => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Attribution));
       testStore.dispatch(
         navigateToSelectedPathOrOpenUnsavedPopup('/folder1/folder2/test_file'),
@@ -137,7 +134,7 @@ describe('The actions checking for unsaved changes', () => {
         const testManualAttributions: Attributions = {
           uuid_1: { packageName: 'React' },
         };
-        const testStore = createTestAppStore();
+        const testStore = createAppStore();
         testStore.dispatch(
           loadFromFile(
             getParsedInputFileEnrichedWithTestData({
@@ -188,7 +185,7 @@ describe('The actions checking for unsaved changes', () => {
       const testManualAttributions: Attributions = {
         uuid_1: { packageName: 'React' },
       };
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
@@ -231,14 +228,14 @@ describe('The actions checking for unsaved changes', () => {
 
   describe('The setViewOrOpenUnsavedPopup action', () => {
     it('sets view', () => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Attribution));
       expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
     });
 
     it('opens unsave-popup', () => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(setSelectedResourceId('/testId/'));
       testStore.dispatch(
@@ -293,7 +290,7 @@ describe('The actions checking for unsaved changes', () => {
     };
 
     it('set selected resource id', () => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
@@ -312,7 +309,7 @@ describe('The actions checking for unsaved changes', () => {
     });
 
     it('open unsaved-popup', () => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
@@ -364,7 +361,7 @@ describe('The actions checking for unsaved changes', () => {
         displayPackageInfo: testDisplayPackageInfo,
       };
 
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
@@ -416,7 +413,7 @@ describe('The actions checking for unsaved changes', () => {
         displayPackageInfo: testDisplayPackageInfo,
       };
 
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
@@ -462,8 +459,8 @@ describe('The actions called from the unsaved popup', () => {
   function prepareTestStore(
     view: View,
     testDisplayPackageInfo: DisplayPackageInfo,
-  ): EnhancedTestStore {
-    const testStore = createTestAppStore();
+  ) {
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(view));
     // load data that is sufficient to call unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled
     testStore.dispatch(
@@ -577,7 +574,7 @@ describe('The actions called from the unsaved popup', () => {
 
   describe('navigateToTargetResourceOrAttribution', () => {
     function prepareTestState(): State {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         setResources({ selectedResource: 1, newSelectedResource: 1 }),
       );
@@ -647,8 +644,8 @@ describe('Actions used by the ModifyWasPreferredAttributionPopup', () => {
       '/somethingElse.js': ['reactUuid'],
     };
 
-    function prepareTestStore(): EnhancedTestStore {
-      const testStore = createTestAppStore();
+    function prepareTestStore() {
+      const testStore = createAppStore();
       testStore.dispatch(
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
@@ -743,8 +740,8 @@ describe('Actions used by the ModifyWasPreferredAttributionPopup', () => {
   });
 
   describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled', () => {
-    function prepareTestStore(): EnhancedTestStore {
-      const testStore = createTestAppStore();
+    function prepareTestStore() {
+      const testStore = createAppStore();
       const testResources: Resources = {
         selectedResource: 1,
         newSelectedResource: 1,
@@ -826,7 +823,7 @@ describe('Action used by NotSavedPopup and ModifyWasPreferredAttributionPopup', 
     it.each([[View.Audit], [View.Attribution]])(
       'closes popup and unsets targets in % view',
       (view: View) => {
-        const testStore = createTestAppStore();
+        const testStore = createAppStore();
         testStore.dispatch(navigateToView(view));
         if (view === View.Attribution) {
           testStore.dispatch(setSelectedAttributionId('id1'));
@@ -852,7 +849,7 @@ describe('Action used by NotSavedPopup and ModifyWasPreferredAttributionPopup', 
     );
 
     it('closes popup and unsets targets', () => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       testStore.dispatch(
         openPopup(PopupType.ModifyWasPreferredAttributionPopup),
       );
@@ -892,7 +889,7 @@ describe('openAttributionWizardPopup', () => {
   };
 
   it('writes initial attribution wizard state into store', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setSelectedResourceId(selectedResourceId));
     testStore.dispatch(
       setExternalData(
@@ -965,7 +962,7 @@ describe('openAttributionWizardPopup', () => {
   });
 
   it('opens popup', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setSelectedResourceId(selectedResourceId));
     testStore.dispatch(
       setExternalData(
@@ -987,7 +984,7 @@ describe('openAttributionWizardPopup', () => {
 
 describe('locateSignalsFromLocatorPopup', () => {
   it('sets showNoSignalsLocatedMessage if no resources are found and does not change view', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
     expect(getShowNoSignalsLocatedMessage(testStore.getState())).toBe(false);
@@ -1007,7 +1004,7 @@ describe('locateSignalsFromLocatorPopup', () => {
   });
 
   it('navigates to audit view but does not change selected resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
         packageName: 'react',
@@ -1042,7 +1039,7 @@ describe('locateSignalsFromLocatorPopup', () => {
   });
 
   it('navigates to audit view if unsaved changes are handled but does not change selected resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testInitalPackageInfo: PackageInfo = {
       packageName: 'react',
       packageVersion: '18',
@@ -1101,7 +1098,7 @@ describe('locateSignalsFromLocatorPopup', () => {
 
 describe('locateSignalsFromProjectStatisticsPopup', () => {
   it('locates signals with different license name variant', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
         licenseName: 'Apache-2.0',
@@ -1148,7 +1145,7 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
   });
 
   it('locates signals independently of criticality', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
         packageName: 'react',
@@ -1203,7 +1200,7 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
   });
 
   it('navigates to audit view but does not change selected resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
         packageName: 'react',
@@ -1236,7 +1233,7 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
   });
 
   it('navigates to audit view if unsaved changes are handled', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testInitalPackageInfo: PackageInfo = {
       packageName: 'react',
       packageVersion: '18',
@@ -1283,7 +1280,7 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
 
 describe('removeWasPreferred', () => {
   it('removes wasPreferred field from TemporaryDisplayPackageInfo', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const temporaryDisplayPackageInfo = {
       wasPreferred: true,
       attributionIds: ['id1'],

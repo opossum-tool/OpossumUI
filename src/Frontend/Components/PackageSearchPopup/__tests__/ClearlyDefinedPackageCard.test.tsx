@@ -10,7 +10,7 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ClearlyDefinedPackageCard } from '../ClearlyDefinedPackageCard';
 
 describe('ClearlyDefinedPackageCard', () => {
@@ -53,7 +53,7 @@ describe('ClearlyDefinedPackageCard', () => {
       },
     });
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <QueryClientProvider client={queryClient}>
         <ClearlyDefinedPackageCard coordinate={testCoordinate} />
       </QueryClientProvider>,
@@ -88,7 +88,7 @@ describe('ClearlyDefinedPackageCard', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     axiosMock.onGet(definitionEndpoint).replyOnce(notFoundStatus);
 
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <ClearlyDefinedPackageCard coordinate={testCoordinate} />
       </QueryClientProvider>,

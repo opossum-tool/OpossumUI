@@ -11,7 +11,6 @@ import {
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import {
   setManualData,
   setTemporaryDisplayPackageInfo,
@@ -21,6 +20,7 @@ import {
   setSelectedResourceId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { createAppStore } from '../../configure-store';
 import { wereTemporaryDisplayPackageInfoModified } from '../all-views-resource-selectors';
 
 describe('wereTemporaryDisplayPackageInfoModified', () => {
@@ -61,7 +61,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
   };
 
   it('returns true  when TemporaryDisplayPackageInfo have been modified', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -85,7 +85,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
   });
 
   it('returns true  when confidence is changed', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageVersion: '1.0',
@@ -110,7 +110,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
   });
 
   it('returns true when attribution is created', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
     );
@@ -131,7 +131,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
   });
 
   it('returns false when TemporaryDisplayPackageInfo have not been modified', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',

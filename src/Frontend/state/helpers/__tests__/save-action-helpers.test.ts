@@ -13,9 +13,9 @@ import {
 } from '../../../../shared/shared-types';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
 import { getCalculatePreferredOverOriginIds } from '../../actions/resource-actions/preference-actions';
+import { createAppStore } from '../../configure-store';
 import { initialResourceState } from '../../reducers/resource-reducer';
 import { getManualData } from '../../selectors/all-views-resource-selectors';
 import {
@@ -59,7 +59,7 @@ describe('The createManualAttribution function', () => {
       packageName: 'React',
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -214,7 +214,7 @@ describe('The deleteManualAttribution function', () => {
   });
 
   it('correctly updates preferences', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -360,7 +360,7 @@ describe('The linkToAttributionManualData function', () => {
   it('correctly updates preferences', () => {
     const testSelectedResourceId = '/child';
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -464,7 +464,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
   it('correctly updates preferences', () => {
     const testSelectedResourceId = '/child';
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({

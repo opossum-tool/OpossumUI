@@ -19,10 +19,7 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { DisplayPackageInfos } from '../../../types/types';
 import { AllAttributionsPanel } from '../AllAttributionsPanel';
 
@@ -72,7 +69,7 @@ describe('The AllAttributionsPanel', () => {
   };
 
   it('renders empty list', () => {
-    renderComponentWithStore(
+    renderComponent(
       <AllAttributionsPanel
         displayPackageInfos={{}}
         isAddToPackageEnabled={true}
@@ -96,41 +93,41 @@ describe('The AllAttributionsPanel', () => {
       uuid1: { packageName: 'name 1' },
       uuid2: { packageName: 'name 2' },
     };
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <AllAttributionsPanel
         displayPackageInfos={testDisplayPackageInfos}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: testAttributions,
+            }),
+          ),
+        ],
+      },
     );
     screen.getByText('name 1');
     screen.getByText('name 2');
   });
 
   it('does not show resource attribution of selected resource and next attributed parent', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testManualAttributions,
-        }),
-      ),
-    );
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AllAttributionsPanel
         displayPackageInfos={testManualDisplayPackageInfos}
         selectedPackageCardId={testManualAttributionUuid2}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: testManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     store.dispatch(setSelectedResourceId('/root/'));
@@ -188,22 +185,22 @@ describe('The AllAttributionsPanel', () => {
       '/root/src/file_2': ['uuid_2', 'uuid_3'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <AllAttributionsPanel
         displayPackageInfos={testManualDisplayPackageInfos}
         isAddToPackageEnabled={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testManualAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(

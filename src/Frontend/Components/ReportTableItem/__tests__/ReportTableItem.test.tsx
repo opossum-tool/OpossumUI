@@ -8,7 +8,7 @@ import {
   AttributionsWithResources,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { doNothing } from '../../../util/do-nothing';
 import { ReportTableItem } from '../ReportTableItem';
 
@@ -28,7 +28,7 @@ describe('The ReportTableItem', () => {
         resources: ['/'],
       },
     };
-    renderComponentWithStore(
+    renderComponent(
       <ReportTableItem
         attributionId={'uuid1'}
         attributionInfo={testAttributionsWithResources['uuid1']}
@@ -79,7 +79,7 @@ describe('The ReportTableItem', () => {
         excludeFromNotice: true,
       },
     };
-    renderComponentWithStore(
+    renderComponent(
       <>
         <ReportTableItem
           attributionId={'uuid1'}

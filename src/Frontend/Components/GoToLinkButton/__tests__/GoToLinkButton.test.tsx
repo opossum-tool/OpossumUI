@@ -11,7 +11,7 @@ import { BaseUrlsForSources } from '../../../../shared/shared-types';
 import { setBaseUrlsForSources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { GoToLinkButton } from '../GoToLinkButton';
 
 describe('The GoToLinkButton', () => {
@@ -32,7 +32,7 @@ describe('The GoToLinkButton', () => {
         '/parent_directory/child_directory/':
           'https://www.testurl.com/code/{path}?base=123456789',
       };
-      const { store } = renderComponentWithStore(<GoToLinkButton />);
+      const { store } = renderComponent(<GoToLinkButton />);
       act(() => {
         store.dispatch(setSelectedResourceId(path));
         store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
@@ -54,7 +54,7 @@ describe('The GoToLinkButton', () => {
     const testBaseUrlsForSources: BaseUrlsForSources = {
       [parentPath]: null,
     };
-    const { store } = renderComponentWithStore(<GoToLinkButton />);
+    const { store } = renderComponent(<GoToLinkButton />);
     store.dispatch(setSelectedResourceId(parentPath));
     store.dispatch(setBaseUrlsForSources(testBaseUrlsForSources));
 

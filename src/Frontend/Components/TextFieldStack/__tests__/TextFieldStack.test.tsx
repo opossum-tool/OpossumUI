@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { TextFieldStack } from '../TextFieldStack';
 
 describe('The TextFieldStack', () => {
@@ -18,7 +18,7 @@ describe('The TextFieldStack', () => {
       'This is the forth comment',
     ];
 
-    renderComponentWithStore(
+    renderComponent(
       <TextFieldStack isEditable={isEditable} comments={comments} />,
     );
     comments.forEach((comment, index) => {

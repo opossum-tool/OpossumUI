@@ -18,10 +18,7 @@ import {
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
 
 const testManualLicense = 'Manual attribution license.';
@@ -39,11 +36,10 @@ const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
   attributionIds: [],
 };
 
-function getTestTemporaryAndExternalStateWithParentAttribution(
-  store: EnhancedTestStore,
+function getActions(
   selectedResourceId: string,
   temporaryDisplayPackageInfo: DisplayPackageInfo,
-): void {
+) {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryDisplayPackageInfo,
     uuid_2: testTemporaryDisplayPackageInfo2,
@@ -52,21 +48,18 @@ function getTestTemporaryAndExternalStateWithParentAttribution(
     '/test_parent': ['uuid_1'],
     '/test_parent/test_child_with_own_attr': ['uuid_2'],
   };
-  act(() => {
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions,
-          resourcesToManualAttributions,
-        }),
-      ),
-    );
-    store.dispatch(
-      setManualData(manualAttributions, resourcesToManualAttributions),
-    );
-    store.dispatch(setSelectedResourceId(selectedResourceId));
-    store.dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
-  });
+
+  return [
+    loadFromFile(
+      getParsedInputFileEnrichedWithTestData({
+        manualAttributions,
+        resourcesToManualAttributions,
+      }),
+    ),
+    setManualData(manualAttributions, resourcesToManualAttributions),
+    setSelectedResourceId(selectedResourceId),
+    setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+  ];
 }
 
 describe('The ResourceDetailsAttributionColumn', () => {
@@ -80,7 +73,7 @@ describe('The ResourceDetailsAttributionColumn', () => {
       licenseText: 'Permission is hereby granted',
       attributionIds: [],
     } satisfies DisplayPackageInfo;
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />,
     );
     act(() => {
@@ -130,13 +123,14 @@ describe('The ResourceDetailsAttributionColumn', () => {
   });
 
   it('shows parent attribution if overrideParentMode is true', () => {
-    const { store } = renderComponentWithStore(
+    renderComponent(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />,
-    );
-    getTestTemporaryAndExternalStateWithParentAttribution(
-      store,
-      '/test_parent/test_child',
-      testTemporaryDisplayPackageInfo,
+      {
+        actions: getActions(
+          '/test_parent/test_child',
+          testTemporaryDisplayPackageInfo,
+        ),
+      },
     );
 
     expect(screen.getByDisplayValue('React'));
@@ -145,15 +139,15 @@ describe('The ResourceDetailsAttributionColumn', () => {
   });
 
   it('does not show parent attribution if overrideParentMode is false', () => {
-    const { store } = renderComponentWithStore(
+    renderComponent(
       <ResourceDetailsAttributionColumn showParentAttributions={false} />,
+      {
+        actions: getActions(
+          '/test_parent/test_child',
+          testTemporaryDisplayPackageInfo2,
+        ),
+      },
     );
-    getTestTemporaryAndExternalStateWithParentAttribution(
-      store,
-      '/test_parent/test_child',
-      testTemporaryDisplayPackageInfo2,
-    );
-
     expect(screen.queryByText('React')).not.toBeInTheDocument();
     expect(screen.queryByText('16.5.0')).not.toBeInTheDocument();
     expect(screen.queryByText(testManualLicense)).not.toBeInTheDocument();

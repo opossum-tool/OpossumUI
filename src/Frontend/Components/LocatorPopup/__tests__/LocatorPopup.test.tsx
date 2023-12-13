@@ -23,17 +23,14 @@ import {
   clickOnButton,
   expectElementsInAutoCompleteAndSelectFirst,
 } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { LocatorPopup } from '../LocatorPopup';
 
 describe('Locator popup ', () => {
   jest.useFakeTimers();
 
   it('renders', () => {
-    renderComponentWithStore(<LocatorPopup />);
+    renderComponent(<LocatorPopup />);
     expect(
       screen.getByText('Locate Signals', { exact: true }),
     ).toBeInTheDocument();
@@ -50,8 +47,7 @@ describe('Locator popup ', () => {
   });
 
   it('selects criticality values using the dropdown', () => {
-    const testStore = createTestAppStore();
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />);
 
     fireEvent.mouseDown(screen.getByText('Any').childNodes[0] as Element);
 
@@ -60,7 +56,7 @@ describe('Locator popup ', () => {
 
     fireEvent.click(screen.getByText('High').parentNode as Element);
 
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
       searchTerm: '',
@@ -69,7 +65,7 @@ describe('Locator popup ', () => {
 
     clickOnButton(screen, 'Apply');
 
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedCriticality: SelectedCriticality.High,
       selectedLicenses: new Set<string>(),
       searchTerm: '',
@@ -78,16 +74,16 @@ describe('Locator popup ', () => {
   });
 
   it('resets criticality using the Clear button', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Medium,
-        selectedLicenses: new Set<string>(),
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Medium,
+          selectedLicenses: new Set<string>(),
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
 
     expect(screen.getByText('Medium')).toBeInTheDocument();
 
@@ -96,7 +92,7 @@ describe('Locator popup ', () => {
     expect(screen.getByText('Any')).toBeInTheDocument();
     expect(screen.queryByText('Medium')).not.toBeInTheDocument();
 
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: new Set<string>(),
       searchTerm: '',
@@ -105,7 +101,6 @@ describe('Locator popup ', () => {
   });
 
   it('sets state if license selected', () => {
-    const testStore = createTestAppStore();
     // add external attribution with license MIT to see it
     const testExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
@@ -120,35 +115,35 @@ describe('Locator popup ', () => {
       '/root/': ['uuid_1'],
     };
 
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testResourcesToExternalAttributions,
-      ),
-    );
     const licenseSet = new Set(['MIT']);
     const expectedLocatedResources = {
       resourcesWithLocatedChildren: new Set(['/']),
       locatedResources: new Set(['/root/']),
     };
 
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(
+          testExternalAttributions,
+          testResourcesToExternalAttributions,
+        ),
+      ],
+    });
 
     expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
       searchTerm: '',
       searchOnlyLicenseName: false,
     });
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
   });
 
   it('sets state if several licenses selected', () => {
-    const testStore = createTestAppStore();
     const testExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
@@ -169,100 +164,99 @@ describe('Locator popup ', () => {
       '/root/': ['uuid_1', 'uuid_2'],
     };
 
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testResourcesToExternalAttributions,
-      ),
-    );
     const licenseSet = new Set(['MIT', 'GPL-2.0']);
     const expectedLocatedResources = {
       resourcesWithLocatedChildren: new Set(['/']),
       locatedResources: new Set(['/root/']),
     };
 
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(
+          testExternalAttributions,
+          testResourcesToExternalAttributions,
+        ),
+      ],
+    });
 
     expectElementsInAutoCompleteAndSelectFirst(screen, ['MIT']);
     expectElementsInAutoCompleteAndSelectFirst(screen, ['GPL-2.0']);
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }) as Element);
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       searchOnlyLicenseName: false,
       searchTerm: '',
       selectedCriticality: SelectedCriticality.Any,
       selectedLicenses: licenseSet,
     });
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
   });
 
   it('clears license field if clear button pressed', () => {
-    const testStore = createTestAppStore();
-
     const licenseSet = new Set(['MIT']);
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: licenseSet,
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Any,
+          selectedLicenses: licenseSet,
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
       searchTerm: '',
       searchOnlyLicenseName: false,
     });
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
   });
 
   it('clears search field if clear button pressed', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Medium,
-        selectedLicenses: new Set<string>(),
-        searchOnlyLicenseName: false,
-        searchTerm: 'jquery',
-      }),
-    );
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Medium,
+          selectedLicenses: new Set<string>(),
+          searchOnlyLicenseName: false,
+          searchTerm: 'jquery',
+        }),
+      ],
+    });
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }) as Element);
 
     expect(screen.getByRole('searchbox')).toHaveValue('');
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
       searchTerm: '',
       searchOnlyLicenseName: false,
     });
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
   });
 
   it('unchecks checkbox if clear button pressed', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Medium,
-        selectedLicenses: new Set<string>(),
-        searchOnlyLicenseName: true,
-        searchTerm: '',
-      }),
-    );
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Medium,
+          selectedLicenses: new Set<string>(),
+          searchOnlyLicenseName: true,
+          searchTerm: '',
+        }),
+      ],
+    });
 
     expect(
       screen.getByRole('checkbox', {
@@ -277,32 +271,30 @@ describe('Locator popup ', () => {
         name: 'checkbox Only search license names',
       }),
     ).not.toBeChecked();
-    expect(getLocatePopupFilters(testStore.getState())).toEqual({
+    expect(getLocatePopupFilters(store.getState())).toEqual({
       selectedLicenses: new Set<string>(),
       selectedCriticality: SelectedCriticality.Any,
       searchTerm: '',
       searchOnlyLicenseName: false,
     });
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual({
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual({
       resourcesWithLocatedChildren: new Set(),
       locatedResources: new Set(),
     });
   });
 
   it('shows license if selected beforehand', () => {
-    const testStore = createTestAppStore();
-
     const licenseSet = new Set(['MIT']);
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: licenseSet,
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    renderComponent(<LocatorPopup />, {
+      actions: [
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Any,
+          selectedLicenses: licenseSet,
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
     expect(screen.getByText('MIT')).toBeInTheDocument();
   });
 });
@@ -352,54 +344,46 @@ describe('locateResourcesByCriticalityAndLicense', () => {
   };
 
   it('locates attribution and parent if criticality and licenses are set', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const criticality = SelectedCriticality.Medium;
     const licenseNames = new Set(['MIT']);
 
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: criticality,
-        selectedLicenses: licenseNames,
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: criticality,
+          selectedLicenses: licenseNames,
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
       resourcesWithLocatedChildren: new Set(['/', '/pathToMITHigh/']),
       locatedResources: new Set(['/pathToMITHigh/pathToMITMedium']),
     };
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
   });
 
   it('locates attribution and parent if only search term set', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const searchTerm = '2.0';
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: new Set(),
-        searchOnlyLicenseName: false,
-        searchTerm,
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Any,
+          selectedLicenses: new Set(),
+          searchOnlyLicenseName: false,
+          searchTerm,
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
@@ -411,29 +395,25 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       ]),
     };
     const actualLocatedResources = getResourcesWithLocatedAttributions(
-      testStore.getState(),
+      store.getState(),
     );
     expect(actualLocatedResources).toEqual(expectedLocatedResources);
   });
 
   it('locates attribution and parent when searching for license name only', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const searchTerm = '2.0';
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: new Set(),
-        searchOnlyLicenseName: true,
-        searchTerm,
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Any,
+          selectedLicenses: new Set(),
+          searchOnlyLicenseName: true,
+          searchTerm,
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
@@ -441,29 +421,25 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       locatedResources: new Set(['/pathToApacheHigh', '/pathToApacheMedium']),
     };
     const actualLocatedResources = getResourcesWithLocatedAttributions(
-      testStore.getState(),
+      store.getState(),
     );
     expect(actualLocatedResources).toEqual(expectedLocatedResources);
   });
 
   it('locates attribution and parent if only licenses set', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const licenseNames = new Set(['MIT']);
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: SelectedCriticality.Any,
-        selectedLicenses: licenseNames,
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: SelectedCriticality.Any,
+          selectedLicenses: licenseNames,
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
@@ -473,29 +449,25 @@ describe('locateResourcesByCriticalityAndLicense', () => {
         '/pathToMITHigh/pathToMITMedium',
       ]),
     };
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
   });
 
   it('locates attribution and parent if only criticality is set', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const criticality = SelectedCriticality.Medium;
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: criticality,
-        selectedLicenses: new Set<string>(),
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: criticality,
+          selectedLicenses: new Set<string>(),
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
@@ -506,30 +478,26 @@ describe('locateResourcesByCriticalityAndLicense', () => {
         '/pathToGPLMedium',
       ]),
     };
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
   });
 
   it('locates full name attribution if license is set to frequent license', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const criticality = SelectedCriticality.Medium;
     const licenseNames = new Set(['GPL']);
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: criticality,
-        selectedLicenses: licenseNames,
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: criticality,
+          selectedLicenses: licenseNames,
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
@@ -537,37 +505,33 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       locatedResources: new Set(['/pathToGPLMedium']),
     };
 
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
   });
 
   it('shows message when filters are set, but no signals are located', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      setExternalData(testAttributions, testResourcesToAttributions),
-    );
-    testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
-
     const criticality = SelectedCriticality.High;
     const licenseNames = new Set(['GPL']);
-    testStore.dispatch(
-      setLocatePopupFilters({
-        selectedCriticality: criticality,
-        selectedLicenses: licenseNames,
-        searchOnlyLicenseName: false,
-        searchTerm: '',
-      }),
-    );
-
-    renderComponentWithStore(<LocatorPopup />, { store: testStore });
+    const { store } = renderComponent(<LocatorPopup />, {
+      actions: [
+        setExternalData(testAttributions, testResourcesToAttributions),
+        setFrequentLicenses(testFrequentLicenses),
+        setLocatePopupFilters({
+          selectedCriticality: criticality,
+          selectedLicenses: licenseNames,
+          searchOnlyLicenseName: false,
+          searchTerm: '',
+        }),
+      ],
+    });
     clickOnButton(screen, 'Apply');
 
     const expectedLocatedResources = {
       resourcesWithLocatedChildren: new Set([]),
       locatedResources: new Set([]),
     };
-    expect(getResourcesWithLocatedAttributions(testStore.getState())).toEqual(
+    expect(getResourcesWithLocatedAttributions(store.getState())).toEqual(
       expectedLocatedResources,
     );
 

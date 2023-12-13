@@ -26,7 +26,7 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
 import { clickOnButton } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
 
@@ -46,7 +46,7 @@ describe('The AttributionColumn', () => {
       url: 'www.1999.com',
       attributionIds: [],
     } satisfies DisplayPackageInfo;
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -137,7 +137,7 @@ describe('The AttributionColumn', () => {
     const writeText = jest.fn();
     (navigator.clipboard as unknown) = { writeText };
     const packageInfo = faker.opossum.displayPackageInfo();
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -166,7 +166,7 @@ describe('The AttributionColumn', () => {
     const purl = generatePurl(packageInfo);
     const readText = jest.fn().mockReturnValue(purl.toString());
     (navigator.clipboard as unknown) = { readText };
-    renderComponentWithStore(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -200,7 +200,7 @@ describe('The AttributionColumn', () => {
       source: faker.opossum.source(),
       attributionIds: [],
     };
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -228,7 +228,7 @@ describe('The AttributionColumn', () => {
       attributionIds: [],
     };
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -250,7 +250,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a chip for follow-up', async () => {
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -275,7 +275,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a chip for exclude from notice', async () => {
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -301,7 +301,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a chip for needs review', async () => {
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -330,7 +330,7 @@ describe('The AttributionColumn', () => {
       url: 'https://www.testurl.com/',
       attributionIds: [],
     };
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -358,7 +358,7 @@ describe('The AttributionColumn', () => {
       url: 'www.testurl.com',
       attributionIds: [],
     };
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -385,7 +385,7 @@ describe('The AttributionColumn', () => {
       url: '',
       attributionIds: [],
     };
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -410,7 +410,7 @@ describe('The AttributionColumn', () => {
         packageName: 'jQuery',
         attributionIds: [],
       };
-      const { store } = renderComponentWithStore(
+      const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}
@@ -439,7 +439,7 @@ describe('The AttributionColumn', () => {
         licenseName: 'Mit',
         attributionIds: [],
       };
-      const { store } = renderComponentWithStore(
+      const { store } = renderComponent(
         <AttributionColumn
           isEditable={false}
           onSaveButtonClick={noop}
@@ -471,7 +471,7 @@ describe('The AttributionColumn', () => {
         licenseName: 'mit',
         attributionIds: [],
       };
-      const { store } = renderComponentWithStore(
+      const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}
@@ -504,7 +504,7 @@ describe('The AttributionColumn', () => {
 
   describe('while changing the first party value', () => {
     it('sets first party flag and hides third party inputs when choosing first party', async () => {
-      const { store } = renderComponentWithStore(
+      const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}
@@ -541,7 +541,7 @@ describe('The AttributionColumn', () => {
         resolvedExternalAttributions: new Set<string>().add('TestId'),
         resourcesToAttributions: {},
       };
-      const { store } = renderComponentWithStore(
+      const { store } = renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}

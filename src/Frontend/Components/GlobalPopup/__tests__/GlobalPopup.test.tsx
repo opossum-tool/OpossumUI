@@ -21,21 +21,18 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
 
 describe('The GlobalPopUp', () => {
   it('does not open by default', () => {
-    renderComponentWithStore(<GlobalPopup />);
+    renderComponent(<GlobalPopup />);
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
   });
 
   it('opens the NotSavedPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.NotSavedPopup));
     });
@@ -44,7 +41,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ErrorPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.UnableToSavePopup));
     });
@@ -53,7 +50,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the FileSearchPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.FileSearchPopup));
     });
@@ -64,7 +61,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ProjectMetadataPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
     });
@@ -73,7 +70,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ProjectStatisticsPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
     });
@@ -85,20 +82,15 @@ describe('The GlobalPopUp', () => {
     const testAttributions: Attributions = {
       uuid1: { packageName: 'name 1' },
     };
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testAttributions,
-        }),
-      ),
-    );
-
-    renderComponentWithStore(<GlobalPopup />, {
-      store: testStore,
-    });
-    act(() => {
-      testStore.dispatch(openPopup(PopupType.ReplaceAttributionPopup, 'uuid1'));
+    renderComponent(<GlobalPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions: testAttributions,
+          }),
+        ),
+        openPopup(PopupType.ReplaceAttributionPopup, 'uuid1'),
+      ],
     });
 
     expect(
@@ -107,7 +99,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ConfirmDeletionPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ConfirmDeletionPopup, 'test'));
     });
@@ -120,7 +112,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ConfirmDeletionGloballyPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ConfirmDeletionGloballyPopup, 'test'));
     });
@@ -133,7 +125,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the ConfirmMultiSelectDeletionPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
       store.dispatch(
@@ -149,7 +141,6 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the AttributionWizardPopup', () => {
-    const store = createTestAppStore();
     const selectedResourceId = '/samplepath/';
     const testExternalAttributions: Attributions = {
       uuid_0: {
@@ -170,27 +161,26 @@ describe('The GlobalPopUp', () => {
       selectedResourceId: ['uuid_0'],
     };
 
-    store.dispatch(setSelectedResourceId(selectedResourceId));
-    store.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions,
-      ),
-    );
-    store.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions),
-    );
-
-    renderComponentWithStore(<GlobalPopup />, { store });
-
-    act(() => {
-      store.dispatch(openAttributionWizardPopup('uuid_0'));
+    renderComponent(<GlobalPopup />, {
+      actions: [
+        setSelectedResourceId(selectedResourceId),
+        setExternalData(
+          testExternalAttributions,
+          testExternalResourcesToAttributions,
+        ),
+        setManualData(
+          testManualAttributions,
+          testManualResourcesToAttributions,
+        ),
+        openAttributionWizardPopup('uuid_0'),
+      ],
     });
+
     expect(screen.getByText('Attribution Wizard')).toBeInTheDocument();
   });
 
   it('opens the FileSupportPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(openPopup(PopupType.FileSupportPopup));
     });
@@ -200,7 +190,7 @@ describe('The GlobalPopUp', () => {
   });
 
   it('opens the FileSupportDotOpossumAlreadyExistsPopup', () => {
-    const { store } = renderComponentWithStore(<GlobalPopup />);
+    const { store } = renderComponent(<GlobalPopup />);
     act(() => {
       store.dispatch(
         openPopup(PopupType.FileSupportDotOpossumAlreadyExistsPopup),
@@ -219,7 +209,7 @@ describe('The GlobalPopUp', () => {
         },
       },
     });
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <QueryClientProvider client={queryClient}>
         <GlobalPopup />
       </QueryClientProvider>,

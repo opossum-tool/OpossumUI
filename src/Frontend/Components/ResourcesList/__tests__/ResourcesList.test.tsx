@@ -12,7 +12,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ResourcesListBatch } from '../../../types/types';
 import { ResourcesList } from '../ResourcesList';
 
@@ -34,7 +34,7 @@ describe('The ResourcesList', () => {
   ];
 
   it('component renders', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ResourcesList resourcesListBatches={resourcesListBatches} />,
     );
     expect(screen.getByText('/folder1/folder2/resource_1')).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe('The ResourcesList', () => {
   });
 
   it('clicking on a path changes the view, selectedResourceId and expandedResources without user callback', () => {
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourcesList resourcesListBatches={resourcesListBatches} />,
     );
     store.dispatch(navigateToView(View.Attribution));
@@ -57,7 +57,7 @@ describe('The ResourcesList', () => {
 
   it('clicking on a path changes the view, selectedResourceId and expandedResources with user callback', () => {
     const onClickCallback = jest.fn();
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourcesList
         resourcesListBatches={resourcesListBatches}
         onClickCallback={onClickCallback}
@@ -86,7 +86,7 @@ describe('The ResourcesList', () => {
       },
     ];
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourcesList
         resourcesListBatches={resourcesListBatchesWithHeader}
         onClickCallback={onClickCallback}

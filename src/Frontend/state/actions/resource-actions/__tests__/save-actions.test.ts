@@ -21,8 +21,8 @@ import {
 } from '../../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
+import { createAppStore } from '../../../configure-store';
 import {
   getAttributionIdMarkedForReplacement,
   getAttributionIdOfDisplayedPackageInManualPanel,
@@ -134,7 +134,7 @@ function expectDisplayPackageInfosMatchExceptAttributionIds(
 
 describe('The savePackageInfo action', () => {
   it('does not save if saving is disabled', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -171,7 +171,7 @@ describe('The savePackageInfo action', () => {
   it('throws an error if resource is a breakpoint', () => {
     const testAttributionBreakpoints = new Set(['/my/src/']);
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -212,7 +212,7 @@ describe('The savePackageInfo action', () => {
       attributionIds: [testManualAttributionUuid_1],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -267,7 +267,7 @@ describe('The savePackageInfo action', () => {
   });
 
   it('updates an attribution', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -408,7 +408,7 @@ describe('The savePackageInfo action', () => {
       };
     const emptyTestTemporaryDisplayPackageInfo = EMPTY_DISPLAY_PACKAGE_INFO;
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -480,7 +480,7 @@ describe('The savePackageInfo action', () => {
     };
     const emptyTestTemporaryDisplayPackageInfo = EMPTY_DISPLAY_PACKAGE_INFO;
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -520,7 +520,7 @@ describe('The savePackageInfo action', () => {
   });
 
   it('cleans up multiSelectSelectedAttributionIds if attribution was removed', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -558,7 +558,7 @@ describe('The savePackageInfo action', () => {
       '/parent/child.js': ['uuid2', 'uuid1'],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -594,7 +594,7 @@ describe('The savePackageInfo action', () => {
       '/parent/child.js': ['uuid1'],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -652,7 +652,7 @@ describe('The savePackageInfo action', () => {
       },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -730,7 +730,7 @@ describe('The savePackageInfo action', () => {
       },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -775,7 +775,7 @@ describe('The savePackageInfo action', () => {
       attributionIds: [],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -828,7 +828,7 @@ describe('The savePackageInfo action', () => {
       attributionIds: [],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -886,7 +886,7 @@ describe('The savePackageInfo action', () => {
       '/something.js': ['uuid1'],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -921,7 +921,7 @@ describe('The savePackageInfo action', () => {
   });
 
   it('updates an attribution and keeps temporary package info for selected attribution', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'test Package modified',
       attributionIds: [],
@@ -981,7 +981,7 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
       '/somethingElse.js': ['reactUuid'],
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1045,7 +1045,7 @@ describe('The deleteAttributionAndSave action', () => {
         paths: ['/file1', '/'],
       },
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1083,7 +1083,7 @@ describe('The deleteAttributionAndSave action', () => {
         paths: ['/file1', '/'],
       },
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1136,7 +1136,7 @@ describe('The deleteAttributionAndSave action', () => {
       },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1201,7 +1201,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
       },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1235,7 +1235,7 @@ describe('The deleteAttributionGloballyAndSave action', () => {
 
 describe('The addToSelectedResource action', () => {
   it('links an already existing manual attribution to the selected resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1267,7 +1267,7 @@ describe('The addToSelectedResource action', () => {
   });
 
   it('opens popup', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1295,7 +1295,7 @@ describe('The addToSelectedResource action', () => {
   });
 
   it('adds an external attribution to the selected resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -1357,7 +1357,7 @@ describe('The addToSelectedResource action', () => {
   });
 
   it('saves resolved external attributions', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setResources({}));
     testStore.dispatch(
       addResolvedExternalAttribution('TestExternalAttribution'),

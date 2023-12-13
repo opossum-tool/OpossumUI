@@ -10,7 +10,7 @@ import {
   setFilesWithChildren,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { PathBar } from '../PathBar';
 
 const writeText = jest.fn();
@@ -26,7 +26,7 @@ describe('The PathBar', () => {
     const testPath = '/test/path/foo/bar/';
     const pathElements = compact(testPath.split('/'));
 
-    const { store } = renderComponentWithStore(<PathBar />);
+    const { store } = renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
     });
@@ -39,7 +39,7 @@ describe('The PathBar', () => {
   it('copies path to clipboard', () => {
     const testPath = '/test_path/';
 
-    const { store } = renderComponentWithStore(<PathBar />);
+    const { store } = renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
       store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));
@@ -54,7 +54,7 @@ describe('The PathBar', () => {
   it('opens path URL in browser', () => {
     const testPath = '/test_path/';
 
-    const { store } = renderComponentWithStore(<PathBar />);
+    const { store } = renderComponent(<PathBar />);
     act(() => {
       store.dispatch(setSelectedResourceId(testPath));
       store.dispatch(setFilesWithChildren(new Set<string>().add(testPath)));

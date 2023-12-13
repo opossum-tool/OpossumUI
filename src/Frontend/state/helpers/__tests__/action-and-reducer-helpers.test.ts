@@ -17,9 +17,9 @@ import {
 } from '../../../../shared/shared-types';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { LocatePopupFilters } from '../../../types/types';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { createAppStore } from '../../configure-store';
 import {
   initialResourceState,
   ResourceState,
@@ -87,7 +87,7 @@ describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
       licenseText: ' test license text',
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({

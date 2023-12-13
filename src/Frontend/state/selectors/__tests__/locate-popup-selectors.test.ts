@@ -3,18 +3,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SelectedCriticality } from '../../../../shared/shared-types';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { setLocatePopupFilters } from '../../actions/resource-actions/locate-popup-actions';
+import { createAppStore } from '../../configure-store';
 import { isLocateSignalActive } from '../locate-popup-selectors';
 
 describe('isLocateSignalActive', () => {
   it('returns false in the default state', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(!isLocateSignalActive(testStore.getState())).toEqual(true);
   });
 
   it('returns true if the selected criticality is not the default', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.High,
@@ -28,7 +28,7 @@ describe('isLocateSignalActive', () => {
   });
 
   it('returns true if there are selected licenses', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
@@ -42,7 +42,7 @@ describe('isLocateSignalActive', () => {
   });
 
   it('returns true if the search term is set', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,
@@ -56,7 +56,7 @@ describe('isLocateSignalActive', () => {
   });
 
   it('returns false if only searchOnlyLicenseName is set', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setLocatePopupFilters({
         selectedCriticality: SelectedCriticality.Any,

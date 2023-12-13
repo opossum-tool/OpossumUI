@@ -18,26 +18,10 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { DisplayPackageInfos } from '../../../types/types';
 import { doNothing } from '../../../util/do-nothing';
 import { AttributionList } from '../AttributionList';
-
-function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
-  const store = createTestAppStore();
-  store.dispatch(
-    loadFromFile(
-      getParsedInputFileEnrichedWithTestData({
-        manualAttributions,
-      }),
-    ),
-  );
-  return store;
-}
 
 describe('The AttributionList', () => {
   const testSortedPackageCardIds = ['packageCardId'];
@@ -74,7 +58,7 @@ describe('The AttributionList', () => {
   });
 
   it('renders', () => {
-    renderComponentWithStore(
+    renderComponent(
       <AttributionList
         displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}
@@ -82,14 +66,22 @@ describe('The AttributionList', () => {
         onCardClick={mockCallback}
         title={'title'}
       />,
-      { store: getTestStore(attributions) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: attributions,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   it('renders first party icon', () => {
-    renderComponentWithStore(
+    renderComponent(
       <AttributionList
         displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}
@@ -97,14 +89,22 @@ describe('The AttributionList', () => {
         onCardClick={doNothing}
         title={'title'}
       />,
-      { store: getTestStore(attributions) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: attributions,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
   });
 
   it('sets selectedAttributionId on click', () => {
-    renderComponentWithStore(
+    renderComponent(
       <AttributionList
         displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}
@@ -112,7 +112,15 @@ describe('The AttributionList', () => {
         onCardClick={mockCallback}
         title={'title'}
       />,
-      { store: getTestStore(attributions) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: attributions,
+            }),
+          ),
+        ],
+      },
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
@@ -176,17 +184,7 @@ describe('The AttributionList', () => {
       '/root/src/file_2': ['uuid_2'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <AttributionList
         displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}
@@ -194,7 +192,17 @@ describe('The AttributionList', () => {
         onCardClick={mockCallback}
         title={'title'}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testManualAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expectGlobalOnlyContextMenuForNotPreselectedAttribution(

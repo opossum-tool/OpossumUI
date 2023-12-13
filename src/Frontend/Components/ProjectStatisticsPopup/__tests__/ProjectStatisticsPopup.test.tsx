@@ -28,15 +28,11 @@ import {
   getSelectedView,
 } from '../../../state/selectors/view-selector';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
 
 describe('The ProjectStatisticsPopup', () => {
   it('displays license names and source names', () => {
-    const store = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -53,15 +49,16 @@ describe('The ProjectStatisticsPopup', () => {
         licenseName: 'The MIT License (MIT)',
       },
     };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
-        }),
-      ),
-    );
 
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
     expect(screen.getByText('Apache License Version 2.0')).toBeInTheDocument();
     expect(screen.getByText('The MIT License (MIT)')).toBeInTheDocument();
     expect(screen.getByText('Scancode')).toBeInTheDocument();
@@ -69,7 +66,6 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('renders search icons in CriticalLicensesTable', () => {
-    const store = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid_1: {
         licenseName: 'GNU General Public License v2.0',
@@ -80,14 +76,15 @@ describe('The ProjectStatisticsPopup', () => {
         criticality: Criticality.Medium,
       },
     };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
 
     expect(
       screen.getByText(ProjectStatisticsPopupTitle.CriticalLicensesTable),
@@ -103,7 +100,6 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('locates attributions when clicking on a search license icon', async () => {
-    const store = createTestAppStore();
     const testExternalAttributions: Attributions = {
       uuid_1: {
         licenseName: 'MIT',
@@ -114,17 +110,19 @@ describe('The ProjectStatisticsPopup', () => {
       '/folder/file': ['uuid_1'],
       '/folder/otherFile': ['uuid_1'],
     };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
-    );
-    store.dispatch(navigateToView(View.Attribution));
-    store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    const { store } = renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions: testExternalAttributions,
+            resourcesToExternalAttributions:
+              testResourcesToExternalAttributions,
+          }),
+        ),
+        navigateToView(View.Attribution),
+        openPopup(PopupType.ProjectStatisticsPopup),
+      ],
+    });
 
     expect(getSelectedView(store.getState())).toBe(View.Attribution);
     expect(getSelectedResourceId(store.getState())).toBe('');
@@ -157,7 +155,6 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('renders pie charts when there are attributions', () => {
-    const store = createTestAppStore();
     const testManualAttributions: Attributions = {
       uuid_1: {
         source: {
@@ -191,16 +188,16 @@ describe('The ProjectStatisticsPopup', () => {
       },
     };
 
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testManualAttributions,
-          externalAttributions: testExternalAttributions,
-        }),
-      ),
-    );
-
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions: testManualAttributions,
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
 
     expect(
       screen.getByText(
@@ -220,17 +217,16 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('does not render pie charts when there are no attributions', () => {
-    const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
-        }),
-      ),
-    );
-
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
     expect(
       screen.queryByText(
         ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
@@ -252,7 +248,6 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('renders pie charts pie charts related to signals even if there are no attributions', () => {
-    const store = createTestAppStore();
     const testManualAttributions: Attributions = {};
     const testExternalAttributions: Attributions = {
       uuid_1: {
@@ -270,16 +265,16 @@ describe('The ProjectStatisticsPopup', () => {
         licenseName: 'The MIT License (MIT)',
       },
     };
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          manualAttributions: testManualAttributions,
-          externalAttributions: testExternalAttributions,
-        }),
-      ),
-    );
-
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions: testManualAttributions,
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
     expect(
       screen.getByText(
         ProjectStatisticsPopupTitle.MostFrequentLicenseCountPieChart,
@@ -301,17 +296,16 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('renders tables when there are no attributions', () => {
-    const store = createTestAppStore();
     const testExternalAttributions: Attributions = {};
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testExternalAttributions,
-        }),
-      ),
-    );
-
-    renderComponentWithStore(<ProjectStatisticsPopup />, { store });
+    renderComponent(<ProjectStatisticsPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            externalAttributions: testExternalAttributions,
+          }),
+        ),
+      ],
+    });
     expect(screen.getAllByText('License name')).toHaveLength(2);
     expect(screen.getAllByText('Total')).toHaveLength(3);
     expect(screen.getByText('Follow up')).toBeInTheDocument();
@@ -319,7 +313,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {
-    renderComponentWithStore(<ProjectStatisticsPopup />);
+    renderComponent(<ProjectStatisticsPopup />);
 
     expect(
       screen.getByLabelText(text.projectStatisticsPopup.toggleStartupCheckbox),

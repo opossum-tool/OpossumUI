@@ -9,7 +9,7 @@ import {
   SelectedCriticality,
 } from '../../../../../shared/shared-types';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { createAppStore } from '../../../configure-store';
 import { getResourcesWithLocatedAttributions } from '../../../selectors/all-views-resource-selectors';
 import { getLocatePopupFilters } from '../../../selectors/locate-popup-selectors';
 import { loadFromFile } from '../load-actions';
@@ -17,7 +17,7 @@ import { setLocatePopupFilters } from '../locate-popup-actions';
 
 describe('The locatePopup actions', () => {
   it('sets and gets filters and thus located resources (in reducer)', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testExternalAttributions: Attributions = {
       uuid1: {
         packageName: 'react',

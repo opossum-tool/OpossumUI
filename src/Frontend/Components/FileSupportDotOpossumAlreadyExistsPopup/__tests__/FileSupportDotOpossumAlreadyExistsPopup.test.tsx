@@ -5,17 +5,17 @@
 import { fireEvent, screen } from '@testing-library/react';
 
 import { ButtonText } from '../../../enums/enums';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup';
 
 describe('FileSupportDotOpossumAlreadyExistsPopup', () => {
   it('renders', () => {
     const header = 'Warning: Outdated input file format';
-    renderComponentWithStore(<FileSupportDotOpossumAlreadyExistsPopup />);
+    renderComponent(<FileSupportDotOpossumAlreadyExistsPopup />);
     expect(screen.getByText(header)).toBeInTheDocument();
   });
   it('sends correct signal to backend when clicking openDotOpossumButton', () => {
-    renderComponentWithStore(<FileSupportDotOpossumAlreadyExistsPopup />);
+    renderComponent(<FileSupportDotOpossumAlreadyExistsPopup />);
     fireEvent.click(
       screen.getByRole('button', { name: ButtonText.OpenDotOpossumFile }),
     );

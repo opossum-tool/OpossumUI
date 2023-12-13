@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
 import { WORKER_REDUX_KEYS } from '../../../web-workers/use-signals-worker';
 import { FolderProgressBar } from '../FolderProgressBar';
@@ -15,7 +15,7 @@ describe('FolderProgressBar', () => {
   jest.useFakeTimers();
 
   it('renders correctly when folder has no attributions', async () => {
-    renderComponentWithStore(<FolderProgressBar />, {
+    renderComponent(<FolderProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA, {
           fileCount: 2,
@@ -44,7 +44,7 @@ describe('FolderProgressBar', () => {
   });
 
   it('renders correctly if folder has an attribution', async () => {
-    renderComponentWithStore(<FolderProgressBar />, {
+    renderComponent(<FolderProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA, {
           fileCount: 2,

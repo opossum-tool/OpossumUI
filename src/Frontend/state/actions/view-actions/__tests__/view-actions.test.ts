@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { FilterType, PopupType, View } from '../../../../enums/enums';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { createAppStore } from '../../../configure-store';
 import {
   getActiveFilters,
   getOpenPopup,
@@ -28,14 +28,14 @@ import {
 
 describe('view actions', () => {
   it('sets view to AuditView as initial value', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(isAuditViewSelected(testStore.getState())).toBe(true);
     expect(isReportViewSelected(testStore.getState())).toBe(false);
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
   });
 
   it('sets view to AttributionView', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
     expect(isAuditViewSelected(testStore.getState())).toBe(false);
@@ -44,7 +44,7 @@ describe('view actions', () => {
   });
 
   it('sets view to ReportView', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Report));
 
     expect(isAuditViewSelected(testStore.getState())).toBe(false);
@@ -53,7 +53,7 @@ describe('view actions', () => {
   });
 
   it('sets view to AttributionView and back to AuditView', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
     expect(isAuditViewSelected(testStore.getState())).toBe(false);
@@ -68,7 +68,7 @@ describe('view actions', () => {
   });
 
   it('sets view to AuditView even if it is already set', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
 
     expect(isAuditViewSelected(testStore.getState())).toBe(true);
     expect(isReportViewSelected(testStore.getState())).toBe(false);
@@ -82,7 +82,7 @@ describe('view actions', () => {
   });
 
   it('sets the selectedView', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
 
     expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
@@ -97,7 +97,7 @@ describe('view actions', () => {
   });
 
   it('resets view state', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetView(View.Audit));
@@ -120,7 +120,7 @@ describe('view actions', () => {
   });
 
   it('sets filters correctly', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
     expect(
       getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
@@ -151,7 +151,7 @@ describe('view actions', () => {
   });
 
   it('sets and gets QA mode state', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getQAMode(testStore.getState())).toBe(false);
     testStore.dispatch(setQAMode(true));
     expect(getQAMode(testStore.getState())).toBe(true);
@@ -162,24 +162,24 @@ describe('view actions', () => {
 
 describe('popup actions', () => {
   it('popup is closed by default', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
 
   it('open NotSavedPopup', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
   });
 
   it('close NotSavedPopup', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(closePopup());
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
   it('sets targetAttributionId and popupType', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getPopupAttributionId(testStore.getState())).toEqual(null);
     const testAttributionId = 'test';
     testStore.dispatch(
@@ -194,7 +194,7 @@ describe('popup actions', () => {
   });
 
   it('handles multiple opened popups', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testAttributionId = 'test';
     testStore.dispatch(
       openPopup(PopupType.EditAttributionPopup, testAttributionId),
@@ -226,7 +226,7 @@ describe('popup actions', () => {
   });
 
   it('opens each popup only once', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getOpenPopup(testStore.getState())).toBeNull();
     // open file search popup twice
     testStore.dispatch(openPopup(PopupType.FileSearchPopup));

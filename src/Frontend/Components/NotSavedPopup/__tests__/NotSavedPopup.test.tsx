@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
+import { compact } from 'lodash';
 
 import { ButtonText, PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
@@ -23,27 +24,23 @@ import {
   isAttributionViewSelected,
   isAuditViewSelected,
 } from '../../../state/selectors/view-selector';
-import {
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { NotSavedPopup } from '../NotSavedPopup';
 
-function setupTestState(
-  store: EnhancedTestStore,
-  targetView?: View,
-  popupAttributionId?: string,
-): void {
-  store.dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
-  store.dispatch(setTargetSelectedResourceId('test_id'));
-  store.dispatch(setSelectedResourceId(''));
-  targetView && store.dispatch(setTargetView(targetView));
+function getActions(targetView?: View) {
+  return compact([
+    openPopup(PopupType.NotSavedPopup),
+    setTargetSelectedResourceId('test_id'),
+    setSelectedResourceId(''),
+    targetView && setTargetView(targetView),
+  ]);
 }
 
 describe('NotSavedPopup and do not change view', () => {
   it('renders a NotSavedPopup', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    setupTestState(store);
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: getActions(),
+    });
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
@@ -53,8 +50,9 @@ describe('NotSavedPopup and do not change view', () => {
   });
 
   it('renders a NotSavedPopup and click cancel', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    setupTestState(store);
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: getActions(),
+    });
 
     expect(screen.getByText('There are unsaved changes.')).toBeInTheDocument();
     fireEvent.click(screen.queryByText('Cancel') as Element);
@@ -64,14 +62,15 @@ describe('NotSavedPopup and do not change view', () => {
   });
 
   it('renders a NotSavedPopup and click reset', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    setupTestState(store);
-    store.dispatch(
-      setTemporaryDisplayPackageInfo({
-        packageName: 'test name',
-        attributionIds: [],
-      }),
-    );
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: [
+        ...getActions(),
+        setTemporaryDisplayPackageInfo({
+          packageName: 'test name',
+          attributionIds: [],
+        }),
+      ],
+    });
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
@@ -89,12 +88,13 @@ describe('NotSavedPopup and do not change view', () => {
   });
 
   it('renders a NotSavedPopup and click cancel in Report view reopens EditAttribuionPopup', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    store.dispatch(navigateToView(View.Report));
-    store.dispatch(
-      openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
-    );
-    setupTestState(store, undefined, 'test_selected_id');
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: [
+        navigateToView(View.Report),
+        openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
+        ...getActions(),
+      ],
+    });
 
     expect(screen.getByText('There are unsaved changes.')).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
@@ -104,8 +104,9 @@ describe('NotSavedPopup and do not change view', () => {
 
 describe('NotSavedPopup and change view', () => {
   it('renders a NotSavedPopup', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    setupTestState(store, View.Attribution);
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: getActions(View.Attribution),
+    });
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
@@ -115,8 +116,9 @@ describe('NotSavedPopup and change view', () => {
   });
 
   it('renders a NotSavedPopup and click cancel', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    setupTestState(store, View.Attribution);
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: getActions(View.Attribution),
+    });
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText('Cancel') as Element);
@@ -126,14 +128,15 @@ describe('NotSavedPopup and change view', () => {
   });
 
   it('renders a NotSavedPopup and click reset', () => {
-    const { store } = renderComponentWithStore(<NotSavedPopup />);
-    setupTestState(store, View.Attribution);
-    store.dispatch(
-      setTemporaryDisplayPackageInfo({
-        packageName: 'test name',
-        attributionIds: [],
-      }),
-    );
+    const { store } = renderComponent(<NotSavedPopup />, {
+      actions: [
+        ...getActions(View.Attribution),
+        setTemporaryDisplayPackageInfo({
+          packageName: 'test name',
+          attributionIds: [],
+        }),
+      ],
+    });
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
