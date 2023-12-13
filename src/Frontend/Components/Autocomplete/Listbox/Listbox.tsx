@@ -115,7 +115,7 @@ export const Listbox = forwardRef(
       return (
         <GroupedVirtuoso
           ref={virtuosoRef}
-          style={{ ...styles.virtuoso, height: height + groupNames.length - 1 }}
+          style={{ ...styles.virtuoso, height: height + groupNames.length }}
           overscan={4}
           increaseViewportBy={2}
           initialTopMostItemIndex={
