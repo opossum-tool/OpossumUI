@@ -275,6 +275,7 @@ export interface Log {
 
 export interface UserSettings {
   showProjectStatistics: boolean;
+  qaMode: boolean;
 }
 
 export type SignalWithCount = PackageInfo & {

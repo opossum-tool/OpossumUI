@@ -23,9 +23,11 @@ import {
   getPathOfChromiumNoticeDocument,
   getPathOfNoticeDocument,
 } from './notice-document-helpers';
+import { UserSettings } from './user-settings';
 
-export function createMenu(mainWindow: BrowserWindow): Menu {
+export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
   const webContents = mainWindow.webContents;
+  const qaMode = await UserSettings.get('qaMode');
 
   return Menu.buildFromTemplate([
     {
@@ -331,16 +333,17 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           ),
           label: 'QA Mode',
           id: 'disabled-qa-mode',
-          click(): void {
+          click: async () => {
             makeFirstIconVisibleAndSecondHidden(
               'enabled-qa-mode',
               'disabled-qa-mode',
             );
+            await UserSettings.set('qaMode', true);
             webContents.send(AllowedFrontendChannels.SetQAMode, {
               qaMode: true,
             });
           },
-          visible: true,
+          visible: !qaMode,
         },
         {
           icon: getIconBasedOnTheme(
@@ -349,16 +352,17 @@ export function createMenu(mainWindow: BrowserWindow): Menu {
           ),
           label: 'QA Mode',
           id: 'enabled-qa-mode',
-          click(): void {
+          click: async () => {
             makeFirstIconVisibleAndSecondHidden(
               'disabled-qa-mode',
               'enabled-qa-mode',
             );
+            await UserSettings.set('qaMode', false);
             webContents.send(AllowedFrontendChannels.SetQAMode, {
               qaMode: false,
             });
           },
-          visible: false,
+          visible: qaMode,
         },
       ],
     },

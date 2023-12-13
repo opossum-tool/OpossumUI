@@ -2,13 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { dialog, ipcMain, systemPreferences } from 'electron';
-import settings from 'electron-settings';
-import { isEqual } from 'lodash';
+import { dialog, ipcMain, Menu, systemPreferences } from 'electron';
 import os from 'os';
 
 import { IpcChannel } from '../../shared/ipc-channels';
-import { UserSettings } from '../../shared/shared-types';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow } from './createWindow';
 import {
@@ -23,7 +20,9 @@ import {
   getSaveFileListener,
   getSendErrorInformationListener,
 } from './listeners';
+import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
+import { UserSettings } from './user-settings';
 
 export async function main(): Promise<void> {
   try {
@@ -36,6 +35,9 @@ export async function main(): Promise<void> {
     }
 
     const mainWindow = await createWindow();
+
+    await UserSettings.init();
+    Menu.setApplicationMenu(await createMenu(mainWindow));
 
     mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
       (details, callback) => {
@@ -81,12 +83,12 @@ export async function main(): Promise<void> {
     );
     ipcMain.handle(IpcChannel.ExportFile, getExportFileListener(mainWindow));
     ipcMain.handle(IpcChannel.OpenLink, getOpenLinkListener());
-    ipcMain.handle(IpcChannel.GetUserSettings, (_, key) => settings.get(key));
-    ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
-      settings.set(key, value),
+    ipcMain.handle(IpcChannel.GetUserSettings, (_, key) =>
+      UserSettings.get(key),
     );
-
-    await initializeUserSettings();
+    ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
+      UserSettings.set(key, value),
+    );
 
     await openFileFromCliOrEnvVariableIfProvided(mainWindow);
   } catch (error) {
@@ -99,20 +101,5 @@ export async function main(): Promise<void> {
         getMessageBoxContentForErrorsWrapper(true)('Unexpected internal error'),
       );
     }
-  }
-}
-
-async function initializeUserSettings(): Promise<void> {
-  const current: Partial<UserSettings> = await settings.get();
-
-  const updated = {
-    ...current,
-    showProjectStatistics: process.argv.includes('--skip-statistics')
-      ? false
-      : current?.showProjectStatistics ?? true,
-  } satisfies UserSettings;
-
-  if (!isEqual(current, updated)) {
-    await settings.set(updated);
   }
 }
