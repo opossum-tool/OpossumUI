@@ -14,6 +14,8 @@ import type {
 import { ensureArray } from '../Frontend/util/ensure-array';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
+  RawSearchResponse,
+  SearchResponse,
   System,
   systems,
   VersionKey,
@@ -348,6 +350,26 @@ class PackageSearchModule {
   ): VersionsResponse {
     return {
       versions: faker.helpers.multiple(PackageSearchModule.versionResponse),
+      ...props,
+    };
+  }
+
+  public static searchResponse(
+    props: Partial<SearchResponse> = {},
+  ): SearchResponse {
+    return {
+      kind: faker.datatype.boolean() ? 'PACKAGE' : 'PROJECT',
+      name: faker.commerce.productName(),
+      system: PackageSearchModule.system(),
+      ...props,
+    };
+  }
+
+  public static rawSearchResponse(
+    props: Partial<RawSearchResponse> = {},
+  ): RawSearchResponse {
+    return {
+      results: faker.helpers.multiple(PackageSearchModule.searchResponse),
       ...props,
     };
   }
