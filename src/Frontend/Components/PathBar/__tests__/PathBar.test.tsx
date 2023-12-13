@@ -32,7 +32,7 @@ describe('The PathBar', () => {
     });
 
     pathElements.forEach((element) => {
-      expect(screen.getByText(element));
+      expect(screen.getByText(element)).toBeInTheDocument();
     });
   });
 

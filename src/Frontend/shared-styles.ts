@@ -183,22 +183,3 @@ export const treeItemClasses = {
   },
   tooltip: tooltipStyle,
 };
-
-export const attributionWizardStepClasses = {
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'start',
-    height: '100%',
-  },
-  purlRoot: {
-    width: '100%',
-  },
-  purlText: {
-    '&.Mui-disabled': {
-      WebkitTextFillColor: OpossumColors.darkGrey,
-    },
-  },
-};
-
-export const ATTRIBUTION_WIZARD_PURL_TOTAL_HEIGHT = 45;

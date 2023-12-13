@@ -19,8 +19,8 @@ describe('The ListCard', () => {
       />,
     );
 
-    expect(screen.getByText('card text'));
-    expect(screen.getByText('card text of second line'));
+    expect(screen.getByText('card text')).toBeInTheDocument();
+    expect(screen.getByText('card text of second line')).toBeInTheDocument();
   });
 
   it('renders text with small count', () => {
@@ -34,9 +34,9 @@ describe('The ListCard', () => {
       />,
     );
 
-    expect(screen.getByText('card text'));
-    expect(screen.getByText('card text of second line'));
-    expect(screen.getByText('13'));
+    expect(screen.getByText('card text')).toBeInTheDocument();
+    expect(screen.getByText('card text of second line')).toBeInTheDocument();
+    expect(screen.getByText('13')).toBeInTheDocument();
   });
 
   it('renders text with medium count', () => {
@@ -50,9 +50,9 @@ describe('The ListCard', () => {
       />,
     );
 
-    expect(screen.getByText('card text'));
-    expect(screen.getByText('card text of second line'));
-    expect(screen.getByText('13k'));
+    expect(screen.getByText('card text')).toBeInTheDocument();
+    expect(screen.getByText('card text of second line')).toBeInTheDocument();
+    expect(screen.getByText('13k')).toBeInTheDocument();
   });
 
   it('renders text with large count', () => {
@@ -66,9 +66,9 @@ describe('The ListCard', () => {
       />,
     );
 
-    expect(screen.getByText('card text'));
-    expect(screen.getByText('card text of second line'));
-    expect(screen.getByText('1M'));
+    expect(screen.getByText('card text')).toBeInTheDocument();
+    expect(screen.getByText('card text of second line')).toBeInTheDocument();
+    expect(screen.getByText('1M')).toBeInTheDocument();
   });
 
   it('renders leftElement if provided as input', () => {
@@ -83,8 +83,8 @@ describe('The ListCard', () => {
       />,
     );
 
-    expect(screen.getByText('card text'));
-    expect(screen.getByText('card text of second line'));
+    expect(screen.getByText('card text')).toBeInTheDocument();
+    expect(screen.getByText('card text of second line')).toBeInTheDocument();
     expect(screen.getByRole('checkbox')).toBeInTheDocument();
   });
 });

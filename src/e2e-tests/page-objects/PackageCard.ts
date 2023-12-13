@@ -18,7 +18,6 @@ export class PackageCard {
     readonly deleteSelectedGloballyButton: Locator;
     readonly hideButton: Locator;
     readonly markForReplacementButton: Locator;
-    readonly openAttributionWizardButton: Locator;
     readonly replaceMarkedButton: Locator;
     readonly showResourcesButton: Locator;
     readonly unhideButton: Locator;
@@ -47,9 +46,6 @@ export class PackageCard {
           name: 'Mark current for replacement',
           exact: true,
         }),
-      openAttributionWizardButton: this.window
-        .getByRole('menu')
-        .getByRole('button', { name: 'Open attribution wizard', exact: true }),
       showResourcesButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Show resources', exact: true }),

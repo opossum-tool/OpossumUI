@@ -14,6 +14,7 @@ import {
 import { FilterMultiSelect } from '../FilterMultiSelect';
 
 describe('FilterMultiSelect', () => {
+  // eslint-disable-next-line jest/expect-expect
   it('renders the filters in a dropdown', () => {
     const store = createAppStore();
     render(

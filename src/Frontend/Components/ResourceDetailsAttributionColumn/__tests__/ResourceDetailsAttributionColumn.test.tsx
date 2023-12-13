@@ -90,36 +90,38 @@ describe('The ResourceDetailsAttributionColumn', () => {
       'aria-disabled',
       'false',
     );
-    expect(screen.queryAllByText('Comment'));
+    expect(screen.getByLabelText('Comment')).toBeInTheDocument();
     const testComment =
       testTemporaryDisplayPackageInfo?.comments !== undefined
         ? testTemporaryDisplayPackageInfo?.comments[0]
         : '';
-    expect(screen.getByDisplayValue(testComment));
+    expect(screen.getByDisplayValue(testComment)).toBeInTheDocument();
     expect(
-      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
-    );
+      screen.getByLabelText(text.attributionColumn.packageSubPanel.packageName),
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
-    );
+    ).toBeInTheDocument();
     expect(
-      screen.queryAllByText(
+      screen.getByLabelText(
         text.attributionColumn.packageSubPanel.packageVersion,
       ),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageVersion),
-    );
-    expect(screen.queryAllByText('Copyright'));
-    expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright));
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
     expect(
-      screen.queryAllByText('License Text (to appear in attribution document)'),
-    );
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('License Text (to appear in attribution document)'),
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue('Permission is hereby granted', {
         exact: false,
       }),
-    );
+    ).toBeInTheDocument();
   });
 
   it('shows parent attribution if overrideParentMode is true', () => {
@@ -133,9 +135,9 @@ describe('The ResourceDetailsAttributionColumn', () => {
       },
     );
 
-    expect(screen.getByDisplayValue('React'));
-    expect(screen.getByDisplayValue('16.5.0'));
-    expect(screen.getByDisplayValue(testManualLicense));
+    expect(screen.getByDisplayValue('React')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('16.5.0')).toBeInTheDocument();
+    expect(screen.getByDisplayValue(testManualLicense)).toBeInTheDocument();
   });
 
   it('does not show parent attribution if overrideParentMode is false', () => {

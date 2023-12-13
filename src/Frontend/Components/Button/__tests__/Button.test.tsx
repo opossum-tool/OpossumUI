@@ -11,7 +11,7 @@ describe('Button', () => {
   it('renders a button', () => {
     render(<Button buttonText={'Test'} disabled={false} onClick={noop} />);
 
-    screen.getByText('Test');
+    expect(screen.getByText('Test')).toBeInTheDocument();
   });
 
   it('renders a tooltip for enabled button', async () => {

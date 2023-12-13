@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -47,7 +46,6 @@ const BUTTON_TITLE_TO_ICON_MAP: Record<string, React.ReactElement> = {
   [ButtonText.MarkForReplacement]: (
     <CheckBoxOutlineBlankIcon fontSize="small" />
   ),
-  [ButtonText.OpenAttributionWizardPopup]: <AutoFixHighIcon fontSize="small" />,
   [ButtonText.ReplaceMarked]: <MergeTypeIcon fontSize="small" />,
   [ButtonText.ShowResources]: <OpenInBrowserIcon fontSize="small" />,
   [ButtonText.Unhide]: <VisibilityIcon fontSize="small" />,

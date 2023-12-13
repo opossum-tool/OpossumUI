@@ -25,9 +25,9 @@ describe('packageInfoContainsSearchTerm', () => {
       attributionIds: ['uuid2'],
     };
 
-    expect(
-      packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm'),
-    ).toEqual(true);
+    expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
+      true,
+    );
   });
 
   it('searches by license name', () => {
@@ -36,9 +36,9 @@ describe('packageInfoContainsSearchTerm', () => {
       attributionIds: ['uuid3'],
     };
 
-    expect(
-      packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm'),
-    ).toEqual(true);
+    expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
+      true,
+    );
   });
 
   it('searches by package version', () => {
@@ -47,9 +47,9 @@ describe('packageInfoContainsSearchTerm', () => {
       attributionIds: ['uuid4'],
     };
 
-    expect(
-      packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm'),
-    ).toEqual(true);
+    expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
+      true,
+    );
   });
 
   it('ignores other fields', () => {
@@ -60,9 +60,9 @@ describe('packageInfoContainsSearchTerm', () => {
       attributionIds: ['uuid5'],
     };
 
-    expect(
-      packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm'),
-    ).toEqual(false);
+    expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
+      false,
+    );
   });
 });
 
@@ -73,8 +73,8 @@ describe('licenseNameContainsSearchTerm', () => {
       attributionIds: ['uuid3'],
     };
 
-    expect(
-      licenseNameContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm'),
-    ).toEqual(true);
+    expect(licenseNameContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
+      true,
+    );
   });
 });

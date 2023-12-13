@@ -147,10 +147,11 @@ describe('Autocomplete', () => {
     await userEvent.click(screen.getByText(options[0]));
 
     expect(screen.getByDisplayValue(options[0])).toBeInTheDocument();
-    options.forEach((option) => {
-      option !== options[0] &&
-        expect(screen.queryByDisplayValue(option)).not.toBeInTheDocument();
-    });
+    options
+      .filter((option) => option !== options[0])
+      .forEach((option) =>
+        expect(screen.queryByDisplayValue(option)).not.toBeInTheDocument(),
+      );
   });
 
   it('selects option with keyboard', async () => {
@@ -171,10 +172,11 @@ describe('Autocomplete', () => {
     await userEvent.keyboard('{Enter}');
 
     expect(screen.getByDisplayValue(options[0])).toBeInTheDocument();
-    options.forEach((option) => {
-      option !== options[0] &&
-        expect(screen.queryByDisplayValue(option)).not.toBeInTheDocument();
-    });
+    options
+      .filter((option) => option !== options[0])
+      .forEach((option) =>
+        expect(screen.queryByDisplayValue(option)).not.toBeInTheDocument(),
+      );
   });
 
   it('renders clear button when a value is selected', () => {
@@ -418,11 +420,12 @@ describe('Autocomplete', () => {
     await userEvent.click(screen.getByText(options[0].value));
 
     expect(screen.getByDisplayValue(options[0].value)).toBeInTheDocument();
-    options.forEach((option) => {
-      !isEqual(option, options[0]) &&
+    options
+      .filter((option) => !isEqual(option, options[0]))
+      .forEach((option) =>
         expect(
           screen.queryByDisplayValue(option.value),
-        ).not.toBeInTheDocument();
-    });
+        ).not.toBeInTheDocument(),
+      );
   });
 });

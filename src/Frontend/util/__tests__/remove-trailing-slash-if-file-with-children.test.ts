@@ -6,20 +6,20 @@ import { removeTrailingSlashIfFileWithChildren } from '../remove-trailing-slash-
 
 describe('removeTrailingSlashIfFileWithChildren', () => {
   it('removes last character', () => {
-    expect(
-      removeTrailingSlashIfFileWithChildren('/path1/', () => true),
-    ).toEqual('/path1');
+    expect(removeTrailingSlashIfFileWithChildren('/path1/', () => true)).toBe(
+      '/path1',
+    );
   });
 
   it('does no remove last character', () => {
-    expect(
-      removeTrailingSlashIfFileWithChildren('/path1/', () => false),
-    ).toEqual('/path1/');
+    expect(removeTrailingSlashIfFileWithChildren('/path1/', () => false)).toBe(
+      '/path1/',
+    );
   });
 
   it('does nothing if last character is not /', () => {
     expect(
       removeTrailingSlashIfFileWithChildren('/path1/test', () => true),
-    ).toEqual('/path1/test');
+    ).toBe('/path1/test');
   });
 });

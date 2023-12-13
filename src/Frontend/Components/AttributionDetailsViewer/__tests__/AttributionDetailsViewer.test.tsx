@@ -48,43 +48,43 @@ describe('The AttributionDetailsViewer', () => {
       'aria-disabled',
       'false',
     );
-    expect(screen.queryAllByText('Comment'));
+    expect(screen.getByLabelText('Comment')).toBeInTheDocument();
 
     testTemporaryDisplayPackageInfo.comments?.forEach((comment) =>
-      expect(screen.getByDisplayValue(comment)),
+      expect(screen.getByDisplayValue(comment)).toBeInTheDocument(),
     );
     expect(
-      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
-    );
+      screen.getByLabelText(text.attributionColumn.packageSubPanel.packageName),
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(
         testTemporaryDisplayPackageInfo.packageName as string,
       ),
-    );
+    ).toBeInTheDocument();
     expect(
-      screen.queryAllByText(
+      screen.getByLabelText(
         text.attributionColumn.packageSubPanel.packageVersion,
       ),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(
         testTemporaryDisplayPackageInfo.packageVersion as string,
       ),
-    );
-    expect(screen.queryAllByText('Copyright'));
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(
         testTemporaryDisplayPackageInfo.copyright as string,
       ),
-    );
+    ).toBeInTheDocument();
     expect(
-      screen.queryAllByText('License Text (to appear in attribution document)'),
-    );
+      screen.getByLabelText('License Text (to appear in attribution document)'),
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue('Permission is hereby granted', {
         exact: false,
       }),
-    );
+    ).toBeInTheDocument();
   });
 
   it('saves temporary info', () => {
@@ -116,7 +116,7 @@ describe('The AttributionDetailsViewer', () => {
         ),
       );
     });
-    expect(screen.getByDisplayValue('React'));
+    expect(screen.getByDisplayValue('React')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }) as Element);
     expect(getManualAttributions(store.getState())?.uuid_1).toEqual(

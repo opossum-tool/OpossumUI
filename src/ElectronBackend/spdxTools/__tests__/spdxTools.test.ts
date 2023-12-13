@@ -241,7 +241,7 @@ describe('createSpdxYaml', () => {
   it('creates a yaml', () => {
     const yaml = createSpdxYaml(expectedBaseSpdxDocument);
 
-    expect(yaml.startsWith('SPDXID: SPDXRef-DOCUMENT'));
+    expect(yaml.startsWith('SPDXID: SPDXRef-DOCUMENT')).toBe(true);
   });
 });
 

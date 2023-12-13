@@ -21,7 +21,6 @@ import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
-import { AttributionWizard } from '../page-objects/AttributionWizard';
 import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
 import { EditAttributionPopup } from '../page-objects/EditAttributionPopup';
@@ -58,7 +57,6 @@ export const test = base.extend<{
   attributionDetails: AttributionDetails;
   attributionFilters: AttributionFilters;
   attributionList: AttributionList;
-  attributionWizard: AttributionWizard;
   changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
   confirmationPopup: ConfirmationPopup;
   editAttributionPopup: EditAttributionPopup;
@@ -176,9 +174,6 @@ export const test = base.extend<{
   },
   editAttributionPopup: async ({ window }, use) => {
     await use(new EditAttributionPopup(window));
-  },
-  attributionWizard: async ({ window }, use) => {
-    await use(new AttributionWizard(window));
   },
 });
 

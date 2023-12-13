@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react';
 import { renderComponent } from '../../../test-helpers/render';
 import { ErrorPopup } from '../ErrorPopup';
 
-describe('Error popup ', () => {
+describe('Error popup', () => {
   it('renders', () => {
     renderComponent(<ErrorPopup content="Invalid link." />);
 

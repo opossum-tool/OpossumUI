@@ -144,7 +144,9 @@ export function expectElementsInAutoCompleteAndSelectFirst(
   autoComplete.focus();
   fireEvent.keyDown(autoComplete, { key: 'ArrowDown' });
 
-  elements.forEach((element) => expect(screen.getByText(element)));
+  elements.forEach((element) =>
+    expect(screen.getByText(element)).toBeInTheDocument(),
+  );
 
   fireEvent.click(screen.getByText(elements[0]) as Element);
 }

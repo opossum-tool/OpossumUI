@@ -112,8 +112,8 @@ describe('view actions', () => {
 
     testStore.dispatch(resetViewState());
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
-    expect(getTargetView(testStore.getState())).toBe(null);
-    expect(getOpenPopup(testStore.getState())).toBe(null);
+    expect(getTargetView(testStore.getState())).toBeNull();
+    expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(
       getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
     ).toBe(false);
@@ -180,7 +180,7 @@ describe('popup actions', () => {
   });
   it('sets targetAttributionId and popupType', () => {
     const testStore = createAppStore();
-    expect(getPopupAttributionId(testStore.getState())).toEqual(null);
+    expect(getPopupAttributionId(testStore.getState())).toBeNull();
     const testAttributionId = 'test';
     testStore.dispatch(
       openPopup(PopupType.ConfirmDeletionPopup, testAttributionId),

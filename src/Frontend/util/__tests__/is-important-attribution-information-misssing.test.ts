@@ -16,7 +16,7 @@ describe('isImportantAttributionInformationMissing', () => {
         'packageNamespace',
         testAttributionInfo,
       ),
-    ).toEqual(true);
+    ).toBe(true);
   });
 
   it('returns false if exclude from notice', () => {
@@ -29,7 +29,7 @@ describe('isImportantAttributionInformationMissing', () => {
         'excludeFromNotice',
         testAttributionInfo,
       ),
-    ).toEqual(false);
+    ).toBe(false);
   });
 
   it('returns true if package name is missing', () => {
@@ -41,7 +41,7 @@ describe('isImportantAttributionInformationMissing', () => {
         'packageName',
         testAttributionInfo,
       ),
-    ).toEqual(true);
+    ).toBe(true);
   });
 
   it('returns false if copyright is not missing', () => {
@@ -54,6 +54,6 @@ describe('isImportantAttributionInformationMissing', () => {
         'copyright',
         testAttributionInfo,
       ),
-    ).toEqual(false);
+    ).toBe(false);
   });
 });

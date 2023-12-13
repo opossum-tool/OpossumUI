@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import each from 'jest-each';
-
 import {
   Attributions,
   PackageInfo,
@@ -27,7 +25,7 @@ const expectedAttributions: Attributions = {
 };
 
 describe('The helper getClosestParentAttribution', () => {
-  each([
+  it.each([
     [
       '/f1/f2/f3/',
       {
@@ -66,9 +64,9 @@ describe('The helper getClosestParentAttribution', () => {
         '/f1/f3': [otherPackageUuid],
       },
     ],
-  ]).it(
+  ] satisfies Array<[string, ResourcesToAttributions]>)(
     'finds the closest parent package if one exists',
-    (path: string, resourcesToManualAttributions: ResourcesToAttributions) => {
+    (path, resourcesToManualAttributions) => {
       const closest = getClosestParentAttributions(
         path,
         testManualAttributions,
@@ -79,32 +77,32 @@ describe('The helper getClosestParentAttribution', () => {
     },
   );
 
-  each([
+  it.each([
     [
       '/f1/f2/f3',
       {
-        '/f1/f4': [otherPackage],
-        '/f5/': [otherPackage],
+        '/f1/f4': [otherPackageUuid],
+        '/f5/': [otherPackageUuid],
       },
     ],
     [
       '/f1',
       {
-        '/f1': [otherPackage],
+        '/f1': [otherPackageUuid],
       },
     ],
     [
       '/f1/f2',
       {
-        '/ff1': [otherPackage],
-        '/f2': [otherPackage],
-        '/ef1': [otherPackage],
-        '/f 1 ': [otherPackage],
+        '/ff1': [otherPackageUuid],
+        '/f2': [otherPackageUuid],
+        '/ef1': [otherPackageUuid],
+        '/f 1 ': [otherPackageUuid],
       },
     ],
-  ]).it(
+  ] satisfies Array<[string, ResourcesToAttributions]>)(
     'returns null if there is no parent package',
-    (path: string, resourcesToManualAttributions: ResourcesToAttributions) => {
+    (path, resourcesToManualAttributions) => {
       const closest = getClosestParentAttributions(
         path,
         testManualAttributions,
@@ -124,7 +122,7 @@ describe('The helper getClosestParentAttribution', () => {
       { '/': [otherPackageUuid] },
       () => false,
     );
-    expect(closest).toBe(null);
+    expect(closest).toBeNull();
   });
 });
 
@@ -158,6 +156,6 @@ describe('getClosestParentWithAttributions', () => {
         resourcesToAttributions,
         (path) => path === '/parent1/parent2/parent3/',
       ),
-    ).toBe(null);
+    ).toBeNull();
   });
 });

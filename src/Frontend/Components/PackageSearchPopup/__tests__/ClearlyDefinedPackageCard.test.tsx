@@ -59,14 +59,16 @@ describe('ClearlyDefinedPackageCard', () => {
       </QueryClientProvider>,
     );
 
-    expect(await screen.findByText('MIT'));
-    expect(screen.getByText('https://pypi.org/project/SQLAlchemy/1.4.1'));
-    expect(screen.getByText('sqlalchemy - 1.4.1'));
+    expect(await screen.findByText('MIT')).toBeInTheDocument();
+    expect(
+      screen.getByText('https://pypi.org/project/SQLAlchemy/1.4.1'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('sqlalchemy - 1.4.1')).toBeInTheDocument();
 
     const expandAccordionButton = screen.getByLabelText('expand accordion');
     fireEvent.click(expandAccordionButton);
 
-    expect(screen.getByText(RegExp('^Copyright Jane Doe')));
+    expect(screen.getByText(RegExp('^Copyright Jane Doe'))).toBeInTheDocument();
 
     const addPackageInformationButton = screen.getByLabelText('Add');
     fireEvent.click(addPackageInformationButton);
@@ -98,6 +100,6 @@ describe('ClearlyDefinedPackageCard', () => {
       await screen.findByText(
         `Failed while fetching data for ${testCoordinate}: Request failed with status code 404`,
       ),
-    );
+    ).toBeInTheDocument();
   });
 });

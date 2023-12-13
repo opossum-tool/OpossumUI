@@ -179,7 +179,7 @@ describe('parseRawAttributions', () => {
     ]);
   });
 
-  it('removes empty comment', () => {
+  it('removes invalid criticality', () => {
     const rawAttributions: RawAttributions = {
       id: {
         criticality: 'invalid value' as Criticality,
@@ -342,7 +342,7 @@ describe('getAllResourcePaths', () => {
     );
   });
 
-  it('calculates correctly for files on top level', () => {
+  it('calculates correctly for nested files', () => {
     const resources: Resources = {
       file1: 1,
       folder1: {},

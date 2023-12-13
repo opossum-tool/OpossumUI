@@ -45,13 +45,13 @@ describe('The ResourceDetailsTabs', () => {
     act(() => {
       store.dispatch(setSelectedResourceId('/root/fileWithoutAttribution'));
     });
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
 
     clickOnTab(screen, 'Global Tab');
     expect(screen.queryByText('Signals')).not.toBeInTheDocument();
 
     clickOnTab(screen, 'Local Tab');
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
   });
 
   it('has All Attributions Tab disabled when no addable attribution is present', () => {
@@ -84,10 +84,10 @@ describe('The ResourceDetailsTabs', () => {
     act(() => {
       store.dispatch(setSelectedResourceId('/fileWithAttribution'));
     });
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
 
     clickOnTab(screen, 'Global Tab');
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
   });
 
   it('has search functionality', () => {

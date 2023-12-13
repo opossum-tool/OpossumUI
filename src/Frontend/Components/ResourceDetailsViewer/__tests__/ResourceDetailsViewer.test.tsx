@@ -89,11 +89,11 @@ describe('The ResourceDetailsViewer', () => {
     });
 
     expect(
-      screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
-    );
+      screen.getByLabelText(text.attributionColumn.packageSubPanel.packageName),
+    ).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
-    );
+    ).toBeInTheDocument();
   });
 
   it(
@@ -177,8 +177,8 @@ describe('The ResourceDetailsViewer', () => {
       ],
     });
 
-    expect(screen.getByText('Signals'));
-    expect(screen.getByText('JQuery'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
+    expect(screen.getByText('JQuery')).toBeInTheDocument();
   });
 
   it('selects an external package and a manual package, showing the right info', () => {
@@ -210,9 +210,9 @@ describe('The ResourceDetailsViewer', () => {
     });
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
-    expect(screen.getByDisplayValue('jQuery'));
-    expect(screen.getByDisplayValue('16.5.0'));
-    expect(screen.getByText('React'));
+    expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('16.5.0')).toBeInTheDocument();
+    expect(screen.getByText('React')).toBeInTheDocument();
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -286,11 +286,11 @@ describe('The ResourceDetailsViewer', () => {
       ],
     });
 
-    expect(screen.getByText('React'));
+    expect(screen.getByText('React')).toBeInTheDocument();
     fireEvent.click(screen.getByText('React') as Element);
 
-    expect(screen.getByDisplayValue('Comment 1'));
-    expect(screen.getByDisplayValue('Comment 2'));
+    expect(screen.getByDisplayValue('Comment 1')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Comment 2')).toBeInTheDocument();
     expect(screen.getByLabelText('confidence of 2')).toHaveAttribute(
       'aria-disabled',
       'false',
@@ -333,7 +333,7 @@ describe('The ResourceDetailsViewer', () => {
     });
 
     fireEvent.click(screen.getByText('jQuery, 16.5.0') as Element);
-    expect(screen.getByText('JQuery'));
+    expect(screen.getByText('JQuery')).toBeInTheDocument();
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -383,6 +383,7 @@ describe('The ResourceDetailsViewer', () => {
     );
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('selects the manual package view after you added an external package', () => {
     const manualAttributions: Attributions = {
       uuid_1: testTemporaryDisplayPackageInfo,
@@ -463,8 +464,8 @@ describe('The ResourceDetailsViewer', () => {
       ),
     });
 
-    expect(screen.getByDisplayValue('jQuery'));
-    expect(screen.getByDisplayValue('16.5.0'));
+    expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('16.5.0')).toBeInTheDocument();
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -480,8 +481,8 @@ describe('The ResourceDetailsViewer', () => {
       ),
     });
 
-    expect(screen.getByDisplayValue('Vue.js'));
-    expect(screen.getByDisplayValue('2.6.11'));
+    expect(screen.getByDisplayValue('Vue.js')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2.6.11')).toBeInTheDocument();
     expectValueInTextBox(
       screen,
       'License Text (to appear in attribution document)',
@@ -514,15 +515,15 @@ describe('The ResourceDetailsViewer', () => {
         setSelectedResourceId('/root/'),
       ],
     });
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
 
     clickOnTab(screen, 'Global Tab');
     expect(screen.queryByText('Signals')).not.toBeInTheDocument();
-    expect(screen.getByText(manualPackagePanelLabel));
+    expect(screen.getByText(manualPackagePanelLabel)).toBeInTheDocument();
 
     clickOnTab(screen, 'Local Tab');
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
     expect(screen.queryByText(manualPackagePanelLabel)).not.toBeInTheDocument();
   });
 
@@ -548,10 +549,10 @@ describe('The ResourceDetailsViewer', () => {
         setSelectedResourceId('/fileWithAttribution'),
       ],
     });
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
 
     clickOnTab(screen, 'Global Tab');
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
   });
 
   it('shows disabled add to package tab if override parent has not been clicked', () => {
@@ -578,10 +579,10 @@ describe('The ResourceDetailsViewer', () => {
       ],
     });
 
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
 
     clickOnTab(screen, 'Global Tab');
-    expect(screen.getByText('Signals'));
+    expect(screen.getByText('Signals')).toBeInTheDocument();
   });
 
   it('hides the package info for attribution breakpoints unless a signal is selected', () => {

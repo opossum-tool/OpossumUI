@@ -6,7 +6,6 @@
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
 import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
-import each from 'jest-each';
 import * as MockDate from 'mockdate';
 import path from 'path';
 import upath from 'upath';
@@ -139,7 +138,7 @@ describe('getOpenFileListener', () => {
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toBeCalled();
+    expect(openFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
@@ -171,7 +170,7 @@ describe('getOpenFileListener', () => {
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toBeCalled();
+    expect(openFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true },
@@ -204,7 +203,7 @@ describe('getOpenFileListener', () => {
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toBeCalled();
+    expect(openFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
@@ -237,7 +236,7 @@ describe('getOpenFileListener', () => {
 
     await getOpenFileListener(mainWindow)();
 
-    expect(openFileDialog).toBeCalled();
+    expect(openFileDialog).toHaveBeenCalled();
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
@@ -247,10 +246,10 @@ describe('getOpenFileListener', () => {
 });
 
 describe('getUseOutdatedInputFileFormatListener', () => {
-  each([
+  it.each([
     ['path.json', 'path.json'],
     ['path%20with%2Fencoding.json', 'path with/encoding.json'],
-  ]).it(
+  ])(
     'calls loadInputAndOutputFromFilePath and handles %s correctly',
     async (filePath: string, expectedTitle: string) => {
       const mainWindow = {
@@ -275,7 +274,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
         expect.anything(),
         jsonPath,
       );
-      expect(mainWindow.setTitle).toBeCalledWith(expectedTitle);
+      expect(mainWindow.setTitle).toHaveBeenCalledWith(expectedTitle);
       deleteFolder(temporaryPath);
     },
   );
@@ -381,7 +380,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
     });
 
     await getOpenOutdatedInputFileListener(mainWindow)();
-    expect(mainWindow.setTitle).toBeCalledWith('Test Title');
+    expect(mainWindow.setTitle).toHaveBeenCalledWith('Test Title');
     deleteFolder(temporaryPath);
   });
 });
@@ -556,8 +555,8 @@ describe('getSelectBaseURLListener', () => {
 
     getSelectBaseURLListener(mainWindow)();
 
-    expect(selectBaseURLDialog).toBeCalled();
-    expect(mainWindow.webContents.send).toBeCalledWith(
+    expect(selectBaseURLDialog).toHaveBeenCalled();
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
       {
         baseURLForRoot: expectedFormattedBaseURL,
@@ -587,7 +586,7 @@ describe('getSaveFileListener', () => {
       },
     );
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         message:
@@ -596,7 +595,7 @@ describe('getSaveFileListener', () => {
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeFile).not.toBeCalled();
+    expect(writeFile).not.toHaveBeenCalled();
   });
 
   it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
@@ -619,7 +618,7 @@ describe('getSaveFileListener', () => {
       },
     );
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         message:
@@ -627,7 +626,7 @@ describe('getSaveFileListener', () => {
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeFile).not.toBeCalled();
+    expect(writeFile).not.toHaveBeenCalled();
   });
 
   it(
@@ -679,14 +678,14 @@ describe('getExportFollowUpListener', () => {
       followUpAttributionsWithResources: {},
     });
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         message: 'Error in app backend: Failed to create export',
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeCsvToFile).not.toBeCalled();
+    expect(writeCsvToFile).not.toHaveBeenCalled();
   });
 
   it('calls getExportFollowUpListener', async () => {
@@ -715,7 +714,7 @@ describe('getExportFollowUpListener', () => {
       followUpAttributionsWithResources,
     });
 
-    expect(writeCsvToFile).toBeCalledWith(
+    expect(writeCsvToFile).toHaveBeenCalledWith(
       '/somefile.csv',
       followUpAttributionsWithResources,
       [
@@ -740,14 +739,14 @@ describe('getExportBomListener', () => {
       bomAttributions: {},
     });
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         message: 'Error in app backend: Failed to create export',
         buttons: ['Reload File', 'Quit'],
       }),
     );
-    expect(writeCsvToFile).not.toBeCalled();
+    expect(writeCsvToFile).not.toHaveBeenCalled();
   });
 
   it('calls getExportBomListener for compact bom', async () => {
@@ -843,14 +842,14 @@ describe('getExportSpdxDocumentListener', () => {
       spdxAttributions: {},
     });
 
-    expect(dialog.showMessageBox).toBeCalledWith(
+    expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         buttons: ['Reload File', 'Quit'],
       }),
     );
 
-    expect(writeSpdxFile).not.toBeCalled();
+    expect(writeSpdxFile).not.toHaveBeenCalled();
   });
 
   it('calls getExportSpdxDocumentListener for yaml', async () => {
@@ -893,7 +892,7 @@ describe('getOpenLinkListener', () => {
       link: testLink,
     });
 
-    expect(shell.openExternal).toBeCalledWith(testLink);
+    expect(shell.openExternal).toHaveBeenCalledWith(testLink);
   });
 });
 
@@ -918,7 +917,9 @@ describe('_exportFileAndOpenFolder', () => {
       testSpdxDocumentYamlFilePath,
       testArgs,
     );
-    expect(shell.showItemInFolder).toBeCalledWith(testSpdxDocumentYamlFilePath);
+    expect(shell.showItemInFolder).toHaveBeenCalledWith(
+      testSpdxDocumentYamlFilePath,
+    );
   });
 
   it('throws if outputFilePath is not set', async () => {
@@ -932,8 +933,8 @@ describe('_exportFileAndOpenFolder', () => {
     await expect(exportFile(mainWindow)(undefined, testArgs)).rejects.toThrow(
       'Failed to create export',
     );
-    expect(writeSpdxFile).not.toBeCalled();
-    expect(shell.showItemInFolder).not.toBeCalled();
+    expect(writeSpdxFile).not.toHaveBeenCalled();
+    expect(shell.showItemInFolder).not.toHaveBeenCalled();
   });
 });
 

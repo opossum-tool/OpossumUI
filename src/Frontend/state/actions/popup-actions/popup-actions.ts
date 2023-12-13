@@ -17,26 +17,18 @@ import {
 } from '../../../util/convert-package-info';
 import { hasAttributionMultipleResources } from '../../../util/has-attribution-multiple-resources';
 import {
-  getAllAttributionIdsWithCountsFromResourceAndChildren,
-  getAttributionWizardInitialState,
-  getPreSelectedPackageAttributeIds,
-} from '../../helpers/open-attribution-wizard-popup-helpers';
-import {
   getCurrentAttributionId,
   getDisplayPackageInfoOfSelected,
   getExternalAttributions,
-  getExternalData,
   getIsSavingDisabled,
   getManualAttributions,
   getManualAttributionsToResources,
-  getManualData,
   getResourcesWithLocatedAttributions,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
 import {
   getDidPreferredFieldChange,
-  getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
 import {
@@ -50,14 +42,6 @@ import {
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
 } from '../resource-actions/attribution-view-simple-actions';
-import {
-  setAttributionWizardOriginalAttribution,
-  setAttributionWizardPackageNames,
-  setAttributionWizardPackageNamespaces,
-  setAttributionWizardPackageVersions,
-  setAttributionWizardSelectedPackageIds,
-  setAttributionWizardTotalAttributionCount,
-} from '../resource-actions/attribution-wizard-actions';
 import {
   setSelectedResourceId,
   setTargetDisplayedPackage,
@@ -321,130 +305,6 @@ export function closeEditAttributionPopupOrOpenUnsavedPopup(
     } else {
       dispatch(closePopup());
     }
-  };
-}
-
-export function openAttributionWizardPopup(
-  originalAttributionId: string,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const selectedResourceId = getSelectedResourceId(getState());
-    const externalData = getExternalData(getState());
-    const manualData = getManualData(getState());
-    const resolvedExternalAttributions =
-      getResolvedExternalAttributions(getState());
-    const manualAttributions = manualData.attributions;
-
-    const allAttributionIdsOfResourceAndChildrenWithCounts =
-      getAllAttributionIdsWithCountsFromResourceAndChildren(
-        selectedResourceId,
-        externalData.resourcesToAttributions,
-        externalData.resourcesWithAttributedChildren,
-        manualData.resourcesToAttributions,
-        manualData.resourcesWithAttributedChildren,
-        resolvedExternalAttributions,
-      );
-
-    const {
-      packageNamespaces,
-      packageNames,
-      packageVersions,
-      totalAttributionCount,
-    } = getAttributionWizardInitialState(
-      allAttributionIdsOfResourceAndChildrenWithCounts,
-      {
-        ...externalData.attributions,
-        ...manualData.attributions,
-      },
-    );
-
-    const originalDisplayPackageInfo =
-      originalAttributionId !== null
-        ? convertPackageInfoToDisplayPackageInfo(
-            manualAttributions[originalAttributionId],
-            [originalAttributionId],
-          )
-        : EMPTY_DISPLAY_PACKAGE_INFO;
-
-    const {
-      preSelectedPackageNamespaceId,
-      preSelectedPackageNameId,
-      preSelectedPackageVersionId,
-    } = getPreSelectedPackageAttributeIds(
-      originalDisplayPackageInfo,
-      packageNamespaces,
-      packageNames,
-      packageVersions,
-    );
-
-    dispatch(
-      setAttributionWizardOriginalAttribution(originalDisplayPackageInfo),
-    );
-    dispatch(setAttributionWizardPackageNamespaces(packageNamespaces));
-    dispatch(setAttributionWizardPackageNames(packageNames));
-    dispatch(setAttributionWizardPackageVersions(packageVersions));
-    dispatch(
-      setAttributionWizardSelectedPackageIds({
-        namespaceId: preSelectedPackageNamespaceId,
-        nameId: preSelectedPackageNameId,
-        versionId: preSelectedPackageVersionId,
-      }),
-    );
-    dispatch(setAttributionWizardTotalAttributionCount(totalAttributionCount));
-
-    dispatch(
-      openPopup(PopupType.AttributionWizardPopup, originalAttributionId),
-    );
-  };
-}
-
-export function closeAttributionWizardPopup(): AppThunkAction {
-  return (dispatch: AppThunkDispatch): void => {
-    const emptyAttributionWizardState = {
-      originalDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
-      packageNamespaces: {},
-      packageNames: {},
-      packageVersions: {},
-      selectedPackageAttributeIds: {
-        namespaceId: '',
-        nameId: '',
-        versionId: '',
-      },
-      totalAttributionCount: null,
-    };
-
-    dispatch(
-      setAttributionWizardOriginalAttribution(
-        emptyAttributionWizardState.originalDisplayPackageInfo,
-      ),
-    );
-    dispatch(
-      setAttributionWizardPackageNamespaces(
-        emptyAttributionWizardState.packageNamespaces,
-      ),
-    );
-    dispatch(
-      setAttributionWizardPackageNames(
-        emptyAttributionWizardState.packageNames,
-      ),
-    );
-    dispatch(
-      setAttributionWizardPackageVersions(
-        emptyAttributionWizardState.packageVersions,
-      ),
-    );
-    dispatch(
-      setAttributionWizardSelectedPackageIds(
-        emptyAttributionWizardState.selectedPackageAttributeIds,
-      ),
-    );
-    dispatch(
-      setAttributionWizardTotalAttributionCount(
-        emptyAttributionWizardState.totalAttributionCount,
-      ),
-    );
-
-    dispatch(closePopup());
   };
 }
 

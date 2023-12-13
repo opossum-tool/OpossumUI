@@ -76,11 +76,13 @@ describe('The ReportView', () => {
       );
       store.dispatch(setFrequentLicenses(testFrequentLicenses));
     });
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));
-    expect(screen.getByText('Test package'));
-    expect(screen.getByText('MIT text'));
-    expect(screen.getByText('Test other package'));
-    expect(screen.getByText('Some other license text'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package')).toBeInTheDocument();
+    expect(screen.getByText('MIT text')).toBeInTheDocument();
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
+    expect(screen.getByText('Some other license text')).toBeInTheDocument();
   });
 
   it('filters Follow-ups', () => {
@@ -96,14 +98,16 @@ describe('The ReportView', () => {
         ),
       );
     });
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));
-    expect(screen.getByText('Test package'));
-    expect(screen.getByText('Test other package'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package')).toBeInTheDocument();
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
 
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFollowUp);
 
-    expect(screen.getByText('Test other package'));
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 
@@ -120,19 +124,21 @@ describe('The ReportView', () => {
         ),
       );
     });
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));
-    expect(screen.getByText('Test package'));
-    expect(screen.getByText('Test other package'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package')).toBeInTheDocument();
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
 
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFirstParty);
 
-    expect(screen.getByText('Test package'));
+    expect(screen.getByText('Test package')).toBeInTheDocument();
     expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
 
     clickOnFilter(screen, FilterType.OnlyFirstParty);
-    expect(screen.getByText('Test package'));
-    expect(screen.getByText('Test other package'));
+    expect(screen.getByText('Test package')).toBeInTheDocument();
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
   });
 
   it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
@@ -148,9 +154,11 @@ describe('The ReportView', () => {
         ),
       );
     });
-    expect(screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/));
-    expect(screen.getByText('Test package'));
-    expect(screen.getByText('Test other package'));
+    expect(
+      screen.getByText(/Attributions \(2 total, 0, 1, 0, 0/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Test package')).toBeInTheDocument();
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
 
     openDropDown(screen);
     clickOnFilter(screen, FilterType.OnlyFirstParty);
@@ -161,7 +169,7 @@ describe('The ReportView', () => {
 
     clickOnFilter(screen, FilterType.HideFirstParty);
 
-    expect(screen.getByText('Test other package'));
+    expect(screen.getByText('Test other package')).toBeInTheDocument();
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 });

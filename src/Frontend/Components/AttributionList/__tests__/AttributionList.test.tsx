@@ -76,8 +76,8 @@ describe('The AttributionList', () => {
         ],
       },
     );
-    expect(screen.getByText('Test package, 1.0'));
-    expect(mockCallback.mock.calls.length).toBe(0);
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(mockCallback.mock.calls).toHaveLength(0);
   });
 
   it('renders first party icon', () => {
@@ -99,8 +99,8 @@ describe('The AttributionList', () => {
         ],
       },
     );
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByLabelText('First party icon'));
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(screen.getByLabelText('First party icon')).toBeInTheDocument();
   });
 
   it('sets selectedAttributionId on click', () => {
@@ -125,10 +125,11 @@ describe('The AttributionList', () => {
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
     fireEvent.click(attributionCard);
-    expect(mockCallback.mock.calls.length).toBe(1);
+    expect(mockCallback.mock.calls).toHaveLength(1);
     expect(mockCallback.mock.calls[0][0]).toBe(testSortedPackageCardIds[0]);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },

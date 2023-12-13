@@ -67,7 +67,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.getByText('Vue')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
   });
 
   it('does not show ContextMenu for attributions', () => {
@@ -118,7 +118,7 @@ describe('ReplaceAttributionPopup and do not change view', () => {
     expect(screen.getByText('Vue')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText(ButtonText.Replace) as Element);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
 
     expect(window.electronAPI.saveFile).toHaveBeenCalledWith({
       manualAttributions: {

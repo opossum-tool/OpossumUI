@@ -87,7 +87,7 @@ describe('The EditAttributionPopup', () => {
     expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
   });
 
   it('renders and clicks cancel opens NotSavedPopup if package info has been changed', () => {
@@ -157,7 +157,7 @@ describe('The EditAttributionPopup', () => {
     expect(screen.getByDisplayValue('jQuery')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
     const resultingTemporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(
       store.getState(),
     );

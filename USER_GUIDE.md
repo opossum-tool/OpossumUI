@@ -252,29 +252,6 @@ The `Add to Attribution Sub-Panel` allows to add an existing attribution to the 
 As in the other panels, the details of the attributions can be shown by clicking on the respective list item, while the
 attribution can be added by clicking on the corresponding **+ icon**.
 
-##### Attribution Wizard
-
-The `Attribution Wizard` can be opened via the context menu of a manual attribution. It aggregates information from attributions and signals of the current resource and its descendents and provides a structured overview. By clicking through the wizard, package namespace, name, and version can be selected and saved to the `Attribution Details Column` of the attribution from which the wizard has been opened.
-
-The `Attribution Wizard` has the following structure (compare image):
-
-- Path of the selected resource (1).
-- Breadcrumbs for navigation (2). Each breadcrumb corresponds to a step of the wizard.
-- Package URL (3) that describes the currently selected package.
-- Lists of aggregated package attributes (4), e.g., package namespace, name, and version (depending on wizard step).
-
-![integration](./docs/user_guide_screenshots/attribution_wizard_doc_overview.png)
-
-In the first step, package namespace and name can be selected. The list items are sorted by count, i.e., the number of occurrences in the attributions and signals of the current resource and its descendents. New list items can be added manually via the textboxes below the lists (5). Manually added items are marked with a star-icon and are displayed at the top of the list (6).
-
-![integration](./docs/user_guide_screenshots/attribution_wizard_doc_add_new.png)
-
-In the second step, a single list with package versions is shown (7). Additionally, each list item displays corresponding package names. The selected package name (from the first wizard step) is highlighted. Also the version list allows adding new items via the textbox below. The selections that have been made can now be saved to the `Attribution Details Column` by clicking `Apply` (8).
-
-![integration](./docs/user_guide_screenshots/attribution_wizard_doc_version.png)
-
-Note that the information in the `Attribution Details Column` is only saved temporarily. To update the attribution, one has to click `Save` or `Confirm` in the bottom right corner of the `Attribution Details Column`.
-
 #### Attribution Details Column
 
 The `Attribution Details Column` is used in the `Audit View` and in the `Attribution View` (see next section) to show

@@ -19,8 +19,8 @@ describe('IconButton', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Test'));
-    expect(screen.getByText('Test Icon'));
+    expect(screen.getByLabelText('Test')).toBeInTheDocument();
+    expect(screen.getByText('Test Icon')).toBeInTheDocument();
   });
 
   it('renders tooltip when hidden flag is inactive', () => {
