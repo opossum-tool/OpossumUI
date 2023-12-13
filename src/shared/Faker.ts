@@ -11,6 +11,15 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { ensureArray } from '../Frontend/util/ensure-array';
+import { HttpClient } from '../Frontend/util/http-client';
+import {
+  System,
+  systems,
+  VersionKey,
+  VersionResponse,
+  VersionsResponse,
+} from '../Frontend/util/package-search-api';
 import { PackageSearchHooks } from '../Frontend/util/package-search-hooks';
 import {
   AttributionData,
@@ -294,20 +303,69 @@ class OpossumModule {
 }
 
 class PackageSearchModule {
-  public static usePackageSearchSuggestions() {
-    jest
-      .spyOn(PackageSearchHooks, 'usePackageSearchSuggestions')
-      .mockReturnValue({
-        data: [],
-        error: null,
-        isLoading: false,
-      });
+  public static system(): System {
+    return faker.helpers.arrayElement(systems);
+  }
+
+  public static usePackageNames() {
+    jest.spyOn(PackageSearchHooks, 'usePackageNames').mockReturnValue({
+      packageNames: [],
+      packageNamesError: null,
+      packageNamesLoading: false,
+    });
+  }
+
+  public static usePackageVersions() {
+    jest.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
+      packageVersions: { default: [], other: [] },
+      packageVersionsError: null,
+      packageVersionsLoading: false,
+    });
+  }
+
+  public static versionKey(props: Partial<VersionKey> = {}): VersionKey {
+    return {
+      name: faker.commerce.productName(),
+      system: PackageSearchModule.system(),
+      version: faker.system.semver(),
+      ...props,
+    };
+  }
+
+  public static versionResponse(
+    props: Partial<VersionResponse> = {},
+  ): VersionResponse {
+    return {
+      versionKey: PackageSearchModule.versionKey(),
+      publishedAt: faker.date.past().toISOString(),
+      isDefault: faker.datatype.boolean(),
+      ...props,
+    };
+  }
+
+  public static versionsResponse(
+    props: Partial<VersionsResponse> = {},
+  ): VersionsResponse {
+    return {
+      versions: faker.helpers.multiple(PackageSearchModule.versionResponse),
+      ...props,
+    };
   }
 }
 
 class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
   public readonly packageSearch = PackageSearchModule;
+
+  public httpClient(body?: object | Array<object>): HttpClient {
+    const request = jest.fn();
+
+    ensureArray(body).forEach((item) =>
+      request.mockResolvedValueOnce(new Response(JSON.stringify(item))),
+    );
+
+    return { request } satisfies Partial<HttpClient> as unknown as HttpClient;
+  }
 }
 
 export const faker = new Faker({ locale: [en, base] });

@@ -13,7 +13,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { compact } from 'lodash';
 import { useMemo } from 'react';
 
-import { PackageInfo, SignalWithCount } from '../../../shared/shared-types';
+import { AutocompleteSignal, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -47,7 +47,7 @@ interface Props {
   attribute: AutocompleteAttribute;
   highlight?: 'default' | 'dark';
   endAdornment?: React.ReactElement;
-  defaults?: Array<SignalWithCount>;
+  defaults?: Array<AutocompleteSignal>;
   disabled: boolean;
   showHighlight: boolean | undefined;
 }
@@ -85,7 +85,7 @@ export function PackageAutocomplete({
         ? autocompleteSignals
             .filter((signal) => !['', undefined].includes(signal[attribute]))
             .concat(defaults)
-        : [],
+        : defaults,
     [isAuditView, autocompleteSignals, defaults, attribute],
   );
 
@@ -121,7 +121,7 @@ export function PackageAutocomplete({
       }
       renderOptionStartIcon={renderOptionStartIcon}
       renderOptionEndIcon={renderOptionEndIcon}
-      value={temporaryPackageInfo as SignalWithCount}
+      value={temporaryPackageInfo}
       isOptionEqualToValue={(option, value) =>
         option[attribute] === value[attribute]
       }
@@ -139,8 +139,19 @@ export function PackageAutocomplete({
         />
       }
       optionText={{
-        primary: (option) =>
-          typeof option === 'string' ? option : option[attribute],
+        primary: (option) => {
+          if (typeof option === 'string') {
+            return option;
+          }
+
+          const optionValue = option[attribute];
+
+          if (!optionValue) {
+            return '';
+          }
+
+          return `${optionValue} ${option.suffix || ''}`.trim();
+        },
         secondary: (option) =>
           typeof option === 'string' ? option : generatePurl(option),
       }}
@@ -157,7 +168,7 @@ export function PackageAutocomplete({
     />
   );
 
-  function renderOptionStartIcon(option: SignalWithCount) {
+  function renderOptionStartIcon(option: AutocompleteSignal) {
     if (!option.count) {
       return null;
     }
@@ -205,7 +216,7 @@ export function PackageAutocomplete({
   }
 
   function renderOptionEndIcon(
-    { preSelected, ...option }: PackageInfo,
+    option: AutocompleteSignal,
     { closePopper }: { closePopper: () => void },
   ) {
     if (!option.packageName || !option.packageType) {
