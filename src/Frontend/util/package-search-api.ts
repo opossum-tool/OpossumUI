@@ -2,42 +2,143 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { compareVersions } from 'compare-versions';
+import { mapValues, partition, pick } from 'lodash';
 
-export interface SearchSuggestion {
+import { AutocompleteSignal, PackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
+import { HttpClient } from './http-client';
+
+export const systems = [
+  'GO',
+  'NPM',
+  'CARGO',
+  'MAVEN',
+  'PYPI',
+  'NUGET',
+] as const;
+export type System = (typeof systems)[number];
+
+interface SearchResponse {
   kind: 'PACKAGE' | 'PROJECT';
   name: string;
   system: string;
 }
 
+export interface VersionKey {
+  system: System;
+  name: string;
+  version: string;
+}
+
+export interface VersionResponse {
+  versionKey: VersionKey;
+  publishedAt: string;
+  isDefault: boolean;
+}
+
+export interface VersionsResponse {
+  versions: Array<VersionResponse>;
+}
+
+export interface Versions {
+  default: Array<AutocompleteSignal>;
+  other: Array<AutocompleteSignal>;
+}
+
 export class PackageSearchApi {
-  private static async request({
-    params = {},
-    path,
-  }: {
-    path: string;
-    params?: Record<string, string | number | undefined>;
-  }) {
-    const url = new URL(path, 'https://deps.dev');
+  private readonly baseUrlApi = 'https://api.deps.dev';
+  private readonly baseUrlWeb = 'https://deps.dev';
 
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) {
-        url.searchParams.append(key, value.toString());
-      }
-    });
+  constructor(private readonly httpClient: HttpClient) {}
 
-    const response = await fetch(url);
-
-    return response;
+  private sanitize<T extends object, K extends Array<keyof T>>(
+    input: T,
+    keys: K,
+  ): Pick<T, (typeof keys)[number]> {
+    return mapValues(
+      pick(input, keys),
+      (value) => value?.toString().trim().toLowerCase(),
+    ) as Pick<T, (typeof keys)[number]>;
   }
-  public static async getSuggestions(
-    searchTerm: string,
-  ): Promise<Array<SearchSuggestion>> {
-    const response = await this.request({
+
+  public async getPackages(
+    packageName: string,
+  ): Promise<Array<AutocompleteSignal>> {
+    const response = await this.httpClient.request({
+      baseUrl: this.baseUrlWeb,
       path: '/_/search/suggest',
       params: {
-        q: searchTerm,
+        q: packageName,
       },
     });
-    return response.json();
+    const data: Array<SearchResponse> = await response.json();
+
+    return data.map<AutocompleteSignal>(({ name, system }) => ({
+      packageName: name,
+      packageType: system.toLowerCase(),
+      source: {
+        name: text.attributionColumn.depsDev,
+        documentConfidence: 100,
+      },
+    }));
+  }
+
+  public async getVersions(props: PackageInfo): Promise<Versions> {
+    const { packageName, packageType } = this.sanitize(props, [
+      'packageName',
+      'packageType',
+    ]);
+
+    if (
+      !packageType ||
+      !packageName ||
+      !systems.some((type) => type === packageType.toUpperCase())
+    ) {
+      return { default: [], other: [] };
+    }
+
+    const response = await this.httpClient.request({
+      baseUrl: this.baseUrlApi,
+      path: `/v3alpha/systems/${packageType}/packages/${packageName}`,
+    });
+    const { versions }: VersionsResponse = await response.json();
+
+    const [defaultVersions, otherVersions] = partition(
+      versions
+        .sort((a, b) =>
+          compareVersions(a.versionKey.version, b.versionKey.version),
+        )
+        .reverse(),
+      ({ isDefault }) => isDefault,
+    );
+
+    return {
+      default: defaultVersions.map<AutocompleteSignal>(
+        ({ versionKey: { name, system, version } }) => ({
+          packageName: name,
+          packageType: system.toLowerCase(),
+          packageVersion: version,
+          source: {
+            name: text.attributionColumn.depsDev,
+            documentConfidence: 100,
+          },
+          suffix: '(default)',
+        }),
+      ),
+      other: otherVersions.map<AutocompleteSignal>(
+        ({ versionKey: { name, system, version } }) => ({
+          packageName: name,
+          packageType: system.toLowerCase(),
+          packageVersion: version,
+          source: {
+            name: text.attributionColumn.depsDev,
+            documentConfidence: 100,
+          },
+        }),
+      ),
+    };
   }
 }
+
+export default new PackageSearchApi(new HttpClient());

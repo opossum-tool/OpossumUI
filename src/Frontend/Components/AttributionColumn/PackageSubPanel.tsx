@@ -67,8 +67,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     [],
   );
 
-  PackageSearchHooks.usePackageSearchSuggestions(
-    props.displayPackageInfo.packageName,
+  PackageSearchHooks.usePackageNames(props.displayPackageInfo);
+
+  const { packageVersions } = PackageSearchHooks.usePackageVersions(
+    props.displayPackageInfo,
   );
 
   return (
@@ -128,6 +130,11 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.packageVersion}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        defaults={
+          packageVersions
+            ? [...packageVersions.default, ...packageVersions.other]
+            : []
+        }
       />
     );
   }
