@@ -228,7 +228,7 @@ describe('loadFromFile', () => {
     expect(getExternalAttributionsToHashes(testStore.getState())).toEqual(
       expectedExternalAttributionsToHashes,
     );
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(true);
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(true);
   });
 
   it('disables the preference feature if no external source is relevant', () => {
@@ -261,6 +261,6 @@ describe('loadFromFile', () => {
     const testStore = createAppStore();
     testStore.dispatch(loadFromFile(testParsedFileContent));
 
-    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);
+    expect(getIsPreferenceFeatureEnabled(testStore.getState())).toBe(false);
   });
 });

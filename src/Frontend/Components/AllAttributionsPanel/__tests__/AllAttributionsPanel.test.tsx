@@ -68,15 +68,6 @@ describe('The AllAttributionsPanel', () => {
     },
   };
 
-  it('renders empty list', () => {
-    renderComponent(
-      <AllAttributionsPanel
-        displayPackageInfos={{}}
-        isAddToPackageEnabled={true}
-      />,
-    );
-  });
-
   it('renders non-empty list', () => {
     const testDisplayPackageInfos: DisplayPackageInfos = {
       [testPackageCardId1]: {
@@ -108,8 +99,8 @@ describe('The AllAttributionsPanel', () => {
         ],
       },
     );
-    screen.getByText('name 1');
-    screen.getByText('name 2');
+    expect(screen.getByText('name 1')).toBeInTheDocument();
+    expect(screen.getByText('name 2')).toBeInTheDocument();
   });
 
   it('does not show resource attribution of selected resource and next attributed parent', () => {
@@ -136,6 +127,7 @@ describe('The AllAttributionsPanel', () => {
     expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },

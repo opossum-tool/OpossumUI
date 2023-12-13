@@ -243,7 +243,7 @@ describe('getStrippedLicenseName', () => {
     ${'Apache-2.0'}
     ${'Apache - 2.0'}
   `('converts $licenseName to apache2.0', ({ licenseName }) => {
-    expect(getStrippedLicenseName(licenseName)).toEqual('apache2.0');
+    expect(getStrippedLicenseName(licenseName)).toBe('apache2.0');
   });
 
   it.each`
@@ -254,7 +254,7 @@ describe('getStrippedLicenseName', () => {
     ${'Apache 2.0.0'}
     ${'Apache License Version 2.0'}
   `('does not convert $licenseName to apache2.0', ({ licenseName }) => {
-    expect(getStrippedLicenseName(licenseName)).not.toEqual('apache2.0');
+    expect(getStrippedLicenseName(licenseName)).not.toBe('apache2.0');
   });
 });
 

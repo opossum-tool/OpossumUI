@@ -40,8 +40,10 @@ describe('The ManualPackagePanel', () => {
       store.dispatch(setSelectedResourceId('/file'));
     });
 
-    expect(screen.getByText('React'));
-    expect(screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT));
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(
+      screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT),
+    ).toBeInTheDocument();
   });
 
   it('Shows hint and override button for parent attribution', () => {
@@ -58,7 +60,7 @@ describe('The ManualPackagePanel', () => {
     expect(overrideButton).toBeInTheDocument();
 
     fireEvent.click(overrideButton as Element);
-    expect(mockOnOverride).toBeCalled();
+    expect(mockOnOverride).toHaveBeenCalled();
   });
 
   it('sorts displayAttributionsWithCount', () => {

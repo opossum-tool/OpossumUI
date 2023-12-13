@@ -30,7 +30,7 @@ function expectContextMenuIsNotShown(): void {
 }
 
 function expectContextMenuIsShown(): void {
-  expect(screen.getByText(ButtonText.Save));
+  expect(screen.getByText(ButtonText.Save)).toBeInTheDocument();
   expect(screen.queryByText(ButtonText.SaveGlobally)).not.toBeInTheDocument();
 }
 

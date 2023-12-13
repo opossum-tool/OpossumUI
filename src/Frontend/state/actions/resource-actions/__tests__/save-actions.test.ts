@@ -442,14 +442,14 @@ describe('The savePackageInfo action', () => {
         ),
       ),
     );
-    expect(getManualAttributions(testStore.getState())?.[testUuidA]).toBe(
-      undefined,
-    );
+    expect(
+      getManualAttributions(testStore.getState())?.[testUuidA],
+    ).toBeUndefined();
     expect(
       getResourcesToManualAttributions(testStore.getState())[
         '/root/src/something.js'
       ],
-    ).toBe(undefined);
+    ).toBeUndefined();
     expect(
       getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('');
@@ -681,7 +681,7 @@ describe('The savePackageInfo action', () => {
     expect(getManualData(testStore.getState())).toEqual(expectedManualData);
     expect(
       getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toEqual('uuid1');
+    ).toBe('uuid1');
     expect(
       getMultiSelectSelectedAttributionIds(testStore.getState()),
     ).toStrictEqual(['uuid1']);
@@ -995,7 +995,7 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
     const startingManualAttributions = getManualAttributions(
       testStore.getState(),
     );
-    expect(Object.keys(startingManualAttributions).length).toEqual(1);
+    expect(Object.keys(startingManualAttributions)).toHaveLength(1);
     const startingManualAttributionsToResources =
       getManualAttributionsToResources(testStore.getState());
     expect(startingManualAttributionsToResources.reactUuid).toEqual([
@@ -1011,7 +1011,7 @@ describe('The unlinkAttributionAndSavePackageInfo action', () => {
       ),
     );
     const finalManualAttributions = getManualAttributions(testStore.getState());
-    expect(Object.keys(finalManualAttributions).length).toEqual(2);
+    expect(Object.keys(finalManualAttributions)).toHaveLength(2);
     const finalManualAttributionsToResources = getManualAttributionsToResources(
       testStore.getState(),
     );
@@ -1226,10 +1226,8 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     );
     expect(
       getSelectedAttributionIdInAttributionView(testStore.getState()),
-    ).toEqual('');
-    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toEqual(
-      '',
-    );
+    ).toBe('');
+    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe('');
   });
 });
 
@@ -1263,7 +1261,7 @@ describe('The addToSelectedResource action', () => {
     expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
       testTemporaryDisplayPackageInfo,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(null);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
   it('opens popup', () => {
@@ -1291,7 +1289,7 @@ describe('The addToSelectedResource action', () => {
       }),
     );
     testStore.dispatch(addToSelectedResource(testTemporaryDisplayPackageInfo));
-    expect(getOpenPopup(testStore.getState())).toEqual('NotSavedPopup');
+    expect(getOpenPopup(testStore.getState())).toBe('NotSavedPopup');
   });
 
   it('adds an external attribution to the selected resource', () => {
@@ -1320,7 +1318,7 @@ describe('The addToSelectedResource action', () => {
     testStore.dispatch(addToSelectedResource(testPackageInfo));
 
     const manualData: AttributionData = getManualData(testStore.getState());
-    expect(manualData.resourcesToAttributions['/root/'].length).toEqual(1);
+    expect(manualData.resourcesToAttributions['/root/']).toHaveLength(1);
     const uuidNewAttribution: string =
       manualData.resourcesToAttributions['/root/'][0];
     expect(manualData.attributionsToResources[uuidNewAttribution]).toEqual([
@@ -1353,7 +1351,7 @@ describe('The addToSelectedResource action', () => {
     expect(getManualDisplayPackageInfoOfSelected(testStore.getState())).toEqual(
       expectedModifiedDisplayPackageInfo,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(null);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
   it('saves resolved external attributions', () => {

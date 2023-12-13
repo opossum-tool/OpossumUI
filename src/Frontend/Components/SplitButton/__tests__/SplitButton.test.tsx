@@ -72,7 +72,7 @@ describe('SplitButton', () => {
     const hiddenMenuItem = fakeMenuItem({ hidden: true });
     render(<SplitButton options={[visibleMenuItem, hiddenMenuItem]} />);
 
-    expect(screen.queryByLabelText('menu button')).not.toBeInTheDocument;
+    expect(screen.queryByLabelText('menu button')).not.toBeInTheDocument();
   });
 
   it('does not display action button or menu trigger at all if all options are hidden', () => {

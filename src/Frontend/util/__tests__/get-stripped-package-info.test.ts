@@ -24,7 +24,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  it('strips source ', () => {
+  it('strips source', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       source: {
@@ -38,7 +38,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  it('strips preSelected ', () => {
+  it('strips preSelected', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       preSelected: true,
@@ -49,7 +49,7 @@ describe('The getStrippedPackageInfo function', () => {
     });
   });
 
-  it('strips criticality ', () => {
+  it('strips criticality', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       criticality: Criticality.High,
@@ -86,7 +86,7 @@ describe('The getStrippedDisplayPackageInfo function', () => {
     });
   });
 
-  it('strips source ', () => {
+  it('strips source', () => {
     const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'React',
       source: {
@@ -102,7 +102,7 @@ describe('The getStrippedDisplayPackageInfo function', () => {
     });
   });
 
-  it('strips preSelected ', () => {
+  it('strips preSelected', () => {
     const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'React',
       preSelected: true,
@@ -115,7 +115,7 @@ describe('The getStrippedDisplayPackageInfo function', () => {
     });
   });
 
-  it('strips criticality ', () => {
+  it('strips criticality', () => {
     const testDisplayPackageInfo: DisplayPackageInfo = {
       packageName: 'React',
       criticality: Criticality.High,

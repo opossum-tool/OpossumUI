@@ -144,7 +144,7 @@ describe('The audit view resource selectors', () => {
     );
     expect(
       getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-    ).toBe(null);
+    ).toBeNull();
 
     testStore.dispatch(setDisplayedPackage(containedSelectedPackage));
     expect(

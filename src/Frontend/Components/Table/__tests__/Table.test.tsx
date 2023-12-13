@@ -42,36 +42,36 @@ describe('The Table', () => {
       />,
     );
 
-    expect(screen.getByText('Name'));
-    expect(screen.getByText('License'));
+    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByText('License')).toBeInTheDocument();
 
-    expect(screen.getByText('Version'));
-    expect(screen.getByText('1.0'));
+    expect(screen.getByText('Version')).toBeInTheDocument();
+    expect(screen.getByText('1.0')).toBeInTheDocument();
 
-    expect(screen.getAllByText('Name').length).toBe(1);
-    expect(screen.getByText('React'));
-    expect(screen.getByText('licenseName'));
+    expect(screen.getAllByText('Name')).toHaveLength(1);
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('licenseName')).toBeInTheDocument();
 
-    expect(screen.getByText('Copyright'));
-    expect(screen.getByText('test copyright'));
+    expect(screen.getByText('Copyright')).toBeInTheDocument();
+    expect(screen.getByText('test copyright')).toBeInTheDocument();
 
-    expect(screen.getByText('License Text'));
-    expect(screen.getByText('licenseText'));
+    expect(screen.getByText('License Text')).toBeInTheDocument();
+    expect(screen.getByText('licenseText')).toBeInTheDocument();
 
-    expect(screen.getByText('Confidence'));
-    expect(screen.getByText('20'));
+    expect(screen.getByText('Confidence')).toBeInTheDocument();
+    expect(screen.getByText('20')).toBeInTheDocument();
 
-    expect(screen.getByText('Comment'));
-    expect(screen.getByText('test comment'));
+    expect(screen.getByText('Comment')).toBeInTheDocument();
+    expect(screen.getByText('test comment')).toBeInTheDocument();
 
-    expect(screen.getByText('URL'));
-    expect(screen.getByText('packageWebsite'));
+    expect(screen.getByText('URL')).toBeInTheDocument();
+    expect(screen.getByText('packageWebsite')).toBeInTheDocument();
 
-    expect(screen.getByText('Resources'));
-    expect(screen.getByText('/'));
+    expect(screen.getByText('Resources')).toBeInTheDocument();
+    expect(screen.getByText('/')).toBeInTheDocument();
 
-    expect(screen.getByText('Redux'));
-    expect(screen.getByLabelText('First party icon'));
-    expect(screen.getByLabelText('Comment icon'));
+    expect(screen.getByText('Redux')).toBeInTheDocument();
+    expect(screen.getByLabelText('First party icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Comment icon')).toBeInTheDocument();
   });
 });

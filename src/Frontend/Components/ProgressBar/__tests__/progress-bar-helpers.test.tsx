@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act } from '@testing-library/react';
-import each from 'jest-each';
 
 import { View } from '../../../enums/enums';
 import { criticalityColor, OpossumColors } from '../../../shared-styles';
@@ -36,19 +35,19 @@ describe('ProgressBar helpers', () => {
       <TestComponent resourceIds={['id_1', 'id_2']} />,
     );
 
-    expect(getSelectedResourceId(store.getState())).toEqual('');
+    expect(getSelectedResourceId(store.getState())).toBe('');
     expect(getExpandedIds(store.getState())).toEqual(['/']);
 
     act(() => useOnProgressBarClickHook());
-    expect(getSelectedResourceId(store.getState())).toEqual('id_1');
+    expect(getSelectedResourceId(store.getState())).toBe('id_1');
     expect(getExpandedIds(store.getState())).toEqual(['id_1']);
 
     act(() => useOnProgressBarClickHook());
-    expect(getSelectedResourceId(store.getState())).toEqual('id_2');
+    expect(getSelectedResourceId(store.getState())).toBe('id_2');
     expect(getExpandedIds(store.getState())).toEqual(['id_2']);
 
     act(() => useOnProgressBarClickHook());
-    expect(getSelectedResourceId(store.getState())).toEqual('id_1');
+    expect(getSelectedResourceId(store.getState())).toBe('id_1');
     expect(getExpandedIds(store.getState())).toEqual(['id_1']);
   });
 
@@ -56,12 +55,12 @@ describe('ProgressBar helpers', () => {
     const { store } = renderComponent(<TestComponent resourceIds={['id_1']} />);
     store.dispatch(navigateToView(View.Attribution));
 
-    expect(getSelectedResourceId(store.getState())).toEqual('');
+    expect(getSelectedResourceId(store.getState())).toBe('');
     expect(getExpandedIds(store.getState())).toEqual(['/']);
     expect(getSelectedView(store.getState())).toEqual(View.Attribution);
 
     act(() => useOnProgressBarClickHook());
-    expect(getSelectedResourceId(store.getState())).toEqual('id_1');
+    expect(getSelectedResourceId(store.getState())).toBe('id_1');
     expect(getExpandedIds(store.getState())).toEqual(['id_1']);
     expect(getSelectedView(store.getState())).toEqual(View.Audit);
   });
@@ -70,10 +69,10 @@ describe('ProgressBar helpers', () => {
     const { store } = renderComponent(<TestComponent resourceIds={[]} />);
     store.dispatch(setExpandedIds(['test_id']));
 
-    expect(getSelectedResourceId(store.getState())).toEqual('');
+    expect(getSelectedResourceId(store.getState())).toBe('');
     expect(getExpandedIds(store.getState())).toEqual(['test_id']);
     act(() => useOnProgressBarClickHook());
-    expect(getSelectedResourceId(store.getState())).toEqual('');
+    expect(getSelectedResourceId(store.getState())).toBe('');
     expect(getExpandedIds(store.getState())).toEqual(['test_id']);
   });
 
@@ -135,7 +134,7 @@ describe('ProgressBar helpers', () => {
     );
   });
 
-  each([
+  it.each([
     [
       [20.1, 29.9, 0.1, 50.0],
       [20, 30, 1, 49],
@@ -156,7 +155,7 @@ describe('ProgressBar helpers', () => {
       [33, 33, 1, 33],
       [33, 33, 1, 33],
     ],
-  ]).it(
+  ])(
     'roundToAtLeastOnePercentAndNormalize rounds and subtracts difference from the maximum',
     (input: Array<number>, expectedOutput: Array<number>) => {
       expect(roundToAtLeastOnePercentAndNormalize(input)).toEqual(

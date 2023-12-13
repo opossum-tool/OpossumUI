@@ -44,7 +44,7 @@ describe('NotSavedPopup and do not change view', () => {
 
     expect(screen.getByText('Warning')).toBeInTheDocument();
     fireEvent.click(screen.queryByText(ButtonText.Save) as Element);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(isAuditViewSelected(store.getState())).toBe(true);
   });
@@ -79,7 +79,7 @@ describe('NotSavedPopup and do not change view', () => {
     });
 
     fireEvent.click(screen.getByText(ButtonText.Discard));
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
     expect(getSelectedResourceId(store.getState())).toBe('test_id');
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
       EMPTY_DISPLAY_PACKAGE_INFO,

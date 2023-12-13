@@ -75,7 +75,7 @@ describe('The AttributionColumn', () => {
     ).toHaveLength(2);
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageType),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.queryAllByText(
         text.attributionColumn.packageSubPanel.packageNamespace,
@@ -85,13 +85,13 @@ describe('The AttributionColumn', () => {
       screen.getByDisplayValue(
         testTemporaryDisplayPackageInfo.packageNamespace,
       ),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
     ).toHaveLength(2);
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.queryAllByText(
         text.attributionColumn.packageSubPanel.packageVersion,
@@ -99,38 +99,44 @@ describe('The AttributionColumn', () => {
     ).toHaveLength(2);
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageVersion),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.queryByText('(Defined in parent folder)'),
     ).not.toBeInTheDocument();
     expect(screen.queryByText('Override parent')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Copyright'));
-    expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright));
-    expect(screen.getByLabelText('License Name'));
+    expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('License Name')).toBeInTheDocument();
     expect(
       screen.getByDisplayValue(testTemporaryDisplayPackageInfo.licenseName),
-    );
+    ).toBeInTheDocument();
     expect(
       screen.getByLabelText(
         text.attributionColumn.packageSubPanel.repositoryUrl,
       ),
-    );
-    expect(screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url));
-    expect(screen.getByLabelText(/License Text/));
+    ).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/License Text/)).toBeInTheDocument();
     expect(
       screen.getByDisplayValue('Permission is hereby granted', {
         exact: false,
       }),
-    );
-    expect(screen.getByLabelText('Comment'));
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Comment')).toBeInTheDocument();
     const testComment = testTemporaryDisplayPackageInfo.comments
       ? testTemporaryDisplayPackageInfo.comments[0]
       : '';
-    expect(screen.getByDisplayValue(testComment));
+    expect(screen.getByDisplayValue(testComment)).toBeInTheDocument();
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.purl),
     ).toHaveLength(2);
-    expect(screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0'));
+    expect(
+      screen.getByDisplayValue('pkg:type/namespace/jQuery@16.5.0'),
+    ).toBeInTheDocument();
   });
 
   it('copies PURL to clipboard', async () => {
@@ -217,7 +223,9 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    expect(screen.getByText(testTemporaryDisplayPackageInfo.source!.name));
+    expect(
+      screen.getByText(testTemporaryDisplayPackageInfo.source!.name),
+    ).toBeInTheDocument();
   });
 
   it('renders the name of the original source', () => {
@@ -246,7 +254,7 @@ describe('The AttributionColumn', () => {
 
     expect(
       screen.getByText(testTemporaryDisplayPackageInfo.source!.additionalName!),
-    );
+    ).toBeInTheDocument();
   });
 
   it('renders a chip for follow-up', async () => {
@@ -346,7 +354,7 @@ describe('The AttributionColumn', () => {
       );
     });
 
-    expect(screen.getByLabelText('Url icon'));
+    expect(screen.getByLabelText('Url icon')).toBeInTheDocument();
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
       testTemporaryDisplayPackageInfo.url,
@@ -430,7 +438,7 @@ describe('The AttributionColumn', () => {
         screen.getByLabelText(
           'License Text (to appear in attribution document)',
         ),
-      );
+      ).toBeInTheDocument();
     });
 
     it('shows shortened text if not editable and frequent license', () => {
@@ -462,7 +470,9 @@ describe('The AttributionColumn', () => {
         store.dispatch(setFrequentLicenses(testFrequentLicenses));
       });
 
-      expect(screen.getByLabelText('Standard license text implied.'));
+      expect(
+        screen.getByLabelText('Standard license text implied.'),
+      ).toBeInTheDocument();
     });
 
     it('shows long text if editable and frequent license', () => {
@@ -498,7 +508,7 @@ describe('The AttributionColumn', () => {
         screen.getByLabelText(
           'Standard license text implied. Insert notice text if necessary.',
         ),
-      );
+      ).toBeInTheDocument();
     });
   });
 

@@ -18,10 +18,10 @@ describe('ChangedInputFilePopup', () => {
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
 
-    expect(screen.getByText(ButtonText.Delete));
+    expect(screen.getByText(ButtonText.Delete)).toBeInTheDocument();
     fireEvent.click(screen.getByText(ButtonText.Delete));
     expect(window.electronAPI.deleteFile).toHaveBeenCalledTimes(1);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
   });
 
   it('renders a ChangedInputFilePopup and clicks Keep', () => {
@@ -32,9 +32,9 @@ describe('ChangedInputFilePopup', () => {
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
 
-    expect(screen.getByText(ButtonText.Keep));
+    expect(screen.getByText(ButtonText.Keep)).toBeInTheDocument();
     fireEvent.click(screen.getByText(ButtonText.Keep));
     expect(window.electronAPI.keepFile).toHaveBeenCalledTimes(1);
-    expect(getOpenPopup(store.getState())).toBe(null);
+    expect(getOpenPopup(store.getState())).toBeNull();
   });
 });

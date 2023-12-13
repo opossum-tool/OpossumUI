@@ -62,7 +62,7 @@ describe('getLicenseFetchingInformation', () => {
     ).toBeNull();
   });
 
-  it('recognizes github urls', () => {
+  it('recognizes github urls consisting of namespace and name', () => {
     expect(
       getLicenseFetchingInformation(
         'https://github.com/opossum-tool/OpossumUI',
@@ -73,7 +73,7 @@ describe('getLicenseFetchingInformation', () => {
     });
   });
 
-  it('recognizes github urls', () => {
+  it('ignores github urls missing namespace or name', () => {
     expect(
       getLicenseFetchingInformation('https://github.com/opossum-tool/'),
     ).toBeNull();

@@ -77,8 +77,8 @@ describe('The ManualAttributionList', () => {
         ],
       },
     );
-    expect(screen.getByText('Test package, 1.0'));
-    expect(mockCallback.mock.calls.length).toBe(0);
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(mockCallback.mock.calls).toHaveLength(0);
   });
 
   it('renders first party icon and show resources icon', () => {
@@ -100,9 +100,9 @@ describe('The ManualAttributionList', () => {
         ],
       },
     );
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByLabelText('First party icon'));
-    expect(screen.getAllByLabelText('show resources'));
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(screen.getByLabelText('First party icon')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('show resources')).not.toHaveLength(0);
   });
 
   it('renders button', () => {
@@ -125,9 +125,11 @@ describe('The ManualAttributionList', () => {
         ],
       },
     );
-    expect(screen.getByText('Test package, 1.0'));
-    expect(screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT));
-    expect(mockCallback.mock.calls.length).toBe(0);
+    expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
+    expect(
+      screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT),
+    ).toBeInTheDocument();
+    expect(mockCallback.mock.calls).toHaveLength(0);
   });
 
   it('sets selectedAttributionId on click', () => {
@@ -152,10 +154,11 @@ describe('The ManualAttributionList', () => {
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
     fireEvent.click(attributionCard);
-    expect(mockCallback.mock.calls.length).toBe(1);
+    expect(mockCallback.mock.calls).toHaveLength(1);
     expect(mockCallback.mock.calls[0][0]).toBe(testSortedPackageCardIds[0]);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('shows correct replace attribution buttons in the context menu', () => {
     const testResources: Resources = {
       root: { src: { file_1: 1, file_2: 1 } },

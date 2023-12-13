@@ -17,7 +17,7 @@ describe('The FileSearchTextField', () => {
     renderComponent(
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
-    screen.getByLabelText('Search');
+    expect(screen.getByLabelText('Search')).toBeInTheDocument();
   });
 
   it('calls callback after debounce time', () => {

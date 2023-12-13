@@ -26,7 +26,7 @@ import {
 import { renderComponent } from '../../../test-helpers/render';
 import { LocatorPopup } from '../LocatorPopup';
 
-describe('Locator popup ', () => {
+describe('Locator popup', () => {
   jest.useFakeTimers();
 
   it('renders', () => {
@@ -539,6 +539,6 @@ describe('locateResourcesByCriticalityAndLicense', () => {
       screen.getByText('No signals located. Please adjust filters or cancel.', {
         exact: true,
       }),
-    );
+    ).toBeInTheDocument();
   });
 });

@@ -26,7 +26,7 @@ describe('The table helpers', () => {
         testAttributionInfo,
         testIsFileWithChildren,
       ),
-    ).toEqual('');
+    ).toBe('');
   });
 
   it('getFormattedCellData formats resources', () => {
@@ -43,7 +43,7 @@ describe('The table helpers', () => {
         testAttributionInfo,
         testIsFileWithChildren,
       ),
-    ).toEqual(`${testPathOfFileWithChildren.slice(0, -1)}\nb`);
+    ).toBe(`${testPathOfFileWithChildren.slice(0, -1)}\nb`);
   });
 
   it('getFormattedCellData handles first-party boolean', () => {
@@ -68,21 +68,21 @@ describe('The table helpers', () => {
         testAttributionInfo1,
         testIsFileWithChildren,
       ),
-    ).toEqual('Yes');
+    ).toBe('Yes');
     expect(
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo2,
         testIsFileWithChildren,
       ),
-    ).toEqual('No');
+    ).toBe('No');
     expect(
       getFormattedCellData(
         testTableConfig,
         testAttributionInfo3,
         testIsFileWithChildren,
       ),
-    ).toEqual('No');
+    ).toBe('No');
   });
 
   test.each`
@@ -137,7 +137,7 @@ describe('The table helpers', () => {
           testTableConfig.attributionProperty,
           testAttributionInfo,
         ),
-      ).toEqual(true);
+      ).toBe(true);
 
       testAttributionInfo = {
         resources: ['1'],
@@ -148,7 +148,7 @@ describe('The table helpers', () => {
           testTableConfig.attributionProperty,
           testAttributionInfo,
         ),
-      ).toEqual(true);
+      ).toBe(true);
 
       testAttributionInfo = {
         [property]: 'test',
@@ -160,7 +160,7 @@ describe('The table helpers', () => {
           testTableConfig.attributionProperty,
           testAttributionInfo,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     },
   );
 
@@ -178,7 +178,7 @@ describe('The table helpers', () => {
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
-    ).toEqual(true);
+    ).toBe(true);
 
     testAttributionInfo = {
       resources: ['1'],
@@ -189,7 +189,7 @@ describe('The table helpers', () => {
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
-    ).toEqual(false);
+    ).toBe(false);
 
     testAttributionInfo = {
       resources: ['1'],
@@ -200,7 +200,7 @@ describe('The table helpers', () => {
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
-    ).toEqual(false);
+    ).toBe(false);
 
     testAttributionInfo = {
       resources: ['1'],
@@ -212,6 +212,6 @@ describe('The table helpers', () => {
         testTableConfig.attributionProperty,
         testAttributionInfo,
       ),
-    ).toEqual(true);
+    ).toBe(true);
   });
 });

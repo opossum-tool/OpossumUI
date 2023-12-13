@@ -9,13 +9,13 @@ describe('getAttributionBreakpointCheck', () => {
     const isAttributionBreakpoint = getAttributionBreakpointCheck(
       new Set(['/path1', '/path2']),
     );
-    expect(isAttributionBreakpoint('/path1')).toEqual(true);
-    expect(isAttributionBreakpoint('/path3')).toEqual(false);
+    expect(isAttributionBreakpoint('/path1')).toBe(true);
+    expect(isAttributionBreakpoint('/path3')).toBe(false);
   });
 
   it('handles empty set correctly', () => {
     const isAttributionBreakpoint = getAttributionBreakpointCheck(new Set());
-    expect(isAttributionBreakpoint('/path1')).toEqual(false);
-    expect(isAttributionBreakpoint('/path3')).toEqual(false);
+    expect(isAttributionBreakpoint('/path1')).toBe(false);
+    expect(isAttributionBreakpoint('/path3')).toBe(false);
   });
 });

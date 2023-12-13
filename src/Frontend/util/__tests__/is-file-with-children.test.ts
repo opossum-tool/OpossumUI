@@ -9,13 +9,13 @@ describe('getFileWithChildrenCheck', () => {
     const isFileWithChildren = getFileWithChildrenCheck(
       new Set(['/path1', '/path2']),
     );
-    expect(isFileWithChildren('/path1')).toEqual(true);
-    expect(isFileWithChildren('/path3')).toEqual(false);
+    expect(isFileWithChildren('/path1')).toBe(true);
+    expect(isFileWithChildren('/path3')).toBe(false);
   });
 
   it('handles empty set correctly', () => {
     const isFileWithChildren = getFileWithChildrenCheck(new Set());
-    expect(isFileWithChildren('/path1')).toEqual(false);
-    expect(isFileWithChildren('/path3')).toEqual(false);
+    expect(isFileWithChildren('/path1')).toBe(false);
+    expect(isFileWithChildren('/path3')).toBe(false);
   });
 });

@@ -3698,7 +3698,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:^5.58.0":
+"@typescript-eslint/utils@npm:^5.10.0, @typescript-eslint/utils@npm:^5.58.0":
   version: 5.62.0
   resolution: "@typescript-eslint/utils@npm:5.62.0"
   dependencies:
@@ -5935,6 +5935,24 @@ __metadata:
     "@testing-library/dom":
       optional: true
   checksum: 198f32ab59c9f1483773b0125ad1fbc012d2b644a9ce6f1a10a223499420b047741bce8c17e2bd0f62d3f9b31f87e27a58d40b2be5582f76ba8a2926ad669d0e
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-jest@npm:^27.6.0":
+  version: 27.6.0
+  resolution: "eslint-plugin-jest@npm:27.6.0"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^5.10.0"
+  peerDependencies:
+    "@typescript-eslint/eslint-plugin": ^5.0.0 || ^6.0.0
+    eslint: ^7.0.0 || ^8.0.0
+    jest: "*"
+  peerDependenciesMeta:
+    "@typescript-eslint/eslint-plugin":
+      optional: true
+    jest:
+      optional: true
+  checksum: e01ff002d55fa09624c53a4b984e80175e75da671bc9b48cc2909b134fe6df25c8143798359bb5991e77e4ffb5b7d69c1c2340e8f661d080b7938a9e5e077122
   languageName: node
   linkType: hard
 
@@ -9240,6 +9258,7 @@ __metadata:
     eslint: "npm:^8.55.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-plugin-filenames: "npm:^1.3.2"
+    eslint-plugin-jest: "npm:^27.6.0"
     eslint-plugin-jest-dom: "npm:^5.1.0"
     eslint-plugin-playwright: "npm:^0.20.0"
     eslint-plugin-react: "npm:^7.33.2"
@@ -9249,7 +9268,6 @@ __metadata:
     fflate: "npm:^0.8.1"
     husky: "npm:8.0.3"
     jest: "npm:^29.7.0"
-    jest-each: "npm:^29.7.0"
     jest-environment-jsdom: "npm:^29.7.0"
     jest-watch-typeahead: "npm:^2.2.2"
     js-yaml: "npm:^4.1.0"

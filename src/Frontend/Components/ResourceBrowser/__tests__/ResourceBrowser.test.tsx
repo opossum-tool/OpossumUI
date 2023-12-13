@@ -58,19 +58,19 @@ describe('ResourceBrowser', () => {
       screen.queryByLabelText('locate attributions'),
     ).not.toBeInTheDocument();
 
-    expect(screen.getByText('/'));
-    expect(screen.getByText('root'));
-    expect(screen.getByText('thirdParty'));
+    expect(screen.getByText('/')).toBeInTheDocument();
+    expect(screen.getByText('root')).toBeInTheDocument();
+    expect(screen.getByText('thirdParty')).toBeInTheDocument();
     expect(screen.queryByText('src')).not.toBeInTheDocument();
     fireEvent.click(screen.queryByText('root') as Element);
 
-    expect(screen.getByText('root'));
-    expect(screen.getByText('readme.md'));
+    expect(screen.getByText('root')).toBeInTheDocument();
+    expect(screen.getByText('readme.md')).toBeInTheDocument();
     expect(screen.queryByText('something.js')).not.toBeInTheDocument();
     expect(getSelectedResourceId(store.getState())).toBe('/root/');
 
     fireEvent.click(screen.queryByText('src') as Element);
-    expect(screen.getByText('something.js'));
+    expect(screen.getByText('something.js')).toBeInTheDocument();
     expect(getSelectedResourceId(store.getState())).toBe('/root/src/');
 
     fireEvent.click(screen.queryByText('src') as Element);
@@ -80,11 +80,11 @@ describe('ResourceBrowser', () => {
     expect(screen.queryByText('something.js')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('src') as Element);
-    expect(screen.getByText('something.js'));
+    expect(screen.getByText('something.js')).toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('root') as Element);
-    expect(screen.getByText('something.js'));
-    expect(screen.getByText('src'));
+    expect(screen.getByText('something.js')).toBeInTheDocument();
+    expect(screen.getByText('src')).toBeInTheDocument();
 
     collapseFolderByClickingOnIcon(screen, '/root/');
     expect(screen.queryByText('something.js')).not.toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('ResourceBrowser', () => {
 
     fireEvent.click(screen.queryByText('root') as Element);
     expect(screen.queryByText('something.js')).not.toBeInTheDocument();
-    expect(screen.getByText('src'));
+    expect(screen.getByText('src')).toBeInTheDocument();
   });
 
   it('opens folders recursively', () => {
@@ -111,20 +111,20 @@ describe('ResourceBrowser', () => {
       actions: [setResources(testResources)],
     });
 
-    expect(screen.getByText('/'));
-    expect(screen.getByText('parentDirectory'));
+    expect(screen.getByText('/')).toBeInTheDocument();
+    expect(screen.getByText('parentDirectory')).toBeInTheDocument();
     expect(screen.queryByText('childDirectory')).not.toBeInTheDocument();
     expect(screen.queryByText('GrandchildDirectory')).not.toBeInTheDocument();
     expect(screen.queryByText('package_1.tr.gz')).not.toBeInTheDocument();
     expect(screen.queryByText('package_2.tr.gz')).not.toBeInTheDocument();
 
     fireEvent.click(screen.queryByText('parentDirectory') as Element);
-    expect(screen.getByText('/'));
-    expect(screen.getByText('parentDirectory'));
-    expect(screen.getByText('childDirectory'));
-    expect(screen.getByText('GrandchildDirectory'));
-    expect(screen.getByText('package_1.tr.gz'));
-    expect(screen.getByText('package_2.tr.gz'));
+    expect(screen.getByText('/')).toBeInTheDocument();
+    expect(screen.getByText('parentDirectory')).toBeInTheDocument();
+    expect(screen.getByText('childDirectory')).toBeInTheDocument();
+    expect(screen.getByText('GrandchildDirectory')).toBeInTheDocument();
+    expect(screen.getByText('package_1.tr.gz')).toBeInTheDocument();
+    expect(screen.getByText('package_2.tr.gz')).toBeInTheDocument();
   });
 
   it('Resource browser renders icons', () => {
@@ -230,7 +230,7 @@ describe('ResourceBrowser', () => {
       actions: [setResources(testResources)],
     });
 
-    expect(screen.getByText('/'));
+    expect(screen.getByText('/')).toBeInTheDocument();
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
@@ -260,7 +260,7 @@ describe('ResourceBrowser', () => {
     renderComponent(<ResourceBrowser />, {
       actions: [setResources(testResources)],
     });
-    expect(screen.getByText('/'));
+    expect(screen.getByText('/')).toBeInTheDocument();
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
@@ -296,7 +296,7 @@ describe('ResourceBrowser', () => {
       ],
     });
 
-    expect(screen.getByText('/'));
+    expect(screen.getByText('/')).toBeInTheDocument();
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
 
     const expectedSequence: Array<string> = [
