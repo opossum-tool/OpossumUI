@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { faker } from '../../../../shared/Faker';
-import { SignalWithCount } from '../../../../shared/shared-types';
+import { AutocompleteSignal } from '../../../../shared/shared-types';
 import { getAutocompleteSignals } from '../get-autocomplete-signals';
 
 describe('getAutocompleteSignals', () => {
@@ -59,7 +59,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(1);
-    expect(signals).toEqual<Array<SignalWithCount>>([
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
       { ...attribution1, count: 2 },
     ]);
   });
@@ -111,7 +111,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<SignalWithCount>>([
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
       { ...attribution1, count: 2 },
       { ...attribution2, count: 1 },
     ]);
@@ -182,7 +182,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(3);
-    expect(signals).toEqual<Array<SignalWithCount>>([
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
       { ...attribution3, count: 1 },
       { ...attribution2, count: 1 },
       { ...attribution1, count: 1 },
@@ -239,7 +239,7 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<SignalWithCount>>([
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
       { ...attribution2, count: 1 },
       { ...attribution1, count: 1 },
     ]);

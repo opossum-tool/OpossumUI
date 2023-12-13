@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
 
-import { SignalWithCount } from '../../shared/shared-types';
+import { AutocompleteSignal } from '../../shared/shared-types';
 import { useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -50,7 +50,7 @@ const initialWorkerPanelData: WorkerPanelData = {
 };
 
 export function useAutocompleteSignals() {
-  const [autocompleteSignals] = useVariable<Array<SignalWithCount>>(
+  const [autocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
     WORKER_REDUX_KEYS.AUTOCOMPLETE_SIGNALS,
     [],
   );
@@ -101,7 +101,7 @@ export function useSignalsWorker() {
   const { projectId } = useAppSelector(getProjectMetadata);
 
   const [worker, setWorker] = useState<Worker>();
-  const [, setAutocompleteSignals] = useVariable<Array<SignalWithCount>>(
+  const [, setAutocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
     WORKER_REDUX_KEYS.AUTOCOMPLETE_SIGNALS,
     [],
   );
