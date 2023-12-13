@@ -4,9 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionsToHashes,
+  AutocompleteSignal,
   ExternalAttributionSources,
   Resources,
-  SignalWithCount,
 } from '../../shared/shared-types';
 import { PanelData, ProgressBarData } from '../types/types';
 import { PanelAttributionData } from '../util/get-contained-packages';
@@ -32,7 +32,7 @@ export type SignalsWorkerInput =
 export type SignalsWorkerOutput =
   | {
       name: 'autocompleteSignals';
-      data: Array<SignalWithCount>;
+      data: Array<AutocompleteSignal>;
     }
   | {
       name: 'attributionsInFolderContent';
