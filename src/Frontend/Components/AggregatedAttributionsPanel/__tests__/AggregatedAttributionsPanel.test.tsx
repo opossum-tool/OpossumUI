@@ -17,10 +17,7 @@ import {
   getPackagePanel,
   getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel';
 
 describe('The AggregatedAttributionsPanel', () => {
@@ -41,27 +38,25 @@ describe('The AggregatedAttributionsPanel', () => {
       '/root/': ['uuid_1', 'uuid_2'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/'));
-    testStore.dispatch(
-      setExternalAttributionsToHashes({
-        uuid_1: '1',
-        uuid_2: '1',
-      }),
-    );
-
-    renderComponentWithStore(
+    renderComponent(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              externalAttributions: testExternalAttributions,
+              resourcesToExternalAttributions:
+                testResourcesToExternalAttributions,
+            }),
+          ),
+          setSelectedResourceId('/root/'),
+          setExternalAttributionsToHashes({
+            uuid_1: '1',
+            uuid_2: '1',
+          }),
+        ],
+      },
     );
 
     const signalsPanel = getPackagePanel(screen, 'Signals');
@@ -86,22 +81,22 @@ describe('The AggregatedAttributionsPanel', () => {
       '/root/': ['uuid_1', 'uuid_2'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          externalAttributions: testExternalAttributions,
-          resourcesToExternalAttributions: testResourcesToExternalAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setSelectedResourceId('/root/'));
-    testStore.dispatch(setExternalAttributionsToHashes({}));
-
-    renderComponentWithStore(
+    renderComponent(
       <AggregatedAttributionsPanel isAddToPackageEnabled={true} />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              externalAttributions: testExternalAttributions,
+              resourcesToExternalAttributions:
+                testResourcesToExternalAttributions,
+            }),
+          ),
+          setSelectedResourceId('/root/'),
+          setExternalAttributionsToHashes({}),
+        ],
+      },
     );
 
     const packagesPanel = getPackagePanel(screen, 'Signals');

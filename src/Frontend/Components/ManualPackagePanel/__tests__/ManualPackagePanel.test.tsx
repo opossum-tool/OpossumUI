@@ -10,13 +10,13 @@ import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ManualPackagePanel } from '../ManualPackagePanel';
 
 describe('The ManualPackagePanel', () => {
   it('shows default and input attributions', () => {
     const mockOnOverride = jest.fn();
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ManualPackagePanel
         showParentAttributions={false}
         overrideParentMode={false}
@@ -46,7 +46,7 @@ describe('The ManualPackagePanel', () => {
 
   it('Shows hint and override button for parent attribution', () => {
     const mockOnOverride = jest.fn();
-    renderComponentWithStore(
+    renderComponent(
       <ManualPackagePanel
         showParentAttributions={true}
         overrideParentMode={false}
@@ -84,7 +84,7 @@ describe('The ManualPackagePanel', () => {
     };
 
     const mockOnOverride = jest.fn();
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ManualPackagePanel
         showParentAttributions={false}
         overrideParentMode={false}

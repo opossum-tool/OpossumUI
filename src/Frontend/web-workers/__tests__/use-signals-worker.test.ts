@@ -9,7 +9,7 @@ import { View } from '../../enums/enums';
 import { setProjectMetadata } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { setView } from '../../state/actions/view-actions/view-actions';
-import { renderHook } from '../../test-helpers/render-component-with-store';
+import { renderHook } from '../../test-helpers/render';
 import { SignalsWorkerInput } from '../signals-worker';
 import { useSignalsWorker } from '../use-signals-worker';
 

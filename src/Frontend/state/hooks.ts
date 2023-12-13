@@ -5,7 +5,6 @@
 import { memoize } from 'proxy-memoize';
 import { useCallback } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import { AnyAction, Store } from 'redux';
 
 import { State } from '../types/types';
 import { AppThunkDispatch } from './types';
@@ -19,4 +18,4 @@ export const useAppSelector = <T>(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useSelector<State, T>(useCallback(memoize(fn), deps));
 
-export const useAppStore: () => Store<State, AnyAction> = useStore;
+export const useAppStore = useStore<State>;

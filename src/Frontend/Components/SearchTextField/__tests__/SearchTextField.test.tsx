@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { faker } from '../../../../shared/Faker';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { SearchTextField } from '../SearchTextField';
 
 describe('The SearchTextField', () => {
@@ -15,7 +15,7 @@ describe('The SearchTextField', () => {
     const onInputChange = jest.fn();
     const initialSearchTerm = faker.string.sample();
     const newSearchTerm = faker.string.sample();
-    renderComponentWithStore(
+    renderComponent(
       <SearchTextField
         onInputChange={onInputChange}
         search={initialSearchTerm}
@@ -37,9 +37,7 @@ describe('The SearchTextField', () => {
   });
 
   it('hides clear button when no search term entered', () => {
-    renderComponentWithStore(
-      <SearchTextField onInputChange={jest.fn()} search={''} />,
-    );
+    renderComponent(<SearchTextField onInputChange={jest.fn()} search={''} />);
     expect(screen.queryByLabelText('clear search')).not.toBeInTheDocument();
   });
 });

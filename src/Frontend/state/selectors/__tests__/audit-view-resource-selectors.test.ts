@@ -15,7 +15,6 @@ import {
   EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
@@ -25,6 +24,7 @@ import {
   setSelectedResourceId,
 } from '../../actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
+import { createAppStore } from '../../configure-store';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
   getManualDisplayPackageInfoOfSelected,
@@ -64,7 +64,7 @@ describe('The audit view resource selectors', () => {
   };
 
   it('sets Attributions and getsAttribution for a ResourceId', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const expectedDisplayPackageInfo: DisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
@@ -86,7 +86,7 @@ describe('The audit view resource selectors', () => {
   });
 
   it('gets attributions and attribution ids for the selected resource', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const reactPackage: PackageInfo = { packageName: 'React' };
     testStore.dispatch(
       loadFromFile(
@@ -129,7 +129,7 @@ describe('The audit view resource selectors', () => {
       displayPackageInfo: { packageName: 'Vue', attributionIds: ['uuid2'] },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(
       getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
     ).toBeNull();
@@ -153,7 +153,7 @@ describe('The audit view resource selectors', () => {
   });
 
   it('sets and gets resolvedExternalAttributions', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testResolvedExternalAttributions: Set<string> = new Set();
     testResolvedExternalAttributions
       .add('d3a753c0-5100-11eb-ae93-0242ac130002')

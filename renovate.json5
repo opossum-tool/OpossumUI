@@ -21,7 +21,6 @@
       matchPackageNames: [
         '@faker-js/faker',
         '@playwright/test',
-        '@redux-devtools/extension',
         '@tanstack/react-query',
         '@trivago/prettier-plugin-sort-imports',
         'axios',
@@ -90,8 +89,7 @@
       groupSlug: 'react',
     },
     {
-      matchPackagePrefixes: ['redux-'],
-      matchPackageNames: ['redux', 'react-redux'],
+      matchPackageNames: ['@reduxjs/toolkit', 'react-redux'],
       groupName: 'Redux dependencies',
       groupSlug: 'redux',
       matchUpdateTypes: ['minor', 'patch'],

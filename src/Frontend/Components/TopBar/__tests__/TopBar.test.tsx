@@ -13,15 +13,12 @@ import {
   isAuditViewSelected,
   isReportViewSelected,
 } from '../../../state/selectors/view-selector';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
-    const { store } = renderComponentWithStore(<TopBar />);
+    const { store } = renderComponent(<TopBar />);
     const totalNumberOfCalls = 13;
     expect(window.electronAPI.on).toHaveBeenCalledTimes(totalNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(
@@ -75,7 +72,7 @@ describe('TopBar', () => {
   });
 
   it('switches between views', () => {
-    const { store } = renderComponentWithStore(<TopBar />);
+    const { store } = renderComponent(<TopBar />);
 
     fireEvent.click(screen.queryByText('Audit') as Element);
     expect(isAuditViewSelected(store.getState())).toBe(true);
@@ -94,14 +91,14 @@ describe('TopBar', () => {
   });
 
   it('does not display the TopProgressBar when no file has been opened', () => {
-    renderComponentWithStore(<TopBar />);
+    renderComponent(<TopBar />);
     expect(screen.queryByLabelText('TopProgressBar')).not.toBeInTheDocument();
   });
 
   it('displays the TopProgressBar after a file has been opened', () => {
-    const testStore = createTestAppStore();
-    testStore.dispatch(setResources({ '': 1 }));
-    renderComponentWithStore(<TopBar />, { store: testStore });
+    renderComponent(<TopBar />, {
+      actions: [setResources({ '': 1 })],
+    });
     expect(screen.getByLabelText('TopProgressBar')).toBeInTheDocument();
   });
 });

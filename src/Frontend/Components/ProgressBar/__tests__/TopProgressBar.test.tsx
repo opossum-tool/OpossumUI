@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
 import { WORKER_REDUX_KEYS } from '../../../web-workers/use-signals-worker';
 import { TopProgressBar } from '../TopProgressBar';
@@ -15,7 +15,7 @@ describe('TopProgressBar', () => {
   jest.useFakeTimers();
 
   it('renders regular progress bar', async () => {
-    renderComponentWithStore(<TopProgressBar />, {
+    renderComponent(<TopProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA, {
           fileCount: 6,
@@ -44,7 +44,7 @@ describe('TopProgressBar', () => {
   });
 
   it('renders in criticality view', async () => {
-    renderComponentWithStore(<TopProgressBar />, {
+    renderComponent(<TopProgressBar />, {
       actions: [
         setVariable<ProgressBarData>(WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA, {
           fileCount: 6,

@@ -15,7 +15,7 @@ import {
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { EMPTY_PROJECT_METADATA } from '../../../../shared-constants';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getAttributionBreakpoints,
@@ -194,7 +194,7 @@ describe('loadFromFile', () => {
       doNotChangeMe2: '9263f76013801519989b1ba42aa42825de74ad93',
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(testStore.getState().resourceState).toMatchObject(
       initialResourceState,
     );
@@ -258,7 +258,7 @@ describe('loadFromFile', () => {
       },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(loadFromFile(testParsedFileContent));
 
     expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);

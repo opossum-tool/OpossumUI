@@ -9,10 +9,7 @@ import { act } from 'react-dom/test-utils';
 import { Resources } from '../../../../shared/shared-types';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { FileSearchPopup } from '../FileSearchPopup';
 
 describe('FileSearch popup ', () => {
@@ -35,7 +32,7 @@ describe('FileSearch popup ', () => {
   jest.useFakeTimers();
 
   it('renders', () => {
-    renderComponentWithStore(<FileSearchPopup />);
+    renderComponent(<FileSearchPopup />);
     expect(
       screen.getByText('Search for Files and Directories', { exact: false }),
     ).toBeInTheDocument();
@@ -49,14 +46,15 @@ describe('FileSearch popup ', () => {
   ]).it(
     'search for %s results in %s results',
     (search: string, expected_results: number) => {
-      const store = createTestAppStore();
-      store.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({ resources: testResources }),
-        ),
-      );
-
-      renderComponentWithStore(<FileSearchPopup />, { store });
+      renderComponent(<FileSearchPopup />, {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+            }),
+          ),
+        ],
+      });
 
       act(() => {
         jest.advanceTimersByTime(debounceWaitTimeInMs);
@@ -82,16 +80,15 @@ describe('FileSearch popup ', () => {
   );
 
   it('has debounced search', () => {
-    const store = createTestAppStore();
-    store.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({ resources: testResources }),
-      ),
-    );
-
     const smallWaitTimeInMs = 50;
 
-    renderComponentWithStore(<FileSearchPopup />, { store });
+    renderComponent(<FileSearchPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({ resources: testResources }),
+        ),
+      ],
+    });
 
     act(() => {
       jest.advanceTimersByTime(debounceWaitTimeInMs);

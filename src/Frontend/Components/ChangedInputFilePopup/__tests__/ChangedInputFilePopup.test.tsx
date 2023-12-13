@@ -6,7 +6,7 @@ import { fireEvent, screen } from '@testing-library/react';
 
 import { ButtonText } from '../../../enums/enums';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ChangedInputFilePopup } from '../ChangedInputFilePopup';
 
 describe('ChangedInputFilePopup', () => {
@@ -14,7 +14,7 @@ describe('ChangedInputFilePopup', () => {
     const content =
       'The input file has changed. Do you want to keep the old attribution file or delete it?';
 
-    const { store } = renderComponentWithStore(<ChangedInputFilePopup />);
+    const { store } = renderComponent(<ChangedInputFilePopup />);
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
 
@@ -28,7 +28,7 @@ describe('ChangedInputFilePopup', () => {
     const content =
       'The input file has changed. Do you want to keep the old attribution file or delete it?';
 
-    const { store } = renderComponentWithStore(<ChangedInputFilePopup />);
+    const { store } = renderComponent(<ChangedInputFilePopup />);
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(screen.getByText(content)).toBeInTheDocument();
 

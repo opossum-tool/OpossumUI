@@ -20,26 +20,10 @@ import {
   testCorrectMarkAndUnmarkForReplacementInContextMenu,
 } from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { DisplayPackageInfos } from '../../../types/types';
 import { doNothing } from '../../../util/do-nothing';
 import { ManualAttributionList } from '../ManualAttributionList';
-
-function getTestStore(manualAttributions: Attributions): EnhancedTestStore {
-  const store = createTestAppStore();
-  store.dispatch(
-    loadFromFile(
-      getParsedInputFileEnrichedWithTestData({
-        manualAttributions,
-      }),
-    ),
-  );
-  return store;
-}
 
 describe('The ManualAttributionList', () => {
   const testSortedPackageCardIds = ['Manual Attributions-0'];
@@ -75,7 +59,7 @@ describe('The ManualAttributionList', () => {
   });
 
   it('renders', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
@@ -83,14 +67,22 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
-      { store: getTestStore(packages) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: packages,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(mockCallback.mock.calls.length).toBe(0);
   });
 
   it('renders first party icon and show resources icon', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
@@ -98,7 +90,15 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={doNothing}
       />,
-      { store: getTestStore(packages) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: packages,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByLabelText('First party icon'));
@@ -106,7 +106,7 @@ describe('The ManualAttributionList', () => {
   });
 
   it('renders button', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
@@ -115,7 +115,15 @@ describe('The ManualAttributionList', () => {
         isAddNewAttributionItemShown={true}
         onCardClick={mockCallback}
       />,
-      { store: getTestStore(packages) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: packages,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByText('Test package, 1.0'));
     expect(screen.getByText(ADD_NEW_ATTRIBUTION_BUTTON_TEXT));
@@ -123,7 +131,7 @@ describe('The ManualAttributionList', () => {
   });
 
   it('sets selectedAttributionId on click', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ManualAttributionList
         selectedResourceId="/folder/"
         displayPackageInfos={testDisplayPackageInfos}
@@ -131,7 +139,15 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
-      { store: getTestStore(packages) },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              manualAttributions: packages,
+            }),
+          ),
+        ],
+      },
     );
     const attributionCard = screen.getByText('Test package, 1.0');
     expect(attributionCard).toBeInTheDocument();
@@ -197,17 +213,7 @@ describe('The ManualAttributionList', () => {
       '/root/src/file_2': ['uuid_2'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <ManualAttributionList
         selectedResourceId="/root/src/file_1"
         displayPackageInfos={testDisplayPackageInfos}
@@ -215,7 +221,17 @@ describe('The ManualAttributionList', () => {
         selectedPackageCardId={''}
         onCardClick={mockCallback}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testManualAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expectContextMenuForNotPreSelectedAttributionSingleResource(

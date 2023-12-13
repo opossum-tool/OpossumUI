@@ -5,7 +5,7 @@
 import { act } from '@testing-library/react';
 
 import { faker } from '../../../shared/Faker';
-import { renderHook } from '../../test-helpers/render-component-with-store';
+import { renderHook } from '../../test-helpers/render';
 import { useVariable } from '../use-variable';
 
 describe('useVariable', () => {

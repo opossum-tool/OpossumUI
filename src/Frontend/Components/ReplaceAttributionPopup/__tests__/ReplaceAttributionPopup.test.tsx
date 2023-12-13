@@ -20,14 +20,10 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  EnhancedTestStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup';
 
-function setupTestState(store: EnhancedTestStore): void {
+function getActions() {
   const testResources: Resources = {
     thirdParty: {
       'package_1.tr.gz': 1,
@@ -46,12 +42,10 @@ function setupTestState(store: EnhancedTestStore): void {
     'package_2.tr.gz': ['test_marked_id'],
   };
 
-  store.dispatch(setSelectedAttributionId('test_selected_id'));
-  store.dispatch(setAttributionIdMarkedForReplacement('test_marked_id'));
-  store.dispatch(
+  return [
+    setSelectedAttributionId('test_selected_id'),
+    setAttributionIdMarkedForReplacement('test_marked_id'),
     openPopup(PopupType.ReplaceAttributionPopup, 'test_selected_id'),
-  );
-  store.dispatch(
     loadFromFile(
       getParsedInputFileEnrichedWithTestData({
         resources: testResources,
@@ -59,16 +53,13 @@ function setupTestState(store: EnhancedTestStore): void {
         resourcesToManualAttributions: testResourcesToManualAttributions,
       }),
     ),
-  );
+  ];
 }
 
 describe('ReplaceAttributionPopup and do not change view', () => {
   it('renders a ReplaceAttributionPopup and click cancel', () => {
-    const testStore = createTestAppStore();
-    setupTestState(testStore);
-
-    const { store } = renderComponentWithStore(<ReplaceAttributionPopup />, {
-      store: testStore,
+    const { store } = renderComponent(<ReplaceAttributionPopup />, {
+      actions: getActions(),
     });
 
     expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
@@ -80,11 +71,8 @@ describe('ReplaceAttributionPopup and do not change view', () => {
   });
 
   it('does not show ContextMenu for attributions', () => {
-    const testStore = createTestAppStore();
-    setupTestState(testStore);
-
-    renderComponentWithStore(<ReplaceAttributionPopup />, {
-      store: testStore,
+    renderComponent(<ReplaceAttributionPopup />, {
+      actions: getActions(),
     });
 
     expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
@@ -107,14 +95,11 @@ describe('ReplaceAttributionPopup and do not change view', () => {
   });
 
   it('does not show multi-select checkbox for attributions', () => {
-    const testStore = createTestAppStore();
-    setupTestState(testStore);
-    testStore.dispatch(
-      setMultiSelectSelectedAttributionIds(['test_marked_id']),
-    );
-
-    renderComponentWithStore(<ReplaceAttributionPopup />, {
-      store: testStore,
+    renderComponent(<ReplaceAttributionPopup />, {
+      actions: [
+        ...getActions(),
+        setMultiSelectSelectedAttributionIds(['test_marked_id']),
+      ],
     });
 
     expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();
@@ -124,11 +109,8 @@ describe('ReplaceAttributionPopup and do not change view', () => {
   });
 
   it('renders a ReplaceAttributionPopup and click replace', () => {
-    const testStore = createTestAppStore();
-    setupTestState(testStore);
-
-    const { store } = renderComponentWithStore(<ReplaceAttributionPopup />, {
-      store: testStore,
+    const { store } = renderComponent(<ReplaceAttributionPopup />, {
+      actions: getActions(),
     });
 
     expect(screen.getByText('Replacing an attribution')).toBeInTheDocument();

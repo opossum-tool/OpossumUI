@@ -14,7 +14,7 @@ import {
   setManualData,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../../state/hooks';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { doNothing } from '../../../util/do-nothing';
 import { ResourcePathPopup } from '../ResourcePathPopup';
 
@@ -48,7 +48,7 @@ function HelperComponent(props: HelperComponentProps): ReactElement {
 
 describe('ResourcePathPopup', () => {
   it('renders resources for manual Attributions', () => {
-    renderComponentWithStore(<HelperComponent isExternalAttribution={false} />);
+    renderComponent(<HelperComponent isExternalAttribution={false} />);
 
     expect(
       screen.getByText('Resources for selected attribution'),
@@ -57,7 +57,7 @@ describe('ResourcePathPopup', () => {
   });
 
   it('renders resources for external Attributions', () => {
-    renderComponentWithStore(<HelperComponent isExternalAttribution={true} />);
+    renderComponent(<HelperComponent isExternalAttribution={true} />);
 
     expect(
       screen.getByText('Resources for selected signal'),

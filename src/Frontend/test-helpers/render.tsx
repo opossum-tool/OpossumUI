@@ -6,26 +6,18 @@ import { renderHook as nativeRenderHook, render } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
-import { AnyAction, Store } from 'redux';
 
-import { createAppStore } from '../state/configure-store';
-import { AppThunkDispatch } from '../state/types';
+import { Action, createAppStore } from '../state/configure-store';
 
-export interface EnhancedTestStore extends Store {
-  dispatch: AppThunkDispatch;
-}
-
-export function createTestAppStore(): EnhancedTestStore {
-  return createAppStore();
-}
-
-export function renderComponentWithStore(
+export function renderComponent(
   component: ReactElement,
   {
-    store = createTestAppStore(),
     actions,
-  }: { store?: EnhancedTestStore; actions?: Array<AnyAction> } = {},
+  }: {
+    actions?: Array<Action>;
+  } = {},
 ) {
+  const store = createAppStore();
   actions?.forEach(store.dispatch);
 
   return {
@@ -49,13 +41,12 @@ export function renderHook<P, R>(
   {
     actions,
     initialProps,
-    store = createTestAppStore(),
   }: {
     initialProps?: P;
-    actions?: Array<AnyAction>;
-    store?: EnhancedTestStore;
+    actions?: Array<Action>;
   } = {},
 ) {
+  const store = createAppStore();
   actions?.forEach(store.dispatch);
 
   return {

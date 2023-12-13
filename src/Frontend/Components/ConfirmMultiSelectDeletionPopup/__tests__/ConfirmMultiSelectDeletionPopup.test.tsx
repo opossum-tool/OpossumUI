@@ -17,10 +17,7 @@ import {
   clickOnButton,
   getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup';
 
 describe('The ConfirmMultiSelectDeletionPopup', () => {
@@ -29,9 +26,7 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
       'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.';
     const expectedHeader = 'Confirm Deletion';
 
-    const { store } = renderComponentWithStore(
-      <ConfirmMultiSelectDeletionPopup />,
-    );
+    const { store } = renderComponent(<ConfirmMultiSelectDeletionPopup />);
     act(() => {
       store.dispatch(
         setMultiSelectSelectedAttributionIds(['uuid_1', 'uuid_2']),
@@ -64,26 +59,18 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
       '/somethingElse.js': ['uuid2'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(
-      setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']),
-    );
-
-    const { store } = renderComponentWithStore(
-      <ConfirmMultiSelectDeletionPopup />,
-      {
-        store: testStore,
-      },
-    );
+    const { store } = renderComponent(<ConfirmMultiSelectDeletionPopup />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            resources: testResources,
+            manualAttributions: testManualAttributions,
+            resourcesToManualAttributions: testResourcesToManualAttributions,
+          }),
+        ),
+        setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']),
+      ],
+    });
     act(() => {
       store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
     });

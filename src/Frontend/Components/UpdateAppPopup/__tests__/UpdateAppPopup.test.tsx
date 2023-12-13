@@ -8,7 +8,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 import commitInfo from '../../../../commitInfo.json';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { UpdateAppPopup } from '../UpdateAppPopup';
 
 describe('UpdateAppPopup', () => {
@@ -32,7 +32,7 @@ describe('UpdateAppPopup', () => {
         name: 'Latest release',
         html_url: 'some url',
       });
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
       </QueryClientProvider>,
@@ -55,7 +55,7 @@ describe('UpdateAppPopup', () => {
         name: commitInfo.commitInfo,
         html_url: 'some url',
       });
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
       </QueryClientProvider>,
@@ -70,7 +70,7 @@ describe('UpdateAppPopup', () => {
         'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       )
       .replyOnce(okStatus, null);
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
       </QueryClientProvider>,
@@ -85,7 +85,7 @@ describe('UpdateAppPopup', () => {
         'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       )
       .replyOnce(notFoundStatus);
-    renderComponentWithStore(
+    renderComponent(
       <QueryClientProvider client={queryClient}>
         <UpdateAppPopup />
       </QueryClientProvider>,

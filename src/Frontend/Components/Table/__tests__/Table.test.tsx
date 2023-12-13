@@ -8,7 +8,7 @@ import {
   AttributionsWithResources,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { doNothing } from '../../../util/do-nothing';
 import { Table } from '../Table';
 
@@ -32,7 +32,7 @@ describe('The Table', () => {
         resources: [],
       },
     };
-    renderComponentWithStore(
+    renderComponent(
       <Table
         attributionsWithResources={testAttributionsWithResources}
         onIconClick={doNothing}

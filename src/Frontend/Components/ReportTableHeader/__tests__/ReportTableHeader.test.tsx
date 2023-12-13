@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ReportTableHeader } from '../ReportTableHeader';
 
 describe('The report view table header', () => {
   it('renders', () => {
-    renderComponentWithStore(<ReportTableHeader />);
+    renderComponent(<ReportTableHeader />);
 
     expect(screen.getByText('License'));
     expect(screen.getByText('Version'));

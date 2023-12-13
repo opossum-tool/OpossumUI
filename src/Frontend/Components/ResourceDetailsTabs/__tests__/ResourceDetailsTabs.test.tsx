@@ -13,7 +13,7 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ResourceDetailsTabs } from '../ResourceDetailsTabs';
 
 describe('The ResourceDetailsTabs', () => {
@@ -27,7 +27,7 @@ describe('The ResourceDetailsTabs', () => {
       uuid_1: { packageName: 'jQuery' },
     };
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourceDetailsTabs
         isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
@@ -65,7 +65,7 @@ describe('The ResourceDetailsTabs', () => {
       '/fileWithAttribution': ['uuid_1'],
     };
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourceDetailsTabs
         isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}
@@ -120,7 +120,7 @@ describe('The ResourceDetailsTabs', () => {
       },
     };
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourceDetailsTabs
         isGlobalTabEnabled={true}
         isAddToPackageEnabled={true}

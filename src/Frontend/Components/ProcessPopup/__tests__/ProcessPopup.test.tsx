@@ -10,7 +10,7 @@ import { faker } from '../../../../shared/Faker';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { ElectronAPI, Log } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ProcessPopup } from '../ProcessPopup';
 
 type Listener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
@@ -38,13 +38,13 @@ describe('ProcessPopup', () => {
   });
 
   it('renders no dialog when loading is false', () => {
-    renderComponentWithStore(<ProcessPopup />);
+    renderComponent(<ProcessPopup />);
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
   });
 
   it('renders dialog when loading is true', () => {
-    renderComponentWithStore(<ProcessPopup />);
+    renderComponent(<ProcessPopup />);
 
     act(
       () =>
@@ -60,7 +60,7 @@ describe('ProcessPopup', () => {
     const date = faker.date.recent();
     const message1 = faker.lorem.sentence();
     const message2 = faker.lorem.sentence();
-    renderComponentWithStore(<ProcessPopup />);
+    renderComponent(<ProcessPopup />);
 
     act(
       () =>
@@ -104,7 +104,7 @@ describe('ProcessPopup', () => {
   it('clears previous log messages when loading begins another time', () => {
     const date = faker.date.recent();
     const message = faker.lorem.sentence();
-    renderComponentWithStore(<ProcessPopup />);
+    renderComponent(<ProcessPopup />);
 
     act(
       () =>

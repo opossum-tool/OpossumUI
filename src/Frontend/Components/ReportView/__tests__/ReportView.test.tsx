@@ -19,7 +19,7 @@ import {
   getParsedInputFileEnrichedWithTestData,
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ReportView } from '../ReportView';
 
 describe('The ReportView', () => {
@@ -63,7 +63,7 @@ describe('The ReportView', () => {
       ],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
-    const { store } = renderComponentWithStore(<ReportView />);
+    const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
         loadFromFile(
@@ -84,7 +84,7 @@ describe('The ReportView', () => {
   });
 
   it('filters Follow-ups', () => {
-    const { store } = renderComponentWithStore(<ReportView />);
+    const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
         loadFromFile(
@@ -108,7 +108,7 @@ describe('The ReportView', () => {
   });
 
   it('filters only first party', () => {
-    const { store } = renderComponentWithStore(<ReportView />);
+    const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
         loadFromFile(
@@ -136,7 +136,7 @@ describe('The ReportView', () => {
   });
 
   it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
-    const { store } = renderComponentWithStore(<ReportView />);
+    const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
         loadFromFile(

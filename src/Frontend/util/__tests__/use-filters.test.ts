@@ -5,7 +5,7 @@
 import { Attributions, FollowUp } from '../../../shared/shared-types';
 import { FilterType } from '../../enums/enums';
 import { updateActiveFilters } from '../../state/actions/view-actions/view-actions';
-import { renderHook } from '../../test-helpers/render-component-with-store';
+import { renderHook } from '../../test-helpers/render';
 import { useFilters } from '../use-filters';
 
 describe('useFollowUpFilter', () => {

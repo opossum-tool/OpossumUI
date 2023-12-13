@@ -13,7 +13,6 @@ import {
 } from '../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
-import { createTestAppStore } from '../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 import {
@@ -26,6 +25,7 @@ import {
 import { setSelectedAttributionId } from '../../actions/resource-actions/attribution-view-simple-actions';
 import { setDisplayedPackage } from '../../actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../../actions/view-actions/view-actions';
+import { createAppStore } from '../../configure-store';
 import {
   getAttributionBreakpoints,
   getDisplayPackageInfoOfSelected,
@@ -54,7 +54,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   };
 
   it('returns temporary package info of selected attribution', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
@@ -67,7 +67,7 @@ describe('getPackageInfoOfSelectedAttribution', () => {
   });
 
   it('returns empty temporary package info if no selected attribution', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
@@ -87,7 +87,7 @@ describe('Attribution breakpoints', () => {
   ]);
 
   it('can be created and listed.', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getAttributionBreakpoints(testStore.getState())).toEqual(new Set());
 
     testStore.dispatch(setAttributionBreakpoints(testAttributionBreakpoints));
@@ -105,7 +105,7 @@ describe('Files with children', () => {
   );
 
   it('can be created, listed and checked.', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
 
     expect(getFilesWithChildren(testStore.getState())).toEqual(new Set());
 
@@ -125,7 +125,7 @@ describe('ProjectMetadata', () => {
   };
 
   it('can be set and get from store.', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getProjectMetadata(testStore.getState())).toEqual(
       EMPTY_PROJECT_METADATA,
     );
@@ -143,7 +143,7 @@ describe('get displayPackageInfo', () => {
       packageCardId: 'someId',
       displayPackageInfo: { packageName: 'React', attributionIds: ['uuid_0'] },
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setDisplayedPackage(testDisplayedPackage));
     testStore.dispatch(navigateToView(View.Audit));
     const expectedDisplayPackageInfo = {
@@ -162,7 +162,7 @@ describe('get displayPackageInfo', () => {
       packageCardId: 'someId',
       displayPackageInfo: { packageName: 'React', attributionIds: ['uuid_0'] },
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setDisplayedPackage(testDisplayedPackage));
     testStore.dispatch(navigateToView(View.Audit));
     const expectedDisplayPackageInfo = {
@@ -183,7 +183,7 @@ describe('get displayPackageInfo', () => {
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       file: [testSelectedAttributionId],
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),
     );
@@ -252,7 +252,7 @@ describe('The resource actions', () => {
   };
 
   it('getResourceIdsForSelectedAttributionId returns correct Ids in Audit View', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(
@@ -271,7 +271,7 @@ describe('The resource actions', () => {
   });
 
   it('getResourceIdsForSelectedAttributionId returns correct Ids in Attribution View', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(setResources(testResources));
     testStore.dispatch(

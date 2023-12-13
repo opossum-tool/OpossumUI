@@ -5,18 +5,18 @@
 import { fireEvent, screen } from '@testing-library/react';
 
 import { ButtonText } from '../../../enums/enums';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { FileSupportPopup } from '../FileSupportPopup';
 
 describe('FileSupportPopup', () => {
   it('renders', () => {
     const header = 'Warning: Outdated input file format';
-    renderComponentWithStore(<FileSupportPopup />);
+    renderComponent(<FileSupportPopup />);
     expect(screen.getByText(header)).toBeInTheDocument();
   });
 
   it('sends correct signal to backend when clicking createAndProceedButton', () => {
-    renderComponentWithStore(<FileSupportPopup />);
+    renderComponent(<FileSupportPopup />);
     fireEvent.click(
       screen.getByRole('button', { name: ButtonText.CreateAndProceed }),
     );
@@ -26,7 +26,7 @@ describe('FileSupportPopup', () => {
   });
 
   it('sends correct signal to backend when clicking keepButton', () => {
-    renderComponentWithStore(<FileSupportPopup />);
+    renderComponent(<FileSupportPopup />);
     fireEvent.click(screen.getByRole('button', { name: ButtonText.Keep }));
     expect(
       global.window.electronAPI.useOutdatedInputFileFormat,

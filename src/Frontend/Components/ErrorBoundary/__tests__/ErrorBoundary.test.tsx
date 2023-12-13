@@ -8,7 +8,7 @@ import { screen } from '@testing-library/react';
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import { initialViewState } from '../../../state/reducers/view-reducer';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 describe('ErrorBoundary', () => {
@@ -21,7 +21,7 @@ describe('ErrorBoundary', () => {
   }
 
   it('renders its children', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ErrorBoundary>
         <TestComponent throws={false} />
       </ErrorBoundary>,
@@ -37,7 +37,7 @@ describe('ErrorBoundary', () => {
     // we expect warnings that we do not want to see
     jest.spyOn(console, 'error').mockImplementation();
 
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ErrorBoundary>
         <TestComponent throws={true} />
       </ErrorBoundary>,

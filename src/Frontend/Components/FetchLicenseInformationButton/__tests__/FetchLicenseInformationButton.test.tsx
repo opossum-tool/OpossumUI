@@ -6,23 +6,16 @@ import {
   act,
   fireEvent,
   render,
-  renderHook,
   screen,
   waitFor,
 } from '@testing-library/react';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { ReactElement, ReactNode } from 'react';
-import { Provider } from 'react-redux';
-import { Store } from 'redux';
 
 import { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent, renderHook } from '../../../test-helpers/render';
 import {
   FetchLicenseInformationButton,
   FetchStatus,
@@ -61,7 +54,7 @@ describe('FetchLicenseInformationButton', () => {
   });
 
   it('renders enabled button', () => {
-    renderComponentWithStore(
+    renderComponent(
       <FetchLicenseInformationButton
         url={'https://pypi.org/pypi/pip'}
         disabled={false}
@@ -76,7 +69,7 @@ describe('FetchLicenseInformationButton', () => {
 
       axiosMock.onGet(getPypiAPIUrl(MOCK_URL)).networkErrorOnce();
 
-      renderComponentWithStore(
+      renderComponent(
         <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
@@ -93,7 +86,7 @@ describe('FetchLicenseInformationButton', () => {
 
       axiosMock.onGet(getGithubAPIUrl(MOCK_URL)).replyOnce(notFoundStatus);
 
-      renderComponentWithStore(
+      renderComponent(
         <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
@@ -117,7 +110,7 @@ describe('FetchLicenseInformationButton', () => {
         },
       });
 
-      renderComponentWithStore(
+      renderComponent(
         <FetchLicenseInformationButton url={MOCK_URL} disabled={false} />,
       );
 
@@ -144,27 +137,15 @@ function mockConvertPayloadRaises(_: Response): PackageInfo {
 
 const MOCK_URL = 'mock_url';
 
-function getWrapper(store: Store, children: ReactNode): ReactElement {
-  return <Provider store={store}>{children}</Provider>;
-}
-
 const GITHUB_URL = 'https://github.com/opossum-tool/OpossumUI';
 
 describe('useFetchPackageInfo', () => {
   it('returns idle', () => {
-    const store = createTestAppStore();
-    const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
-      getWrapper(store, children);
-
-    const { result } = renderHook(
-      () =>
-        useFetchPackageInfo({
-          url: MOCK_URL,
-          convertPayload: mockConvertPayload,
-        }),
-      {
-        wrapper,
-      },
+    const { result } = renderHook(() =>
+      useFetchPackageInfo({
+        url: MOCK_URL,
+        convertPayload: mockConvertPayload,
+      }),
     );
     expect(result.current.fetchStatus).toBe(FetchStatus.Idle);
   });
@@ -182,12 +163,8 @@ describe('useFetchPackageInfo', () => {
       convertPayload: convertGithubPayload,
     };
 
-    const store = createTestAppStore();
-    const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
-      getWrapper(store, children);
-    const { result } = renderHook(
-      () => useFetchPackageInfo(licenseFetchingInformation),
-      { wrapper },
+    const { result, store } = renderHook(() =>
+      useFetchPackageInfo(licenseFetchingInformation),
     );
     act(() => {
       result.current.fetchData();
@@ -202,18 +179,11 @@ describe('useFetchPackageInfo', () => {
   });
 
   it('handles errors', async () => {
-    const store = createTestAppStore();
-    const wrapper = ({ children }: { children: ReactNode }): ReactElement =>
-      getWrapper(store, children);
-    const { result } = renderHook(
-      () =>
-        useFetchPackageInfo({
-          url: MOCK_URL,
-          convertPayload: mockConvertPayloadRaises,
-        }),
-      {
-        wrapper,
-      },
+    const { result, store } = renderHook(() =>
+      useFetchPackageInfo({
+        url: MOCK_URL,
+        convertPayload: mockConvertPayloadRaises,
+      }),
     );
     act(() => {
       result.current.fetchData();

@@ -6,7 +6,7 @@ import { act, waitFor } from '@testing-library/react';
 
 import { faker } from '../../../shared/Faker';
 import { ElectronAPI } from '../../../shared/shared-types';
-import { renderHook } from '../../test-helpers/render-component-with-store';
+import { renderHook } from '../../test-helpers/render';
 import { useUserSetting } from '../use-user-setting';
 
 const mockGetUserSetting = jest.fn();

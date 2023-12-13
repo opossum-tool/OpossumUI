@@ -4,10 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isFunction } from 'lodash';
 import { useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { setVariable } from '../state/actions/variables-actions/variables-actions';
-import { useAppStore } from '../state/hooks';
+import { useAppDispatch, useAppStore } from '../state/hooks';
 import { State } from '../types/types';
 
 /**
@@ -20,7 +20,7 @@ export function useVariable<T>(
   name: string,
   initialValue: T,
 ): [T, (newValue: T | ((prev: T) => T)) => void] {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const store = useAppStore();
   const getValue = useCallback(
     (state: State) => {

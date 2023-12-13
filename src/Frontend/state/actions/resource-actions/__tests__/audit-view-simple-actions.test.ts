@@ -7,8 +7,8 @@ import {
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { PackagePanelTitle } from '../../../../enums/enums';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
 import { PanelPackage } from '../../../../types/types';
+import { createAppStore } from '../../../configure-store';
 import {
   getDisplayedPackage,
   getResourcesWithExternalAttributedChildren,
@@ -33,14 +33,14 @@ import {
 
 describe('The audit view simple actions', () => {
   it('sets and gets selectedResourceId', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setSelectedResourceId('test'));
     expect(getSelectedResourceId(testStore.getState())).toBe('test');
   });
 
   it('sets and gets targetSelectedResourceId', () => {
     const testTargetSelectedResourceId = 'test_id';
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setTargetSelectedResourceId(testTargetSelectedResourceId),
     );
@@ -52,7 +52,7 @@ describe('The audit view simple actions', () => {
   it('sets and gets expandedIds', () => {
     const testExpandedIds: Array<string> = ['/folder1/', '/folder2/'];
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getExpandedIds(testStore.getState())).toEqual(['/']);
 
     testStore.dispatch(setExpandedIds(testExpandedIds));
@@ -66,7 +66,7 @@ describe('The audit view simple actions', () => {
       displayPackageInfo: { packageName: 'react', attributionIds: ['uuid'] },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getDisplayedPackage(testStore.getState())).toBeNull();
 
     testStore.dispatch(setDisplayedPackage(testSelectedPackage));
@@ -82,7 +82,7 @@ describe('The audit view simple actions', () => {
       displayPackageInfo: { packageName: 'react', attributionIds: ['uuid'] },
     };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getTargetDisplayedPackage(testStore.getState())).toBeNull();
 
     testStore.dispatch(setTargetDisplayedPackage(testTargetSelectedPackage));
@@ -92,7 +92,7 @@ describe('The audit view simple actions', () => {
   });
 
   it('add resolved external attributions to state', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const uuid1 = 'd3a753c0-5100-11eb-ae93-0242ac130002';
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';
     const expectedResolvedExternalAttributions: Set<string> = new Set();
@@ -155,7 +155,7 @@ describe('The audit view simple actions', () => {
   });
 
   it('remove resolved external attributions from state', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const uuid1 = 'd3a753c0-5100-11eb-ae93-0242ac130002';
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';
     const uuid3 = 'd3a75926-5100-11eb-ae93-0242ac130002';

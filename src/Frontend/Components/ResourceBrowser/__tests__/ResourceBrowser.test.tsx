@@ -31,7 +31,7 @@ import { addResolvedExternalAttribution } from '../../../state/actions/resource-
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getSelectedResourceId } from '../../../state/selectors/audit-view-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { collapseFolderByClickingOnIcon } from '../../../test-helpers/resource-browser-test-helpers';
 import { ResourceBrowser } from '../ResourceBrowser';
 
@@ -50,9 +50,8 @@ describe('ResourceBrowser', () => {
       },
     };
 
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources(testResources));
+    const { store } = renderComponent(<ResourceBrowser />, {
+      actions: [setResources(testResources)],
     });
 
     expect(
@@ -108,9 +107,8 @@ describe('ResourceBrowser', () => {
       },
     };
 
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources(testResources));
+    renderComponent(<ResourceBrowser />, {
+      actions: [setResources(testResources)],
     });
 
     expect(screen.getByText('/'));
@@ -154,29 +152,24 @@ describe('ResourceBrowser', () => {
 
     const testLocatePopupSelectedCriticality = SelectedCriticality.High;
 
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources(testResources));
-      store.dispatch(
+    const { store } = renderComponent(<ResourceBrowser />, {
+      actions: [
+        setResources(testResources),
         setManualData(
           testManualAttributions,
           testResourcesToManualAttributions,
         ),
-      );
-      store.dispatch(
         setExternalData(
           testExternalAttributions,
           testResourcesToExternalAttributions,
         ),
-      );
-      store.dispatch(
         setLocatePopupFilters({
           selectedCriticality: testLocatePopupSelectedCriticality,
           selectedLicenses: new Set<string>(),
           searchTerm: '',
           searchOnlyLicenseName: false,
         }),
-      );
+      ],
     });
 
     expect(screen.getByText('/')).toBeInTheDocument();
@@ -233,9 +226,8 @@ describe('ResourceBrowser', () => {
       'a_package.exe': 1,
     };
 
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources(testResources));
+    renderComponent(<ResourceBrowser />, {
+      actions: [setResources(testResources)],
     });
 
     expect(screen.getByText('/'));
@@ -265,9 +257,8 @@ describe('ResourceBrowser', () => {
       d_package_folder: {},
     };
 
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources(testResources));
+    renderComponent(<ResourceBrowser />, {
+      actions: [setResources(testResources)],
     });
     expect(screen.getByText('/'));
     expect(screen.queryByText('doesntExist')).not.toBeInTheDocument();
@@ -298,10 +289,11 @@ describe('ResourceBrowser', () => {
       'package.json': {},
     };
 
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources(testResources));
-      store.dispatch(setFilesWithChildren(new Set(['/package.json/'])));
+    renderComponent(<ResourceBrowser />, {
+      actions: [
+        setResources(testResources),
+        setFilesWithChildren(new Set(['/package.json/'])),
+      ],
     });
 
     expect(screen.getByText('/'));
@@ -326,17 +318,16 @@ describe('ResourceBrowser', () => {
   });
 
   it('renders working tree with the locate attributions icon', () => {
-    const { store } = renderComponentWithStore(<ResourceBrowser />);
-    act(() => {
-      store.dispatch(setResources({}));
-      store.dispatch(
+    const { store } = renderComponent(<ResourceBrowser />, {
+      actions: [
+        setResources({}),
         setLocatePopupFilters({
           selectedCriticality: SelectedCriticality.High,
           selectedLicenses: new Set<string>(),
           searchTerm: '',
           searchOnlyLicenseName: false,
         }),
-      );
+      ],
     });
 
     expect(screen.getByLabelText('locate active')).toBeInTheDocument();

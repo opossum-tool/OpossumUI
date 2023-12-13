@@ -14,7 +14,7 @@ import {
   ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
 import { AllowedSaveOperations } from '../../../../enums/enums';
-import { createTestAppStore } from '../../../../test-helpers/render-component-with-store';
+import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
 import {
   getBaseUrlsForSources,
@@ -87,7 +87,7 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 
 describe('The load and navigation simple actions', () => {
   it('resets the state', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
@@ -110,7 +110,7 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets resources', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setResources(testResources));
     expect(getResources(testStore.getState())).toMatchObject(testResources);
   });
@@ -143,7 +143,7 @@ describe('The load and navigation simple actions', () => {
         paths: ['/some/path1', '/', '/some/', '/some/path2'],
       };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getManualAttributions(testStore.getState())).toEqual({});
     expect(getResourcesToManualAttributions(testStore.getState())).toEqual({});
     expect(getManualAttributionsToResources(testStore.getState())).toEqual({});
@@ -200,7 +200,7 @@ describe('The load and navigation simple actions', () => {
         paths: ['/some/path1', '/', '/some/', '/some/path2'],
       };
 
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getExternalAttributions(testStore.getState())).toEqual({});
     expect(getResourcesToExternalAttributions(testStore.getState())).toEqual(
       {},
@@ -244,7 +244,7 @@ describe('The load and navigation simple actions', () => {
       ],
       texts: { MIT: 'MIT text', GPL: 'GPL text' },
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setFrequentLicenses(testFrequentLicenses));
     expect(getFrequentLicensesNameOrder(testStore.getState())).toMatchObject(
       testFrequentLicenses.nameOrder,
@@ -261,7 +261,7 @@ describe('The load and navigation simple actions', () => {
       licenseText: 'License Text',
       attributionIds: [],
     };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(setTemporaryDisplayPackageInfo(testDisplayPackageInfo));
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject(
       testDisplayPackageInfo,
@@ -280,7 +280,7 @@ describe('The load and navigation simple actions', () => {
       expectedIsSavingDisabled,
       expectedIsGlobalSavingDisabled,
     }) => {
-      const testStore = createTestAppStore();
+      const testStore = createAppStore();
       expect(getIsSavingDisabled(testStore.getState())).toBe(false);
 
       testStore.dispatch(setAllowedSaveOperations(allowedSaveOperationValue));
@@ -294,7 +294,7 @@ describe('The load and navigation simple actions', () => {
   );
 
   it('sets and gets baseUrlsForSources', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({});
     testStore.dispatch(setBaseUrlsForSources({ '/': 'github.com' }));
     expect(getBaseUrlsForSources(testStore.getState())).toEqual({
@@ -303,7 +303,7 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets externalAttributionSources', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getExternalAttributionSources(testStore.getState())).toEqual({});
     testStore.dispatch(
       setExternalAttributionSources({
@@ -317,7 +317,7 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets externalAttributionsToHashes', () => {
     const testExternalAttributionsToHashes = { uuid: '0123-4567' };
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     testStore.dispatch(
       setExternalAttributionsToHashes(testExternalAttributionsToHashes),
     );
@@ -327,7 +327,7 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets isPreferenceFeatureEnabled', () => {
-    const testStore = createTestAppStore();
+    const testStore = createAppStore();
     expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(false);
     testStore.dispatch(setIsPreferenceFeatureEnabled(true));
     expect(getIsPreferenceFeatureEnabled(testStore.getState())).toEqual(true);

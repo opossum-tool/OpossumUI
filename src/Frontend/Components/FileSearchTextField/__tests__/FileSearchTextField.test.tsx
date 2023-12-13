@@ -5,7 +5,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { FileSearchTextField } from '../FileSearchTextField';
 
 describe('The FileSearchTextField', () => {
@@ -14,7 +14,7 @@ describe('The FileSearchTextField', () => {
 
   it('renders', () => {
     const setFilteredPaths = jest.fn();
-    renderComponentWithStore(
+    renderComponent(
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
     screen.getByLabelText('Search');
@@ -22,7 +22,7 @@ describe('The FileSearchTextField', () => {
 
   it('calls callback after debounce time', () => {
     const setFilteredPaths = jest.fn();
-    renderComponentWithStore(
+    renderComponent(
       <FileSearchTextField setFilteredPaths={setFilteredPaths} />,
     );
 

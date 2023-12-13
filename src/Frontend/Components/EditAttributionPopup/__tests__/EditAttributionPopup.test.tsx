@@ -21,7 +21,7 @@ import {
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 import { EditAttributionPopup } from '../EditAttributionPopup';
 
@@ -59,7 +59,7 @@ describe('The EditAttributionPopup', () => {
 
   it('renders and clicks cancel closes the popup', () => {
     const expectedHeader = 'Edit Attribution';
-    const { store } = renderComponentWithStore(<EditAttributionPopup />);
+    const { store } = renderComponent(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
       openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
@@ -92,7 +92,7 @@ describe('The EditAttributionPopup', () => {
 
   it('renders and clicks cancel opens NotSavedPopup if package info has been changed', () => {
     const expectedHeader = 'Edit Attribution';
-    const { store } = renderComponentWithStore(<EditAttributionPopup />);
+    const { store } = renderComponent(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
       openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
@@ -127,7 +127,7 @@ describe('The EditAttributionPopup', () => {
 
   it('renders and clicks save saves changed  package info', () => {
     const expectedHeader = 'Edit Attribution';
-    const { store } = renderComponentWithStore(<EditAttributionPopup />);
+    const { store } = renderComponent(<EditAttributionPopup />);
     store.dispatch(navigateToView(View.Report));
     store.dispatch(
       openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),

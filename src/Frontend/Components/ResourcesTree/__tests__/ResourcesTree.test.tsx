@@ -10,7 +10,7 @@ import {
   getSelectedResourceId,
 } from '../../../state/selectors/audit-view-resource-selectors';
 import { getSelectedView } from '../../../state/selectors/view-selector';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ResourcesTree } from '../ResourcesTree';
 
 describe('The ResourcesTree', () => {
@@ -24,7 +24,7 @@ describe('The ResourcesTree', () => {
   ];
 
   it('expands all folders', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ResourcesTree
         resourcePaths={resourcePaths}
         highlightSelectedResources={true}
@@ -35,7 +35,7 @@ describe('The ResourcesTree', () => {
   });
 
   it('changes the view, selectedResourceId and expandedResources when a resource is clicked', () => {
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <ResourcesTree
         resourcePaths={resourcePaths}
         highlightSelectedResources={true}
@@ -51,7 +51,7 @@ describe('The ResourcesTree', () => {
   });
 
   it('collapses and expands folders', () => {
-    renderComponentWithStore(
+    renderComponent(
       <ResourcesTree
         resourcePaths={resourcePaths}
         highlightSelectedResources={true}

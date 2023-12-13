@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { Attributions, ExportType } from '../../../../shared/shared-types';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import {
   BackendCommunication,
   getBomAttributions,
@@ -13,7 +13,7 @@ import {
 
 describe('BackendCommunication', () => {
   it('renders an Open file icon', () => {
-    renderComponentWithStore(<BackendCommunication />);
+    renderComponent(<BackendCommunication />);
     const expectedNumberOfCalls = 13;
     expect(window.electronAPI.on).toHaveBeenCalledTimes(expectedNumberOfCalls);
     expect(window.electronAPI.on).toHaveBeenCalledWith(

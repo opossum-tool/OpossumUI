@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { ErrorPopup } from '../ErrorPopup';
 
 describe('Error popup ', () => {
   it('renders', () => {
-    renderComponentWithStore(<ErrorPopup content="Invalid link." />);
+    renderComponent(<ErrorPopup content="Invalid link." />);
 
     expect(screen.getByText('Error')).toBeInTheDocument();
   });

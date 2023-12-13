@@ -23,10 +23,7 @@ import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/a
 import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import {
-  createTestAppStore,
-  renderComponentWithStore,
-} from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { doNothing } from '../../../util/do-nothing';
 import {
   CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP,
@@ -60,17 +57,7 @@ describe('The PackageCard', () => {
       'package_1.tr.gz': [testAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    const { store } = renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
@@ -80,12 +67,22 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByText('packageName'));
 
     expect(
-      testStore.getState().resourceState.allViews.manualData.attributions[
+      store.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
       ],
     ).toEqual(testAttributions[testAttributionId]);
@@ -95,7 +92,7 @@ describe('The PackageCard', () => {
       ButtonText.Confirm,
     );
     expect(
-      testStore.getState().resourceState.allViews.manualData.attributions[
+      store.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
       ],
     ).toEqual({
@@ -110,17 +107,7 @@ describe('The PackageCard', () => {
       'package_2.tr.gz': [testAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    const { store } = renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
@@ -130,13 +117,23 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expect(screen.getByText('packageName'));
 
     expect(
-      testStore.getState().resourceState.allViews.manualData.attributions[
+      store.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
       ],
     ).toEqual(testAttributions[testAttributionId]);
@@ -146,7 +143,7 @@ describe('The PackageCard', () => {
       ButtonText.ConfirmGlobally,
     );
     expect(
-      testStore.getState().resourceState.allViews.manualData.attributions[
+      store.getState().resourceState.allViews.manualData.attributions[
         testAttributionId
       ],
     ).toEqual({
@@ -162,17 +159,7 @@ describe('The PackageCard', () => {
       'jQuery.js': [anotherAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    const { store } = renderComponentWithStore(
+    const { store } = renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
@@ -183,7 +170,17 @@ describe('The PackageCard', () => {
         onClick={doNothing}
         showCheckBox={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expect(screen.getByText('packageName'));
@@ -212,17 +209,7 @@ describe('The PackageCard', () => {
       'jQuery.js': [anotherAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    const { store } = renderComponent(
       <div>
         <PackageCard
           cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
@@ -246,7 +233,17 @@ describe('The PackageCard', () => {
           showCheckBox={true}
         />
       </div>,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     expect(screen.getByText('packageName'));
@@ -255,7 +252,7 @@ describe('The PackageCard', () => {
       fireEvent.click(checkbox),
     );
     const attributions =
-      testStore.getState().resourceState.allViews.manualData.attributions;
+      store.getState().resourceState.allViews.manualData.attributions;
     expect(attributions[testAttributionId]).toEqual(
       testAttributions[testAttributionId],
     );
@@ -269,7 +266,7 @@ describe('The PackageCard', () => {
       ButtonText.ConfirmSelectedGlobally,
     );
     const updatedAttributions =
-      testStore.getState().resourceState.allViews.manualData.attributions;
+      store.getState().resourceState.allViews.manualData.attributions;
     expect(updatedAttributions[testAttributionId].preSelected).toBeFalsy();
     expect(updatedAttributions[anotherAttributionId].preSelected).toBeFalsy();
   });
@@ -299,19 +296,7 @@ describe('The PackageCard', () => {
       '/samplepath/file': ['uuid_1'],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(setSelectedResourceId(selectedResourceId));
-    testStore.dispatch(
-      setExternalData(
-        testExternalAttributions,
-        testExternalResourcesToAttributions,
-      ),
-    );
-    testStore.dispatch(
-      setManualData(testManualAttributions, testManualResourcesToAttributions),
-    );
-
-    renderComponentWithStore(
+    const { store } = renderComponent(
       <PackageCard
         cardId={'testCardId'}
         displayPackageInfo={{
@@ -323,7 +308,19 @@ describe('The PackageCard', () => {
         hideContextMenuAndMultiSelect={false}
         showCheckBox={false}
       />,
-      { store: testStore },
+      {
+        actions: [
+          setSelectedResourceId(selectedResourceId),
+          setExternalData(
+            testExternalAttributions,
+            testExternalResourcesToAttributions,
+          ),
+          setManualData(
+            testManualAttributions,
+            testManualResourcesToAttributions,
+          ),
+        ],
+      },
     );
 
     clickOnButtonInPackageContextMenu(
@@ -332,7 +329,7 @@ describe('The PackageCard', () => {
       ButtonText.OpenAttributionWizardPopup,
     );
 
-    expect(getOpenPopup(testStore.getState())).toBe(
+    expect(getOpenPopup(store.getState())).toBe(
       PopupType.AttributionWizardPopup,
     );
   });
@@ -342,17 +339,7 @@ describe('The PackageCard', () => {
       'package_1.tr.gz': [testAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
@@ -365,7 +352,17 @@ describe('The PackageCard', () => {
         onIconClick={doNothing}
         showCheckBox={true}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
 
     const addButton = screen.getByLabelText(
@@ -379,17 +376,7 @@ describe('The PackageCard', () => {
       'package_1.tr.gz': [testAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
@@ -401,7 +388,17 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByTestId('preferred-icon')).toBeInTheDocument();
     expect(screen.queryByTestId('was-preferred-icon')).not.toBeInTheDocument();
@@ -412,17 +409,7 @@ describe('The PackageCard', () => {
       'package_1.tr.gz': [testAttributionId],
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-    renderComponentWithStore(
+    renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
@@ -433,7 +420,17 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources: testResources,
+              manualAttributions: testAttributions,
+              resourcesToManualAttributions: testResourcesToManualAttributions,
+            }),
+          ),
+        ],
+      },
     );
     expect(screen.getByTestId('was-preferred-icon')).toBeInTheDocument();
   });
@@ -446,16 +443,7 @@ describe('The PackageCard', () => {
       searchOnlyLicenseName: false,
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setLocatePopupFilters(locatePopupFilters));
-    renderComponentWithStore(
+    renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: true }}
         cardId={'some_id'}
@@ -465,7 +453,16 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              externalAttributions: testAttributions,
+            }),
+          ),
+          setLocatePopupFilters(locatePopupFilters),
+        ],
+      },
     );
     expect(screen.getByLabelText('locate signals icon')).toBeInTheDocument();
   });
@@ -477,16 +474,7 @@ describe('The PackageCard', () => {
       searchOnlyLicenseName: false,
     };
 
-    const testStore = createTestAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          externalAttributions: testAttributions,
-        }),
-      ),
-    );
-    testStore.dispatch(setLocatePopupFilters(locatePopupFilters));
-    renderComponentWithStore(
+    renderComponent(
       <PackageCard
         cardConfig={{ isExternalAttribution: true }}
         cardId={'some_id'}
@@ -496,7 +484,16 @@ describe('The PackageCard', () => {
         }}
         onClick={doNothing}
       />,
-      { store: testStore },
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              externalAttributions: testAttributions,
+            }),
+          ),
+          setLocatePopupFilters(locatePopupFilters),
+        ],
+      },
     );
     expect(
       screen.queryByLabelText('locate signals icon'),

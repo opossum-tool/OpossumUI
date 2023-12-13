@@ -13,7 +13,11 @@ const sharedRules = {
   '@typescript-eslint/no-floating-promises': 'error',
   '@typescript-eslint/no-magic-numbers': [
     'error',
-    { ignore: [-1, 0, 1, 2, 100] },
+    {
+      ignore: [-1, 0, 1, 2, 100],
+      ignoreArrayIndexes: true,
+      ignoreTypeIndexes: true,
+    },
   ],
   '@typescript-eslint/no-misused-promises': [
     'error',
@@ -46,6 +50,7 @@ const sharedRules = {
   'no-extend-native': 'error',
   'no-lone-blocks': 'error',
   'no-lonely-if': 'error',
+  'no-magic-numbers': 'off',
   'no-multi-assign': 'error',
   'no-nested-ternary': 'off',
   'no-new-func': 'error',

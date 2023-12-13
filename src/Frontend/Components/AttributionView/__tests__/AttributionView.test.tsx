@@ -19,7 +19,7 @@ import {
   getParsedInputFileEnrichedWithTestData,
   openDropDown,
 } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { AttributionView } from '../AttributionView';
 
 describe('The Attribution View', () => {
@@ -51,7 +51,7 @@ describe('The Attribution View', () => {
   ];
 
   it('renders', () => {
-    const { store } = renderComponentWithStore(<AttributionView />);
+    const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -75,7 +75,7 @@ describe('The Attribution View', () => {
   });
 
   it('filters Follow-ups', () => {
-    const { store } = renderComponentWithStore(<AttributionView />);
+    const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -101,7 +101,7 @@ describe('The Attribution View', () => {
   });
 
   it('filters Only First Party', () => {
-    const { store } = renderComponentWithStore(<AttributionView />);
+    const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -129,7 +129,7 @@ describe('The Attribution View', () => {
   });
 
   it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
-    const { store } = renderComponentWithStore(<AttributionView />);
+    const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
@@ -183,7 +183,7 @@ describe('The Attribution View', () => {
       '/file': ['uuid_1', 'uuid_2', 'uuid_3'],
     };
 
-    const { store } = renderComponentWithStore(<AttributionView />);
+    const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({

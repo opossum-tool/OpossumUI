@@ -14,7 +14,7 @@ import { View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { AttributionCountsPanel } from '../AttributionCountsPanel';
 
 describe('The Attribution Counts Panel', () => {
@@ -46,7 +46,7 @@ describe('The Attribution Counts Panel', () => {
   };
 
   it('renders', () => {
-    const { store } = renderComponentWithStore(<AttributionCountsPanel />);
+    const { store } = renderComponent(<AttributionCountsPanel />);
     store.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({

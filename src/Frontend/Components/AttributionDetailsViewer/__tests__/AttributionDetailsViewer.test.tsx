@@ -18,7 +18,7 @@ import { loadFromFile } from '../../../state/actions/resource-actions/load-actio
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { renderComponentWithStore } from '../../../test-helpers/render-component-with-store';
+import { renderComponent } from '../../../test-helpers/render';
 import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
 
@@ -33,7 +33,7 @@ describe('The AttributionDetailsViewer', () => {
       licenseText: 'Permission is hereby granted',
       attributionIds: [],
     };
-    const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
+    const { store } = renderComponent(<AttributionDetailsViewer />);
     act(() => {
       store.dispatch(setSelectedAttributionId('test_id'));
       store.dispatch(
@@ -97,7 +97,7 @@ describe('The AttributionDetailsViewer', () => {
         packageName: 'JQuery',
       },
     };
-    const { store } = renderComponentWithStore(<AttributionDetailsViewer />);
+    const { store } = renderComponent(<AttributionDetailsViewer />);
     act(() => {
       store.dispatch(
         loadFromFile(
