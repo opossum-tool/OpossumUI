@@ -52,7 +52,8 @@ export async function main(): Promise<void> {
         callback({
           responseHeaders: {
             ...details.responseHeaders,
-            'Access-Control-Allow-Origin': ['*'],
+            'access-control-allow-origin': ['*'],
+            'Access-Control-Allow-Origin': [],
           },
         });
       },
