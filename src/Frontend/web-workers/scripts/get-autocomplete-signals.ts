@@ -5,9 +5,9 @@
 import { compact, orderBy } from 'lodash';
 
 import {
+  AutocompleteSignal,
   ExternalAttributionSources,
   PackageInfo,
-  SignalWithCount,
 } from '../../../shared/shared-types';
 import {
   getContainedExternalPackages,
@@ -57,7 +57,7 @@ export function getAutocompleteSignals({
     ...signalsOnResource,
     ...signalsOnChildren,
     ...attributionsOnChildren,
-  ].reduce<Array<SignalWithCount>>((acc, signal) => {
+  ].reduce<Array<AutocompleteSignal>>((acc, signal) => {
     if (!generatePurl(signal)) {
       return acc;
     }

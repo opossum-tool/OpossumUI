@@ -4855,6 +4855,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"compare-versions@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "compare-versions@npm:6.1.0"
+  checksum: 20f349e7f8ad784704c68265f4e660e2abbe2c3d5c75793184fccb85f0c5c0263260e01fdd4488376f6b74b0f069e16c9684463f7316b075716fb1581eb36b77
+  languageName: node
+  linkType: hard
+
 "concat-map@npm:0.0.1":
   version: 0.0.1
   resolution: "concat-map@npm:0.0.1"
@@ -9242,7 +9249,6 @@ __metadata:
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.14.202"
     "@types/object-hash": "npm:^3.0.6"
-    "@types/prop-types": "npm:^15.7.11"
     "@types/react": "npm:^18.2.43"
     "@types/react-dom": "npm:^18.2.17"
     "@types/recharts": "npm:^1.8.29"
@@ -9256,6 +9262,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     babel-plugin-transform-import-meta: "npm:^2.2.1"
     buffer: "npm:^6.0.3"
+    compare-versions: "npm:^6.1.0"
     cross-env: "npm:^7.0.3"
     dayjs: "npm:^1.11.10"
     dotenv: "npm:^16.3.1"
@@ -9293,7 +9300,6 @@ __metadata:
     packageurl-js: "npm:^1.2.1"
     prettier: "npm:^3.1.1"
     prettier-plugin-sh: "npm:^0.13.1"
-    prop-types: "npm:^15.8.1"
     proxy-memoize: "npm:^2.0.4"
     re-resizable: "npm:^6.9.11"
     react: "npm:^18.2.0"
@@ -9314,6 +9320,7 @@ __metadata:
     vite-plugin-electron: "npm:^0.15.5"
     vite-plugin-svgr: "npm:^4.2.0"
     vite-tsconfig-paths: "npm:^4.2.2"
+    whatwg-fetch: "npm:^3.6.19"
   languageName: unknown
   linkType: soft
 
@@ -11777,6 +11784,13 @@ __metadata:
   dependencies:
     iconv-lite: "npm:0.6.3"
   checksum: 162d712d88fd134a4fe587e53302da812eb4215a1baa4c394dfd86eff31d0a079ff932c05233857997de07481093358d6e7587997358f49b8a580a777be22089
+  languageName: node
+  linkType: hard
+
+"whatwg-fetch@npm:^3.6.19":
+  version: 3.6.19
+  resolution: "whatwg-fetch@npm:3.6.19"
+  checksum: 257b130a06bc0fca4e3f15cb4a7b7822d12b7493c6743353e3a107b62ef2716f77fae35b4c81b4b8630e221aca30ea5b9770969db762d63336108f57bee9f963
   languageName: node
   linkType: hard
 

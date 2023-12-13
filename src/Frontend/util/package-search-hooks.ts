@@ -4,18 +4,37 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useQuery } from '@tanstack/react-query';
 
-import { PackageSearchApi } from './package-search-api';
+import { PackageInfo } from '../../shared/shared-types';
+import PackageSearchApi from './package-search-api';
 
-function usePackageSearchSuggestions(searchTerm: string | undefined) {
+function usePackageNames({ packageName }: PackageInfo) {
   const { data, error, isLoading } = useQuery({
-    queryKey: ['search-suggestions', searchTerm],
+    queryKey: ['package-name-suggestions', packageName],
     queryFn: () =>
-      searchTerm ? PackageSearchApi.getSuggestions(searchTerm) : {},
-    enabled: !!searchTerm,
+      packageName ? PackageSearchApi.getPackages(packageName) : {},
+    enabled: !!packageName,
   });
-  return { data, error, isLoading };
+  return {
+    packageNames: data,
+    packageNamesError: error,
+    packageNamesLoading: isLoading,
+  };
+}
+
+function usePackageVersions({ packageType, packageName }: PackageInfo) {
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['package-version-suggestions', packageType, packageName],
+    queryFn: () => PackageSearchApi.getVersions({ packageName, packageType }),
+    enabled: !!packageType && !!packageName,
+  });
+  return {
+    packageVersions: data,
+    packageVersionsError: error,
+    packageVersionsLoading: isLoading,
+  };
 }
 
 export const PackageSearchHooks = {
-  usePackageSearchSuggestions,
+  usePackageNames,
+  usePackageVersions,
 };
