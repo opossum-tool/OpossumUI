@@ -20,6 +20,7 @@ import { useAppDispatch } from '../../state/hooks';
 import { generatePurl, parsePurl } from '../../util/handle-purl';
 import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
+import { useDebouncedInput } from '../../util/use-debounced-input';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
 import { SearchPackagesIcon } from '../Icons/Icons';
@@ -67,7 +68,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     [],
   );
 
-  PackageSearchHooks.usePackageNames(props.displayPackageInfo);
+  const debouncedPackageInfo = useDebouncedInput(props.displayPackageInfo);
+
+  const { packageNames } =
+    PackageSearchHooks.usePackageNames(debouncedPackageInfo);
 
   const { packageVersions } = PackageSearchHooks.usePackageVersions(
     props.displayPackageInfo,
@@ -96,6 +100,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         highlight={'dark'}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        defaults={packageNames}
         endAdornment={
           <IconButton
             tooltipTitle={

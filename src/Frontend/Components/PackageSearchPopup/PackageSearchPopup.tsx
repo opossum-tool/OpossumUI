@@ -8,13 +8,14 @@ import MuiTypography from '@mui/material/Typography';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Validator } from 'jsonschema';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
 import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
+import { useDebouncedInput } from '../../util/use-debounced-input';
 import { Alert } from '../Alert/Alert';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
@@ -34,22 +35,6 @@ const classes = {
     alignItems: 'center',
   },
 };
-
-function useDebounceInput(input: string, delay: number): string {
-  const [debouncedInput, setDebouncedInput] = useState<string>(input);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedInput(input);
-    }, delay);
-
-    return (): void => {
-      clearTimeout(handler);
-    };
-  }, [delay, input]);
-
-  return debouncedInput;
-}
 
 const jsonSchemaValidator = new Validator();
 const definitionsSchema = {
@@ -87,11 +72,7 @@ export function PackageSearchPopup(): ReactElement {
   const [currentSearchTerm, setCurrentSearchTerm] = useState<string>(
     getInitialSearchTerm(temporaryDisplayPackageInfo),
   );
-  const debounceDelayInMs = 500;
-  const debouncedSearchTerm = useDebounceInput(
-    currentSearchTerm,
-    debounceDelayInMs,
-  );
+  const debouncedSearchTerm = useDebouncedInput(currentSearchTerm);
   const { isLoading, data, isError, error } = useQuery({
     queryKey: ['clearlyDefinedPackageSearch', debouncedSearchTerm],
     queryFn: () => searchPackagesOnClearlyDefined(debouncedSearchTerm),

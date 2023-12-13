@@ -19,10 +19,14 @@ export const systems = [
 ] as const;
 export type System = (typeof systems)[number];
 
-interface SearchResponse {
+export interface SearchResponse {
   kind: 'PACKAGE' | 'PROJECT';
   name: string;
   system: string;
+}
+
+export interface RawSearchResponse {
+  results: Array<SearchResponse>;
 }
 
 export interface VersionKey {
@@ -63,8 +67,12 @@ export class PackageSearchApi {
   }
 
   public async getPackages(
-    packageName: string,
+    props: PackageInfo,
   ): Promise<Array<AutocompleteSignal>> {
+    const { packageName } = this.sanitize(props, ['packageName']);
+    if (!packageName) {
+      return [];
+    }
     const response = await this.httpClient.request({
       baseUrl: this.baseUrlWeb,
       path: '/_/search/suggest',
@@ -72,16 +80,18 @@ export class PackageSearchApi {
         q: packageName,
       },
     });
-    const data: Array<SearchResponse> = await response.json();
+    const data: Array<SearchResponse> = (await response.json()).results;
 
-    return data.map<AutocompleteSignal>(({ name, system }) => ({
-      packageName: name,
-      packageType: system.toLowerCase(),
-      source: {
-        name: text.attributionColumn.depsDev,
-        documentConfidence: 100,
-      },
-    }));
+    return data
+      .filter((searchResponse) => searchResponse.kind === 'PACKAGE')
+      .map<AutocompleteSignal>(({ name, system }) => ({
+        packageName: name,
+        packageType: system.toLowerCase(),
+        source: {
+          name: text.attributionColumn.depsDev,
+          documentConfidence: 100,
+        },
+      }));
   }
 
   public async getVersions(props: PackageInfo): Promise<Versions> {
