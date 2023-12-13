@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { faker } from '../../../shared/Faker';
+import { AutocompleteSignal } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { PackageSearchApi, Versions } from '../package-search-api';
 
@@ -109,6 +110,41 @@ describe('PackageSearchApi', () => {
           path: expect.stringContaining(`/${system.toLowerCase()}/`),
         }),
       );
+    });
+  });
+
+  describe('getPackages', () => {
+    it('provides packages but no projects', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: faker.packageSearch.system(),
+      });
+      const searchResponsePackage = faker.packageSearch.searchResponse({
+        kind: 'PACKAGE',
+      });
+      const searchResponseProject = faker.packageSearch.searchResponse({
+        kind: 'PROJECT',
+      });
+
+      const httpClient = faker.httpClient(
+        faker.packageSearch.rawSearchResponse({
+          results: [searchResponsePackage, searchResponseProject],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const searchResults = await packageSearchApi.getPackages(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(searchResults).toEqual<Array<AutocompleteSignal>>([
+        {
+          packageName: searchResponsePackage.name,
+          packageType: searchResponsePackage.system.toLowerCase(),
+          source: {
+            name: text.attributionColumn.depsDev,
+            documentConfidence: 100,
+          },
+        },
+      ]);
     });
   });
 });

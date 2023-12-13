@@ -10,8 +10,7 @@ import PackageSearchApi from './package-search-api';
 function usePackageNames({ packageName }: PackageInfo) {
   const { data, error, isLoading } = useQuery({
     queryKey: ['package-name-suggestions', packageName],
-    queryFn: () =>
-      packageName ? PackageSearchApi.getPackages(packageName) : {},
+    queryFn: () => PackageSearchApi.getPackages({ packageName }),
     enabled: !!packageName,
   });
   return {
