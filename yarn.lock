@@ -9299,7 +9299,7 @@ __metadata:
     url: "npm:^0.11.3"
     uuid: "npm:^9.0.1"
     vite: "npm:^5.0.8"
-    vite-plugin-electron: "npm:^0.15.4"
+    vite-plugin-electron: "npm:^0.15.5"
     vite-plugin-svgr: "npm:^4.2.0"
     vite-tsconfig-paths: "npm:^4.2.2"
   languageName: unknown
@@ -11626,9 +11626,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-electron@npm:^0.15.4":
-  version: 0.15.4
-  resolution: "vite-plugin-electron@npm:0.15.4"
+"vite-plugin-electron@npm:^0.15.5":
+  version: 0.15.5
+  resolution: "vite-plugin-electron@npm:0.15.5"
   peerDependencies:
     tree-kill: "*"
     vite-plugin-electron-renderer: "*"
@@ -11637,7 +11637,7 @@ __metadata:
       optional: true
     vite-plugin-electron-renderer:
       optional: true
-  checksum: 4d20666200cbeb94a971cd675e721dd46f5cc1f6732e858314830fdbc7864270276a626ab010b076f9adf2797fe8e2f97358d5f49aadc5be9baae53623edae00
+  checksum: a234156bc0683b6cffdf429ae5e91a9c9b4cb8301fff7cddc3a146097061563c488b119c7779e9116fd24e2a2508b4a91fdd67fc1adc21af79d87be1859e8335
   languageName: node
   linkType: hard
 
