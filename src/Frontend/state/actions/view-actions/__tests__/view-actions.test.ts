@@ -206,11 +206,9 @@ describe('popup actions', () => {
       PopupType.EditAttributionPopup,
     );
 
-    testStore.dispatch(openPopup(PopupType.PackageSearchPopup));
+    testStore.dispatch(openPopup(PopupType.LocatorPopup));
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.PackageSearchPopup,
-    );
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.LocatorPopup);
 
     testStore.dispatch(closePopup());
     expect(getPopupAttributionId(testStore.getState())).toEqual(
