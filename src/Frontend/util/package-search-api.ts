@@ -19,20 +19,34 @@ export const systems = [
 ] as const;
 export type System = (typeof systems)[number];
 
-export interface SearchResponse {
+export interface PackageResponse {
   kind: 'PACKAGE' | 'PROJECT';
   name: string;
   system: string;
 }
 
-export interface RawSearchResponse {
-  results: Array<SearchResponse>;
+export interface PackagesResponse {
+  results: Array<PackageResponse>;
 }
 
 export interface VersionKey {
   system: System;
   name: string;
   version: string;
+}
+
+export interface Links {
+  origins?: Array<string>;
+  homepage?: string;
+  issues?: string;
+  repo?: string;
+}
+
+export interface WebVersionResponse {
+  version: {
+    licenses: Array<string>;
+    links: Links;
+  };
 }
 
 export interface VersionResponse {
@@ -50,6 +64,11 @@ export interface Versions {
   other: Array<AutocompleteSignal>;
 }
 
+export interface Version {
+  url: string | undefined;
+  license: string;
+}
+
 export class PackageSearchApi {
   private readonly baseUrlApi = 'https://api.deps.dev';
   private readonly baseUrlWeb = 'https://deps.dev';
@@ -60,10 +79,10 @@ export class PackageSearchApi {
     input: T,
     keys: K,
   ): Pick<T, (typeof keys)[number]> {
-    return mapValues(
-      pick(input, keys),
-      (value) => value?.toString().trim().toLowerCase(),
-    ) as Pick<T, (typeof keys)[number]>;
+    return mapValues(pick(input, keys), (value, key) => {
+      const sanitized = value?.toString().trim().toLowerCase();
+      return key === 'packageType' && sanitized === 'golang' ? 'go' : sanitized;
+    }) as Pick<T, (typeof keys)[number]>;
   }
 
   public async getPackages(
@@ -80,9 +99,9 @@ export class PackageSearchApi {
         q: packageName,
       },
     });
-    const data: Array<SearchResponse> = (await response.json()).results;
+    const data: PackagesResponse = await response.json();
 
-    return data
+    return data.results
       .filter((searchResponse) => searchResponse.kind === 'PACKAGE')
       .map<AutocompleteSignal>(({ name, system }) => ({
         packageName: name,
@@ -147,6 +166,36 @@ export class PackageSearchApi {
           },
         }),
       ),
+    };
+  }
+
+  public async getVersion(props: PackageInfo): Promise<Version> {
+    const { packageName, packageType, packageVersion } = this.sanitize(props, [
+      'packageName',
+      'packageType',
+      'packageVersion',
+    ]);
+
+    if (
+      !packageType ||
+      !packageName ||
+      !packageVersion ||
+      !systems.some((type) => type === packageType.toUpperCase())
+    ) {
+      return { url: undefined, license: '' };
+    }
+
+    const response = await this.httpClient.request({
+      baseUrl: this.baseUrlWeb,
+      path: `_/s/${packageType}/p/${packageName}/v/${packageVersion}`,
+    });
+    const {
+      version: { links, licenses },
+    }: WebVersionResponse = await response.json();
+
+    return {
+      url: links.repo || links.homepage || links.origins?.[0],
+      license: licenses.join(' AND '),
     };
   }
 }

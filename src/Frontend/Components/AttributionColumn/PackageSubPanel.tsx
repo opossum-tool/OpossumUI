@@ -35,6 +35,7 @@ const COMMON_PACKAGE_TYPES = [
   'docker',
   'gem',
   'github',
+  'gitlab',
   'golang',
   'maven',
   'npm',

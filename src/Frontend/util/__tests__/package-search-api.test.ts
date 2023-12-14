@@ -5,7 +5,7 @@
 import { faker } from '../../../shared/Faker';
 import { AutocompleteSignal } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PackageSearchApi, Versions } from '../package-search-api';
+import { PackageSearchApi, Version, Versions } from '../package-search-api';
 
 describe('PackageSearchApi', () => {
   describe('getVersions', () => {
@@ -111,6 +111,103 @@ describe('PackageSearchApi', () => {
         }),
       );
     });
+
+    it('maps package type "golang" to "go"', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: 'golang',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.versionsResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getVersions(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(httpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: expect.stringContaining('/go/'),
+        }),
+      );
+    });
+  });
+
+  describe('getVersion', () => {
+    it('provides repo URL and license for a given package version', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: faker.packageSearch.system(),
+      });
+      const repoUrl = faker.internet.url();
+      const license1 = faker.commerce.productName();
+      const license2 = faker.commerce.productName();
+      const httpClient = faker.httpClient(
+        faker.packageSearch.webVersionResponse({
+          version: {
+            links: faker.packageSearch.links({ repo: repoUrl }),
+            licenses: [license1, license2],
+          },
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const version = await packageSearchApi.getVersion(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(version).toEqual<Version>({
+        url: repoUrl,
+        license: `${license1} AND ${license2}`,
+      });
+    });
+
+    it('falls back to homepage URL when repo URL not available', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: faker.packageSearch.system(),
+      });
+      const homepageUrl = faker.internet.url();
+      const httpClient = faker.httpClient(
+        faker.packageSearch.webVersionResponse({
+          version: {
+            links: faker.packageSearch.links({ homepage: homepageUrl }),
+            licenses: [],
+          },
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const version = await packageSearchApi.getVersion(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(version).toEqual<Version>({
+        url: homepageUrl,
+        license: '',
+      });
+    });
+
+    it('falls back to first origin URL when neither repo URL nor homepage URL are available', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: faker.packageSearch.system(),
+      });
+      const originUrl = faker.internet.url();
+      const httpClient = faker.httpClient(
+        faker.packageSearch.webVersionResponse({
+          version: {
+            links: faker.packageSearch.links({
+              origins: [originUrl, faker.internet.url()],
+            }),
+            licenses: [],
+          },
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const version = await packageSearchApi.getVersion(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(version).toEqual<Version>({
+        url: originUrl,
+        license: '',
+      });
+    });
   });
 
   describe('getPackages', () => {
@@ -118,15 +215,15 @@ describe('PackageSearchApi', () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: faker.packageSearch.system(),
       });
-      const searchResponsePackage = faker.packageSearch.searchResponse({
+      const searchResponsePackage = faker.packageSearch.packageResponse({
         kind: 'PACKAGE',
       });
-      const searchResponseProject = faker.packageSearch.searchResponse({
+      const searchResponseProject = faker.packageSearch.packageResponse({
         kind: 'PROJECT',
       });
 
       const httpClient = faker.httpClient(
-        faker.packageSearch.rawSearchResponse({
+        faker.packageSearch.packagesResponse({
           results: [searchResponsePackage, searchResponseProject],
         }),
       );
