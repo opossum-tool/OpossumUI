@@ -2,10 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { PackageInfo } from '../../shared/shared-types';
 import PackageSearchApi from './package-search-api';
+import { tryit } from './tryit';
 
 function usePackageNames({ packageName }: PackageInfo) {
   const { data, error, isLoading } = useQuery({
@@ -33,7 +34,20 @@ function usePackageVersions({ packageType, packageName }: PackageInfo) {
   };
 }
 
+function usePackageVersion() {
+  const { mutateAsync, error, isPending } = useMutation({
+    mutationFn: (props: PackageInfo) => PackageSearchApi.getVersion(props),
+  });
+
+  return {
+    getPackageVersion: tryit(mutateAsync),
+    packageVersionError: error,
+    packageVersionLoading: isPending,
+  };
+}
+
 export const PackageSearchHooks = {
   usePackageNames,
   usePackageVersions,
+  usePackageVersion,
 };
