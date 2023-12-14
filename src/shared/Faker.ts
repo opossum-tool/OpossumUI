@@ -14,13 +14,15 @@ import type {
 import { ensureArray } from '../Frontend/util/ensure-array';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
-  RawSearchResponse,
-  SearchResponse,
+  Links,
+  PackageResponse,
+  PackagesResponse,
   System,
   systems,
   VersionKey,
   VersionResponse,
   VersionsResponse,
+  WebVersionResponse,
 } from '../Frontend/util/package-search-api';
 import { PackageSearchHooks } from '../Frontend/util/package-search-hooks';
 import {
@@ -354,9 +356,9 @@ class PackageSearchModule {
     };
   }
 
-  public static searchResponse(
-    props: Partial<SearchResponse> = {},
-  ): SearchResponse {
+  public static packageResponse(
+    props: Partial<PackageResponse> = {},
+  ): PackageResponse {
     return {
       kind: faker.datatype.boolean() ? 'PACKAGE' : 'PROJECT',
       name: faker.commerce.productName(),
@@ -365,11 +367,30 @@ class PackageSearchModule {
     };
   }
 
-  public static rawSearchResponse(
-    props: Partial<RawSearchResponse> = {},
-  ): RawSearchResponse {
+  public static packagesResponse(
+    props: Partial<PackagesResponse> = {},
+  ): PackagesResponse {
     return {
-      results: faker.helpers.multiple(PackageSearchModule.searchResponse),
+      results: faker.helpers.multiple(PackageSearchModule.packageResponse),
+      ...props,
+    };
+  }
+
+  public static links(props: Partial<Links> = {}): Links {
+    return {
+      origins: faker.helpers.multiple(faker.internet.url),
+      ...props,
+    };
+  }
+
+  public static webVersionResponse(
+    props: Partial<WebVersionResponse> = {},
+  ): WebVersionResponse {
+    return {
+      version: {
+        licenses: faker.helpers.multiple(faker.commerce.productName),
+        links: PackageSearchModule.links(),
+      },
       ...props,
     };
   }
