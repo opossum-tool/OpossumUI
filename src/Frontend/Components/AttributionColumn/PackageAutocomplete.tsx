@@ -29,6 +29,7 @@ import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
 
@@ -77,6 +78,8 @@ export function PackageAutocomplete({
   );
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
+
+  const { getPackageVersion } = PackageSearchHooks.usePackageVersion();
 
   const autocompleteSignals = useAutocompleteSignals();
   const filteredSignals = useMemo(
@@ -229,13 +232,21 @@ export function PackageAutocomplete({
         disableInteractive
       >
         <MuiIconButton
-          onClick={(event) => {
+          onClick={async (event) => {
             event.stopPropagation();
+            const packageVersion =
+              !option.url || !option.licenseName
+                ? await getPackageVersion(option)
+                : undefined;
             dispatch(
               savePackageInfo(
                 resourceId,
                 attributionIdOfSelectedPackageInManualPanel,
-                option,
+                {
+                  ...option,
+                  url: option.url || packageVersion?.url,
+                  licenseName: option.licenseName || packageVersion?.license,
+                },
                 undefined,
                 true,
               ),
