@@ -26,7 +26,7 @@ OpossumUI is a tool to
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/opossum-tool/opossumUI/blob/main/LICENSES/Apache-2.0.txt)
 [![REUSE status](https://api.reuse.software/badge/git.fsfe.org/reuse/api)](https://api.reuse.software/info/git.fsfe.org/reuse/api)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/opossum-tool/opossumUI)](https://github.com/opossum-tool/opossumUI/releases/latest)
-![build workflow](https://github.com/opossum-tool/opossumUI/actions/workflows/lint-and-test.yml/badge.svg)
+![build workflow](https://github.com/opossum-tool/opossumUI/actions/workflows/check-code-quality.yml/badge.svg)
 ![build workflow](https://github.com/opossum-tool/opossumUI/actions/workflows/build-and-e2e-test.yml/badge.svg)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
