@@ -11,15 +11,17 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
-import { ensureArray } from '../Frontend/util/ensure-array';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
   AdvisorySuggestion,
+  DefaultVersionResponse,
+  GitHubLicenseResponse,
+  GitLabLicenseResponse,
+  GitLabProjectResponse,
   Links,
   PackageSuggestion,
   PackageSystem,
   packageSystems,
-  ProjectResponse,
   ProjectSuggestion,
   ProjectType,
   projectTypes,
@@ -101,6 +103,10 @@ class OpossumModule {
     };
   }
 
+  public static copyright(name = faker.company.name()) {
+    return `Copyright (c) ${name}`;
+  }
+
   public static manualPackageInfo(
     props: Partial<ManualPackageInfo> = {},
   ): ManualPackageInfo {
@@ -109,7 +115,7 @@ class OpossumModule {
         min: DiscreteConfidence.Low + 1,
         max: DiscreteConfidence.High - 1,
       }),
-      copyright: faker.lorem.sentences(),
+      copyright: OpossumModule.copyright(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),
       packageVersion: faker.system.semver(),
@@ -365,6 +371,15 @@ class PackageSearchModule {
     };
   }
 
+  public static defaultVersionResponse(
+    props: Partial<DefaultVersionResponse> = {},
+  ): DefaultVersionResponse {
+    return {
+      defaultVersion: faker.system.semver(),
+      ...props,
+    };
+  }
+
   public static versionsResponse(
     props: Partial<VersionsResponse> = {},
   ): VersionsResponse {
@@ -374,11 +389,39 @@ class PackageSearchModule {
     };
   }
 
-  public static projectResponse(
-    props: Partial<ProjectResponse> = {},
-  ): ProjectResponse {
+  public static licenseTextWithCopyright(
+    copyright = OpossumModule.copyright(),
+  ) {
+    return btoa(
+      `${faker.lorem.sentence()}\n${copyright}\n${faker.lorem.sentence()}`,
+    );
+  }
+
+  public static gitHubLicenseResponse(
+    props: Partial<GitHubLicenseResponse> = {},
+  ): GitHubLicenseResponse {
     return {
-      license: faker.commerce.productName(),
+      content: PackageSearchModule.licenseTextWithCopyright(),
+      license: { name: faker.commerce.productName() },
+      ...props,
+    };
+  }
+
+  public static gitLabProjectResponse(
+    props: Partial<GitLabProjectResponse> = {},
+  ): GitLabProjectResponse {
+    return {
+      license: { name: faker.commerce.productName() },
+      license_url: faker.internet.url(),
+      ...props,
+    };
+  }
+
+  public static gitLabLicenseResponse(
+    props: Partial<GitLabLicenseResponse> = {},
+  ): GitLabLicenseResponse {
+    return {
+      content: PackageSearchModule.licenseTextWithCopyright(),
       ...props,
     };
   }
@@ -455,10 +498,10 @@ class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
   public readonly packageSearch = PackageSearchModule;
 
-  public httpClient(body?: object | Array<object>): HttpClient {
+  public httpClient(...body: Array<object>): HttpClient {
     const request = jest.fn();
 
-    ensureArray(body).forEach((item) =>
+    body.forEach((item) =>
       request.mockResolvedValueOnce(new Response(JSON.stringify(item))),
     );
 

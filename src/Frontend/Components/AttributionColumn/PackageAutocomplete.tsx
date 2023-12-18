@@ -76,7 +76,7 @@ export function PackageAutocomplete({
   const isAuditView = useAppSelector(isAuditViewSelected);
 
   const { getPackageUrlAndLicense } =
-    PackageSearchHooks.useGetPackageUrlAndLicense();
+    PackageSearchHooks.useGetPackageUrlAndLegal();
 
   const autocompleteSignals = useAutocompleteSignals();
   const filteredSignals = useMemo(
