@@ -32,6 +32,7 @@ import { baseIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector, useAppStore } from '../../state/hooks';
 import {
+  getExternalAttributions,
   getExternalAttributionSources,
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
@@ -204,8 +205,39 @@ function useChips({
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,
   );
-  const sourceName =
-    packageInfo.source?.additionalName || packageInfo.source?.name;
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const source = useMemo(() => {
+    const sourceName =
+      packageInfo.source?.additionalName || packageInfo.source?.name;
+
+    if (sourceName) {
+      return {
+        sourceName,
+        fromOrigin: false,
+      };
+    }
+
+    const originSource = (
+      packageInfo.originIds?.length
+        ? Object.values(externalAttributions).find(
+            (signal) =>
+              signal.originIds?.some(
+                (id) => packageInfo.originIds?.includes(id),
+              ),
+          )
+        : undefined
+    )?.source;
+
+    return {
+      sourceName: originSource?.additionalName || originSource?.name,
+      fromOrigin: true,
+    };
+  }, [
+    externalAttributions,
+    packageInfo.originIds,
+    packageInfo.source?.additionalName,
+    packageInfo.source?.name,
+  ]);
 
   return useMemo<Array<ChipDatum>>(
     () => [
@@ -351,7 +383,9 @@ function useChips({
       },
       {
         option: 'source',
-        label: prettifySource(sourceName, attributionSources),
+        label: `${
+          source.fromOrigin ? text.attributionColumn.originallyFrom : ''
+        }${prettifySource(source.sourceName, attributionSources)}`,
         icon: (
           <ExploreIcon
             sx={{
@@ -360,7 +394,7 @@ function useChips({
             }}
           />
         ),
-        active: !!sourceName,
+        active: !!source.sourceName,
         interactive: false,
       },
       {
@@ -418,7 +452,7 @@ function useChips({
       packageInfo.preferred,
       packageInfo.wasPreferred,
       qaMode,
-      sourceName,
+      source,
       store,
     ],
   );

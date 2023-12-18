@@ -6,14 +6,16 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash';
-import { act } from 'react-dom/test-utils';
 
 import { faker } from '../../../../shared/Faker';
 import {
+  Attributions,
   DiscreteConfidence,
   DisplayPackageInfo,
   FollowUp,
   FrequentLicenses,
+  Resources,
+  ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -23,16 +25,21 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/all-views-resource-selectors';
 import { clickGoToLinkIcon } from '../../../test-helpers/attribution-column-test-helpers';
-import { clickOnButton } from '../../../test-helpers/general-test-helpers';
+import {
+  clickOnButton,
+  getParsedInputFileEnrichedWithTestData,
+} from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
 
 describe('The AttributionColumn', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryDisplayPackageInfo = {
+    const temporaryDisplayPackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageName: 'jQuery',
       packageVersion: '16.5.0',
@@ -46,7 +53,7 @@ describe('The AttributionColumn', () => {
       url: 'www.1999.com',
       attributionIds: [],
     } satisfies DisplayPackageInfo;
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -55,13 +62,13 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      {
+        actions: [
+          setSelectedResourceId('test_id'),
+          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+        ],
+      },
     );
-    act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(
       screen.getByText(text.attributionColumn.packageSubPanel.confidence),
@@ -74,7 +81,7 @@ describe('The AttributionColumn', () => {
       screen.queryAllByText(text.attributionColumn.packageSubPanel.packageType),
     ).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageType),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.packageType),
     ).toBeInTheDocument();
     expect(
       screen.queryAllByText(
@@ -82,15 +89,13 @@ describe('The AttributionColumn', () => {
       ),
     ).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(
-        testTemporaryDisplayPackageInfo.packageNamespace,
-      ),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.packageNamespace),
     ).toBeInTheDocument();
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.packageName),
     ).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageName),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.packageName),
     ).toBeInTheDocument();
     expect(
       screen.queryAllByText(
@@ -98,7 +103,7 @@ describe('The AttributionColumn', () => {
       ),
     ).toHaveLength(2);
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.packageVersion),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.packageVersion),
     ).toBeInTheDocument();
     expect(
       screen.queryByText('(Defined in parent folder)'),
@@ -106,11 +111,11 @@ describe('The AttributionColumn', () => {
     expect(screen.queryByText('Override parent')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Copyright')).toBeInTheDocument();
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.copyright),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.copyright),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('License Name')).toBeInTheDocument();
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.licenseName),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.licenseName),
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText(
@@ -118,7 +123,7 @@ describe('The AttributionColumn', () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByDisplayValue(testTemporaryDisplayPackageInfo.url),
+      screen.getByDisplayValue(temporaryDisplayPackageInfo.url),
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/License Text/)).toBeInTheDocument();
     expect(
@@ -127,10 +132,10 @@ describe('The AttributionColumn', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Comment')).toBeInTheDocument();
-    const testComment = testTemporaryDisplayPackageInfo.comments
-      ? testTemporaryDisplayPackageInfo.comments[0]
+    const comment = temporaryDisplayPackageInfo.comments
+      ? temporaryDisplayPackageInfo.comments[0]
       : '';
-    expect(screen.getByDisplayValue(testComment)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(comment)).toBeInTheDocument();
     expect(
       screen.queryAllByText(text.attributionColumn.packageSubPanel.purl),
     ).toHaveLength(2);
@@ -143,7 +148,7 @@ describe('The AttributionColumn', () => {
     const writeText = jest.fn();
     (navigator.clipboard as unknown) = { writeText };
     const packageInfo = faker.opossum.displayPackageInfo();
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -152,11 +157,9 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      { actions: [setTemporaryDisplayPackageInfo(packageInfo)] },
     );
 
-    act(() => {
-      store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
-    });
     await userEvent.click(
       screen.getByLabelText(
         text.attributionColumn.packageSubPanel.copyToClipboard,
@@ -202,11 +205,11 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a source name, if it is defined', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
       source: faker.opossum.source(),
       attributionIds: [],
     };
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -215,28 +218,28 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      {
+        actions: [
+          setSelectedResourceId('test_id'),
+          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+        ],
+      },
     );
-    act(() => {
-      store.dispatch(setSelectedResourceId('test_id'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(
-      screen.getByText(testTemporaryDisplayPackageInfo.source!.name),
+      screen.getByText(temporaryDisplayPackageInfo.source!.name),
     ).toBeInTheDocument();
   });
 
   it('renders the name of the original source', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
       source: faker.opossum.source({
         additionalName: faker.company.name(),
       }),
       attributionIds: [],
     };
 
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -245,15 +248,78 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      {
+        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+      },
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(
-      screen.getByText(testTemporaryDisplayPackageInfo.source!.additionalName!),
+      screen.getByText(temporaryDisplayPackageInfo.source!.additionalName!),
+    ).toBeInTheDocument();
+  });
+
+  it('renders original signal source for manual attributions', () => {
+    const [resourceName] = faker.opossum.resourceNames({ count: 1 });
+    const resources: Resources = faker.opossum.resources({
+      [resourceName]: 1,
+    });
+    const originId = faker.string.uuid();
+    const [externalAttributionId, externalPackageInfo] =
+      faker.opossum.externalAttribution({ originIds: [originId] });
+    const externalAttributions: Attributions =
+      faker.opossum.externalAttributions({
+        [externalAttributionId]: externalPackageInfo,
+      });
+    const resourcesToExternalAttributions: ResourcesToAttributions =
+      faker.opossum.resourcesToAttributions({
+        [faker.opossum.folderPath(resourceName)]: [externalAttributionId],
+      });
+    const [manualAttributionId, manualPackageInfo] =
+      faker.opossum.manualAttribution({
+        originIds: externalPackageInfo.originIds,
+      });
+    const manualAttributions: Attributions = faker.opossum.manualAttributions({
+      [manualAttributionId]: manualPackageInfo,
+    });
+    const resourcesToManualAttributions: ResourcesToAttributions =
+      faker.opossum.resourcesToAttributions({
+        [faker.opossum.folderPath(resourceName)]: [manualAttributionId],
+      });
+
+    renderComponent(
+      <AttributionColumn
+        isEditable={true}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
+      />,
+      {
+        actions: [
+          loadFromFile(
+            getParsedInputFileEnrichedWithTestData({
+              resources,
+              manualAttributions,
+              resourcesToManualAttributions,
+              externalAttributions,
+              resourcesToExternalAttributions,
+            }),
+          ),
+          setTemporaryDisplayPackageInfo(
+            convertPackageInfoToDisplayPackageInfo(manualPackageInfo, [
+              manualAttributionId,
+            ]),
+          ),
+        ],
+      },
+    );
+
+    expect(
+      screen.getByText(
+        text.attributionColumn.originallyFrom +
+          externalPackageInfo.source!.name,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -334,11 +400,11 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a URL icon and opens a link in browser', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: 'https://www.testurl.com/',
       attributionIds: [],
     };
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -347,26 +413,24 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      {
+        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+      },
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(screen.getByLabelText('Url icon')).toBeInTheDocument();
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      testTemporaryDisplayPackageInfo.url,
+      temporaryDisplayPackageInfo.url,
     );
   });
 
   it('opens a link without protocol', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: 'www.testurl.com',
       attributionIds: [],
     };
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -375,25 +439,23 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      {
+        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+      },
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     clickGoToLinkIcon(screen, 'Url icon');
     expect(global.window.electronAPI.openLink).toHaveBeenCalledWith(
-      `https://${testTemporaryDisplayPackageInfo.url}`,
+      `https://${temporaryDisplayPackageInfo.url}`,
     );
   });
 
   it('hides url icon if empty url', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
       url: '',
       attributionIds: [],
     };
-    const { store } = renderComponent(
+    renderComponent(
       <AttributionColumn
         isEditable={true}
         onSaveButtonClick={noop}
@@ -402,23 +464,21 @@ describe('The AttributionColumn', () => {
         onDeleteButtonClick={noop}
         onDeleteGloballyButtonClick={noop}
       />,
+      {
+        actions: [setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo)],
+      },
     );
-    act(() => {
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-      );
-    });
 
     expect(screen.queryByLabelText('Url icon')).not.toBeInTheDocument();
   });
 
   describe('there are different license text labels', () => {
     it('shows standard text if editable and non frequent license', () => {
-      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
         packageName: 'jQuery',
         attributionIds: [],
       };
-      const { store } = renderComponent(
+      renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}
@@ -427,12 +487,12 @@ describe('The AttributionColumn', () => {
           onDeleteButtonClick={noop}
           onDeleteGloballyButtonClick={noop}
         />,
+        {
+          actions: [
+            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+          ],
+        },
       );
-      act(() => {
-        store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-        );
-      });
 
       expect(
         screen.getByLabelText(
@@ -442,12 +502,16 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows shortened text if not editable and frequent license', () => {
-      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
         packageName: 'jQuery',
         licenseName: 'Mit',
         attributionIds: [],
       };
-      const { store } = renderComponent(
+      const frequentLicenses: FrequentLicenses = {
+        nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
+        texts: { MIT: 'text' },
+      };
+      renderComponent(
         <AttributionColumn
           isEditable={false}
           onSaveButtonClick={noop}
@@ -456,19 +520,13 @@ describe('The AttributionColumn', () => {
           onDeleteButtonClick={noop}
           onDeleteGloballyButtonClick={noop}
         />,
+        {
+          actions: [
+            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+            setFrequentLicenses(frequentLicenses),
+          ],
+        },
       );
-      act(() => {
-        store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-        );
-      });
-      const testFrequentLicenses: FrequentLicenses = {
-        nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-        texts: { MIT: 'text' },
-      };
-      act(() => {
-        store.dispatch(setFrequentLicenses(testFrequentLicenses));
-      });
 
       expect(
         screen.getByLabelText('Standard license text implied.'),
@@ -476,12 +534,16 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows long text if editable and frequent license', () => {
-      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
         packageName: 'jQuery',
         licenseName: 'mit',
         attributionIds: [],
       };
-      const { store } = renderComponent(
+      const frequentLicenses: FrequentLicenses = {
+        nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
+        texts: { MIT: 'text' },
+      };
+      renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}
@@ -490,19 +552,13 @@ describe('The AttributionColumn', () => {
           onDeleteButtonClick={noop}
           onDeleteGloballyButtonClick={noop}
         />,
+        {
+          actions: [
+            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+            setFrequentLicenses(frequentLicenses),
+          ],
+        },
       );
-      act(() => {
-        store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-        );
-      });
-      const testFrequentLicenses: FrequentLicenses = {
-        nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
-        texts: { MIT: 'text' },
-      };
-      act(() => {
-        store.dispatch(setFrequentLicenses(testFrequentLicenses));
-      });
 
       expect(
         screen.getByLabelText(
@@ -543,7 +599,7 @@ describe('The AttributionColumn', () => {
 
   describe('The ResolveButton', () => {
     it('saves resolved external attributions', () => {
-      const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
         attributionIds: ['TestId'],
       };
       const expectedSaveFileArgs: SaveFileArgs = {
@@ -551,7 +607,7 @@ describe('The AttributionColumn', () => {
         resolvedExternalAttributions: new Set<string>().add('TestId'),
         resourcesToAttributions: {},
       };
-      const { store } = renderComponent(
+      renderComponent(
         <AttributionColumn
           isEditable={true}
           onSaveButtonClick={noop}
@@ -561,12 +617,12 @@ describe('The AttributionColumn', () => {
           onDeleteGloballyButtonClick={noop}
           showHideButton
         />,
+        {
+          actions: [
+            setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+          ],
+        },
       );
-      act(() => {
-        store.dispatch(
-          setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
-        );
-      });
 
       clickOnButton(screen, 'resolve attribution');
       expect(window.electronAPI.saveFile).toHaveBeenCalledTimes(1);

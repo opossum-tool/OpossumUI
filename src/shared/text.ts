@@ -34,6 +34,7 @@ export const text = {
     packageCoordinates: 'Package Coordinates',
     useAutocompleteSuggestion:
       'Adopt all coordinates and legal information from suggestion',
+    originallyFrom: 'Originally from ',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
