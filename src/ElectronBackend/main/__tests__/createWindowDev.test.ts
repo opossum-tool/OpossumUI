@@ -37,8 +37,6 @@ jest.mock('electron', () => ({
 jest.mock('electron-is-dev', () => true);
 
 describe('createWindow', () => {
-  beforeEach(() => jest.clearAllMocks());
-
   it('returns correct BrowserWindow in devMode', async () => {
     const browserWindow = await createWindow();
     expect(browserWindow.webContents.openDevTools).toHaveBeenCalled();

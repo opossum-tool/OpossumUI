@@ -54,9 +54,6 @@ describe('The ManualAttributionList', () => {
   const mockCallback = jest.fn((attributionId: string) => {
     return attributionId;
   });
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('renders', () => {
     renderComponent(
