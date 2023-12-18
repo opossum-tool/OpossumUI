@@ -55,6 +55,7 @@ beforeAll(() => {
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN, 'warn');
   mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR, 'error');
   faker.packageSearch.usePackageNames();
+  faker.packageSearch.usePackageNamespaces();
   faker.packageSearch.usePackageVersions();
 });
 
