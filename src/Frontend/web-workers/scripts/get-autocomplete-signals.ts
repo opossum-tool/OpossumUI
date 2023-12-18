@@ -58,7 +58,7 @@ export function getAutocompleteSignals({
     ...signalsOnChildren,
     ...attributionsOnChildren,
   ].reduce<Array<AutocompleteSignal>>((acc, signal) => {
-    if (!generatePurl(signal)) {
+    if (!generatePurl(signal) || signal.preferred) {
       return acc;
     }
 
@@ -74,9 +74,7 @@ export function getAutocompleteSignals({
       acc[dupeIndex] = {
         ...acc[dupeIndex],
         count: (acc[dupeIndex].count ?? 0) + 1,
-        preferred: acc[dupeIndex].preferred || signal.preferred,
         wasPreferred: acc[dupeIndex].wasPreferred || signal.wasPreferred,
-        preSelected: acc[dupeIndex].preSelected || signal.preSelected,
       };
     }
 
@@ -87,10 +85,9 @@ export function getAutocompleteSignals({
     signals,
     [
       ({ source }) => (source && sources[source.name])?.priority ?? 0,
-      ({ preferred }) => (preferred ? 1 : 0),
       ({ wasPreferred }) => (wasPreferred ? 1 : 0),
       ({ count }) => count ?? 0,
     ],
-    ['desc', 'desc', 'desc', 'desc'],
+    ['desc', 'desc', 'desc'],
   );
 }

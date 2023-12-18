@@ -25,20 +25,36 @@ import { TextBox } from '../InputElements/TextBox';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
+/** https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst */
 const COMMON_PACKAGE_TYPES = [
   'bitbucket',
   'cargo',
+  'composer',
+  'conan',
+  'conda',
+  'cran',
   'deb',
   'docker',
   'gem',
+  'generic',
   'github',
   'gitlab',
   'golang',
+  'hackage',
+  'hex',
+  'huggingface',
   'maven',
+  'mlflow',
   'npm',
   'nuget',
+  'oci',
+  'pub',
   'pypi',
+  'qpkg',
   'rpm',
+  'rpm',
+  'swid',
+  'swift',
 ];
 
 const DisplayRow = styled('div')({
@@ -71,9 +87,8 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
   const { packageNames } =
     PackageSearchHooks.usePackageNames(debouncedPackageInfo);
 
-  const { packageVersions } = PackageSearchHooks.usePackageVersions(
-    props.displayPackageInfo,
-  );
+  const { packageVersions } =
+    PackageSearchHooks.usePackageVersions(debouncedPackageInfo);
 
   return (
     <MuiBox sx={attributionColumnClasses.panel}>

@@ -22,7 +22,10 @@ export type ListboxProps<
 > = React.HTMLAttributes<HTMLElement> & {
   virtuosoRef: React.RefObject<VirtuosoHandle>;
   options: Array<Value>;
-  groupIcon?: React.ReactNode;
+  groupProps?: {
+    icon?: React.FC<{ name: string }>;
+    action?: React.FC<{ name: string }>;
+  };
   closePopper: () => void;
   groupBy?: (option: Value) => string;
   getOptionKey?: (
@@ -64,7 +67,7 @@ export const Listbox = forwardRef(
       getOptionKey,
       getOptionProps,
       groupBy,
-      groupIcon,
+      groupProps,
       optionText,
       options,
       renderOptionEndIcon,
@@ -126,16 +129,22 @@ export const Listbox = forwardRef(
           }
           totalListHeightChanged={setHeight}
           groupCounts={groupCounts}
-          groupContent={(index) => (
-            <GroupContainer role={'group'}>
-              {groupIcon}
-              <MuiTypography
-                sx={{ ...styles.overflowEllipsis, paddingTop: '2px' }}
-              >
-                {groupNames[index]}
-              </MuiTypography>
-            </GroupContainer>
-          )}
+          groupContent={(index) => {
+            const IconComp = groupProps?.icon || (() => null);
+            const ActionComp = groupProps?.action || (() => null);
+
+            return (
+              <GroupContainer role={'group'}>
+                <IconComp name={groupNames[index]} />
+                <MuiTypography
+                  sx={{ ...styles.overflowEllipsis, paddingTop: '2px' }}
+                >
+                  {groupNames[index]}
+                </MuiTypography>
+                <ActionComp name={groupNames[index]} />
+              </GroupContainer>
+            );
+          }}
           itemContent={(index) =>
             renderOption({ index, option: options[index] })
           }

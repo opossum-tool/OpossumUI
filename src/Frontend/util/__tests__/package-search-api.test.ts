@@ -5,30 +5,192 @@
 import { faker } from '../../../shared/Faker';
 import { AutocompleteSignal } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PackageSearchApi, Version, Versions } from '../package-search-api';
+import { RequestProps } from '../http-client';
+import {
+  PackageSearchApi,
+  UrlAndLicense,
+  Versions,
+} from '../package-search-api';
 
 describe('PackageSearchApi', () => {
+  describe('getNames', () => {
+    it('serializes project with deterministic URL', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo();
+      const name = faker.internet.domainWord();
+      const namespace = faker.internet.domainWord();
+      const projectSuggestion = faker.packageSearch.projectSuggestion({
+        name: `${namespace}/${name}`,
+        projectType: 'GITHUB',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [projectSuggestion],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const searchResults = await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(searchResults).toEqual([
+        expect.objectContaining<AutocompleteSignal>({
+          packageName: name,
+          packageNamespace: namespace,
+          packageType: 'github',
+          url: `https://github.com/${projectSuggestion.name}`,
+        }),
+      ]);
+    });
+
+    it('serializes maven package', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo();
+      const name = faker.internet.domainWord();
+      const namespace = faker.internet.domainWord();
+      const projectSuggestion = faker.packageSearch.packageSuggestion({
+        name: `${namespace}:${name}`,
+        system: 'MAVEN',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [projectSuggestion],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const searchResults = await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(searchResults).toEqual([
+        expect.objectContaining<AutocompleteSignal>({
+          packageName: name,
+          packageNamespace: namespace,
+          packageType: 'maven',
+        }),
+      ]);
+    });
+
+    it('serializes golang package', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo();
+      const projectSuggestion = faker.packageSearch.packageSuggestion({
+        system: 'GO',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [projectSuggestion],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const searchResults = await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(searchResults).toEqual([
+        expect.objectContaining<AutocompleteSignal>({
+          packageName: projectSuggestion.name,
+          packageNamespace: undefined,
+          packageType: 'golang',
+        }),
+      ]);
+    });
+
+    it('serializes NPM package', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo();
+      const projectSuggestion = faker.packageSearch.packageSuggestion({
+        system: 'NPM',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [projectSuggestion],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const searchResults = await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(searchResults).toEqual([
+        expect.objectContaining<AutocompleteSignal>({
+          packageName: projectSuggestion.name,
+          packageNamespace: undefined,
+          packageType: 'npm',
+        }),
+      ]);
+    });
+
+    it('removes advisories from results', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo();
+      const advisorySuggestion = faker.packageSearch.advisorySuggestion();
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [advisorySuggestion],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const searchResults = await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(searchResults).toEqual([]);
+    });
+
+    it('deserializes input name', async () => {
+      const deserializedPackageName = faker.internet.domainWord();
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageName: ` ${deserializedPackageName.toUpperCase()} `,
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(httpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining<Partial<RequestProps>>({
+          params: { q: deserializedPackageName },
+        }),
+      );
+    });
+
+    it('does not perform request when no package name present', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageName: '   ',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse({
+          results: [],
+        }),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getVersions', () => {
     it('provides semantically sorted default and non-default versions for known systems', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
-        packageType: faker.packageSearch.system(),
+        packageType: 'npm',
       });
       const defaultVersion = faker.packageSearch.versionResponse({
         isDefault: true,
       });
-      const versionKey1 = faker.packageSearch.versionKey({
-        version: '9.0.0',
-      });
-      const versionKey2 = faker.packageSearch.versionKey({
-        version: '13.0.0',
-      });
       const nonDefaultVersion1 = faker.packageSearch.versionResponse({
         isDefault: false,
-        versionKey: versionKey1,
+        versionKey: faker.packageSearch.versionKey({
+          version: '9.0.0',
+        }),
       });
       const nonDefaultVersion2 = faker.packageSearch.versionResponse({
         isDefault: false,
-        versionKey: versionKey2,
+        versionKey: faker.packageSearch.versionKey({
+          version: '13.0.0',
+        }),
       });
       const httpClient = faker.httpClient(
         faker.packageSearch.versionsResponse({
@@ -47,7 +209,7 @@ describe('PackageSearchApi', () => {
             packageType: defaultVersion.versionKey.system.toLowerCase(),
             packageVersion: defaultVersion.versionKey.version,
             source: {
-              name: text.attributionColumn.depsDev,
+              name: text.attributionColumn.openSourceInsights,
               documentConfidence: 100,
             },
             suffix: '(default)',
@@ -55,20 +217,20 @@ describe('PackageSearchApi', () => {
         ],
         other: [
           {
-            packageName: versionKey2.name,
-            packageType: versionKey2.system.toLowerCase(),
-            packageVersion: versionKey2.version,
+            packageName: nonDefaultVersion2.versionKey.name,
+            packageType: nonDefaultVersion2.versionKey.system.toLowerCase(),
+            packageVersion: nonDefaultVersion2.versionKey.version,
             source: {
-              name: text.attributionColumn.depsDev,
+              name: text.attributionColumn.openSourceInsights,
               documentConfidence: 100,
             },
           },
           {
-            packageName: versionKey1.name,
-            packageType: versionKey1.system.toLowerCase(),
-            packageVersion: versionKey1.version,
+            packageName: nonDefaultVersion1.versionKey.name,
+            packageType: nonDefaultVersion1.versionKey.system.toLowerCase(),
+            packageVersion: nonDefaultVersion1.versionKey.version,
             source: {
-              name: text.attributionColumn.depsDev,
+              name: text.attributionColumn.openSourceInsights,
               documentConfidence: 100,
             },
           },
@@ -76,7 +238,7 @@ describe('PackageSearchApi', () => {
       });
     });
 
-    it('does not provide any versions for unknown systems', async () => {
+    it('does not provide versions for projects', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: 'github',
       });
@@ -92,27 +254,7 @@ describe('PackageSearchApi', () => {
       });
     });
 
-    it('trims inputs', async () => {
-      const system = faker.packageSearch.system();
-      const packageInfo = faker.opossum.externalPackageInfo({
-        packageType: ` ${system}  `,
-      });
-      const httpClient = faker.httpClient(
-        faker.packageSearch.versionsResponse(),
-      );
-      const packageSearchApi = new PackageSearchApi(httpClient);
-
-      await packageSearchApi.getVersions(packageInfo);
-
-      expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(httpClient.request).toHaveBeenCalledWith(
-        expect.objectContaining({
-          path: expect.stringContaining(`/${system.toLowerCase()}/`),
-        }),
-      );
-    });
-
-    it('maps package type "golang" to "go"', async () => {
+    it('deserializes "golang" package type', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: 'golang',
       });
@@ -123,19 +265,60 @@ describe('PackageSearchApi', () => {
 
       await packageSearchApi.getVersions(packageInfo);
 
-      expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(httpClient.request).toHaveBeenCalledWith(
-        expect.objectContaining({
-          path: expect.stringContaining('/go/'),
+        expect.objectContaining<Partial<RequestProps>>({
+          path: expect.stringContaining('/GO/'),
+        }),
+      );
+    });
+
+    it('deserializes "go" package type', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: 'go',
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.versionsResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getVersions(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining<Partial<RequestProps>>({
+          path: expect.stringContaining('/GO/'),
+        }),
+      );
+    });
+
+    it('deserializes maven name and namespace', async () => {
+      const name = faker.internet.domainWord();
+      const namespace = faker.internet.domainWord();
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: 'maven',
+        packageName: name,
+        packageNamespace: namespace,
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.versionsResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getVersions(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining<Partial<RequestProps>>({
+          path: expect.stringContaining(`/${namespace}%3A${name}`),
         }),
       );
     });
   });
 
-  describe('getVersion', () => {
+  describe('getUrlAndLicense', () => {
     it('provides repo URL and license for a given package version', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
-        packageType: faker.packageSearch.system(),
+        packageType: faker.packageSearch.packageSystem(),
+        url: undefined,
+        licenseName: undefined,
       });
       const repoUrl = faker.internet.url();
       const license1 = faker.commerce.productName();
@@ -150,18 +333,20 @@ describe('PackageSearchApi', () => {
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
-      const version = await packageSearchApi.getVersion(packageInfo);
+      const version = await packageSearchApi.getUrlAndLicense(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(version).toEqual<Version>({
+      expect(version).toEqual<UrlAndLicense>({
         url: repoUrl,
-        license: `${license1} AND ${license2}`,
+        licenseName: `${license1} AND ${license2}`,
       });
     });
 
     it('falls back to homepage URL when repo URL not available', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
-        packageType: faker.packageSearch.system(),
+        packageType: faker.packageSearch.packageSystem(),
+        url: undefined,
+        licenseName: undefined,
       });
       const homepageUrl = faker.internet.url();
       const httpClient = faker.httpClient(
@@ -174,18 +359,20 @@ describe('PackageSearchApi', () => {
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
-      const version = await packageSearchApi.getVersion(packageInfo);
+      const version = await packageSearchApi.getUrlAndLicense(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(version).toEqual<Version>({
+      expect(version).toEqual<UrlAndLicense>({
         url: homepageUrl,
-        license: '',
+        licenseName: '',
       });
     });
 
     it('falls back to first origin URL when neither repo URL nor homepage URL are available', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
-        packageType: faker.packageSearch.system(),
+        packageType: faker.packageSearch.packageSystem(),
+        url: undefined,
+        licenseName: undefined,
       });
       const originUrl = faker.internet.url();
       const httpClient = faker.httpClient(
@@ -200,48 +387,82 @@ describe('PackageSearchApi', () => {
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
-      const version = await packageSearchApi.getVersion(packageInfo);
+      const version = await packageSearchApi.getUrlAndLicense(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(version).toEqual<Version>({
+      expect(version).toEqual<UrlAndLicense>({
         url: originUrl,
-        license: '',
+        licenseName: '',
       });
     });
   });
 
-  describe('getPackages', () => {
-    it('provides packages but no projects', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
-        packageType: faker.packageSearch.system(),
-      });
-      const searchResponsePackage = faker.packageSearch.packageResponse({
-        kind: 'PACKAGE',
-      });
-      const searchResponseProject = faker.packageSearch.packageResponse({
-        kind: 'PROJECT',
-      });
-
-      const httpClient = faker.httpClient(
-        faker.packageSearch.packagesResponse({
-          results: [searchResponsePackage, searchResponseProject],
-        }),
-      );
-      const packageSearchApi = new PackageSearchApi(httpClient);
-
-      const searchResults = await packageSearchApi.getPackages(packageInfo);
-
-      expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(searchResults).toEqual<Array<AutocompleteSignal>>([
-        {
-          packageName: searchResponsePackage.name,
-          packageType: searchResponsePackage.system.toLowerCase(),
-          source: {
-            name: text.attributionColumn.depsDev,
-            documentConfidence: 100,
-          },
-        },
-      ]);
+  it('does not make any request if both url and license name of a package are already known', async () => {
+    const packageInfo = faker.opossum.externalPackageInfo({
+      packageType: faker.packageSearch.packageSystem(),
+      url: faker.internet.url(),
+      licenseName: faker.commerce.productName(),
     });
+    const httpClient = faker.httpClient();
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    await packageSearchApi.getUrlAndLicense(packageInfo);
+
+    expect(httpClient.request).not.toHaveBeenCalled();
+  });
+
+  it('does not make any request if no package version known', async () => {
+    const packageInfo = faker.opossum.externalPackageInfo({
+      packageType: faker.packageSearch.packageSystem(),
+      url: undefined,
+      licenseName: undefined,
+      packageVersion: undefined,
+    });
+    const httpClient = faker.httpClient();
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    await packageSearchApi.getUrlAndLicense(packageInfo);
+
+    expect(httpClient.request).not.toHaveBeenCalled();
+  });
+
+  it('provides deterministic repo URL and license for a given project', async () => {
+    const name = faker.internet.domainWord();
+    const namespace = faker.internet.domainWord();
+    const packageInfo = faker.opossum.externalPackageInfo({
+      packageType: 'github',
+      packageName: name,
+      packageNamespace: namespace,
+      url: undefined,
+      licenseName: undefined,
+      packageVersion: undefined,
+    });
+    const license = faker.commerce.productName();
+    const httpClient = faker.httpClient(
+      faker.packageSearch.projectResponse({ license }),
+    );
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    const version = await packageSearchApi.getUrlAndLicense(packageInfo);
+
+    expect(httpClient.request).toHaveBeenCalledTimes(1);
+    expect(version).toEqual<UrlAndLicense>({
+      url: `https://github.com/${namespace}/${name}`,
+      licenseName: license,
+    });
+  });
+
+  it('does not make any request if both url and license name of a project are already known', async () => {
+    const packageInfo = faker.opossum.externalPackageInfo({
+      packageType: faker.packageSearch.projectType(),
+      url: faker.internet.url(),
+      licenseName: faker.commerce.productName(),
+    });
+    const httpClient = faker.httpClient();
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    await packageSearchApi.getUrlAndLicense(packageInfo);
+
+    expect(httpClient.request).not.toHaveBeenCalled();
   });
 });
