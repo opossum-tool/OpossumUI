@@ -34,63 +34,33 @@ describe('splitResourceItToCurrentAndOtherFolder', () => {
     );
   });
 
-  const testResourcesList: Array<string> = [
-    '/OpossumUI/DCO.md',
-    '/OpossumUI/src/Frontend/test.txt',
-    '/OpossumUI/src/Frontend/Components/file.tsx',
-    '/OpossumUI/src/abc.test.tsx',
-    '/OpossumUI/.idea/',
-  ];
-
-  const expectedResources: Resources = {
-    OpossumUI: {
-      '.idea': {},
-      src: {
-        Frontend: {
-          'test.txt': 1,
-          Components: {
-            'file.tsx': 1,
-          },
-        },
-        'abc.test.tsx': 1,
-      },
-      'DCO.md': 1,
-    },
-  };
-
   it('correctly converts a list of resource ids (paths) into a Resources object', () => {
+    const testResourcesList: Array<string> = [
+      '/OpossumUI/DCO.md',
+      '/OpossumUI/src/Frontend/test.txt',
+      '/OpossumUI/src/Frontend/Components/file.tsx',
+      '/OpossumUI/src/abc.test.tsx',
+      '/OpossumUI/.idea/',
+    ];
+
+    const expectedResources: Resources = {
+      OpossumUI: {
+        '.idea': {},
+        src: {
+          Frontend: {
+            'test.txt': 1,
+            Components: {
+              'file.tsx': 1,
+            },
+          },
+          'abc.test.tsx': 1,
+        },
+        'DCO.md': 1,
+      },
+    };
+
     expect(getResourcesFromResourcePaths(testResourcesList)).toEqual(
       expectedResources,
     );
   });
-});
-
-const testResourcesList: Array<string> = [
-  '/OpossumUI/DCO.md',
-  '/OpossumUI/src/Frontend/test.txt',
-  '/OpossumUI/src/Frontend/Components/file.tsx',
-  '/OpossumUI/src/abc.test.tsx',
-  '/OpossumUI/.idea/',
-];
-
-const expectedResources: Resources = {
-  OpossumUI: {
-    '.idea': {},
-    src: {
-      Frontend: {
-        'test.txt': 1,
-        Components: {
-          'file.tsx': 1,
-        },
-      },
-      'abc.test.tsx': 1,
-    },
-    'DCO.md': 1,
-  },
-};
-
-it('correctly converts a list of resource ids (paths) into a Resources object', () => {
-  expect(getResourcesFromResourcePaths(testResourcesList)).toEqual(
-    expectedResources,
-  );
 });
