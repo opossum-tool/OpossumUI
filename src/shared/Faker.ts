@@ -321,6 +321,14 @@ class PackageSearchModule {
     });
   }
 
+  public static usePackageNamespaces() {
+    jest.spyOn(PackageSearchHooks, 'usePackageNamespaces').mockReturnValue({
+      packageNamespaces: [],
+      packageNamespacesError: null,
+      packageNamespacesLoading: false,
+    });
+  }
+
   public static usePackageVersions() {
     jest.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
       packageVersions: { default: [], other: [] },
