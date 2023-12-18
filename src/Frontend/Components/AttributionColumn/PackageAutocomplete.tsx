@@ -4,8 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import ExploreIcon from '@mui/icons-material/Explore';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import StarIcon from '@mui/icons-material/Star';
-import { styled } from '@mui/material';
+import { createFilterOptions, styled } from '@mui/material';
 import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
@@ -15,23 +16,22 @@ import { useMemo } from 'react';
 
 import { AutocompleteSignal, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { baseIcon, OpossumColors } from '../../shared-styles';
+import { baseIcon, clickableIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
   getExternalAttributionSources,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
+import { IconButton } from '../IconButton/IconButton';
 
 type AutocompleteAttribute = Extract<
   keyof PackageInfo,
@@ -64,7 +64,7 @@ const Badge = styled(MuiBadge)({
 export function PackageAutocomplete({
   attribute,
   title,
-  highlight,
+  highlight = 'default',
   endAdornment,
   defaults = [],
   disabled,
@@ -72,14 +72,11 @@ export function PackageAutocomplete({
 }: Props) {
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
-  const resourceId = useAppSelector(getSelectedResourceId);
-  const attributionIdOfSelectedPackageInManualPanel = useAppSelector(
-    getAttributionIdOfDisplayedPackageInManualPanel,
-  );
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
 
-  const { getPackageVersion } = PackageSearchHooks.usePackageVersion();
+  const { getPackageUrlAndLicense } =
+    PackageSearchHooks.useGetPackageUrlAndLicense();
 
   const autocompleteSignals = useAutocompleteSignals();
   const filteredSignals = useMemo(
@@ -125,6 +122,12 @@ export function PackageAutocomplete({
       renderOptionStartIcon={renderOptionStartIcon}
       renderOptionEndIcon={renderOptionEndIcon}
       value={temporaryPackageInfo}
+      filterOptions={createFilterOptions({
+        stringify: (option) =>
+          attribute === 'packageName'
+            ? `${option.packageName || ''}${option.packageNamespace || ''}`
+            : option[attribute] || '',
+      })}
       isOptionEqualToValue={(option, value) =>
         option[attribute] === value[attribute]
       }
@@ -133,14 +136,23 @@ export function PackageAutocomplete({
           ? sources[option.source.name]?.name || option.source.name
           : text.attributionColumn.manualAttributions
       }
-      groupIcon={
-        <ExploreIcon
-          sx={{
-            ...baseIcon,
-            color: `${OpossumColors.black} !important`,
-          }}
-        />
-      }
+      groupProps={{
+        icon: () => (
+          <ExploreIcon
+            sx={{
+              ...baseIcon,
+              color: `${OpossumColors.black} !important`,
+            }}
+          />
+        ),
+        action: ({ name }) => (
+          <IconButton
+            hidden={name !== text.attributionColumn.openSourceInsights}
+            onClick={() => openUrl('https://www.deps.dev')}
+            icon={<OpenInNewIcon sx={clickableIcon} />}
+          />
+        ),
+      }}
       optionText={{
         primary: (option) => {
           if (typeof option === 'string') {
@@ -158,12 +170,15 @@ export function PackageAutocomplete({
         secondary: (option) =>
           typeof option === 'string' ? option : generatePurl(option),
       }}
-      onInputChange={(_, value) => {
-        temporaryPackageInfo[attribute] !== value &&
+      onInputChange={(event, value) => {
+        event &&
+          temporaryPackageInfo[attribute] !== value &&
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...temporaryPackageInfo,
               [attribute]: value,
+              preferred: undefined,
+              wasPreferred: undefined,
             }),
           );
       }}
@@ -219,7 +234,16 @@ export function PackageAutocomplete({
   }
 
   function renderOptionEndIcon(
-    option: AutocompleteSignal,
+    {
+      attributionConfidence,
+      count,
+      excludeFromNotice,
+      followUp,
+      needsReview,
+      preSelected,
+      source,
+      ...option
+    }: AutocompleteSignal,
     { closePopper }: { closePopper: () => void },
   ) {
     if (!option.packageName || !option.packageType) {
@@ -234,22 +258,15 @@ export function PackageAutocomplete({
         <MuiIconButton
           onClick={async (event) => {
             event.stopPropagation();
-            const packageVersion =
-              !option.url || !option.licenseName
-                ? await getPackageVersion(option)
-                : undefined;
             dispatch(
-              savePackageInfo(
-                resourceId,
-                attributionIdOfSelectedPackageInManualPanel,
-                {
+              setTemporaryDisplayPackageInfo({
+                ...temporaryPackageInfo,
+                ...option,
+                ...(await getPackageUrlAndLicense({
+                  ...temporaryPackageInfo,
                   ...option,
-                  url: option.url || packageVersion?.url,
-                  licenseName: option.licenseName || packageVersion?.license,
-                },
-                undefined,
-                true,
-              ),
+                })),
+              }),
             );
             closePopper();
           }}

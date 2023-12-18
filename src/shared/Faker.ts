@@ -14,11 +14,17 @@ import type {
 import { ensureArray } from '../Frontend/util/ensure-array';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
+  AdvisorySuggestion,
   Links,
-  PackageResponse,
-  PackagesResponse,
-  System,
-  systems,
+  PackageSuggestion,
+  PackageSystem,
+  packageSystems,
+  ProjectResponse,
+  ProjectSuggestion,
+  ProjectType,
+  projectTypes,
+  SearchSuggestion,
+  SearchSuggestionResponse,
   VersionKey,
   VersionResponse,
   VersionsResponse,
@@ -307,10 +313,6 @@ class OpossumModule {
 }
 
 class PackageSearchModule {
-  public static system(): System {
-    return faker.helpers.arrayElement(systems);
-  }
-
   public static usePackageNames() {
     jest.spyOn(PackageSearchHooks, 'usePackageNames').mockReturnValue({
       packageNames: [],
@@ -327,10 +329,18 @@ class PackageSearchModule {
     });
   }
 
+  public static packageSystem(): PackageSystem {
+    return faker.helpers.arrayElement(packageSystems);
+  }
+
+  public static projectType(): ProjectType {
+    return faker.helpers.arrayElement(projectTypes);
+  }
+
   public static versionKey(props: Partial<VersionKey> = {}): VersionKey {
     return {
       name: faker.commerce.productName(),
-      system: PackageSearchModule.system(),
+      system: 'NPM',
       version: faker.system.semver(),
       ...props,
     };
@@ -356,22 +366,59 @@ class PackageSearchModule {
     };
   }
 
-  public static packageResponse(
-    props: Partial<PackageResponse> = {},
-  ): PackageResponse {
+  public static projectResponse(
+    props: Partial<ProjectResponse> = {},
+  ): ProjectResponse {
     return {
-      kind: faker.datatype.boolean() ? 'PACKAGE' : 'PROJECT',
-      name: faker.commerce.productName(),
-      system: PackageSearchModule.system(),
+      license: faker.commerce.productName(),
       ...props,
     };
   }
 
-  public static packagesResponse(
-    props: Partial<PackagesResponse> = {},
-  ): PackagesResponse {
+  public static packageSuggestion(
+    props: Partial<PackageSuggestion> = {},
+  ): PackageSuggestion {
     return {
-      results: faker.helpers.multiple(PackageSearchModule.packageResponse),
+      kind: 'PACKAGE',
+      name: faker.internet.domainWord(),
+      system: PackageSearchModule.packageSystem(),
+      ...props,
+    };
+  }
+
+  public static projectSuggestion(
+    props: Partial<ProjectSuggestion> = {},
+  ): ProjectSuggestion {
+    return {
+      kind: 'PROJECT',
+      name: `${faker.internet.domainWord()}/${faker.internet.domainWord()}`,
+      projectType: PackageSearchModule.projectType(),
+      ...props,
+    };
+  }
+
+  public static advisorySuggestion(
+    props: Partial<AdvisorySuggestion> = {},
+  ): AdvisorySuggestion {
+    return {
+      kind: 'ADVISORY',
+      name: faker.internet.domainWord(),
+      ...props,
+    };
+  }
+
+  public static searchSuggestion(): SearchSuggestion {
+    return faker.helpers.arrayElement([
+      PackageSearchModule.packageSuggestion,
+      PackageSearchModule.projectSuggestion,
+    ])();
+  }
+
+  public static searchSuggestionResponse(
+    props: Partial<SearchSuggestionResponse> = {},
+  ): SearchSuggestionResponse {
+    return {
+      results: faker.helpers.multiple(PackageSearchModule.searchSuggestion),
       ...props,
     };
   }
