@@ -85,10 +85,9 @@ function usePackageVersions({
   };
 }
 
-function useGetPackageUrlAndLicense() {
+function useGetPackageUrlAndLegal() {
   const { mutateAsync, error, isPending } = useMutation({
-    mutationFn: (props: PackageInfo) =>
-      PackageSearchApi.getUrlAndLicense(props),
+    mutationFn: (props: PackageInfo) => PackageSearchApi.getUrlAndLegal(props),
   });
 
   return {
@@ -99,7 +98,7 @@ function useGetPackageUrlAndLicense() {
 }
 
 export const PackageSearchHooks = {
-  useGetPackageUrlAndLicense,
+  useGetPackageUrlAndLegal,
   usePackageNames,
   usePackageNamespaces,
   usePackageVersions,
