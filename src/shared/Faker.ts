@@ -18,6 +18,7 @@ import {
   GitHubLicenseResponse,
   GitLabLicenseResponse,
   GitLabProjectResponse,
+  LatestReleaseResponse,
   Links,
   PackageSuggestion,
   PackageSystem,
@@ -27,6 +28,7 @@ import {
   projectTypes,
   SearchSuggestion,
   SearchSuggestionResponse,
+  TagResponse,
   VersionKey,
   VersionResponse,
   VersionsResponse,
@@ -337,7 +339,7 @@ class PackageSearchModule {
 
   public static usePackageVersions() {
     jest.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
-      packageVersions: { default: [], other: [] },
+      packageVersions: [],
       packageVersionsError: null,
       packageVersionsLoading: false,
     });
@@ -489,6 +491,22 @@ class PackageSearchModule {
         licenses: faker.helpers.multiple(faker.commerce.productName),
         links: PackageSearchModule.links(),
       },
+      ...props,
+    };
+  }
+
+  public static tagResponse(props: Partial<TagResponse> = {}): TagResponse {
+    return {
+      name: faker.system.semver(),
+      ...props,
+    };
+  }
+
+  public static latestReleaseResponse(
+    props: Partial<LatestReleaseResponse> = {},
+  ): LatestReleaseResponse {
+    return {
+      tag_name: faker.system.semver(),
       ...props,
     };
   }
