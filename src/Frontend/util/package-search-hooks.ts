@@ -31,6 +31,33 @@ function usePackageNames({
   };
 }
 
+function usePackageNamespaces({
+  packageName,
+  packageNamespace,
+  packageType,
+}: PackageInfo) {
+  const { data, error, isLoading } = useQuery({
+    queryKey: [
+      'package-namespace-suggestions',
+      packageName,
+      packageNamespace,
+      packageType,
+    ],
+    queryFn: () =>
+      PackageSearchApi.getNamespaces({
+        packageName,
+        packageNamespace,
+        packageType,
+      }),
+    enabled: !!packageName && !!packageType,
+  });
+  return {
+    packageNamespaces: data,
+    packageNamespacesError: error,
+    packageNamespacesLoading: isLoading,
+  };
+}
+
 function usePackageVersions({
   packageName,
   packageNamespace,
@@ -49,7 +76,7 @@ function usePackageVersions({
         packageNamespace,
         packageType,
       }),
-    enabled: !!packageType && !!packageName,
+    enabled: !!packageName && !!packageType,
   });
   return {
     packageVersions: data,
@@ -72,7 +99,8 @@ function useGetPackageUrlAndLicense() {
 }
 
 export const PackageSearchHooks = {
-  usePackageNames,
-  usePackageVersions,
   useGetPackageUrlAndLicense,
+  usePackageNames,
+  usePackageNamespaces,
+  usePackageVersions,
 };

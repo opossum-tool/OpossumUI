@@ -2,12 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { difference } from 'lodash';
+
 import { faker } from '../../../shared/Faker';
 import { AutocompleteSignal } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { RequestProps } from '../http-client';
 import {
   PackageSearchApi,
+  packageSystems,
+  packageSystemsRequiringNamespace,
   UrlAndLicense,
   Versions,
 } from '../package-search-api';
@@ -167,6 +171,77 @@ describe('PackageSearchApi', () => {
       const packageSearchApi = new PackageSearchApi(httpClient);
 
       await packageSearchApi.getNames(packageInfo);
+
+      expect(httpClient.request).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getNamespaces', () => {
+    it('gets namespaces for project', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: faker.packageSearch.projectType(),
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getNamespaces(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(httpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining<Partial<RequestProps>>({
+          params: { q: packageInfo.packageName, kind: 'PROJECT' },
+        }),
+      );
+    });
+
+    it('gets namespaces for package system which requires one', async () => {
+      const system = faker.helpers.arrayElement(
+        packageSystemsRequiringNamespace,
+      );
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: system,
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getNamespaces(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(httpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining<Partial<RequestProps>>({
+          params: { q: packageInfo.packageName, system, kind: 'PACKAGE' },
+        }),
+      );
+    });
+
+    it('does not get namespaces for package system which does not require one', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: faker.helpers.arrayElement(
+          difference(packageSystems, packageSystemsRequiringNamespace),
+        ),
+      });
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getNamespaces(packageInfo);
+
+      expect(httpClient.request).not.toHaveBeenCalled();
+    });
+
+    it('does not get namespaces for unknown package type', async () => {
+      const packageInfo = faker.opossum.externalPackageInfo();
+      const httpClient = faker.httpClient(
+        faker.packageSearch.searchSuggestionResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.getNamespaces(packageInfo);
 
       expect(httpClient.request).not.toHaveBeenCalled();
     });

@@ -86,7 +86,8 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
 
   const { packageNames } =
     PackageSearchHooks.usePackageNames(debouncedPackageInfo);
-
+  const { packageNamespaces } =
+    PackageSearchHooks.usePackageNamespaces(debouncedPackageInfo);
   const { packageVersions } =
     PackageSearchHooks.usePackageVersions(debouncedPackageInfo);
 
@@ -126,6 +127,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         highlight={'dark'}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        defaults={packageNamespaces}
       />
     );
   }
