@@ -23,6 +23,8 @@ export const packageSystems = [
 ] as const;
 export type PackageSystem = (typeof packageSystems)[number];
 
+export const packageSystemsRequiringNamespace: Array<PackageSystem> = ['MAVEN'];
+
 export const projectTypes = ['GITHUB', 'GITLAB', 'BITBUCKET'] as const;
 export type ProjectType = (typeof projectTypes)[number];
 
@@ -236,6 +238,34 @@ export class PackageSearchApi {
       .map<AutocompleteSignal>(({ name, system, projectType }) =>
         this.serialize({ name, system, projectType }),
       );
+  }
+
+  public async getNamespaces(
+    props: PackageInfo,
+  ): Promise<Array<AutocompleteSignal>> {
+    const { name, system, projectType } = this.deserialize(props);
+    if (
+      !name ||
+      (!system && !projectType) ||
+      (system && !packageSystemsRequiringNamespace.includes(system))
+    ) {
+      return [];
+    }
+    const response = await this.httpClient.request({
+      baseUrl: this.baseUrlWeb, // endpoint not available via API
+      path: '/_/search/suggest',
+      params: {
+        q: name,
+        kind: projectType ? 'PROJECT' : 'PACKAGE',
+        ...(system && { system }),
+      },
+    });
+    const data: SearchSuggestionResponse = await response.json();
+
+    return data.results.map<AutocompleteSignal>(
+      ({ name, system, projectType }) =>
+        this.serialize({ name, system, projectType }),
+    );
   }
 
   public async getVersions(props: PackageInfo): Promise<Versions> {
