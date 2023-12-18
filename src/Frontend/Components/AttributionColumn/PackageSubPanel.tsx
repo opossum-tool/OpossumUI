@@ -12,10 +12,8 @@ import { useMemo } from 'react';
 
 import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PopupType } from '../../enums/enums';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { generatePurl, parsePurl } from '../../util/handle-purl';
 import { openUrl } from '../../util/open-url';
@@ -23,7 +21,6 @@ import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
-import { SearchPackagesIcon } from '../Icons/Icons';
 import { TextBox } from '../InputElements/TextBox';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -102,17 +99,6 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
         defaults={packageNames}
-        endAdornment={
-          <IconButton
-            tooltipTitle={
-              text.attributionColumn.packageSubPanel.searchForPackage
-            }
-            tooltipPlacement="right"
-            onClick={() => dispatch(openPopup(PopupType.PackageSearchPopup))}
-            hidden={!props.isEditable}
-            icon={<SearchPackagesIcon sx={clickableIcon} />}
-          />
-        }
       />
     );
   }
