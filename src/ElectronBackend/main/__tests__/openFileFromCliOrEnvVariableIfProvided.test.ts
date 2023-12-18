@@ -23,8 +23,6 @@ describe('openFileFromCli', () => {
     process.argv = oldProcessArgv;
   });
 
-  beforeEach(() => jest.clearAllMocks());
-
   it.each`
     inputFileName          | extraParameter
     ${'inputFile.json'}    | ${null}
@@ -80,7 +78,6 @@ describe('openFileFromEnvVariable', () => {
   const oldProcessArgv = process.argv;
 
   beforeEach(() => {
-    jest.resetModules();
     process.env = cloneDeep(oldEnvVariables);
     process.argv = cloneDeep(oldProcessArgv);
   });

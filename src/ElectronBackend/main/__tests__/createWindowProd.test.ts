@@ -45,8 +45,6 @@ jest.mock('../iconHelpers', () => ({
 }));
 
 describe('createWindow', () => {
-  beforeEach(() => jest.clearAllMocks());
-
   it('returns correct BrowserWindow in production', async () => {
     const browserWindow = await createWindow();
     expect(browserWindow.webContents.openDevTools).not.toHaveBeenCalled();
