@@ -139,11 +139,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.packageVersion}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
-        defaults={
-          packageVersions
-            ? [...packageVersions.default, ...packageVersions.other]
-            : []
-        }
+        defaults={packageVersions}
       />
     );
   }
