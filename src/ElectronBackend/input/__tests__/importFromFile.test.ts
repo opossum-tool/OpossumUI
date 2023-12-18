@@ -192,7 +192,7 @@ describe('Test of loading function', () => {
     const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
     await writeFile({ path: jsonPath, content: inputFileContent });
 
-    Date.now = jest.fn(() => 1);
+    jest.spyOn(Date, 'now').mockReturnValue(1);
 
     (dialog.showMessageBox as jest.Mock).mockImplementationOnce(
       jest.fn(() => {
@@ -242,7 +242,7 @@ describe('Test of loading function', () => {
       path: opossumPath,
     });
 
-    Date.now = jest.fn(() => 1);
+    jest.spyOn(Date, 'now').mockReturnValue(1);
 
     const globalBackendState = {
       resourceFilePath: '/previous/file.opossum',
@@ -275,7 +275,7 @@ describe('Test of loading function', () => {
       path: opossumPath,
     });
 
-    Date.now = jest.fn(() => 1691761892037);
+    jest.spyOn(Date, 'now').mockReturnValue(1691761892037);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, opossumPath);
@@ -296,7 +296,7 @@ describe('Test of loading function', () => {
       const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
       await writeFile({ path: jsonPath, content: inputFileContent });
 
-      Date.now = jest.fn(() => 1);
+      jest.spyOn(Date, 'now').mockReturnValue(1);
 
       setGlobalBackendState({});
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -319,7 +319,7 @@ describe('Test of loading function', () => {
         zlib.gzipSync(JSON.stringify(inputFileContent)),
       );
 
-      Date.now = jest.fn(() => 1);
+      jest.spyOn(Date, 'now').mockReturnValue(1);
 
       setGlobalBackendState({});
       await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -357,7 +357,7 @@ describe('Test of loading function', () => {
     };
     await writeFile({ path: attributionJsonPath, content: attributions });
 
-    Date.now = jest.fn(() => 1);
+    jest.spyOn(Date, 'now').mockReturnValue(1);
 
     const globalBackendState = {
       resourceFilePath: '/previous/file.json',
@@ -438,7 +438,7 @@ describe('Test of loading function', () => {
         content: inputFileContentWithPreselectedAttribution,
       });
 
-      Date.now = jest.fn(() => 1);
+      jest.spyOn(Date, 'now').mockReturnValue(1);
 
       const globalBackendState = {
         resourceFilePath: '/previous/file.json',
@@ -547,7 +547,7 @@ describe('Test of loading function', () => {
       content: inputFileContentWithCustomMetadata,
     });
 
-    Date.now = jest.fn(() => 1);
+    jest.spyOn(Date, 'now').mockReturnValue(1);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
@@ -589,7 +589,7 @@ describe('Test of loading function', () => {
 
     await writeFile({ path: jsonPath, content: inputFileContentWithOriginIds });
 
-    Date.now = jest.fn(() => 1);
+    jest.spyOn(Date, 'now').mockReturnValue(1);
 
     setGlobalBackendState({});
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);

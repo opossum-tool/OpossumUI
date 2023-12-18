@@ -85,7 +85,7 @@ describe('The table helpers', () => {
     ).toBe('No');
   });
 
-  test.each`
+  it.each`
     followUp     | expected
     ${undefined} | ${'No'}
     ${FollowUp}  | ${'Yes'}
@@ -112,7 +112,7 @@ describe('The table helpers', () => {
     },
   );
 
-  test.each`
+  it.each`
     property
     ${'copyright'}
     ${'licenseName'}

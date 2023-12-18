@@ -566,10 +566,6 @@ describe('getSelectBaseURLListener', () => {
 });
 
 describe('getSaveFileListener', () => {
-  beforeEach(() => {
-    (writeFile as jest.Mock).mockReset();
-  });
-
   it('throws error when projectId is not set', async () => {
     const mockCallback = jest.fn();
     const mainWindow = {
@@ -830,10 +826,6 @@ describe('getExportBomListener', () => {
 });
 
 describe('getExportSpdxDocumentListener', () => {
-  beforeEach(() => {
-    (writeSpdxFile as jest.Mock).mockReset();
-  });
-
   it('throws if path is not set', async () => {
     const mainWindow = await prepareBomSPdxAndFollowUpit();
 
@@ -897,10 +889,6 @@ describe('getOpenLinkListener', () => {
 });
 
 describe('_exportFileAndOpenFolder', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('calls the createFile function', async () => {
     const mainWindow = await prepareBomSPdxAndFollowUpit();
     const testSpdxDocumentYamlFilePath = '/some/path.json';
