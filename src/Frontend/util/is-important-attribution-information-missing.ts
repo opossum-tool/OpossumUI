@@ -9,8 +9,8 @@ const TYPES_REQUIRING_NAMESPACE = [
   'bitbucket',
   'composer',
   'deb',
-  'golang',
   'github',
+  'gitlab',
   'maven',
 ];
 

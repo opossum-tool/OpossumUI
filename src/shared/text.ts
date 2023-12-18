@@ -26,7 +26,7 @@ export const text = {
     amongSignals: 'among signals',
     commonEcosystems: 'Common Ecosystems',
     commonLicenses: 'Common Licenses',
-    depsDev: 'Open Source Insights (deps.dev)',
+    openSourceInsights: 'Open Source Insights',
     legalInformation: 'Legal Information',
     licenseName: 'License Name',
     licenseTextModified: '(License text modified)',

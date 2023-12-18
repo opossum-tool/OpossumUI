@@ -8,10 +8,20 @@ import { PackageInfo } from '../../shared/shared-types';
 import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
-function usePackageNames({ packageName }: PackageInfo) {
+function usePackageNames({
+  packageName,
+  packageNamespace,
+  packageType,
+}: PackageInfo) {
   const { data, error, isLoading } = useQuery({
-    queryKey: ['package-name-suggestions', packageName],
-    queryFn: () => PackageSearchApi.getPackages({ packageName }),
+    queryKey: [
+      'package-name-suggestions',
+      packageName,
+      packageNamespace,
+      packageType,
+    ],
+    queryFn: () =>
+      PackageSearchApi.getNames({ packageName, packageNamespace, packageType }),
     enabled: !!packageName,
   });
   return {
@@ -21,10 +31,24 @@ function usePackageNames({ packageName }: PackageInfo) {
   };
 }
 
-function usePackageVersions({ packageType, packageName }: PackageInfo) {
+function usePackageVersions({
+  packageName,
+  packageNamespace,
+  packageType,
+}: PackageInfo) {
   const { data, error, isLoading } = useQuery({
-    queryKey: ['package-version-suggestions', packageType, packageName],
-    queryFn: () => PackageSearchApi.getVersions({ packageName, packageType }),
+    queryKey: [
+      'package-version-suggestions',
+      packageName,
+      packageNamespace,
+      packageType,
+    ],
+    queryFn: () =>
+      PackageSearchApi.getVersions({
+        packageName,
+        packageNamespace,
+        packageType,
+      }),
     enabled: !!packageType && !!packageName,
   });
   return {
@@ -34,20 +58,21 @@ function usePackageVersions({ packageType, packageName }: PackageInfo) {
   };
 }
 
-function usePackageVersion() {
+function useGetPackageUrlAndLicense() {
   const { mutateAsync, error, isPending } = useMutation({
-    mutationFn: (props: PackageInfo) => PackageSearchApi.getVersion(props),
+    mutationFn: (props: PackageInfo) =>
+      PackageSearchApi.getUrlAndLicense(props),
   });
 
   return {
-    getPackageVersion: tryit(mutateAsync),
-    packageVersionError: error,
-    packageVersionLoading: isPending,
+    getPackageUrlAndLicense: tryit(mutateAsync),
+    getPackageUrlAndLicenseError: error,
+    getPackageUrlAndLicenseLoading: isPending,
   };
 }
 
 export const PackageSearchHooks = {
   usePackageNames,
   usePackageVersions,
-  usePackageVersion,
+  useGetPackageUrlAndLicense,
 };
