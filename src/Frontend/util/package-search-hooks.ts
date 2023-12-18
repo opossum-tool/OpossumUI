@@ -62,6 +62,7 @@ function usePackageVersions({
   packageName,
   packageNamespace,
   packageType,
+  packageVersion,
 }: PackageInfo) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
@@ -69,12 +70,14 @@ function usePackageVersions({
       packageName,
       packageNamespace,
       packageType,
+      packageVersion,
     ],
     queryFn: () =>
       PackageSearchApi.getVersions({
         packageName,
         packageNamespace,
         packageType,
+        packageVersion,
       }),
     enabled: !!packageName && !!packageType,
   });

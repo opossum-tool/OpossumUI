@@ -13,7 +13,6 @@ import {
   packageSystems,
   packageSystemsRequiringNamespace,
   UrlAndLegal,
-  Versions,
 } from '../package-search-api';
 
 describe('PackageSearchApi', () => {
@@ -248,7 +247,7 @@ describe('PackageSearchApi', () => {
   });
 
   describe('getVersions', () => {
-    it('provides semantically sorted default and non-default versions for known systems', async () => {
+    it('provides semantically sorted default and non-default versions for known package types', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: 'npm',
       });
@@ -277,56 +276,100 @@ describe('PackageSearchApi', () => {
       const versions = await packageSearchApi.getVersions(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(versions).toEqual<Versions>({
-        default: [
-          {
-            packageName: defaultVersion.versionKey.name,
-            packageType: defaultVersion.versionKey.system.toLowerCase(),
-            packageVersion: defaultVersion.versionKey.version,
-            source: {
-              name: text.attributionColumn.openSourceInsights,
-              documentConfidence: 100,
-            },
-            suffix: '(default)',
+      expect(versions).toEqual<Array<AutocompleteSignal>>([
+        {
+          packageName: defaultVersion.versionKey.name,
+          packageType: defaultVersion.versionKey.system.toLowerCase(),
+          packageVersion: defaultVersion.versionKey.version,
+          source: {
+            name: text.attributionColumn.openSourceInsights,
+            documentConfidence: 100,
           },
-        ],
-        other: [
-          {
-            packageName: nonDefaultVersion2.versionKey.name,
-            packageType: nonDefaultVersion2.versionKey.system.toLowerCase(),
-            packageVersion: nonDefaultVersion2.versionKey.version,
-            source: {
-              name: text.attributionColumn.openSourceInsights,
-              documentConfidence: 100,
-            },
+          suffix: '(default)',
+        },
+        {
+          packageName: nonDefaultVersion2.versionKey.name,
+          packageType: nonDefaultVersion2.versionKey.system.toLowerCase(),
+          packageVersion: nonDefaultVersion2.versionKey.version,
+          source: {
+            name: text.attributionColumn.openSourceInsights,
+            documentConfidence: 100,
           },
-          {
-            packageName: nonDefaultVersion1.versionKey.name,
-            packageType: nonDefaultVersion1.versionKey.system.toLowerCase(),
-            packageVersion: nonDefaultVersion1.versionKey.version,
-            source: {
-              name: text.attributionColumn.openSourceInsights,
-              documentConfidence: 100,
-            },
+        },
+        {
+          packageName: nonDefaultVersion1.versionKey.name,
+          packageType: nonDefaultVersion1.versionKey.system.toLowerCase(),
+          packageVersion: nonDefaultVersion1.versionKey.version,
+          source: {
+            name: text.attributionColumn.openSourceInsights,
+            documentConfidence: 100,
           },
-        ],
-      });
+        },
+      ]);
     });
 
-    it('does not provide versions for projects', async () => {
+    it('provides tags as versions for GitHub packages', async () => {
+      const packageName = faker.internet.domainWord();
+      const packageNamespace = faker.internet.domainWord();
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: 'github',
+        packageName,
+        packageNamespace,
       });
-      const httpClient = faker.httpClient();
+      const tagName = faker.system.semver();
+      const httpClient = faker.httpClient([
+        faker.packageSearch.tagResponse({ name: tagName }),
+      ]);
       const packageSearchApi = new PackageSearchApi(httpClient);
 
       const versions = await packageSearchApi.getVersions(packageInfo);
 
-      expect(httpClient.request).not.toHaveBeenCalled();
-      expect(versions).toEqual<Versions>({
-        default: [],
-        other: [],
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(versions).toEqual<Array<AutocompleteSignal>>([
+        {
+          packageName,
+          packageNamespace,
+          packageType: 'github',
+          packageVersion: tagName,
+          source: {
+            name: text.attributionColumn.openSourceInsights,
+            documentConfidence: 100,
+          },
+          url: `https://github.com/${packageNamespace}/${packageName}`,
+        },
+      ]);
+    });
+
+    it('provides tags as versions for GitLab packages', async () => {
+      const packageName = faker.internet.domainWord();
+      const packageNamespace = faker.internet.domainWord();
+      const packageInfo = faker.opossum.externalPackageInfo({
+        packageType: 'gitlab',
+        packageName,
+        packageNamespace,
       });
+      const tagName = faker.system.semver();
+      const httpClient = faker.httpClient([
+        faker.packageSearch.tagResponse({ name: tagName }),
+      ]);
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      const versions = await packageSearchApi.getVersions(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(versions).toEqual<Array<AutocompleteSignal>>([
+        {
+          packageName,
+          packageNamespace,
+          packageType: 'gitlab',
+          packageVersion: tagName,
+          source: {
+            name: text.attributionColumn.openSourceInsights,
+            documentConfidence: 100,
+          },
+          url: `https://gitlab.com/${packageNamespace}/${packageName}`,
+        },
+      ]);
     });
 
     it('deserializes "golang" package type', async () => {
@@ -392,6 +435,7 @@ describe('PackageSearchApi', () => {
     it('provides repo URL and license for a given package version', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
+        packageNamespace: faker.internet.domainWord(),
         url: undefined,
         licenseName: undefined,
       });
@@ -422,6 +466,7 @@ describe('PackageSearchApi', () => {
     it('falls back to homepage URL when repo URL not available', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
+        packageNamespace: faker.internet.domainWord(),
         url: undefined,
         licenseName: undefined,
       });
@@ -450,6 +495,7 @@ describe('PackageSearchApi', () => {
     it('falls back to first origin URL when neither repo URL nor homepage URL are available', async () => {
       const packageInfo = faker.opossum.externalPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
+        packageNamespace: faker.internet.domainWord(),
         url: undefined,
         licenseName: undefined,
       });
@@ -478,23 +524,10 @@ describe('PackageSearchApi', () => {
     });
   });
 
-  it('does not make any request if both url and license name of a package are already known', async () => {
-    const packageInfo = faker.opossum.externalPackageInfo({
-      packageType: faker.packageSearch.packageSystem(),
-      url: faker.internet.url(),
-      licenseName: faker.commerce.productName(),
-    });
-    const httpClient = faker.httpClient();
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    await packageSearchApi.getUrlAndLegal(packageInfo);
-
-    expect(httpClient.request).not.toHaveBeenCalled();
-  });
-
   it('gets license based on package default version if no package version provided', async () => {
     const packageInfo = faker.opossum.externalPackageInfo({
       packageType: faker.packageSearch.packageSystem(),
+      packageNamespace: faker.internet.domainWord(),
       packageVersion: undefined,
     });
     const defaultVersion = faker.system.semver();
@@ -515,6 +548,46 @@ describe('PackageSearchApi', () => {
     );
   });
 
+  it("gets GitHub project's latest tag as default version if no package version provided", async () => {
+    const packageInfo = faker.opossum.externalPackageInfo({
+      packageType: 'github',
+      packageNamespace: faker.internet.domainWord(),
+      packageVersion: undefined,
+    });
+    const tagName = faker.system.semver();
+    const httpClient = faker.httpClient(
+      faker.packageSearch.latestReleaseResponse({ tag_name: tagName }),
+      faker.packageSearch.webVersionResponse(),
+    );
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    const { packageVersion } =
+      await packageSearchApi.getUrlAndLegal(packageInfo);
+
+    expect(httpClient.request).toHaveBeenCalledTimes(1);
+    expect(packageVersion).toBe(tagName);
+  });
+
+  it("gets GitLab project's latest tag as default version if no package version provided", async () => {
+    const packageInfo = faker.opossum.externalPackageInfo({
+      packageType: 'gitlab',
+      packageNamespace: faker.internet.domainWord(),
+      packageVersion: undefined,
+    });
+    const tagName = faker.system.semver();
+    const httpClient = faker.httpClient(
+      faker.packageSearch.latestReleaseResponse({ tag_name: tagName }),
+      faker.packageSearch.webVersionResponse(),
+    );
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    const { packageVersion } =
+      await packageSearchApi.getUrlAndLegal(packageInfo);
+
+    expect(httpClient.request).toHaveBeenCalledTimes(1);
+    expect(packageVersion).toBe(tagName);
+  });
+
   it('provides repo URL, license, and copyright for a GitHub project', async () => {
     const name = faker.internet.domainWord();
     const namespace = faker.internet.domainWord();
@@ -525,7 +598,6 @@ describe('PackageSearchApi', () => {
       url: undefined,
       licenseName: undefined,
       copyright: undefined,
-      packageVersion: undefined,
     });
     const license = faker.commerce.productName();
     const copyright = faker.opossum.copyright();
@@ -543,6 +615,7 @@ describe('PackageSearchApi', () => {
     expect(urlAndLegal).toEqual<UrlAndLegal>({
       url: `https://github.com/${namespace}/${name}`,
       licenseName: license,
+      packageVersion: packageInfo.packageVersion,
       copyright,
     });
   });
@@ -557,7 +630,6 @@ describe('PackageSearchApi', () => {
       url: undefined,
       licenseName: undefined,
       copyright: undefined,
-      packageVersion: undefined,
     });
     const license = faker.commerce.productName();
     const copyright = faker.opossum.copyright();
@@ -577,6 +649,7 @@ describe('PackageSearchApi', () => {
     expect(urlAndLegal).toEqual<UrlAndLegal>({
       url: `https://gitlab.com/${namespace}/${name}`,
       licenseName: license,
+      packageVersion: packageInfo.packageVersion,
       copyright,
     });
   });
@@ -584,6 +657,7 @@ describe('PackageSearchApi', () => {
   it('does not make any request if URL, license name, and copyright of a project are already known', async () => {
     const packageInfo = faker.opossum.externalPackageInfo({
       packageType: faker.packageSearch.projectType(),
+      packageNamespace: faker.internet.domainWord(),
       url: faker.internet.url(),
       licenseName: faker.commerce.productName(),
       copyright: faker.opossum.copyright(),
