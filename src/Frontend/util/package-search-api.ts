@@ -97,14 +97,17 @@ export interface VersionsResponse {
   versions: Array<VersionResponse>;
 }
 
-export interface Versions {
-  default: Array<AutocompleteSignal>;
-  other: Array<AutocompleteSignal>;
-}
-
 export interface GitHubLicenseResponse {
   license: { name: string } | null;
   content: string;
+}
+
+export interface LatestReleaseResponse {
+  tag_name?: string;
+}
+
+export interface TagResponse {
+  name: string;
 }
 
 export interface GitLabProjectResponse {
@@ -123,11 +126,11 @@ export type UrlAndLegal = Pick<
 
 export class PackageSearchApi {
   private readonly baseUrls = {
-    GITHUB: 'https://api.github.com',
-    GITLAB: 'https://gitlab.com',
-    DEPS_DEV_WEB: 'https://deps.dev',
-    DEPS_DEV_API: 'https://api.deps.dev',
-  };
+    GITHUB: 'https://api.github.com/',
+    GITLAB: 'https://gitlab.com/api/v4/',
+    DEPS_DEV_WEB: 'https://deps.dev/_/',
+    DEPS_DEV_API: 'https://api.deps.dev/v3alpha/',
+  } as const;
   private readonly projectTypeDomains: Record<ProjectType, string> = {
     GITHUB: 'github.com',
     GITLAB: 'gitlab.com',
@@ -136,7 +139,9 @@ export class PackageSearchApi {
 
   constructor(private readonly httpClient: HttpClient) {}
 
-  private deserialize(input: PackageInfo): Partial<SearchSuggestion> {
+  private deserialize(
+    input: PackageInfo,
+  ): Partial<SearchSuggestion> & { isComplete: boolean } {
     const { packageName, packageNamespace, packageType } = mapValues(
       pick(input, ['packageName', 'packageNamespace', 'packageType']),
       (value) => value?.trim().toLowerCase(),
@@ -159,6 +164,10 @@ export class PackageSearchApi {
             ? 'GO'
             : (packageType.toUpperCase() as PackageSystem),
         projectType: undefined,
+        isComplete:
+          packageType === 'maven'
+            ? !!packageName && !!packageNamespace
+            : !!packageName,
       };
     }
 
@@ -171,6 +180,7 @@ export class PackageSearchApi {
         name: compact([packageNamespace, packageName]).join('/'),
         system: undefined,
         projectType: packageType.toUpperCase() as ProjectType,
+        isComplete: !!packageName && !!packageNamespace,
       };
     }
 
@@ -179,6 +189,7 @@ export class PackageSearchApi {
       name: packageName,
       system: undefined,
       projectType: undefined,
+      isComplete: false,
     };
   }
 
@@ -253,7 +264,7 @@ export class PackageSearchApi {
     }
     const response = await this.httpClient.request({
       baseUrl: this.baseUrls.DEPS_DEV_WEB, // endpoint not available via API
-      path: '/_/search/suggest',
+      path: 'search/suggest',
       params: {
         q: name,
       },
@@ -271,7 +282,7 @@ export class PackageSearchApi {
   public async getNamespaces(
     props: PackageInfo,
   ): Promise<Array<AutocompleteSignal>> {
-    const { name, system, projectType } = this.deserialize(props);
+    const { kind, name, system, projectType } = this.deserialize(props);
 
     if (
       !name ||
@@ -283,12 +294,8 @@ export class PackageSearchApi {
 
     const response = await this.httpClient.request({
       baseUrl: this.baseUrls.DEPS_DEV_WEB, // endpoint not available via API
-      path: '/_/search/suggest',
-      params: {
-        q: name,
-        kind: projectType ? 'PROJECT' : 'PACKAGE',
-        ...(system && { system }),
-      },
+      path: 'search/suggest',
+      params: { q: name, kind, ...(system && { system }) },
     });
     const data: SearchSuggestionResponse = await response.json();
 
@@ -298,16 +305,37 @@ export class PackageSearchApi {
     );
   }
 
-  public async getVersions(props: PackageInfo): Promise<Versions> {
-    const { name, system } = this.deserialize(props);
+  public getVersions({
+    packageVersion,
+    ...props
+  }: PackageInfo): Promise<Array<AutocompleteSignal>> {
+    const { isComplete, kind, name, projectType, system } =
+      this.deserialize(props);
 
-    if (!system || !name) {
-      return { default: [], other: [] };
+    if (isComplete && kind && system && name) {
+      return this.getPackageVersions({ kind, name, projectType, system });
     }
 
+    if (isComplete && kind && projectType && name) {
+      return this.getProjectVersions({
+        kind,
+        name,
+        projectType,
+        system,
+        packageVersion,
+      });
+    }
+
+    return Promise.resolve([]);
+  }
+
+  private async getPackageVersions({
+    name,
+    system,
+  }: PackageSuggestion): Promise<Array<AutocompleteSignal>> {
     const response = await this.httpClient.request({
       baseUrl: this.baseUrls.DEPS_DEV_API,
-      path: `/v3alpha/systems/${system}/packages/${encodeURIComponent(name)}`,
+      path: `systems/${system}/packages/${encodeURIComponent(name)}`,
     });
     const { versions }: VersionsResponse = await response.json();
 
@@ -322,30 +350,79 @@ export class PackageSearchApi {
       ({ isDefault }) => isDefault,
     );
 
-    return {
-      default: defaultVersions.map<AutocompleteSignal>(
+    return [
+      ...defaultVersions.map<AutocompleteSignal>(
         ({ versionKey: { name, system, version } }) => ({
           ...this.serialize({ name, system, version }),
           suffix: '(default)',
         }),
       ),
-      other: otherVersions.map<AutocompleteSignal>(
+      ...otherVersions.map<AutocompleteSignal>(
         ({ versionKey: { name, system, version } }) =>
           this.serialize({ name, system, version }),
       ),
-    };
+    ];
   }
 
-  public async getUrlAndLegal({
+  private async getProjectVersions({
+    name,
+    projectType,
+    system,
+    packageVersion,
+  }: ProjectSuggestion & { packageVersion: string | undefined }): Promise<
+    Array<AutocompleteSignal>
+  > {
+    switch (projectType) {
+      case 'GITHUB': {
+        const response = await this.httpClient.request({
+          baseUrl: this.baseUrls.GITHUB,
+          path: `repos/${name}/tags`,
+          params: { per_page: 100 },
+        });
+
+        if (!response.ok) {
+          return [];
+        }
+
+        const tags: Array<TagResponse> = await response.json();
+
+        return tags.map((tag) =>
+          this.serialize({ name, projectType, system, version: tag.name }),
+        );
+      }
+      case 'GITLAB': {
+        const response = await this.httpClient.request({
+          baseUrl: this.baseUrls.GITLAB,
+          path: `projects/${encodeURIComponent(name)}/repository/tags`,
+          params: { search: packageVersion, per_page: 100 },
+        });
+
+        if (!response.ok) {
+          return [];
+        }
+
+        const tags: Array<TagResponse> = await response.json();
+
+        return tags.map((tag) =>
+          this.serialize({ name, projectType, system, version: tag.name }),
+        );
+      }
+      default:
+        return [];
+    }
+  }
+
+  public getUrlAndLegal({
     url,
     licenseName,
     packageVersion,
     copyright,
     ...props
   }: PackageInfo): Promise<UrlAndLegal> {
-    const { name, projectType, system, kind } = this.deserialize(props);
+    const { isComplete, name, projectType, system, kind } =
+      this.deserialize(props);
 
-    if (kind && name && system) {
+    if (isComplete && kind && name && system) {
       return this.getPackageUrlAndLegal({
         copyright,
         kind,
@@ -357,7 +434,7 @@ export class PackageSearchApi {
       });
     }
 
-    if (kind && name && projectType) {
+    if (isComplete && kind && name && projectType) {
       return this.getProjectUrlAndLegal({
         copyright,
         kind,
@@ -369,7 +446,7 @@ export class PackageSearchApi {
       });
     }
 
-    return { url, licenseName, copyright, packageVersion };
+    return Promise.resolve({ url, licenseName, copyright, packageVersion });
   }
 
   private async getPackageUrlAndLegal({
@@ -382,10 +459,6 @@ export class PackageSearchApi {
     system,
     url,
   }: PackageSuggestion & UrlAndLegal): Promise<UrlAndLegal> {
-    if (url && licenseName && copyright && packageVersion) {
-      return { url, licenseName, copyright, packageVersion };
-    }
-
     const effectiveVersion =
       packageVersion ||
       (await this.getPackageDefaultVersion({
@@ -401,9 +474,9 @@ export class PackageSearchApi {
 
     const response = await this.httpClient.request({
       baseUrl: this.baseUrls.DEPS_DEV_WEB, // website provides source repo URL in a better format than API
-      path: `/_/s/${system}/p/${encodeURIComponent(
-        name,
-      )}/v/${encodeURIComponent(effectiveVersion)}`,
+      path: `s/${system}/p/${encodeURIComponent(name)}/v/${encodeURIComponent(
+        effectiveVersion,
+      )}`,
     });
 
     if (!response.ok) {
@@ -431,7 +504,7 @@ export class PackageSearchApi {
   }: PackageSuggestion): Promise<string | undefined> {
     const response = await this.httpClient.request({
       baseUrl: this.baseUrls.DEPS_DEV_WEB, // endpoint not available via API
-      path: `/_/s/${system}/p/${encodeURIComponent(name)}/v/`,
+      path: `s/${system}/p/${encodeURIComponent(name)}/v/`,
     });
 
     if (!response.ok) {
@@ -445,18 +518,74 @@ export class PackageSearchApi {
 
   private async getProjectUrlAndLegal({
     copyright,
+    kind,
     licenseName,
     name,
     packageVersion,
     projectType,
+    system,
     url,
   }: ProjectSuggestion & UrlAndLegal): Promise<UrlAndLegal> {
-    return this.getLegalFromUrl({
-      copyright,
-      licenseName,
-      packageVersion,
-      url: url || `https://${this.projectTypeDomains[projectType]}/${name}`,
-    });
+    const [effectiveVersion, urlAndLegal] = await Promise.all([
+      packageVersion ||
+        this.getProjectDefaultVersion({
+          kind,
+          name,
+          projectType,
+          system,
+        }),
+      this.getLegalFromUrl({
+        copyright,
+        licenseName,
+        packageVersion,
+        url: url || `https://${this.projectTypeDomains[projectType]}/${name}`,
+      }),
+    ]);
+
+    return {
+      ...urlAndLegal,
+      packageVersion: effectiveVersion,
+    };
+  }
+
+  private async getProjectDefaultVersion({
+    name,
+    projectType,
+  }: ProjectSuggestion): Promise<string | undefined> {
+    switch (projectType) {
+      case 'GITHUB': {
+        const response = await this.httpClient.request({
+          baseUrl: this.baseUrls.GITHUB,
+          path: `repos/${name}/releases/latest`,
+        });
+
+        if (!response.ok) {
+          return undefined;
+        }
+
+        const { tag_name }: LatestReleaseResponse = await response.json();
+
+        return tag_name;
+      }
+      case 'GITLAB': {
+        const response = await this.httpClient.request({
+          baseUrl: this.baseUrls.GITLAB,
+          path: `projects/${encodeURIComponent(
+            name,
+          )}/releases/permalink/latest`,
+        });
+
+        if (!response.ok) {
+          return undefined;
+        }
+
+        const { tag_name }: LatestReleaseResponse = await response.json();
+
+        return tag_name;
+      }
+      default:
+        return undefined;
+    }
   }
 
   private async getLegalFromUrl({
@@ -465,16 +594,12 @@ export class PackageSearchApi {
     packageVersion,
     url,
   }: UrlAndLegal): Promise<UrlAndLegal> {
-    if (copyright && licenseName) {
-      return { url, licenseName, copyright, packageVersion };
-    }
-
     const githubMatch = url?.match(GITHUB_REGEX);
 
     if (githubMatch) {
       const response = await this.httpClient.request({
         baseUrl: this.baseUrls.GITHUB,
-        path: `/repos/${githubMatch[2]}/${githubMatch[3]}/license`,
+        path: `repos/${githubMatch[2]}/${githubMatch[3]}/license`,
       });
 
       if (!response.ok) {
@@ -496,7 +621,7 @@ export class PackageSearchApi {
     if (gitlabMatch) {
       const response = await this.httpClient.request({
         baseUrl: this.baseUrls.GITLAB,
-        path: `/api/v4/projects/${gitlabMatch[2]}%2F${gitlabMatch[3]}`,
+        path: `projects/${gitlabMatch[2]}%2F${gitlabMatch[3]}`,
         params: { license: 'true' },
       });
 
@@ -512,7 +637,7 @@ export class PackageSearchApi {
 
         const licenseResponse = await this.httpClient.request({
           baseUrl: this.baseUrls.GITLAB,
-          path: `/api/v4/projects/${gitlabMatch[2]}%2F${gitlabMatch[3]}/repository/files/${fileName}`,
+          path: `projects/${gitlabMatch[2]}%2F${gitlabMatch[3]}/repository/files/${fileName}`,
           params: { ref },
         });
 
