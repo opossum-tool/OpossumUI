@@ -44,3 +44,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: USER_GUIDE.md
+
+      - name: Create SPDX document
+        run: yarn spdx
+
+      - name: Upload SPDX document
+        uses: softprops/action-gh-release@v1
+        with:
+          files: opossum-up.spdx.json
