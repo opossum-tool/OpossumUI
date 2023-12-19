@@ -12,7 +12,7 @@ import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { compact } from 'lodash';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { AutocompleteSignal, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -31,6 +31,7 @@ import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
+import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
 
 type AutocompleteAttribute = Extract<
@@ -51,6 +52,7 @@ interface Props {
   defaults?: Array<AutocompleteSignal>;
   disabled: boolean;
   showHighlight: boolean | undefined;
+  confirmEditWasPreferred: Confirm;
 }
 
 const Badge = styled(MuiBadge)({
@@ -69,9 +71,12 @@ export function PackageAutocomplete({
   defaults = [],
   disabled,
   showHighlight,
+  confirmEditWasPreferred,
 }: Props) {
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
+  const attributeValue = temporaryPackageInfo[attribute] || '';
+  const [inputValue, setInputValue] = useState(attributeValue);
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
 
@@ -89,6 +94,12 @@ export function PackageAutocomplete({
     [isAuditView, autocompleteSignals, defaults, attribute],
   );
 
+  useEffect(() => {
+    if (attributeValue !== inputValue) {
+      setInputValue(attributeValue);
+    }
+  }, [attributeValue, inputValue]);
+
   return (
     <Autocomplete
       title={title}
@@ -96,6 +107,7 @@ export function PackageAutocomplete({
       autoHighlight
       disableClearable
       freeSolo
+      inputValue={inputValue}
       highlight={
         showHighlight &&
         isImportantAttributionInformationMissing(
@@ -170,18 +182,20 @@ export function PackageAutocomplete({
         secondary: (option) =>
           typeof option === 'string' ? option : generatePurl(option),
       }}
-      onInputChange={(event, value) => {
+      onInputChange={(event, value) =>
         event &&
-          temporaryPackageInfo[attribute] !== value &&
+        temporaryPackageInfo[attribute] !== value &&
+        confirmEditWasPreferred(() => {
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...temporaryPackageInfo,
               [attribute]: value,
-              preferred: undefined,
               wasPreferred: undefined,
             }),
           );
-      }}
+          setInputValue(value);
+        })
+      }
       endAdornment={endAdornment}
     />
   );

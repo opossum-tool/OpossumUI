@@ -4,16 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement, useCallback } from 'react';
 
-import { ButtonText, PopupType } from '../../enums/enums';
+import { ButtonText } from '../../enums/enums';
 import { closeEditAttributionPopupOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import {
   savePackageInfo,
   savePackageInfoIfSavingIsNotDisabled,
 } from '../../state/actions/resource-actions/save-actions';
-import {
-  closePopup,
-  openPopup,
-} from '../../state/actions/view-actions/view-actions';
+import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getTemporaryDisplayPackageInfo } from '../../state/selectors/all-views-resource-selectors';
 import { getPopupAttributionId } from '../../state/selectors/view-selector';
@@ -30,42 +27,24 @@ export function EditAttributionPopup(): ReactElement {
   );
 
   const saveFileRequestListener = useCallback(() => {
-    if (temporaryDisplayPackageInfo.wasPreferred && popupAttributionId) {
-      dispatch(
-        openPopup(
-          PopupType.ModifyWasPreferredAttributionPopup,
-          popupAttributionId,
-        ),
-      );
-    } else {
-      dispatch(
-        savePackageInfoIfSavingIsNotDisabled(
-          null,
-          popupAttributionId,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
-        ),
-      );
-    }
+    dispatch(
+      savePackageInfoIfSavingIsNotDisabled(
+        null,
+        popupAttributionId,
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+      ),
+    );
   }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
   const dispatchSavePackageInfoOrOpenWasPreferredPopup = useCallback(() => {
-    if (temporaryDisplayPackageInfo.wasPreferred && popupAttributionId) {
-      dispatch(
-        openPopup(
-          PopupType.ModifyWasPreferredAttributionPopup,
-          popupAttributionId,
-        ),
-      );
-    } else {
-      dispatch(
-        savePackageInfo(
-          null,
-          popupAttributionId,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
-        ),
-      );
-      dispatch(closePopup());
-    }
+    dispatch(
+      savePackageInfo(
+        null,
+        popupAttributionId,
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+      ),
+    );
+    dispatch(closePopup());
   }, [dispatch, popupAttributionId, temporaryDisplayPackageInfo]);
 
   function checkForModifiedPackageInfoBeforeClosing(): void {
