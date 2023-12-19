@@ -42,6 +42,11 @@ export const text = {
     unmarkAsPreferred:
       'Do you really want to remove the preferred status globally?',
   },
+  modifyWasPreferredPopup: {
+    header: 'Warning',
+    message:
+      'You are about to modify an attribution that was preferred in the past. Are you sure you want to continue? The attribution will no longer be marked with a',
+  },
   processPopup: {
     title: 'Processing…',
   },

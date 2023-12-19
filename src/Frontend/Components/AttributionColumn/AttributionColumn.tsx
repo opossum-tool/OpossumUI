@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDivider from '@mui/material/Divider';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -32,13 +33,18 @@ import {
   ResetStateListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
-import { TextFieldStack } from '../TextFieldStack/TextFieldStack';
+import {
+  ConfirmationDialog,
+  useConfirmationDialog,
+} from '../ConfirmationDialog/ConfirmationDialog';
+import { WasPreferredIcon } from '../Icons/Icons';
 import {
   getResolvedToggleHandler,
   selectedPackagesAreResolved,
 } from './attribution-column-helpers';
 import { AuditingOptions } from './AuditingOptions';
 import { ButtonRow } from './ButtonRow';
+import { CommentStack } from './CommentStack';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
 import { LicenseSubPanel } from './LicenseSubPanel';
 import { PackageSubPanel } from './PackageSubPanel';
@@ -99,6 +105,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
+  const [confirmEditWasPreferredRef, confirmEditWasPreferred] =
+    useConfirmationDialog({
+      skip: !temporaryDisplayPackageInfo.wasPreferred,
+    });
   const packageInfoWereModified = useAppSelector(
     wereTemporaryDisplayPackageInfoModified,
   );
@@ -135,64 +145,71 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   ]);
 
   return (
-    <MuiBox aria-label={'attribution column'} sx={classes.root}>
-      <MuiBox sx={classes.panelsContainer}>
-        <AuditingOptions
-          packageInfo={temporaryDisplayPackageInfo}
-          isEditable={props.isEditable}
-        />
-        <MuiDivider variant={'middle'}>
-          <MuiTypography>
-            {text.attributionColumn.packageCoordinates}
-          </MuiTypography>
-        </MuiDivider>
-        <PackageSubPanel
-          displayPackageInfo={temporaryDisplayPackageInfo}
-          isEditable={props.isEditable}
-          showHighlight={showHighlight}
-        />
-        <MuiDivider variant={'middle'}>
-          <MuiTypography>
-            {text.attributionColumn.legalInformation}
-          </MuiTypography>
-        </MuiDivider>
-        {renderAttributionType()}
-        {temporaryDisplayPackageInfo.firstParty ? null : (
-          <>
-            <CopyrightSubPanel
-              isEditable={props.isEditable}
-              displayPackageInfo={temporaryDisplayPackageInfo}
-              showHighlight={showHighlight}
-            />
-            <LicenseSubPanel
-              displayPackageInfo={temporaryDisplayPackageInfo}
-              isEditable={props.isEditable}
-              showHighlight={showHighlight}
-            />
-          </>
-        )}
-        <TextFieldStack
-          isEditable={props.isEditable}
-          comments={temporaryDisplayPackageInfo.comments || []}
-        />
-      </MuiBox>
-      <MuiBox sx={classes.buttonsContainer}>
-        {props.showHideButton ? (
-          renderShowHideButton()
-        ) : (
-          <ButtonRow
-            areButtonsHidden={props.areButtonsHidden}
-            displayPackageInfo={temporaryDisplayPackageInfo}
-            hideDeleteButtons={props.hideDeleteButtons}
-            onDeleteButtonClick={props.onDeleteButtonClick}
-            onDeleteGloballyButtonClick={props.onDeleteGloballyButtonClick}
-            onSaveButtonClick={props.onSaveButtonClick}
-            onSaveGloballyButtonClick={props.onSaveGloballyButtonClick}
-            showSaveGloballyButton={props.showSaveGloballyButton}
+    <>
+      <MuiBox aria-label={'attribution column'} sx={classes.root}>
+        <MuiBox sx={classes.panelsContainer}>
+          <AuditingOptions
+            packageInfo={temporaryDisplayPackageInfo}
+            isEditable={props.isEditable}
           />
-        )}
+          <MuiDivider variant={'middle'}>
+            <MuiTypography>
+              {text.attributionColumn.packageCoordinates}
+            </MuiTypography>
+          </MuiDivider>
+          <PackageSubPanel
+            displayPackageInfo={temporaryDisplayPackageInfo}
+            isEditable={props.isEditable}
+            showHighlight={showHighlight}
+            confirmEditWasPreferred={confirmEditWasPreferred}
+          />
+          <MuiDivider variant={'middle'}>
+            <MuiTypography>
+              {text.attributionColumn.legalInformation}
+            </MuiTypography>
+          </MuiDivider>
+          {renderAttributionType()}
+          {temporaryDisplayPackageInfo.firstParty ? null : (
+            <>
+              <CopyrightSubPanel
+                isEditable={props.isEditable}
+                displayPackageInfo={temporaryDisplayPackageInfo}
+                showHighlight={showHighlight}
+                confirmEditWasPreferred={confirmEditWasPreferred}
+              />
+              <LicenseSubPanel
+                displayPackageInfo={temporaryDisplayPackageInfo}
+                isEditable={props.isEditable}
+                showHighlight={showHighlight}
+                confirmEditWasPreferred={confirmEditWasPreferred}
+              />
+            </>
+          )}
+          <CommentStack
+            isEditable={props.isEditable}
+            displayPackageInfo={temporaryDisplayPackageInfo}
+            confirmEditWasPreferred={confirmEditWasPreferred}
+          />
+        </MuiBox>
+        <MuiBox sx={classes.buttonsContainer}>
+          {props.showHideButton ? (
+            renderShowHideButton()
+          ) : (
+            <ButtonRow
+              areButtonsHidden={props.areButtonsHidden}
+              displayPackageInfo={temporaryDisplayPackageInfo}
+              hideDeleteButtons={props.hideDeleteButtons}
+              onDeleteButtonClick={props.onDeleteButtonClick}
+              onDeleteGloballyButtonClick={props.onDeleteGloballyButtonClick}
+              onSaveButtonClick={props.onSaveButtonClick}
+              onSaveGloballyButtonClick={props.onSaveGloballyButtonClick}
+              showSaveGloballyButton={props.showSaveGloballyButton}
+            />
+          )}
+        </MuiBox>
       </MuiBox>
-    </MuiBox>
+      {renderConfirmationDialog()}
+    </>
   );
 
   function renderAttributionType() {
@@ -200,14 +217,17 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       <MuiToggleButtonGroup
         value={temporaryDisplayPackageInfo.firstParty || false}
         exclusive
-        onChange={(_, newValue) => {
-          dispatch(
-            setTemporaryDisplayPackageInfo({
-              ...temporaryDisplayPackageInfo,
-              firstParty: newValue,
-            }),
-          );
-        }}
+        onChange={(_, newValue) =>
+          confirmEditWasPreferred(() =>
+            dispatch(
+              setTemporaryDisplayPackageInfo({
+                ...temporaryDisplayPackageInfo,
+                firstParty: newValue,
+                wasPreferred: undefined,
+              }),
+            ),
+          )
+        }
         size={'small'}
         fullWidth
       >
@@ -236,6 +256,24 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       >
         {selectedPackageIsResolved ? ButtonText.Unhide : ButtonText.Hide}
       </MuiToggleButton>
+    );
+  }
+
+  function renderConfirmationDialog() {
+    return (
+      <ConfirmationDialog
+        ref={confirmEditWasPreferredRef}
+        message={
+          <MuiDialogContentText
+            style={{ display: 'flex', alignItems: 'center' }}
+          >
+            {text.modifyWasPreferredPopup.message}
+            <WasPreferredIcon />
+            {'.'}
+          </MuiDialogContentText>
+        }
+        title={text.modifyWasPreferredPopup.header}
+      />
     );
   }
 }

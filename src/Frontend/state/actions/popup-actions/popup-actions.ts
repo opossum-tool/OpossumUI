@@ -176,29 +176,6 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavi
   };
 }
 
-export function checkIfWasPreferredAndShowWarningOrUnlinkAndSave(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const currentAttributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo =
-      getTemporaryDisplayPackageInfo(getState());
-
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(closePopup());
-      currentAttributionId &&
-        dispatch(
-          openPopup(
-            PopupType.ModifyWasPreferredAttributionPopup,
-            currentAttributionId,
-          ),
-        );
-    } else {
-      dispatch(
-        unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-      );
-    }
-  };
-}
-
 export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
@@ -221,11 +198,9 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIs
   };
 }
 
-export function checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(): AppThunkAction {
+export function checkIfPreferredStatusChangedAndShowWarningOrSave(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const currentAttributionId = getCurrentAttributionId(getState());
-    const temporaryDisplayPackageInfo =
-      getTemporaryDisplayPackageInfo(getState());
     const attributionsToResources =
       getManualAttributionsToResources(getState());
     const attributionHasMultipleResources = hasAttributionMultipleResources(
@@ -233,16 +208,7 @@ export function checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(
       attributionsToResources,
     );
 
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(closePopup());
-      currentAttributionId &&
-        dispatch(
-          openPopup(
-            PopupType.ModifyWasPreferredAttributionPopup,
-            currentAttributionId,
-          ),
-        );
-    } else if (
+    if (
       attributionHasMultipleResources &&
       getDidPreferredFieldChange(getState())
     ) {
@@ -368,13 +334,5 @@ export function locateSignalsFromProjectStatisticsPopup(
     if (getSelectedView(getState()) !== View.Audit) {
       dispatch(setViewOrOpenUnsavedPopup(View.Audit));
     }
-  };
-}
-
-export function removeWasPreferred(): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const { wasPreferred, ...temporaryDisplayPackageInfo } =
-      getTemporaryDisplayPackageInfo(getState());
-    dispatch(setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo));
   };
 }

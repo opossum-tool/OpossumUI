@@ -19,6 +19,7 @@ import { generatePurl, parsePurl } from '../../util/handle-purl';
 import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useDebouncedInput } from '../../util/use-debounced-input';
+import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
 import { TextBox } from '../InputElements/TextBox';
@@ -66,6 +67,7 @@ interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
   isEditable: boolean;
   showHighlight?: boolean;
+  confirmEditWasPreferred: Confirm;
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps) {
@@ -115,6 +117,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
         defaults={packageNames}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -128,6 +131,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
         defaults={packageNamespaces}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -140,6 +144,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
         defaults={packageVersions}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -153,6 +158,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
         defaults={defaultPackageTypes}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -221,6 +227,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
         endAdornment={
           <>
             <FetchLicenseInformationButton

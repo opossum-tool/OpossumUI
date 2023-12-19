@@ -27,7 +27,6 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import { PanelPackage, State } from '../../../../types/types';
 import { createAppStore } from '../../../configure-store';
 import {
-  getCurrentAttributionId,
   getDisplayedPackage,
   getManualAttributions,
   getManualData,
@@ -46,7 +45,6 @@ import {
 import { getShowNoSignalsLocatedMessage } from '../../../selectors/locate-popup-selectors';
 import {
   getOpenPopup,
-  getPopupAttributionId,
   getSelectedView,
   getTargetView,
 } from '../../../selectors/view-selector';
@@ -72,14 +70,12 @@ import {
 } from '../../view-actions/view-actions';
 import {
   changeSelectedAttributionIdOrOpenUnsavedPopup,
-  checkIfWasPreferredAndShowWarningOrUnlinkAndSave,
-  checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave,
+  checkIfPreferredStatusChangedAndShowWarningOrSave,
   closePopupAndUnsetTargets,
   locateSignalsFromLocatorPopup,
   locateSignalsFromProjectStatisticsPopup,
   navigateToSelectedPathOrOpenUnsavedPopup,
   navigateToTargetResourceOrAttributionOrOpenFileDialog,
-  removeWasPreferred,
   saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
   selectPackageCardInAuditViewOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
@@ -480,69 +476,13 @@ describe('The actions called from the unsaved popup', () => {
   }
 
   const views = [View.Audit, View.Attribution, View.Report];
+
   describe.each(views)(
-    'checkIfWasPreferredAndShowWarningOrUnlinkAndSave in %s View',
+    'checkIfPreferredStatusChangedAndShowWarningOrSave in %s View',
     (view: View) => {
       const notSelectedViews = views.filter(
         (viewCandidate) => viewCandidate !== view,
       );
-
-      it('shows warning that attribution was preferred', () => {
-        const testDisplayPackageInfo: DisplayPackageInfo = {
-          ...testPackage,
-          wasPreferred: true,
-          attributionIds: ['id1'],
-        };
-        const testStore = prepareTestStore(view, testDisplayPackageInfo);
-        testStore.dispatch(setTargetView(notSelectedViews[0]));
-
-        testStore.dispatch(checkIfWasPreferredAndShowWarningOrUnlinkAndSave());
-        expect(getCurrentAttributionId(testStore.getState())).toBe('id1');
-        expect(getOpenPopup(testStore.getState())).toBe(
-          PopupType.ModifyWasPreferredAttributionPopup,
-        );
-        expect(getPopupAttributionId(testStore.getState())).toBe('id1');
-      });
-
-      it('saves and navigates to target if attribution was not preferred', () => {
-        const testDisplayPackageInfo: DisplayPackageInfo = {
-          ...testPackage,
-          attributionIds: ['id1'],
-        };
-        const testStore = prepareTestStore(view, testDisplayPackageInfo);
-        testStore.dispatch(setTargetView(notSelectedViews[0]));
-
-        testStore.dispatch(checkIfWasPreferredAndShowWarningOrUnlinkAndSave());
-        expect(getSelectedView(testStore.getState())).toBe(notSelectedViews[0]);
-      });
-    },
-  );
-
-  describe.each(views)(
-    'checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave in %s View',
-    (view: View) => {
-      const notSelectedViews = views.filter(
-        (viewCandidate) => viewCandidate !== view,
-      );
-      it('shows warning that attribution was preferred', () => {
-        const testDisplayPackageInfo: DisplayPackageInfo = {
-          ...testPackage,
-          wasPreferred: true,
-          attributionIds: ['id1'],
-        };
-        const testStore = prepareTestStore(view, testDisplayPackageInfo);
-        testStore.dispatch(setTargetView(notSelectedViews[0]));
-
-        testStore.dispatch(
-          checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(),
-        );
-        expect(getCurrentAttributionId(testStore.getState())).toBe('id1');
-        expect(getOpenPopup(testStore.getState())).toBe(
-          PopupType.ModifyWasPreferredAttributionPopup,
-        );
-        expect(getPopupAttributionId(testStore.getState())).toBe('id1');
-      });
-
       it('saves and navigates to target view', () => {
         const testDisplayPackageInfo: DisplayPackageInfo = {
           ...testPackage,
@@ -551,9 +491,7 @@ describe('The actions called from the unsaved popup', () => {
         const testStore = prepareTestStore(view, testDisplayPackageInfo);
         testStore.dispatch(setTargetView(notSelectedViews[0]));
 
-        testStore.dispatch(
-          checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave(),
-        );
+        testStore.dispatch(checkIfPreferredStatusChangedAndShowWarningOrSave());
         expect(getSelectedView(testStore.getState())).toBe(notSelectedViews[0]);
       });
     },
@@ -609,244 +547,232 @@ describe('The actions called from the unsaved popup', () => {
   });
 });
 
-describe('Actions used by the ModifyWasPreferredAttributionPopup', () => {
-  describe('unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled', () => {
-    const testReact = {
-      packageName: 'React',
-    };
-    const testPackageCardId = 'Attributions-0';
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      ...testReact,
-      attributionIds: ['reactUuid'],
-    };
-    const testResources: Resources = {
-      'something.js': 1,
-      'somethingElse.js': 1,
-    };
-    const testInitialManualAttributions: Attributions = {
-      reactUuid: testReact,
-    };
-    const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
-      '/something.js': ['reactUuid'],
-      '/somethingElse.js': ['reactUuid'],
-    };
+describe('unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled', () => {
+  const testReact = {
+    packageName: 'React',
+  };
+  const testPackageCardId = 'Attributions-0';
+  const testDisplayPackageInfo: DisplayPackageInfo = {
+    ...testReact,
+    attributionIds: ['reactUuid'],
+  };
+  const testResources: Resources = {
+    'something.js': 1,
+    'somethingElse.js': 1,
+  };
+  const testInitialManualAttributions: Attributions = {
+    reactUuid: testReact,
+  };
+  const testInitialResourcesToManualAttributions: ResourcesToAttributions = {
+    '/something.js': ['reactUuid'],
+    '/somethingElse.js': ['reactUuid'],
+  };
 
-    function prepareTestStore() {
-      const testStore = createAppStore();
-      testStore.dispatch(
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            resources: testResources,
-            manualAttributions: testInitialManualAttributions,
-            resourcesToManualAttributions:
-              testInitialResourcesToManualAttributions,
-          }),
-        ),
-      );
-      testStore.dispatch(setSelectedResourceId('/something.js'));
-      testStore.dispatch(
-        setDisplayedPackage({
-          panel: PackagePanelTitle.ManualPackages,
-          packageCardId: testPackageCardId,
-          displayPackageInfo: testDisplayPackageInfo,
+  function prepareTestStore() {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      loadFromFile(
+        getParsedInputFileEnrichedWithTestData({
+          resources: testResources,
+          manualAttributions: testInitialManualAttributions,
+          resourcesToManualAttributions:
+            testInitialResourcesToManualAttributions,
         }),
-      );
-      testStore.dispatch(
-        setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
-      );
-      return testStore;
-    }
+      ),
+    );
+    testStore.dispatch(setSelectedResourceId('/something.js'));
+    testStore.dispatch(
+      setDisplayedPackage({
+        panel: PackagePanelTitle.ManualPackages,
+        packageCardId: testPackageCardId,
+        displayPackageInfo: testDisplayPackageInfo,
+      }),
+    );
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
+    );
+    return testStore;
+  }
 
-    it('unlinks and navigates to target view', () => {
-      const expectedManualData: AttributionData = {
-        attributions: testInitialManualAttributions,
-        resourcesToAttributions: {
-          '/somethingElse.js': ['reactUuid'],
+  it('unlinks and navigates to target view', () => {
+    const expectedManualData: AttributionData = {
+      attributions: testInitialManualAttributions,
+      resourcesToAttributions: {
+        '/somethingElse.js': ['reactUuid'],
+      },
+      attributionsToResources: {
+        reactUuid: ['/somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '1': new Set<number>().add(2),
         },
-        attributionsToResources: {
-          reactUuid: ['/somethingElse.js'],
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
         },
-        resourcesWithAttributedChildren: {
-          attributedChildren: {
-            '1': new Set<number>().add(2),
-          },
-          pathsToIndices: {
-            '/': 1,
-            '/something.js': 0,
-            '/somethingElse.js': 2,
-          },
-          paths: ['/something.js', '/', '/somethingElse.js'],
-        },
-      };
+        paths: ['/something.js', '/', '/somethingElse.js'],
+      },
+    };
 
-      const testStore = prepareTestStore();
-      testStore.dispatch(setTargetView(View.Attribution));
-      expect(getSelectedView(testStore.getState())).toBe(View.Audit);
+    const testStore = prepareTestStore();
+    testStore.dispatch(setTargetView(View.Attribution));
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
 
-      testStore.dispatch(
-        unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-      );
-      expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-      expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
-    });
-
-    it('warns the user that saving is disabled and does not change data', () => {
-      const expectedManualData: AttributionData = {
-        attributions: testInitialManualAttributions,
-        resourcesToAttributions: testInitialResourcesToManualAttributions,
-        attributionsToResources: {
-          reactUuid: ['/something.js', '/somethingElse.js'],
-        },
-        resourcesWithAttributedChildren: {
-          attributedChildren: {
-            '1': new Set<number>().add(0).add(2),
-          },
-          pathsToIndices: {
-            '/': 1,
-            '/something.js': 0,
-            '/somethingElse.js': 2,
-          },
-          paths: ['/something.js', '/', '/somethingElse.js'],
-        },
-      };
-      const testStore = prepareTestStore();
-
-      testStore.dispatch(setAllowedSaveOperations(AllowedSaveOperations.None));
-      testStore.dispatch(setTargetView(View.Attribution));
-      expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-
-      testStore.dispatch(
-        unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-      );
-      expect(getOpenPopup(testStore.getState())).toBe(
-        PopupType.UnableToSavePopup,
-      );
-      expect(getManualData(testStore.getState())).toEqual(expectedManualData);
-      expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-    });
+    testStore.dispatch(
+      unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+    );
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
   });
 
-  describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled', () => {
-    function prepareTestStore() {
-      const testStore = createAppStore();
-      const testResources: Resources = {
-        selectedResource: 1,
-        newSelectedResource: 1,
-      };
-      testStore.dispatch(
-        loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
-      );
-      testStore.dispatch(setSelectedResourceId('selectedResource'));
-      testStore.dispatch(
-        setTemporaryDisplayPackageInfo({
-          packageName: 'Test',
-          attributionIds: [],
-        }),
-      );
-      testStore.dispatch(navigateToView(View.Audit));
-      testStore.dispatch(setTargetView(View.Attribution));
-      testStore.dispatch(
-        openPopup(PopupType.ModifyWasPreferredAttributionPopup),
-      );
-      testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
+  it('warns the user that saving is disabled and does not change data', () => {
+    const expectedManualData: AttributionData = {
+      attributions: testInitialManualAttributions,
+      resourcesToAttributions: testInitialResourcesToManualAttributions,
+      attributionsToResources: {
+        reactUuid: ['/something.js', '/somethingElse.js'],
+      },
+      resourcesWithAttributedChildren: {
+        attributedChildren: {
+          '1': new Set<number>().add(0).add(2),
+        },
+        pathsToIndices: {
+          '/': 1,
+          '/something.js': 0,
+          '/somethingElse.js': 2,
+        },
+        paths: ['/something.js', '/', '/somethingElse.js'],
+      },
+    };
+    const testStore = prepareTestStore();
 
-      return testStore;
-    }
+    testStore.dispatch(setAllowedSaveOperations(AllowedSaveOperations.None));
+    testStore.dispatch(setTargetView(View.Attribution));
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
 
-    function prepareTestState(): State {
-      const testStore = prepareTestStore();
-      testStore.dispatch(
-        saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-      );
-
-      return testStore.getState();
-    }
-
-    it('saves temporaryDisplayPackageInfo', () => {
-      const state: State = prepareTestState();
-      expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({
-        attributionIds: [],
-      });
-    });
-
-    it('sets TargetSelectedResourceOrAttribution', () => {
-      const state: State = prepareTestState();
-      expect(getSelectedResourceId(state)).toBe('newSelectedResource');
-    });
-
-    it('sets View', () => {
-      const state: State = prepareTestState();
-      expect(getSelectedView(state)).toBe(View.Attribution);
-    });
-
-    it('closesPopup', () => {
-      const state: State = prepareTestState();
-      expect(getOpenPopup(state)).toBeFalsy();
-    });
-
-    it('warns if saving is disabled and does not change data', () => {
-      const testStore = prepareTestStore();
-      testStore.dispatch(setAllowedSaveOperations(AllowedSaveOperations.None));
-
-      testStore.dispatch(
-        saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
-      );
-      expect(getOpenPopup(testStore.getState())).toBe(
-        PopupType.UnableToSavePopup,
-      );
-      expect(
-        getTemporaryDisplayPackageInfo(testStore.getState()),
-      ).toMatchObject({
-        packageName: 'Test',
-        attributionIds: [],
-      });
-      expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-    });
+    testStore.dispatch(
+      unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+    );
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.UnableToSavePopup,
+    );
+    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
   });
 });
 
-describe('Action used by NotSavedPopup and ModifyWasPreferredAttributionPopup', () => {
-  describe('closePopupAndReopenEditAttributionPopupIfItWasPreviouslyOpen', () => {
-    it.each([[View.Audit], [View.Attribution]])(
-      'closes popup and unsets targets in % view',
-      (view: View) => {
-        const testStore = createAppStore();
-        testStore.dispatch(navigateToView(view));
-        if (view === View.Attribution) {
-          testStore.dispatch(setSelectedAttributionId('id1'));
-        }
-        if (view === View.Audit) {
-          const testSelectedPackage: PanelPackage = {
-            panel: PackagePanelTitle.AllAttributions,
-            packageCardId: 'All Attributions-0',
-            displayPackageInfo: { attributionIds: ['id1'] },
-          };
-          testStore.dispatch(setDisplayedPackage(testSelectedPackage));
-        }
-        testStore.dispatch(
-          openPopup(PopupType.ModifyWasPreferredAttributionPopup),
-        );
+describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled', () => {
+  function prepareTestStore() {
+    const testStore = createAppStore();
+    const testResources: Resources = {
+      selectedResource: 1,
+      newSelectedResource: 1,
+    };
+    testStore.dispatch(
+      loadFromFile(getParsedInputFileEnrichedWithTestData(testResources)),
+    );
+    testStore.dispatch(setSelectedResourceId('selectedResource'));
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'Test',
+        attributionIds: [],
+      }),
+    );
+    testStore.dispatch(navigateToView(View.Audit));
+    testStore.dispatch(setTargetView(View.Attribution));
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
 
-        testStore.dispatch(closePopupAndUnsetTargets());
-        expect(getTargetView(testStore.getState())).toBe(null);
-        expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
-        expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
-        expect(getOpenPopup(testStore.getState())).toBeFalsy();
-      },
+    return testStore;
+  }
+
+  function prepareTestState(): State {
+    const testStore = prepareTestStore();
+    testStore.dispatch(
+      saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
     );
 
-    it('closes popup and unsets targets', () => {
+    return testStore.getState();
+  }
+
+  it('saves temporaryDisplayPackageInfo', () => {
+    const state: State = prepareTestState();
+    expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({
+      attributionIds: [],
+    });
+  });
+
+  it('sets TargetSelectedResourceOrAttribution', () => {
+    const state: State = prepareTestState();
+    expect(getSelectedResourceId(state)).toBe('newSelectedResource');
+  });
+
+  it('sets View', () => {
+    const state: State = prepareTestState();
+    expect(getSelectedView(state)).toBe(View.Attribution);
+  });
+
+  it('closesPopup', () => {
+    const state: State = prepareTestState();
+    expect(getOpenPopup(state)).toBeFalsy();
+  });
+
+  it('warns if saving is disabled and does not change data', () => {
+    const testStore = prepareTestStore();
+    testStore.dispatch(setAllowedSaveOperations(AllowedSaveOperations.None));
+
+    testStore.dispatch(
+      saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+    );
+    expect(getOpenPopup(testStore.getState())).toBe(
+      PopupType.UnableToSavePopup,
+    );
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject({
+      packageName: 'Test',
+      attributionIds: [],
+    });
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
+  });
+});
+
+describe('closePopupAndReopenEditAttributionPopupIfItWasPreviouslyOpen', () => {
+  it.each([[View.Audit], [View.Attribution]])(
+    'closes popup and unsets targets in % view',
+    (view: View) => {
       const testStore = createAppStore();
-      testStore.dispatch(
-        openPopup(PopupType.ModifyWasPreferredAttributionPopup),
-      );
+      testStore.dispatch(navigateToView(view));
+      if (view === View.Attribution) {
+        testStore.dispatch(setSelectedAttributionId('id1'));
+      }
+      if (view === View.Audit) {
+        const testSelectedPackage: PanelPackage = {
+          panel: PackagePanelTitle.AllAttributions,
+          packageCardId: 'All Attributions-0',
+          displayPackageInfo: { attributionIds: ['id1'] },
+        };
+        testStore.dispatch(setDisplayedPackage(testSelectedPackage));
+      }
+      testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
       testStore.dispatch(closePopupAndUnsetTargets());
       expect(getTargetView(testStore.getState())).toBe(null);
       expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
       expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
-      expect(getOpenPopup(testStore.getState())).toBe(null);
-    });
+      expect(getOpenPopup(testStore.getState())).toBeFalsy();
+    },
+  );
+
+  it('closes popup and unsets targets', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+
+    testStore.dispatch(closePopupAndUnsetTargets());
+    expect(getTargetView(testStore.getState())).toBe(null);
+    expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
+    expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
+    expect(getOpenPopup(testStore.getState())).toBe(null);
   });
 });
 
@@ -1143,23 +1069,5 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
-  });
-});
-
-describe('removeWasPreferred', () => {
-  it('removes wasPreferred field from TemporaryDisplayPackageInfo', () => {
-    const testStore = createAppStore();
-    const temporaryDisplayPackageInfo = {
-      wasPreferred: true,
-      attributionIds: ['id1'],
-    };
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
-    );
-
-    testStore.dispatch(removeWasPreferred());
-    expect(
-      getTemporaryDisplayPackageInfo(testStore.getState()).wasPreferred,
-    ).toBeFalsy();
   });
 });

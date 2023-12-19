@@ -22,13 +22,13 @@ import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
 import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
+import { ConfirmationDialog } from '../page-objects/ConfirmationDialog';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
 import { EditAttributionPopup } from '../page-objects/EditAttributionPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
 import { FileSearchPopup } from '../page-objects/FileSearchPopup';
 import { FileSupportPopup } from '../page-objects/FileSupportPopup';
 import { MenuBar } from '../page-objects/MenuBar';
-import { ModifyWasPreferredAttributionPopup } from '../page-objects/ModifyWasPreferredAttributionPopup';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
@@ -58,6 +58,7 @@ export const test = base.extend<{
   attributionFilters: AttributionFilters;
   attributionList: AttributionList;
   changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
+  confirmationDialog: ConfirmationDialog;
   confirmationPopup: ConfirmationPopup;
   editAttributionPopup: EditAttributionPopup;
   errorPopup: ErrorPopup;
@@ -65,7 +66,6 @@ export const test = base.extend<{
   fileSupportPopup: FileSupportPopup;
   menuBar: MenuBar;
   modKey: string;
-  modifyWasPreferredAttributionPopup: ModifyWasPreferredAttributionPopup;
   notSavedPopup: NotSavedPopup;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
@@ -166,8 +166,8 @@ export const test = base.extend<{
   reportView: async ({ window }, use) => {
     await use(new ReportView(window));
   },
-  modifyWasPreferredAttributionPopup: async ({ window }, use) => {
-    await use(new ModifyWasPreferredAttributionPopup(window));
+  confirmationDialog: async ({ window }, use) => {
+    await use(new ConfirmationDialog(window));
   },
   notSavedPopup: async ({ window }, use) => {
     await use(new NotSavedPopup(window));

@@ -5,8 +5,13 @@
 import { DiscreteConfidence } from '../../shared/shared-types';
 import { expect, faker, test } from '../utils';
 
-const [resourceName1, resourceName2, resourceName3, resourceName4] =
-  faker.opossum.resourceNames({ count: 4 });
+const [
+  resourceName1,
+  resourceName2,
+  resourceName3,
+  resourceName4,
+  resourceName5,
+] = faker.opossum.resourceNames({ count: 5 });
 const license1 = faker.opossum.license();
 const license2 = faker.opossum.license();
 const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
@@ -16,6 +21,10 @@ const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
   packageType: undefined,
   licenseName: license1.fullName,
 });
+const [wasPreferredAttributionId, wasPreferredPackageInfo] =
+  faker.opossum.manualAttribution({
+    wasPreferred: true,
+  });
 
 test.use({
   data: {
@@ -25,6 +34,7 @@ test.use({
         [resourceName2]: 1,
         [resourceName3]: 1,
         [resourceName4]: 1,
+        [resourceName5]: 1,
       }),
       frequentLicenses: [license1, license2],
     }),
@@ -32,12 +42,14 @@ test.use({
       manualAttributions: faker.opossum.manualAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
+        [wasPreferredAttributionId]: wasPreferredPackageInfo,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
         [faker.opossum.filePath(resourceName1)]: [attributionId1],
         [faker.opossum.filePath(resourceName2)]: [attributionId1],
         [faker.opossum.filePath(resourceName3)]: [attributionId2],
         [faker.opossum.filePath(resourceName4)]: [attributionId2],
+        [faker.opossum.filePath(resourceName5)]: [wasPreferredAttributionId],
       }),
     }),
   },
@@ -272,4 +284,41 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
   await attributionDetails.comment().fill(faker.lorem.sentences());
   await topBar.gotoAuditView();
   await notSavedPopup.assert.isVisible();
+});
+
+test('removes was-preferred status from attribution when user saves changes', async ({
+  attributionDetails,
+  confirmationDialog,
+  resourceBrowser,
+  resourceDetails,
+}) => {
+  await resourceBrowser.goto(resourceName5);
+  await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
+    wasPreferredPackageInfo,
+  );
+  await attributionDetails.assert.auditingLabelIsVisible(
+    'previouslyPreferredLabel',
+  );
+
+  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await confirmationDialog.assert.isVisible();
+
+  await confirmationDialog.cancelButton.click();
+  await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
+    wasPreferredPackageInfo,
+  );
+
+  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await confirmationDialog.okButton.click();
+  await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
+    wasPreferredPackageInfo,
+  );
+  await attributionDetails.assert.auditingLabelIsHidden(
+    'previouslyPreferredLabel',
+  );
+
+  await attributionDetails.saveButton.click();
+  await resourceDetails.attributionCard.assert.wasPreferredIconIsHidden(
+    wasPreferredPackageInfo,
+  );
 });
