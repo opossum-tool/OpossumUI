@@ -20,7 +20,6 @@ import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
-import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
 import { IconButton } from '../IconButton/IconButton';
 import { TextBox } from '../InputElements/TextBox';
 import { PackageAutocomplete } from './PackageAutocomplete';
@@ -229,27 +228,18 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         showHighlight={props.showHighlight}
         confirmEditWasPreferred={props.confirmEditWasPreferred}
         endAdornment={
-          <>
-            <FetchLicenseInformationButton
-              url={props.displayPackageInfo.url}
-              version={props.displayPackageInfo.packageVersion}
-              disabled={!props.isEditable}
-            />
-            <IconButton
-              tooltipTitle={
-                text.attributionColumn.packageSubPanel.openLinkInBrowser
-              }
-              tooltipPlacement="right"
-              onClick={(): void => {
-                props.displayPackageInfo.url &&
-                  openUrl(props.displayPackageInfo.url);
-              }}
-              hidden={!props.displayPackageInfo.url}
-              icon={
-                <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
-              }
-            />
-          </>
+          <IconButton
+            tooltipTitle={
+              text.attributionColumn.packageSubPanel.openLinkInBrowser
+            }
+            tooltipPlacement="right"
+            onClick={(): void => {
+              props.displayPackageInfo.url &&
+                openUrl(props.displayPackageInfo.url);
+            }}
+            hidden={!props.displayPackageInfo.url}
+            icon={<OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />}
+          />
         }
       />
     );

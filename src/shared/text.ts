@@ -8,10 +8,6 @@ export const text = {
     packageSubPanel: {
       confidence: 'Confidence',
       copyToClipboard: 'Copy to clipboard',
-      fetchPackageInfo: 'Fetch package information',
-      fetchPackageInfoNotPossible:
-        'Fetching package information is not possible. Please enter a valid URL with one of the following domains: pypi.org, npmjs.com, github.com.',
-      fetching: 'Fetching...',
       noLinkToOpen: 'No link to open. Please enter a URL.',
       openLinkInBrowser: 'Open repository URL in browser',
       packageName: 'Package Name',
