@@ -4,26 +4,21 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export class ModifyWasPreferredAttributionPopup {
+export class ConfirmationDialog {
   private readonly window: Page;
   private readonly node: Locator;
   readonly cancelButton: Locator;
-  readonly saveButton: Locator;
-  readonly saveGloballyButton: Locator;
+  readonly okButton: Locator;
 
   constructor(window: Page) {
     this.window = window;
-    this.node = window.getByLabel('modify was preferred attribution popup');
+    this.node = window.getByLabel('confirmation dialog');
     this.cancelButton = this.node.getByRole('button', {
       name: 'Cancel',
       exact: true,
     });
-    this.saveButton = this.node.getByRole('button', {
-      name: 'Save',
-      exact: true,
-    });
-    this.saveGloballyButton = this.node.getByRole('button', {
-      name: 'Save globally',
+    this.okButton = this.node.getByRole('button', {
+      name: 'Ok',
       exact: true,
     });
   }

@@ -6,8 +6,10 @@ import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { useAppDispatch } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
-import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
+import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -15,27 +17,43 @@ interface CopyrightSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
+  confirmEditWasPreferred: Confirm;
 }
 
-export function CopyrightSubPanel(props: CopyrightSubPanelProps): ReactElement {
-  const handleChange = usePackageInfoChangeHandler();
+export function CopyrightSubPanel({
+  confirmEditWasPreferred,
+  displayPackageInfo,
+  isEditable,
+  showHighlight,
+}: CopyrightSubPanelProps): ReactElement {
+  const dispatch = useAppDispatch();
 
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
       <TextBox
-        isEditable={props.isEditable}
+        isEditable={isEditable}
         sx={attributionColumnClasses.textBox}
         title={'Copyright'}
-        text={props.displayPackageInfo.copyright}
+        text={displayPackageInfo.copyright}
         minRows={3}
         maxRows={10}
         multiline={true}
-        handleChange={handleChange('copyright')}
+        handleChange={({ target: { value } }) =>
+          confirmEditWasPreferred(() =>
+            dispatch(
+              setTemporaryDisplayPackageInfo({
+                ...displayPackageInfo,
+                copyright: value,
+                wasPreferred: undefined,
+              }),
+            ),
+          )
+        }
         isHighlighted={
-          props.showHighlight &&
+          showHighlight &&
           isImportantAttributionInformationMissing(
             'copyright',
-            props.displayPackageInfo,
+            displayPackageInfo,
           )
         }
       />

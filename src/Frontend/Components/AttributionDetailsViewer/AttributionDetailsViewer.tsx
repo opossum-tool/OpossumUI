@@ -64,9 +64,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
   const dispatch = useAppDispatch();
 
   const saveFileRequestListener = useCallback(() => {
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
-    } else if (
+    if (
       didPreferredFieldChange &&
       resourceIdsOfSelectedAttributionId.length > 1
     ) {
@@ -89,9 +87,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
   ]);
 
   const dispatchSavePackageInfoOrOpenWasPreferredPopup = useCallback(() => {
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
-    } else if (
+    if (
       didPreferredFieldChange &&
       resourceIdsOfSelectedAttributionId.length > 1
     ) {
