@@ -33,6 +33,9 @@ export const text = {
       'Adopt all coordinates and legal information from suggestion',
     originallyFrom: 'Originally from ',
     invalidPurl: 'INVALID PURL',
+    description: 'Description',
+    homepage: 'Homepage',
+    origin: 'Origin',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
