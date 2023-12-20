@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { remove } from 'lodash';
+import { omit as _omit, pick as _pick, remove } from 'lodash';
 
 import { isIdOfResourceWithChildren } from './can-resource-have-children';
 
@@ -72,4 +72,20 @@ export function isChildOf(parentId: string, possibleChildId: string): boolean {
   }
 
   return possibleChildId.includes(parentId);
+}
+
+/** Improves the lodash pick typing by correctly inferring the type of keys */
+export function pick<T extends object, K extends keyof T>(
+  object: T,
+  keys: Array<K>,
+): Pick<T, K> {
+  return _pick(object, keys);
+}
+
+/** Improves the lodash omit typing by correctly inferring the type of keys */
+export function omit<T extends object, K extends keyof T>(
+  object: T,
+  keys: Array<K>,
+): Omit<T, K> {
+  return _omit(object, keys);
 }

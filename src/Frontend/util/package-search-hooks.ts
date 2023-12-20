@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { PackageInfo } from '../../shared/shared-types';
+import { DisplayPackageInfo } from '../../shared/shared-types';
 import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
@@ -12,7 +12,7 @@ function usePackageNames({
   packageName,
   packageNamespace,
   packageType,
-}: PackageInfo) {
+}: DisplayPackageInfo) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-name-suggestions',
@@ -35,7 +35,7 @@ function usePackageNamespaces({
   packageName,
   packageNamespace,
   packageType,
-}: PackageInfo) {
+}: DisplayPackageInfo) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-namespace-suggestions',
@@ -63,7 +63,7 @@ function usePackageVersions({
   packageNamespace,
   packageType,
   packageVersion,
-}: PackageInfo) {
+}: DisplayPackageInfo) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-version-suggestions',
@@ -88,20 +88,21 @@ function usePackageVersions({
   };
 }
 
-function useGetPackageUrlAndLegal() {
+function useEnrichPackageInfo() {
   const { mutateAsync, error, isPending } = useMutation({
-    mutationFn: (props: PackageInfo) => PackageSearchApi.getUrlAndLegal(props),
+    mutationFn: (props: DisplayPackageInfo) =>
+      PackageSearchApi.enrichPackageInfo(props),
   });
 
   return {
-    getPackageUrlAndLicense: tryit(mutateAsync),
-    getPackageUrlAndLicenseError: error,
-    getPackageUrlAndLicenseLoading: isPending,
+    enrichPackageInfo: tryit(mutateAsync),
+    enrichPackageInfoError: error,
+    enrichPackageInfoLoading: isPending,
   };
 }
 
 export const PackageSearchHooks = {
-  useGetPackageUrlAndLegal,
+  useEnrichPackageInfo,
   usePackageNames,
   usePackageNamespaces,
   usePackageVersions,

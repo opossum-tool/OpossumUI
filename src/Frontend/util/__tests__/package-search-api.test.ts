@@ -5,14 +5,16 @@
 import { difference } from 'lodash';
 
 import { faker } from '../../../shared/Faker';
-import { AutocompleteSignal } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { RequestProps } from '../http-client';
 import {
   PackageSearchApi,
   packageSystems,
   packageSystemsRequiringNamespace,
-  UrlAndLegal,
 } from '../package-search-api';
 
 describe('PackageSearchApi', () => {
@@ -36,7 +38,7 @@ describe('PackageSearchApi', () => {
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(searchResults).toEqual([
-        expect.objectContaining<AutocompleteSignal>({
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: name,
           packageNamespace: namespace,
           packageType: 'github',
@@ -64,7 +66,7 @@ describe('PackageSearchApi', () => {
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(searchResults).toEqual([
-        expect.objectContaining<AutocompleteSignal>({
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: name,
           packageNamespace: namespace,
           packageType: 'maven',
@@ -88,7 +90,7 @@ describe('PackageSearchApi', () => {
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(searchResults).toEqual([
-        expect.objectContaining<AutocompleteSignal>({
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: projectSuggestion.name,
           packageNamespace: undefined,
           packageType: 'golang',
@@ -112,7 +114,7 @@ describe('PackageSearchApi', () => {
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(searchResults).toEqual([
-        expect.objectContaining<AutocompleteSignal>({
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: projectSuggestion.name,
           packageNamespace: undefined,
           packageType: 'npm',
@@ -276,8 +278,8 @@ describe('PackageSearchApi', () => {
       const versions = await packageSearchApi.getVersions(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(versions).toEqual<Array<AutocompleteSignal>>([
-        {
+      expect(versions).toEqual([
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: defaultVersion.versionKey.name,
           packageType: defaultVersion.versionKey.system.toLowerCase(),
           packageVersion: defaultVersion.versionKey.version,
@@ -286,8 +288,8 @@ describe('PackageSearchApi', () => {
             documentConfidence: 100,
           },
           suffix: '(default)',
-        },
-        {
+        }),
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: nonDefaultVersion2.versionKey.name,
           packageType: nonDefaultVersion2.versionKey.system.toLowerCase(),
           packageVersion: nonDefaultVersion2.versionKey.version,
@@ -295,8 +297,8 @@ describe('PackageSearchApi', () => {
             name: text.attributionColumn.openSourceInsights,
             documentConfidence: 100,
           },
-        },
-        {
+        }),
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName: nonDefaultVersion1.versionKey.name,
           packageType: nonDefaultVersion1.versionKey.system.toLowerCase(),
           packageVersion: nonDefaultVersion1.versionKey.version,
@@ -304,7 +306,7 @@ describe('PackageSearchApi', () => {
             name: text.attributionColumn.openSourceInsights,
             documentConfidence: 100,
           },
-        },
+        }),
       ]);
     });
 
@@ -325,8 +327,8 @@ describe('PackageSearchApi', () => {
       const versions = await packageSearchApi.getVersions(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(versions).toEqual<Array<AutocompleteSignal>>([
-        {
+      expect(versions).toEqual([
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName,
           packageNamespace,
           packageType: 'github',
@@ -336,7 +338,7 @@ describe('PackageSearchApi', () => {
             documentConfidence: 100,
           },
           url: `https://github.com/${packageNamespace}/${packageName}`,
-        },
+        }),
       ]);
     });
 
@@ -357,8 +359,8 @@ describe('PackageSearchApi', () => {
       const versions = await packageSearchApi.getVersions(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(versions).toEqual<Array<AutocompleteSignal>>([
-        {
+      expect(versions).toEqual([
+        expect.objectContaining<Partial<AutocompleteSignal>>({
           packageName,
           packageNamespace,
           packageType: 'gitlab',
@@ -368,7 +370,7 @@ describe('PackageSearchApi', () => {
             documentConfidence: 100,
           },
           url: `https://gitlab.com/${packageNamespace}/${packageName}`,
-        },
+        }),
       ]);
     });
 
@@ -431,9 +433,9 @@ describe('PackageSearchApi', () => {
     });
   });
 
-  describe('getUrlAndLicense', () => {
+  describe('enrichPackageInfo', () => {
     it('provides repo URL and license for a given package version', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
         packageNamespace: faker.internet.domainWord(),
         url: undefined,
@@ -452,11 +454,11 @@ describe('PackageSearchApi', () => {
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
-      const urlAndLegal = await packageSearchApi.getUrlAndLegal(packageInfo);
+      const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(urlAndLegal).toEqual(
-        expect.objectContaining<UrlAndLegal>({
+      expect(enriched).toEqual(
+        expect.objectContaining<Partial<DisplayPackageInfo>>({
           url: repoUrl,
           licenseName: `${license1} AND ${license2}`,
         }),
@@ -464,7 +466,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('falls back to homepage URL when repo URL not available', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
         packageNamespace: faker.internet.domainWord(),
         url: undefined,
@@ -481,11 +483,11 @@ describe('PackageSearchApi', () => {
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
-      const urlAndLegal = await packageSearchApi.getUrlAndLegal(packageInfo);
+      const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(urlAndLegal).toEqual(
-        expect.objectContaining<UrlAndLegal>({
+      expect(enriched).toEqual(
+        expect.objectContaining<Partial<DisplayPackageInfo>>({
           url: homepageUrl,
           licenseName: '',
         }),
@@ -493,7 +495,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('falls back to first origin URL when neither repo URL nor homepage URL are available', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
         packageNamespace: faker.internet.domainWord(),
         url: undefined,
@@ -512,11 +514,11 @@ describe('PackageSearchApi', () => {
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
-      const urlAndLegal = await packageSearchApi.getUrlAndLegal(packageInfo);
+      const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
 
       expect(httpClient.request).toHaveBeenCalledTimes(1);
-      expect(urlAndLegal).toEqual(
-        expect.objectContaining<UrlAndLegal>({
+      expect(enriched).toEqual(
+        expect.objectContaining<Partial<DisplayPackageInfo>>({
           url: originUrl,
           licenseName: '',
         }),
@@ -524,10 +526,26 @@ describe('PackageSearchApi', () => {
     });
   });
 
-  it('gets license based on package default version if no package version provided', async () => {
-    const packageInfo = faker.opossum.externalPackageInfo({
+  it('does not enrich package info if URL, copyright, and license name are already known', async () => {
+    const packageInfo = faker.opossum.displayPackageInfo({
       packageType: faker.packageSearch.packageSystem(),
       packageNamespace: faker.internet.domainWord(),
+    });
+    const httpClient = faker.httpClient();
+    const packageSearchApi = new PackageSearchApi(httpClient);
+
+    await packageSearchApi.enrichPackageInfo(packageInfo);
+
+    expect(httpClient.request).not.toHaveBeenCalled();
+  });
+
+  it('gets license based on package default version if no package version provided', async () => {
+    const packageInfo = faker.opossum.displayPackageInfo({
+      packageType: faker.packageSearch.packageSystem(),
+      packageNamespace: faker.internet.domainWord(),
+      url: undefined,
+      licenseName: undefined,
+      copyright: undefined,
       packageVersion: undefined,
     });
     const defaultVersion = faker.system.semver();
@@ -537,7 +555,7 @@ describe('PackageSearchApi', () => {
     );
     const packageSearchApi = new PackageSearchApi(httpClient);
 
-    await packageSearchApi.getUrlAndLegal(packageInfo);
+    await packageSearchApi.enrichPackageInfo(packageInfo);
 
     expect(httpClient.request).toHaveBeenCalledTimes(2);
     expect(httpClient.request).toHaveBeenNthCalledWith(
@@ -548,50 +566,10 @@ describe('PackageSearchApi', () => {
     );
   });
 
-  it("gets GitHub project's latest tag as default version if no package version provided", async () => {
-    const packageInfo = faker.opossum.externalPackageInfo({
-      packageType: 'github',
-      packageNamespace: faker.internet.domainWord(),
-      packageVersion: undefined,
-    });
-    const tagName = faker.system.semver();
-    const httpClient = faker.httpClient(
-      faker.packageSearch.latestReleaseResponse({ tag_name: tagName }),
-      faker.packageSearch.webVersionResponse(),
-    );
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    const { packageVersion } =
-      await packageSearchApi.getUrlAndLegal(packageInfo);
-
-    expect(httpClient.request).toHaveBeenCalledTimes(1);
-    expect(packageVersion).toBe(tagName);
-  });
-
-  it("gets GitLab project's latest tag as default version if no package version provided", async () => {
-    const packageInfo = faker.opossum.externalPackageInfo({
-      packageType: 'gitlab',
-      packageNamespace: faker.internet.domainWord(),
-      packageVersion: undefined,
-    });
-    const tagName = faker.system.semver();
-    const httpClient = faker.httpClient(
-      faker.packageSearch.latestReleaseResponse({ tag_name: tagName }),
-      faker.packageSearch.webVersionResponse(),
-    );
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    const { packageVersion } =
-      await packageSearchApi.getUrlAndLegal(packageInfo);
-
-    expect(httpClient.request).toHaveBeenCalledTimes(1);
-    expect(packageVersion).toBe(tagName);
-  });
-
   it('provides repo URL, license, and copyright for a GitHub project', async () => {
     const name = faker.internet.domainWord();
     const namespace = faker.internet.domainWord();
-    const packageInfo = faker.opossum.externalPackageInfo({
+    const packageInfo = faker.opossum.displayPackageInfo({
       packageType: 'github',
       packageName: name,
       packageNamespace: namespace,
@@ -609,21 +587,23 @@ describe('PackageSearchApi', () => {
     );
     const packageSearchApi = new PackageSearchApi(httpClient);
 
-    const urlAndLegal = await packageSearchApi.getUrlAndLegal(packageInfo);
+    const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
 
     expect(httpClient.request).toHaveBeenCalledTimes(1);
-    expect(urlAndLegal).toEqual<UrlAndLegal>({
-      url: `https://github.com/${namespace}/${name}`,
-      licenseName: license,
-      packageVersion: packageInfo.packageVersion,
-      copyright,
-    });
+    expect(enriched).toEqual(
+      expect.objectContaining<Partial<DisplayPackageInfo>>({
+        url: `https://github.com/${namespace}/${name}`,
+        licenseName: license,
+        packageVersion: packageInfo.packageVersion,
+        copyright,
+      }),
+    );
   });
 
   it('provides repo URL, license, and copyright for a GitLab project', async () => {
     const name = faker.internet.domainWord();
     const namespace = faker.internet.domainWord();
-    const packageInfo = faker.opossum.externalPackageInfo({
+    const packageInfo = faker.opossum.displayPackageInfo({
       packageType: 'gitlab',
       packageName: name,
       packageNamespace: namespace,
@@ -643,19 +623,21 @@ describe('PackageSearchApi', () => {
     );
     const packageSearchApi = new PackageSearchApi(httpClient);
 
-    const urlAndLegal = await packageSearchApi.getUrlAndLegal(packageInfo);
+    const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
 
     expect(httpClient.request).toHaveBeenCalledTimes(2);
-    expect(urlAndLegal).toEqual<UrlAndLegal>({
-      url: `https://gitlab.com/${namespace}/${name}`,
-      licenseName: license,
-      packageVersion: packageInfo.packageVersion,
-      copyright,
-    });
+    expect(enriched).toEqual(
+      expect.objectContaining<Partial<DisplayPackageInfo>>({
+        url: `https://gitlab.com/${namespace}/${name}`,
+        licenseName: license,
+        packageVersion: packageInfo.packageVersion,
+        copyright,
+      }),
+    );
   });
 
   it('does not make any request if URL, license name, and copyright of a project are already known', async () => {
-    const packageInfo = faker.opossum.externalPackageInfo({
+    const packageInfo = faker.opossum.displayPackageInfo({
       packageType: faker.packageSearch.projectType(),
       packageNamespace: faker.internet.domainWord(),
       url: faker.internet.url(),
@@ -665,7 +647,7 @@ describe('PackageSearchApi', () => {
     const httpClient = faker.httpClient();
     const packageSearchApi = new PackageSearchApi(httpClient);
 
-    await packageSearchApi.getUrlAndLegal(packageInfo);
+    await packageSearchApi.enrichPackageInfo(packageInfo);
 
     expect(httpClient.request).not.toHaveBeenCalled();
   });

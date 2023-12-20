@@ -3,15 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { compareVersions, validate } from 'compare-versions';
-import { compact, mapValues, partition, pick } from 'lodash';
+import { compact, mapValues, partition } from 'lodash';
 
 import {
   AutocompleteSignal,
+  DisplayPackageInfo,
   PackageInfo,
   Source,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { HttpClient } from './http-client';
+import { pick } from './lodash-extension-utils';
 
 const DEPS_DEV_NON_STANDARD_LICENSE_MARKER = 'non-standard';
 const COPYRIGHT_REGEX = /^Copyright \(c\).*$/gm;
@@ -119,11 +121,6 @@ export interface GitLabLicenseResponse {
   content: string;
 }
 
-export type UrlAndLegal = Pick<
-  PackageInfo,
-  'url' | 'licenseName' | 'copyright' | 'packageVersion'
->;
-
 export class PackageSearchApi {
   private readonly baseUrls = {
     GITHUB: 'https://api.github.com/',
@@ -203,7 +200,7 @@ export class PackageSearchApi {
     version?: string;
     system?: PackageSystem;
     projectType?: ProjectType;
-  }): PackageInfo {
+  }): AutocompleteSignal {
     const type = system || projectType;
     const source: Source = {
       name: text.attributionColumn.openSourceInsights,
@@ -213,6 +210,8 @@ export class PackageSearchApi {
       case 'MAVEN': {
         const [packageNamespace, packageName] = name.split(':');
         return {
+          default: true,
+          attributionIds: [],
           packageName,
           packageNamespace,
           packageType: 'maven',
@@ -225,6 +224,8 @@ export class PackageSearchApi {
       case 'BITBUCKET': {
         const [packageNamespace, packageName] = name.split('/');
         return {
+          default: true,
+          attributionIds: [],
           packageName,
           packageNamespace,
           packageType: type.toLowerCase(),
@@ -235,6 +236,8 @@ export class PackageSearchApi {
       }
       case 'GO': {
         return {
+          default: true,
+          attributionIds: [],
           packageName: name,
           packageNamespace: undefined,
           packageType: 'golang',
@@ -244,6 +247,8 @@ export class PackageSearchApi {
       }
       default: {
         return {
+          default: true,
+          attributionIds: [],
           packageName: name,
           packageNamespace: undefined,
           packageType: type?.toLowerCase(),
@@ -313,11 +318,11 @@ export class PackageSearchApi {
       this.deserialize(props);
 
     if (isComplete && kind && system && name) {
-      return this.getPackageVersions({ kind, name, projectType, system });
+      return this.getSystemPackageVersions({ kind, name, projectType, system });
     }
 
     if (isComplete && kind && projectType && name) {
-      return this.getProjectVersions({
+      return this.getProjectPackageVersions({
         kind,
         name,
         projectType,
@@ -329,7 +334,7 @@ export class PackageSearchApi {
     return Promise.resolve([]);
   }
 
-  private async getPackageVersions({
+  private async getSystemPackageVersions({
     name,
     system,
   }: PackageSuggestion): Promise<Array<AutocompleteSignal>> {
@@ -364,7 +369,7 @@ export class PackageSearchApi {
     ];
   }
 
-  private async getProjectVersions({
+  private async getProjectPackageVersions({
     name,
     projectType,
     system,
@@ -380,10 +385,6 @@ export class PackageSearchApi {
           params: { per_page: 100 },
         });
 
-        if (!response.ok) {
-          return [];
-        }
-
         const tags: Array<TagResponse> = await response.json();
 
         return tags.map((tag) =>
@@ -397,10 +398,6 @@ export class PackageSearchApi {
           params: { search: packageVersion, per_page: 100 },
         });
 
-        if (!response.ok) {
-          return [];
-        }
-
         const tags: Array<TagResponse> = await response.json();
 
         return tags.map((tag) =>
@@ -412,64 +409,53 @@ export class PackageSearchApi {
     }
   }
 
-  public getUrlAndLegal({
-    url,
-    licenseName,
-    packageVersion,
-    copyright,
-    ...props
-  }: PackageInfo): Promise<UrlAndLegal> {
+  public async enrichPackageInfo(
+    packageInfo: DisplayPackageInfo,
+  ): Promise<DisplayPackageInfo> {
+    if (packageInfo.url && packageInfo.copyright && packageInfo.licenseName) {
+      return packageInfo;
+    }
+
     const { isComplete, name, projectType, system, kind } =
-      this.deserialize(props);
+      this.deserialize(packageInfo);
 
     if (isComplete && kind && name && system) {
-      return this.getPackageUrlAndLegal({
-        copyright,
+      return this.enrichSystemPackageInfo({
+        ...packageInfo,
         kind,
-        licenseName,
         name,
-        packageVersion,
         system,
-        url,
       });
     }
 
     if (isComplete && kind && name && projectType) {
-      return this.getProjectUrlAndLegal({
-        copyright,
+      return this.enrichProjectPackageInfo({
+        ...packageInfo,
         kind,
-        licenseName,
         name,
-        packageVersion,
         projectType,
-        url,
       });
     }
 
-    return Promise.resolve({ url, licenseName, copyright, packageVersion });
+    return packageInfo;
   }
 
-  private async getPackageUrlAndLegal({
-    copyright,
+  private async enrichSystemPackageInfo({
     kind,
-    licenseName,
     name,
-    packageVersion,
-    projectType,
     system,
-    url,
-  }: PackageSuggestion & UrlAndLegal): Promise<UrlAndLegal> {
+    ...packageInfo
+  }: PackageSuggestion & DisplayPackageInfo): Promise<DisplayPackageInfo> {
     const effectiveVersion =
-      packageVersion ||
-      (await this.getPackageDefaultVersion({
+      packageInfo.packageVersion ||
+      (await this.getSystemPackageDefaultVersion({
         kind,
         name,
-        projectType,
         system,
       }));
 
     if (!effectiveVersion) {
-      return { url, licenseName, copyright, packageVersion };
+      return packageInfo;
     }
 
     const response = await this.httpClient.request({
@@ -480,25 +466,26 @@ export class PackageSearchApi {
     });
 
     if (!response.ok) {
-      return { url, licenseName, copyright, packageVersion: effectiveVersion };
+      return packageInfo;
     }
 
     const {
       version: { links, licenses },
     }: WebVersionResponse = await response.json();
-    const newUrl = url || links.repo || links.homepage || links.origins?.[0];
 
-    return this.getLegalFromUrl({
-      copyright,
-      licenseName: licenses
-        .filter((license) => license !== DEPS_DEV_NON_STANDARD_LICENSE_MARKER)
-        .join(' AND '),
-      packageVersion: effectiveVersion,
-      url: newUrl,
+    return this.enrichPackageInfoViaRepoUrl({
+      ...packageInfo,
+      licenseName:
+        packageInfo.licenseName ||
+        licenses
+          .filter((license) => license !== DEPS_DEV_NON_STANDARD_LICENSE_MARKER)
+          .join(' AND '),
+      url:
+        packageInfo.url || links.repo || links.homepage || links.origins?.[0],
     });
   }
 
-  private async getPackageDefaultVersion({
+  private async getSystemPackageDefaultVersion({
     name,
     system,
   }: PackageSuggestion): Promise<string | undefined> {
@@ -516,85 +503,27 @@ export class PackageSearchApi {
     return defaultVersion;
   }
 
-  private async getProjectUrlAndLegal({
-    copyright,
-    kind,
-    licenseName,
+  private enrichProjectPackageInfo({
     name,
-    packageVersion,
     projectType,
-    system,
-    url,
-  }: ProjectSuggestion & UrlAndLegal): Promise<UrlAndLegal> {
-    const [effectiveVersion, urlAndLegal] = await Promise.all([
-      packageVersion ||
-        this.getProjectDefaultVersion({
-          kind,
-          name,
-          projectType,
-          system,
-        }),
-      this.getLegalFromUrl({
-        copyright,
-        licenseName,
-        packageVersion,
-        url: url || `https://${this.projectTypeDomains[projectType]}/${name}`,
-      }),
-    ]);
-
-    return {
-      ...urlAndLegal,
-      packageVersion: effectiveVersion,
-    };
+    ...packageInfo
+  }: ProjectSuggestion & DisplayPackageInfo): Promise<DisplayPackageInfo> {
+    return this.enrichPackageInfoViaRepoUrl({
+      ...packageInfo,
+      url:
+        packageInfo.url ||
+        `https://${this.projectTypeDomains[projectType]}/${name}`,
+    });
   }
 
-  private async getProjectDefaultVersion({
-    name,
-    projectType,
-  }: ProjectSuggestion): Promise<string | undefined> {
-    switch (projectType) {
-      case 'GITHUB': {
-        const response = await this.httpClient.request({
-          baseUrl: this.baseUrls.GITHUB,
-          path: `repos/${name}/releases/latest`,
-        });
-
-        if (!response.ok) {
-          return undefined;
-        }
-
-        const { tag_name }: LatestReleaseResponse = await response.json();
-
-        return tag_name;
-      }
-      case 'GITLAB': {
-        const response = await this.httpClient.request({
-          baseUrl: this.baseUrls.GITLAB,
-          path: `projects/${encodeURIComponent(
-            name,
-          )}/releases/permalink/latest`,
-        });
-
-        if (!response.ok) {
-          return undefined;
-        }
-
-        const { tag_name }: LatestReleaseResponse = await response.json();
-
-        return tag_name;
-      }
-      default:
-        return undefined;
+  private async enrichPackageInfoViaRepoUrl(
+    packageInfo: DisplayPackageInfo,
+  ): Promise<DisplayPackageInfo> {
+    if (packageInfo.copyright && packageInfo.licenseName) {
+      return packageInfo;
     }
-  }
 
-  private async getLegalFromUrl({
-    copyright,
-    licenseName,
-    packageVersion,
-    url,
-  }: UrlAndLegal): Promise<UrlAndLegal> {
-    const githubMatch = url?.match(GITHUB_REGEX);
+    const githubMatch = packageInfo.url?.match(GITHUB_REGEX);
 
     if (githubMatch) {
       const response = await this.httpClient.request({
@@ -603,20 +532,20 @@ export class PackageSearchApi {
       });
 
       if (!response.ok) {
-        return { url, licenseName, copyright, packageVersion };
+        return packageInfo;
       }
 
       const { license, content }: GitHubLicenseResponse = await response.json();
 
       return {
-        copyright: copyright || this.getCopyrightFromFileContent(content),
-        licenseName: licenseName || license?.name,
-        packageVersion,
-        url,
+        ...packageInfo,
+        copyright:
+          packageInfo.copyright || this.getCopyrightFromFileContent(content),
+        licenseName: packageInfo.licenseName || license?.name,
       };
     }
 
-    const gitlabMatch = url?.match(GITLAB_REGEX);
+    const gitlabMatch = packageInfo.url?.match(GITLAB_REGEX);
 
     if (gitlabMatch) {
       const response = await this.httpClient.request({
@@ -626,7 +555,7 @@ export class PackageSearchApi {
       });
 
       if (!response.ok) {
-        return { url, licenseName, copyright, packageVersion };
+        return packageInfo;
       }
 
       const { license_url: licenseUrl, license }: GitLabProjectResponse =
@@ -643,32 +572,28 @@ export class PackageSearchApi {
 
         if (!licenseResponse.ok) {
           return {
-            url,
-            licenseName: licenseName || license?.name,
-            copyright,
-            packageVersion,
+            ...packageInfo,
+            licenseName: packageInfo.licenseName || license?.name,
           };
         }
 
         const { content }: GitLabLicenseResponse = await licenseResponse.json();
 
         return {
-          copyright: copyright || this.getCopyrightFromFileContent(content),
-          licenseName: licenseName || license?.name,
-          packageVersion,
-          url,
+          ...packageInfo,
+          copyright:
+            packageInfo.copyright || this.getCopyrightFromFileContent(content),
+          licenseName: packageInfo.licenseName || license?.name,
         };
       }
 
       return {
-        url,
-        licenseName: licenseName || license?.name,
-        copyright,
-        packageVersion,
+        ...packageInfo,
+        licenseName: packageInfo.licenseName || license?.name,
       };
     }
 
-    return { url, licenseName, copyright, packageVersion };
+    return packageInfo;
   }
 
   private getCopyrightFromFileContent(content: string) {

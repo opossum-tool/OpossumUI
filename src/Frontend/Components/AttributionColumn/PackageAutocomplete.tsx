@@ -14,7 +14,11 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { compact } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import { AutocompleteSignal, PackageInfo } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, clickableIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -26,6 +30,7 @@ import {
 import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { omit, pick } from '../../util/lodash-extension-utils';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
@@ -63,6 +68,12 @@ const Badge = styled(MuiBadge)({
   },
 });
 
+const AddIconButton = styled(MuiIconButton)({
+  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+  marginLeft: '8px',
+  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.1)' },
+});
+
 export function PackageAutocomplete({
   attribute,
   title,
@@ -80,8 +91,7 @@ export function PackageAutocomplete({
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
 
-  const { getPackageUrlAndLicense } =
-    PackageSearchHooks.useGetPackageUrlAndLegal();
+  const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
   const autocompleteSignals = useAutocompleteSignals();
   const filteredSignals = useMemo(
@@ -217,11 +227,12 @@ export function PackageAutocomplete({
           showStar
             ? `${baseTitle} (${
                 option.preferred
-                  ? text.auditingOptions.currentlyPreferred
-                  : text.auditingOptions.previouslyPreferred
+                  ? text.auditingOptions.currentlyPreferred.toLowerCase()
+                  : text.auditingOptions.previouslyPreferred.toLowerCase()
               })`
             : baseTitle
         }
+        enterDelay={500}
       >
         <Badge
           badgeContent={
@@ -248,16 +259,7 @@ export function PackageAutocomplete({
   }
 
   function renderOptionEndIcon(
-    {
-      attributionConfidence,
-      count,
-      excludeFromNotice,
-      followUp,
-      needsReview,
-      preSelected,
-      source,
-      ...option
-    }: AutocompleteSignal,
+    option: AutocompleteSignal,
     { closePopper }: { closePopper: () => void },
   ) {
     if (!option.packageName || !option.packageType) {
@@ -267,27 +269,39 @@ export function PackageAutocomplete({
     return (
       <MuiTooltip
         title={text.attributionColumn.useAutocompleteSuggestion}
+        enterDelay={1000}
         disableInteractive
       >
-        <MuiIconButton
+        <AddIconButton
           onClick={async (event) => {
             event.stopPropagation();
+            const merged: DisplayPackageInfo = {
+              ...omit(option, [
+                'count',
+                'default',
+                'preSelected',
+                'source',
+                'suffix',
+              ]),
+              ...pick(temporaryPackageInfo, [
+                'attributionConfidence',
+                'excludeFromNotice',
+                'followUp',
+                'needsReview',
+                'preferred',
+              ]),
+            };
             dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...temporaryPackageInfo,
-                ...option,
-                ...(await getPackageUrlAndLicense({
-                  ...temporaryPackageInfo,
-                  ...option,
-                })),
-              }),
+              setTemporaryDisplayPackageInfo(
+                (option.default && (await enrichPackageInfo(merged))) || merged,
+              ),
             );
             closePopper();
           }}
           size={'small'}
         >
           <AddIcon fontSize={'inherit'} color={'primary'} />
-        </MuiIconButton>
+        </AddIconButton>
       </MuiTooltip>
     );
   }
