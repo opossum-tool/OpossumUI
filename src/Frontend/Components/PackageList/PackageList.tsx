@@ -8,9 +8,9 @@ import { ReactElement, useMemo } from 'react';
 import { useAppSelector } from '../../state/hooks';
 import { getPackageSearchTerm } from '../../state/selectors/audit-view-resource-selectors';
 import { DisplayPackageInfos } from '../../types/types';
+import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 import { List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
-import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list-helpers';
 
 interface PackageListProps {
   displayPackageInfos: DisplayPackageInfos;
@@ -26,10 +26,11 @@ export function PackageList(props: PackageListProps): ReactElement {
 
   const filteredPackageCardIds: Array<string> = useMemo(
     () =>
-      getFilteredPackageCardIdsFromDisplayPackageInfos(
-        props.displayPackageInfos,
-        props.sortedPackageCardIds,
-        searchTerm,
+      props.sortedPackageCardIds.filter((packageCardId) =>
+        packageInfoContainsSearchTerm(
+          props.displayPackageInfos[packageCardId],
+          searchTerm,
+        ),
       ),
     [props.displayPackageInfos, props.sortedPackageCardIds, searchTerm],
   );
