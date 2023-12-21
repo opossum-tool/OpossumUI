@@ -9321,7 +9321,7 @@ __metadata:
     vite-plugin-electron: "npm:^0.15.5"
     vite-plugin-svgr: "npm:^4.2.0"
     vite-tsconfig-paths: "npm:^4.2.2"
-    whatwg-fetch: "npm:^3.6.19"
+    whatwg-fetch: "npm:^3.6.20"
   languageName: unknown
   linkType: soft
 
@@ -11788,10 +11788,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"whatwg-fetch@npm:^3.6.19":
-  version: 3.6.19
-  resolution: "whatwg-fetch@npm:3.6.19"
-  checksum: 257b130a06bc0fca4e3f15cb4a7b7822d12b7493c6743353e3a107b62ef2716f77fae35b4c81b4b8630e221aca30ea5b9770969db762d63336108f57bee9f963
+"whatwg-fetch@npm:^3.6.20":
+  version: 3.6.20
+  resolution: "whatwg-fetch@npm:3.6.20"
+  checksum: 2b4ed92acd6a7ad4f626a6cb18b14ec982bbcaf1093e6fe903b131a9c6decd14d7f9c9ca3532663c2759d1bdf01d004c77a0adfb2716a5105465c20755a8c57c
   languageName: node
   linkType: hard
 

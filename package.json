@@ -105,7 +105,7 @@
     "vite-plugin-electron": "^0.15.5",
     "vite-plugin-svgr": "^4.2.0",
     "vite-tsconfig-paths": "^4.2.2",
-    "whatwg-fetch": "^3.6.19"
+    "whatwg-fetch": "^3.6.20"
   },
   "scripts": {
     "start": "run-script-os",
