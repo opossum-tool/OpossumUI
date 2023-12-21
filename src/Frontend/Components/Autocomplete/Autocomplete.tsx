@@ -71,7 +71,7 @@ export function Autocomplete<
   groupBy,
   groupProps,
   highlight,
-  inputProps,
+  inputProps: customInputProps,
   multiple,
   optionText,
   renderOptionEndIcon,
@@ -147,10 +147,13 @@ export function Autocomplete<
   const hasClearButton = !disableClearable && !disabled && containsValue;
   const isPopupOpen = !!groupedOptions.length && popupOpen;
 
+  const { ref, color, ...inputProps } = getInputProps();
+
   return (
     <>
       <Container {...getRootProps()} sx={sx} ref={setAnchorEl}>
         <Input
+          {...inputProps}
           disabled={disabled}
           label={title}
           highlight={highlight}
@@ -159,7 +162,8 @@ export function Autocomplete<
           }
           size={'small'}
           InputLabelProps={getInputLabelProps()}
-          inputProps={{ ...getInputProps(), ...inputProps }}
+          inputRef={ref}
+          inputProps={customInputProps}
           InputProps={{
             startAdornment: renderStartAdornment(),
             endAdornment: renderEndAdornment(),
@@ -190,6 +194,7 @@ export function Autocomplete<
           key={key}
           label={label}
           {...tagProps}
+          onMouseDown={(event) => event.stopPropagation()}
           data-testid={`tag-${label}`}
         />
       );

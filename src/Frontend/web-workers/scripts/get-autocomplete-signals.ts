@@ -57,7 +57,7 @@ export function getAutocompleteSignals({
     ...signalsOnResource,
     ...signalsOnChildren,
     ...attributionsOnChildren,
-  ].reduce<Array<AutocompleteSignal>>((acc, signal) => {
+  ].reduce<Array<AutocompleteSignal>>((acc, { comment, ...signal }) => {
     if (!generatePurl(signal) || signal.preferred) {
       return acc;
     }
@@ -67,7 +67,9 @@ export function getAutocompleteSignals({
 
     if (dupeIndex === -1) {
       acc.push({
+        attributionIds: [],
         count: 1,
+        comments: comment ? [comment] : undefined,
         ...signal,
       });
     } else {

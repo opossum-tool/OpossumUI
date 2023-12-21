@@ -11,7 +11,10 @@ import MuiInputAdornment from '@mui/material/InputAdornment';
 import { sortBy } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -81,7 +84,9 @@ export function LicenseSubPanel({
   const defaultLicenses = useMemo(
     () =>
       sortBy(
-        frequentLicensesNames.map<PackageInfo>(({ fullName }) => ({
+        frequentLicensesNames.map<AutocompleteSignal>(({ fullName }) => ({
+          attributionIds: [],
+          default: true,
           licenseName: fullName,
           source: {
             documentConfidence: 100,

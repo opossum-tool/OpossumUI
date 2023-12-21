@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { faker } from '../../../../shared/Faker';
 import { AutocompleteSignal } from '../../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { getAutocompleteSignals } from '../get-autocomplete-signals';
 
 describe('getAutocompleteSignals', () => {
@@ -60,7 +61,7 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(1);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...attribution1, count: 2 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 2 },
     ]);
   });
 
@@ -155,8 +156,8 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(2);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...attribution1, count: 2 },
-      { ...attribution2, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 2 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
     ]);
   });
 
@@ -206,8 +207,8 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(2);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...attribution2, count: 1 },
-      { ...attribution1, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 1 },
     ]);
   });
 
@@ -262,8 +263,8 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(2);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...attribution2, count: 1 },
-      { ...attribution1, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 1 },
     ]);
   });
 });

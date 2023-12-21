@@ -32,6 +32,7 @@ export const text = {
     useAutocompleteSuggestion:
       'Adopt all coordinates and legal information from suggestion',
     originallyFrom: 'Originally from ',
+    invalidPurl: 'INVALID PURL',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',

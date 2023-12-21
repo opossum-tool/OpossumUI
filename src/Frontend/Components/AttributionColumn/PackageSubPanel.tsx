@@ -10,7 +10,10 @@ import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
 import { useMemo } from 'react';
 
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -73,7 +76,9 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
     () =>
-      COMMON_PACKAGE_TYPES.map<PackageInfo>((packageType) => ({
+      COMMON_PACKAGE_TYPES.map<AutocompleteSignal>((packageType) => ({
+        attributionIds: [],
+        default: true,
         packageType,
         source: {
           name: text.attributionColumn.commonEcosystems,
