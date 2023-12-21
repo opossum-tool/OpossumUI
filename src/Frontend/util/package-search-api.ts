@@ -80,8 +80,9 @@ export interface Links {
 
 export interface WebVersionResponse {
   version: {
-    licenses: Array<string>;
-    links: Links;
+    description?: string;
+    licenses?: Array<string>;
+    links?: Links;
   };
 }
 
@@ -470,18 +471,37 @@ export class PackageSearchApi {
     }
 
     const {
-      version: { links, licenses },
+      version: { links, licenses, description },
     }: WebVersionResponse = await response.json();
 
     return this.enrichPackageInfoViaRepoUrl({
       ...packageInfo,
+      comments: packageInfo.comments || [
+        [
+          ...(description
+            ? [`${text.attributionColumn.description}: ${description}`]
+            : []),
+          ...(links?.homepage
+            ? [`${text.attributionColumn.homepage}: ${links.homepage}`]
+            : []),
+          ...(links?.origins?.length
+            ? links.origins.map(
+                (origin, index, origins) =>
+                  `${text.attributionColumn.origin}${
+                    origins.length > 1 ? ` #${index + 1}` : ''
+                  }: ${origin}`,
+              )
+            : []),
+        ].join('\n'),
+      ],
       licenseName:
         packageInfo.licenseName ||
         licenses
-          .filter((license) => license !== DEPS_DEV_NON_STANDARD_LICENSE_MARKER)
+          ?.filter(
+            (license) => license !== DEPS_DEV_NON_STANDARD_LICENSE_MARKER,
+          )
           .join(' AND '),
-      url:
-        packageInfo.url || links.repo || links.homepage || links.origins?.[0],
+      url: packageInfo.url || links?.repo,
     });
   }
 

@@ -441,15 +441,12 @@ describe('PackageSearchApi', () => {
         url: undefined,
         licenseName: undefined,
       });
-      const repoUrl = faker.internet.url();
+      const links = faker.packageSearch.links({ origins: [] });
       const license1 = faker.commerce.productName();
       const license2 = faker.commerce.productName();
       const httpClient = faker.httpClient(
         faker.packageSearch.webVersionResponse({
-          version: {
-            links: faker.packageSearch.links({ repo: repoUrl }),
-            licenses: [license1, license2],
-          },
+          version: { links, licenses: [license1, license2] },
         }),
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
@@ -459,26 +456,57 @@ describe('PackageSearchApi', () => {
       expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(enriched).toEqual(
         expect.objectContaining<Partial<DisplayPackageInfo>>({
-          url: repoUrl,
+          url: links.repo,
           licenseName: `${license1} AND ${license2}`,
+          comments: [`${text.attributionColumn.homepage}: ${links.homepage!}`],
         }),
       );
     });
 
-    it('falls back to homepage URL when repo URL not available', async () => {
+    it('gets license based on package default version if no package version provided', async () => {
       const packageInfo = faker.opossum.displayPackageInfo({
         packageType: faker.packageSearch.packageSystem(),
         packageNamespace: faker.internet.domainWord(),
+        packageVersion: undefined,
         url: undefined,
         licenseName: undefined,
+        copyright: undefined,
       });
-      const homepageUrl = faker.internet.url();
+      const defaultVersion = faker.system.semver();
       const httpClient = faker.httpClient(
-        faker.packageSearch.webVersionResponse({
-          version: {
-            links: faker.packageSearch.links({ homepage: homepageUrl }),
-            licenses: [],
-          },
+        faker.packageSearch.defaultVersionResponse({ defaultVersion }),
+        faker.packageSearch.webVersionResponse(),
+      );
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.enrichPackageInfo(packageInfo);
+
+      expect(httpClient.request).toHaveBeenCalledTimes(2);
+      expect(httpClient.request).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining<Partial<RequestProps>>({
+          path: expect.stringContaining(`/v/${defaultVersion}`),
+        }),
+      );
+    });
+
+    it('provides repo URL, license, and copyright for a GitHub project', async () => {
+      const name = faker.internet.domainWord();
+      const namespace = faker.internet.domainWord();
+      const packageInfo = faker.opossum.displayPackageInfo({
+        packageType: 'github',
+        packageName: name,
+        packageNamespace: namespace,
+        url: undefined,
+        licenseName: undefined,
+        copyright: undefined,
+      });
+      const license = faker.commerce.productName();
+      const copyright = faker.opossum.copyright();
+      const httpClient = faker.httpClient(
+        faker.packageSearch.gitHubLicenseResponse({
+          license: { name: license },
+          content: faker.packageSearch.licenseTextWithCopyright(copyright),
         }),
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
@@ -488,167 +516,61 @@ describe('PackageSearchApi', () => {
       expect(httpClient.request).toHaveBeenCalledTimes(1);
       expect(enriched).toEqual(
         expect.objectContaining<Partial<DisplayPackageInfo>>({
-          url: homepageUrl,
-          licenseName: '',
+          url: `https://github.com/${namespace}/${name}`,
+          licenseName: license,
+          packageVersion: packageInfo.packageVersion,
+          copyright,
         }),
       );
     });
 
-    it('falls back to first origin URL when neither repo URL nor homepage URL are available', async () => {
+    it('provides repo URL, license, and copyright for a GitLab project', async () => {
+      const name = faker.internet.domainWord();
+      const namespace = faker.internet.domainWord();
       const packageInfo = faker.opossum.displayPackageInfo({
-        packageType: faker.packageSearch.packageSystem(),
-        packageNamespace: faker.internet.domainWord(),
+        packageType: 'gitlab',
+        packageName: name,
+        packageNamespace: namespace,
         url: undefined,
         licenseName: undefined,
+        copyright: undefined,
       });
-      const originUrl = faker.internet.url();
+      const license = faker.commerce.productName();
+      const copyright = faker.opossum.copyright();
       const httpClient = faker.httpClient(
-        faker.packageSearch.webVersionResponse({
-          version: {
-            links: faker.packageSearch.links({
-              origins: [originUrl, faker.internet.url()],
-            }),
-            licenses: [],
-          },
+        faker.packageSearch.gitLabProjectResponse({
+          license: { name: license },
+        }),
+        faker.packageSearch.gitLabLicenseResponse({
+          content: faker.packageSearch.licenseTextWithCopyright(copyright),
         }),
       );
       const packageSearchApi = new PackageSearchApi(httpClient);
 
       const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
 
-      expect(httpClient.request).toHaveBeenCalledTimes(1);
+      expect(httpClient.request).toHaveBeenCalledTimes(2);
       expect(enriched).toEqual(
         expect.objectContaining<Partial<DisplayPackageInfo>>({
-          url: originUrl,
-          licenseName: '',
+          url: `https://gitlab.com/${namespace}/${name}`,
+          licenseName: license,
+          packageVersion: packageInfo.packageVersion,
+          copyright,
         }),
       );
     });
-  });
 
-  it('does not enrich package info if URL, copyright, and license name are already known', async () => {
-    const packageInfo = faker.opossum.displayPackageInfo({
-      packageType: faker.packageSearch.packageSystem(),
-      packageNamespace: faker.internet.domainWord(),
+    it('does not enrich package info if URL, copyright, and license name are already known', async () => {
+      const packageInfo = faker.opossum.displayPackageInfo({
+        packageType: faker.packageSearch.packageSystem(),
+        packageNamespace: faker.internet.domainWord(),
+      });
+      const httpClient = faker.httpClient();
+      const packageSearchApi = new PackageSearchApi(httpClient);
+
+      await packageSearchApi.enrichPackageInfo(packageInfo);
+
+      expect(httpClient.request).not.toHaveBeenCalled();
     });
-    const httpClient = faker.httpClient();
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    await packageSearchApi.enrichPackageInfo(packageInfo);
-
-    expect(httpClient.request).not.toHaveBeenCalled();
-  });
-
-  it('gets license based on package default version if no package version provided', async () => {
-    const packageInfo = faker.opossum.displayPackageInfo({
-      packageType: faker.packageSearch.packageSystem(),
-      packageNamespace: faker.internet.domainWord(),
-      url: undefined,
-      licenseName: undefined,
-      copyright: undefined,
-      packageVersion: undefined,
-    });
-    const defaultVersion = faker.system.semver();
-    const httpClient = faker.httpClient(
-      faker.packageSearch.defaultVersionResponse({ defaultVersion }),
-      faker.packageSearch.webVersionResponse(),
-    );
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    await packageSearchApi.enrichPackageInfo(packageInfo);
-
-    expect(httpClient.request).toHaveBeenCalledTimes(2);
-    expect(httpClient.request).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining<Partial<RequestProps>>({
-        path: expect.stringContaining(`/v/${defaultVersion}`),
-      }),
-    );
-  });
-
-  it('provides repo URL, license, and copyright for a GitHub project', async () => {
-    const name = faker.internet.domainWord();
-    const namespace = faker.internet.domainWord();
-    const packageInfo = faker.opossum.displayPackageInfo({
-      packageType: 'github',
-      packageName: name,
-      packageNamespace: namespace,
-      url: undefined,
-      licenseName: undefined,
-      copyright: undefined,
-    });
-    const license = faker.commerce.productName();
-    const copyright = faker.opossum.copyright();
-    const httpClient = faker.httpClient(
-      faker.packageSearch.gitHubLicenseResponse({
-        license: { name: license },
-        content: faker.packageSearch.licenseTextWithCopyright(copyright),
-      }),
-    );
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
-
-    expect(httpClient.request).toHaveBeenCalledTimes(1);
-    expect(enriched).toEqual(
-      expect.objectContaining<Partial<DisplayPackageInfo>>({
-        url: `https://github.com/${namespace}/${name}`,
-        licenseName: license,
-        packageVersion: packageInfo.packageVersion,
-        copyright,
-      }),
-    );
-  });
-
-  it('provides repo URL, license, and copyright for a GitLab project', async () => {
-    const name = faker.internet.domainWord();
-    const namespace = faker.internet.domainWord();
-    const packageInfo = faker.opossum.displayPackageInfo({
-      packageType: 'gitlab',
-      packageName: name,
-      packageNamespace: namespace,
-      url: undefined,
-      licenseName: undefined,
-      copyright: undefined,
-    });
-    const license = faker.commerce.productName();
-    const copyright = faker.opossum.copyright();
-    const httpClient = faker.httpClient(
-      faker.packageSearch.gitLabProjectResponse({
-        license: { name: license },
-      }),
-      faker.packageSearch.gitLabLicenseResponse({
-        content: faker.packageSearch.licenseTextWithCopyright(copyright),
-      }),
-    );
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    const enriched = await packageSearchApi.enrichPackageInfo(packageInfo);
-
-    expect(httpClient.request).toHaveBeenCalledTimes(2);
-    expect(enriched).toEqual(
-      expect.objectContaining<Partial<DisplayPackageInfo>>({
-        url: `https://gitlab.com/${namespace}/${name}`,
-        licenseName: license,
-        packageVersion: packageInfo.packageVersion,
-        copyright,
-      }),
-    );
-  });
-
-  it('does not make any request if URL, license name, and copyright of a project are already known', async () => {
-    const packageInfo = faker.opossum.displayPackageInfo({
-      packageType: faker.packageSearch.projectType(),
-      packageNamespace: faker.internet.domainWord(),
-      url: faker.internet.url(),
-      licenseName: faker.commerce.productName(),
-      copyright: faker.opossum.copyright(),
-    });
-    const httpClient = faker.httpClient();
-    const packageSearchApi = new PackageSearchApi(httpClient);
-
-    await packageSearchApi.enrichPackageInfo(packageInfo);
-
-    expect(httpClient.request).not.toHaveBeenCalled();
   });
 });

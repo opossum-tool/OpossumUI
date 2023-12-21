@@ -479,6 +479,9 @@ class PackageSearchModule {
   public static links(props: Partial<Links> = {}): Links {
     return {
       origins: faker.helpers.multiple(faker.internet.url),
+      homepage: faker.internet.url(),
+      repo: faker.internet.url(),
+      issues: faker.internet.url(),
       ...props,
     };
   }
