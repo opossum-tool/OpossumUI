@@ -57,6 +57,7 @@
         'upath',
         'url',
         'uuid',
+        'whatwg-fetch',
       ],
       matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
