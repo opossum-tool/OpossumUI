@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import { defer } from 'lodash';
 import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
@@ -53,12 +54,15 @@ export function List({
   const currentHeight = length * cardHeight;
 
   useEffect(() => {
-    if (indexToScrollTo && ref.current) {
-      ref.current.scrollToIndex({
-        index: indexToScrollTo,
-        align: 'center',
-        behavior: 'smooth',
-      });
+    if (indexToScrollTo > 0) {
+      defer(
+        () =>
+          ref.current?.scrollToIndex({
+            index: indexToScrollTo,
+            align: 'center',
+            behavior: 'smooth',
+          }),
+      );
     }
   }, [indexToScrollTo]);
 

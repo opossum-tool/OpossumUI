@@ -5,11 +5,13 @@
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useMemo, useState } from 'react';
 
+import { useAppSelector } from '../../state/hooks';
+import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { DisplayPackageInfos } from '../../types/types';
+import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 import { List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
-import { getFilteredPackageCardIdsFromDisplayPackageInfos } from './package-list-helpers';
 
 const classes = {
   container: {
@@ -32,13 +34,17 @@ export function AttributionsViewPackageList(
   props: AttributionsViewPackageListProps,
 ): ReactElement {
   const [search, setSearch] = useState('');
+  const selectedPackageCardIdInAttributionView = useAppSelector(
+    getSelectedAttributionIdInAttributionView,
+  );
 
   const filteredAndSortedPackageCardIds = useMemo(
-    (): Array<string> =>
-      getFilteredPackageCardIdsFromDisplayPackageInfos(
-        props.displayPackageInfos,
-        props.sortedPackageCardIds,
-        search,
+    () =>
+      props.sortedPackageCardIds.filter((packageCardId) =>
+        packageInfoContainsSearchTerm(
+          props.displayPackageInfos[packageCardId],
+          search,
+        ),
       ),
     [props.displayPackageInfos, props.sortedPackageCardIds, search],
   );
@@ -55,6 +61,9 @@ export function AttributionsViewPackageList(
         length={filteredAndSortedPackageCardIds.length}
         cardHeight={PACKAGE_CARD_HEIGHT}
         fullHeight
+        indexToScrollTo={filteredAndSortedPackageCardIds.indexOf(
+          selectedPackageCardIdInAttributionView,
+        )}
       />
     </MuiBox>
   );
