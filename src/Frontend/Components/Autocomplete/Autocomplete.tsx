@@ -9,6 +9,7 @@ import { IconButtonProps as MuiIconButtonProps } from '@mui/material/IconButton'
 import { InputBaseComponentProps as MuiInputBaseComponentProps } from '@mui/material/InputBase';
 import useMuiAutocomplete, {
   AutocompleteHighlightChangeReason,
+  AutocompleteInputChangeReason,
   UseAutocompleteProps as MuiUseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
 import { compact } from 'lodash';
@@ -32,12 +33,12 @@ type AutocompleteProps<
   FreeSolo extends boolean | undefined,
 > = Omit<
   MuiUseAutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>,
-  'onClose' | 'onOpen' | 'open' | 'onHighlightChange'
+  'onClose' | 'onOpen' | 'open' | 'onHighlightChange' | 'onInputChange'
 > &
   Pick<
     ListboxProps<Value, FreeSolo>,
     | 'getOptionKey'
-    | 'groupIcon'
+    | 'groupProps'
     | 'optionText'
     | 'renderOptionEndIcon'
     | 'renderOptionStartIcon'
@@ -45,6 +46,11 @@ type AutocompleteProps<
     endAdornment?: React.ReactNode;
     highlight?: 'default' | 'dark';
     inputProps?: MuiInputBaseComponentProps;
+    onInputChange?: (
+      event: React.SyntheticEvent | undefined,
+      value: string,
+      reason: AutocompleteInputChangeReason,
+    ) => void;
     sx?: SxProps;
     title: string;
   };
@@ -63,9 +69,9 @@ export function Autocomplete<
   getOptionKey,
   getOptionLabel,
   groupBy,
-  groupIcon,
+  groupProps,
   highlight,
-  inputProps,
+  inputProps: customInputProps,
   multiple,
   optionText,
   renderOptionEndIcon,
@@ -141,10 +147,13 @@ export function Autocomplete<
   const hasClearButton = !disableClearable && !disabled && containsValue;
   const isPopupOpen = !!groupedOptions.length && popupOpen;
 
+  const { ref, color, ...inputProps } = getInputProps();
+
   return (
     <>
       <Container {...getRootProps()} sx={sx} ref={setAnchorEl}>
         <Input
+          {...inputProps}
           disabled={disabled}
           label={title}
           highlight={highlight}
@@ -153,7 +162,8 @@ export function Autocomplete<
           }
           size={'small'}
           InputLabelProps={getInputLabelProps()}
-          inputProps={{ ...getInputProps(), ...inputProps }}
+          inputRef={ref}
+          inputProps={customInputProps}
           InputProps={{
             startAdornment: renderStartAdornment(),
             endAdornment: renderEndAdornment(),
@@ -184,6 +194,7 @@ export function Autocomplete<
           key={key}
           label={label}
           {...tagProps}
+          onMouseDown={(event) => event.stopPropagation()}
           data-testid={`tag-${label}`}
         />
       );
@@ -223,7 +234,7 @@ export function Autocomplete<
               optionText={optionText}
               options={groupedOptions as Array<Value>}
               groupBy={groupBy}
-              groupIcon={groupIcon}
+              groupProps={groupProps}
               getOptionKey={getOptionKey}
               getOptionProps={getOptionProps}
               renderOptionStartIcon={renderOptionStartIcon}

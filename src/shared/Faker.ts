@@ -11,6 +11,30 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { HttpClient } from '../Frontend/util/http-client';
+import {
+  AdvisorySuggestion,
+  DefaultVersionResponse,
+  GitHubLicenseResponse,
+  GitLabLicenseResponse,
+  GitLabProjectResponse,
+  LatestReleaseResponse,
+  Links,
+  PackageSuggestion,
+  PackageSystem,
+  packageSystems,
+  ProjectSuggestion,
+  ProjectType,
+  projectTypes,
+  SearchSuggestion,
+  SearchSuggestionResponse,
+  TagResponse,
+  VersionKey,
+  VersionResponse,
+  VersionsResponse,
+  WebVersionResponse,
+} from '../Frontend/util/package-search-api';
+import { PackageSearchHooks } from '../Frontend/util/package-search-hooks';
 import {
   AttributionData,
   AttributionsToResources,
@@ -81,6 +105,10 @@ class OpossumModule {
     };
   }
 
+  public static copyright(name = faker.company.name()) {
+    return `Copyright (c) ${name}`;
+  }
+
   public static manualPackageInfo(
     props: Partial<ManualPackageInfo> = {},
   ): ManualPackageInfo {
@@ -89,7 +117,7 @@ class OpossumModule {
         min: DiscreteConfidence.Low + 1,
         max: DiscreteConfidence.High - 1,
       }),
-      copyright: faker.lorem.sentences(),
+      copyright: OpossumModule.copyright(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),
       packageVersion: faker.system.semver(),
@@ -292,8 +320,214 @@ class OpossumModule {
   }
 }
 
+class PackageSearchModule {
+  public static usePackageNames() {
+    jest.spyOn(PackageSearchHooks, 'usePackageNames').mockReturnValue({
+      packageNames: [],
+      packageNamesError: null,
+      packageNamesLoading: false,
+    });
+  }
+
+  public static usePackageNamespaces() {
+    jest.spyOn(PackageSearchHooks, 'usePackageNamespaces').mockReturnValue({
+      packageNamespaces: [],
+      packageNamespacesError: null,
+      packageNamespacesLoading: false,
+    });
+  }
+
+  public static usePackageVersions() {
+    jest.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
+      packageVersions: [],
+      packageVersionsError: null,
+      packageVersionsLoading: false,
+    });
+  }
+
+  public static packageSystem(): PackageSystem {
+    return faker.helpers.arrayElement(packageSystems);
+  }
+
+  public static projectType(): ProjectType {
+    return faker.helpers.arrayElement(projectTypes);
+  }
+
+  public static versionKey(props: Partial<VersionKey> = {}): VersionKey {
+    return {
+      name: faker.commerce.productName(),
+      system: 'NPM',
+      version: faker.system.semver(),
+      ...props,
+    };
+  }
+
+  public static versionResponse(
+    props: Partial<VersionResponse> = {},
+  ): VersionResponse {
+    return {
+      versionKey: PackageSearchModule.versionKey(),
+      publishedAt: faker.date.past().toISOString(),
+      isDefault: faker.datatype.boolean(),
+      ...props,
+    };
+  }
+
+  public static defaultVersionResponse(
+    props: Partial<DefaultVersionResponse> = {},
+  ): DefaultVersionResponse {
+    return {
+      defaultVersion: faker.system.semver(),
+      ...props,
+    };
+  }
+
+  public static versionsResponse(
+    props: Partial<VersionsResponse> = {},
+  ): VersionsResponse {
+    return {
+      versions: faker.helpers.multiple(PackageSearchModule.versionResponse),
+      ...props,
+    };
+  }
+
+  public static licenseTextWithCopyright(
+    copyright = OpossumModule.copyright(),
+  ) {
+    return btoa(
+      `${faker.lorem.sentence()}\n${copyright}\n${faker.lorem.sentence()}`,
+    );
+  }
+
+  public static gitHubLicenseResponse(
+    props: Partial<GitHubLicenseResponse> = {},
+  ): GitHubLicenseResponse {
+    return {
+      content: PackageSearchModule.licenseTextWithCopyright(),
+      license: { name: faker.commerce.productName() },
+      ...props,
+    };
+  }
+
+  public static gitLabProjectResponse(
+    props: Partial<GitLabProjectResponse> = {},
+  ): GitLabProjectResponse {
+    return {
+      license: { name: faker.commerce.productName() },
+      license_url: faker.internet.url(),
+      ...props,
+    };
+  }
+
+  public static gitLabLicenseResponse(
+    props: Partial<GitLabLicenseResponse> = {},
+  ): GitLabLicenseResponse {
+    return {
+      content: PackageSearchModule.licenseTextWithCopyright(),
+      ...props,
+    };
+  }
+
+  public static packageSuggestion(
+    props: Partial<PackageSuggestion> = {},
+  ): PackageSuggestion {
+    return {
+      kind: 'PACKAGE',
+      name: faker.internet.domainWord(),
+      system: PackageSearchModule.packageSystem(),
+      ...props,
+    };
+  }
+
+  public static projectSuggestion(
+    props: Partial<ProjectSuggestion> = {},
+  ): ProjectSuggestion {
+    return {
+      kind: 'PROJECT',
+      name: `${faker.internet.domainWord()}/${faker.internet.domainWord()}`,
+      projectType: PackageSearchModule.projectType(),
+      ...props,
+    };
+  }
+
+  public static advisorySuggestion(
+    props: Partial<AdvisorySuggestion> = {},
+  ): AdvisorySuggestion {
+    return {
+      kind: 'ADVISORY',
+      name: faker.internet.domainWord(),
+      ...props,
+    };
+  }
+
+  public static searchSuggestion(): SearchSuggestion {
+    return faker.helpers.arrayElement([
+      PackageSearchModule.packageSuggestion,
+      PackageSearchModule.projectSuggestion,
+    ])();
+  }
+
+  public static searchSuggestionResponse(
+    props: Partial<SearchSuggestionResponse> = {},
+  ): SearchSuggestionResponse {
+    return {
+      results: faker.helpers.multiple(PackageSearchModule.searchSuggestion),
+      ...props,
+    };
+  }
+
+  public static links(props: Partial<Links> = {}): Links {
+    return {
+      origins: faker.helpers.multiple(faker.internet.url),
+      homepage: faker.internet.url(),
+      repo: faker.internet.url(),
+      issues: faker.internet.url(),
+      ...props,
+    };
+  }
+
+  public static webVersionResponse(
+    props: Partial<WebVersionResponse> = {},
+  ): WebVersionResponse {
+    return {
+      version: {
+        licenses: faker.helpers.multiple(faker.commerce.productName),
+        links: PackageSearchModule.links(),
+      },
+      ...props,
+    };
+  }
+
+  public static tagResponse(props: Partial<TagResponse> = {}): TagResponse {
+    return {
+      name: faker.system.semver(),
+      ...props,
+    };
+  }
+
+  public static latestReleaseResponse(
+    props: Partial<LatestReleaseResponse> = {},
+  ): LatestReleaseResponse {
+    return {
+      tag_name: faker.system.semver(),
+      ...props,
+    };
+  }
+}
+
 class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
+  public readonly packageSearch = PackageSearchModule;
+
+  public httpClient(...body: Array<object>): HttpClient {
+    const request = jest.fn();
+
+    body.forEach((item) =>
+      request.mockResolvedValueOnce(new Response(JSON.stringify(item))),
+    );
+
+    return { request } satisfies Partial<HttpClient> as unknown as HttpClient;
+  }
 }
 
 export const faker = new Faker({ locale: [en, base] });

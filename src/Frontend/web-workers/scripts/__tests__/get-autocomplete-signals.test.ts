@@ -3,7 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { faker } from '../../../../shared/Faker';
-import { SignalWithCount } from '../../../../shared/shared-types';
+import { AutocompleteSignal } from '../../../../shared/shared-types';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { getAutocompleteSignals } from '../get-autocomplete-signals';
 
 describe('getAutocompleteSignals', () => {
@@ -59,9 +60,52 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(1);
-    expect(signals).toEqual<Array<SignalWithCount>>([
-      { ...attribution1, count: 2 },
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 2 },
     ]);
+  });
+
+  it('does not offer preferred attributions as suggestions', () => {
+    const [resourceName1, resourceName2] = faker.opossum.resourceNames({
+      count: 2,
+    });
+    const [attributionId1, attribution1] = faker.opossum.externalAttribution({
+      preferred: true,
+    });
+
+    const signals = getAutocompleteSignals({
+      externalData: faker.opossum.externalAttributionData({
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.folderPath(resourceName1)]: [attributionId1],
+          [faker.opossum.filePath(resourceName1, resourceName2)]: [
+            attributionId1,
+          ],
+        }),
+        attributions: faker.opossum.externalAttributions({
+          [attributionId1]: attribution1,
+        }),
+        resourcesWithAttributedChildren:
+          faker.opossum.resourcesWithAttributedChildren({
+            attributedChildren: {
+              '0': new Set([1]),
+            },
+            pathsToIndices: {
+              [faker.opossum.folderPath(resourceName1)]: 0,
+              [faker.opossum.filePath(resourceName1, resourceName2)]: 1,
+            },
+            paths: [
+              faker.opossum.folderPath(resourceName1),
+              faker.opossum.filePath(resourceName1, resourceName2),
+            ],
+          }),
+      }),
+      manualData: faker.opossum.manualAttributionData(),
+      resolvedExternalAttributions: new Set(),
+      resourceId: faker.opossum.folderPath(resourceName1),
+      sources: faker.opossum.externalAttributionSources(),
+    });
+
+    expect(signals).toHaveLength(0);
   });
 
   it('ranks data by count', () => {
@@ -111,67 +155,47 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<SignalWithCount>>([
-      { ...attribution1, count: 2 },
-      { ...attribution2, count: 1 },
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 2 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
     ]);
   });
 
-  it('ranks data by preferred and then was-preferred', () => {
-    const [resourceName1, resourceName2, resourceName3] =
-      faker.opossum.resourceNames({
-        count: 3,
-      });
+  it('ranks data by was-preferred', () => {
+    const [resourceName1, resourceName2] = faker.opossum.resourceNames({
+      count: 2,
+    });
     const [attributionId1, attribution1] = faker.opossum.externalAttribution({
-      preferred: false,
       wasPreferred: false,
     });
     const [attributionId2, attribution2] = faker.opossum.externalAttribution({
-      preferred: false,
       wasPreferred: true,
-    });
-    const [attributionId3, attribution3] = faker.opossum.externalAttribution({
-      preferred: true,
-      wasPreferred: undefined,
     });
 
     const signals = getAutocompleteSignals({
       externalData: faker.opossum.externalAttributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [faker.opossum.folderPath(resourceName1)]: [attributionId1],
-          [faker.opossum.folderPath(resourceName1, resourceName2)]: [
+          [faker.opossum.filePath(resourceName1, resourceName2)]: [
             attributionId2,
           ],
-          [faker.opossum.filePath(resourceName1, resourceName2, resourceName3)]:
-            [attributionId3],
         }),
         attributions: faker.opossum.externalAttributions({
           [attributionId1]: attribution1,
           [attributionId2]: attribution2,
-          [attributionId3]: attribution3,
         }),
         resourcesWithAttributedChildren:
           faker.opossum.resourcesWithAttributedChildren({
             attributedChildren: {
-              '0': new Set([1, 2]),
+              '0': new Set([1]),
             },
             pathsToIndices: {
               [faker.opossum.folderPath(resourceName1)]: 0,
-              [faker.opossum.folderPath(resourceName1, resourceName2)]: 1,
-              [faker.opossum.filePath(
-                resourceName1,
-                resourceName2,
-                resourceName3,
-              )]: 2,
+              [faker.opossum.filePath(resourceName1, resourceName2)]: 1,
             },
             paths: [
               faker.opossum.folderPath(resourceName1),
-              faker.opossum.folderPath(resourceName1, resourceName2),
-              faker.opossum.filePath(
-                resourceName1,
-                resourceName2,
-                resourceName3,
-              ),
+              faker.opossum.filePath(resourceName1, resourceName2),
             ],
           }),
       }),
@@ -181,11 +205,10 @@ describe('getAutocompleteSignals', () => {
       sources: faker.opossum.externalAttributionSources(),
     });
 
-    expect(signals).toHaveLength(3);
-    expect(signals).toEqual<Array<SignalWithCount>>([
-      { ...attribution3, count: 1 },
-      { ...attribution2, count: 1 },
-      { ...attribution1, count: 1 },
+    expect(signals).toHaveLength(2);
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 1 },
     ]);
   });
 
@@ -239,9 +262,9 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<SignalWithCount>>([
-      { ...attribution2, count: 1 },
-      { ...attribution1, count: 1 },
+    expect(signals).toEqual<Array<AutocompleteSignal>>([
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
+      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 1 },
     ]);
   });
 });

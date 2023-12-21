@@ -11,12 +11,16 @@ import MuiInputAdornment from '@mui/material/InputAdornment';
 import { sortBy } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
-import { useAppSelector } from '../../state/hooks';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
-import { usePackageInfoChangeHandler } from '../../util/use-package-info-change-handler';
+import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../InputElements/TextBox';
 import { getLicenseTextLabelText } from './attribution-column-helpers';
 import { PackageAutocomplete } from './PackageAutocomplete';
@@ -65,15 +69,24 @@ interface LicenseSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
+  confirmEditWasPreferred: Confirm;
 }
 
-export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
+export function LicenseSubPanel({
+  confirmEditWasPreferred,
+  displayPackageInfo,
+  isEditable,
+  showHighlight,
+}: LicenseSubPanelProps): ReactElement {
+  const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
   const defaultLicenses = useMemo(
     () =>
       sortBy(
-        frequentLicensesNames.map<PackageInfo>(({ fullName }) => ({
+        frequentLicensesNames.map<AutocompleteSignal>(({ fullName }) => ({
+          attributionIds: [],
+          default: true,
           licenseName: fullName,
           source: {
             documentConfidence: 100,
@@ -84,8 +97,6 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
       ),
     [frequentLicensesNames],
   );
-
-  const handleChange = usePackageInfoChangeHandler();
 
   return (
     <MuiBox sx={classes.panel}>
@@ -110,10 +121,11 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
           <PackageAutocomplete
             attribute={'licenseName'}
             title={text.attributionColumn.licenseName}
-            disabled={!props.isEditable}
-            showHighlight={props.showHighlight}
+            disabled={!isEditable}
+            showHighlight={showHighlight}
+            confirmEditWasPreferred={confirmEditWasPreferred}
             endAdornment={
-              props.displayPackageInfo.licenseText ? (
+              displayPackageInfo.licenseText ? (
                 <MuiInputAdornment position="end" sx={classes.endAdornment}>
                   {text.attributionColumn.licenseTextModified}
                 </MuiInputAdornment>
@@ -124,18 +136,28 @@ export function LicenseSubPanel(props: LicenseSubPanelProps): ReactElement {
         </MuiAccordionSummary>
         <MuiAccordionDetails sx={classes.expansionPanelDetails}>
           <TextBox
-            isEditable={props.isEditable}
+            isEditable={isEditable}
             sx={classes.licenseText}
             minRows={3}
             maxRows={10}
             multiline={true}
             title={getLicenseTextLabelText(
-              props.displayPackageInfo.licenseName,
-              props.isEditable,
+              displayPackageInfo.licenseName,
+              isEditable,
               frequentLicensesNames,
             )}
-            text={props.displayPackageInfo.licenseText}
-            handleChange={handleChange('licenseText')}
+            text={displayPackageInfo.licenseText}
+            handleChange={({ target: { value } }) =>
+              confirmEditWasPreferred(() =>
+                dispatch(
+                  setTemporaryDisplayPackageInfo({
+                    ...displayPackageInfo,
+                    licenseText: value,
+                    wasPreferred: undefined,
+                  }),
+                ),
+              )
+            }
           />
         </MuiAccordionDetails>
       </MuiAccordion>

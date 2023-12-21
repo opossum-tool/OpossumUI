@@ -4,7 +4,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import '@testing-library/jest-dom';
+import { noop } from 'lodash';
 
+import { faker } from './Faker';
 import { ElectronAPI } from './shared-types';
 
 // We suppress the recharts warning that is due to our mocking in tests.
@@ -19,60 +21,45 @@ const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR = [
 
 jest.mock('../ElectronBackend/main/logger.ts');
 
-const originalResizeObserver = window.ResizeObserver;
 const originalConsoleError = console.error;
 const originalConsoleWarn = console.warn;
 const originalConsoleInfo = console.info;
 
-function mockResizeObserver(): void {
-  window.ResizeObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
-  }));
+class ResizeObserver {
+  observe = noop;
+  unobserve = noop;
+  disconnect = noop;
 }
 
-beforeAll(() => {
-  global.window.electronAPI = {
-    openLink: jest.fn().mockReturnValue(Promise.resolve()),
-    openFile: jest.fn(),
-    deleteFile: jest.fn(),
-    keepFile: jest.fn(),
-    convertInputFileToDotOpossum: jest.fn(),
-    useOutdatedInputFileFormat: jest.fn(),
-    openDotOpossumFile: jest.fn(),
-    sendErrorInformation: jest.fn(),
-    exportFile: jest.fn(),
-    saveFile: jest.fn(),
-    on: jest.fn().mockReturnValue(jest.fn()),
-    getUserSetting: jest.fn().mockReturnValue(undefined),
-    setUserSetting: jest.fn(),
-  } satisfies ElectronAPI;
+global.window.electronAPI = {
+  openLink: jest.fn().mockReturnValue(Promise.resolve()),
+  openFile: jest.fn(),
+  deleteFile: jest.fn(),
+  keepFile: jest.fn(),
+  convertInputFileToDotOpossum: jest.fn(),
+  useOutdatedInputFileFormat: jest.fn(),
+  openDotOpossumFile: jest.fn(),
+  sendErrorInformation: jest.fn(),
+  exportFile: jest.fn(),
+  saveFile: jest.fn(),
+  on: jest.fn().mockReturnValue(jest.fn()),
+  getUserSetting: jest.fn().mockReturnValue(undefined),
+  setUserSetting: jest.fn(),
+} satisfies ElectronAPI;
 
-  mockResizeObserver();
+window.ResizeObserver = ResizeObserver;
 
-  mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN, 'warn');
-  mockConsoleImplementation(SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR, 'error');
-});
-
-beforeEach(() => jest.clearAllMocks());
-
-afterAll(() => {
-  window.ResizeObserver = originalResizeObserver;
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
-  console.info = originalConsoleInfo;
-  jest.restoreAllMocks();
-});
-
-function mockConsoleImplementation(
-  selectors: Array<string>,
-  type: 'info' | 'warn' | 'error',
-): void {
-  jest
-    .spyOn(console, type)
-    .mockImplementation(getMockConsoleImplementation(selectors, type));
-}
+console.warn = getMockConsoleImplementation(
+  SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN,
+  'warn',
+);
+console.error = getMockConsoleImplementation(
+  SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_ERROR,
+  'error',
+);
+faker.packageSearch.usePackageNames();
+faker.packageSearch.usePackageNamespaces();
+faker.packageSearch.usePackageVersions();
 
 function getMockConsoleImplementation(
   selectors: Array<string>,

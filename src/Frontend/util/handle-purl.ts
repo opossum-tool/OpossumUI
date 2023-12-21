@@ -5,6 +5,7 @@
 import { PackageURL } from 'packageurl-js';
 
 import { PackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 
 export function parsePurl(purl: string): PackageURL | undefined {
   try {
@@ -15,14 +16,18 @@ export function parsePurl(purl: string): PackageURL | undefined {
 }
 
 export function generatePurl(packageInfo: PackageInfo): string {
-  return packageInfo.packageType?.trim() && packageInfo.packageName?.trim()
-    ? new PackageURL(
-        packageInfo.packageType.trim(),
-        packageInfo?.packageNamespace?.trim(),
-        packageInfo.packageName.trim(),
-        packageInfo?.packageVersion?.trim(),
-        undefined,
-        undefined,
-      ).toString()
-    : '';
+  try {
+    return packageInfo.packageType?.trim() && packageInfo.packageName?.trim()
+      ? new PackageURL(
+          packageInfo.packageType.trim(),
+          packageInfo?.packageNamespace?.trim(),
+          packageInfo.packageName.trim(),
+          packageInfo?.packageVersion?.trim(),
+          undefined,
+          undefined,
+        ).toString()
+      : '';
+  } catch (error) {
+    return text.attributionColumn.invalidPurl;
+  }
 }

@@ -58,9 +58,7 @@ export function ResourceDetailsAttributionColumn(
   const dispatch = useAppDispatch();
 
   function dispatchUnlinkAttributionAndSavePackageInfoOrOpenWasPreferredPopup(): void {
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
-    } else if (attributionIdOfSelectedPackageInManualPanel) {
+    if (attributionIdOfSelectedPackageInManualPanel) {
       dispatch(
         unlinkAttributionAndSavePackageInfo(
           selectedResourceId,
@@ -72,9 +70,7 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function dispatchSavePackageInfoOrOpenPreferGloballyOrWasPreferredPopup(): void {
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
-    } else if (showSaveGloballyButton && didPreferredFieldChange) {
+    if (showSaveGloballyButton && didPreferredFieldChange) {
       dispatch(openPopup(PopupType.ChangePreferredStatusGloballyPopup));
     } else {
       dispatch(
@@ -130,9 +126,7 @@ export function ResourceDetailsAttributionColumn(
   }
 
   function saveFileRequestListener(): void {
-    if (temporaryDisplayPackageInfo.wasPreferred) {
-      dispatch(openPopup(PopupType.ModifyWasPreferredAttributionPopup));
-    } else if (
+    if (
       showSaveGloballyButton &&
       !isGlobalSavingDisabled &&
       didPreferredFieldChange

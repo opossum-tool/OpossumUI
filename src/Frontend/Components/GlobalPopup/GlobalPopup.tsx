@@ -19,9 +19,7 @@ import { FileSearchPopup } from '../FileSearchPopup/FileSearchPopup';
 import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
 import { FileSupportPopup } from '../FileSupportPopup/FileSupportPopup';
 import { LocatorPopup } from '../LocatorPopup/LocatorPopup';
-import { ModifyWasPreferredAttributionPopup } from '../ModifyWasPreferredAttributionPopup/ModifyWasPreferredAttributionPopup';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
-import { PackageSearchPopup } from '../PackageSearchPopup/PackageSearchPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttributionPopup';
@@ -51,8 +49,6 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ConfirmMultiSelectDeletionPopup />;
     case PopupType.EditAttributionPopup:
       return <EditAttributionPopup />;
-    case PopupType.PackageSearchPopup:
-      return <PackageSearchPopup />;
     case PopupType.ChangedInputFilePopup:
       return <ChangedInputFilePopup />;
     case PopupType.FileSupportPopup:
@@ -63,8 +59,6 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <UpdateAppPopup />;
     case PopupType.LocatorPopup:
       return <LocatorPopup />;
-    case PopupType.ModifyWasPreferredAttributionPopup:
-      return <ModifyWasPreferredAttributionPopup />;
     case PopupType.ChangePreferredStatusGloballyPopup:
       return <ChangePreferredStatusGloballyPopup />;
     default:

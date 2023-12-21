@@ -10,35 +10,54 @@ import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
 import { useMemo } from 'react';
 
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PopupType } from '../../enums/enums';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { generatePurl, parsePurl } from '../../util/handle-purl';
 import { openUrl } from '../../util/open-url';
-import { FetchLicenseInformationButton } from '../FetchLicenseInformationButton/FetchLicenseInformationButton';
+import { PackageSearchHooks } from '../../util/package-search-hooks';
+import { useDebouncedInput } from '../../util/use-debounced-input';
+import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
-import { SearchPackagesIcon } from '../Icons/Icons';
 import { TextBox } from '../InputElements/TextBox';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
+/** https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst */
 const COMMON_PACKAGE_TYPES = [
   'bitbucket',
   'cargo',
+  'composer',
+  'conan',
+  'conda',
+  'cran',
   'deb',
   'docker',
   'gem',
+  'generic',
   'github',
+  'gitlab',
   'golang',
+  'hackage',
+  'hex',
+  'huggingface',
   'maven',
+  'mlflow',
   'npm',
   'nuget',
+  'oci',
+  'pub',
   'pypi',
+  'qpkg',
   'rpm',
+  'rpm',
+  'swid',
+  'swift',
 ];
 
 const DisplayRow = styled('div')({
@@ -50,13 +69,16 @@ interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
   isEditable: boolean;
   showHighlight?: boolean;
+  confirmEditWasPreferred: Confirm;
 }
 
 export function PackageSubPanel(props: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
     () =>
-      COMMON_PACKAGE_TYPES.map<PackageInfo>((packageType) => ({
+      COMMON_PACKAGE_TYPES.map<AutocompleteSignal>((packageType) => ({
+        attributionIds: [],
+        default: true,
         packageType,
         source: {
           name: text.attributionColumn.commonEcosystems,
@@ -65,6 +87,15 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
       })),
     [],
   );
+
+  const debouncedPackageInfo = useDebouncedInput(props.displayPackageInfo);
+
+  const { packageNames } =
+    PackageSearchHooks.usePackageNames(debouncedPackageInfo);
+  const { packageNamespaces } =
+    PackageSearchHooks.usePackageNamespaces(debouncedPackageInfo);
+  const { packageVersions } =
+    PackageSearchHooks.usePackageVersions(debouncedPackageInfo);
 
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
@@ -89,17 +120,8 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         highlight={'dark'}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
-        endAdornment={
-          <IconButton
-            tooltipTitle={
-              text.attributionColumn.packageSubPanel.searchForPackage
-            }
-            tooltipPlacement="right"
-            onClick={() => dispatch(openPopup(PopupType.PackageSearchPopup))}
-            hidden={!props.isEditable}
-            icon={<SearchPackagesIcon sx={clickableIcon} />}
-          />
-        }
+        defaults={packageNames}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -112,6 +134,8 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         highlight={'dark'}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        defaults={packageNamespaces}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -123,6 +147,8 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.packageVersion}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        defaults={packageVersions}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -136,6 +162,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
         defaults={defaultPackageTypes}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
       />
     );
   }
@@ -204,28 +231,20 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
         disabled={!props.isEditable}
         showHighlight={props.showHighlight}
+        confirmEditWasPreferred={props.confirmEditWasPreferred}
         endAdornment={
-          <>
-            <FetchLicenseInformationButton
-              url={props.displayPackageInfo.url}
-              version={props.displayPackageInfo.packageVersion}
-              disabled={!props.isEditable}
-            />
-            <IconButton
-              tooltipTitle={
-                text.attributionColumn.packageSubPanel.openLinkInBrowser
-              }
-              tooltipPlacement="right"
-              onClick={(): void => {
-                props.displayPackageInfo.url &&
-                  openUrl(props.displayPackageInfo.url);
-              }}
-              hidden={!props.displayPackageInfo.url}
-              icon={
-                <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
-              }
-            />
-          </>
+          <IconButton
+            tooltipTitle={
+              text.attributionColumn.packageSubPanel.openLinkInBrowser
+            }
+            tooltipPlacement="right"
+            onClick={(): void => {
+              props.displayPackageInfo.url &&
+                openUrl(props.displayPackageInfo.url);
+            }}
+            hidden={!props.displayPackageInfo.url}
+            icon={<OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />}
+          />
         }
       />
     );

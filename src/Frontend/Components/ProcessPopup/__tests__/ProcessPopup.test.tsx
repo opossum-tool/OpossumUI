@@ -32,7 +32,6 @@ const electronAPI: {
 
 describe('ProcessPopup', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
     electronAPI.events = {};
     global.window.electronAPI = electronAPI as unknown as ElectronAPI;
   });

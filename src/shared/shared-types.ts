@@ -278,6 +278,8 @@ export interface UserSettings {
   qaMode: boolean;
 }
 
-export type SignalWithCount = PackageInfo & {
+export type AutocompleteSignal = DisplayPackageInfo & {
   count?: number;
+  suffix?: string;
+  default?: boolean;
 };

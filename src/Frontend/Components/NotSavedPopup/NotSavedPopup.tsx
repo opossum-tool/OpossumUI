@@ -6,10 +6,10 @@ import { ReactElement } from 'react';
 
 import { ButtonText, View } from '../../enums/enums';
 import {
-  checkIfWasPreferredAndShowWarningOrUnlinkAndSave,
-  checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave,
+  checkIfPreferredStatusChangedAndShowWarningOrSave,
   closePopupAndUnsetTargets,
   navigateToTargetResourceOrAttributionOrOpenFileDialog,
+  unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled,
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -39,11 +39,13 @@ export function NotSavedPopup(): ReactElement {
     );
 
   function handleSaveClick(): void {
-    dispatch(checkIfWasPreferredAndShowWarningOrUnlinkAndSave());
+    dispatch(
+      unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
+    );
   }
 
   function handleSaveGloballyClick(): void {
-    dispatch(checkIfWasPreferredOrPreferredStatusChangedAndShowWarningOrSave());
+    dispatch(checkIfPreferredStatusChangedAndShowWarningOrSave());
   }
 
   function handleDiscardClick(): void {

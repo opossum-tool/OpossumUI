@@ -9,6 +9,8 @@ module.exports = {
   transformIgnorePatterns: ['/node_modules/(?!d3-*|internmap|axios)'],
   setupFilesAfterEnv: ['./src/shared/setupTests.ts'],
   watchAll: false,
+  clearMocks: true,
+  setupFiles: ['whatwg-fetch'],
   roots: ['<rootDir>/src/Frontend', '<rootDir>/src/ElectronBackend'],
   modulePathIgnorePatterns: ['<rootDir>/build/'],
   watchPlugins: [

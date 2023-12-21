@@ -5,9 +5,9 @@
 import { compact, orderBy } from 'lodash';
 
 import {
+  AutocompleteSignal,
   ExternalAttributionSources,
   PackageInfo,
-  SignalWithCount,
 } from '../../../shared/shared-types';
 import {
   getContainedExternalPackages,
@@ -57,8 +57,8 @@ export function getAutocompleteSignals({
     ...signalsOnResource,
     ...signalsOnChildren,
     ...attributionsOnChildren,
-  ].reduce<Array<SignalWithCount>>((acc, signal) => {
-    if (!generatePurl(signal)) {
+  ].reduce<Array<AutocompleteSignal>>((acc, { comment, ...signal }) => {
+    if (!generatePurl(signal) || signal.preferred) {
       return acc;
     }
 
@@ -67,16 +67,16 @@ export function getAutocompleteSignals({
 
     if (dupeIndex === -1) {
       acc.push({
+        attributionIds: [],
         count: 1,
+        comments: comment ? [comment] : undefined,
         ...signal,
       });
     } else {
       acc[dupeIndex] = {
         ...acc[dupeIndex],
         count: (acc[dupeIndex].count ?? 0) + 1,
-        preferred: acc[dupeIndex].preferred || signal.preferred,
         wasPreferred: acc[dupeIndex].wasPreferred || signal.wasPreferred,
-        preSelected: acc[dupeIndex].preSelected || signal.preSelected,
       };
     }
 
@@ -87,10 +87,9 @@ export function getAutocompleteSignals({
     signals,
     [
       ({ source }) => (source && sources[source.name])?.priority ?? 0,
-      ({ preferred }) => (preferred ? 1 : 0),
       ({ wasPreferred }) => (wasPreferred ? 1 : 0),
       ({ count }) => count ?? 0,
     ],
-    ['desc', 'desc', 'desc', 'desc'],
+    ['desc', 'desc', 'desc'],
   );
 }

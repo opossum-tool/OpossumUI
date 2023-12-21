@@ -2964,6 +2964,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/eslint-plugin-query@npm:^5.12.1":
+  version: 5.12.1
+  resolution: "@tanstack/eslint-plugin-query@npm:5.12.1"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^5.54.0"
+  peerDependencies:
+    eslint: ^8.0.0
+  checksum: 91b5c61e7154a4c51dc8d2863f18708a33aa98e3b8f46b792db3d864f5e169552b201b3ffbed3fbc2bfedb3abde6830601fc004293eb8c0a2258956ad2727d2f
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:5.14.2":
   version: 5.14.2
   resolution: "@tanstack/query-core@npm:5.14.2"
@@ -3698,7 +3709,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:^5.10.0, @typescript-eslint/utils@npm:^5.58.0":
+"@typescript-eslint/utils@npm:^5.10.0, @typescript-eslint/utils@npm:^5.54.0, @typescript-eslint/utils@npm:^5.58.0":
   version: 5.62.0
   resolution: "@typescript-eslint/utils@npm:5.62.0"
   dependencies:
@@ -4841,6 +4852,13 @@ __metadata:
   version: 0.1.2
   resolution: "compare-version@npm:0.1.2"
   checksum: 0ceaf50b5f912c8eb8eeca19375e617209d200abebd771e9306510166462e6f91ad764f33f210a3058ee27c83f2f001a7a4ca32f509da2d207d0143a3438a020
+  languageName: node
+  linkType: hard
+
+"compare-versions@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "compare-versions@npm:6.1.0"
+  checksum: 20f349e7f8ad784704c68265f4e660e2abbe2c3d5c75793184fccb85f0c5c0263260e01fdd4488376f6b74b0f069e16c9684463f7316b075716fb1581eb36b77
   languageName: node
   linkType: hard
 
@@ -9218,6 +9236,7 @@ __metadata:
     "@mui/system": "npm:^5.15.1"
     "@playwright/test": "npm:^1.40.1"
     "@reduxjs/toolkit": "npm:^2.0.1"
+    "@tanstack/eslint-plugin-query": "npm:^5.12.1"
     "@tanstack/react-query": "npm:^5.14.2"
     "@testing-library/dom": "npm:^9.3.3"
     "@testing-library/jest-dom": "npm:^6.1.5"
@@ -9244,6 +9263,7 @@ __metadata:
     babel-jest: "npm:^29.7.0"
     babel-plugin-transform-import-meta: "npm:^2.2.1"
     buffer: "npm:^6.0.3"
+    compare-versions: "npm:^6.1.0"
     cross-env: "npm:^7.0.3"
     dayjs: "npm:^1.11.10"
     dotenv: "npm:^16.3.1"
@@ -9281,7 +9301,6 @@ __metadata:
     packageurl-js: "npm:^1.2.1"
     prettier: "npm:^3.1.1"
     prettier-plugin-sh: "npm:^0.13.1"
-    prop-types: "npm:^15.8.1"
     proxy-memoize: "npm:^2.0.4"
     re-resizable: "npm:^6.9.11"
     react: "npm:^18.2.0"
@@ -9302,6 +9321,7 @@ __metadata:
     vite-plugin-electron: "npm:^0.15.5"
     vite-plugin-svgr: "npm:^4.2.0"
     vite-tsconfig-paths: "npm:^4.2.2"
+    whatwg-fetch: "npm:^3.6.19"
   languageName: unknown
   linkType: soft
 
@@ -11765,6 +11785,13 @@ __metadata:
   dependencies:
     iconv-lite: "npm:0.6.3"
   checksum: 162d712d88fd134a4fe587e53302da812eb4215a1baa4c394dfd86eff31d0a079ff932c05233857997de07481093358d6e7587997358f49b8a580a777be22089
+  languageName: node
+  linkType: hard
+
+"whatwg-fetch@npm:^3.6.19":
+  version: 3.6.19
+  resolution: "whatwg-fetch@npm:3.6.19"
+  checksum: 257b130a06bc0fca4e3f15cb4a7b7822d12b7493c6743353e3a107b62ef2716f77fae35b4c81b4b8630e221aca30ea5b9770969db762d63336108f57bee9f963
   languageName: node
   linkType: hard
 

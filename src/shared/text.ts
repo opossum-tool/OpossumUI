@@ -8,10 +8,6 @@ export const text = {
     packageSubPanel: {
       confidence: 'Confidence',
       copyToClipboard: 'Copy to clipboard',
-      fetchPackageInfo: 'Fetch package information',
-      fetchPackageInfoNotPossible:
-        'Fetching package information is not possible. Please enter a valid URL with one of the following domains: pypi.org, npmjs.com, github.com.',
-      fetching: 'Fetching...',
       noLinkToOpen: 'No link to open. Please enter a URL.',
       openLinkInBrowser: 'Open repository URL in browser',
       packageName: 'Package Name',
@@ -26,6 +22,7 @@ export const text = {
     amongSignals: 'among signals',
     commonEcosystems: 'Common Ecosystems',
     commonLicenses: 'Common Licenses',
+    openSourceInsights: 'Open Source Insights',
     legalInformation: 'Legal Information',
     licenseName: 'License Name',
     licenseTextModified: '(License text modified)',
@@ -35,11 +32,20 @@ export const text = {
     useAutocompleteSuggestion:
       'Adopt all coordinates and legal information from suggestion',
     originallyFrom: 'Originally from ',
+    invalidPurl: 'INVALID PURL',
+    description: 'Description',
+    homepage: 'Homepage',
+    origin: 'Origin',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
     unmarkAsPreferred:
       'Do you really want to remove the preferred status globally?',
+  },
+  modifyWasPreferredPopup: {
+    header: 'Warning',
+    message:
+      'You are about to modify an attribution that was preferred in the past. Are you sure you want to continue? The attribution will no longer be marked with a',
   },
   processPopup: {
     title: 'Processing…',

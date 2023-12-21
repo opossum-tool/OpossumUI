@@ -4,33 +4,40 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import ExploreIcon from '@mui/icons-material/Explore';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import StarIcon from '@mui/icons-material/Star';
-import { styled } from '@mui/material';
+import { createFilterOptions, styled } from '@mui/material';
 import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
 import { compact } from 'lodash';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { PackageInfo, SignalWithCount } from '../../../shared/shared-types';
+import {
+  AutocompleteSignal,
+  DisplayPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { baseIcon, OpossumColors } from '../../shared-styles';
+import { baseIcon, clickableIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { savePackageInfo } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getAttributionIdOfDisplayedPackageInManualPanel,
   getExternalAttributionSources,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
+import { omit, pick } from '../../util/lodash-extension-utils';
 import { maybePluralize } from '../../util/maybe-pluralize';
+import { openUrl } from '../../util/open-url';
+import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
+import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { IconButton } from '../IconButton/IconButton';
 
 type AutocompleteAttribute = Extract<
   keyof PackageInfo,
@@ -47,9 +54,10 @@ interface Props {
   attribute: AutocompleteAttribute;
   highlight?: 'default' | 'dark';
   endAdornment?: React.ReactElement;
-  defaults?: Array<SignalWithCount>;
+  defaults?: Array<AutocompleteSignal>;
   disabled: boolean;
   showHighlight: boolean | undefined;
+  confirmEditWasPreferred: Confirm;
 }
 
 const Badge = styled(MuiBadge)({
@@ -60,23 +68,30 @@ const Badge = styled(MuiBadge)({
   },
 });
 
+const AddIconButton = styled(MuiIconButton)({
+  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+  marginLeft: '8px',
+  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.1)' },
+});
+
 export function PackageAutocomplete({
   attribute,
   title,
-  highlight,
+  highlight = 'default',
   endAdornment,
   defaults = [],
   disabled,
   showHighlight,
+  confirmEditWasPreferred,
 }: Props) {
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
-  const resourceId = useAppSelector(getSelectedResourceId);
-  const attributionIdOfSelectedPackageInManualPanel = useAppSelector(
-    getAttributionIdOfDisplayedPackageInManualPanel,
-  );
+  const attributeValue = temporaryPackageInfo[attribute] || '';
+  const [inputValue, setInputValue] = useState(attributeValue);
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
+
+  const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
   const autocompleteSignals = useAutocompleteSignals();
   const filteredSignals = useMemo(
@@ -85,9 +100,15 @@ export function PackageAutocomplete({
         ? autocompleteSignals
             .filter((signal) => !['', undefined].includes(signal[attribute]))
             .concat(defaults)
-        : [],
+        : defaults,
     [isAuditView, autocompleteSignals, defaults, attribute],
   );
+
+  useEffect(() => {
+    if (attributeValue !== inputValue) {
+      setInputValue(attributeValue);
+    }
+  }, [attributeValue, inputValue]);
 
   return (
     <Autocomplete
@@ -96,6 +117,7 @@ export function PackageAutocomplete({
       autoHighlight
       disableClearable
       freeSolo
+      inputValue={inputValue}
       highlight={
         showHighlight &&
         isImportantAttributionInformationMissing(
@@ -121,7 +143,13 @@ export function PackageAutocomplete({
       }
       renderOptionStartIcon={renderOptionStartIcon}
       renderOptionEndIcon={renderOptionEndIcon}
-      value={temporaryPackageInfo as SignalWithCount}
+      value={temporaryPackageInfo}
+      filterOptions={createFilterOptions({
+        stringify: (option) =>
+          attribute === 'packageName'
+            ? `${option.packageName || ''}${option.packageNamespace || ''}`
+            : option[attribute] || '',
+      })}
       isOptionEqualToValue={(option, value) =>
         option[attribute] === value[attribute]
       }
@@ -130,34 +158,59 @@ export function PackageAutocomplete({
           ? sources[option.source.name]?.name || option.source.name
           : text.attributionColumn.manualAttributions
       }
-      groupIcon={
-        <ExploreIcon
-          sx={{
-            ...baseIcon,
-            color: `${OpossumColors.black} !important`,
-          }}
-        />
-      }
+      groupProps={{
+        icon: () => (
+          <ExploreIcon
+            sx={{
+              ...baseIcon,
+              color: `${OpossumColors.black} !important`,
+            }}
+          />
+        ),
+        action: ({ name }) => (
+          <IconButton
+            hidden={name !== text.attributionColumn.openSourceInsights}
+            onClick={() => openUrl('https://www.deps.dev')}
+            icon={<OpenInNewIcon sx={clickableIcon} />}
+          />
+        ),
+      }}
       optionText={{
-        primary: (option) =>
-          typeof option === 'string' ? option : option[attribute],
+        primary: (option) => {
+          if (typeof option === 'string') {
+            return option;
+          }
+
+          const optionValue = option[attribute];
+
+          if (!optionValue) {
+            return '';
+          }
+
+          return `${optionValue} ${option.suffix || ''}`.trim();
+        },
         secondary: (option) =>
           typeof option === 'string' ? option : generatePurl(option),
       }}
-      onInputChange={(_, value) => {
+      onInputChange={(event, value) =>
+        event &&
         temporaryPackageInfo[attribute] !== value &&
+        confirmEditWasPreferred(() => {
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...temporaryPackageInfo,
               [attribute]: value,
+              wasPreferred: undefined,
             }),
           );
-      }}
+          setInputValue(value);
+        })
+      }
       endAdornment={endAdornment}
     />
   );
 
-  function renderOptionStartIcon(option: SignalWithCount) {
+  function renderOptionStartIcon(option: AutocompleteSignal) {
     if (!option.count) {
       return null;
     }
@@ -174,11 +227,12 @@ export function PackageAutocomplete({
           showStar
             ? `${baseTitle} (${
                 option.preferred
-                  ? text.auditingOptions.currentlyPreferred
-                  : text.auditingOptions.previouslyPreferred
+                  ? text.auditingOptions.currentlyPreferred.toLowerCase()
+                  : text.auditingOptions.previouslyPreferred.toLowerCase()
               })`
             : baseTitle
         }
+        enterDelay={500}
       >
         <Badge
           badgeContent={
@@ -205,7 +259,7 @@ export function PackageAutocomplete({
   }
 
   function renderOptionEndIcon(
-    { preSelected, ...option }: PackageInfo,
+    option: AutocompleteSignal,
     { closePopper }: { closePopper: () => void },
   ) {
     if (!option.packageName || !option.packageType) {
@@ -215,18 +269,31 @@ export function PackageAutocomplete({
     return (
       <MuiTooltip
         title={text.attributionColumn.useAutocompleteSuggestion}
+        enterDelay={1000}
         disableInteractive
       >
-        <MuiIconButton
-          onClick={(event) => {
+        <AddIconButton
+          onClick={async (event) => {
             event.stopPropagation();
+            const merged: DisplayPackageInfo = {
+              ...omit(option, [
+                'count',
+                'default',
+                'preSelected',
+                'source',
+                'suffix',
+              ]),
+              ...pick(temporaryPackageInfo, [
+                'attributionConfidence',
+                'excludeFromNotice',
+                'followUp',
+                'needsReview',
+                'preferred',
+              ]),
+            };
             dispatch(
-              savePackageInfo(
-                resourceId,
-                attributionIdOfSelectedPackageInManualPanel,
-                option,
-                undefined,
-                true,
+              setTemporaryDisplayPackageInfo(
+                (option.default && (await enrichPackageInfo(merged))) || merged,
               ),
             );
             closePopper();
@@ -234,7 +301,7 @@ export function PackageAutocomplete({
           size={'small'}
         >
           <AddIcon fontSize={'inherit'} color={'primary'} />
-        </MuiIconButton>
+        </AddIconButton>
       </MuiTooltip>
     );
   }
