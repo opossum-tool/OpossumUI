@@ -24,6 +24,7 @@ playwright-report
 # release
 /dist-electron
 /release
+opossum-ui.spdx.json
 
 # misc
 .DS_Store
