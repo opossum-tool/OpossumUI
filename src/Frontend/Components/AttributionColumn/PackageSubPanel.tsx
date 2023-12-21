@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -15,6 +16,7 @@ import {
   DisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -25,6 +27,7 @@ import { useDebouncedInput } from '../../util/use-debounced-input';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
 import { TextBox } from '../InputElements/TextBox';
+import { toast } from '../Toaster';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -72,7 +75,12 @@ interface PackageSubPanelProps {
   confirmEditWasPreferred: Confirm;
 }
 
-export function PackageSubPanel(props: PackageSubPanelProps) {
+export function PackageSubPanel({
+  confirmEditWasPreferred,
+  displayPackageInfo,
+  isEditable,
+  showHighlight,
+}: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
     () =>
@@ -88,7 +96,7 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     [],
   );
 
-  const debouncedPackageInfo = useDebouncedInput(props.displayPackageInfo);
+  const debouncedPackageInfo = useDebouncedInput(displayPackageInfo);
 
   const { packageNames } =
     PackageSearchHooks.usePackageNames(debouncedPackageInfo);
@@ -96,6 +104,9 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
     PackageSearchHooks.usePackageNamespaces(debouncedPackageInfo);
   const { packageVersions } =
     PackageSearchHooks.usePackageVersions(debouncedPackageInfo);
+  const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo({
+    showToasts: true,
+  });
 
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
@@ -118,10 +129,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         attribute={'packageName'}
         title={text.attributionColumn.packageSubPanel.packageName}
         highlight={'dark'}
-        disabled={!props.isEditable}
-        showHighlight={props.showHighlight}
+        disabled={!isEditable}
+        showHighlight={showHighlight}
         defaults={packageNames}
-        confirmEditWasPreferred={props.confirmEditWasPreferred}
+        confirmEditWasPreferred={confirmEditWasPreferred}
       />
     );
   }
@@ -132,10 +143,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         attribute={'packageNamespace'}
         title={text.attributionColumn.packageSubPanel.packageNamespace}
         highlight={'dark'}
-        disabled={!props.isEditable}
-        showHighlight={props.showHighlight}
+        disabled={!isEditable}
+        showHighlight={showHighlight}
         defaults={packageNamespaces}
-        confirmEditWasPreferred={props.confirmEditWasPreferred}
+        confirmEditWasPreferred={confirmEditWasPreferred}
       />
     );
   }
@@ -145,10 +156,10 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
       <PackageAutocomplete
         attribute={'packageVersion'}
         title={text.attributionColumn.packageSubPanel.packageVersion}
-        disabled={!props.isEditable}
-        showHighlight={props.showHighlight}
+        disabled={!isEditable}
+        showHighlight={showHighlight}
         defaults={packageVersions}
-        confirmEditWasPreferred={props.confirmEditWasPreferred}
+        confirmEditWasPreferred={confirmEditWasPreferred}
       />
     );
   }
@@ -159,30 +170,16 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         attribute={'packageType'}
         title={text.attributionColumn.packageSubPanel.packageType}
         highlight={'dark'}
-        disabled={!props.isEditable}
-        showHighlight={props.showHighlight}
+        disabled={!isEditable}
+        showHighlight={showHighlight}
         defaults={defaultPackageTypes}
-        confirmEditWasPreferred={props.confirmEditWasPreferred}
+        confirmEditWasPreferred={confirmEditWasPreferred}
       />
     );
   }
 
   function renderPurl(): React.ReactElement {
-    const purl = generatePurl(props.displayPackageInfo);
-    const pasteFromClipboard = async () => {
-      const parsedPurl = parsePurl(await navigator.clipboard.readText());
-      if (parsedPurl) {
-        dispatch(
-          setTemporaryDisplayPackageInfo({
-            ...props.displayPackageInfo,
-            packageName: parsedPurl.name,
-            packageVersion: parsedPurl.version ?? undefined,
-            packageType: parsedPurl.type,
-            packageNamespace: parsedPurl.namespace ?? undefined,
-          }),
-        );
-      }
-    };
+    const purl = generatePurl(displayPackageInfo);
 
     return (
       <TextBox
@@ -192,32 +189,51 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
         isEditable={false}
         endIcon={
           <>
-            {!!purl && (
-              <IconButton
-                tooltipTitle={
-                  text.attributionColumn.packageSubPanel.copyToClipboard
+            <IconButton
+              tooltipTitle={
+                text.attributionColumn.packageSubPanel.copyToClipboard
+              }
+              tooltipPlacement="left"
+              onClick={async () => {
+                await navigator.clipboard.writeText(purl);
+                toast.success(text.attributionColumn.copyToClipboardSuccess);
+              }}
+              icon={<ContentCopyIcon sx={clickableIcon} />}
+              hidden={!purl}
+              aria-label={
+                text.attributionColumn.packageSubPanel.copyToClipboard
+              }
+            />
+            <IconButton
+              tooltipTitle={
+                text.attributionColumn.packageSubPanel.pasteFromClipboard
+              }
+              hidden={!isEditable}
+              tooltipPlacement="left"
+              onClick={async () => {
+                const parsedPurl = parsePurl(
+                  await navigator.clipboard.readText(),
+                );
+                if (parsedPurl) {
+                  dispatch(
+                    setTemporaryDisplayPackageInfo({
+                      ...EMPTY_DISPLAY_PACKAGE_INFO,
+                      packageName: parsedPurl.name,
+                      packageVersion: parsedPurl.version ?? undefined,
+                      packageType: parsedPurl.type,
+                      packageNamespace: parsedPurl.namespace ?? undefined,
+                    }),
+                  );
+                  toast.success(text.attributionColumn.copyToClipboardSuccess);
+                } else {
+                  toast.error(text.attributionColumn.pasteFromClipboardFailed);
                 }
-                tooltipPlacement="left"
-                onClick={() => navigator.clipboard.writeText(purl)}
-                icon={<ContentCopyIcon sx={clickableIcon} />}
-                aria-label={
-                  text.attributionColumn.packageSubPanel.copyToClipboard
-                }
-              />
-            )}
-            {props.isEditable && (
-              <IconButton
-                tooltipTitle={
-                  text.attributionColumn.packageSubPanel.pasteFromClipboard
-                }
-                tooltipPlacement="left"
-                onClick={pasteFromClipboard}
-                icon={<ContentPasteIcon sx={clickableIcon} />}
-                aria-label={
-                  text.attributionColumn.packageSubPanel.pasteFromClipboard
-                }
-              />
-            )}
+              }}
+              icon={<ContentPasteIcon sx={clickableIcon} />}
+              aria-label={
+                text.attributionColumn.packageSubPanel.pasteFromClipboard
+              }
+            />
           </>
         }
       />
@@ -229,22 +245,48 @@ export function PackageSubPanel(props: PackageSubPanelProps) {
       <PackageAutocomplete
         attribute={'url'}
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
-        disabled={!props.isEditable}
-        showHighlight={props.showHighlight}
-        confirmEditWasPreferred={props.confirmEditWasPreferred}
+        disabled={!isEditable}
+        showHighlight={showHighlight}
+        confirmEditWasPreferred={confirmEditWasPreferred}
         endAdornment={
-          <IconButton
-            tooltipTitle={
-              text.attributionColumn.packageSubPanel.openLinkInBrowser
-            }
-            tooltipPlacement="right"
-            onClick={(): void => {
-              props.displayPackageInfo.url &&
-                openUrl(props.displayPackageInfo.url);
-            }}
-            hidden={!props.displayPackageInfo.url}
-            icon={<OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />}
-          />
+          <>
+            <IconButton
+              tooltipTitle={text.attributionColumn.getUrlAndLegal}
+              tooltipPlacement={'left'}
+              hidden={
+                !displayPackageInfo.packageName ||
+                !displayPackageInfo.packageType ||
+                !!(
+                  displayPackageInfo.url &&
+                  displayPackageInfo.copyright &&
+                  displayPackageInfo.licenseName
+                )
+              }
+              onClick={() =>
+                confirmEditWasPreferred(async () => {
+                  const enriched = await enrichPackageInfo({
+                    ...displayPackageInfo,
+                    wasPreferred: undefined,
+                  });
+                  if (enriched) {
+                    dispatch(setTemporaryDisplayPackageInfo(enriched));
+                  }
+                })
+              }
+              icon={<AutoFixHighIcon sx={clickableIcon} />}
+            />
+            <IconButton
+              tooltipTitle={
+                text.attributionColumn.packageSubPanel.openLinkInBrowser
+              }
+              tooltipPlacement={'left'}
+              onClick={() => openUrl(displayPackageInfo.url)}
+              hidden={!displayPackageInfo.url}
+              icon={
+                <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
+              }
+            />
+          </>
         }
       />
     );

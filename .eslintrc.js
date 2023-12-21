@@ -59,8 +59,16 @@ const sharedRules = {
   'no-restricted-imports': [
     'error',
     {
-      name: '@faker-js/faker',
-      message: 'Please use shared faker instead.',
+      paths: [
+        {
+          name: '@faker-js/faker',
+          message: 'Please use shared faker instead.',
+        },
+        {
+          name: 'react-hot-toast',
+          message: 'Please use toast from Toaster instead.',
+        },
+      ],
     },
   ],
   'no-return-assign': 'error',

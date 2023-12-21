@@ -6,11 +6,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-import { ReactElement, StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { Provider } from 'react-redux';
 
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
+import { Toaster } from '../Toaster/Toaster';
 
 dayjs.extend(localizedFormat);
 
@@ -19,12 +20,13 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: false } },
 });
 
-export function AppContainer(): ReactElement {
+export function AppContainer() {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <StrictMode>
           <App />
+          <Toaster />
         </StrictMode>
       </QueryClientProvider>
     </Provider>

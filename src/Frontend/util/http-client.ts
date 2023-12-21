@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { text } from '../../shared/text';
 
 export interface RequestProps {
   baseUrl: string;
@@ -10,16 +11,18 @@ export interface RequestProps {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   params?: Record<string, string | number | undefined>;
   path?: string;
+  throwForStatus?: boolean;
 }
 
 export class HttpClient {
-  public request({
+  public async request({
     baseUrl,
     body,
     headers,
     method = 'GET',
     params = {},
     path,
+    throwForStatus = true,
   }: RequestProps): Promise<Response> {
     const url = path ? new URL(path, baseUrl) : new URL(baseUrl);
 
@@ -29,6 +32,18 @@ export class HttpClient {
       }
     });
 
-    return fetch(url, { method, headers, body: JSON.stringify(body) });
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok && throwForStatus) {
+      throw new Error(
+        `${response.status}(${response.statusText || text.errors.unknown})`,
+      );
+    }
+
+    return response;
   }
 }

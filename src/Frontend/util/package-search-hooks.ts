@@ -3,8 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { isEqual } from 'lodash';
 
 import { DisplayPackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
+import { toast } from '../Components/Toaster';
 import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
@@ -88,14 +91,28 @@ function usePackageVersions({
   };
 }
 
-function useEnrichPackageInfo() {
+function useEnrichPackageInfo({ showToasts }: { showToasts?: boolean } = {}) {
   const { mutateAsync, error, isPending } = useMutation({
-    mutationFn: (props: DisplayPackageInfo) =>
-      PackageSearchApi.enrichPackageInfo(props),
+    onError: showToasts
+      ? () => toast.error(text.attributionColumn.enrichFailure)
+      : undefined,
+    mutationFn: (packageInfo: DisplayPackageInfo) =>
+      PackageSearchApi.enrichPackageInfo(packageInfo),
   });
 
   return {
-    enrichPackageInfo: tryit(mutateAsync),
+    enrichPackageInfo: (packageInfo: DisplayPackageInfo) =>
+      tryit(mutateAsync)(packageInfo, {
+        onSuccess: showToasts
+          ? (result) => {
+              if (isEqual(packageInfo, result)) {
+                toast.info(text.attributionColumn.enrichNoop);
+              } else {
+                toast.success(text.attributionColumn.enrichSuccess);
+              }
+            }
+          : undefined,
+      }),
     enrichPackageInfoError: error,
     enrichPackageInfoLoading: isPending,
   };

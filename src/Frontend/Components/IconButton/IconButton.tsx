@@ -30,7 +30,7 @@ export function IconButton(props: IconButtonProps) {
       disableInteractive
       title={props.tooltipTitle}
       placement={props.tooltipPlacement}
-      enterDelay={1200}
+      enterDelay={1000}
     >
       <MuiBox component="span" sx={props.containerSx}>
         <MuiButtonBase
