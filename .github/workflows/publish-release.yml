@@ -51,4 +51,4 @@ jobs:
       - name: Upload SPDX document
         uses: softprops/action-gh-release@v1
         with:
-          files: opossum-up.spdx.json
+          files: opossum-ui.spdx.json
