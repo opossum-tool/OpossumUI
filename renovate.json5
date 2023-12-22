@@ -74,6 +74,12 @@
       automerge: true,
     },
     {
+      matchPackagePrefixes: ['@commitlint/'],
+      groupName: 'commitlint dependencies',
+      groupSlug: 'commitlint',
+      automerge: true,
+    },
+    {
       matchPackagePrefixes: ['@mui/'],
       groupName: 'MUI dependencies',
       groupSlug: 'mui',

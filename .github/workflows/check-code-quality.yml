@@ -19,8 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
+    env:
+      TARGET_BRANCH: origin/${{ github.event_name == 'pull_request' && github.base_ref || 'main' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -30,6 +34,8 @@ jobs:
       - run: yarn install --immutable
 
       - run: yarn format-check
+
+      - run: yarn lint-commits
 
       - run: yarn lint-check
 
