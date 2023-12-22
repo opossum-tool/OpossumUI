@@ -13,7 +13,7 @@ type RelevantDisplayPackageInfoAttributes =
   | 'url';
 
 const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES: Array<RelevantDisplayPackageInfoAttributes> =
-  ['packageName', 'copyright', 'licenseName', 'licenseText', 'comments', 'url'];
+  ['packageName', 'licenseName', 'copyright', 'licenseText', 'comments', 'url'];
 
 const FIRST_PARTY_TEXT = 'First party';
 
