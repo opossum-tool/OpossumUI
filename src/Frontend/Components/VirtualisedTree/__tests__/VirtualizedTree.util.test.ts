@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { NodesForTree } from '../types';
 import {
   getNodeIdsToExpand,
   isBreakpointOrChildOfBreakpoint,
   isChildOfSelected,
   isLocated,
   isSelected,
-} from '../utils/get-tree-node-props';
+  NodesForTree,
+} from '../VirtualizedTree.util';
 
 describe('renderTree', () => {
   it('isSelected works as expected', () => {

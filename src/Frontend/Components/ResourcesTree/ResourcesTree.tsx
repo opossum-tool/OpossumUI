@@ -7,7 +7,6 @@ import { remove } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 
 import { Resources } from '../../../shared/shared-types';
-import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import {
   TREE_ROOT_FOLDER_LABEL,
   TREE_ROW_HEIGHT,
@@ -22,6 +21,7 @@ import {
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
+import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
 import { getGeneralTreeItemLabel } from './get-general-tree-item-label';
 import {
   getInitialExpandedIds,

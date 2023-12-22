@@ -8,7 +8,6 @@ import { ReactElement } from 'react';
 
 import { Resources } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
-import { VirtualizedTree } from '../../extracted/VirtualisedTree/VirtualizedTree';
 import {
   OpossumColors,
   TREE_ROOT_FOLDER_LABEL,
@@ -41,6 +40,7 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { IconButton } from '../IconButton/IconButton';
 import { LocateSignalsIcon } from '../Icons/Icons';
+import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
 import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-item-label';
 
 const classes = {

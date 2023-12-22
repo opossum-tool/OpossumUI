@@ -8,13 +8,13 @@ import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
 
-import { NodeIcon } from './Icons';
-import { NodesForTree, TreeNodeStyle } from './types';
 import {
   isBreakpointOrChildOfBreakpoint,
   isChildOfSelected,
   isSelected,
-} from './utils/get-tree-node-props';
+  NodesForTree,
+  TreeNodeStyle,
+} from '../VirtualizedTree.util';
 
 const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_NODE_EXTRA_INDENT = 28;
@@ -117,12 +117,14 @@ function getExpandableNodeIcon(
   const ariaLabel = isExpandedNode ? `collapse ${nodeId}` : `expand ${nodeId}`;
   const icon = isExpandedNode ? expandedNodeIcon : nonExpandedNodeIcon;
   return (
-    <NodeIcon
-      onClick={(): void => {
+    <MuiBox
+      onClick={(event): void => {
+        event.stopPropagation();
         onToggle(nodeIdsToExpand);
       }}
-      ariaLabel={ariaLabel}
-      icon={icon}
-    />
+      aria-label={ariaLabel}
+    >
+      {icon}
+    </MuiBox>
   );
 }
