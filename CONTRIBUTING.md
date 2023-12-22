@@ -15,21 +15,42 @@ Contributions are very welcome. The following will provide some helpful guidelin
 
 Each commit should be atomic and pass all tests. Logically unrelated changes should not be gathered in one commit.
 
-Commit messages should be clear and fully elaborate the context and the reason for a change. The first line should
-contain a brief imperative summary starting with a capitalized character and be followed by a more detailed
-explanatory text separated by an empty line. If your commit refers to an issue, please post-fix it with the
-issue number.
+We use [conventional commits](https://www.conventionalcommits.org/) of the following form:
+
+```txt
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+where `<type>` is one of
+
+```txt
+[
+  'build',
+  'chore',
+  'ci',
+  'docs',
+  'feat',
+  'fix',
+  'perf',
+  'refactor',
+  'revert',
+  'style',
+  'test'
+]
+```
 
 Example:
 
 ```txt
-Short summary of changes (72 characters or less)
+fix: minor typos in code
 
-More detailed explanatory text, if necessary. This text can have
-several lines.
+see the issue for details on the typos fixed
 
-Issue: #123  (optional; if there is a related issue)
-Fix: #123  (optional; if the commit resolves the issue)
+fixes issue #12
 ```
 
 Furthermore, commits should be signed off according to the [DCO](DCO.md).

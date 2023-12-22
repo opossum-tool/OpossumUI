@@ -193,6 +193,6 @@ Contributions to the project are welcome. See [Contributing](CONTRIBUTING.md).
 
 ## Licensing
 
-OpossumUI is licensed under [Apache-2.0](LICENSE), documentation is licensed under CC0-1.0. For Contributions, we use
+OpossumUI is licensed under [Apache-2.0](LICENSE), documentation is licensed under CC0-1.0. For contributions, we use
 the Developer Certificate of Origin ([DCO](DCO.md)) process via sign-offs in every commit, to help ensure licensing
 criteria are met.
