@@ -206,54 +206,6 @@ test('displays and edits an existing attribution in attribution view', async ({
   await attributionDetails.assert.revertButtonIsDisabled();
 });
 
-test('allows user to edit an existing attribution in report view', async ({
-  attributionDetails,
-  editAttributionPopup,
-  reportView,
-  topBar,
-}) => {
-  const newPackageInfo = faker.opossum.manualPackageInfo({
-    comment: faker.lorem.sentences(),
-    licenseText: faker.lorem.sentences(),
-    attributionConfidence: packageInfo1.attributionConfidence,
-    packageType: undefined,
-  });
-  await topBar.gotoReportView();
-  await reportView.assert.matchesPackageInfo(packageInfo1);
-  await reportView.assert.matchesPackageInfo({
-    ...packageInfo2,
-    licenseText: license1.defaultText,
-  });
-
-  await reportView.editAttribution(packageInfo1);
-  await editAttributionPopup.assert.isVisible();
-  await editAttributionPopup.assert.saveButtonIsDisabled();
-  await attributionDetails.assert.licenseTextIsHidden();
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await attributionDetails.toggleLicenseTextVisibility();
-  await attributionDetails.assert.licenseTextIsVisible();
-
-  await attributionDetails.licenseText.fill(newPackageInfo.licenseText!);
-  await attributionDetails.assert.licenseTextIs(newPackageInfo.licenseText!);
-
-  await attributionDetails.toggleLicenseTextVisibility();
-  await attributionDetails.assert.licenseTextIsHidden();
-
-  await attributionDetails.name.fill(newPackageInfo.packageName!);
-  await attributionDetails.version.fill(newPackageInfo.packageVersion!);
-  await attributionDetails.url.fill(newPackageInfo.url!);
-  await attributionDetails.copyright.fill(newPackageInfo.copyright!);
-  await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
-  await attributionDetails.comment().fill(newPackageInfo.comment!);
-  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
-  await editAttributionPopup.assert.saveButtonIsEnabled();
-
-  await editAttributionPopup.saveButton.click();
-  await editAttributionPopup.assert.isHidden();
-  await reportView.assert.matchesPackageInfo(newPackageInfo);
-});
-
 test('warns user of unsaved changes if user attempts to navigate away before saving', async ({
   attributionDetails,
   attributionList,

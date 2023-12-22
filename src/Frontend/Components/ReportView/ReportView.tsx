@@ -9,10 +9,10 @@ import {
   Attributions,
   AttributionsToResources,
 } from '../../../shared/shared-types';
-import { PopupType } from '../../enums/enums';
+import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getFilesWithChildren,
@@ -50,8 +50,8 @@ export function ReportView(): ReactElement {
 
   function getOnIconClick(): (attributionId: string) => void {
     return (attributionId): void => {
-      dispatch(openPopup(PopupType.EditAttributionPopup, attributionId));
       dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
+      dispatch(navigateToView(View.Attribution));
     };
   }
 

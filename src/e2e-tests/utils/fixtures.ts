@@ -24,7 +24,6 @@ import { AttributionList } from '../page-objects/AttributionList';
 import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
 import { ConfirmationDialog } from '../page-objects/ConfirmationDialog';
 import { ConfirmationPopup } from '../page-objects/ConfirmationPopup';
-import { EditAttributionPopup } from '../page-objects/EditAttributionPopup';
 import { ErrorPopup } from '../page-objects/ErrorPopup';
 import { FileSearchPopup } from '../page-objects/FileSearchPopup';
 import { FileSupportPopup } from '../page-objects/FileSupportPopup';
@@ -60,7 +59,6 @@ export const test = base.extend<{
   changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
   confirmationDialog: ConfirmationDialog;
   confirmationPopup: ConfirmationPopup;
-  editAttributionPopup: EditAttributionPopup;
   errorPopup: ErrorPopup;
   fileSearchPopup: FileSearchPopup;
   fileSupportPopup: FileSupportPopup;
@@ -171,9 +169,6 @@ export const test = base.extend<{
   },
   notSavedPopup: async ({ window }, use) => {
     await use(new NotSavedPopup(window));
-  },
-  editAttributionPopup: async ({ window }, use) => {
-    await use(new EditAttributionPopup(window));
   },
 });
 

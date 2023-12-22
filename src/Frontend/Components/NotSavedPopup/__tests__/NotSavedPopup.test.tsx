@@ -13,7 +13,6 @@ import {
   setTargetSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import {
-  navigateToView,
   openPopup,
   setTargetView,
 } from '../../../state/actions/view-actions/view-actions';
@@ -85,20 +84,6 @@ describe('NotSavedPopup and do not change view', () => {
       EMPTY_DISPLAY_PACKAGE_INFO,
     );
     expect(isAuditViewSelected(store.getState())).toBe(true);
-  });
-
-  it('renders a NotSavedPopup and click cancel in Report view reopens EditAttribuionPopup', () => {
-    const { store } = renderComponent(<NotSavedPopup />, {
-      actions: [
-        navigateToView(View.Report),
-        openPopup(PopupType.EditAttributionPopup, 'test_selected_id'),
-        ...getActions(),
-      ],
-    });
-
-    expect(screen.getByText('There are unsaved changes.')).toBeInTheDocument();
-    fireEvent.click(screen.queryByText(ButtonText.Cancel) as Element);
-    expect(getOpenPopup(store.getState())).toBe(PopupType.EditAttributionPopup);
   });
 });
 
