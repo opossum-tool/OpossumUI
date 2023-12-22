@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { strToU8, zip } from 'fflate';
-import * as fs from 'node:fs/promises';
+import fs from 'fs';
 
 export const OPOSSUM_FILE_EXTENSION = '.opossum';
 export const INPUT_FILE_NAME = 'input.json';
@@ -17,9 +17,11 @@ export async function writeFile({
   content: string | object;
 }): Promise<string> {
   try {
-    await fs.writeFile(
+    await fs.promises.writeFile(
       path,
-      typeof content === 'string' ? content : JSON.stringify(content),
+      typeof content === 'string' || Buffer.isBuffer(content)
+        ? content
+        : JSON.stringify(content),
     );
     return path;
   } catch (error) {
@@ -69,7 +71,7 @@ export function writeOpossumFile({
         if (err) {
           reject(err);
         } else {
-          await fs.writeFile(path, data);
+          await fs.promises.writeFile(path, data);
 
           resolve(path);
         }

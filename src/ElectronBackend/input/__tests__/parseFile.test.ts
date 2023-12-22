@@ -2,15 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import fs from 'fs';
 import { cloneDeep, set } from 'lodash';
-import path from 'path';
-import upath from 'upath';
 import { NIL as uuidNil } from 'uuid';
 import zlib from 'zlib';
 
-import { writeOpossumFile } from '../../../shared/write-file';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
+import { faker } from '../../../shared/Faker';
+import { writeFile, writeOpossumFile } from '../../../shared/write-file';
 import {
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,
@@ -134,67 +131,38 @@ const correctParsedOuput: ParsedOpossumOutputFile = {
 };
 
 describe('parseOpossumFile', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
   it('reads a .opossum file with only input correctly', async () => {
-    const testInputContent = correctInput;
-    const temporaryPath: string = createTempFolder();
-    const opossumFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test.opossum',
-    );
-    await writeOpossumFile({
-      input: testInputContent,
-      path: opossumFilePath,
+    const opossumFilePath = await writeOpossumFile({
+      input: correctInput,
+      path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
     const parsingResult = (await parseOpossumFile(
       opossumFilePath,
     )) as ParsedOpossumInputAndOutput;
-    expect(parsingResult.input).toStrictEqual(testInputContent);
+    expect(parsingResult.input).toStrictEqual(correctInput);
     expect(parsingResult.output).toBeNull();
-
-    deleteFolder(temporaryPath);
   });
 
   it('reads a .opossum file with input and output correctly', async () => {
-    const testInputContent = correctInput;
-    const testOutputContent = correctOutput;
-    const temporaryPath: string = createTempFolder();
-    const opossumFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test.opossum',
-    );
-    await writeOpossumFile({
-      input: testInputContent,
-      output: testOutputContent,
-      path: opossumFilePath,
+    const opossumFilePath = await writeOpossumFile({
+      input: correctInput,
+      output: correctOutput,
+      path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
     const parsingResult = (await parseOpossumFile(
       opossumFilePath,
     )) as ParsedOpossumInputAndOutput;
-    expect(parsingResult.input).toStrictEqual(testInputContent);
+    expect(parsingResult.input).toStrictEqual(correctInput);
     expect(parsingResult.output).toStrictEqual(correctParsedOuput);
-
-    deleteFolder(temporaryPath);
   });
 
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
-    const testInputContent = corruptInput;
-    const testOutputContent = correctOutput;
-    const temporaryPath: string = createTempFolder();
-    const opossumFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'test.opossum',
-    );
-
-    await writeOpossumFile({
-      input: testInputContent,
-      output: testOutputContent,
-      path: opossumFilePath,
+    const opossumFilePath = await writeOpossumFile({
+      input: corruptInput,
+      output: correctOutput,
+      path: faker.outputPath(`${faker.string.uuid()}.opossum`),
     });
 
     const result = await parseOpossumFile(opossumFilePath);
@@ -202,27 +170,16 @@ describe('parseOpossumFile', () => {
       message: expect.any(String),
       type: 'jsonParsingError',
     });
-    deleteFolder(temporaryPath);
   });
 });
 
 describe('parseInputJsonFile', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
   it('reads an input.json file correctly', async () => {
-    const testFileContent = correctInput;
-    const temporaryPath: string = createTempFolder();
-    const resourcesPath = path.join(
-      upath.toUnix(temporaryPath),
-      'resources.json',
-    );
-    fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
+    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: correctInput, path: resourcesPath });
 
     const resources = await parseInputJsonFile(resourcesPath);
-    expect(resources).toStrictEqual(testFileContent);
-    deleteFolder(temporaryPath);
+    expect(resources).toStrictEqual(correctInput);
   });
 
   it('reads custom metadata correctly', async () => {
@@ -238,110 +195,78 @@ describe('parseInputJsonFile', () => {
         },
       },
     };
-    const temporaryPath: string = createTempFolder();
-    const resourcesPath = path.join(
-      upath.toUnix(temporaryPath),
-      'resources.json',
-    );
-    fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
+    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: testFileContent, path: resourcesPath });
 
     const resources = await parseInputJsonFile(resourcesPath);
 
     expect(resources).toStrictEqual(testFileContent);
-    deleteFolder(temporaryPath);
   });
 
   it('returns JSONParsingError on an incorrect Resource.json file', async () => {
-    const testFileContent = corruptInput;
-    const temporaryPath: string = createTempFolder();
-    const resourcesPath = path.join(
-      upath.toUnix(temporaryPath),
-      'resources.json',
-    );
-    fs.writeFileSync(resourcesPath, JSON.stringify(testFileContent));
+    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json`);
+    await writeFile({ content: corruptInput, path: resourcesPath });
 
     const result = await parseInputJsonFile(resourcesPath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
     });
-    deleteFolder(temporaryPath);
   });
 
   it('reads an input.json.gz file correctly', async () => {
-    const testFileContent = zlib.gzipSync(JSON.stringify(correctInput));
-    const temporaryPath: string = createTempFolder();
-    const resourcesPath = path.join(
-      upath.toUnix(temporaryPath),
-      'resources.json.gz',
-    );
-    fs.writeFileSync(resourcesPath, testFileContent);
+    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json.gz`);
+    await writeFile({
+      content: zlib.gzipSync(JSON.stringify(correctInput)),
+      path: resourcesPath,
+    });
 
     const resources = await parseInputJsonFile(resourcesPath);
     expect(resources).toStrictEqual(correctInput);
-    deleteFolder(temporaryPath);
   });
 
   it('returns JSONParsingError on an incorrect Resource.json.gz file', async () => {
-    const testFileContent = zlib.gzipSync(JSON.stringify(corruptInput));
-    const temporaryPath: string = createTempFolder();
-    const resourcesPath = path.join(
-      upath.toUnix(temporaryPath),
-      'resources.json.gz',
-    );
-    fs.writeFileSync(resourcesPath, testFileContent);
+    const resourcesPath = faker.outputPath(`${faker.string.uuid()}.json.gz`);
+    await writeFile({
+      content: zlib.gzipSync(JSON.stringify(corruptInput)),
+      path: resourcesPath,
+    });
 
     const result = await parseInputJsonFile(resourcesPath);
     expect(result).toEqual({
       message: expect.any(String),
       type: 'jsonParsingError',
     });
-    deleteFolder(temporaryPath);
   });
 });
 
 describe('parseOutputJsonFile', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
-  it('reads a correct file', () => {
-    const temporaryPath: string = createTempFolder();
-    const attributionPath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_attributions.json',
+  it('reads a correct file', async () => {
+    const attributionPath = faker.outputPath(
+      `${faker.string.uuid()}_attributions.json`,
     );
-    fs.writeFileSync(attributionPath, JSON.stringify(correctOutput));
+    await writeFile({ content: correctOutput, path: attributionPath });
 
     const attributions = parseOutputJsonFile(attributionPath);
 
     expect(attributions).toStrictEqual(correctParsedOuput);
-    deleteFolder(temporaryPath);
   });
 
-  it('throws when reading an incorrect file', () => {
-    const temporaryPath: string = createTempFolder();
-    const attributionPath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_attributions.json',
+  it('throws when reading an incorrect file', async () => {
+    const attributionPath = faker.outputPath(
+      `${faker.string.uuid()}_attributions.json`,
     );
-    fs.writeFileSync(
-      attributionPath,
-      JSON.stringify({ test: 'Invalid file.' }),
-    );
+    await writeFile({
+      content: { test: 'Invalid file.' },
+      path: attributionPath,
+    });
 
     expect(() => parseOutputJsonFile(attributionPath)).toThrow(
       `Error: ${attributionPath} contains an invalid output file.\n Original error message: instance requires property \"metadata\"`,
     );
-    deleteFolder(temporaryPath);
   });
 
-  it('tolerates an attribution file with wrong projectId', () => {
-    const temporaryPath: string = createTempFolder();
-    const attributionPath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_attributions.json',
-    );
+  it('tolerates an attribution file with wrong projectId', async () => {
     const fileContentWithWrongProjectId: OpossumOutputFile = set(
       cloneDeep(correctOutput),
       'metadata.projectId',
@@ -353,14 +278,16 @@ describe('parseOutputJsonFile', () => {
       'cff9095a-5c24-46e6-b84d-cc8596b17c58',
     );
 
-    fs.writeFileSync(
-      attributionPath,
-      JSON.stringify(fileContentWithWrongProjectId),
+    const attributionPath = faker.outputPath(
+      `${faker.string.uuid()}_attributions.json`,
     );
+    await writeFile({
+      content: fileContentWithWrongProjectId,
+      path: attributionPath,
+    });
 
     const attributions = parseOutputJsonFile(attributionPath);
 
     expect(attributions).toStrictEqual(parsedFileContentWithWrongProjectId);
-    deleteFolder(temporaryPath);
   });
 });

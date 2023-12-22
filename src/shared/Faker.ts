@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // eslint-disable-next-line no-restricted-imports
 import { base, en, Faker as NativeFaker } from '@faker-js/faker';
+import path from 'path';
 
 import type {
   RawPackageInfo as ExternalPackageInfo,
@@ -518,6 +519,10 @@ class PackageSearchModule {
 class Faker extends NativeFaker {
   public readonly opossum = OpossumModule;
   public readonly packageSearch = PackageSearchModule;
+
+  public outputPath(fileName: string): string {
+    return path.join('test-output', fileName);
+  }
 
   public httpClient(...body: Array<object>): HttpClient {
     const request = jest.fn();

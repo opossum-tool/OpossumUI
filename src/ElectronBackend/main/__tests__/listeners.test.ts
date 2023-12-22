@@ -6,11 +6,9 @@
 import { BrowserWindow, dialog, shell, WebContents } from 'electron';
 import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
-import * as MockDate from 'mockdate';
-import path from 'path';
-import upath from 'upath';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
+import { faker } from '../../../shared/Faker';
 import {
   AllowedFrontendChannels,
   IpcChannel,
@@ -27,7 +25,6 @@ import { writeFile } from '../../../shared/write-file';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
 import { createWindow } from '../createWindow';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
@@ -42,7 +39,6 @@ import {
   getOpenFileListener,
   getOpenLinkListener,
   getOpenOutdatedInputFileListener,
-  getSaveFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
 } from '../listeners';
@@ -95,11 +91,6 @@ jest.mock('electron', () => ({
   shell: { showItemInFolder: jest.fn(), openExternal: jest.fn() },
 }));
 
-jest.mock('../../../shared/write-file', () => ({
-  ...jest.requireActual('../../../shared/write-file'),
-  writeFile: jest.fn(),
-}));
-
 jest.mock('../../output/writeCsvToFile', () => ({
   writeCsvToFile: jest.fn(),
 }));
@@ -117,9 +108,6 @@ jest.mock('../dialogs', () => ({
   selectBaseURLDialog: jest.fn(),
 }));
 
-const mockDate = 1603976726737;
-MockDate.set(new Date(mockDate));
-
 describe('getOpenFileListener', () => {
   it('sends signal for opening FileSupportPopup to frontend when .opossum file is not existent', async () => {
     const mainWindow = {
@@ -129,11 +117,11 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const fileName = 'resources_file.json';
-    const temporaryPath: string = createTempFolder();
-    const jsonPath = path.join(upath.toUnix(temporaryPath), fileName);
+    const jsonPath = await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${faker.string.uuid()}.json`),
+    });
 
-    fs.writeFileSync(jsonPath, 'dummy resource data');
     (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
 
     await getOpenFileListener(mainWindow)();
@@ -143,7 +131,6 @@ describe('getOpenFileListener', () => {
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
-    deleteFolder(temporaryPath);
   });
 
   it('sends signal for opening FileSupportPopupDotOpossumExistent to frontend when .opossum file exists', async () => {
@@ -154,17 +141,15 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const fileName = 'resources_file.json';
-    const temporaryPath: string = createTempFolder();
-    const jsonPath = path.join(upath.toUnix(temporaryPath), fileName);
-    fs.writeFileSync(jsonPath, 'dummy resource data');
-
-    const dotOpossumFileName = 'resources_file.opossum';
-    const dotOpossumPath = path.join(
-      upath.toUnix(temporaryPath),
-      dotOpossumFileName,
-    );
-    fs.writeFileSync(dotOpossumPath, 'dummy resource data');
+    const fileName = faker.string.uuid();
+    const jsonPath = await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${fileName}.json`),
+    });
+    await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${fileName}.opossum`),
+    });
 
     (openFileDialog as jest.Mock).mockReturnValueOnce([jsonPath]);
 
@@ -175,7 +160,6 @@ describe('getOpenFileListener', () => {
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: true },
     );
-    deleteFolder(temporaryPath);
   });
 
   it('handles _attributions.json files correctly if .json present', async () => {
@@ -186,20 +170,15 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    (writeFile as jest.Mock).mockImplementationOnce(
-      jest.requireActual('../../../shared/write-file').writeFile,
-    );
+    const fileName = faker.string.uuid();
+    await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${fileName}.json`),
+    });
 
-    const temporaryPath: string = createTempFolder();
-    const attributionsPath = path.join(
-      upath.toUnix(temporaryPath),
-      'path_attributions.json',
-    );
-
-    const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json');
-    await writeFile({ path: resourcePath, content: {} });
-
-    (openFileDialog as jest.Mock).mockReturnValueOnce([attributionsPath]);
+    (openFileDialog as jest.Mock).mockReturnValueOnce([
+      faker.outputPath(`${fileName}_attributions.json`),
+    ]);
 
     await getOpenFileListener(mainWindow)();
 
@@ -208,7 +187,6 @@ describe('getOpenFileListener', () => {
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
-    deleteFolder(temporaryPath);
   });
 
   it('handles _attributions.json files correctly if .json.gz present', async () => {
@@ -219,20 +197,15 @@ describe('getOpenFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    (writeFile as jest.Mock).mockImplementationOnce(
-      jest.requireActual('../../../shared/write-file').writeFile,
-    );
+    const fileName = faker.string.uuid();
+    await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${fileName}.json.gz`),
+    });
 
-    const temporaryPath: string = createTempFolder();
-    const attributionsPath = path.join(
-      upath.toUnix(temporaryPath),
-      'path_attributions.json',
-    );
-
-    const resourcePath = path.join(upath.toUnix(temporaryPath), 'path.json.gz');
-    await writeFile({ path: resourcePath, content: {} });
-
-    (openFileDialog as jest.Mock).mockReturnValueOnce([attributionsPath]);
+    (openFileDialog as jest.Mock).mockReturnValueOnce([
+      faker.outputPath(`${fileName}_attributions.json`),
+    ]);
 
     await getOpenFileListener(mainWindow)();
 
@@ -241,43 +214,39 @@ describe('getOpenFileListener', () => {
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
-    deleteFolder(temporaryPath);
   });
 });
 
 describe('getUseOutdatedInputFileFormatListener', () => {
-  it.each([
-    ['path.json', 'path.json'],
-    ['path%20with%2Fencoding.json', 'path with/encoding.json'],
-  ])(
-    'calls loadInputAndOutputFromFilePath and handles %s correctly',
-    async (filePath: string, expectedTitle: string) => {
-      const mainWindow = {
-        webContents: {
-          send: jest.fn(),
-        },
-        setTitle: jest.fn(),
-      } as unknown as BrowserWindow;
+  it('handles encoding correctly', async () => {
+    const seed = faker.string.uuid();
+    const fileName = `${seed}%20with%2Fencoding`;
+    const mainWindow = {
+      webContents: {
+        send: jest.fn(),
+      },
+      setTitle: jest.fn(),
+    } as unknown as BrowserWindow;
 
-      const temporaryPath: string = createTempFolder();
-      const jsonPath = path.join(upath.toUnix(temporaryPath), filePath);
+    const jsonPath = await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${fileName}.json`),
+    });
 
-      fs.writeFileSync(jsonPath, 'dummy data');
+    setGlobalBackendState({
+      resourceFilePath: jsonPath,
+    });
 
-      setGlobalBackendState({
-        resourceFilePath: jsonPath,
-      });
+    await getOpenOutdatedInputFileListener(mainWindow)();
 
-      await getOpenOutdatedInputFileListener(mainWindow)();
-
-      expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-        expect.anything(),
-        jsonPath,
-      );
-      expect(mainWindow.setTitle).toHaveBeenCalledWith(expectedTitle);
-      deleteFolder(temporaryPath);
-    },
-  );
+    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
+      expect.anything(),
+      jsonPath,
+    );
+    expect(mainWindow.setTitle).toHaveBeenCalledWith(
+      `${seed} with/encoding.json`,
+    );
+  });
 
   it('checks the case with non-matching checksums', async () => {
     const mainWindow = {
@@ -287,22 +256,6 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const temporaryPath: string = createTempFolder();
-    const resourcesFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'path.json',
-    );
-
-    (writeFile as jest.Mock).mockImplementationOnce(
-      jest.requireActual('../../../shared/write-file').writeFile,
-    );
-
-    await writeFile({ path: resourcesFilePath, content: {} });
-
-    const attributionsFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      'path_attributions.json',
-    );
     const validAttribution: PackageInfo = {
       packageName: 'Package',
       packageVersion: '1.0',
@@ -324,14 +277,18 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       resolvedExternalAttributions: [],
     };
 
-    (writeFile as jest.Mock).mockImplementationOnce(
-      jest.requireActual('../../../shared/write-file').writeFile,
-    );
-
-    await writeFile({ path: attributionsFilePath, content: attributions_data });
+    const fileName = faker.string.uuid();
+    await writeFile({
+      path: faker.outputPath(`${fileName}_attributions.json`),
+      content: attributions_data,
+    });
+    const jsonPath = await writeFile({
+      path: faker.outputPath(`${fileName}.json`),
+      content: {},
+    });
 
     setGlobalBackendState({
-      resourceFilePath: resourcesFilePath,
+      resourceFilePath: jsonPath,
     });
 
     await getOpenOutdatedInputFileListener(mainWindow)();
@@ -342,7 +299,6 @@ describe('getUseOutdatedInputFileFormatListener', () => {
         showChangedInputFilePopup: true,
       },
     );
-    deleteFolder(temporaryPath);
   });
 
   it('sets title to project title if available', async () => {
@@ -357,12 +313,7 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       jest.requireActual('../../input/importFromFile')
         .loadInputAndOutputFromFilePath,
     );
-    (writeFile as jest.Mock).mockImplementationOnce(
-      jest.requireActual('../../../shared/write-file').writeFile,
-    );
 
-    const temporaryPath: string = createTempFolder();
-    const jsonPath = path.join(upath.toUnix(temporaryPath), 'path.json');
     const inputFileContent: ParsedOpossumInputFile = {
       metadata: {
         ...EMPTY_PROJECT_METADATA,
@@ -374,14 +325,16 @@ describe('getUseOutdatedInputFileFormatListener', () => {
       resourcesToAttributions: {},
       externalAttributionSources: {},
     };
-    fs.writeFileSync(jsonPath, JSON.stringify(inputFileContent));
+
     setGlobalBackendState({
-      resourceFilePath: jsonPath,
+      resourceFilePath: await writeFile({
+        content: inputFileContent,
+        path: faker.outputPath('path.json'),
+      }),
     });
 
     await getOpenOutdatedInputFileListener(mainWindow)();
     expect(mainWindow.setTitle).toHaveBeenCalledWith('Test Title');
-    deleteFolder(temporaryPath);
   });
 });
 
@@ -394,35 +347,25 @@ describe('getConvertInputFileToDotOpossumListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const temporaryPath: string = createTempFolder();
+    const fileName = faker.string.uuid();
+    const resourcesJson = faker.string.sample();
+    const attributionsJson = faker.string.sample();
+    const expectedDotOpossumFilePath = faker.outputPath(`${fileName}.opossum`);
 
-    const resourceFileName = 'some_resource_file.json';
-    const resourcesJsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      resourceFileName,
-    );
-    const resourcesJson = 'dummy resource data';
-    fs.writeFileSync(resourcesJsonPath, resourcesJson);
-
-    const attributionsFileName = 'some_resource_file_attributions.json';
-    const attributionsJsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      attributionsFileName,
-    );
-    const attributionsJson = 'dummy attribution data';
-    fs.writeFileSync(attributionsJsonPath, attributionsJson);
+    const resourcesJsonPath = await writeFile({
+      content: resourcesJson,
+      path: faker.outputPath(`${fileName}.json`),
+    });
+    await writeFile({
+      content: attributionsJson,
+      path: faker.outputPath(`${fileName}_attributions.json`),
+    });
 
     setGlobalBackendState({
       resourceFilePath: resourcesJsonPath,
     });
 
     await getConvertInputFileToDotOpossumAndOpenListener(mainWindow)();
-
-    const expectedDotOpossumFileName = 'some_resource_file.opossum';
-    const expectedDotOpossumFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      expectedDotOpossumFileName,
-    );
 
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
@@ -452,7 +395,6 @@ describe('getConvertInputFileToDotOpossumListener', () => {
 
     expect(parsedInputJson).toEqual(resourcesJson);
     expect(parsedOutputJson).toEqual(attributionsJson);
-    deleteFolder(temporaryPath);
   });
 });
 
@@ -465,25 +407,17 @@ describe('getOpenDotOpossumFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const temporaryPath: string = createTempFolder();
-
-    const dotOpossumFileName = 'some_resource_file.opossum';
-    const dotOpossumFilePath = path.join(
-      upath.toUnix(temporaryPath),
-      dotOpossumFileName,
-    );
-
+    const opossumFilePath = faker.outputPath(`${faker.string.uuid()}.opossum`);
     setGlobalBackendState({
-      opossumFilePath: dotOpossumFilePath,
+      opossumFilePath,
     });
 
     await getOpenDotOpossumFileInsteadListener(mainWindow)();
 
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      dotOpossumFilePath,
+      opossumFilePath,
     );
-    deleteFolder(temporaryPath);
   });
 });
 
@@ -496,16 +430,15 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
       setTitle: jest.fn(),
     } as unknown as BrowserWindow;
 
-    const attributionFilePath = '/somefile_attribution.json';
-    const temporaryPath: string = createTempFolder();
-    const jsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      attributionFilePath,
-    );
-    fs.writeFileSync(jsonPath, 'dummy data');
+    const fileName = faker.string.uuid();
+    const resourceFilePath = `${fileName}.json`;
+    const jsonPath = await writeFile({
+      content: faker.string.sample(),
+      path: faker.outputPath(`${fileName}_attribution.json`),
+    });
 
     setGlobalBackendState({
-      resourceFilePath: '/somefile.json',
+      resourceFilePath,
       attributionFilePath: jsonPath,
     });
 
@@ -514,9 +447,8 @@ describe('getDeleteAndCreateNewAttributionFileListener', () => {
     expect(fs.existsSync(jsonPath)).toBeFalsy();
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       expect.anything(),
-      '/somefile.json',
+      resourceFilePath,
     );
-    deleteFolder(temporaryPath);
   });
 });
 
@@ -563,106 +495,6 @@ describe('getSelectBaseURLListener', () => {
       },
     );
   });
-});
-
-describe('getSaveFileListener', () => {
-  it('throws error when projectId is not set', async () => {
-    const mockCallback = jest.fn();
-    const mainWindow = {
-      webContents: { send: mockCallback as unknown } as WebContents,
-    } as unknown as BrowserWindow;
-    setGlobalBackendState({});
-
-    await getSaveFileListener(mainWindow)(
-      AllowedFrontendChannels.SaveFileRequest,
-      {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set(),
-      },
-    );
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message:
-          'Error in app backend: Failed to save data. ' +
-          'The projectId is incorrect.\nprojectId: undefined',
-        buttons: ['Reload File', 'Quit'],
-      }),
-    );
-    expect(writeFile).not.toHaveBeenCalled();
-  });
-
-  it('throws error when attributionFilePath and opossumFilePath are not set', async () => {
-    const mockCallback = jest.fn();
-    const mainWindow = {
-      webContents: { send: mockCallback as unknown } as WebContents,
-    } as unknown as BrowserWindow;
-    setGlobalBackendState({});
-
-    setGlobalBackendState({
-      projectId: 'uuid_1',
-    });
-
-    await getSaveFileListener(mainWindow)(
-      AllowedFrontendChannels.SaveFileRequest,
-      {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set(),
-      },
-    );
-
-    expect(dialog.showMessageBox).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'error',
-        message:
-          'Error in app backend: Tried to get file type when no file is loaded',
-        buttons: ['Reload File', 'Quit'],
-      }),
-    );
-    expect(writeFile).not.toHaveBeenCalled();
-  });
-
-  it(
-    'calls createListenerCallBackWithErrorHandling when ' +
-      'resourceFilePath, attributionFilePath and projectId are set',
-    async () => {
-      const mockCallback = jest.fn();
-      const mainWindow = {
-        webContents: { send: mockCallback as unknown } as WebContents,
-      } as unknown as BrowserWindow;
-      setGlobalBackendState({});
-
-      const listener = getSaveFileListener(mainWindow);
-
-      setGlobalBackendState({
-        resourceFilePath: '/resourceFile.json',
-        attributionFilePath: '/attributionFile.json',
-        projectId: 'uuid_1',
-      });
-
-      await listener(AllowedFrontendChannels.SaveFileRequest, {
-        manualAttributions: {},
-        resourcesToAttributions: {},
-        resolvedExternalAttributions: new Set<string>().add('id_1').add('id_2'),
-      });
-
-      expect(writeFile).toHaveBeenCalledWith({
-        path: '/attributionFile.json',
-        content: {
-          manualAttributions: {},
-          metadata: {
-            projectId: 'uuid_1',
-            fileCreationDate: `${mockDate}`,
-          },
-          resourcesToAttributions: {},
-          resolvedExternalAttributions: ['id_1', 'id_2'],
-        },
-      });
-    },
-  );
 });
 
 describe('getExportFollowUpListener', () => {

@@ -4,9 +4,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, dialog } from 'electron';
-import * as fs from 'fs';
-import path from 'path';
-import upath from 'upath';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
@@ -24,7 +21,6 @@ import {
   getGlobalBackendState,
   setGlobalBackendState,
 } from '../../main/globalBackendState';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
 import {
   JsonParsingError,
   OpossumOutputFile,
@@ -184,12 +180,7 @@ describe('Test of loading function', () => {
   });
 
   it('handles Parsing error correctly', async () => {
-    const temporaryPath: string = createTempFolder();
-    const corruptJsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      'corrupt_test.json',
-    );
-    const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ path: jsonPath, content: inputFileContent });
 
     jest.spyOn(Date, 'now').mockReturnValue(1);
@@ -206,6 +197,7 @@ describe('Test of loading function', () => {
     await loadInputAndOutputFromFilePath(mainWindow, jsonPath);
     const expectedBackendState = getGlobalBackendState();
 
+    const corruptJsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
     await writeFile({ path: corruptJsonPath, content: '{"name": 3' });
 
     await loadInputAndOutputFromFilePath(mainWindow, corruptJsonPath);
@@ -216,15 +208,11 @@ describe('Test of loading function', () => {
     );
 
     expect(getGlobalBackendState()).toEqual(expectedBackendState);
-    deleteFolder(temporaryPath);
   });
 
   it('loads .opossum file and parses jsons successfully', async () => {
     const testUuid = 'test_uuid';
-    const temporaryPath: string = createTempFolder();
-
-    const opossumName = 'test.opossum';
-    const opossumPath = path.join(upath.toUnix(temporaryPath), opossumName);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
     const attributions: OpossumOutputFile = {
       metadata: validMetadata,
@@ -261,14 +249,10 @@ describe('Test of loading function', () => {
     expect(
       getGlobalBackendState().inputContainsCriticalExternalAttributions,
     ).toBeTruthy();
-    deleteFolder(temporaryPath);
   });
 
   it('loads .opossum file, no output.json', async () => {
-    const temporaryPath: string = createTempFolder();
-
-    const opossumName = 'test.opossum';
-    const opossumPath = path.join(upath.toUnix(temporaryPath), opossumName);
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
     await writeOpossumFile({
       input: inputFileContent,
@@ -287,13 +271,11 @@ describe('Test of loading function', () => {
     expect(mainWindow.webContents.send).toHaveBeenCalledTimes(2);
 
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
-    deleteFolder(temporaryPath);
   });
 
   describe('Load file and parse file successfully, no attribution file', () => {
     it('for json file', async () => {
-      const temporaryPath: string = createTempFolder();
-      const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json');
+      const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
       await writeFile({ path: jsonPath, content: inputFileContent });
 
       jest.spyOn(Date, 'now').mockReturnValue(1);
@@ -308,16 +290,14 @@ describe('Test of loading function', () => {
       );
 
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
-      deleteFolder(temporaryPath);
     });
 
     it('for json.gz file', async () => {
-      const temporaryPath: string = createTempFolder();
-      const jsonPath = path.join(upath.toUnix(temporaryPath), 'test.json.gz');
-      fs.writeFileSync(
-        jsonPath,
-        zlib.gzipSync(JSON.stringify(inputFileContent)),
-      );
+      const jsonPath = faker.outputPath(`${faker.string.uuid()}.json.gz`);
+      await writeFile({
+        content: zlib.gzipSync(JSON.stringify(inputFileContent)),
+        path: jsonPath,
+      });
 
       jest.spyOn(Date, 'now').mockReturnValue(1);
 
@@ -330,18 +310,15 @@ describe('Test of loading function', () => {
         expectedFileContent,
       );
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
-      deleteFolder(temporaryPath);
     });
   });
 
   it('loads file and parses json successfully, attribution file', async () => {
     const testUuid = 'test_uuid';
-    const temporaryPath: string = createTempFolder();
-    const jsonName = 'test.json';
-    const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
-    const attributionJsonPath = path.join(
-      upath.toUnix(temporaryPath),
-      'test_attributions.json',
+    const fileName = faker.string.uuid();
+    const jsonPath = faker.outputPath(`${fileName}.json`);
+    const attributionJsonPath = faker.outputPath(
+      `${fileName}_attributions.json`,
     );
 
     await writeFile({ path: jsonPath, content: inputFileContent });
@@ -377,7 +354,6 @@ describe('Test of loading function', () => {
     expect(
       getGlobalBackendState().inputContainsCriticalExternalAttributions,
     ).toBeTruthy();
-    deleteFolder(temporaryPath);
   });
 
   it(
@@ -429,9 +405,7 @@ describe('Test of loading function', () => {
             OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
           },
         };
-      const temporaryPath: string = createTempFolder();
-      const jsonName = 'test.json';
-      const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
+      const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
 
       await writeFile({
         path: jsonPath,
@@ -519,8 +493,6 @@ describe('Test of loading function', () => {
         expectedLoadedFile,
       );
       expect(dialog.showMessageBox).not.toHaveBeenCalled();
-
-      deleteFolder(temporaryPath);
     },
   );
 
@@ -538,9 +510,7 @@ describe('Test of loading function', () => {
         },
       },
     };
-    const temporaryPath: string = createTempFolder();
-    const jsonName = 'test.json';
-    const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
 
     await writeFile({
       path: jsonPath,
@@ -562,7 +532,6 @@ describe('Test of loading function', () => {
       expectedLoadedFile,
     );
     expect(dialog.showMessageBox).not.toHaveBeenCalled();
-    deleteFolder(temporaryPath);
   });
 
   it('loads file and parses json successfully, origin Ids and original source', async () => {
@@ -583,9 +552,7 @@ describe('Test of loading function', () => {
         '/a': ['uuid'],
       },
     };
-    const temporaryPath: string = createTempFolder();
-    const jsonName = 'test.json';
-    const jsonPath = path.join(upath.toUnix(temporaryPath), jsonName);
+    const jsonPath = faker.outputPath(`${faker.string.uuid()}.json`);
 
     await writeFile({ path: jsonPath, content: inputFileContentWithOriginIds });
 
@@ -619,7 +586,6 @@ describe('Test of loading function', () => {
       AllowedFrontendChannels.FileLoaded,
       expectedLoadedFile,
     );
-    deleteFolder(temporaryPath);
   });
 });
 

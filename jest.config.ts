@@ -2,14 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Config } from 'jest';
 
-module.exports = {
+const config: Config = {
   testEnvironment: 'jsdom',
   resetMocks: false,
   transformIgnorePatterns: ['/node_modules/(?!d3-*|internmap|axios)'],
-  setupFilesAfterEnv: ['./src/shared/setupTests.ts'],
+  setupFilesAfterEnv: ['./src/shared/setup-tests.ts'],
   watchAll: false,
   clearMocks: true,
+  globalSetup: './src/shared/global-test-setup.ts',
+  globalTeardown: './src/shared/global-test-teardown.ts',
   setupFiles: ['whatwg-fetch'],
   roots: ['<rootDir>/src/Frontend', '<rootDir>/src/ElectronBackend'],
   modulePathIgnorePatterns: ['<rootDir>/build/'],
@@ -18,3 +21,5 @@ module.exports = {
     'jest-watch-typeahead/testname',
   ],
 };
+
+export default config;

@@ -16,7 +16,7 @@
 /example-files/performance_tests/*_component_list.csv
 /src/e2e-tests/artifacts
 playwright-report
-/temp-folder*
+/test-output
 
 # production
 /build
