@@ -9,7 +9,6 @@ const config: UserConfig = {
   rules: {
     'body-leading-blank': [2, 'always'],
     'footer-leading-blank': [2, 'always'],
-    'trailer-exists': [2, 'always', 'Signed-off-by:'],
   },
 };
 
