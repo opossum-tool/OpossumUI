@@ -9863,7 +9863,7 @@ __metadata:
     vite: "npm:^5.0.10"
     vite-plugin-electron: "npm:^0.15.5"
     vite-plugin-svgr: "npm:^4.2.0"
-    vite-tsconfig-paths: "npm:^4.2.2"
+    vite-tsconfig-paths: "npm:^4.2.3"
     whatwg-fetch: "npm:^3.6.20"
   languageName: unknown
   linkType: soft
@@ -12369,9 +12369,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-tsconfig-paths@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "vite-tsconfig-paths@npm:4.2.2"
+"vite-tsconfig-paths@npm:^4.2.3":
+  version: 4.2.3
+  resolution: "vite-tsconfig-paths@npm:4.2.3"
   dependencies:
     debug: "npm:^4.1.1"
     globrex: "npm:^0.1.2"
@@ -12381,7 +12381,7 @@ __metadata:
   peerDependenciesMeta:
     vite:
       optional: true
-  checksum: 790b9a48dd69b6e93bc41455ef0cc63fc8149b40a6d344784067fc2487b0a02f2d6a6d71396214dab7537a52c5e1ddfc88c363232fa707377db161d05e8f68cd
+  checksum: ba6abe5d18fc1c1e494e1f1d8a7db56445c2a40e15aadb5d47a9c66cc5372d6f69b94ff0b1e47b67659d6ecaeddebab0a9d11e40b1c3c36c0115800736a6c760
   languageName: node
   linkType: hard
 
