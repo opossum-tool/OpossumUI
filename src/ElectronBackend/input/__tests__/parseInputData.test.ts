@@ -27,10 +27,6 @@ import {
 jest.mock('../../main/logger');
 
 describe('cleanNonExistentAttributions', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
   it('removes non-existent attributions', () => {
     const resourcesToAttributions: ResourcesToAttributions = {
       '/file1': ['attr1', 'attr2', 'attr3', 'attr4'],
@@ -65,10 +61,6 @@ describe('cleanNonExistentAttributions', () => {
 });
 
 describe('cleanNonExistentResolvedExternalAttributions', () => {
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
   it('removes non-existent resolved external attributions', () => {
     const resolvedExternalAttributions: Set<string> = new Set<string>()
       .add('attr2')

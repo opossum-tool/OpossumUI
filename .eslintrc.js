@@ -135,7 +135,7 @@ module.exports = {
     'commitlint.config.ts',
     'generateDotOpossum.js',
     'index.html',
-    'jest.config.js',
+    'jest.config.ts',
     'notices.template.html',
     'typings',
     'vite.config.mts',

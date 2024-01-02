@@ -3,14 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import * as fs from 'fs';
-import * as path from 'path';
-import * as upath from 'upath';
 
+import { faker } from '../../../shared/Faker';
 import {
   Attributions,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { KeysOfAttributionInfo } from '../../types/types';
 import { getHeadersFromColumns, writeCsvToFile } from '../writeCsvToFile';
 
@@ -32,8 +30,7 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const temporaryPath: string = createTempFolder();
-    const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
+    const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
       'packageName',
       'followUp',
@@ -49,7 +46,6 @@ describe('writeCsvToFile', () => {
     );
     expect(content).toContain('"2";"Fancy name,: tt";"";"";"";"/a/c/bla.mm"');
     expect(content).toContain('"2";"";"";"";"";"/b"');
-    deleteFolder(temporaryPath);
   });
 
   it('writeCsvToFile custom header', async () => {
@@ -65,8 +61,7 @@ describe('writeCsvToFile', () => {
         resources: ['/a/c/bla.mm', '/b'],
       },
     };
-    const temporaryPath: string = createTempFolder();
-    const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
+    const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     const columns: Array<KeysOfAttributionInfo> = [
       'packageName',
       'licenseText',
@@ -83,7 +78,6 @@ describe('writeCsvToFile', () => {
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
-    deleteFolder(temporaryPath);
   });
 
   it('writeCsvToFile shorten resources', async () => {
@@ -100,8 +94,7 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const temporaryPath: string = createTempFolder();
-    const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
+    const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     await writeCsvToFile(
       csvPath,
       testFollowUpAttributionsWithResources,
@@ -117,7 +110,6 @@ describe('writeCsvToFile', () => {
     expect(content).toContain(
       '"2";"Fancy name,: tt";"";"";"";"/a/c/bla.mm\n/b"',
     );
-    deleteFolder(temporaryPath);
   });
 
   it('writeCsvToFile shorten resources long', async () => {
@@ -144,8 +136,7 @@ describe('writeCsvToFile', () => {
       .slice(0, 225)
       .join('\n')} ... (resources shortened, 25 paths are not displayed)`;
 
-    const temporaryPath: string = createTempFolder();
-    const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
+    const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     await writeCsvToFile(
       csvPath,
       testFollowUpAttributionsWithResources,
@@ -161,7 +152,6 @@ describe('writeCsvToFile', () => {
     expect(content).toContain(
       `"2";"Fancy name,: tt";"";"";"";"${expectedResources}"`,
     );
-    deleteFolder(temporaryPath);
   });
 
   it('writeCsvToFile for attributions', async () => {
@@ -180,8 +170,7 @@ describe('writeCsvToFile', () => {
       },
     };
 
-    const temporaryPath: string = createTempFolder();
-    const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
+    const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     await writeCsvToFile(csvPath, testFollowUpAttributions, columns, false);
 
     const content = await fs.promises.readFile(csvPath, 'utf8');
@@ -190,7 +179,6 @@ describe('writeCsvToFile', () => {
     );
     expect(content).toContain('"1";"";"license text, with; commas"');
     expect(content).toContain('"2";"Fancy name,: tt";""');
-    deleteFolder(temporaryPath);
   });
 
   it('writeCsvToFile long', async () => {
@@ -438,8 +426,7 @@ describe('writeCsvToFile', () => {
       maxLength,
     )}... (text shortened)`;
 
-    const temporaryPath: string = createTempFolder();
-    const csvPath = path.join(upath.toUnix(temporaryPath), 'test.csv');
+    const csvPath = faker.outputPath(`${faker.string.uuid()}.csv`);
     await writeCsvToFile(csvPath, testFollowUpAttributionsWithResources, [
       'packageName',
       'followUp',
@@ -461,7 +448,6 @@ describe('writeCsvToFile', () => {
     expect(content).toContain('"2";"";"";"";"";"/a/b/c/testi.bla"');
     expect(content).toContain('"2";"";"";"";"";"/a/b/c/testi.blub"');
     expect(content).toContain('"2";"";"";"";"";"/other"');
-    deleteFolder(temporaryPath);
   });
 });
 

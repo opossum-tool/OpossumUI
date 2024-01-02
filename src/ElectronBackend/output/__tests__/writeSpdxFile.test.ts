@@ -3,17 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
-import path from 'path';
-import upath from 'upath';
 
+import { faker } from '../../../shared/Faker';
 import { Attributions, ExportType } from '../../../shared/shared-types';
-import { createTempFolder, deleteFolder } from '../../test-helpers';
 import { writeSpdxFile } from '../writeSpdxFile';
 
 describe('writeSpdxFile', () => {
   it('writes a yaml for empty attributions', () => {
-    const temporaryPath: string = createTempFolder();
-    const yamlPath = path.join(upath.toUnix(temporaryPath), 'test.yaml');
+    const yamlPath = faker.outputPath(`${faker.string.uuid()}.yaml`);
     writeSpdxFile(yamlPath, {
       type: ExportType.SpdxDocumentYaml,
       spdxAttributions: {},
@@ -22,12 +19,10 @@ describe('writeSpdxFile', () => {
     expect(fs.existsSync(yamlPath)).toBe(true);
     const fileContent = fs.readFileSync(yamlPath, 'utf-8');
     expect(fileContent).not.toBeNull();
-    deleteFolder(temporaryPath);
   });
 
   it('writes a json for empty attributions', () => {
-    const temporaryPath: string = createTempFolder();
-    const yamlPath = path.join(upath.toUnix(temporaryPath), 'test.json');
+    const yamlPath = faker.outputPath(`${faker.string.uuid()}.json`);
     writeSpdxFile(yamlPath, {
       type: ExportType.SpdxDocumentJson,
       spdxAttributions: {},
@@ -36,7 +31,6 @@ describe('writeSpdxFile', () => {
     expect(fs.existsSync(yamlPath)).toBe(true);
     const fileContent = fs.readFileSync(yamlPath, 'utf-8');
     expect(fileContent).toContain('SPDX-2.2');
-    deleteFolder(temporaryPath);
   });
 
   it('writes a file for attributions', () => {
@@ -54,8 +48,7 @@ describe('writeSpdxFile', () => {
       },
     };
 
-    const temporaryPath: string = createTempFolder();
-    const yamlPath = path.join(upath.toUnix(temporaryPath), 'test.yaml');
+    const yamlPath = faker.outputPath(`${faker.string.uuid()}.yaml`);
     writeSpdxFile(yamlPath, {
       type: ExportType.SpdxDocumentYaml,
       spdxAttributions: testAttributions,
@@ -71,6 +64,5 @@ describe('writeSpdxFile', () => {
     expect(fileContent).toContain(
       'referenceLocator: pkg:npm/second-test-Package@2.1',
     );
-    deleteFolder(temporaryPath);
   });
 });
