@@ -13,7 +13,6 @@ import { ChangePreferredStatusGloballyPopup } from '../ChangePreferredStatusGlob
 import { ConfirmDeletionGloballyPopup } from '../ConfirmDeletionGloballyPopup/ConfirmDeletionGloballyPopup';
 import { ConfirmDeletionPopup } from '../ConfirmDeletionPopup/ConfirmDeletionPopup';
 import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPopup/ConfirmMultiSelectDeletionPopup';
-import { EditAttributionPopup } from '../EditAttributionPopup/EditAttributionPopup';
 import { ErrorPopup } from '../ErrorPopup/ErrorPopup';
 import { FileSearchPopup } from '../FileSearchPopup/FileSearchPopup';
 import { FileSupportDotOpossumAlreadyExistsPopup } from '../FileSupportDotOpossumAlreadyExistsPopup/FileSupportDotOpossumAlreadyExistsPopup';
@@ -47,8 +46,6 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ConfirmDeletionPopup />;
     case PopupType.ConfirmMultiSelectDeletionPopup:
       return <ConfirmMultiSelectDeletionPopup />;
-    case PopupType.EditAttributionPopup:
-      return <EditAttributionPopup />;
     case PopupType.ChangedInputFilePopup:
       return <ChangedInputFilePopup />;
     case PopupType.FileSupportPopup:

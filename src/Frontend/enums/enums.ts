@@ -21,7 +21,6 @@ export enum PopupType {
   ConfirmDeletionPopup = 'ConfirmDeletionPopup',
   ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
   ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',
-  EditAttributionPopup = 'EditAttributionPopup',
   ChangedInputFilePopup = 'ChangedInputFilePopup',
   FileSupportPopup = 'FileSupportPopup',
   FileSupportDotOpossumAlreadyExistsPopup = 'FileSupportDotOpossumAlreadyExistsPopup',

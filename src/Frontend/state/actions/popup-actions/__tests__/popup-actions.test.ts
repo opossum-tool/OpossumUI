@@ -468,9 +468,6 @@ describe('The actions called from the unsaved popup', () => {
       };
       testStore.dispatch(setDisplayedPackage(testSelectedPackage));
     }
-    if (view === View.Report) {
-      testStore.dispatch(openPopup(PopupType.EditAttributionPopup, 'id1'));
-    }
     testStore.dispatch(setTemporaryDisplayPackageInfo(testDisplayPackageInfo));
     return testStore;
   }

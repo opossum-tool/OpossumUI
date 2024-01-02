@@ -196,15 +196,11 @@ describe('popup actions', () => {
   it('handles multiple opened popups', () => {
     const testStore = createAppStore();
     const testAttributionId = 'test';
-    testStore.dispatch(
-      openPopup(PopupType.EditAttributionPopup, testAttributionId),
-    );
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup, testAttributionId));
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.EditAttributionPopup,
-    );
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
 
     testStore.dispatch(openPopup(PopupType.LocatorPopup));
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
@@ -214,9 +210,7 @@ describe('popup actions', () => {
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
-    expect(getOpenPopup(testStore.getState())).toBe(
-      PopupType.EditAttributionPopup,
-    );
+    expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
 
     testStore.dispatch(closePopup());
     expect(getPopupAttributionId(testStore.getState())).toBeNull();

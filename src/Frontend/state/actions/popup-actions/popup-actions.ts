@@ -262,18 +262,6 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
   };
 }
 
-export function closeEditAttributionPopupOrOpenUnsavedPopup(
-  popupAttributionId: string,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    if (wereTemporaryDisplayPackageInfoModified(getState())) {
-      dispatch(openPopup(PopupType.NotSavedPopup, popupAttributionId));
-    } else {
-      dispatch(closePopup());
-    }
-  };
-}
-
 export function locateSignalsFromLocatorPopup(
   criticality: SelectedCriticality,
   licenseNames: Set<string>,
