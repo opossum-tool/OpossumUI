@@ -8,12 +8,16 @@ import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { List } from '../../Components/List/List';
 import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
 import { usePrevious } from '../../util/use-previous';
-import { NodeIdPredicateForTree, NodesForTree, TreeNodeStyle } from './types';
-import { getTreeNodeProps } from './utils/get-tree-node-props';
+import {
+  getTreeNodeProps,
+  NodeIdPredicateForTree,
+  NodesForTree,
+  TreeNodeStyle,
+} from './VirtualizedTree.util';
 import {
   VirtualizedTreeNode,
   VirtualizedTreeNodeData,
-} from './VirtualizedTreeNode';
+} from './VirtualizedTreeNode/VirtualizedTreeNode';
 
 interface VirtualizedTreeProps {
   nodes: NodesForTree;

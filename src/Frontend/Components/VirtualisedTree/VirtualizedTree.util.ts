@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { SxProps } from '@mui/system';
 import { isEmpty } from 'lodash';
 import { ReactElement } from 'react';
 
-import { getParents } from '../../../state/helpers/get-parents';
-import { NodeIdPredicateForTree, NodesForTree } from '../types';
-import { VirtualizedTreeNodeData } from '../VirtualizedTreeNode';
+import { getParents } from '../../state/helpers/get-parents';
+import { VirtualizedTreeNodeData } from './VirtualizedTreeNode/VirtualizedTreeNode';
 
 export function getTreeNodeProps(
   nodes: NodesForTree,
@@ -234,4 +234,16 @@ function canNodeHaveChildren(node: NodesForTree | 1): node is NodesForTree {
 
 function isIdOfNodeWithChildren(nodeId: string): boolean {
   return nodeId.slice(-1) === '/';
+}
+export interface NodeIdPredicateForTree {
+  (path: string): boolean;
+}
+export interface NodesForTree {
+  [nodeName: string]: NodesForTree | 1;
+}
+export interface TreeNodeStyle {
+  root: SxProps;
+  childrenOfSelected: SxProps;
+  selected: SxProps;
+  treeExpandIcon: SxProps;
 }

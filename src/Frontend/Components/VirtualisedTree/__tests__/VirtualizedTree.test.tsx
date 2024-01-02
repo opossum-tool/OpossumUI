@@ -7,8 +7,8 @@ import { screen } from '@testing-library/react';
 import { ReactElement } from 'react';
 
 import { renderComponent } from '../../../test-helpers/render';
-import { NodesForTree } from '../types';
 import { VirtualizedTree } from '../VirtualizedTree';
+import { NodesForTree } from '../VirtualizedTree.util';
 
 describe('The VirtualizedTree', () => {
   const testNodes: NodesForTree = {

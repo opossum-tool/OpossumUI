@@ -41,7 +41,7 @@ const sharedRules = {
   'jest/prefer-spy-on': 'error',
   'filenames/match-regex': [
     'error',
-    '^[a-zA-Z0-9\\-]+(.d|.test|.style)?$',
+    '^[a-zA-Z0-9\\-]+(.d|.test|.style|.util|.util.test)?$',
     true,
   ],
   'no-alert': 'error',
