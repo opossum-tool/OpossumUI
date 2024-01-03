@@ -3,18 +3,32 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Attributions } from '../../shared/shared-types';
+import { getNumericalCriticalityValue } from '../Components/AggregatedAttributionsPanel/AccordionPanel.util';
+import { DisplayPackageInfos } from '../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from './convert-package-info';
 import { getCardLabels } from './get-card-labels';
 
 const DEFAULT_NAME = '\u10FFFF'; // largest unicode character
 
 export function getAlphabeticalComparerForAttributions(
-  attributions: Attributions,
+  attributions: Attributions | DisplayPackageInfos,
+  compareCriticality: boolean,
 ) {
   return function compareFunction(
     element: string,
     otherElement: string,
   ): number {
+    if (
+      compareCriticality &&
+      attributions[element]?.criticality !==
+        attributions[otherElement]?.criticality
+    ) {
+      return (
+        getNumericalCriticalityValue(attributions[otherElement]?.criticality) -
+        getNumericalCriticalityValue(attributions[element]?.criticality)
+      );
+    }
+
     const elementCardLabels = getCardLabels(
       convertPackageInfoToDisplayPackageInfo(
         {

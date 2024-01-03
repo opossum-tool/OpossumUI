@@ -62,7 +62,6 @@ export function ManualPackagePanel(
   );
   const selectedResourceOrClosestParentAttributions: Attributions =
     useAppSelector(getAttributionsOfSelectedResourceOrClosestParent);
-
   const selectedResourceId: string = useAppSelector(getSelectedResourceId);
 
   const shownAttributionsOfResource: Attributions = props.overrideParentMode
@@ -131,7 +130,7 @@ function getSortedPackageCardIdsAndDisplayPackageInfos(
   displayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
-    getAlphabeticalComparerForAttributions(shownAttributionsOfResource),
+    getAlphabeticalComparerForAttributions(shownAttributionsOfResource, false),
   );
 
   const sortedPackageCardIds: Array<string> = [];

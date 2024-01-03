@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Attributions } from '../../../shared/shared-types';
+import { Attributions, Criticality } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import {
   compareAlphabeticalStrings,
   getAlphabeticalComparerForAttributions,
@@ -36,7 +37,7 @@ describe('getAlphabeticalComparerForAttributions', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions),
+      getAlphabeticalComparerForAttributions(testAttributions, false),
     );
 
     expect(sortedAttributionIds).toEqual(['3', '5', '4', '2', '1']);
@@ -56,7 +57,7 @@ describe('getAlphabeticalComparerForAttributions', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions),
+      getAlphabeticalComparerForAttributions(testAttributions, false),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '3', '1']);
@@ -79,10 +80,39 @@ describe('getAlphabeticalComparerForAttributions', () => {
       },
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions),
+      getAlphabeticalComparerForAttributions(testAttributions, false),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '1', '3']);
+  });
+
+  it('sorts by criticality', () => {
+    const testAttributions: Attributions = {
+      '1': faker.opossum.manualPackageInfo({
+        packageName: 'Test package 1',
+        packageVersion: '1.0',
+      }),
+      '2': faker.opossum.manualPackageInfo({
+        attributionConfidence: 0,
+        comment: 'Some comment',
+        copyright: 'Copyright John Doe',
+        licenseText: 'Some license text',
+        criticality: Criticality.Medium,
+      }),
+      '3': faker.opossum.manualPackageInfo({
+        copyright: 'John Doe',
+        criticality: Criticality.High,
+      }),
+      '4': faker.opossum.manualPackageInfo({
+        packageName: 'Test package 2',
+        copyright: 'John Doe',
+      }),
+    };
+    const sortedAttributionIds = Object.keys(testAttributions).sort(
+      getAlphabeticalComparerForAttributions(testAttributions, true),
+    );
+
+    expect(sortedAttributionIds).toEqual(['3', '2', '1', '4']);
   });
 });
 
