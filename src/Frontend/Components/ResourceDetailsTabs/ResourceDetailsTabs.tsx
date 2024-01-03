@@ -6,10 +6,10 @@ import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import { remove } from 'lodash';
-import { ReactElement, useEffect, useState } from 'react';
+import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
-import { PackagePanelTitle } from '../../enums/enums';
+import { AuditViewSortingType, PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import {
   setPackageSearchTerm,
@@ -29,13 +29,19 @@ import {
 import { DisplayPackageInfos } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { useVariable } from '../../util/use-variable';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { IconButton } from '../IconButton/IconButton';
-import { SearchPackagesIcon } from '../Icons/Icons';
+import { SearchPackagesIcon, SortAttributionsIcon } from '../Icons/Icons';
+import { Dropdown, MenuItem } from '../InputElements/Dropdown';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
+  dropdown: {
+    marginTop: '10px',
+    marginBottom: '8px',
+  },
   container: {
     position: 'relative',
     height: '100%',
@@ -60,7 +66,7 @@ const classes = {
       color: OpossumColors.black,
     },
   },
-  searchToggle: {
+  icons: {
     position: 'absolute',
     right: '0px',
     top: '0px',
@@ -78,10 +84,29 @@ const classes = {
       background: OpossumColors.middleBlue,
     },
   },
+  disabledLargeClickableIcon: {
+    width: '26px',
+    height: '26px',
+    padding: '2px',
+    margin: '0 2px',
+    color: OpossumColors.disabledButtonGrey,
+  },
   searchBox: {
     marginTop: '10px',
   },
 };
+
+const SORTING_ALGORITHMS: Array<MenuItem> = [
+  {
+    value: AuditViewSortingType.ByOccurrence,
+    name: AuditViewSortingType.ByOccurrence,
+  },
+  {
+    value: AuditViewSortingType.ByCriticality,
+    name: AuditViewSortingType.ByCriticality,
+  },
+];
+const defaultSorting = AuditViewSortingType.ByOccurrence;
 
 interface ResourceDetailsTabsProps {
   isGlobalTabEnabled: boolean;
@@ -92,7 +117,6 @@ export function ResourceDetailsTabs(
   props: ResourceDetailsTabsProps,
 ): ReactElement | null {
   const manualData = useAppSelector(getManualData);
-
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const attributionIdsOfSelectedResource: Array<string> =
@@ -102,7 +126,18 @@ export function ResourceDetailsTabs(
   );
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
+  const [activeSorting, setActiveSorting] = useVariable(
+    'active-sorting-audit-view',
+    AuditViewSortingType.ByOccurrence,
+  );
+  const [showSortingSelect, setShowSortingSelect] = useState<boolean>(false);
+  const defaultSortingIsActive = activeSorting === defaultSorting;
+
   const dispatch = useAppDispatch();
+
+  if (!defaultSortingIsActive && !showSortingSelect) {
+    setShowSortingSelect(!showSortingSelect);
+  }
 
   enum Tabs {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -128,6 +163,14 @@ export function ResourceDetailsTabs(
     [Tabs.Local]: 'Local',
     [Tabs.Global]: 'Global',
   };
+
+  function onSortToggleClick(): void {
+    setShowSortingSelect(!showSortingSelect);
+  }
+
+  function onSortInputChange(event: ChangeEvent<HTMLInputElement>): void {
+    setActiveSorting(event.target.value as AuditViewSortingType);
+  }
 
   function onSearchToggleClick(): void {
     dispatch(toggleAccordionSearchField());
@@ -165,13 +208,39 @@ export function ResourceDetailsTabs(
           sx={classes.tab}
         />
       </MuiTabs>
-      <IconButton
-        tooltipTitle="Search signals by name, license name, copyright text and version"
-        tooltipPlacement="right"
-        onClick={onSearchToggleClick}
-        icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
-        iconSx={classes.searchToggle}
-      />
+      <MuiBox sx={classes.icons}>
+        <IconButton
+          tooltipTitle="Choose sorting algorithm for the displayed signals"
+          tooltipPlacement="right"
+          onClick={onSortToggleClick}
+          disabled={!defaultSortingIsActive}
+          icon={
+            <SortAttributionsIcon
+              sx={
+                !defaultSortingIsActive
+                  ? classes.disabledLargeClickableIcon
+                  : classes.largeClickableIcon
+              }
+            />
+          }
+        />
+        <IconButton
+          tooltipTitle="Search signals by name, license name, copyright text and version"
+          tooltipPlacement="right"
+          onClick={onSearchToggleClick}
+          icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
+        />
+      </MuiBox>
+      {showSortingSelect ? (
+        <Dropdown
+          sx={classes.dropdown}
+          isEditable={true}
+          title={'Sorting Algorithm'}
+          value={activeSorting}
+          menuItems={SORTING_ALGORITHMS}
+          handleChange={onSortInputChange}
+        />
+      ) : null}
       {isAccordionSearchFieldDisplayed ? (
         <SearchTextField
           onInputChange={onSearchInputChange}

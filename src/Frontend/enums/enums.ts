@@ -81,6 +81,16 @@ export enum ButtonText {
   UnmarkForReplacement = 'Unmark current for replacement',
 }
 
+export enum AttributionViewSortingType {
+  Alphabetical = 'Alphabetical',
+  ByCriticality = 'By Criticality',
+}
+
+export enum AuditViewSortingType {
+  ByOccurrence = 'By Occurrence',
+  ByCriticality = 'By Criticality',
+}
+
 export enum ProjectStatisticsPopupTitle {
   LicenseCountsTable = 'Signals per Sources',
   AttributionPropertyCountTable = 'Attributions Overview',

@@ -27,7 +27,8 @@ export type SignalsWorkerInput =
   | { name: 'resolvedExternalAttributions'; data: Set<string> }
   | { name: 'resourceId'; data: string }
   | { name: 'resources'; data: Resources }
-  | { name: 'sources'; data: ExternalAttributionSources };
+  | { name: 'sources'; data: ExternalAttributionSources }
+  | { name: 'sortingByCriticalityIsActive'; data: boolean };
 
 export type SignalsWorkerOutput =
   | {
@@ -61,6 +62,7 @@ interface State {
   resourceId?: string;
   resources?: Resources;
   sources?: ExternalAttributionSources;
+  sortingByCriticalityIsActive?: boolean;
 }
 
 export class SignalsWorker {
@@ -72,6 +74,7 @@ export class SignalsWorker {
       resolvedExternalAttributions: undefined,
       sources: undefined,
       resourceId: undefined,
+      sortingByCriticalityIsActive: undefined,
     },
   ) {}
 
@@ -113,6 +116,9 @@ export class SignalsWorker {
       case 'filesWithChildren':
         this.state.filesWithChildren = input.data;
         break;
+      case 'sortingByCriticalityIsActive':
+        this.state.sortingByCriticalityIsActive = input.data;
+        break;
       default:
         shouldNotBeCalled(input);
     }
@@ -142,12 +148,19 @@ export class SignalsWorker {
   }
 
   private dispatchAttributionsInFolderContent(input: SignalsWorkerInput) {
-    if (this.isHydrated(this.state, input, ['resourceId', 'manualData'])) {
+    if (
+      this.isHydrated(this.state, input, [
+        'resourceId',
+        'manualData',
+        'sortingByCriticalityIsActive',
+      ])
+    ) {
       this.dispatch({
         name: 'attributionsInFolderContent',
         data: getAttributionsInFolderContent({
           resourceId: this.state.resourceId,
           manualData: this.state.manualData,
+          sortByCriticality: this.state.sortingByCriticalityIsActive,
         }),
       });
     }
@@ -160,6 +173,7 @@ export class SignalsWorker {
         'attributionsToHashes',
         'externalData',
         'resolvedExternalAttributions',
+        'sortingByCriticalityIsActive',
       ])
     ) {
       this.dispatch({
@@ -169,6 +183,7 @@ export class SignalsWorker {
           attributionsToHashes: this.state.attributionsToHashes,
           externalData: this.state.externalData,
           resolvedExternalAttributions: this.state.resolvedExternalAttributions,
+          sortingByCriticalityIsActive: this.state.sortingByCriticalityIsActive,
         }),
       });
     }
@@ -234,7 +249,7 @@ export class SignalsWorker {
   ): state is WithRequired<State, (typeof dependencies)[number]> {
     return (
       dependencies.includes(input.name) &&
-      dependencies.every((dependency) => !!state[dependency])
+      dependencies.every((dependency) => state[dependency] !== undefined)
     );
   }
 }

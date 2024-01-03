@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 
 import { AutocompleteSignal } from '../../shared/shared-types';
+import { AuditViewSortingType } from '../enums/enums';
 import { useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -99,6 +100,10 @@ export function useSignalsWorker() {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
+  const [activeSorting] = useVariable(
+    'active-sorting-audit-view',
+    AuditViewSortingType.ByOccurrence,
+  );
 
   const [worker, setWorker] = useState<Worker>();
   const [, setAutocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
@@ -248,4 +253,11 @@ export function useSignalsWorker() {
       } satisfies SignalsWorkerInput);
     }
   }, [resources, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'sortingByCriticalityIsActive',
+      data: activeSorting === AuditViewSortingType.ByCriticality,
+    } satisfies SignalsWorkerInput);
+  }, [activeSorting, worker]);
 }

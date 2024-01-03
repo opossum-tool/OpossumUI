@@ -23,6 +23,10 @@ import { AttributionsViewPackageList } from '../PackageList/AttributionsViewPack
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 
 const classes = {
+  dropdown: {
+    marginTop: '8px',
+    marginBottom: '8px',
+  },
   topElements: {
     display: 'flex',
     alignItems: 'center',
@@ -36,6 +40,18 @@ const classes = {
   },
 };
 
+const SORTING_ALGORITHMS: Array<MenuItem> = [
+  {
+    value: AttributionViewSortingType.Alphabetical,
+    name: AttributionViewSortingType.Alphabetical,
+  },
+  {
+    value: AttributionViewSortingType.ByCriticality,
+    name: AttributionViewSortingType.ByCriticality,
+  },
+];
+const defaultSorting = AttributionViewSortingType.Alphabetical;
+
 export function AttributionList() {
   const dispatch = useAppDispatch();
   const selectedPackageCardIdInAttributionView = useAppSelector(
@@ -46,8 +62,23 @@ export function AttributionList() {
   const hasActiveFilters = !!activeFilters.length;
   const [showMultiSelect, setShowMultiselect] = useState(hasActiveFilters);
 
+  const [activeSorting, setActiveSorting] = useVariable(
+      'active-sorting-attribution-view',
+      AttributionViewSortingType.Alphabetical,
+  );
+  const [showSortingSelect, setShowSortingSelect] = useState<boolean>(false);
+  const defaultSortingIsActive = activeSorting === defaultSorting;
+
+  if (!defaultSortingIsActive && !showSortingSelect) {
+    setShowSortingSelect(!showSortingSelect);
+  }
+
   const { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos } =
-    getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(attributions);
+    getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(attributions, activeSorting === AttributionViewSortingType.ByCriticality,);
+
+  function onSortInputChange(event: ChangeEvent<HTMLInputElement>): void {
+    setActiveSorting(event.target.value as AttributionViewSortingType);
+  }
 
   function getAttributionCard(
     packageCardId: string,
@@ -82,6 +113,23 @@ export function AttributionList() {
     >
       <MuiBox sx={classes.topElements}>
         <AttributionCountsPanel />
+        <MuiBox>
+          <IconButton
+              tooltipTitle="Sort"
+              tooltipPlacement="right"
+              onClick={(): void => setShowSortingSelect(!showSortingSelect)}
+              disabled={!defaultSortingIsActive}
+              icon={
+                <SortIcon
+                    aria-label={'Sort icon'}
+                    sx={
+                      !defaultSortingIsActive
+                          ? classes.disabledIcon
+                          : classes.clickableIcon
+                    }
+                />
+              }
+          />
         <IconButton
           tooltipTitle={'Filters'}
           tooltipPlacement={'right'}
@@ -93,7 +141,20 @@ export function AttributionList() {
             />
           }
         />
+        </MuiBox>
       </MuiBox>
+      {
+        showSortingSelect ? (
+            <Dropdown
+                sx={classes.dropdown}
+                isEditable={true}
+                title={'Sorting Algorithm'}
+                value={activeSorting}
+                menuItems={SORTING_ALGORITHMS}
+                handleChange={onSortInputChange}
+            />
+        ) : null
+      }
       {showMultiSelect ? (
         <FilterMultiSelect sx={{ marginTop: '8px' }} />
       ) : undefined}
@@ -108,12 +169,13 @@ export function AttributionList() {
 
 function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
   attributions: Attributions,
+  sortByCriticality: boolean,
 ): {
   filteredAndSortedPackageCardIds: Array<string>;
   filteredDisplayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(attributions).sort(
-    getAlphabeticalComparerForAttributions(attributions),
+    getAlphabeticalComparerForAttributions(attributions, sortByCriticality),
   );
 
   const filteredAndSortedPackageCardIds: Array<string> = [];
