@@ -4,11 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as fs from 'fs';
 
-import { faker } from '../../../shared/Faker';
 import {
   Attributions,
   AttributionsWithResources,
 } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import { KeysOfAttributionInfo } from '../../types/types';
 import { getHeadersFromColumns, writeCsvToFile } from '../writeCsvToFile';
 

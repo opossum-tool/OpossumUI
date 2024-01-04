@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker } from '../../../../../shared/Faker';
 import { Resources } from '../../../../../shared/shared-types';
+import { faker } from '../../../../../testing/Faker';
 import { getOriginIdsToPreferOver } from '../preference-actions';
 
 describe('getOriginIdsToPreferOver', () => {

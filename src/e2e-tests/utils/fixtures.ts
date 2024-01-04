@@ -46,7 +46,6 @@ interface OpossumData {
   decompress?: boolean;
 }
 
-export { expect } from '@playwright/test';
 export const test = base.extend<{
   window: Page & { app: ElectronApplication };
   /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */

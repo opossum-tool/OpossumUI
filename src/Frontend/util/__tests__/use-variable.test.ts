@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act } from '@testing-library/react';
 
-import { faker } from '../../../shared/Faker';
+import { faker } from '../../../testing/Faker';
 import { renderHook } from '../../test-helpers/render';
 import { useVariable } from '../use-variable';
 

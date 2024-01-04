@@ -5,8 +5,8 @@
 import { screen } from '@testing-library/react';
 
 import commitInfo from '../../../../commitInfo.json';
-import { faker } from '../../../../shared/Faker';
 import { text } from '../../../../shared/text';
+import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
 import { UpdateAppPopup } from '../UpdateAppPopup';
 import * as util from '../UpdateAppPopup.util';

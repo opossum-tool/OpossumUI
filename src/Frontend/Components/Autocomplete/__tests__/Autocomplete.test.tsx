@@ -6,7 +6,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { isEqual } from 'lodash';
 
-import { faker } from '../../../../shared/Faker';
+import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
 import { Autocomplete } from '../Autocomplete';
 

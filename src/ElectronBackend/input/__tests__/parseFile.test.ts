@@ -6,8 +6,8 @@ import { cloneDeep, set } from 'lodash';
 import { NIL as uuidNil } from 'uuid';
 import zlib from 'zlib';
 
-import { faker } from '../../../shared/Faker';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import { faker } from '../../../testing/Faker';
 import {
   OpossumOutputFile,
   ParsedOpossumInputAndOutput,

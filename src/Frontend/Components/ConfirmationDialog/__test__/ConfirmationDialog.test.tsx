@@ -5,7 +5,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { faker } from '../../../../shared/Faker';
+import { faker } from '../../../../testing/Faker';
 import { ButtonText } from '../../../enums/enums';
 import { renderComponent } from '../../../test-helpers/render';
 import {

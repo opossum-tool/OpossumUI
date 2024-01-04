@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker } from '../../../../shared/Faker';
 import { Attributions, FollowUp } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { renderHook } from '../../../test-helpers/render';

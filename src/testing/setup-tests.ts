@@ -6,8 +6,8 @@
 import '@testing-library/jest-dom';
 import { noop } from 'lodash';
 
+import { ElectronAPI } from '../shared/shared-types';
 import { faker } from './Faker';
-import { ElectronAPI } from './shared-types';
 
 // We suppress the recharts warning that is due to our mocking in tests.
 const SUBSTRINGS_TO_SUPPRESS_IN_CONSOLE_WARN = [
