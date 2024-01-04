@@ -4,10 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiLink from '@mui/material/Link';
 import MuiTypography from '@mui/material/Typography';
-import { useQuery } from '@tanstack/react-query';
-import { ReactElement } from 'react';
 
 import commitInfo from '../../../commitInfo.json';
+import { text } from '../../../shared/text';
 import { ButtonText } from '../../enums/enums';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -15,62 +14,58 @@ import { openUrl } from '../../util/open-url';
 import { Alert } from '../Alert/Alert';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { Spinner } from '../Spinner/Spinner';
-import { searchLatestReleaseNameAndUrl } from './update-app-popup-helpers';
+import { useLatestRelease } from './UpdateAppPopup.util';
 
-export function UpdateAppPopup(): ReactElement {
+export function UpdateAppPopup() {
   const dispatch = useAppDispatch();
+  const { latestRelease, latestReleaseError, latestReleaseLoading } =
+    useLatestRelease();
 
-  function close(): void {
+  const handleClose = () => {
     dispatch(closePopup());
-  }
-
-  const { isLoading, data, isError, error } = useQuery({
-    queryKey: ['latestReleaseNameSearch'],
-    queryFn: () => searchLatestReleaseNameAndUrl(),
-    refetchOnWindowFocus: false,
-  });
-
-  const content = !isError ? (
-    isLoading ? (
-      <Spinner />
-    ) : data ? (
-      data.name === commitInfo.commitInfo ? (
-        'You have the latest version of the app.'
-      ) : (
-        <>
-          <MuiTypography>
-            There is a new release! You can download it using the following
-            link:
-            <br />
-            <MuiLink component="button" onClick={(): void => openUrl(data.url)}>
-              {data.name}
-            </MuiLink>
-          </MuiTypography>
-        </>
-      )
-    ) : (
-      'No information found.'
-    )
-  ) : (
-    <Alert
-      errorMessage={`Failed while fetching release data${
-        error instanceof Error ? `: ${error.message}` : ''
-      }`}
-    />
-  );
+  };
 
   return (
     <NotificationPopup
-      content={content}
-      header={'Check for updates'}
-      isOpen={true}
-      fullWidth={false}
+      content={renderContent()}
+      header={text.updateAppPopup.title}
+      isOpen
+      width={600}
       rightButtonConfig={{
-        onClick: close,
+        onClick: handleClose,
         buttonText: ButtonText.Close,
       }}
-      onBackdropClick={close}
-      onEscapeKeyDown={close}
+      onBackdropClick={handleClose}
+      onEscapeKeyDown={handleClose}
     />
   );
+
+  function renderContent() {
+    if (latestReleaseLoading) {
+      return <Spinner />;
+    }
+
+    if (latestReleaseError) {
+      return (
+        <Alert
+          errorMessage={text.updateAppPopup.fetchFailed(
+            latestReleaseError.message,
+          )}
+        />
+      );
+    }
+
+    if (!latestRelease || latestRelease.name === commitInfo.commitInfo) {
+      return text.updateAppPopup.noUpdateAvailable;
+    }
+
+    return (
+      <MuiTypography>
+        {text.updateAppPopup.updateAvailable}{' '}
+        <MuiLink href={'#'} onClick={() => openUrl(latestRelease.url)}>
+          {latestRelease.name}
+        </MuiLink>
+      </MuiTypography>
+    );
+  }
 }

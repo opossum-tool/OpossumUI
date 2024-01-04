@@ -22,8 +22,6 @@
         '@faker-js/faker',
         '@playwright/test',
         '@trivago/prettier-plugin-sort-imports',
-        'axios',
-        'axios-mock-adapter',
         'babel-jest',
         'babel-plugin-transform-import-meta',
         'buffer',

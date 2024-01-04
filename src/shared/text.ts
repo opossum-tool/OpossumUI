@@ -67,6 +67,13 @@ export const text = {
     onlySearchLicenseNames: 'Only search license names',
     license: 'License',
   },
+  updateAppPopup: {
+    title: 'Check for updates',
+    noUpdateAvailable: 'You have the latest version of OpossumUI installed.',
+    updateAvailable: 'There is a newer version of OpossumUI available:',
+    fetchFailed: (message: string) =>
+      `Failed to fetch latest release information: ${message}`,
+  },
   attributionFilters: {
     firstParty: 'First Party',
     thirdParty: 'Third Party',
