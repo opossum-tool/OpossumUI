@@ -62,7 +62,6 @@ test('filters attributions and persists selection across attribution and report 
 
   await attributionFilters.openFilterMenu();
   await attributionFilters.onlyFollowUpOption.click();
-  await attributionFilters.closeFilterMenu();
   await attributionList.attributionCard.assert.isVisible(packageInfo1);
   await attributionList.attributionCard.assert.isHidden(packageInfo2);
   await attributionList.attributionCard.assert.isHidden(packageInfo3);
@@ -72,16 +71,13 @@ test('filters attributions and persists selection across attribution and report 
   await reportView.assert.attributionIsHidden(packageInfo2);
   await reportView.assert.attributionIsHidden(packageInfo3);
 
-  await attributionFilters.openFilterMenu();
-  await attributionFilters.onlyFollowUpOption.click();
-  await attributionFilters.closeFilterMenu();
+  await attributionFilters.clearFilters();
   await reportView.assert.attributionIsVisible(packageInfo1);
   await reportView.assert.attributionIsVisible(packageInfo2);
   await reportView.assert.attributionIsVisible(packageInfo3);
 
   await attributionFilters.openFilterMenu();
   await attributionFilters.onlyFirstPartyOption.click();
-  await attributionFilters.closeFilterMenu();
   await reportView.assert.attributionIsHidden(packageInfo1);
   await reportView.assert.attributionIsHidden(packageInfo2);
   await reportView.assert.attributionIsVisible(packageInfo3);

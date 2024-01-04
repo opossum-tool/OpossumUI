@@ -171,7 +171,7 @@ export function LocatorPopup(): ReactElement {
           setSearchedLicenses(new Set(value));
         }}
         filterSelectedOptions
-        inputProps={{ 'aria-label': 'auto complete' }}
+        aria-label={'license names'}
       />
       {showNoSignalsLocatedMessage ? (
         <MuiTypography variant={'subtitle2'} sx={classes.noSignalsMessage}>

@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, Screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import isEmpty from 'lodash/isEmpty';
 
 import {
@@ -13,6 +14,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
+import { Filter } from '../Components/Filter/FilterMultiSelect.util';
 import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
@@ -122,25 +124,20 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
   );
 }
 
-export function openDropDown(screen: Screen): void {
-  fireEvent.mouseDown(
-    screen.getByTestId('test-id-filter-multi-select').childNodes[0] as Element,
-  );
-}
-
 export function expectFilterIsShown(screen: Screen, label: string): void {
   expect(screen.getByLabelText(label)).toBeInTheDocument();
 }
 
-export function clickOnFilter(screen: Screen, label: string): void {
-  fireEvent.click(screen.getByLabelText(label) as Element);
+export async function selectFilter(screen: Screen, filter: Filter) {
+  await userEvent.click(screen.getByRole('combobox'));
+  await userEvent.click(screen.getByText(filter));
 }
 
 export function expectElementsInAutoCompleteAndSelectFirst(
   screen: Screen,
   elements: Array<string>,
 ): void {
-  const autoComplete = screen.getByLabelText('auto complete');
+  const autoComplete = screen.getByLabelText('license names');
   autoComplete.focus();
   fireEvent.keyDown(autoComplete, { key: 'ArrowDown' });
 

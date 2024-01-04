@@ -67,4 +67,11 @@ export const text = {
     onlySearchLicenseNames: 'Only search license names',
     license: 'License',
   },
-};
+  attributionFilters: {
+    firstParty: 'First Party',
+    thirdParty: 'Third Party',
+    followUp: 'Needs Follow-Up',
+    needsReview: 'Needs Review by QA',
+    currentlyPreferred: 'Currently Preferred',
+  },
+} as const;
