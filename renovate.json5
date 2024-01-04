@@ -72,6 +72,7 @@
       matchPackagePrefixes: ['@typescript-eslint/'],
       groupName: 'TypeScript ESLint dependencies',
       groupSlug: 'typescript-eslint',
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },
     {
@@ -84,16 +85,22 @@
       matchPackagePrefixes: ['@mui/'],
       groupName: 'MUI dependencies',
       groupSlug: 'mui',
+      matchUpdateTypes: ['minor', 'patch'],
+      automerge: true,
     },
     {
       matchPackagePrefixes: ['@emotion/'],
       groupName: 'Emotion dependencies',
       groupSlug: 'emotion',
+      matchUpdateTypes: ['minor', 'patch'],
+      automerge: true,
     },
     {
       matchPackagePrefixes: ['@tanstack/'],
       groupName: 'Tanstack dependencies',
       groupSlug: 'tanstack',
+      matchUpdateTypes: ['minor', 'patch'],
+      automerge: true,
     },
     {
       matchPackageNames: ['react', 'react-dom'],
@@ -120,6 +127,7 @@
       matchPackageNames: ['jest', 'babel-jest'],
       groupName: 'Jest dependencies',
       groupSlug: 'jest',
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },
     {
