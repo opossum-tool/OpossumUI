@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { difference } from 'lodash';
 
-import { faker } from '../../../shared/Faker';
 import {
   AutocompleteSignal,
   DisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { faker } from '../../../testing/Faker';
 import { RequestProps } from '../http-client';
 import {
   PackageSearchApi,

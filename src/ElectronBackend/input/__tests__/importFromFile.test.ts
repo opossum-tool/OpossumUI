@@ -7,7 +7,6 @@ import { BrowserWindow, dialog } from 'electron';
 import * as zlib from 'zlib';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import { faker } from '../../../shared/Faker';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import {
   Criticality,
@@ -17,6 +16,7 @@ import {
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
+import { faker } from '../../../testing/Faker';
 import {
   getGlobalBackendState,
   setGlobalBackendState,

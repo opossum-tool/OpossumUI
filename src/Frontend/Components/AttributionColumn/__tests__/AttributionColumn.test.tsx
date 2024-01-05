@@ -7,7 +7,6 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash';
 
-import { faker } from '../../../../shared/Faker';
 import {
   Attributions,
   DiscreteConfidence,
@@ -19,6 +18,7 @@ import {
   SaveFileArgs,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { faker } from '../../../../testing/Faker';
 import { AttributionType } from '../../../enums/enums';
 import {
   setFrequentLicenses,

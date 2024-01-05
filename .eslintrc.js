@@ -173,7 +173,7 @@ module.exports = {
       files: [
         '**/*.test.ts',
         '**/*.test.tsx',
-        'src/shared/Faker.ts',
+        'src/testing/**/*',
         'src/e2e-tests/**/*',
       ],
       rules: {

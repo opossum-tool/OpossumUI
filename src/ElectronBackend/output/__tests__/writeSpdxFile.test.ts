@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
 
-import { faker } from '../../../shared/Faker';
 import { Attributions, ExportType } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import { writeSpdxFile } from '../writeSpdxFile';
 
 describe('writeSpdxFile', () => {

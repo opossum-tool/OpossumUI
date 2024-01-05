@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { faker } from '../../../../shared/Faker';
+import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
 import { SearchTextField } from '../SearchTextField';
 

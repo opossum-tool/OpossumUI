@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker } from '../../../../shared/Faker';
 import { AutocompleteSignal } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { getAutocompleteSignals } from '../get-autocomplete-signals';
 

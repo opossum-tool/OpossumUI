@@ -5,7 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { faker } from '../../../../shared/Faker';
+import { faker } from '../../../../testing/Faker';
 import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
 import { SplitButton } from '../SplitButton';
 

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act } from '@testing-library/react';
 
-import { faker } from '../../../shared/Faker';
+import { faker } from '../../../testing/Faker';
 import { View } from '../../enums/enums';
 import { setProjectMetadata } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';

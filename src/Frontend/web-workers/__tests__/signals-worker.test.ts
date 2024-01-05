@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker } from '../../../shared/Faker';
+import { faker } from '../../../testing/Faker';
 import { SignalsWorker, SignalsWorkerOutput } from '../signals-worker';
 
 describe('SignalsWorker', () => {

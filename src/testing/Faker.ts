@@ -48,7 +48,7 @@ import {
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
   Source,
-} from './shared-types';
+} from '../shared/shared-types';
 
 type ManualPackageInfo = Omit<ExternalPackageInfo, 'source'>;
 type Tuple<N extends number, T> = N extends N

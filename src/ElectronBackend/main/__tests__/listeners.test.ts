@@ -8,7 +8,6 @@ import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
-import { faker } from '../../../shared/Faker';
 import {
   AllowedFrontendChannels,
   IpcChannel,
@@ -22,6 +21,7 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
+import { faker } from '../../../testing/Faker';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
