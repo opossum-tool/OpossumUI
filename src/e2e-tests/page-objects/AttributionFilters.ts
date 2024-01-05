@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { text } from '../../shared/text';
+
 export class AttributionFilters {
   private readonly window: Page;
   private readonly node: Locator;
@@ -15,22 +17,22 @@ export class AttributionFilters {
 
   constructor(window: Page) {
     this.window = window;
-    this.node = window.getByRole('combobox');
-    this.hideFirstPartyOption = window
-      .getByRole('listbox')
-      .getByLabel('hide first party');
-    this.onlyFirstPartyOption = window
-      .getByRole('listbox')
-      .getByLabel('only first party');
-    this.onlyFollowUpOption = window
-      .getByRole('listbox')
-      .getByLabel('only follow up');
-    this.onlyNeedsReviewOption = window
-      .getByRole('listbox')
-      .getByLabel('only needs review');
-    this.onlyPreferredOption = window
-      .getByRole('listbox')
-      .getByLabel('only preferred');
+    this.node = window.getByLabel('attribution filters');
+    this.hideFirstPartyOption = window.getByRole('option', {
+      name: text.attributionFilters.thirdParty,
+    });
+    this.onlyFirstPartyOption = window.getByRole('option', {
+      name: text.attributionFilters.firstParty,
+    });
+    this.onlyFollowUpOption = window.getByRole('option', {
+      name: text.attributionFilters.followUp,
+    });
+    this.onlyNeedsReviewOption = window.getByRole('option', {
+      name: text.attributionFilters.needsReview,
+    });
+    this.onlyPreferredOption = window.getByRole('option', {
+      name: text.attributionFilters.currentlyPreferred,
+    });
   }
 
   public assert = {
@@ -44,6 +46,10 @@ export class AttributionFilters {
 
   async openFilterMenu(): Promise<void> {
     await this.node.click();
+  }
+
+  async clearFilters(): Promise<void> {
+    await this.node.getByLabel('clear button').click();
   }
 
   async closeFilterMenu(): Promise<void> {

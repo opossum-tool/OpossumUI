@@ -3,10 +3,9 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FilterType, PopupType, View } from '../../../../enums/enums';
+import { PopupType, View } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import {
-  getActiveFilters,
   getOpenPopup,
   getPopupAttributionId,
   getQAMode,
@@ -23,7 +22,6 @@ import {
   resetViewState,
   setQAMode,
   setTargetView,
-  updateActiveFilters,
 } from '../view-actions';
 
 describe('view actions', () => {
@@ -101,53 +99,15 @@ describe('view actions', () => {
     testStore.dispatch(navigateToView(View.Attribution));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetView(View.Audit));
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
 
     expect(isAttributionViewSelected(testStore.getState())).toBe(true);
     expect(getTargetView(testStore.getState())).toBe(View.Audit);
     expect(getOpenPopup(testStore.getState())).toBe(PopupType.NotSavedPopup);
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
-    ).toBe(true);
 
     testStore.dispatch(resetViewState());
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
-    ).toBe(false);
-  });
-
-  it('sets filters correctly', () => {
-    const testStore = createAppStore();
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
-    ).toBe(true);
-
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
-    ).toBe(false);
-
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    testStore.dispatch(updateActiveFilters(FilterType.HideFirstParty));
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
-    ).toBe(false);
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.HideFirstParty),
-    ).toBe(true);
-
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFirstParty));
-    testStore.dispatch(updateActiveFilters(FilterType.OnlyFollowUp));
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFirstParty),
-    ).toBe(true);
-    expect(
-      getActiveFilters(testStore.getState()).has(FilterType.OnlyFollowUp),
-    ).toBe(true);
   });
 
   it('sets and gets QA mode state', () => {

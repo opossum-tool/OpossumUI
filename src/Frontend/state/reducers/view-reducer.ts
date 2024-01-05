@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FilterType, View } from '../../enums/enums';
+import { View } from '../../enums/enums';
 import { PopupInfo } from '../../types/types';
 import {
   ACTION_CLOSE_POPUP,
@@ -14,16 +14,13 @@ import {
   ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
-  ACTION_UPDATE_ACTIVE_FILTERS,
   ViewAction,
 } from '../actions/view-actions/types';
-import { getUpdatedFilters } from '../helpers/set-filters';
 
 export interface ViewState {
   view: View;
   targetView: View | null;
   popupInfo: Array<PopupInfo>;
-  activeFilters: Set<FilterType>;
   showNoSignalsLocatedMessage: boolean;
   qaMode: boolean;
   openFileRequest: boolean;
@@ -33,7 +30,6 @@ export const initialViewState: ViewState = {
   view: View.Audit,
   targetView: null,
   popupInfo: [],
-  activeFilters: new Set<FilterType>(),
   showNoSignalsLocatedMessage: false,
   qaMode: false,
   openFileRequest: false,
@@ -69,11 +65,6 @@ export function viewState(
       return {
         ...state,
         popupInfo: newPopupInfo,
-      };
-    case ACTION_UPDATE_ACTIVE_FILTERS:
-      return {
-        ...state,
-        activeFilters: getUpdatedFilters(state.activeFilters, action.payload),
       };
     case ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE:
       return {

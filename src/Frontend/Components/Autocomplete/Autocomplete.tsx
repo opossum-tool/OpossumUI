@@ -43,6 +43,7 @@ type AutocompleteProps<
     | 'renderOptionEndIcon'
     | 'renderOptionStartIcon'
   > & {
+    ['aria-label']?: string;
     endAdornment?: React.ReactNode;
     highlight?: 'default' | 'dark';
     inputProps?: MuiInputBaseComponentProps;
@@ -151,7 +152,12 @@ export function Autocomplete<
 
   return (
     <>
-      <Container {...getRootProps()} sx={sx} ref={setAnchorEl}>
+      <Container
+        aria-label={props['aria-label']}
+        {...getRootProps()}
+        sx={sx}
+        ref={setAnchorEl}
+      >
         <Input
           {...inputProps}
           disabled={disabled}
@@ -209,12 +215,16 @@ export function Autocomplete<
     return (
       <EndAdornmentContainer>
         {hasClearButton && (
-          <ClearButton {...(getClearProps() as MuiIconButtonProps)} />
+          <ClearButton
+            {...(getClearProps() as MuiIconButtonProps)}
+            onMouseDown={(event) => event.stopPropagation()}
+          />
         )}
         {hasPopupIndicator && (
           <PopupIndicator
             popupOpen={isPopupOpen}
             {...(getPopupIndicatorProps() as MuiIconButtonProps)}
+            onClick={undefined}
           />
         )}
         {endAdornment}

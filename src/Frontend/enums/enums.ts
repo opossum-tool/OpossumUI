@@ -81,14 +81,6 @@ export enum ButtonText {
   UnmarkForReplacement = 'Unmark current for replacement',
 }
 
-export enum FilterType {
-  OnlyFirstParty = 'Only First Party',
-  HideFirstParty = 'Hide First Party',
-  OnlyFollowUp = 'Only Follow Up',
-  OnlyNeedsReview = 'Only Needs Review',
-  OnlyPreferred = 'Only Preferred',
-}
-
 export enum ProjectStatisticsPopupTitle {
   LicenseCountsTable = 'Signals per Sources',
   AttributionPropertyCountTable = 'Attributions Overview',

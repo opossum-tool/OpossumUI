@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   Attributions,
@@ -11,13 +12,11 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { FilterType } from '../../../enums/enums';
 import { setFrequentLicenses } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import {
-  clickOnFilter,
   getParsedInputFileEnrichedWithTestData,
-  openDropDown,
+  selectFilter,
 } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { ReportView } from '../ReportView';
@@ -85,7 +84,7 @@ describe('The ReportView', () => {
     expect(screen.getByText('Some other license text')).toBeInTheDocument();
   });
 
-  it('filters Follow-ups', () => {
+  it('filters Follow-ups', async () => {
     const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
@@ -104,14 +103,13 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test package')).toBeInTheDocument();
     expect(screen.getByText('Test other package')).toBeInTheDocument();
 
-    openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    await selectFilter(screen, 'Needs Follow-Up');
 
     expect(screen.getByText('Test other package')).toBeInTheDocument();
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 
-  it('filters only first party', () => {
+  it('filters only first party', async () => {
     const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
@@ -130,18 +128,17 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test package')).toBeInTheDocument();
     expect(screen.getByText('Test other package')).toBeInTheDocument();
 
-    openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    await selectFilter(screen, 'First Party');
 
     expect(screen.getByText('Test package')).toBeInTheDocument();
     expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
 
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    await userEvent.click(screen.getByLabelText('clear button'));
     expect(screen.getByText('Test package')).toBeInTheDocument();
     expect(screen.getByText('Test other package')).toBeInTheDocument();
   });
 
-  it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
+  it('filters Only First Party and follow ups and then hide first party and follow ups', async () => {
     const { store } = renderComponent(<ReportView />);
     act(() => {
       store.dispatch(
@@ -160,16 +157,10 @@ describe('The ReportView', () => {
     expect(screen.getByText('Test package')).toBeInTheDocument();
     expect(screen.getByText('Test other package')).toBeInTheDocument();
 
-    openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    await selectFilter(screen, 'First Party');
+    await selectFilter(screen, 'Needs Follow-Up');
 
     expect(screen.queryByText('Test package')).not.toBeInTheDocument();
     expect(screen.queryByText('Test other package')).not.toBeInTheDocument();
-
-    clickOnFilter(screen, FilterType.HideFirstParty);
-
-    expect(screen.getByText('Test other package')).toBeInTheDocument();
-    expect(screen.queryByText('Test package')).not.toBeInTheDocument();
   });
 });

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import MuiBox from '@mui/material/Box';
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
 import {
@@ -14,17 +14,15 @@ import {
 } from '../../shared-styles';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
-import { getActiveFilters } from '../../state/selectors/view-selector';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
-import { useFilters } from '../../util/use-filters';
 import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer/AttributionDetailsViewer';
 import { AttributionList } from '../AttributionList/AttributionList';
 import { FilterMultiSelect } from '../Filter/FilterMultiSelect';
+import { useFilteredAttributions } from '../Filter/FilterMultiSelect.util';
 import { IconButton } from '../IconButton/IconButton';
 
 const classes = {
@@ -42,30 +40,17 @@ const classes = {
   clickableIcon,
 };
 
-export function AttributionView(): ReactElement {
+export function AttributionView() {
   const dispatch = useAppDispatch();
-  const attributions: Attributions = useAppSelector(getManualAttributions);
-  const selectedPackageCardIdInAttributionView: string = useAppSelector(
+  const selectedPackageCardIdInAttributionView = useAppSelector(
     getSelectedAttributionIdInAttributionView,
   );
-  const filteredAttributions = useFilters(attributions);
-  const activeFilters = Array.from(useAppSelector(getActiveFilters));
-  const [showMultiSelect, setShowMultiselect] = useState<boolean>(false);
-
-  if (activeFilters.length !== 0 && !showMultiSelect) {
-    setShowMultiselect(!showMultiSelect);
-  }
+  const { attributions, activeFilters } = useFilteredAttributions();
+  const hasActiveFilters = !!activeFilters.length;
+  const [showMultiSelect, setShowMultiselect] = useState(hasActiveFilters);
 
   const { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos } =
-    getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-      filteredAttributions,
-    );
-
-  function onCardClick(packageCardId: string): void {
-    // In AttributionView, attributionIds still serve as packageCardIds
-    const attributionId = packageCardId;
-    dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
-  }
+    getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(attributions);
 
   return (
     <MuiBox sx={classes.root}>
@@ -73,20 +58,21 @@ export function AttributionView(): ReactElement {
         displayPackageInfos={filteredDisplayPackageInfos}
         sortedPackageCardIds={filteredAndSortedPackageCardIds}
         selectedPackageCardId={selectedPackageCardIdInAttributionView}
-        onCardClick={onCardClick}
+        onCardClick={(id) =>
+          dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(id))
+        }
         sx={classes.attributionList}
         title={<AttributionCountsPanel />}
         topRightElement={
           <IconButton
-            tooltipTitle="Filters"
-            tooltipPlacement="right"
-            onClick={(): void => setShowMultiselect(!showMultiSelect)}
-            disabled={activeFilters.length !== 0}
+            tooltipTitle={'Filters'}
+            tooltipPlacement={'right'}
+            onClick={() => setShowMultiselect((prev) => !prev)}
+            disabled={hasActiveFilters}
             icon={
               <FilterAltIcon
-                aria-label={'Filter icon'}
                 sx={
-                  activeFilters.length !== 0
+                  hasActiveFilters
                     ? classes.disabledIcon
                     : classes.clickableIcon
                 }
@@ -95,7 +81,9 @@ export function AttributionView(): ReactElement {
           />
         }
         filterElement={
-          <FilterMultiSelect sx={showMultiSelect ? {} : { display: 'none' }} />
+          showMultiSelect ? (
+            <FilterMultiSelect sx={{ marginTop: '8px' }} />
+          ) : undefined
         }
       />
       <AttributionDetailsViewer />
@@ -104,27 +92,24 @@ export function AttributionView(): ReactElement {
 }
 
 function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-  filteredAttributions: Attributions,
+  attributions: Attributions,
 ): {
   filteredAndSortedPackageCardIds: Array<string>;
   filteredDisplayPackageInfos: DisplayPackageInfos;
 } {
-  const sortedAttributionIds = Object.keys(filteredAttributions).sort(
-    getAlphabeticalComparerForAttributions(filteredAttributions),
+  const sortedAttributionIds = Object.keys(attributions).sort(
+    getAlphabeticalComparerForAttributions(attributions),
   );
 
   const filteredAndSortedPackageCardIds: Array<string> = [];
   const filteredDisplayPackageInfos: DisplayPackageInfos = {};
 
   sortedAttributionIds.forEach((attributionId) => {
-    // In AttributionView, attribtionIds still serve as packageCardIds
-    const packageCardId = attributionId;
-    filteredAndSortedPackageCardIds.push(packageCardId);
-    filteredDisplayPackageInfos[packageCardId] =
-      convertPackageInfoToDisplayPackageInfo(
-        filteredAttributions[attributionId],
-        [attributionId],
-      );
+    filteredAndSortedPackageCardIds.push(attributionId);
+    filteredDisplayPackageInfos[attributionId] =
+      convertPackageInfoToDisplayPackageInfo(attributions[attributionId], [
+        attributionId,
+      ]);
   });
   return { filteredAndSortedPackageCardIds, filteredDisplayPackageInfos };
 }

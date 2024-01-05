@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
 import {
@@ -11,13 +12,12 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
-import { FilterType, View } from '../../../enums/enums';
+import { View } from '../../../enums/enums';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import {
-  clickOnFilter,
   getParsedInputFileEnrichedWithTestData,
-  openDropDown,
+  selectFilter,
 } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { AttributionView } from '../AttributionView';
@@ -76,7 +76,7 @@ describe('The Attribution View', () => {
     expect(screen.getByText('test resource')).toBeInTheDocument();
   });
 
-  it('filters Follow-ups', () => {
+  it('filters Follow-ups', async () => {
     const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
@@ -97,14 +97,14 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
     expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
-    openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    await userEvent.click(screen.getByLabelText('Filters'));
+    await selectFilter(screen, 'Needs Follow-Up');
 
     expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 
-  it('filters Only First Party', () => {
+  it('filters Only First Party', async () => {
     const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
@@ -125,8 +125,8 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
     expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
-    openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
+    await userEvent.click(screen.getByLabelText('Filters'));
+    await selectFilter(screen, 'First Party');
 
     expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
     expect(
@@ -134,7 +134,7 @@ describe('The Attribution View', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('filters Only First Party and follow ups and then hide first party and follow ups', () => {
+  it('filters Only First Party and follow ups and then hide first party and follow ups', async () => {
     const { store } = renderComponent(<AttributionView />);
     store.dispatch(
       loadFromFile(
@@ -155,18 +155,14 @@ describe('The Attribution View', () => {
     expect(screen.getByText('Test package, 1.0')).toBeInTheDocument();
     expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
 
-    openDropDown(screen);
-    clickOnFilter(screen, FilterType.OnlyFirstParty);
-    clickOnFilter(screen, FilterType.OnlyFollowUp);
+    await userEvent.click(screen.getByLabelText('Filters'));
+    await selectFilter(screen, 'First Party');
+    await selectFilter(screen, 'Needs Follow-Up');
 
     expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
     expect(
       screen.queryByText('Test other package, 2.0'),
     ).not.toBeInTheDocument();
-
-    clickOnFilter(screen, FilterType.HideFirstParty);
-    expect(screen.getByText('Test other package, 2.0')).toBeInTheDocument();
-    expect(screen.queryByText('Test package, 1.0')).not.toBeInTheDocument();
   });
 
   it('sorts displayAttributionsWithCount', () => {

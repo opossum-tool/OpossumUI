@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FilterType, PopupType, View } from '../../enums/enums';
+import { PopupType, View } from '../../enums/enums';
 import { State } from '../../types/types';
 
 export function isAttributionViewSelected(state: State): boolean {
@@ -30,10 +30,6 @@ export function getOpenPopup(state: State): null | PopupType {
   const popup = state.viewState.popupInfo.slice(-1);
 
   return popup.length === 1 ? popup[0].popup : null;
-}
-
-export function getActiveFilters(state: State): Set<FilterType> {
-  return state.viewState.activeFilters;
 }
 
 export function getPopupAttributionId(state: State): string | null {

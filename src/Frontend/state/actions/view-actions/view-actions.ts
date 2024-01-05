@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
-import { FilterType, PopupType, View } from '../../../enums/enums';
+import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
 import {
@@ -23,7 +23,6 @@ import {
   ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
-  ACTION_UPDATE_ACTIVE_FILTERS,
   ClosePopupAction,
   OpenPopupAction,
   ResetViewStateAction,
@@ -32,7 +31,6 @@ import {
   SetShowNoSignalsLocatedMessage,
   SetTargetView,
   SetView,
-  UpdateActiveFilters,
 } from './types';
 
 export function resetViewState(): ResetViewStateAction {
@@ -90,15 +88,6 @@ export function openPopup(
 
 export function closePopup(): ClosePopupAction {
   return { type: ACTION_CLOSE_POPUP };
-}
-
-export function updateActiveFilters(
-  filterType: FilterType,
-): UpdateActiveFilters {
-  return {
-    type: ACTION_UPDATE_ACTIVE_FILTERS,
-    payload: filterType,
-  };
 }
 
 export function setShowNoSignalsLocatedMessage(
