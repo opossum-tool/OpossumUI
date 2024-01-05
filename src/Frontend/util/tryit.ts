@@ -8,15 +8,13 @@
  * @param func The function that might throw an error. It can be async.
  * @returns
  */
-export function tryit<A extends Array<unknown>, R>(
+export function tryit<A extends Array<unknown>, R extends Promise<unknown>>(
   func: (...args: A) => R,
-): (
-  ...args: A
-) => R extends Promise<infer P> ? Promise<P | undefined> : R | undefined {
+): (...args: A) => R extends Promise<infer P> ? Promise<P | undefined> : never {
   //@ts-expect-error fixing this type error would just repeat the definition above
-  return (...args) => {
+  return async (...args) => {
     try {
-      return func(...args);
+      return await func(...args);
     } catch (error) {
       return undefined;
     }

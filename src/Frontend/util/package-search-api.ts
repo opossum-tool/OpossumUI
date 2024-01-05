@@ -434,7 +434,7 @@ export class PackageSearchApi {
       });
     }
 
-    return packageInfo;
+    throw new Error(text.attributionColumn.enrichFailure);
   }
 
   private async enrichSystemPackageInfo({
@@ -462,34 +462,32 @@ export class PackageSearchApi {
       )}`,
     });
 
-    if (!response.ok) {
-      return packageInfo;
-    }
-
     const {
       version: { links, licenses, description },
     }: WebVersionResponse = await response.json();
 
     return this.enrichPackageInfoViaRepoUrl({
       ...packageInfo,
-      comments: packageInfo.comments || [
-        [
-          ...(description
-            ? [`${text.attributionColumn.description}: ${description}`]
-            : []),
-          ...(links?.homepage
-            ? [`${text.attributionColumn.homepage}: ${links.homepage}`]
-            : []),
-          ...(links?.origins?.length
-            ? links.origins.map(
-                (origin, index, origins) =>
-                  `${text.attributionColumn.origin}${
-                    origins.length > 1 ? ` #${index + 1}` : ''
-                  }: ${origin}`,
-              )
-            : []),
-        ].join('\n'),
-      ],
+      comments: compact(packageInfo.comments).length
+        ? packageInfo.comments
+        : [
+            [
+              ...(description
+                ? [`${text.attributionColumn.description}: ${description}`]
+                : []),
+              ...(links?.homepage
+                ? [`${text.attributionColumn.homepage}: ${links.homepage}`]
+                : []),
+              ...(links?.origins?.length
+                ? links.origins.map(
+                    (origin, index, origins) =>
+                      `${text.attributionColumn.origin}${
+                        origins.length > 1 ? ` #${index + 1}` : ''
+                      }: ${origin}`,
+                  )
+                : []),
+            ].join('\n'),
+          ],
       licenseName:
         packageInfo.licenseName ||
         licenses
@@ -509,10 +507,6 @@ export class PackageSearchApi {
       baseUrl: this.baseUrls.DEPS_DEV_WEB, // endpoint not available via API
       path: `s/${system}/p/${encodeURIComponent(name)}/v/`,
     });
-
-    if (!response.ok) {
-      return undefined;
-    }
 
     const { defaultVersion }: DefaultVersionResponse = await response.json();
 
@@ -547,10 +541,6 @@ export class PackageSearchApi {
         path: `repos/${githubMatch[2]}/${githubMatch[3]}/license`,
       });
 
-      if (!response.ok) {
-        return packageInfo;
-      }
-
       const { license, content }: GitHubLicenseResponse = await response.json();
 
       return {
@@ -569,10 +559,6 @@ export class PackageSearchApi {
         path: `projects/${gitlabMatch[2]}%2F${gitlabMatch[3]}`,
         params: { license: 'true' },
       });
-
-      if (!response.ok) {
-        return packageInfo;
-      }
 
       const { license_url: licenseUrl, license }: GitLabProjectResponse =
         await response.json();

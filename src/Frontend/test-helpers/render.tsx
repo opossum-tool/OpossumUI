@@ -64,7 +64,13 @@ export function renderHook<P, R>(
 
   return {
     ...nativeRenderHook(callback, {
-      wrapper: ({ children }) => <Provider store={store}>{children}</Provider>,
+      wrapper: ({ children }) => (
+        <Provider store={store}>
+          <QueryClientProvider client={makeReactQueryClient()}>
+            {children}
+          </QueryClientProvider>
+        </Provider>
+      ),
       initialProps,
     }),
     store,
