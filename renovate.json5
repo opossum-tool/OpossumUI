@@ -49,6 +49,7 @@
         'object-hash',
         'prettier',
         'proxy-memoize',
+        'react-hotkeys-hook',
         'run-script-os',
         'spdx-license-ids',
         'start-server-and-test',
