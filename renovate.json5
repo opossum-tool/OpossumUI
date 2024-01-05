@@ -78,6 +78,7 @@
       matchPackagePrefixes: ['@commitlint/'],
       groupName: 'commitlint dependencies',
       groupSlug: 'commitlint',
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
     },
     {
