@@ -5,16 +5,13 @@
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
-import {
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  SvgIconProps,
-  Typography,
-} from '@mui/material';
+import MuiDialog from '@mui/material/Dialog';
+import MuiDialogContent from '@mui/material/DialogContent';
+import MuiDialogTitle from '@mui/material/DialogTitle';
+import { SvgIconProps } from '@mui/material/SvgIcon';
+import MuiTypography from '@mui/material/Typography';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { Log } from '../../../shared/shared-types';
@@ -25,6 +22,7 @@ import {
   LoggingListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
+import { Spinner } from '../Spinner/Spinner';
 import {
   BreakableTypography,
   MessageContainer,
@@ -40,7 +38,7 @@ const icon: Record<
   info: { Component: CheckIcon, color: 'green' },
 };
 
-export function ProcessPopup(): React.ReactNode {
+export function ProcessPopup() {
   const [logs, setLogs] = useState<Array<Log>>([]);
   const [loading, setLoading] = useState(false);
 
@@ -64,40 +62,35 @@ export function ProcessPopup(): React.ReactNode {
   );
 
   return (
-    <Dialog open={loading} fullWidth>
-      <DialogTitle>{text.processPopup.title}</DialogTitle>
+    <MuiDialog open={loading} fullWidth>
+      <MuiDialogTitle>{text.processPopup.title}</MuiDialogTitle>
       {renderDialogContent()}
-    </Dialog>
+    </MuiDialog>
   );
 
-  function renderDialogContent(): React.ReactNode {
+  function renderDialogContent() {
     return logs.length ? (
-      <DialogContent>
+      <MuiDialogContent>
         {logs.map(({ date, level, message }, index) => (
           <MessageContainer key={index} data-testid={`message-${index + 1}`}>
             <MetaContainer>
               {renderIcon(index, level)}
-              <Typography color={'darkblue'}>
+              <MuiTypography color={'darkblue'}>
                 {dayjs(date).format('HH:mm:ss.SSS')}
-              </Typography>
-              <Typography>{'•'}</Typography>
+              </MuiTypography>
+              <MuiTypography>{'•'}</MuiTypography>
             </MetaContainer>
             <BreakableTypography>{message}</BreakableTypography>
           </MessageContainer>
         ))}
-      </DialogContent>
+      </MuiDialogContent>
     ) : null;
   }
 
-  function renderIcon(index: number, level: Log['level']): React.ReactNode {
+  function renderIcon(index: number, level: Log['level']) {
     const { color, Component } = icon[level];
     return index === logs.length - 1 ? (
-      <CircularProgress
-        disableShrink
-        size={15}
-        sx={baseIcon}
-        data-testid={'spinner'}
-      />
+      <Spinner size={15} />
     ) : (
       <Component sx={{ ...baseIcon, color }} />
     );

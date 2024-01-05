@@ -38,6 +38,7 @@ interface NotificationPopupProps {
   'aria-label'?: string;
   customAction?: ReactElement;
   background?: keyof typeof OpossumColors;
+  width?: number;
 }
 
 export function NotificationPopup(props: NotificationPopupProps): ReactElement {
@@ -54,6 +55,7 @@ export function NotificationPopup(props: NotificationPopupProps): ReactElement {
       }
       PaperProps={{
         sx: {
+          ...(props.width && { width: props.width }),
           ...(props.fullHeight && classes.fullHeightPaper),
           ...(props.background && {
             background: OpossumColors[props.background],

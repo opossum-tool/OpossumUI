@@ -2,103 +2,70 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
 
 import commitInfo from '../../../../commitInfo.json';
+import { faker } from '../../../../shared/Faker';
+import { text } from '../../../../shared/text';
 import { renderComponent } from '../../../test-helpers/render';
 import { UpdateAppPopup } from '../UpdateAppPopup';
+import * as util from '../UpdateAppPopup.util';
 
 describe('UpdateAppPopup', () => {
-  const okStatus = 200;
-  const notFoundStatus = 404;
-  const axiosMock = new MockAdapter(axios);
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
+  it('shows message that a new release is available', () => {
+    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+      latestRelease: {
+        name: faker.system.semver(),
+        url: faker.internet.url(),
       },
-    },
-  });
+      latestReleaseError: null,
+      latestReleaseLoading: false,
+    });
+    renderComponent(<UpdateAppPopup />);
 
-  it('shows the popup with a link to a new release', async () => {
-    axiosMock
-      .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
-      )
-      .replyOnce(okStatus, {
-        name: 'Latest release',
-        html_url: 'some url',
-      });
-    renderComponent(
-      <QueryClientProvider client={queryClient}>
-        <UpdateAppPopup />
-      </QueryClientProvider>,
-    );
-    expect(screen.getByText('Check for updates')).toBeInTheDocument();
     expect(
-      await screen.findByText(
-        'There is a new release! You can download it using the following link:',
-      ),
+      screen.getByText(text.updateAppPopup.updateAvailable),
     ).toBeInTheDocument();
-    expect(await screen.findByText('Latest release')).toBeInTheDocument();
   });
 
-  it('shows the popup with no newer release', async () => {
-    axiosMock
-      .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
-      )
-      .replyOnce(okStatus, {
+  it('shows message that no newer release is available', () => {
+    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+      latestRelease: {
         name: commitInfo.commitInfo,
-        html_url: 'some url',
-      });
-    renderComponent(
-      <QueryClientProvider client={queryClient}>
-        <UpdateAppPopup />
-      </QueryClientProvider>,
-    );
-    expect(screen.getByText('Check for updates')).toBeInTheDocument();
+        url: faker.internet.url(),
+      },
+      latestReleaseError: null,
+      latestReleaseLoading: false,
+    });
+    renderComponent(<UpdateAppPopup />);
+
     expect(
-      await screen.findByText('You have the latest version of the app.'),
+      screen.getByText(text.updateAppPopup.noUpdateAvailable),
     ).toBeInTheDocument();
   });
 
-  it('shows the popup with no info found', async () => {
-    axiosMock
-      .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
-      )
-      .replyOnce(okStatus, null);
-    renderComponent(
-      <QueryClientProvider client={queryClient}>
-        <UpdateAppPopup />
-      </QueryClientProvider>,
-    );
-    expect(screen.getByText('Check for updates')).toBeInTheDocument();
+  it('shows error message', () => {
+    const error = faker.lorem.sentence();
+    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+      latestRelease: undefined,
+      latestReleaseError: Error(error),
+      latestReleaseLoading: false,
+    });
+    renderComponent(<UpdateAppPopup />);
+
     expect(
-      await screen.findByText('No information found.'),
+      screen.getByText(text.updateAppPopup.fetchFailed(error)),
     ).toBeInTheDocument();
   });
 
-  it('shows the popup with error', async () => {
-    axiosMock
-      .onGet(
-        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
-      )
-      .replyOnce(notFoundStatus);
-    renderComponent(
-      <QueryClientProvider client={queryClient}>
-        <UpdateAppPopup />
-      </QueryClientProvider>,
-    );
-    expect(screen.getByText('Check for updates')).toBeInTheDocument();
-    expect(
-      await screen.findByText(
-        'Failed while fetching release data: Request failed with status code 404',
-      ),
-    ).toBeInTheDocument();
+  it('shows loading state', () => {
+    jest.spyOn(util, 'useLatestRelease').mockReturnValue({
+      latestRelease: undefined,
+      latestReleaseError: null,
+      latestReleaseLoading: true,
+    });
+    renderComponent(<UpdateAppPopup />);
+
+    expect(screen.getByTestId('spinner')).toBeInTheDocument();
   });
 });

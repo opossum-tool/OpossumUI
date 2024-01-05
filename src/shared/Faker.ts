@@ -19,7 +19,6 @@ import {
   GitHubLicenseResponse,
   GitLabLicenseResponse,
   GitLabProjectResponse,
-  LatestReleaseResponse,
   Links,
   PackageSuggestion,
   PackageSystem,
@@ -502,15 +501,6 @@ class PackageSearchModule {
   public static tagResponse(props: Partial<TagResponse> = {}): TagResponse {
     return {
       name: faker.system.semver(),
-      ...props,
-    };
-  }
-
-  public static latestReleaseResponse(
-    props: Partial<LatestReleaseResponse> = {},
-  ): LatestReleaseResponse {
-    return {
-      tag_name: faker.system.semver(),
       ...props,
     };
   }

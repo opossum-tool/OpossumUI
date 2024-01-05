@@ -1,34 +1,33 @@
-// SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/material';
-import MuiBox from '@mui/material/Box';
-import MuiSpinner from '@mui/material/CircularProgress';
-import { ReactElement } from 'react';
+import { styled } from '@mui/material';
+import MuiCircularProgress from '@mui/material/CircularProgress';
 
-import { getSxFromPropsAndClasses } from '../../util/get-sx-from-props-and-classes';
+import { baseIcon } from '../../shared-styles';
 
-const classes = {
-  root: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-};
+const DEFAULT_SIZE = 16;
+
+const Container = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
 
 interface SpinnerProps {
-  sx?: SxProps;
+  size?: number;
 }
 
-export function Spinner(props: SpinnerProps): ReactElement {
+export function Spinner({ size = DEFAULT_SIZE }: SpinnerProps) {
   return (
-    <MuiBox
-      sx={getSxFromPropsAndClasses({
-        styleClass: classes.root,
-        sxProps: props.sx,
-      })}
-    >
-      <MuiSpinner />
-    </MuiBox>
+    <Container>
+      <MuiCircularProgress
+        disableShrink
+        size={size}
+        sx={baseIcon}
+        data-testid={'spinner'}
+      />
+    </Container>
   );
 }

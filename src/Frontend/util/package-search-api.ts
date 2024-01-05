@@ -105,10 +105,6 @@ export interface GitHubLicenseResponse {
   content: string;
 }
 
-export interface LatestReleaseResponse {
-  tag_name?: string;
-}
-
 export interface TagResponse {
   name: string;
 }
