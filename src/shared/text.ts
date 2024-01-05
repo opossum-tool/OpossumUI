@@ -41,6 +41,7 @@ export const text = {
     packageCoordinates: 'Package Coordinates',
     pasteFromClipboardFailed: 'Clipboard does not contain a valid PURL',
     pasteFromClipboardSuccess: 'Pasted from clipboard',
+    source: 'Source',
     useAutocompleteSuggestion:
       'Adopt all coordinates and legal information from suggestion',
   },
@@ -85,10 +86,14 @@ export const text = {
       `Failed to fetch latest release information: ${message}`,
   },
   attributionFilters: {
-    firstParty: 'First Party',
-    thirdParty: 'Third Party',
-    followUp: 'Needs Follow-Up',
-    needsReview: 'Needs Review by QA',
     currentlyPreferred: 'Currently Preferred',
+    excludedFromNotice: 'Excluded from Notice',
+    firstParty: 'First Party',
+    lowConfidence: 'Low Confidence',
+    needsFollowUp: 'Needs Follow-Up',
+    needsReview: 'Needs Review by QA',
+    preSelected: 'Pre-selected',
+    previouslyPreferred: 'Previously Preferred',
+    thirdParty: 'Third Party',
   },
 } as const;

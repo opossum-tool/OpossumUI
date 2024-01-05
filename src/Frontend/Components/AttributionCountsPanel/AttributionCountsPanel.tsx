@@ -29,15 +29,6 @@ const classes = {
     width: '13px',
     height: '13px',
   },
-  titleNeedsReviewIcon: {
-    color: OpossumColors.orange,
-  },
-  titleFollowUpIcon: {
-    color: OpossumColors.red,
-  },
-  preselectedAttributionIcon: {
-    color: OpossumColors.darkBlue,
-  },
   incompleteAttributionIcon: {
     color: OpossumColors.lightOrange,
   },
@@ -83,26 +74,11 @@ export function AttributionCountsPanel(
       })}
     >
       {`Attributions (${numberOfAttributions} total, ${numberOfAttributionsThatNeedReview}`}
-      <NeedsReviewIcon
-        sx={{
-          ...classes.titleNeedsReviewIcon,
-          ...classes.icons,
-        }}
-      />
+      <NeedsReviewIcon sx={classes.icons} />
       {`, ${numberOfFollowUps}`}
-      <FollowUpIcon
-        sx={{
-          ...classes.titleFollowUpIcon,
-          ...classes.icons,
-        }}
-      />
+      <FollowUpIcon sx={classes.icons} />
       {`, ${numberOfPreselectedAttributions}`}
-      <PreSelectedIcon
-        sx={{
-          ...classes.preselectedAttributionIcon,
-          ...classes.icons,
-        }}
-      />
+      <PreSelectedIcon sx={classes.icons} />
       {`, ${numberOfIncompleteAttributions}`}
       <IncompleteAttributionsIcon
         sx={{

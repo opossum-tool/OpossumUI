@@ -156,7 +156,10 @@ export const Listbox = forwardRef(
       return (
         <Virtuoso
           ref={virtuosoRef}
-          style={{ ...styles.virtuoso, height: height + 2 }}
+          style={{
+            ...styles.virtuoso,
+            height: height + Math.trunc(options.length / 2),
+          }}
           data={options}
           itemContent={(index, option) => renderOption({ option, index })}
           overscan={4}
@@ -181,11 +184,14 @@ export const Listbox = forwardRef(
           selected={optionProps['aria-selected'] as boolean}
           disabled={optionProps['aria-disabled'] as boolean}
           key={getOptionKey?.(option) ?? key}
+          sx={{ gap: '12px' }}
         >
           {renderOptionStartIcon?.(option, { closePopper })}
           <MuiListItemText
             primary={optionText.primary(option)}
-            primaryTypographyProps={{ sx: styles.overflowEllipsis }}
+            primaryTypographyProps={{
+              sx: { ...styles.overflowEllipsis, paddingTop: '1px' },
+            }}
             secondary={optionText.secondary?.(option)}
             secondaryTypographyProps={{
               variant: 'caption',
