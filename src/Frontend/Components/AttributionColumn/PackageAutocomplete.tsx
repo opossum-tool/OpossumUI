@@ -3,9 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
-import ExploreIcon from '@mui/icons-material/Explore';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import StarIcon from '@mui/icons-material/Star';
 import { createFilterOptions, styled } from '@mui/material';
 import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
@@ -20,7 +18,7 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { baseIcon, clickableIcon, OpossumColors } from '../../shared-styles';
+import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -38,6 +36,7 @@ import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
+import { PreferredIcon, SourceIcon, WasPreferredIcon } from '../Icons/Icons';
 
 type AutocompleteAttribute = Extract<
   keyof PackageInfo,
@@ -62,15 +61,14 @@ interface Props {
 
 const Badge = styled(MuiBadge)({
   '& .MuiBadge-badge': {
-    top: '1px',
-    right: '14px',
+    top: '2px',
+    right: '2px',
     zIndex: 0,
   },
 });
 
 const AddIconButton = styled(MuiIconButton)({
   backgroundColor: 'rgba(0, 0, 0, 0.04)',
-  marginLeft: '8px',
   '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.1)' },
 });
 
@@ -159,14 +157,7 @@ export function PackageAutocomplete({
           : text.attributionColumn.manualAttributions
       }
       groupProps={{
-        icon: () => (
-          <ExploreIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.black} !important`,
-            }}
-          />
-        ),
+        icon: () => <SourceIcon noTooltip />,
         action: ({ name }) => (
           <IconButton
             hidden={name !== text.attributionColumn.openSourceInsights}
@@ -215,44 +206,35 @@ export function PackageAutocomplete({
       return null;
     }
 
-    const showStar = option.preferred || option.wasPreferred;
-    const baseTitle = `${maybePluralize(
-      option.count,
-      text.attributionColumn.occurrence,
-    )} ${text.attributionColumn.amongSignals}`;
+    const tooltipTitle = [
+      `${maybePluralize(option.count, text.attributionColumn.occurrence)} ${
+        text.attributionColumn.amongSignals
+      }`,
+      ...(() => {
+        if (option.preferred) {
+          return [text.auditingOptions.currentlyPreferred.toLowerCase()];
+        }
+        if (option.wasPreferred) {
+          return [text.auditingOptions.previouslyPreferred.toLowerCase()];
+        }
+        return [];
+      })(),
+    ].join(' • ');
 
     return (
-      <MuiTooltip
-        title={
-          showStar
-            ? `${baseTitle} (${
-                option.preferred
-                  ? text.auditingOptions.currentlyPreferred.toLowerCase()
-                  : text.auditingOptions.previouslyPreferred.toLowerCase()
-              })`
-            : baseTitle
-        }
-        enterDelay={500}
-      >
+      <MuiTooltip title={tooltipTitle} enterDelay={500}>
         <Badge
-          badgeContent={
-            showStar && (
-              <StarIcon
-                sx={{
-                  ...baseIcon,
-                  color: option.preferred
-                    ? OpossumColors.mediumOrange
-                    : OpossumColors.mediumGrey,
-                }}
-              />
-            )
-          }
+          badgeContent={(() => {
+            if (option.preferred) {
+              return <PreferredIcon noTooltip />;
+            }
+            if (option.wasPreferred) {
+              return <WasPreferredIcon noTooltip />;
+            }
+            return null;
+          })()}
         >
-          <MuiChip
-            label={option.count}
-            size={'small'}
-            sx={{ marginRight: '12px' }}
-          />
+          <MuiChip label={option.count} size={'small'} />
         </Badge>
       </MuiTooltip>
     );

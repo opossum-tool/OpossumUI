@@ -5,17 +5,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
-import ExploreIcon from '@mui/icons-material/Explore';
-import LocalParkingIcon from '@mui/icons-material/LocalParking';
-import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import ReplayIcon from '@mui/icons-material/Replay';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
-import StarIcon from '@mui/icons-material/Star';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -39,6 +33,15 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { getQAMode } from '../../state/selectors/view-selector';
 import { prettifySource } from '../../util/prettify-source';
+import {
+  ExcludeFromNoticeIcon,
+  FollowUpIcon,
+  NeedsReviewIcon,
+  PreferredIcon,
+  PreSelectedIcon,
+  SourceIcon,
+  WasPreferredIcon,
+} from '../Icons/Icons';
 
 const classes = {
   container: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
@@ -244,14 +247,7 @@ function useChips({
       {
         option: 'preferred',
         label: text.auditingOptions.currentlyPreferred,
-        icon: (
-          <StarIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.mediumOrange} !important`,
-            }}
-          />
-        ),
+        icon: <PreferredIcon noTooltip />,
         active: !!packageInfo.preferred,
         onAdd: () =>
           dispatch(
@@ -272,42 +268,21 @@ function useChips({
       {
         option: 'was-preferred',
         label: text.auditingOptions.previouslyPreferred,
-        icon: (
-          <StarIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.mediumGrey} !important`,
-            }}
-          />
-        ),
+        icon: <WasPreferredIcon noTooltip />,
         active: !!packageInfo.wasPreferred,
         interactive: false,
       },
       {
         option: 'pre-selected',
         label: text.auditingOptions.preselected,
-        icon: (
-          <LocalParkingIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.darkBlue} !important`,
-            }}
-          />
-        ),
+        icon: <PreSelectedIcon noTooltip />,
         active: !!packageInfo.preSelected,
         interactive: false,
       },
       {
         option: 'follow-up',
         label: text.auditingOptions.followUp,
-        icon: (
-          <ReplayIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.red} !important`,
-            }}
-          />
-        ),
+        icon: <FollowUpIcon noTooltip />,
         active: !!packageInfo.followUp,
         onAdd: () =>
           dispatch(
@@ -328,14 +303,7 @@ function useChips({
       {
         option: 'needs-review',
         label: text.auditingOptions.needsReview,
-        icon: (
-          <QuestionMarkIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.orange} !important`,
-            }}
-          />
-        ),
+        icon: <NeedsReviewIcon noTooltip />,
         active: !!packageInfo.needsReview,
         onAdd: () =>
           dispatch(
@@ -356,14 +324,7 @@ function useChips({
       {
         option: 'excluded-from-notice',
         label: text.auditingOptions.excludedFromNotice,
-        icon: (
-          <PlaylistRemoveIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.grey} !important`,
-            }}
-          />
-        ),
+        icon: <ExcludeFromNoticeIcon noTooltip />,
         active: !!packageInfo.excludeFromNotice,
         onAdd: () =>
           dispatch(
@@ -386,14 +347,7 @@ function useChips({
         label: `${
           source.fromOrigin ? text.attributionColumn.originallyFrom : ''
         }${prettifySource(source.sourceName, attributionSources)}`,
-        icon: (
-          <ExploreIcon
-            sx={{
-              ...baseIcon,
-              color: `${OpossumColors.black} !important`,
-            }}
-          />
-        ),
+        icon: <SourceIcon noTooltip />,
         active: !!source.sourceName,
         interactive: false,
       },
@@ -435,7 +389,7 @@ function useChips({
             highlightSelectedOnly
           />
         ),
-        active: packageInfo.attributionConfidence !== undefined,
+        active: true,
         interactive: false,
       },
     ],

@@ -25,7 +25,7 @@ export class AttributionFilters {
       name: text.attributionFilters.firstParty,
     });
     this.onlyFollowUpOption = window.getByRole('option', {
-      name: text.attributionFilters.followUp,
+      name: text.attributionFilters.needsFollowUp,
     });
     this.onlyNeedsReviewOption = window.getByRole('option', {
       name: text.attributionFilters.needsReview,
