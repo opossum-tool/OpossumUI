@@ -105,7 +105,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "unimported": "^1.31.1",
-    "vite": "^5.0.10",
+    "vite": "^5.0.11",
     "vite-plugin-electron": "^0.15.5",
     "vite-plugin-svgr": "^4.2.0",
     "vite-tsconfig-paths": "^4.2.3",
