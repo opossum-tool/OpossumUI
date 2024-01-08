@@ -22,11 +22,11 @@ import { getSelectedResourceId } from '../../state/selectors/audit-view-resource
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
-import { getGeneralTreeItemLabel } from './get-general-tree-item-label';
 import {
+  getGeneralTreeItemLabel,
   getInitialExpandedIds,
   getResourcesFromResourcePaths,
-} from './resources-tree-helpers';
+} from './ResourcesTree.util';
 
 interface ResourcesTreeProps {
   resourcePaths: Array<string>;

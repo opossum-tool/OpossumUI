@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { AttributionsToHashes } from '../../../shared/shared-types';
-import { getContainedExternalDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
+import { getContainedExternalDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
 import { PackagePanelTitle } from '../../enums/enums';
 import { PanelData } from '../../types/types';
 import { PanelAttributionData } from '../../util/get-contained-packages';

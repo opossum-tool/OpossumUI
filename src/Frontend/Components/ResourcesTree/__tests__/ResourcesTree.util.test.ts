@@ -6,7 +6,7 @@ import { Resources } from '../../../../shared/shared-types';
 import {
   getResourcesFromResourcePaths,
   splitResourceIdsToCurrentAndOtherFolder,
-} from '../resources-tree-helpers';
+} from '../ResourcesTree.util';
 
 describe('splitResourceItToCurrentAndOtherFolder', () => {
   it('splits resource ids correctly', () => {

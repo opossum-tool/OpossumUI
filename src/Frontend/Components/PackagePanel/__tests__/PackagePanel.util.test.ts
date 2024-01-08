@@ -10,7 +10,7 @@ import {
 import {
   getPackageCardIdsAndDisplayPackageInfosForSource,
   getSortedSourcesFromDisplayPackageInfosWithCount,
-} from '../package-panel-helpers';
+} from '../PackagePanel.util';
 
 const testSortedPackageCardIds = [
   'Signals-0',

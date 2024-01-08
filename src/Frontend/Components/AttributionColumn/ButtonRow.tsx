@@ -24,7 +24,7 @@ import { getSelectedView } from '../../state/selectors/view-selector';
 import { Button, ButtonProps } from '../Button/Button';
 import { MenuButton } from '../MenuButton/MenuButton';
 import { SplitButton } from '../SplitButton/SplitButton';
-import { getSelectedManualAttributionIdForAuditView } from './attribution-column-helpers';
+import { getSelectedManualAttributionIdForAuditView } from './AttributionColumn.util';
 
 interface ButtonRowProps {
   areButtonsHidden?: boolean;

@@ -13,7 +13,7 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
-import { getAllResourcePathsForAttributions } from './resource-path-popup-helpers';
+import { getAllResourcePathsForAttributions } from './ResourcePathPopup.util';
 
 const POPUP_CONTENT_PADDING = 48;
 

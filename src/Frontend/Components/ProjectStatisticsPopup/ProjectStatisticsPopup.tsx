@@ -30,7 +30,7 @@ import {
   getIncompleteAttributionsCount,
   getMostFrequentLicenses,
   getUniqueLicenseNameToAttribution,
-} from './project-statistics-popup-helpers';
+} from './ProjectStatisticsPopup.util';
 
 const classes = {
   panels: { display: 'flex' },

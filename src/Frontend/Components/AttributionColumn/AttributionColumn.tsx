@@ -41,7 +41,7 @@ import { WasPreferredIcon } from '../Icons/Icons';
 import {
   getResolvedToggleHandler,
   selectedPackagesAreResolved,
-} from './attribution-column-helpers';
+} from './AttributionColumn.util';
 import { AuditingOptions } from './AuditingOptions';
 import { ButtonRow } from './ButtonRow';
 import { CommentStack } from './CommentStack';

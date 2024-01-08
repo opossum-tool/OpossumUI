@@ -18,7 +18,7 @@ import {
   getContainedManualDisplayPackageInfosWithCount,
   getExternalDisplayPackageInfosWithCount,
   sortDisplayPackageInfosWithCountByCountAndPackageName,
-} from '../accordion-panel-helpers';
+} from '../AccordionPanel.util';
 
 describe('getExternalDisplayPackageInfosWithCount', () => {
   const testAttributionIdsWithCount: Array<AttributionIdWithCount> = [

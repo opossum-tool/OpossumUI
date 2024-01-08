@@ -9,7 +9,7 @@ import {
   getMergeButtonsDisplayState,
   getSelectedManualAttributionIdForAuditView,
   selectedPackagesAreResolved,
-} from '../attribution-column-helpers';
+} from '../AttributionColumn.util';
 
 describe('The AttributionColumn helpers', () => {
   it('selectedPackageIsResolved returns true', () => {
