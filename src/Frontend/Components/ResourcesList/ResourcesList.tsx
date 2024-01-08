@@ -15,7 +15,7 @@ import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
 import { List } from '../List/List';
 import { ListCard } from '../ListCard/ListCard';
-import { convertResourcesListBatchesToResourcesListItems } from './resource-list-helpers';
+import { convertResourcesListBatchesToResourcesListItems } from './ResourcesList.util';
 
 const classes = {
   root: {

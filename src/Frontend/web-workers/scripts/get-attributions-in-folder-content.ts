@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { getContainedManualDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/accordion-panel-helpers';
+import { getContainedManualDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
 import { PackagePanelTitle } from '../../enums/enums';
 import { PanelData } from '../../types/types';
 import { PanelAttributionData } from '../../util/get-contained-packages';

@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DisplayPackageInfo } from '../../../../shared/shared-types';
 import { HighlightingColor } from '../../../enums/enums';
-import { getPackageCardHighlighting } from '../package-card-helpers';
+import { getPackageCardHighlighting } from '../PackageCard.util';
 
 describe('The PackageCardHelper', () => {
   it.each([

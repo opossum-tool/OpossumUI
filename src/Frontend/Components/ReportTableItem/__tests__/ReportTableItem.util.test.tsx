@@ -5,7 +5,7 @@
 import { AttributionInfo, FollowUp } from '../../../../shared/shared-types';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
 import { TableConfig } from '../../Table/TableConfig';
-import { getFormattedCellData } from '../report-table-item-helpers';
+import { getFormattedCellData } from '../ReportTableItem.util';
 
 describe('The table helpers', () => {
   const testPathOfFileWithChildren = '/test/path/';

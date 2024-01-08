@@ -31,7 +31,7 @@ import {
 } from '../Icons/Icons';
 import { reportTableClasses } from '../ReportTableHeader/ReportTableHeader';
 import { TableConfig, tableConfigs } from '../Table/TableConfig';
-import { getFormattedCellData } from './report-table-item-helpers';
+import { getFormattedCellData } from './ReportTableItem.util';
 
 export const reportTableRowHeight = 190;
 const padding = 10;

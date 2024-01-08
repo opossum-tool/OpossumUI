@@ -7,7 +7,7 @@ import {
   DisplayPackageInfo,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
-import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/project-statistics-popup-helpers';
+import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';

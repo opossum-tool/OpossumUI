@@ -20,7 +20,7 @@ import {
   getProgressBarBackground,
   roundToAtLeastOnePercentAndNormalize,
   useOnProgressBarClick,
-} from '../progress-bar-helpers';
+} from '../ProgressBar.util';
 
 let useOnProgressBarClickHook: () => void;
 

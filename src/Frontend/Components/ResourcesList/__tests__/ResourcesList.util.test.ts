@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { ResourcesListBatch } from '../../../types/types';
-import { convertResourcesListBatchesToResourcesListItems } from '../resource-list-helpers';
 import { ResourcesListItem } from '../ResourcesList';
+import { convertResourcesListBatchesToResourcesListItems } from '../ResourcesList.util';
 
 describe('convertResourceListBatchesToResourceListItems', () => {
   it('inserts headers correctly', () => {

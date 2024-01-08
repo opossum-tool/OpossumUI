@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Resources } from '../../../shared/shared-types';
+import { PathPredicate } from '../../types/types';
+import { GeneralTreeItemLabel } from '../GeneralTreeItemLabel/GeneralTreeItemLabel';
 
 export function splitResourceIdsToCurrentAndOtherFolder(
   allResourceIds: Array<string>,
@@ -70,4 +72,31 @@ export function getInitialExpandedIds(
   const initialExpandedIds = Array.from(initialExpandedIdsSet);
 
   return initialExpandedIds;
+}
+
+export function getGeneralTreeItemLabel(
+  resourceName: string,
+  resource: Resources | 1,
+  nodeId: string,
+  isAttributionBreakpoint: PathPredicate,
+  isFileWithChildren: PathPredicate,
+) {
+  const canHaveChildren = resource !== 1;
+
+  return (
+    <GeneralTreeItemLabel
+      labelText={getDisplayName(resourceName)}
+      canHaveChildren={canHaveChildren}
+      isAttributionBreakpoint={isAttributionBreakpoint(nodeId)}
+      showFolderIcon={canHaveChildren && !isFileWithChildren(nodeId)}
+    />
+  );
+}
+
+function getDisplayName(resourceName: string): string {
+  return isRootResource(resourceName) ? '/' : resourceName;
+}
+
+function isRootResource(resourceName: string): boolean {
+  return resourceName === '';
 }

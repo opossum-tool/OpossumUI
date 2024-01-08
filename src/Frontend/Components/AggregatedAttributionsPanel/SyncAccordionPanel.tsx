@@ -9,8 +9,8 @@ import {
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { AttributionIdWithCount } from '../../types/types';
-import { getExternalDisplayPackageInfosWithCount } from './accordion-panel-helpers';
 import { AccordionPanel } from './AccordionPanel';
+import { getExternalDisplayPackageInfosWithCount } from './AccordionPanel.util';
 
 interface SyncAccordionPanelProps {
   title: PackagePanelTitle;

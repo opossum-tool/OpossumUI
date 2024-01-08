@@ -15,7 +15,7 @@ import {
   getProgressBarBackground,
   getProgressBarTooltipText,
   useOnProgressBarClick,
-} from './progress-bar-helpers';
+} from './ProgressBar.util';
 
 const classes = {
   tooltip: {

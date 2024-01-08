@@ -25,7 +25,7 @@ import {
   getMostFrequentLicenses,
   getStrippedLicenseName,
   getUniqueLicenseNameToAttribution,
-} from '../project-statistics-popup-helpers';
+} from '../ProjectStatisticsPopup.util';
 
 const testAttributions_1: Attributions = {
   uuid1: {

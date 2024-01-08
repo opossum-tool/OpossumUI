@@ -53,7 +53,7 @@ import {
   getResolvedToggleHandler,
   MergeButtonDisplayState,
   selectedPackagesAreResolved,
-} from '../AttributionColumn/attribution-column-helpers';
+} from '../AttributionColumn/AttributionColumn.util';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu/ContextMenu';
 import { IconButton } from '../IconButton/IconButton';
@@ -63,7 +63,7 @@ import {
   getKey,
   getPackageCardHighlighting,
   getRightIcons,
-} from './package-card-helpers';
+} from './PackageCard.util';
 
 const classes = {
   clickableIcon,

@@ -30,7 +30,7 @@ import { PackageList } from '../PackageList/PackageList';
 import {
   getPackageCardIdsAndDisplayPackageInfosForSource,
   getSortedSourcesFromDisplayPackageInfosWithCount,
-} from './package-panel-helpers';
+} from './PackagePanel.util';
 
 const classes = {
   root: {
