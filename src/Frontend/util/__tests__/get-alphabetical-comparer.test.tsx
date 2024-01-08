@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Attributions, Criticality } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import {
   compareAlphabeticalStrings,
   getAlphabeticalComparerForAttributions,
@@ -87,24 +88,24 @@ describe('getAlphabeticalComparerForAttributions', () => {
 
   it('sorts by criticality', () => {
     const testAttributions: Attributions = {
-      '1': {
+      '1': faker.opossum.manualPackageInfo({
         packageName: 'Test package',
         packageVersion: '1.0',
-      },
-      '2': {
+      }),
+      '2': faker.opossum.manualPackageInfo({
         attributionConfidence: 0,
         comment: 'Some comment',
         copyright: 'Copyright John Doe',
         licenseText: 'Some license text',
         criticality: Criticality.Medium,
-      },
-      '3': {
+      }),
+      '3': faker.opossum.manualPackageInfo({
         copyright: 'John Doe',
         criticality: Criticality.High,
-      },
-      '4': {
+      }),
+      '4': faker.opossum.manualPackageInfo({
         copyright: 'John Doe',
-      },
+      }),
     };
     const sortedAttributionIds = Object.keys(testAttributions).sort(
       getAlphabeticalComparerForAttributions(testAttributions, true),

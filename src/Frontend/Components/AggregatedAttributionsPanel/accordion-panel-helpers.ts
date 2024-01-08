@@ -28,7 +28,7 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
   resolvedExternalAttributions: Readonly<Set<string>>;
   attributionsToHashes: Readonly<AttributionsToHashes>;
   panelTitle: PackagePanelTitle;
-  sortingByCriticalityIsActive: boolean;
+  sortByCriticality: boolean;
 }): [Array<string>, DisplayPackageInfosWithCount] {
   const externalAttributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
@@ -41,7 +41,7 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
     args.externalData.attributions,
     args.attributionsToHashes,
     args.panelTitle,
-    args.sortingByCriticalityIsActive,
+    args.sortByCriticality,
   );
 }
 
@@ -86,7 +86,7 @@ export function getExternalDisplayPackageInfosWithCount(
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes,
   panelTitle: PackagePanelTitle,
-  sortingByCriticalityIsActive: boolean,
+  sortByCriticality: boolean,
 ): [Array<string>, DisplayPackageInfosWithCount] {
   const packageCardIds: Array<string> = [];
   const displayPackageInfosWithCount: DisplayPackageInfosWithCount = {};
@@ -126,7 +126,7 @@ export function getExternalDisplayPackageInfosWithCount(
   packageCardIds.sort(
     sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
       displayPackageInfosWithCount,
-      sortingByCriticalityIsActive,
+      sortByCriticality,
     ),
   );
 

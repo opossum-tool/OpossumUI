@@ -5,7 +5,8 @@
 import MuiPaper from '@mui/material/Paper';
 import { ReactElement } from 'react';
 
-import { AuditViewSortingType, PackagePanelTitle } from '../../enums/enums';
+import { text } from '../../../shared/text';
+import { PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
@@ -13,7 +14,7 @@ import { useAppDispatch } from '../../state/hooks';
 import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
-import { useVariable } from '../../util/use-variable';
+import { useActiveSorting } from '../../util/use-active-sorting';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
 
@@ -37,10 +38,7 @@ export function AllAttributionsPanel(
   props: AllAttributionsPanelProps,
 ): ReactElement {
   const dispatch = useAppDispatch();
-  const [activeSorting] = useVariable(
-    'active-sorting-audit-view',
-    AuditViewSortingType.ByOccurrence,
-  );
+  const [activeSorting] = useActiveSorting();
 
   function getPackageCard(packageCardId: string): ReactElement | null {
     const displayPackageInfo = props.displayPackageInfos[packageCardId];
@@ -83,7 +81,7 @@ export function AllAttributionsPanel(
   const sortedPackageCardIds = Object.keys(props.displayPackageInfos).sort(
     getAlphabeticalComparerForAttributions(
       props.displayPackageInfos,
-      activeSorting === AuditViewSortingType.ByCriticality,
+      activeSorting === text.auditViewSorting.byCriticality,
     ),
   );
 

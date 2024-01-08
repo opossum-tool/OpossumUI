@@ -45,7 +45,7 @@ describe('SignalsWorker', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
       manualData: faker.opossum.manualAttributionData(),
-      sortingByCriticalityIsActive: false,
+      sortByCriticality: false,
     });
 
     worker.processInput({
@@ -77,7 +77,7 @@ describe('SignalsWorker', () => {
       externalData: faker.opossum.externalAttributionData(),
       resolvedExternalAttributions: new Set<string>(),
       attributionsToHashes: {},
-      sortingByCriticalityIsActive: false,
+      sortByCriticality: false,
     });
 
     worker.processInput({

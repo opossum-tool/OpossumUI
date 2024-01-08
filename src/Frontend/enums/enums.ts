@@ -81,11 +81,6 @@ export enum ButtonText {
   UnmarkForReplacement = 'Unmark current for replacement',
 }
 
-export enum AttributionViewSortingType {
-  Alphabetical = 'Alphabetical',
-  ByCriticality = 'By Criticality',
-}
-
 export enum AuditViewSortingType {
   ByOccurrence = 'By Occurrence',
   ByCriticality = 'By Criticality',

@@ -96,4 +96,12 @@ export const text = {
     previouslyPreferred: 'Previously Preferred',
     thirdParty: 'Third Party',
   },
+  attributionViewSorting: {
+    alphabetical: 'Alphabetical',
+    byCriticality: 'By Criticality',
+  },
+  auditViewSorting: {
+    byOccurrence: 'By Occurrence',
+    byCriticality: 'By Criticality',
+  }
 } as const;

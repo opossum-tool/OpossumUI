@@ -7,9 +7,10 @@ import {
   Attributions,
   AttributionsToHashes,
 } from '../../../shared/shared-types';
-import { AuditViewSortingType, PackagePanelTitle } from '../../enums/enums';
+import { text } from '../../../shared/text';
+import { PackagePanelTitle } from '../../enums/enums';
 import { AttributionIdWithCount } from '../../types/types';
-import { useVariable } from '../../util/use-variable';
+import { useActiveSorting } from '../../util/use-active-sorting';
 import { getExternalDisplayPackageInfosWithCount } from './accordion-panel-helpers';
 import { AccordionPanel } from './AccordionPanel';
 
@@ -25,10 +26,7 @@ interface SyncAccordionPanelProps {
 export function SyncAccordionPanel(
   props: SyncAccordionPanelProps,
 ): ReactElement {
-  const [activeSorting] = useVariable(
-    'active-sorting-audit-view',
-    AuditViewSortingType.ByOccurrence,
-  );
+  const [activeSorting] = useActiveSorting();
 
   const [sortedPackageCardIds, displayPackageInfosWithCount] =
     getExternalDisplayPackageInfosWithCount(
@@ -36,7 +34,7 @@ export function SyncAccordionPanel(
       props.attributions,
       props.attributionsToHashes,
       props.title,
-      activeSorting === AuditViewSortingType.ByCriticality,
+      activeSorting === text.auditViewSorting.byCriticality,
     );
 
   return (

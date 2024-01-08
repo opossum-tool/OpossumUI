@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 
 import { AutocompleteSignal } from '../../shared/shared-types';
-import { AuditViewSortingType } from '../enums/enums';
+import { text } from '../../shared/text';
 import { useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -24,6 +24,7 @@ import {
 import { isAuditViewSelected } from '../state/selectors/view-selector';
 import { PanelData, ProgressBarData } from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
+import { useActiveSorting } from '../util/use-active-sorting';
 import { useVariable } from '../util/use-variable';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
@@ -100,10 +101,7 @@ export function useSignalsWorker() {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
-  const [activeSorting] = useVariable(
-    'active-sorting-audit-view',
-    AuditViewSortingType.ByOccurrence,
-  );
+  const [activeSorting] = useActiveSorting();
 
   const [worker, setWorker] = useState<Worker>();
   const [, setAutocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
@@ -256,8 +254,8 @@ export function useSignalsWorker() {
 
   useEffect(() => {
     worker?.postMessage({
-      name: 'sortingByCriticalityIsActive',
-      data: activeSorting === AuditViewSortingType.ByCriticality,
+      name: 'sortByCriticality',
+      data: activeSorting === text.auditViewSorting.byCriticality,
     } satisfies SignalsWorkerInput);
   }, [activeSorting, worker]);
 }

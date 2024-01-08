@@ -378,7 +378,7 @@ describe('sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName', 
     expect(result).toEqual(expectedPackageCardIds);
   });
 
-  it('sorts items correctly by criticality', () => {
+  it('sorts items correctly by criticality, package name an version', () => {
     const initialPackageCardIds: Array<string> = [
       'pcid1',
       'pcid2',

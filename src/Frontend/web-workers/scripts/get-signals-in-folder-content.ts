@@ -13,7 +13,7 @@ interface Props {
   attributionsToHashes: AttributionsToHashes;
   resolvedExternalAttributions: Set<string>;
   resourceId: string;
-  sortingByCriticalityIsActive: boolean;
+  sortByCriticality: boolean;
 }
 
 export function getSignalsInFolderContent({
@@ -21,7 +21,7 @@ export function getSignalsInFolderContent({
   attributionsToHashes,
   resolvedExternalAttributions,
   resourceId,
-  sortingByCriticalityIsActive,
+  sortByCriticality,
 }: Props): PanelData {
   const [sortedPackageCardIds, displayAttributionIdsWithCount] =
     getContainedExternalDisplayPackageInfosWithCount({
@@ -30,7 +30,7 @@ export function getSignalsInFolderContent({
       resolvedExternalAttributions,
       attributionsToHashes,
       panelTitle: PackagePanelTitle.ContainedExternalPackages,
-      sortingByCriticalityIsActive,
+      sortByCriticality,
     });
 
   return {

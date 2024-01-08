@@ -9,7 +9,8 @@ import { remove } from 'lodash';
 import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
-import { AuditViewSortingType, PackagePanelTitle } from '../../enums/enums';
+import { text } from '../../../shared/text';
+import { PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import {
   setPackageSearchTerm,
@@ -29,7 +30,10 @@ import {
 import { DisplayPackageInfos } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
-import { useVariable } from '../../util/use-variable';
+import {
+  AuditViewSorting,
+  useActiveSorting,
+} from '../../util/use-active-sorting';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { IconButton } from '../IconButton/IconButton';
@@ -98,15 +102,15 @@ const classes = {
 
 const SORTING_ALGORITHMS: Array<MenuItem> = [
   {
-    value: AuditViewSortingType.ByOccurrence,
-    name: AuditViewSortingType.ByOccurrence,
+    value: text.auditViewSorting.byOccurrence,
+    name: text.auditViewSorting.byOccurrence,
   },
   {
-    value: AuditViewSortingType.ByCriticality,
-    name: AuditViewSortingType.ByCriticality,
+    value: text.auditViewSorting.byCriticality,
+    name: text.auditViewSorting.byCriticality,
   },
 ];
-const defaultSorting = AuditViewSortingType.ByOccurrence;
+const defaultSorting = text.auditViewSorting.byOccurrence;
 
 interface ResourceDetailsTabsProps {
   isGlobalTabEnabled: boolean;
@@ -126,18 +130,13 @@ export function ResourceDetailsTabs(
   );
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
-  const [activeSorting, setActiveSorting] = useVariable(
-    'active-sorting-audit-view',
-    AuditViewSortingType.ByOccurrence,
-  );
-  const [showSortingSelect, setShowSortingSelect] = useState<boolean>(false);
+  const [activeSorting, setActiveSorting] = useActiveSorting();
   const defaultSortingIsActive = activeSorting === defaultSorting;
+  const [showSortingSelect, setShowSortingSelect] = useState<boolean>(
+    !defaultSortingIsActive,
+  );
 
   const dispatch = useAppDispatch();
-
-  if (!defaultSortingIsActive && !showSortingSelect) {
-    setShowSortingSelect(!showSortingSelect);
-  }
 
   enum Tabs {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
@@ -169,7 +168,7 @@ export function ResourceDetailsTabs(
   }
 
   function onSortInputChange(event: ChangeEvent<HTMLInputElement>): void {
-    setActiveSorting(event.target.value as AuditViewSortingType);
+    setActiveSorting(event.target.value as AuditViewSorting);
   }
 
   function onSearchToggleClick(): void {

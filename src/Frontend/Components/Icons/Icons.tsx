@@ -23,6 +23,7 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
+import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';

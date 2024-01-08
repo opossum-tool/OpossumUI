@@ -5,8 +5,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { Criticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
+import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionIdInAttributionView } from '../../../state/selectors/attribution-view-resource-selectors';
 import {
   getParsedInputFileEnrichedWithTestData,
@@ -15,6 +17,7 @@ import {
 import { renderComponent } from '../../../test-helpers/render';
 import { LOW_CONFIDENCE_THRESHOLD } from '../../Filter/FilterMultiSelect.util';
 import { AttributionList } from '../AttributionList';
+import {text} from '../../../../shared/text';
 
 describe('AttributionList', () => {
   it('sorts attributions alphabetically', () => {
@@ -48,6 +51,50 @@ describe('AttributionList', () => {
           ),
         ),
     ).toBe(2);
+  });
+
+  it('sorts attributions by criticality', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+      packageName: 'A',
+    });
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+      packageName: 'B',
+      criticality: Criticality.High,
+    });
+    const [attributionId3, packageInfo3] = faker.opossum.manualAttribution({
+      packageName: 'C',
+      criticality: Criticality.Medium,
+    });
+    renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions: faker.opossum.manualAttributions({
+              [attributionId1]: packageInfo1,
+              [attributionId2]: packageInfo2,
+              [attributionId3]: packageInfo3,
+            }),
+          }),
+        ),
+        setVariable(
+          'active-sorting-attribution-view',
+          text.attributionViewSorting.byCriticality,
+        ),
+      ],
+    });
+
+    const packageDisplay1 = screen.getByText(
+      `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
+    );
+    const packageDisplay2 = screen.getByText(
+      `${packageInfo2.packageName}, ${packageInfo2.packageVersion}`,
+    );
+    const packageDisplay3 = screen.getByText(
+      `${packageInfo3.packageName}, ${packageInfo3.packageVersion}`,
+    );
+
+    expect(packageDisplay2.compareDocumentPosition(packageDisplay3)).toBe(4);
+    expect(packageDisplay3.compareDocumentPosition(packageDisplay1)).toBe(4);
   });
 
   it('sets selected attribution ID on card click', async () => {
