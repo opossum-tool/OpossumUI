@@ -2,38 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Attributions, FollowUp } from '../../../../shared/shared-types';
+import { Attributions } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { setManualData } from '../../../state/actions/resource-actions/all-views-simple-actions';
+import {
+  setExternalData,
+  setManualData,
+} from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { renderHook } from '../../../test-helpers/render';
 import { Filter, useFilteredAttributions } from '../FilterMultiSelect.util';
 
 describe('useFilteredAttributions', () => {
-  const testManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120002';
-  const testOtherManualUuid = 'a32f2f96-f40e-11ea-adc1-0242ac120003';
-  const testManualAttributions: Attributions = {};
-  testManualAttributions[testManualUuid] = {
-    attributionConfidence: 0,
-    comment: 'Some comment',
-    packageName: 'Test package',
-    packageVersion: '1.0',
-    copyright: 'Copyright John Doe',
-    licenseText: 'Some license text',
-    firstParty: true,
-  };
-  testManualAttributions[testOtherManualUuid] = {
-    attributionConfidence: 0,
-    comment: 'Some other comment',
-    packageName: 'Test other package',
-    packageVersion: '2.0',
-    copyright: 'other Copyright John Doe',
-    licenseText: 'Some other license text',
-    followUp: FollowUp,
-    needsReview: true,
-    preferred: true,
-  };
-
   it('returns filtered attributions without filter', () => {
     const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
       followUp: 'FOLLOW_UP',
@@ -176,6 +155,56 @@ describe('useFilteredAttributions', () => {
           }),
         ),
         setVariable<Array<Filter>>('active-filters', ['Currently Preferred']),
+      ],
+    });
+
+    expect(result.current.attributions).toEqual<Attributions>({
+      [attributionId1]: packageInfo1,
+    });
+  });
+
+  it('returns filtered attributions with modified preferred filter', () => {
+    const originId1 = faker.string.uuid();
+    const originId2 = faker.string.uuid();
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+      originIds: [originId1],
+      wasPreferred: false,
+    });
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+      originIds: [originId2],
+      wasPreferred: false,
+    });
+    const [attributionId3, packageInfo3] = faker.opossum.externalAttribution({
+      originIds: [originId1],
+      wasPreferred: true,
+    });
+    const [attributionId4, packageInfo4] = faker.opossum.externalAttribution({
+      originIds: [originId2],
+      wasPreferred: false,
+    });
+    const { result } = renderHook(() => useFilteredAttributions(), {
+      actions: [
+        setManualData(
+          faker.opossum.manualAttributions({
+            [attributionId1]: packageInfo1,
+            [attributionId2]: packageInfo2,
+          }),
+          faker.opossum.resourcesToAttributions({
+            [faker.opossum.filePath()]: [attributionId1, attributionId2],
+          }),
+        ),
+        setExternalData(
+          faker.opossum.externalAttributions({
+            [attributionId3]: packageInfo3,
+            [attributionId4]: packageInfo4,
+          }),
+          faker.opossum.resourcesToAttributions({
+            [faker.opossum.filePath()]: [attributionId3, attributionId4],
+          }),
+        ),
+        setVariable<Array<Filter>>('active-filters', [
+          'Modified Previously Preferred',
+        ]),
       ],
     });
 

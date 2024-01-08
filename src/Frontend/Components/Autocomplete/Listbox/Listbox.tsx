@@ -158,7 +158,7 @@ export const Listbox = forwardRef(
           ref={virtuosoRef}
           style={{
             ...styles.virtuoso,
-            height: height + Math.trunc(options.length / 2),
+            height,
           }}
           data={options}
           itemContent={(index, option) => renderOption({ option, index })}
@@ -185,6 +185,7 @@ export const Listbox = forwardRef(
           disabled={optionProps['aria-disabled'] as boolean}
           key={getOptionKey?.(option) ?? key}
           sx={{ gap: '12px' }}
+          dense
         >
           {renderOptionStartIcon?.(option, { closePopper })}
           <MuiListItemText

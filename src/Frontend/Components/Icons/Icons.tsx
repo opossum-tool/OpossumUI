@@ -342,6 +342,24 @@ export function WasPreferredIcon({ className, noTooltip, sx }: IconProps) {
   );
 }
 
+export function ModifiedPreferredIcon({ className, noTooltip, sx }: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.auditingOptions.modifiedPreferred}
+    >
+      <StarIcon
+        aria-label={'Modified preferred icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.black} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
 export function SourceIcon({ className, noTooltip, sx }: IconProps) {
   return (
     <MuiTooltip title={noTooltip ? undefined : text.attributionColumn.source}>

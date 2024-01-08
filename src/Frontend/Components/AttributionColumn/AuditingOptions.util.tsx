@@ -1,0 +1,339 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+import ReplayIcon from '@mui/icons-material/Replay';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+import MuiRating from '@mui/material/Rating';
+import { useMemo } from 'react';
+
+import { DisplayPackageInfo, FollowUp } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
+import { OpossumColors } from '../../shared-styles';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
+import { useAppDispatch, useAppSelector, useAppStore } from '../../state/hooks';
+import {
+  getExternalAttributions,
+  getExternalAttributionSources,
+  getIsPreferenceFeatureEnabled,
+  getTemporaryDisplayPackageInfo,
+} from '../../state/selectors/all-views-resource-selectors';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
+import { prettifySource } from '../../util/prettify-source';
+import { useUserSetting } from '../../util/use-user-setting';
+import {
+  ExcludeFromNoticeIcon,
+  FollowUpIcon,
+  ModifiedPreferredIcon,
+  NeedsReviewIcon,
+  PreferredIcon,
+  PreSelectedIcon,
+  SourceIcon,
+  WasPreferredIcon,
+} from '../Icons/Icons';
+
+interface AuditingOption {
+  active: boolean;
+  option: string;
+  icon?: React.ReactElement;
+  deleteIcon?: React.ReactElement;
+  interactive: boolean;
+  label: React.ReactNode;
+  onAdd?(): void;
+  onDelete?(): void;
+}
+
+export function useAuditingOptions({
+  packageInfo,
+  isEditable,
+}: {
+  packageInfo: DisplayPackageInfo;
+  isEditable: boolean;
+}) {
+  const dispatch = useAppDispatch();
+  const store = useAppStore();
+  const [qaMode] = useUserSetting({ defaultValue: false, key: 'qaMode' });
+  const attributionSources = useAppSelector(getExternalAttributionSources);
+  const isPreferenceFeatureEnabled = useAppSelector(
+    getIsPreferenceFeatureEnabled,
+  );
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const source = useMemo(() => {
+    const sourceName =
+      packageInfo.source?.additionalName || packageInfo.source?.name;
+
+    if (sourceName) {
+      return {
+        sourceName,
+        fromOrigin: false,
+      };
+    }
+
+    const originSource = (
+      packageInfo.originIds?.length
+        ? Object.values(externalAttributions).find(
+            ({ originIds }) =>
+              originIds?.some((id) => packageInfo.originIds?.includes(id)),
+          )
+        : undefined
+    )?.source;
+
+    return {
+      sourceName: originSource?.additionalName || originSource?.name,
+      fromOrigin: true,
+    };
+  }, [
+    externalAttributions,
+    packageInfo.originIds,
+    packageInfo.source?.additionalName,
+    packageInfo.source?.name,
+  ]);
+
+  const originalPreferred = useMemo(
+    () =>
+      !!packageInfo.originIds?.length && !packageInfo.wasPreferred
+        ? Object.values(externalAttributions).find(
+            ({ originIds, wasPreferred }) =>
+              wasPreferred &&
+              originIds?.some((id) => packageInfo.originIds?.includes(id)),
+          )
+        : undefined,
+    [externalAttributions, packageInfo.originIds, packageInfo.wasPreferred],
+  );
+
+  return useMemo<Array<AuditingOption>>(
+    () => [
+      {
+        option: 'preferred',
+        label: text.auditingOptions.currentlyPreferred,
+        icon: <PreferredIcon noTooltip />,
+        active: !!packageInfo.preferred,
+        onAdd: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              preferred: true,
+            }),
+          ),
+        onDelete: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              preferred: false,
+            }),
+          ),
+        interactive: isPreferenceFeatureEnabled && qaMode,
+      },
+      {
+        option: 'was-preferred',
+        label: text.auditingOptions.previouslyPreferred,
+        icon: <WasPreferredIcon noTooltip />,
+        active: !!packageInfo.wasPreferred,
+        interactive: false,
+      },
+      {
+        option: 'is-modified-preferred',
+        label: text.auditingOptions.modifiedPreferred,
+        icon: <ModifiedPreferredIcon noTooltip />,
+        active: !!originalPreferred,
+        interactive: !!originalPreferred,
+        deleteIcon: <ReplayIcon aria-label={'undo modified preferred'} />,
+        onDelete: originalPreferred
+          ? () =>
+              dispatch(
+                setTemporaryDisplayPackageInfo(
+                  convertPackageInfoToDisplayPackageInfo(
+                    getStrippedPackageInfo(originalPreferred),
+                    [],
+                  ),
+                ),
+              )
+          : undefined,
+      },
+      {
+        option: 'pre-selected',
+        label: text.auditingOptions.preselected,
+        icon: <PreSelectedIcon noTooltip />,
+        active: !!packageInfo.preSelected,
+        interactive: false,
+      },
+      {
+        option: 'follow-up',
+        label: text.auditingOptions.followUp,
+        icon: <FollowUpIcon noTooltip />,
+        active: !!packageInfo.followUp,
+        onAdd: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              followUp: FollowUp,
+            }),
+          ),
+        onDelete: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              followUp: undefined,
+            }),
+          ),
+        interactive: true,
+      },
+      {
+        option: 'needs-review',
+        label: text.auditingOptions.needsReview,
+        icon: <NeedsReviewIcon noTooltip />,
+        active: !!packageInfo.needsReview,
+        onAdd: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              needsReview: true,
+            }),
+          ),
+        onDelete: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              needsReview: false,
+            }),
+          ),
+        interactive: true,
+      },
+      {
+        option: 'excluded-from-notice',
+        label: text.auditingOptions.excludedFromNotice,
+        icon: <ExcludeFromNoticeIcon noTooltip />,
+        active: !!packageInfo.excludeFromNotice,
+        onAdd: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              excludeFromNotice: true,
+            }),
+          ),
+        onDelete: () =>
+          dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              excludeFromNotice: false,
+            }),
+          ),
+        interactive: true,
+      },
+      {
+        option: 'source',
+        label: `${
+          source.fromOrigin ? text.attributionColumn.originallyFrom : ''
+        }${prettifySource(source.sourceName, attributionSources)}`,
+        icon: <SourceIcon noTooltip />,
+        active: !!source.sourceName,
+        interactive: false,
+      },
+      {
+        option: 'confidence',
+        label: text.auditingOptions.confidence,
+        icon: (
+          <MuiRating
+            size={'small'}
+            sx={{
+              '& .MuiRating-iconEmpty .MuiSvgIcon-root': {
+                color: OpossumColors.grey,
+              },
+            }}
+            value={((packageInfo.attributionConfidence || 0) / 100) * 5}
+            onChange={(_, newValue) =>
+              newValue &&
+              dispatch(
+                setTemporaryDisplayPackageInfo({
+                  ...getTemporaryDisplayPackageInfo(store.getState()),
+                  attributionConfidence: newValue * 20,
+                }),
+              )
+            }
+            IconContainerComponent={({ value, ...rest }) => (
+              <span
+                aria-disabled={
+                  Math.round(
+                    ((packageInfo.attributionConfidence || 0) / 100) * 5,
+                  ) !== value
+                }
+                aria-label={`confidence of ${value}`}
+                {...rest}
+              >
+                {getSatisfaction(value)}
+              </span>
+            )}
+            readOnly={!isEditable}
+            highlightSelectedOnly
+          />
+        ),
+        active: true,
+        interactive: false,
+      },
+    ],
+    [
+      attributionSources,
+      dispatch,
+      isEditable,
+      isPreferenceFeatureEnabled,
+      originalPreferred,
+      packageInfo.attributionConfidence,
+      packageInfo.excludeFromNotice,
+      packageInfo.followUp,
+      packageInfo.needsReview,
+      packageInfo.preSelected,
+      packageInfo.preferred,
+      packageInfo.wasPreferred,
+      qaMode,
+      source.fromOrigin,
+      source.sourceName,
+      store,
+    ],
+  );
+}
+
+function getSatisfaction(value: number): React.ReactNode {
+  if (value <= 1) {
+    return (
+      <SentimentVeryDissatisfiedIcon
+        color={'error'}
+        sx={{ width: '19px', height: '19px' }}
+      />
+    );
+  } else if (value === 2) {
+    return (
+      <SentimentDissatisfiedIcon
+        color={'error'}
+        sx={{ width: '19px', height: '19px' }}
+      />
+    );
+  } else if (value === 3) {
+    return (
+      <SentimentSatisfiedIcon
+        color={'warning'}
+        sx={{ width: '19px', height: '19px' }}
+      />
+    );
+  } else if (value === 4) {
+    return (
+      <SentimentSatisfiedAltIcon
+        color={'success'}
+        sx={{ width: '19px', height: '19px' }}
+      />
+    );
+  }
+
+  return (
+    <SentimentVerySatisfiedIcon
+      color={'success'}
+      sx={{ width: '19px', height: '19px' }}
+    />
+  );
+}
