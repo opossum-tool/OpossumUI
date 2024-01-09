@@ -38,16 +38,11 @@ import {
   SourceIcon,
   WasPreferredIcon,
 } from '../Icons/Icons';
+import { SelectMenuOption } from '../SelectMenu/SelectMenu';
 
-interface AuditingOption {
-  active: boolean;
-  option: string;
-  icon?: React.ReactElement;
+interface AuditingOption extends SelectMenuOption {
   deleteIcon?: React.ReactElement;
   interactive: boolean;
-  label: React.ReactNode;
-  onAdd?(): void;
-  onDelete?(): void;
 }
 
 export function useAuditingOptions({
@@ -111,10 +106,10 @@ export function useAuditingOptions({
   return useMemo<Array<AuditingOption>>(
     () => [
       {
-        option: 'preferred',
+        id: 'preferred',
         label: text.auditingOptions.currentlyPreferred,
         icon: <PreferredIcon noTooltip />,
-        active: !!packageInfo.preferred,
+        selected: !!packageInfo.preferred,
         onAdd: () =>
           dispatch(
             setTemporaryDisplayPackageInfo({
@@ -132,17 +127,17 @@ export function useAuditingOptions({
         interactive: isPreferenceFeatureEnabled && qaMode,
       },
       {
-        option: 'was-preferred',
+        id: 'was-preferred',
         label: text.auditingOptions.previouslyPreferred,
         icon: <WasPreferredIcon noTooltip />,
-        active: !!packageInfo.wasPreferred,
+        selected: !!packageInfo.wasPreferred,
         interactive: false,
       },
       {
-        option: 'is-modified-preferred',
+        id: 'is-modified-preferred',
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
-        active: !!originalPreferred,
+        selected: !!originalPreferred,
         interactive: !!originalPreferred,
         deleteIcon: <ReplayIcon aria-label={'undo modified preferred'} />,
         onDelete: originalPreferred
@@ -158,17 +153,17 @@ export function useAuditingOptions({
           : undefined,
       },
       {
-        option: 'pre-selected',
+        id: 'pre-selected',
         label: text.auditingOptions.preselected,
         icon: <PreSelectedIcon noTooltip />,
-        active: !!packageInfo.preSelected,
+        selected: !!packageInfo.preSelected,
         interactive: false,
       },
       {
-        option: 'follow-up',
+        id: 'follow-up',
         label: text.auditingOptions.followUp,
         icon: <FollowUpIcon noTooltip />,
-        active: !!packageInfo.followUp,
+        selected: !!packageInfo.followUp,
         onAdd: () =>
           dispatch(
             setTemporaryDisplayPackageInfo({
@@ -186,10 +181,10 @@ export function useAuditingOptions({
         interactive: true,
       },
       {
-        option: 'needs-review',
+        id: 'needs-review',
         label: text.auditingOptions.needsReview,
         icon: <NeedsReviewIcon noTooltip />,
-        active: !!packageInfo.needsReview,
+        selected: !!packageInfo.needsReview,
         onAdd: () =>
           dispatch(
             setTemporaryDisplayPackageInfo({
@@ -207,10 +202,10 @@ export function useAuditingOptions({
         interactive: true,
       },
       {
-        option: 'excluded-from-notice',
+        id: 'excluded-from-notice',
         label: text.auditingOptions.excludedFromNotice,
         icon: <ExcludeFromNoticeIcon noTooltip />,
-        active: !!packageInfo.excludeFromNotice,
+        selected: !!packageInfo.excludeFromNotice,
         onAdd: () =>
           dispatch(
             setTemporaryDisplayPackageInfo({
@@ -228,16 +223,16 @@ export function useAuditingOptions({
         interactive: true,
       },
       {
-        option: 'source',
+        id: 'source',
         label: `${
           source.fromOrigin ? text.attributionColumn.originallyFrom : ''
         }${prettifySource(source.sourceName, attributionSources)}`,
         icon: <SourceIcon noTooltip />,
-        active: !!source.sourceName,
+        selected: !!source.sourceName,
         interactive: false,
       },
       {
-        option: 'confidence',
+        id: 'confidence',
         label: text.auditingOptions.confidence,
         icon: (
           <MuiRating
@@ -274,7 +269,7 @@ export function useAuditingOptions({
             highlightSelectedOnly
           />
         ),
-        active: true,
+        selected: true,
         interactive: false,
       },
     ],
