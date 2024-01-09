@@ -9,6 +9,7 @@ import { Autocomplete } from '../Autocomplete/Autocomplete';
 import {
   ACTIVE_FILTERS_REDUX_KEY,
   Filter,
+  FILTER_PROPS,
   filters,
 } from './FilterMultiSelect.util';
 
@@ -31,6 +32,7 @@ export function FilterMultiSelect({ width, sx }: Props) {
       title={'Filter'}
       value={activeFilters}
       onChange={(_, value) => setActiveFilters(value)}
+      renderOptionStartIcon={(option) => FILTER_PROPS[option].icon}
       filterSelectedOptions
       sx={{ ...sx, flex: 'initial', width }}
       aria-label={'attribution filters'}

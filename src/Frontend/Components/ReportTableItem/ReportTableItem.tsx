@@ -90,7 +90,6 @@ const classes = {
   },
   firstPartyIcon: {
     border: `2px ${OpossumColors.darkBlue} solid`,
-    color: OpossumColors.darkBlue,
   },
   commentIcon: {
     border: `2px ${OpossumColors.black} solid`,
@@ -98,23 +97,18 @@ const classes = {
   },
   followUpIcon: {
     border: `2px ${OpossumColors.red} solid`,
-    color: OpossumColors.red,
   },
   needsReviewIcon: {
     border: `2px ${OpossumColors.orange} solid`,
-    color: OpossumColors.orange,
   },
   excludeFromNoticeIcon: {
     border: `2px ${OpossumColors.grey} solid`,
-    color: OpossumColors.grey,
   },
   preSelectedIcon: {
     border: `2px ${OpossumColors.darkBlue} solid`,
-    color: OpossumColors.darkBlue,
   },
   preferredIcon: {
     border: `2px ${OpossumColors.mediumOrange} solid`,
-    color: OpossumColors.mediumOrange,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,

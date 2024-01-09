@@ -6,7 +6,6 @@ import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { HighlightingColor } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
 import { ListCardConfig } from '../../types/types';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 import {
@@ -24,18 +23,6 @@ export function getKey(prefix: string, cardId: string): string {
   return `${prefix}-${cardId}`;
 }
 
-const classes = {
-  needsReviewIcon: {
-    color: OpossumColors.orange,
-  },
-  followUpIcon: {
-    color: OpossumColors.red,
-  },
-  excludeFromNoticeIcon: {
-    color: OpossumColors.grey,
-  },
-};
-
 export function getRightIcons(
   cardConfig: ListCardConfig,
   cardId: string,
@@ -49,19 +36,11 @@ export function getRightIcons(
 
   if (cardConfig.needsReview) {
     rightIcons.push(
-      <NeedsReviewIcon
-        key={getKey('needs-review-icon', cardId)}
-        sx={classes.needsReviewIcon}
-      />,
+      <NeedsReviewIcon key={getKey('needs-review-icon', cardId)} />,
     );
   }
   if (cardConfig.followUp) {
-    rightIcons.push(
-      <FollowUpIcon
-        key={getKey('follow-up-icon', cardId)}
-        sx={classes.followUpIcon}
-      />,
-    );
+    rightIcons.push(<FollowUpIcon key={getKey('follow-up-icon', cardId)} />);
   }
   if (cardConfig.firstParty) {
     rightIcons.push(
@@ -70,10 +49,7 @@ export function getRightIcons(
   }
   if (cardConfig.excludeFromNotice) {
     rightIcons.push(
-      <ExcludeFromNoticeIcon
-        key={getKey('exclude-icon', cardId)}
-        sx={classes.excludeFromNoticeIcon}
-      />,
+      <ExcludeFromNoticeIcon key={getKey('exclude-icon', cardId)} />,
     );
   }
   if (cardConfig.isPreSelected) {

@@ -130,6 +130,7 @@ export function expectFilterIsShown(screen: Screen, label: string): void {
 
 export async function selectFilter(screen: Screen, filter: Filter) {
   await userEvent.click(screen.getByRole('combobox'));
+  await userEvent.paste(filter);
   await userEvent.click(screen.getByText(filter));
 }
 
