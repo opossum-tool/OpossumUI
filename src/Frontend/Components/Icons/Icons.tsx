@@ -17,11 +17,13 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import RectangleIcon from '@mui/icons-material/Rectangle';
 import ReplayIcon from '@mui/icons-material/Replay';
 import SearchIcon from '@mui/icons-material/Search';
+import SortIcon from '@mui/icons-material/Sort';
 import StarIcon from '@mui/icons-material/Star';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
+import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -245,6 +247,18 @@ export function SearchPackagesIcon(props: IconProps) {
         sxProps: props.sx,
       })}
       aria-label={'Search packages icon'}
+    />
+  );
+}
+
+export function SortAttributionsIcon(props: IconProps): ReactElement {
+  return (
+    <SortIcon
+      sx={getSxFromPropsAndClasses({
+        styleClass: classes.nonClickableIcon,
+        sxProps: props.sx,
+      })}
+      aria-label={'Sort icon'}
     />
   );
 }

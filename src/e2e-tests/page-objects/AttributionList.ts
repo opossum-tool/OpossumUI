@@ -14,7 +14,7 @@ export class AttributionList {
   constructor(window: Page) {
     this.node = window.getByLabel('attribution list');
     this.attributionCard = new PackageCard(window, this.node);
-    this.filterButton = this.node.getByLabel('Filters', { exact: true });
+    this.filterButton = this.node.getByLabel('Filter', { exact: true });
   }
 
   public assert = {

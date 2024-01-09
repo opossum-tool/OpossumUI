@@ -231,6 +231,7 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
     displayedAttributionId = attributionIds.sort(
       getAlphabeticalComparerForAttributions(
         state.allViews.manualData.attributions,
+        false,
       ),
     )[0];
   } else {
@@ -244,6 +245,7 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
       displayedAttributionId = closestParentAttributionIds.sort(
         getAlphabeticalComparerForAttributions(
           state.allViews.manualData.attributions,
+          false,
         ),
       )[0];
     }
@@ -264,7 +266,7 @@ export function getIndexOfAttributionInManualPackagePanel(
   }
 
   const sortedAttributionIds = manualAttributionIdsOnResource.sort(
-    getAlphabeticalComparerForAttributions(manualData.attributions),
+    getAlphabeticalComparerForAttributions(manualData.attributions, false),
   );
 
   const packageCardIndex = sortedAttributionIds.findIndex(

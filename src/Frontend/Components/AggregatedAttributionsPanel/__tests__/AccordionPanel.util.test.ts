@@ -5,6 +5,7 @@
 import {
   Attributions,
   AttributionsToHashes,
+  Criticality,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
@@ -17,7 +18,7 @@ import { PanelAttributionData } from '../../../util/get-contained-packages';
 import {
   getContainedManualDisplayPackageInfosWithCount,
   getExternalDisplayPackageInfosWithCount,
-  sortDisplayPackageInfosWithCountByCountAndPackageName,
+  sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName,
 } from '../AccordionPanel.util';
 
 describe('getExternalDisplayPackageInfosWithCount', () => {
@@ -54,6 +55,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributions,
         testExternalAttributionsToHashes,
         testPackagePanelTitle,
+        false,
       ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
@@ -92,6 +94,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributions,
         testExternalAttributionsToHashes,
         testPackagePanelTitle,
+        false,
       ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
@@ -122,6 +125,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributions,
         testExternalAttributionsToHashes,
         testPackagePanelTitle,
+        false,
       ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
@@ -162,6 +166,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributions,
         testExternalAttributionsToHashes,
         testPackagePanelTitle,
+        false,
       ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
@@ -192,6 +197,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributions,
         testExternalAttributionsToHashes,
         testPackagePanelTitle,
+        false,
       ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
@@ -240,6 +246,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testAttributions,
         testExternalAttributionsToHashes,
         testPackagePanelTitle,
+        false,
       ),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
@@ -311,13 +318,14 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
         selectedResourceId,
         manualData,
         panelTitle: testPackagePanelTitle,
+        sortByCriticality: false,
       }),
     ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
   });
 });
 
-describe('sortDisplayPackageInfosWithCountByCountAndPackageName', () => {
-  it('sorts items correctly', () => {
+describe('sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName', () => {
+  it('sorts items correctly, ignoring criticality', () => {
     const initialPackageCardIds: Array<string> = [
       'pcid1',
       'pcid2',
@@ -362,8 +370,102 @@ describe('sortDisplayPackageInfosWithCountByCountAndPackageName', () => {
     ];
 
     const result = initialPackageCardIds.sort(
-      sortDisplayPackageInfosWithCountByCountAndPackageName(
+      sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
         testDisplayPackageInfosWithCount,
+        true,
+      ),
+    );
+    expect(result).toEqual(expectedPackageCardIds);
+  });
+
+  it('sorts items correctly by criticality, package name and version', () => {
+    const initialPackageCardIds: Array<string> = [
+      'pcid1',
+      'pcid2',
+      'pcid3',
+      'pcid4',
+      'pcid5',
+      'pcid6',
+      'pcid7',
+      'pcid8',
+      'pcid9',
+      'pcid10',
+    ];
+    const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+      pcid1: {
+        displayPackageInfo: { attributionIds: ['uuid1'] },
+        count: 10,
+      },
+      pcid2: {
+        displayPackageInfo: { attributionIds: ['uuid2'], packageName: 'c' },
+        count: 11,
+      },
+      pcid3: {
+        displayPackageInfo: { attributionIds: ['uuid3'], packageName: 'b' },
+        count: 10,
+      },
+      pcid4: {
+        displayPackageInfo: { attributionIds: ['uuid4'], packageName: 'e' },
+        count: 1,
+      },
+      pcid5: {
+        displayPackageInfo: { attributionIds: ['uuid5'], packageName: 'z' },
+        count: 10,
+      },
+      pcid6: {
+        displayPackageInfo: { attributionIds: ['uuid6'], packageName: 'd' },
+        count: 1,
+      },
+      pcid7: {
+        displayPackageInfo: {
+          attributionIds: ['uuid7'],
+          packageName: 'a',
+          criticality: Criticality.Medium,
+        },
+        count: 10,
+      },
+      pcid8: {
+        displayPackageInfo: {
+          attributionIds: ['uuid7'],
+          packageName: 'a',
+          criticality: Criticality.Medium,
+        },
+        count: 11,
+      },
+      pcid9: {
+        displayPackageInfo: {
+          attributionIds: ['uuid7'],
+          packageName: 'b',
+          criticality: Criticality.Medium,
+        },
+        count: 10,
+      },
+      pcid10: {
+        displayPackageInfo: {
+          attributionIds: ['uuid7'],
+          packageName: 'a',
+          criticality: Criticality.High,
+        },
+        count: 10,
+      },
+    };
+    const expectedPackageCardIds: Array<string> = [
+      'pcid10',
+      'pcid8',
+      'pcid7',
+      'pcid9',
+      'pcid2',
+      'pcid3',
+      'pcid5',
+      'pcid1',
+      'pcid6',
+      'pcid4',
+    ];
+
+    const result = initialPackageCardIds.sort(
+      sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
+        testDisplayPackageInfosWithCount,
+        true,
       ),
     );
     expect(result).toEqual(expectedPackageCardIds);

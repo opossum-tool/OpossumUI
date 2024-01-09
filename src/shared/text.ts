@@ -44,6 +44,8 @@ export const text = {
     source: 'Source',
     useAutocompleteSuggestion:
       'Adopt all coordinates and legal information from suggestion',
+    sortTooltip: 'Sort',
+    filterTooltip: 'Filter',
   },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
@@ -95,5 +97,20 @@ export const text = {
     preSelected: 'Pre-selected',
     previouslyPreferred: 'Previously Preferred',
     thirdParty: 'Third Party',
+  },
+  attributionViewSorting: {
+    sorting: 'Sorting',
+    alphabetical: 'Alphabetical',
+    byCriticality: 'By Criticality',
+  },
+  auditViewSorting: {
+    sorting: 'Sorting',
+    byOccurrence: 'By Occurrence',
+    byCriticality: 'By Criticality',
+  },
+  resourceDetails: {
+    searchTooltip:
+      'Search signals by name, license name, copyright text and version',
+    sortTooltip: 'Choose sorting algorithm for the displayed signals',
   },
 } as const;
