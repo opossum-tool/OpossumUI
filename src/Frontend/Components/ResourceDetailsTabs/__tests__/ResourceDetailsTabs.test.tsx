@@ -9,6 +9,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -145,11 +146,7 @@ describe('The ResourceDetailsTabs', () => {
     screen.getByText(/package name 2/);
     screen.getByText(/package name 3/);
 
-    fireEvent.click(
-      screen.getByLabelText(
-        'Search signals by name, license name, copyright text and version',
-      ),
-    );
+    fireEvent.click(screen.getByLabelText(text.resourceDetails.searchTooltip));
 
     fireEvent.change(screen.getByRole('searchbox'), {
       target: { value: 'name 1' },

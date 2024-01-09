@@ -6,7 +6,7 @@ import MuiBox from '@mui/material/Box';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import { remove } from 'lodash';
-import { ChangeEvent, ReactElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -38,7 +38,7 @@ import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/Aggr
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { IconButton } from '../IconButton/IconButton';
 import { SearchPackagesIcon, SortAttributionsIcon } from '../Icons/Icons';
-import { Dropdown, MenuItem } from '../InputElements/Dropdown';
+import { Dropdown } from '../InputElements/Dropdown';
 import { SearchTextField } from '../SearchTextField/SearchTextField';
 
 const classes = {
@@ -95,45 +95,32 @@ const classes = {
     margin: '0 2px',
     color: OpossumColors.disabledButtonGrey,
   },
-  searchBox: {
-    marginTop: '10px',
-  },
 };
-
-const SORTING_ALGORITHMS: Array<MenuItem> = [
-  {
-    value: text.auditViewSorting.byOccurrence,
-    name: text.auditViewSorting.byOccurrence,
-  },
-  {
-    value: text.auditViewSorting.byCriticality,
-    name: text.auditViewSorting.byCriticality,
-  },
-];
-const defaultSorting = text.auditViewSorting.byOccurrence;
 
 interface ResourceDetailsTabsProps {
   isGlobalTabEnabled: boolean;
   isAddToPackageEnabled: boolean;
 }
 
-export function ResourceDetailsTabs(
-  props: ResourceDetailsTabsProps,
-): ReactElement | null {
+export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
   const manualData = useAppSelector(getManualData);
   const selectedPackage = useAppSelector(getDisplayedPackage);
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const attributionIdsOfSelectedResource: Array<string> =
+  const attributionIdsOfSelectedResource =
     useAppSelector(getAttributionIdsOfSelectedResource) || [];
   const isAccordionSearchFieldDisplayed = useAppSelector(
     getIsAccordionSearchFieldDisplayed,
   );
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
-  const [activeSorting, setActiveSorting] = useActiveSortingInAuditView();
-  const defaultSortingIsActive = activeSorting === defaultSorting;
-  const [showSortingSelect, setShowSortingSelect] = useState<boolean>(
-    !defaultSortingIsActive,
+  const {
+    activeSorting,
+    setActiveSorting,
+    options: sortingOptions,
+    isDefaultSortingActive,
+  } = useActiveSortingInAuditView();
+  const [showSortingSelect, setShowSortingSelect] = useState(
+    !isDefaultSortingActive,
   );
 
   const dispatch = useAppDispatch();
@@ -162,23 +149,6 @@ export function ResourceDetailsTabs(
     [Tabs.Local]: 'Local',
     [Tabs.Global]: 'Global',
   };
-
-  function onSortToggleClick(): void {
-    setShowSortingSelect(!showSortingSelect);
-  }
-
-  function onSortInputChange(event: ChangeEvent<HTMLInputElement>): void {
-    setActiveSorting(event.target.value as AuditViewSorting);
-  }
-
-  function onSearchToggleClick(): void {
-    dispatch(toggleAccordionSearchField());
-    dispatch(setPackageSearchTerm(''));
-  }
-
-  function onSearchInputChange(input: string): void {
-    dispatch(setPackageSearchTerm(input));
-  }
 
   return (
     <MuiBox aria-label={'resource signals'} sx={classes.container}>
@@ -210,13 +180,13 @@ export function ResourceDetailsTabs(
       <MuiBox sx={classes.icons}>
         <IconButton
           tooltipTitle={text.resourceDetails.sortTooltip}
-          tooltipPlacement="right"
-          onClick={onSortToggleClick}
-          disabled={!defaultSortingIsActive}
+          tooltipPlacement={'right'}
+          onClick={() => setShowSortingSelect(!showSortingSelect)}
+          disabled={!isDefaultSortingActive}
           icon={
             <SortAttributionsIcon
               sx={
-                defaultSortingIsActive
+                isDefaultSortingActive
                   ? classes.largeClickableIcon
                   : classes.disabledLargeClickableIcon
               }
@@ -225,27 +195,31 @@ export function ResourceDetailsTabs(
         />
         <IconButton
           tooltipTitle={text.resourceDetails.searchTooltip}
-          tooltipPlacement="right"
-          onClick={onSearchToggleClick}
+          tooltipPlacement={'right'}
+          onClick={() => {
+            dispatch(toggleAccordionSearchField());
+            dispatch(setPackageSearchTerm(''));
+          }}
           icon={<SearchPackagesIcon sx={classes.largeClickableIcon} />}
         />
       </MuiBox>
       {showSortingSelect ? (
         <Dropdown
           sx={classes.dropdown}
-          isEditable={true}
-          title={text.auditViewSorting.sorting}
+          isEditable
+          title={text.buttons.sort}
           value={activeSorting}
-          menuItems={SORTING_ALGORITHMS}
-          handleChange={onSortInputChange}
+          menuItems={sortingOptions}
+          handleChange={(event) =>
+            setActiveSorting(event.target.value as AuditViewSorting)
+          }
         />
       ) : null}
       {isAccordionSearchFieldDisplayed ? (
         <SearchTextField
-          onInputChange={onSearchInputChange}
+          onInputChange={(input) => dispatch(setPackageSearchTerm(input))}
           search={searchTerm}
           autoFocus={true}
-          sx={classes.searchBox}
         />
       ) : null}
       <MuiBox sx={classes.container}>

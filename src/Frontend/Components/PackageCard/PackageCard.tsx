@@ -6,7 +6,6 @@ import PlusIcon from '@mui/icons-material/Add';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import MuiBox from '@mui/material/Box';
 import { memo, ReactElement, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText, PopupType, View } from '../../enums/enums';
@@ -95,15 +94,15 @@ interface PackageCardProps {
 export const PackageCard = memo(
   (props: PackageCardProps): ReactElement | null => {
     const dispatch = useAppDispatch();
-    const selectedView = useSelector(getSelectedView);
-    const selectedAttributionIdAttributionView = useSelector(
+    const selectedView = useAppSelector(getSelectedView);
+    const selectedAttributionIdAttributionView = useAppSelector(
       getSelectedAttributionIdInAttributionView,
     );
     const selectedAttributionIdAuditView =
-      useSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
-    const manualAttributions = useSelector(getManualAttributions);
-    const selectedResourceId = useSelector(getSelectedResourceId);
-    const attributionsToResources = useSelector(
+      useAppSelector(getAttributionIdOfDisplayedPackageInManualPanel) ?? '';
+    const manualAttributions = useAppSelector(getManualAttributions);
+    const selectedResourceId = useAppSelector(getSelectedResourceId);
+    const attributionsToResources = useAppSelector(
       getManualAttributionsToResources,
     );
     const resolvedExternalAttributions = useAppSelector(
@@ -412,6 +411,7 @@ export const PackageCard = memo(
           checked={multiSelectSelectedAttributionIds.includes(attributionId)}
           onChange={handleMultiSelectAttributionSelected}
           skeleton={props.isScrolling}
+          disableRipple
         />
       ) : undefined;
     }

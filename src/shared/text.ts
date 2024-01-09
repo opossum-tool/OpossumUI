@@ -47,6 +47,14 @@ export const text = {
     sortTooltip: 'Sort',
     filterTooltip: 'Filter',
   },
+  attributionList: {
+    confirmSelected: 'Confirm Selected',
+    deleteSelected: 'Delete Selected',
+  },
+  buttons: {
+    filter: 'Filter',
+    sort: 'Sort',
+  },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
     unmarkAsPreferred:
@@ -101,18 +109,15 @@ export const text = {
     thirdParty: 'Third Party',
   },
   attributionViewSorting: {
-    sorting: 'Sorting',
-    alphabetical: 'Alphabetical',
+    alphabetical: 'Alphabetically',
     byCriticality: 'By Criticality',
   },
   auditViewSorting: {
-    sorting: 'Sorting',
     byOccurrence: 'By Occurrence',
     byCriticality: 'By Criticality',
   },
   resourceDetails: {
-    searchTooltip:
-      'Search signals by name, license name, copyright text and version',
-    sortTooltip: 'Choose sorting algorithm for the displayed signals',
+    searchTooltip: 'Search',
+    sortTooltip: 'Sort',
   },
 } as const;

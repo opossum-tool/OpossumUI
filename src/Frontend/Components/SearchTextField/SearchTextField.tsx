@@ -14,7 +14,6 @@ import { inputElementClasses } from '../InputElements/shared';
 const classes = {
   searchField: {
     marginTop: '8px',
-    marginBottom: '8px',
     '& div': {
       borderRadius: '0px',
     },

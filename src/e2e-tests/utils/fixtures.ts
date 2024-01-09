@@ -19,7 +19,6 @@ import {
 } from '../../ElectronBackend/types/types';
 import { writeFile, writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
-import { AttributionFilters } from '../page-objects/AttributionFilters';
 import { AttributionList } from '../page-objects/AttributionList';
 import { ChangePreferredStatusGloballyPopup } from '../page-objects/ChangePreferredStatusGloballyPopup';
 import { ConfirmationDialog } from '../page-objects/ConfirmationDialog';
@@ -53,7 +52,6 @@ export const test = base.extend<{
   /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
   debug: () => void;
   attributionDetails: AttributionDetails;
-  attributionFilters: AttributionFilters;
   attributionList: AttributionList;
   changePreferredStatusGloballyPopup: ChangePreferredStatusGloballyPopup;
   confirmationDialog: ConfirmationDialog;
@@ -156,9 +154,6 @@ export const test = base.extend<{
   },
   attributionDetails: async ({ window }, use) => {
     await use(new AttributionDetails(window));
-  },
-  attributionFilters: async ({ window }, use) => {
-    await use(new AttributionFilters(window));
   },
   reportView: async ({ window }, use) => {
     await use(new ReportView(window));
