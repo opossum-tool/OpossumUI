@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
 
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { setResources } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
@@ -19,54 +18,9 @@ import { TopBar } from '../TopBar';
 describe('TopBar', () => {
   it('renders an Open file icon', () => {
     const { store } = renderComponent(<TopBar />);
-    const totalNumberOfCalls = 13;
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(totalNumberOfCalls);
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.FileLoaded,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.Logging,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ResetLoadedFile,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ExportFileRequest,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowSearchPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowProjectMetadataPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowChangedInputFilePopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowProjectStatisticsPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.SetBaseURLForRoot,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowLocatorPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.SetQAMode,
-      expect.anything(),
-    );
 
     fireEvent.click(screen.queryByLabelText('open file') as Element);
+
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
     expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
   });

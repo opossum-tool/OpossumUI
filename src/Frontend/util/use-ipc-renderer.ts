@@ -14,7 +14,6 @@ import {
   IsLoadingArgs,
   Log,
   ParsedFileContent,
-  QAModeArgs,
 } from '../../shared/shared-types';
 
 export type ResetStateListener = (
@@ -49,11 +48,6 @@ export type ShowFileSupportPopupListener = (
   fileSupportPopupArgs: FileSupportPopupArgs,
 ) => void;
 
-export type SetQAModeListener = (
-  event: IpcRendererEvent,
-  qaModeArgs: QAModeArgs,
-) => void;
-
 export type Listener =
   | ResetStateListener
   | SetStateListener
@@ -61,8 +55,7 @@ export type Listener =
   | ExportFileRequestListener
   | SetBaseURLForRootListener
   | IsLoadingListener
-  | ShowFileSupportPopupListener
-  | SetQAModeListener;
+  | ShowFileSupportPopupListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,

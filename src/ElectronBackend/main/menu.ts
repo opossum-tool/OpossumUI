@@ -333,15 +333,12 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'QA Mode',
           id: 'disabled-qa-mode',
-          click: async () => {
+          click: () => {
             makeFirstIconVisibleAndSecondHidden(
               'enabled-qa-mode',
               'disabled-qa-mode',
             );
-            await UserSettings.set('qaMode', true);
-            webContents.send(AllowedFrontendChannels.SetQAMode, {
-              qaMode: true,
-            });
+            void UserSettings.set('qaMode', true);
           },
           visible: !qaMode,
         },
@@ -352,15 +349,12 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<Menu> {
           ),
           label: 'QA Mode',
           id: 'enabled-qa-mode',
-          click: async () => {
+          click: () => {
             makeFirstIconVisibleAndSecondHidden(
               'disabled-qa-mode',
               'enabled-qa-mode',
             );
-            await UserSettings.set('qaMode', false);
-            webContents.send(AllowedFrontendChannels.SetQAMode, {
-              qaMode: false,
-            });
+            void UserSettings.set('qaMode', false);
           },
           visible: qaMode,
         },

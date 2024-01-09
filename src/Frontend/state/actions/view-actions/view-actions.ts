@@ -19,7 +19,6 @@ import {
   ACTION_OPEN_POPUP,
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_OPEN_FILE_REQUEST,
-  ACTION_SET_QA_MODE,
   ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -27,7 +26,6 @@ import {
   OpenPopupAction,
   ResetViewStateAction,
   SetOpenFileRequestAction,
-  SetQAModeAction,
   SetShowNoSignalsLocatedMessage,
   SetTargetView,
   SetView,
@@ -97,10 +95,6 @@ export function setShowNoSignalsLocatedMessage(
     type: ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE,
     payload: showMessage,
   };
-}
-
-export function setQAMode(qaMode: boolean): SetQAModeAction {
-  return { type: ACTION_SET_QA_MODE, payload: qaMode };
 }
 
 export function setOpenFileRequest(

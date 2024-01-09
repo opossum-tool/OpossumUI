@@ -31,8 +31,8 @@ import {
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getQAMode } from '../../state/selectors/view-selector';
 import { prettifySource } from '../../util/prettify-source';
+import { useUserSetting } from '../../util/use-user-setting';
 import {
   ExcludeFromNoticeIcon,
   FollowUpIcon,
@@ -203,7 +203,7 @@ function useChips({
 }) {
   const dispatch = useAppDispatch();
   const store = useAppStore();
-  const qaMode = useAppSelector(getQAMode);
+  const [qaMode] = useUserSetting({ defaultValue: false, key: 'qaMode' });
   const attributionSources = useAppSelector(getExternalAttributionSources);
   const isPreferenceFeatureEnabled = useAppSelector(
     getIsPreferenceFeatureEnabled,

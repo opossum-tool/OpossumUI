@@ -88,7 +88,7 @@ export async function main(): Promise<void> {
       UserSettings.get(key),
     );
     ipcMain.handle(IpcChannel.SetUserSettings, (_, { key, value }) =>
-      UserSettings.set(key, value),
+      UserSettings.set(key, value, { skipNotification: true }),
     );
 
     await openFileFromCliOrEnvVariableIfProvided(mainWindow);

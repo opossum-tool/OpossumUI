@@ -38,10 +38,6 @@ export function getPopupAttributionId(state: State): string | null {
   return (popup.length === 1 && popup[0].attributionId) || null;
 }
 
-export function getQAMode(state: State): boolean {
-  return state.viewState.qaMode;
-}
-
 export function getOpenFileRequest(state: State): boolean {
   return state.viewState.openFileRequest;
 }

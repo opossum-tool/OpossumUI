@@ -12,9 +12,6 @@ export const ACTION_CLOSE_POPUP = 'ACTION_CLOSE_POPUP';
 export const ACTION_RESET_VIEW_STATE = 'ACTION_RESET_VIEW_STATE';
 export const ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE =
   'ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE';
-
-export const ACTION_SET_QA_MODE = 'ACTION_SET_QA_MODE';
-
 export const ACTION_SET_OPEN_FILE_REQUEST = 'ACTION_SET_OPEN_FILE_REQUEST';
 
 export type ViewAction =
@@ -24,7 +21,6 @@ export type ViewAction =
   | ResetViewStateAction
   | OpenPopupAction
   | SetShowNoSignalsLocatedMessage
-  | SetQAModeAction
   | SetOpenFileRequestAction;
 
 export interface ResetViewStateAction {
@@ -52,11 +48,6 @@ export interface OpenPopupAction {
 
 export interface SetShowNoSignalsLocatedMessage {
   type: typeof ACTION_SET_SHOW_NO_SIGNALS_LOCATED_MESSAGE;
-  payload: boolean;
-}
-
-export interface SetQAModeAction {
-  type: typeof ACTION_SET_QA_MODE;
   payload: boolean;
 }
 
