@@ -17,7 +17,6 @@ import {
   ExportType,
   FileSupportPopupArgs,
   ParsedFileContent,
-  QAModeArgs,
 } from '../../../shared/shared-types';
 import { PopupType } from '../../enums/enums';
 import {
@@ -25,10 +24,7 @@ import {
   setBaseUrlsForSources,
 } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../state/actions/resource-actions/load-actions';
-import {
-  openPopup,
-  setQAMode,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -269,15 +265,6 @@ export function BackendCommunication(): ReactElement | null {
     }
   }
 
-  function setQAModeListener(
-    _: IpcRendererEvent,
-    qaModeArgs: QAModeArgs,
-  ): void {
-    if (qaModeArgs) {
-      dispatch(setQAMode(qaModeArgs.qaMode));
-    }
-  }
-
   useIpcRenderer(AllowedFrontendChannels.FileLoaded, fileLoadedListener, [
     dispatch,
   ]);
@@ -342,9 +329,6 @@ export function BackendCommunication(): ReactElement | null {
     showUpdateAppPopupListener,
     [dispatch],
   );
-  useIpcRenderer(AllowedFrontendChannels.SetQAMode, setQAModeListener, [
-    dispatch,
-  ]);
 
   return null;
 }

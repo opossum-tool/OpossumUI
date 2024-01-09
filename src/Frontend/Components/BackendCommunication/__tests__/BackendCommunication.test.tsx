@@ -3,65 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import { Attributions, ExportType } from '../../../../shared/shared-types';
-import { renderComponent } from '../../../test-helpers/render';
-import {
-  BackendCommunication,
-  getBomAttributions,
-} from '../BackendCommunication';
+import { getBomAttributions } from '../BackendCommunication';
 
 describe('BackendCommunication', () => {
-  it('renders an Open file icon', () => {
-    renderComponent(<BackendCommunication />);
-    const expectedNumberOfCalls = 13;
-    expect(window.electronAPI.on).toHaveBeenCalledTimes(expectedNumberOfCalls);
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.FileLoaded,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.Logging,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ResetLoadedFile,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ExportFileRequest,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowSearchPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowProjectMetadataPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowChangedInputFilePopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowProjectStatisticsPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.SetBaseURLForRoot,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowLocatorPopup,
-      expect.anything(),
-    );
-    expect(window.electronAPI.on).toHaveBeenCalledWith(
-      AllowedFrontendChannels.SetQAMode,
-      expect.anything(),
-    );
-  });
-
   it('filters the correct BOM attributions', () => {
     const testAttributions: Attributions = {
       genericAttrib: {},

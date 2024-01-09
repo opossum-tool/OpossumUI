@@ -35,5 +35,5 @@ export enum AllowedFrontendChannels {
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   ShowUpdateAppPopup = 'show-update-app-pop-up',
   ShowLocatorPopup = 'show-locator-pop-up',
-  SetQAMode = 'set-qa-mode',
+  UserSettingsChanged = 'user-settings-changed',
 }

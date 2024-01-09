@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DependencyList, useCallback, useEffect } from 'react';
 
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { UserSettings } from '../../shared/shared-types';
+import { useIpcRenderer } from './use-ipc-renderer';
 import { useVariable } from './use-variable';
 
 /**
@@ -41,6 +43,16 @@ export const useUserSetting = <T extends keyof UserSettings>(
   useEffect(() => {
     void (async (): Promise<void> => setStoredValue(await readStoredValue()))();
   }, [readStoredValue, setStoredValue]);
+
+  useIpcRenderer(
+    AllowedFrontendChannels.UserSettingsChanged,
+    async () =>
+      setVariable({
+        hydrated: true,
+        storedValue: (await readStoredValue()) ?? defaultValue,
+      }),
+    [readStoredValue],
+  );
 
   return [storedValue, setStoredValue, hydrated];
 };

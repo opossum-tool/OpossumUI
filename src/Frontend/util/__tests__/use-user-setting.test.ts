@@ -12,9 +12,13 @@ import { useUserSetting } from '../use-user-setting';
 const mockGetUserSetting = jest.fn();
 const mockSetUserSetting = jest.fn();
 
-const electronAPI: Pick<ElectronAPI, 'setUserSetting' | 'getUserSetting'> = {
+const electronAPI: Pick<
+  ElectronAPI,
+  'setUserSetting' | 'getUserSetting' | 'on'
+> = {
   getUserSetting: mockGetUserSetting,
   setUserSetting: mockSetUserSetting,
+  on: jest.fn().mockReturnValue(jest.fn()),
 };
 
 describe('useUserSetting', () => {

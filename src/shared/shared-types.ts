@@ -216,10 +216,6 @@ export interface IsLoadingArgs {
   isLoading: boolean;
 }
 
-export interface QAModeArgs {
-  qaMode: boolean;
-}
-
 export interface ExternalAttributionSource {
   name: string;
   priority: number;

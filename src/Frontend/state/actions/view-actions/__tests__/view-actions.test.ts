@@ -8,7 +8,6 @@ import { createAppStore } from '../../../configure-store';
 import {
   getOpenPopup,
   getPopupAttributionId,
-  getQAMode,
   getSelectedView,
   getTargetView,
   isAttributionViewSelected,
@@ -20,7 +19,6 @@ import {
   navigateToView,
   openPopup,
   resetViewState,
-  setQAMode,
   setTargetView,
 } from '../view-actions';
 
@@ -108,15 +106,6 @@ describe('view actions', () => {
     expect(isAttributionViewSelected(testStore.getState())).toBe(false);
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
-  });
-
-  it('sets and gets QA mode state', () => {
-    const testStore = createAppStore();
-    expect(getQAMode(testStore.getState())).toBe(false);
-    testStore.dispatch(setQAMode(true));
-    expect(getQAMode(testStore.getState())).toBe(true);
-    testStore.dispatch(setQAMode(false));
-    expect(getQAMode(testStore.getState())).toBe(false);
   });
 });
 
