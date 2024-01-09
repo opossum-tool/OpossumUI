@@ -5,17 +5,22 @@
 import Filter3Icon from '@mui/icons-material/Filter3';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { pickBy } from 'lodash';
+import { useMemo } from 'react';
 
-import { PackageInfo } from '../../../shared/shared-types';
+import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
-import { getManualAttributions } from '../../state/selectors/all-views-resource-selectors';
+import {
+  getExternalAttributions,
+  getManualAttributions,
+} from '../../state/selectors/all-views-resource-selectors';
 import { useVariable } from '../../util/use-variable';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -30,7 +35,10 @@ export type Filter = (typeof filters)[number];
 
 export const FILTER_PROPS: Record<
   Filter,
-  { eval: (packageInfo: PackageInfo) => boolean; icon: React.ReactNode }
+  {
+    eval: (packageInfo: PackageInfo, signals: Attributions) => boolean;
+    icon: React.ReactNode;
+  }
 > = {
   'Currently Preferred': {
     eval: (packageInfo) => !!packageInfo.preferred,
@@ -49,6 +57,17 @@ export const FILTER_PROPS: Record<
       packageInfo.attributionConfidence !== undefined &&
       packageInfo.attributionConfidence <= LOW_CONFIDENCE_THRESHOLD,
     icon: <SentimentDissatisfiedIcon color={'error'} sx={baseIcon} />,
+  },
+  'Modified Previously Preferred': {
+    eval: (packageInfo, signals) =>
+      !!packageInfo.originIds?.length &&
+      !packageInfo.wasPreferred &&
+      !!Object.values(signals).find(
+        ({ originIds, wasPreferred }) =>
+          wasPreferred &&
+          originIds?.some((id) => packageInfo.originIds?.includes(id)),
+      ),
+    icon: <ModifiedPreferredIcon noTooltip />,
   },
   'Needs Follow-Up': {
     eval: (packageInfo) => !!packageInfo.followUp,
@@ -73,7 +92,8 @@ export const FILTER_PROPS: Record<
 };
 
 export function useFilteredAttributions() {
-  const attributions = useAppSelector(getManualAttributions);
+  const manualAttributions = useAppSelector(getManualAttributions);
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const [activeFilters] = useVariable<Array<Filter>>(
     ACTIVE_FILTERS_REDUX_KEY,
     [],
@@ -81,12 +101,16 @@ export function useFilteredAttributions() {
 
   return {
     activeFilters,
-    attributions: activeFilters.length
-      ? pickBy(attributions, (attribution) =>
-          activeFilters.every((filter) =>
-            FILTER_PROPS[filter].eval(attribution),
-          ),
-        )
-      : attributions,
+    attributions: useMemo(
+      () =>
+        activeFilters.length
+          ? pickBy(manualAttributions, (attribution) =>
+              activeFilters.every((filter) =>
+                FILTER_PROPS[filter].eval(attribution, externalAttributions),
+              ),
+            )
+          : manualAttributions,
+      [activeFilters, externalAttributions, manualAttributions],
+    ),
   };
 }

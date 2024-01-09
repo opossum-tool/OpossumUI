@@ -21,7 +21,9 @@ import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { AttributionType } from '../../../enums/enums';
 import {
+  setExternalData,
   setFrequentLicenses,
+  setManualData,
   setTemporaryDisplayPackageInfo,
 } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -397,6 +399,60 @@ describe('The AttributionColumn', () => {
     expect(getTemporaryDisplayPackageInfo(store.getState()).needsReview).toBe(
       true,
     );
+  });
+
+  it('renders a chip for modified preferred and reverts to original state', async () => {
+    const originId = faker.string.uuid();
+    const manualAttributionId = faker.opossum.attributionId();
+    const temporaryDisplayPackageInfo = faker.opossum.displayPackageInfo({
+      originIds: [originId],
+      wasPreferred: false,
+    });
+    const [attributionId, packageInfo] = faker.opossum.externalAttribution({
+      originIds: [originId],
+      wasPreferred: true,
+    });
+    renderComponent(
+      <AttributionColumn
+        isEditable={true}
+        onSaveButtonClick={noop}
+        onSaveGloballyButtonClick={noop}
+        saveFileRequestListener={noop}
+        onDeleteButtonClick={noop}
+        onDeleteGloballyButtonClick={noop}
+      />,
+      {
+        actions: [
+          setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+          setManualData(
+            faker.opossum.manualAttributions({
+              [manualAttributionId]: temporaryDisplayPackageInfo,
+            }),
+            faker.opossum.resourcesToAttributions({
+              [faker.opossum.filePath()]: [manualAttributionId],
+            }),
+          ),
+          setExternalData(
+            faker.opossum.externalAttributions({
+              [attributionId]: packageInfo,
+            }),
+            faker.opossum.resourcesToAttributions({
+              [faker.opossum.filePath()]: [attributionId],
+            }),
+          ),
+        ],
+      },
+    );
+
+    expect(
+      screen.getByText(text.auditingOptions.modifiedPreferred),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText('undo modified preferred'));
+
+    expect(
+      screen.queryByText(text.auditingOptions.modifiedPreferred),
+    ).not.toBeInTheDocument();
   });
 
   it('renders a URL icon and opens a link in browser', () => {
