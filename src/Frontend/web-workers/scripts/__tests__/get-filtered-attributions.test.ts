@@ -261,6 +261,31 @@ describe('get-filtered-attributions', () => {
     });
   });
 
+  it('returns filtered attributions with incomplete-attribution filter', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+      packageName: undefined,
+    });
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+
+    const attributions = getFilteredAttributions({
+      selectedFilters: ['Incomplete'],
+      externalData: faker.opossum.externalAttributionData(),
+      manualData: faker.opossum.manualAttributionData({
+        attributions: faker.opossum.manualAttributions({
+          [attributionId1]: packageInfo1,
+          [attributionId2]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [attributionId1, attributionId2],
+        }),
+      }),
+    });
+
+    expect(attributions).toEqual<Attributions>({
+      [attributionId1]: packageInfo1,
+    });
+  });
+
   it('returns filtered attributions with modified-preferred filter', () => {
     const originId1 = faker.string.uuid();
     const originId2 = faker.string.uuid();

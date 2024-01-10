@@ -100,6 +100,7 @@ export const text = {
     currentlyPreferred: 'Currently Preferred',
     excludedFromNotice: 'Excluded from Notice',
     firstParty: 'First Party',
+    incomplete: 'Incomplete',
     lowConfidence: 'Low Confidence',
     modifiedPreferred: 'Modified Previously Preferred',
     needsFollowUp: 'Needs Follow-Up',

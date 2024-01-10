@@ -7,6 +7,7 @@ import { fromPairs, pickBy } from 'lodash';
 import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { PanelAttributionData } from '../../util/get-contained-packages';
+import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
 
 export const filters = Object.values(text.attributionFilters);
 export type Filter = (typeof filters)[number];
@@ -22,6 +23,7 @@ export const FILTER_FUNCTIONS: Record<
   'Currently Preferred': (packageInfo) => !!packageInfo.preferred,
   'Excluded from Notice': (packageInfo) => !!packageInfo.excludeFromNotice,
   'First Party': (packageInfo) => !!packageInfo.firstParty,
+  Incomplete: (packageInfo) => isPackageInfoIncomplete(packageInfo),
   'Low Confidence': (packageInfo) =>
     packageInfo.attributionConfidence !== undefined &&
     packageInfo.attributionConfidence <= LOW_CONFIDENCE_THRESHOLD,
