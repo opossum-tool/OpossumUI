@@ -21,7 +21,7 @@ import { LocatorPopup } from '../LocatorPopup/LocatorPopup';
 import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
-import { ReplaceAttributionPopup } from '../ReplaceAttributionPopup/ReplaceAttributionPopup';
+import { ReplaceAttributionsPopup } from '../ReplaceAttributionsPopup/ReplaceAttributionsPopup';
 import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
 
 function getPopupComponent(popupType: PopupType | null): ReactElement | null {
@@ -38,8 +38,8 @@ function getPopupComponent(popupType: PopupType | null): ReactElement | null {
       return <ProjectMetadataPopup />;
     case PopupType.ProjectStatisticsPopup:
       return <ProjectStatisticsPopup />;
-    case PopupType.ReplaceAttributionPopup:
-      return <ReplaceAttributionPopup />;
+    case PopupType.ReplaceAttributionsPopup:
+      return <ReplaceAttributionsPopup />;
     case PopupType.ConfirmDeletionGloballyPopup:
       return <ConfirmDeletionGloballyPopup />;
     case PopupType.ConfirmDeletionPopup:

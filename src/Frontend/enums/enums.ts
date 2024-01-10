@@ -17,7 +17,7 @@ export enum PopupType {
   ProjectMetadataPopup = 'ProjectMetadataPopup',
   ProjectStatisticsPopup = 'ProjectStatisticsPopup',
   NotSavedPopup = 'NotSavedPopup',
-  ReplaceAttributionPopup = 'ReplaceAttributionPopup',
+  ReplaceAttributionsPopup = 'ReplaceAttributionPopup',
   ConfirmDeletionPopup = 'ConfirmDeletionPopup',
   ConfirmDeletionGloballyPopup = 'ConfirmDeletionGloballyPopup',
   ConfirmMultiSelectDeletionPopup = 'ConfirmMultiSelectDeletionPopup',

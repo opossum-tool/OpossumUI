@@ -30,7 +30,7 @@ import { MenuBar } from '../page-objects/MenuBar';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
-import { ReplaceAttributionPopup } from '../page-objects/ReplaceAttributionPopup';
+import { ReplaceAttributionsPopup } from '../page-objects/ReplaceAttributionsPopup';
 import { ReportView } from '../page-objects/ReportView';
 import { ResourceBrowser } from '../page-objects/ResourceBrowser';
 import { ResourceDetails } from '../page-objects/ResourceDetails';
@@ -64,7 +64,7 @@ export const test = base.extend<{
   notSavedPopup: NotSavedPopup;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
-  replaceAttributionPopup: ReplaceAttributionPopup;
+  replaceAttributionsPopup: ReplaceAttributionsPopup;
   reportView: ReportView;
   resourceBrowser: ResourceBrowser;
   resourceDetails: ResourceDetails;
@@ -128,8 +128,8 @@ export const test = base.extend<{
   topBar: async ({ window }, use) => {
     await use(new TopBar(window));
   },
-  replaceAttributionPopup: async ({ window }, use) => {
-    await use(new ReplaceAttributionPopup(window));
+  replaceAttributionsPopup: async ({ window }, use) => {
+    await use(new ReplaceAttributionsPopup(window));
   },
   projectMetadataPopup: async ({ window }, use) => {
     await use(new ProjectMetadataPopup(window));

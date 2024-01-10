@@ -125,7 +125,7 @@ export function ButtonRow({
   function renderDeleteButton() {
     return (
       <SplitButton
-        color={'error'}
+        color={'secondary'}
         minWidth={130}
         menuButtonProps={{ 'aria-label': 'delete menu button' }}
         options={[
@@ -162,7 +162,7 @@ export function ButtonRow({
             onClick: () => {
               dispatch(
                 openPopup(
-                  PopupType.ReplaceAttributionPopup,
+                  PopupType.ReplaceAttributionsPopup,
                   selectedAttributionId,
                 ),
               );

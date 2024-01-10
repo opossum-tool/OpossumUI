@@ -75,17 +75,18 @@ export function ManualPackagePanel(
     packageCardId: string,
     isAddNewAttributionButton: boolean,
   ): void {
-    dispatch(
-      selectPackageCardInAuditViewOrOpenUnsavedPopup(
-        PackagePanelTitle.ManualPackages,
-        isAddNewAttributionButton
-          ? ADD_NEW_ATTRIBUTION_BUTTON_ID
-          : packageCardId,
-        isAddNewAttributionButton
-          ? EMPTY_DISPLAY_PACKAGE_INFO
-          : displayPackageInfos[packageCardId],
-      ),
-    );
+    selectedPackage?.packageCardId !== packageCardId &&
+      dispatch(
+        selectPackageCardInAuditViewOrOpenUnsavedPopup(
+          PackagePanelTitle.ManualPackages,
+          isAddNewAttributionButton
+            ? ADD_NEW_ATTRIBUTION_BUTTON_ID
+            : packageCardId,
+          isAddNewAttributionButton
+            ? EMPTY_DISPLAY_PACKAGE_INFO
+            : displayPackageInfos[packageCardId],
+        ),
+      );
   }
 
   const showParentAttributions: boolean =

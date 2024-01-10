@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import { defer } from 'lodash';
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 const NUMBER_OF_OVERSCROLL_ITEMS = 10;
@@ -21,11 +21,11 @@ type Props = {
   getListItem(
     index: number,
     props: { isScrolling: boolean },
-  ): ReactElement | null;
+  ): React.ReactElement | null;
   indexToScrollTo?: number;
   leftScrollBar?: boolean;
   length: number;
-  placeholder?: React.ReactElement;
+  minNumberOfItems?: number;
 } & (
   | { maxHeight?: number; maxNumberOfItems?: never }
   | { maxHeight?: never; maxNumberOfItems?: number }
@@ -38,8 +38,9 @@ export function List({
   indexToScrollTo = 0,
   leftScrollBar,
   length,
+  minNumberOfItems,
   ...props
-}: Props): ReactElement {
+}: Props) {
   const ref = useRef<VirtuosoHandle>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const maxHeight = ((): number | undefined => {
@@ -75,12 +76,18 @@ export function List({
       style={{
         height: fullHeight ? '100%' : currentHeight,
         maxHeight,
+        minHeight: minNumberOfItems
+          ? Math.min(
+              minNumberOfItems,
+              props.maxNumberOfItems ?? minNumberOfItems,
+            ) * cardHeight
+          : undefined,
         direction: leftScrollBar ? 'rtl' : 'ltr',
         overflowX: 'auto',
         overflowY: maxHeight && currentHeight < maxHeight ? 'hidden' : 'auto',
       }}
       overscan={cardHeight * NUMBER_OF_OVERSCROLL_ITEMS}
-      itemContent={(index): ReactElement => (
+      itemContent={(index) => (
         <MuiBox
           sx={{
             ...(leftScrollBar && classes.scrollChild),

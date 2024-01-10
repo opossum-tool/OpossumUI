@@ -13,6 +13,7 @@ import { clickableIcon, disabledIcon } from '../../shared-styles';
 import {
   setAttributionIdMarkedForReplacement,
   setMultiSelectSelectedAttributionIds,
+  setSelectedAttributionId,
 } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   deleteAttributionAndSave,
@@ -83,7 +84,7 @@ interface PackageCardProps {
   displayPackageInfo: DisplayPackageInfo;
   packageCount?: number;
   cardConfig: PackageCardConfig;
-  onClick(): void;
+  onClick?(): void;
   onIconClick?(): void;
   showOpenResourcesIcon?: boolean;
   hideContextMenuAndMultiSelect?: boolean;
@@ -350,7 +351,7 @@ export const PackageCard = memo(
               disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
               onClick: (): void => {
                 dispatch(
-                  openPopup(PopupType.ReplaceAttributionPopup, attributionId),
+                  openPopup(PopupType.ReplaceAttributionsPopup, attributionId),
                 );
               },
               hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
@@ -404,6 +405,8 @@ export const PackageCard = memo(
             newMultiSelectSelectedAttributionIds,
           ),
         );
+        !selectedAttributionIdAttributionView &&
+          dispatch(setSelectedAttributionId(attributionId));
       }
 
       return props.showCheckBox && !props.hideContextMenuAndMultiSelect ? (
