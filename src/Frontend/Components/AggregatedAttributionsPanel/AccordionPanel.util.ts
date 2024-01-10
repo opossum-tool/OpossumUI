@@ -5,6 +5,7 @@
 import {
   Attributions,
   AttributionsToHashes,
+  Criticality,
   DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
@@ -27,6 +28,7 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
   resolvedExternalAttributions: Readonly<Set<string>>;
   attributionsToHashes: Readonly<AttributionsToHashes>;
   panelTitle: PackagePanelTitle;
+  sortByCriticality: boolean;
 }): [Array<string>, DisplayPackageInfosWithCount] {
   const externalAttributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
@@ -39,6 +41,7 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
     args.externalData.attributions,
     args.attributionsToHashes,
     args.panelTitle,
+    args.sortByCriticality,
   );
 }
 
@@ -46,6 +49,7 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
   selectedResourceId: string;
   manualData: Readonly<PanelAttributionData>;
   panelTitle: PackagePanelTitle;
+  sortByCriticality: boolean;
 }): [Array<string>, DisplayPackageInfosWithCount] {
   const manualAttributionIdsWithCount = getContainedManualPackages(
     args.selectedResourceId,
@@ -68,8 +72,9 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
   );
 
   packageCardIds.sort(
-    sortDisplayPackageInfosWithCountByCountAndPackageName(
+    sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
       displayPackageInfosWithCount,
+      args.sortByCriticality,
     ),
   );
 
@@ -81,6 +86,7 @@ export function getExternalDisplayPackageInfosWithCount(
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes,
   panelTitle: PackagePanelTitle,
+  sortByCriticality: boolean,
 ): [Array<string>, DisplayPackageInfosWithCount] {
   const packageCardIds: Array<string> = [];
   const displayPackageInfosWithCount: DisplayPackageInfosWithCount = {};
@@ -118,8 +124,9 @@ export function getExternalDisplayPackageInfosWithCount(
   );
 
   packageCardIds.sort(
-    sortDisplayPackageInfosWithCountByCountAndPackageName(
+    sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
       displayPackageInfosWithCount,
+      sortByCriticality,
     ),
   );
 
@@ -144,11 +151,37 @@ function addMergedSignals(
   });
 }
 
+export function getNumericalCriticalityValue(
+  criticality: Criticality | undefined,
+) {
+  switch (criticality) {
+    case Criticality.High:
+      return 2;
+    case Criticality.Medium:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 //exported for testing
-export function sortDisplayPackageInfosWithCountByCountAndPackageName(
+export function sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
   displayPackageInfosWithCount: DisplayPackageInfosWithCount,
+  sortByCriticality: boolean = false,
 ) {
   return function (id1: string, id2: string): number {
+    const p1: DisplayPackageInfo =
+      displayPackageInfosWithCount[id1].displayPackageInfo;
+    const p2: DisplayPackageInfo =
+      displayPackageInfosWithCount[id2].displayPackageInfo;
+
+    if (sortByCriticality && p1?.criticality !== p2?.criticality) {
+      return (
+        getNumericalCriticalityValue(p2?.criticality) -
+        getNumericalCriticalityValue(p1?.criticality)
+      );
+    }
+
     if (
       displayPackageInfosWithCount[id1].count !==
       displayPackageInfosWithCount[id2].count
@@ -159,10 +192,6 @@ export function sortDisplayPackageInfosWithCountByCountAndPackageName(
       );
     }
 
-    const p1: DisplayPackageInfo =
-      displayPackageInfosWithCount[id1].displayPackageInfo;
-    const p2: DisplayPackageInfo =
-      displayPackageInfosWithCount[id2].displayPackageInfo;
     if (p1?.packageName && p2?.packageName) {
       return p1.packageName.toLowerCase() < p2.packageName.toLowerCase()
         ? -1
