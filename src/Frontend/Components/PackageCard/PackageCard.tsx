@@ -11,7 +11,6 @@ import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 import {
-  setAttributionIdMarkedForReplacement,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -28,12 +27,10 @@ import {
 } from '../../state/helpers/action-and-reducer-helpers';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getAttributionIdMarkedForReplacement,
   getAttributionIdOfDisplayedPackageInManualPanel,
   getFrequentLicensesNameOrder,
   getManualAttributions,
   getManualAttributionsToResources,
-  wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import {
   getMultiSelectSelectedAttributionIds,
@@ -49,9 +46,7 @@ import { ListCardConfig, PackageCardConfig } from '../../types/types';
 import { getCardLabels } from '../../util/get-card-labels';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import {
-  getMergeButtonsDisplayState,
   getResolvedToggleHandler,
-  MergeButtonDisplayState,
   selectedPackagesAreResolved,
 } from '../AttributionColumn/AttributionColumn.util';
 import { Checkbox } from '../Checkbox/Checkbox';
@@ -109,12 +104,6 @@ export const PackageCard = memo(
     const resolvedExternalAttributions = useAppSelector(
       getResolvedExternalAttributions,
     );
-    const packageInfoWereModified = useAppSelector(
-      wereTemporaryDisplayPackageInfoModified,
-    );
-    const attributionIdMarkedForReplacement = useAppSelector(
-      getAttributionIdMarkedForReplacement,
-    );
     const multiSelectSelectedAttributionIds = useAppSelector(
       getMultiSelectSelectedAttributionIds,
     );
@@ -156,9 +145,6 @@ export const PackageCard = memo(
         const attributionId = attributionIds[0];
         listCardConfig = {
           ...listCardConfig,
-          isMarkedForReplacement:
-            Boolean(attributionId) &&
-            attributionId === attributionIdMarkedForReplacement,
           isMultiSelected:
             multiSelectSelectedAttributionIds.includes(attributionId),
         };
@@ -177,7 +163,6 @@ export const PackageCard = memo(
 
       return listCardConfig;
     }, [
-      attributionIdMarkedForReplacement,
       attributionIds,
       frequentLicenseNames,
       isContextMenuOpen,
@@ -253,21 +238,6 @@ export const PackageCard = memo(
         );
       }
 
-      function confirmSelectedAttributionsGlobally(): void {
-        multiSelectSelectedAttributionIds.forEach((currentAttributionId) => {
-          if (manualAttributions[currentAttributionId].preSelected) {
-            confirmAttributionGlobally(currentAttributionId);
-          }
-        });
-        dispatch(setMultiSelectSelectedAttributionIds([]));
-      }
-
-      const someSelectedAttributionsArePreSelected =
-        multiSelectSelectedAttributionIds.some(
-          (currentAttributionId) =>
-            manualAttributions[currentAttributionId].preSelected,
-        );
-
       const hideResourceSpecificButtons = Boolean(
         props.hideResourceSpecificButtons,
       );
@@ -278,15 +248,6 @@ export const PackageCard = memo(
           attributionsToResources,
         ) ||
           hideResourceSpecificButtons);
-      const mergeButtonDisplayState: MergeButtonDisplayState =
-        getMergeButtonsDisplayState({
-          attributionIdMarkedForReplacement,
-          targetAttributionId: attributionId,
-          selectedAttributionId,
-          packageInfoWereModified,
-          targetAttributionIsPreSelected: isPreselected,
-          targetAttributionIsExternalAttribution: isExternalAttribution,
-        });
 
       return props.hideContextMenuAndMultiSelect
         ? []
@@ -302,13 +263,6 @@ export const PackageCard = memo(
               hidden: isExternalAttribution || !showGlobalButtons,
             },
             {
-              buttonText: ButtonText.DeleteSelectedGlobally,
-              onClick: (): void => {
-                dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
-              },
-              hidden: multiSelectSelectedAttributionIds.length === 0,
-            },
-            {
               buttonText: ButtonText.Confirm,
               onClick: confirmAttribution,
               hidden:
@@ -322,39 +276,8 @@ export const PackageCard = memo(
               hidden: !isPreselected || !showGlobalButtons,
             },
             {
-              buttonText: ButtonText.ConfirmSelectedGlobally,
-              onClick: confirmSelectedAttributionsGlobally,
-              hidden:
-                multiSelectSelectedAttributionIds.length === 0 ||
-                !someSelectedAttributionsArePreSelected,
-            },
-            {
               buttonText: ButtonText.ShowResources,
               onClick: (): void => setShowAssociatedResourcesPopup(true),
-            },
-            {
-              buttonText: ButtonText.MarkForReplacement,
-              onClick: (): void => {
-                dispatch(setAttributionIdMarkedForReplacement(attributionId));
-              },
-              hidden: mergeButtonDisplayState.hideMarkForReplacementButton,
-            },
-            {
-              buttonText: ButtonText.UnmarkForReplacement,
-              onClick: (): void => {
-                dispatch(setAttributionIdMarkedForReplacement(''));
-              },
-              hidden: mergeButtonDisplayState.hideUnmarkForReplacementButton,
-            },
-            {
-              buttonText: ButtonText.ReplaceMarked,
-              disabled: mergeButtonDisplayState.deactivateReplaceMarkedByButton,
-              onClick: (): void => {
-                dispatch(
-                  openPopup(PopupType.ReplaceAttributionsPopup, attributionId),
-                );
-              },
-              hidden: mergeButtonDisplayState.hideReplaceMarkedByButton,
             },
           ];
     }

@@ -24,7 +24,6 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
-  getAttributionIdMarkedForReplacement,
   getAttributionIdOfDisplayedPackageInManualPanel,
   getManualAttributions,
   getManualAttributionsToResources,
@@ -45,7 +44,6 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../all-views-simple-actions';
 import {
-  setAttributionIdMarkedForReplacement,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
 } from '../attribution-view-simple-actions';
@@ -1213,7 +1211,6 @@ describe('The deleteAttributionGloballyAndSave action', () => {
       ),
     );
     testStore.dispatch(setSelectedAttributionId('reactUuid'));
-    testStore.dispatch(setAttributionIdMarkedForReplacement('reactUuid'));
     testStore.dispatch(setMultiSelectSelectedAttributionIds(['reactUuid']));
 
     testStore.dispatch(deleteAttributionGloballyAndSave('reactUuid'));
@@ -1227,7 +1224,6 @@ describe('The deleteAttributionGloballyAndSave action', () => {
     expect(
       getSelectedAttributionIdInAttributionView(testStore.getState()),
     ).toBe('');
-    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe('');
   });
 });
 

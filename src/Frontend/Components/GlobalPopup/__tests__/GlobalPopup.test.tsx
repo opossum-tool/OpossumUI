@@ -126,9 +126,7 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(
-      screen.getByText(
-        'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.',
-      ),
+      screen.getByText(text.deleteAttributionsPopup.title),
     ).toBeInTheDocument();
   });
 

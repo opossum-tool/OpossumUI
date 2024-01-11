@@ -36,7 +36,6 @@ import {
   ACTION_RESET_RESOURCE_STATE,
   ACTION_SET_ALLOWED_SAVE_OPERATIONS,
   ACTION_SET_ATTRIBUTION_BREAKPOINTS,
-  ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT,
   ACTION_SET_BASE_URLS_FOR_SOURCES,
   ACTION_SET_DISPLAYED_PANEL_PACKAGE,
   ACTION_SET_ENABLE_PREFERENCE_FEATURE,
@@ -96,7 +95,6 @@ export const initialResourceState: ResourceState = {
     metadata: EMPTY_PROJECT_METADATA,
     baseUrlsForSources: {},
     externalAttributionSources: {},
-    attributionIdMarkedForReplacement: '',
     externalAttributionsToHashes: {},
     resourcesWithLocatedAttributions: {
       resourcesWithLocatedChildren: new Set(),
@@ -145,7 +143,6 @@ export type ResourceState = {
     metadata: ProjectMetadata;
     baseUrlsForSources: BaseUrlsForSources;
     externalAttributionSources: ExternalAttributionSources;
-    attributionIdMarkedForReplacement: string;
     externalAttributionsToHashes: AttributionsToHashes;
     resourcesWithLocatedAttributions: {
       resourcesWithLocatedChildren: Set<string>;
@@ -322,14 +319,6 @@ export const resourceState = (
           multiSelectSelectedAttributionIds: [...action.payload],
         },
       };
-    case ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT:
-      return {
-        ...state,
-        allViews: {
-          ...state.allViews,
-          attributionIdMarkedForReplacement: action.payload,
-        },
-      };
     case ACTION_SET_ALLOWED_SAVE_OPERATIONS:
       return {
         ...state,
@@ -488,19 +477,11 @@ export const resourceState = (
           ? ''
           : state.attributionView.selectedAttributionId;
 
-      const newAttributionIdMarkedForReplacement: string =
-        state.allViews.attributionIdMarkedForReplacement ===
-        attributionToDeleteId
-          ? ''
-          : state.allViews.attributionIdMarkedForReplacement;
-
       return {
         ...state,
         allViews: {
           ...state.allViews,
           manualData: manualDataAfterDeletion,
-          attributionIdMarkedForReplacement:
-            newAttributionIdMarkedForReplacement,
         },
         auditView: {
           ...state.auditView,

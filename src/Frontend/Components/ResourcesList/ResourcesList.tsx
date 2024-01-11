@@ -34,7 +34,6 @@ interface ResourcesListProps {
 
 export interface ResourcesListItem {
   text: string;
-  isHeader?: boolean;
 }
 
 export function ResourcesList(props: ResourcesListProps): ReactElement {
@@ -47,12 +46,12 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
     convertResourcesListBatchesToResourcesListItems(props.resourcesListBatches);
 
   function getResourceCard(index: number): ReactElement {
-    const cardText: string = resourcesListItems[index].text;
-    const isHeader = resourcesListItems[index].isHeader;
+    const cardText = resourcesListItems[index].text;
 
-    const formattedText = isHeader
-      ? cardText
-      : removeTrailingSlashIfFileWithChildren(cardText, isFileWithChildren);
+    const formattedText = removeTrailingSlashIfFileWithChildren(
+      cardText,
+      isFileWithChildren,
+    );
 
     function onPathClick(): void {
       dispatch(navigateToSelectedPathOrOpenUnsavedPopup(cardText));
@@ -62,8 +61,8 @@ export function ResourcesList(props: ResourcesListProps): ReactElement {
     return (
       <ListCard
         text={formattedText}
-        onClick={isHeader ? doNothing : onPathClick}
-        cardConfig={isHeader ? { isHeader: true } : { isResource: true }}
+        onClick={onPathClick}
+        cardConfig={{ isResource: true }}
       />
     );
   }
