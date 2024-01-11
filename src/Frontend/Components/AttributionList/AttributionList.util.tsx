@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import Filter3Icon from '@mui/icons-material/Filter3';
+import RuleIcon from '@mui/icons-material/Rule';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import { difference, isEqual, sortBy } from 'lodash';
 import { useEffect, useMemo } from 'react';
@@ -36,6 +37,7 @@ export const FILTER_ICONS: Record<Filter, React.ReactElement> = {
   'Currently Preferred': <PreferredIcon noTooltip />,
   'Excluded from Notice': <ExcludeFromNoticeIcon noTooltip />,
   'First Party': <FirstPartyIcon noTooltip />,
+  Incomplete: <RuleIcon color={'info'} sx={baseIcon} />,
   'Low Confidence': <SentimentDissatisfiedIcon color={'error'} sx={baseIcon} />,
   'Modified Previously Preferred': <ModifiedPreferredIcon noTooltip />,
   'Needs Follow-Up': <FollowUpIcon noTooltip />,
