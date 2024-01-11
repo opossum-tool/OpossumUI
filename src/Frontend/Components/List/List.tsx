@@ -71,6 +71,15 @@ export function List({
     <Virtuoso
       ref={ref}
       fixedItemHeight={cardHeight}
+      initialTopMostItemIndex={
+        window?.process?.env.JEST_WORKER_ID // https://github.com/petyosi/react-virtuoso/issues/1001
+          ? undefined
+          : {
+              index: indexToScrollTo,
+              behavior: 'auto',
+              align: 'center',
+            }
+      }
       totalCount={length}
       isScrolling={setIsScrolling}
       style={{
