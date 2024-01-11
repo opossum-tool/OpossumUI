@@ -517,7 +517,7 @@ describe('The actions called from the unsaved popup', () => {
       return testStore.getState();
     }
 
-    it('closesPopup', () => {
+    it('closes popup', () => {
       const state: State = prepareTestState();
       expect(getOpenPopup(state)).toBeFalsy();
     });
@@ -711,7 +711,7 @@ describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDis
     expect(getSelectedView(state)).toBe(View.Attribution);
   });
 
-  it('closesPopup', () => {
+  it('closes popup', () => {
     const state: State = prepareTestState();
     expect(getOpenPopup(state)).toBeFalsy();
   });

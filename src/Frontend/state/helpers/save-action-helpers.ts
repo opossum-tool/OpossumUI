@@ -56,7 +56,13 @@ export function createManualAttribution(
       [newAttributionId]: [selectedResourceId],
     },
     resourcesWithAttributedChildren: {
-      ...manualData.resourcesWithAttributedChildren,
+      paths: [...manualData.resourcesWithAttributedChildren.paths],
+      pathsToIndices: {
+        ...manualData.resourcesWithAttributedChildren.pathsToIndices,
+      },
+      attributedChildren: {
+        ...manualData.resourcesWithAttributedChildren.attributedChildren,
+      },
     },
   };
 
@@ -595,7 +601,13 @@ function getAttributionDataShallowCopy(
     resourcesToAttributions: { ...attributionData.resourcesToAttributions },
     attributionsToResources: { ...attributionData.attributionsToResources },
     resourcesWithAttributedChildren: {
-      ...attributionData.resourcesWithAttributedChildren,
+      paths: [...attributionData.resourcesWithAttributedChildren.paths],
+      pathsToIndices: {
+        ...attributionData.resourcesWithAttributedChildren.pathsToIndices,
+      },
+      attributedChildren: {
+        ...attributionData.resourcesWithAttributedChildren.attributedChildren,
+      },
     },
   };
 }

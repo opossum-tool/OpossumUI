@@ -19,7 +19,7 @@ export function createAppStore() {
         // TECH DEBT: we should not be putting sets into the store
         // https://redux.js.org/style-guide/#do-not-put-non-serializable-values-in-state-or-actions
         serializableCheck: false,
-        // TECH DEBT: we are mutating the redux state inside reducers
+        // We set this to false because it significantly reduces performance in development mode.
         immutableCheck: false,
       }),
   });
