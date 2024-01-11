@@ -4,20 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import {
-  Attributions,
-  Resources,
-  ResourcesToAttributions,
-} from '../../../../shared/shared-types';
-import { ButtonText } from '../../../enums/enums';
+import { Attributions } from '../../../../shared/shared-types';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
-import {
-  clickOnButtonInPackageContextMenu,
-  expectButtonInPackageContextMenu,
-  expectGlobalOnlyContextMenuForNotPreselectedAttribution,
-  testCorrectMarkAndUnmarkForReplacementInContextMenu,
-} from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { DisplayPackageInfos } from '../../../types/types';
@@ -125,102 +114,5 @@ describe('The AllAttributionsPanel', () => {
     expect(screen.getByText('Typescript, 1.0')).toBeInTheDocument();
     expect(screen.getByText('React, 2.0')).toBeInTheDocument();
     expect(screen.getByText('Vue, 3.0')).toBeInTheDocument();
-  });
-
-  // eslint-disable-next-line jest/expect-expect
-  it('shows correct replace attribution buttons in the context menu', () => {
-    const testResources: Resources = {
-      root: { src: { file_1: 1, file_2: 1 } },
-      file: 1,
-    };
-    const testManualDisplayPackageInfos: DisplayPackageInfos = {
-      [testPackageCardId1]: {
-        packageName: 'jQuery',
-        packageVersion: '16.0.0',
-        comments: ['ManualPackage'],
-        attributionIds: ['uuid_1'],
-      },
-      [testPackageCardId2]: {
-        packageName: 'React',
-        packageVersion: '16.0.0',
-        comments: ['ManualPackage'],
-        attributionIds: ['uuid_2'],
-      },
-      [testPackageCardId3]: {
-        packageName: 'Vue',
-        packageVersion: '16.0.0',
-        comments: ['ManualPackage'],
-        preSelected: true,
-        attributionIds: ['uuid_3'],
-      },
-    };
-    const testManualAttributions: Attributions = {
-      uuid_1: {
-        packageName: 'jQuery',
-        packageVersion: '16.0.0',
-        comment: 'ManualPackage',
-      },
-      uuid_2: {
-        packageName: 'React',
-        packageVersion: '16.0.0',
-        comment: 'ManualPackage',
-      },
-      uuid_3: {
-        packageName: 'Vue',
-        packageVersion: '16.0.0',
-        comment: 'ManualPackage',
-        preSelected: true,
-      },
-    };
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      '/root/src/file_1': ['uuid_1'],
-      '/root/src/file_2': ['uuid_2', 'uuid_3'],
-    };
-
-    renderComponent(
-      <AllAttributionsPanel
-        displayPackageInfos={testManualDisplayPackageInfos}
-        isAddToPackageEnabled={true}
-      />,
-      {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources: testResources,
-              manualAttributions: testManualAttributions,
-              resourcesToManualAttributions: testResourcesToManualAttributions,
-            }),
-          ),
-        ],
-      },
-    );
-
-    expectGlobalOnlyContextMenuForNotPreselectedAttribution(
-      screen,
-      'jQuery, 16.0.0',
-    );
-
-    testCorrectMarkAndUnmarkForReplacementInContextMenu(
-      screen,
-      'jQuery, 16.0.0',
-    );
-
-    clickOnButtonInPackageContextMenu(
-      screen,
-      'jQuery, 16.0.0',
-      ButtonText.MarkForReplacement,
-    );
-
-    expectButtonInPackageContextMenu(
-      screen,
-      'Vue, 16.0.0',
-      ButtonText.ReplaceMarked,
-    );
-
-    expectGlobalOnlyContextMenuForNotPreselectedAttribution(
-      screen,
-      'React, 16.0.0',
-      true,
-    );
   });
 });

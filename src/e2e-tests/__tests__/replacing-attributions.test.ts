@@ -52,103 +52,10 @@ test.use({
   },
 });
 
-test('replaces attributions via context menu in audit view', async ({
-  attributionDetails,
-  replaceAttributionPopup,
-  resourceBrowser,
-  resourceDetails,
-}) => {
-  await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await resourceDetails.attributionCard.openContextMenu(packageInfo1);
-  await resourceDetails.attributionCard.contextMenu.markForReplacementButton.click();
-
-  await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-
-  await resourceDetails.attributionCard.openContextMenu(packageInfo2);
-  await resourceDetails.attributionCard.contextMenu.replaceMarkedButton.click();
-  await replaceAttributionPopup.cancel();
-
-  await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.click(packageInfo2);
-  await resourceDetails.attributionCard.openContextMenu(packageInfo2);
-  await resourceDetails.attributionCard.contextMenu.replaceMarkedButton.click();
-  await replaceAttributionPopup.replace();
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-
-  await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchesPackageInfo({
-    ...packageInfo2,
-    attributionConfidence: DiscreteConfidence.High,
-  });
-
-  await resourceBrowser.goto(resourceName2);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo3);
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo3);
-  await resourceDetails.signalCard.contextMenu.markForReplacementButton.click();
-  await resourceDetails.signalCard.openContextMenu(packageInfo2);
-  await resourceDetails.signalCard.contextMenu.replaceMarkedButton.click();
-  await replaceAttributionPopup.replace();
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2);
-  await resourceDetails.signalCard.assert.isHidden(packageInfo3);
-});
-
-test('replaces attributions via attribution details buttons in audit view', async ({
-  attributionDetails,
-  replaceAttributionPopup,
-  resourceBrowser,
-  resourceDetails,
-}) => {
-  await resourceBrowser.goto(resourceName1, resourceName2, resourceName3);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await attributionDetails.selectReplaceMenuOption('markForReplacement');
-  await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-
-  await attributionDetails.selectReplaceMenuOption('replaceMarked');
-  await replaceAttributionPopup.cancel();
-  await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.selectReplaceMenuOption('replaceMarked');
-  await replaceAttributionPopup.replace();
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-
-  await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.matchesPackageInfo({
-    ...packageInfo2,
-    attributionConfidence: DiscreteConfidence.High,
-  });
-
-  await resourceBrowser.goto(resourceName4);
-  await resourceDetails.attributionCard.assert.isVisible(packageInfo2);
-  await resourceDetails.attributionCard.assert.isVisible(packageInfo3);
-
-  await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.selectReplaceMenuOption('markForReplacement');
-  await resourceDetails.attributionCard.click(packageInfo2);
-  await attributionDetails.selectReplaceMenuOption('replaceMarked');
-  await replaceAttributionPopup.replace();
-  await resourceDetails.attributionCard.assert.isVisible(packageInfo2);
-  await resourceDetails.attributionCard.assert.isHidden(packageInfo3);
-});
-
-test('replaces attributions via context menu in attribution view', async ({
+test('replaces attributions in attribution view', async ({
   attributionDetails,
   attributionList,
-  replaceAttributionPopup,
+  replaceAttributionsPopup,
   resourceBrowser,
   topBar,
 }) => {
@@ -160,17 +67,16 @@ test('replaces attributions via context menu in attribution view', async ({
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsHidden(resourceName4);
 
-  await attributionList.attributionCard.openContextMenu(packageInfo1);
-  await attributionList.attributionCard.contextMenu.markForReplacementButton.click();
+  await attributionList.attributionCard.checkbox(packageInfo1).click();
+  await attributionList.replaceButton.click();
+  await replaceAttributionsPopup.assert.isVisible();
+  await replaceAttributionsPopup.assert.replaceButtonIsDisabled();
 
-  await attributionList.attributionCard.openContextMenu(packageInfo2);
-  await attributionList.attributionCard.contextMenu.replaceMarkedButton.click();
-  await replaceAttributionPopup.cancel();
-  await attributionList.attributionCard.assert.isVisible(packageInfo1);
+  await replaceAttributionsPopup.searchInput.fill(packageInfo2.packageName!);
+  await replaceAttributionsPopup.attributionCard.click(packageInfo2);
+  await replaceAttributionsPopup.assert.replaceButtonIsEnabled();
 
-  await attributionList.attributionCard.openContextMenu(packageInfo2);
-  await attributionList.attributionCard.contextMenu.replaceMarkedButton.click();
-  await replaceAttributionPopup.replace();
+  await replaceAttributionsPopup.replace();
   await attributionList.attributionCard.assert.isHidden(packageInfo1);
 
   await attributionList.attributionCard.click(packageInfo2);

@@ -3,14 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { createAppStore } from '../../../configure-store';
-import { getAttributionIdMarkedForReplacement } from '../../../selectors/all-views-resource-selectors';
 import {
   getMultiSelectSelectedAttributionIds,
   getSelectedAttributionIdInAttributionView,
   getTargetSelectedAttributionId,
 } from '../../../selectors/attribution-view-resource-selectors';
 import {
-  setAttributionIdMarkedForReplacement,
   setMultiSelectSelectedAttributionIds,
   setSelectedAttributionId,
   setTargetSelectedAttributionId,
@@ -35,16 +33,6 @@ describe('The load and navigation simple actions', () => {
 
     testStore.dispatch(setTargetSelectedAttributionId('test'));
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('test');
-  });
-
-  it('sets and gets attributionIdMarkedForReplacement', () => {
-    const testStore = createAppStore();
-    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe('');
-
-    testStore.dispatch(setAttributionIdMarkedForReplacement('test'));
-    expect(getAttributionIdMarkedForReplacement(testStore.getState())).toBe(
-      'test',
-    );
   });
 
   it('sets and gets multiSelectSelectedAttributionIds', () => {

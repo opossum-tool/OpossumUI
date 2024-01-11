@@ -9,6 +9,7 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { ButtonText } from '../../../enums/enums';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
@@ -22,10 +23,6 @@ import { ConfirmMultiSelectDeletionPopup } from '../ConfirmMultiSelectDeletionPo
 
 describe('The ConfirmMultiSelectDeletionPopup', () => {
   it('renders', () => {
-    const expectedContent =
-      'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.';
-    const expectedHeader = 'Confirm Deletion';
-
     const { store } = renderComponent(<ConfirmMultiSelectDeletionPopup />);
     act(() => {
       store.dispatch(
@@ -33,15 +30,17 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
       );
     });
 
-    expect(screen.getByText(expectedContent)).toBeInTheDocument();
-    expect(screen.getByText(expectedHeader)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.deleteAttributionsPopup.deleteAttributions('2 attributions'),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(text.deleteAttributionsPopup.title),
+    ).toBeInTheDocument();
   });
 
   it('deletes attributions', () => {
-    const expectedContent =
-      'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.';
-    const expectedHeader = 'Confirm Deletion';
-
     const testResources: Resources = {
       'something.js': 1,
       'somethingElse.js': 1,
@@ -74,8 +73,14 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     act(() => {
       store.dispatch(setMultiSelectSelectedAttributionIds(['uuid1', 'uuid2']));
     });
-    expect(screen.getByText(expectedContent)).toBeInTheDocument();
-    expect(screen.getByText(expectedHeader)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        text.deleteAttributionsPopup.deleteAttributions('2 attributions'),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(text.deleteAttributionsPopup.title),
+    ).toBeInTheDocument();
     clickOnButton(screen, ButtonText.Confirm);
     expect(getManualAttributions(store.getState())).toEqual({});
   });

@@ -11,6 +11,8 @@ export class AttributionList {
   private readonly window: Page;
   private readonly node: Locator;
   readonly attributionCard: PackageCard;
+  readonly replaceButton: Locator;
+  readonly deleteButton: Locator;
   readonly filterButton: Locator;
   readonly filters: {
     readonly thirdParty: Locator;
@@ -24,6 +26,12 @@ export class AttributionList {
     this.window = window;
     this.node = window.getByLabel('attribution list');
     this.attributionCard = new PackageCard(window, this.node);
+    this.replaceButton = this.node.getByLabel('replace button', {
+      exact: true,
+    });
+    this.deleteButton = this.node.getByLabel('delete button', {
+      exact: true,
+    });
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
     this.filters = {
       thirdParty: window.getByRole('menuitem', {

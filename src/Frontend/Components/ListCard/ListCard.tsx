@@ -29,6 +29,7 @@ const classes = {
   hover: {
     '&:hover': {
       cursor: 'pointer',
+      background: hoveredBackgroundColor,
     },
   },
   hoveredPackage: {
@@ -38,9 +39,6 @@ const classes = {
   package: {
     border: packageBorder,
     background: defaultBackgroundColor,
-    '&:hover': {
-      background: hoveredBackgroundColor,
-    },
   },
   externalAttribution: {
     background: defaultBackgroundColor,
@@ -66,11 +64,6 @@ const classes = {
   },
   hoveredSelected: {
     background: hoveredSelectedBackgroundColor,
-  },
-  markedForReplacement: {
-    borderRightWidth: 'medium',
-    borderRightColor: OpossumColors.brown,
-    borderRadius: '2px',
   },
   resolved: {
     opacity: 0.5,
@@ -135,17 +128,6 @@ const classes = {
   excludeFromNotice: {
     color: OpossumColors.darkBlue,
   },
-  header: {
-    background: OpossumColors.white,
-    '&.MuiTypography-body2': {
-      fontWeight: 'bold',
-    },
-    height: '20px',
-    textAlign: 'left',
-    '&:hover': {
-      background: OpossumColors.white,
-    },
-  },
 };
 
 const MAX_RIGHT_PADDING = 60;
@@ -156,7 +138,7 @@ interface ListCardProps {
   secondLineText?: string;
   cardConfig: ListCardConfig;
   count?: number;
-  onClick(): void;
+  onClick?(): void;
   leftIcon?: JSX.Element;
   rightIcons?: Array<JSX.Element>;
   leftElement?: JSX.Element;
@@ -191,8 +173,8 @@ export function ListCard(props: ListCardProps): ReactElement | null {
   return (
     <MuiBox
       sx={useMemo(
-        () => getSx(props.cardConfig, props.highlighting),
-        [props.cardConfig, props.highlighting],
+        () => getSx(props.cardConfig, props.highlighting, !!props.onClick),
+        [props.cardConfig, props.highlighting, props.onClick],
       )}
     >
       {props.leftElement}
@@ -224,9 +206,7 @@ export function ListCard(props: ListCardProps): ReactElement | null {
             variant={'body2'}
             sx={{
               ...(!props.leftIcon && !displayedCount && { paddingLeft: '6px' }),
-              ...(props.cardConfig.isHeader
-                ? classes.header
-                : classes.textLine),
+              ...classes.textLine,
               ...(props.cardConfig.isResource
                 ? classes.textShortenedFromLeftSide
                 : classes.textShortened),
@@ -271,7 +251,8 @@ export function ListCard(props: ListCardProps): ReactElement | null {
 
 function getSx(
   cardConfig: ListCardConfig,
-  highlighting?: HighlightingColor,
+  highlighting: HighlightingColor | undefined,
+  clickable: boolean,
 ): SxProps {
   let sxProps: SxProps = { ...classes.root };
 
@@ -291,14 +272,8 @@ function getSx(
     }
   }
 
-  if (cardConfig.isHeader) {
-    sxProps = merge(sxProps, classes.header);
-  } else {
+  if (clickable) {
     sxProps = merge(sxProps, classes.hover);
-  }
-
-  if (cardConfig.isMarkedForReplacement) {
-    sxProps = merge(sxProps, classes.markedForReplacement);
   }
 
   if (cardConfig.isResolved) {
@@ -309,12 +284,18 @@ function getSx(
     if (cardConfig.isContextMenuOpen) {
       sxProps = merge(sxProps, classes.hoveredSelected);
     } else if (highlighting) {
-      sxProps = merge(sxProps, getHighlightedListCardStyle(highlighting, true));
+      sxProps = merge(
+        sxProps,
+        getHighlightedListCardStyle(highlighting, true, clickable),
+      );
     } else {
       sxProps = merge(sxProps, classes.selected);
     }
   } else if (highlighting) {
-    sxProps = merge(sxProps, getHighlightedListCardStyle(highlighting, false));
+    sxProps = merge(
+      sxProps,
+      getHighlightedListCardStyle(highlighting, false, clickable),
+    );
   }
 
   return sxProps;
@@ -323,6 +304,7 @@ function getSx(
 function getHighlightedListCardStyle(
   color: HighlightingColor,
   selected: boolean,
+  clickable: boolean,
 ): SxProps {
   const highlightColor =
     color === HighlightingColor.LightOrange
@@ -345,6 +327,7 @@ function getHighlightedListCardStyle(
     highlightColorOnHover,
     backgroundColorOnHover,
     packageBorder,
+    clickable,
   );
 }
 
@@ -354,16 +337,19 @@ function getHighlightedStyleClass(
   highlightColorOnHover: string,
   backgroundColorOnHover: string,
   border: string,
+  clickable: boolean,
 ): SxProps {
   return {
     border,
     background: getHighlightedBackground(highlightColor, backgroundColor),
-    '&:hover': {
-      background: getHighlightedBackground(
-        highlightColorOnHover,
-        backgroundColorOnHover,
-      ),
-    },
+    ...(clickable && {
+      '&:hover': {
+        background: getHighlightedBackground(
+          highlightColorOnHover,
+          backgroundColorOnHover,
+        ),
+      },
+    }),
   };
 }
 

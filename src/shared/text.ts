@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 export const text = {
   attributionColumn: {
     packageSubPanel: {
@@ -48,10 +47,14 @@ export const text = {
     filterTooltip: 'Filter',
   },
   attributionList: {
+    attribution: 'attribution',
     confirmSelected: 'Confirm Selected',
     deleteSelected: 'Delete Selected',
+    replaceSelected: 'Replace Selected',
   },
   buttons: {
+    cancel: 'Cancel',
+    confirm: 'Confirm',
     filter: 'Filter',
     sort: 'Sort',
   },
@@ -95,6 +98,18 @@ export const text = {
     updateAvailable: 'There is a newer version of OpossumUI available:',
     fetchFailed: (message: string) =>
       `Failed to fetch latest release information: ${message}`,
+  },
+  replaceAttributionsPopup: {
+    replace: 'Replace',
+    removeAttributions: (attributions: string) =>
+      `This action will remove the following ${attributions}:`,
+    selectReplacement: 'Please select another attribution as a replacement:',
+    title: 'Replace Attributions',
+  },
+  deleteAttributionsPopup: {
+    title: 'Delete Attributions',
+    deleteAttributions: (attributions: string) =>
+      `Do you really want to delete ${attributions} globally?`,
   },
   attributionFilters: {
     currentlyPreferred: 'Currently Preferred',

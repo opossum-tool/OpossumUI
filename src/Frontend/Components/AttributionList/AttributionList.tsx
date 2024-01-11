@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -44,9 +45,6 @@ import {
 
 export function AttributionList() {
   const dispatch = useAppDispatch();
-  const selectedPackageCardIdInAttributionView = useAppSelector(
-    getSelectedAttributionIdInAttributionView,
-  );
   const multiSelectSelectedAttributionIds = useAppSelector(
     getMultiSelectSelectedAttributionIds,
   );
@@ -129,7 +127,7 @@ export function AttributionList() {
         cardHeight={PACKAGE_CARD_HEIGHT}
         fullHeight
         indexToScrollTo={filteredAndSortedIds.indexOf(
-          selectedPackageCardIdInAttributionView,
+          selectedAttributionIdAttributionView,
         )}
       />
       <SelectMenu
@@ -148,23 +146,28 @@ export function AttributionList() {
     </Container>
   );
 
-  function renderAttributionCard(packageCardId: string, isScrolling: boolean) {
-    const displayPackageInfo = filteredAndSortedAttributions[packageCardId];
+  function renderAttributionCard(attributionId: string, isScrolling: boolean) {
+    const displayPackageInfo = filteredAndSortedAttributions[attributionId];
 
     return (
       <PackageCard
-        cardId={`attribution-list-${packageCardId}`}
-        onClick={() =>
-          dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(packageCardId))
-        }
+        cardId={`attribution-list-${attributionId}`}
+        onClick={() => {
+          if (selectedAttributionIdAttributionView === attributionId) {
+            return;
+          }
+          dispatch(
+            changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId),
+          );
+        }}
         cardConfig={{
-          isSelected: packageCardId === selectedPackageCardIdInAttributionView,
+          isSelected: attributionId === selectedAttributionIdAttributionView,
           isPreSelected: displayPackageInfo.preSelected,
         }}
-        key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
+        key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
         displayPackageInfo={displayPackageInfo}
-        hideResourceSpecificButtons={true}
-        showCheckBox={true}
+        hideResourceSpecificButtons
+        showCheckBox
         isScrolling={isScrolling}
       />
     );
@@ -174,19 +177,20 @@ export function AttributionList() {
     return (
       <ActionBar>
         <ButtonGroup>
-          {renderSelectAll()}
-          {renderDelete()}
-          {renderConfirm()}
+          {renderSelectAllCheckbox()}
+          {renderDeleteButton()}
+          {renderConfirmButton()}
+          {renderReplaceButton()}
         </ButtonGroup>
         <ButtonGroup>
-          {renderSorting()}
-          {renderFilter()}
+          {renderSortButton()}
+          {renderFilterButton()}
         </ButtonGroup>
       </ActionBar>
     );
   }
 
-  function renderSelectAll() {
+  function renderSelectAllCheckbox() {
     return (
       <Tooltip title={'Select'} disableInteractive>
         <span>
@@ -206,13 +210,19 @@ export function AttributionList() {
     );
   }
 
-  function renderDelete() {
+  function renderDeleteButton() {
     return (
       <Tooltip title={text.attributionList.deleteSelected} disableInteractive>
         <span>
           <MuiIconButton
             aria-label={'delete button'}
-            disabled={!multiSelectSelectedAttributionIds.length}
+            disabled={
+              !multiSelectSelectedAttributionIds.length &&
+              (!selectedAttributionIdAttributionView ||
+                !filteredAndSortedIds.includes(
+                  selectedAttributionIdAttributionView,
+                ))
+            }
             onClick={() => {
               dispatch(openPopup(PopupType.ConfirmMultiSelectDeletionPopup));
             }}
@@ -224,18 +234,26 @@ export function AttributionList() {
     );
   }
 
-  function renderConfirm() {
+  function renderConfirmButton() {
     return (
       <Tooltip title={text.attributionList.confirmSelected} disableInteractive>
         <span>
           <MuiIconButton
             aria-label={'confirm button'}
             disabled={
-              !multiSelectSelectedAttributionIds.length ||
-              !someSelectedAttributionsArePreSelected
+              (!multiSelectSelectedAttributionIds.length ||
+                !someSelectedAttributionsArePreSelected) &&
+              (!attributions[selectedAttributionIdAttributionView]
+                ?.preSelected ||
+                !filteredAndSortedIds.includes(
+                  selectedAttributionIdAttributionView,
+                ))
             }
             onClick={() => {
-              multiSelectSelectedAttributionIds.forEach((id) => {
+              (multiSelectSelectedAttributionIds.length
+                ? multiSelectSelectedAttributionIds
+                : [selectedAttributionIdAttributionView]
+              ).forEach((id) => {
                 filteredAndSortedAttributions[id]?.preSelected &&
                   dispatch(
                     savePackageInfo(
@@ -255,7 +273,36 @@ export function AttributionList() {
     );
   }
 
-  function renderSorting() {
+  function renderReplaceButton() {
+    return (
+      <Tooltip title={text.attributionList.replaceSelected} disableInteractive>
+        <span>
+          <MuiIconButton
+            aria-label={'replace button'}
+            disabled={
+              (!multiSelectSelectedAttributionIds.length &&
+                (!selectedAttributionIdAttributionView ||
+                  !filteredAndSortedIds.includes(
+                    selectedAttributionIdAttributionView,
+                  ))) ||
+              !(
+                filteredAndSortedIds.length -
+                multiSelectSelectedAttributionIds.length
+              ) ||
+              filteredAndSortedIds.length < 2
+            }
+            onClick={() => {
+              dispatch(openPopup(PopupType.ReplaceAttributionsPopup));
+            }}
+          >
+            <ChangeCircleIcon />
+          </MuiIconButton>
+        </span>
+      </Tooltip>
+    );
+  }
+
+  function renderSortButton() {
     return (
       <Tooltip title={text.buttons.sort} disableInteractive>
         <span>
@@ -276,7 +323,7 @@ export function AttributionList() {
     );
   }
 
-  function renderFilter() {
+  function renderFilterButton() {
     return (
       <Tooltip title={text.buttons.filter} disableInteractive>
         <span>

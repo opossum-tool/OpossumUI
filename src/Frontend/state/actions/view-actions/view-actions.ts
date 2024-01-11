@@ -13,7 +13,6 @@ import {
 import { getSelectedView } from '../../selectors/view-selector';
 import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from '../resource-actions/all-views-simple-actions';
-import { setMultiSelectSelectedAttributionIds } from '../resource-actions/attribution-view-simple-actions';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -43,7 +42,6 @@ export function navigateToView(view: View): AppThunkAction {
 
     dispatch(setTargetView(null));
     dispatch(setView(view));
-    dispatch(setMultiSelectSelectedAttributionIds([]));
 
     const updatedTemporaryDisplayPackageInfo: DisplayPackageInfo =
       (view === View.Audit

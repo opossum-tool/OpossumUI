@@ -228,10 +228,6 @@ export function getExternalAttributionSources(
   return state.resourceState.allViews.externalAttributionSources;
 }
 
-export function getAttributionIdMarkedForReplacement(state: State): string {
-  return state.resourceState.allViews.attributionIdMarkedForReplacement;
-}
-
 export function getExternalAttributionsToHashes(
   state: State,
 ): AttributionsToHashes {
