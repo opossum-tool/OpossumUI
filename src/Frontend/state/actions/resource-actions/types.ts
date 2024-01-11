@@ -51,8 +51,6 @@ export const ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE =
   'ACTION_SET_TARGET_DISPLAYED_PANEL_PACKAGE';
 export const ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID =
   'ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID';
-export const ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT =
-  'ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT';
 export const ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS =
   'ACTION_SET_RESOLVED_EXTERNAL_ATTRIBUTIONS';
 export const ACTION_ADD_RESOLVED_EXTERNAL_ATTRIBUTION =
@@ -113,7 +111,6 @@ export type ResourceAction =
   | SetProjectMetadata
   | SetFileSearch
   | SetBaseUrlsForSources
-  | SetAttributionIdMarkedForReplacement
   | SetExternalAttributionSources
   | SetMultiSelectSelectedAttributionIds
   | ToggleAccordionSearchField
@@ -285,11 +282,6 @@ export interface SetBaseUrlsForSources {
 export interface SetExternalAttributionSources {
   type: typeof ACTION_SET_EXTERNAL_ATTRIBUTION_SOURCES;
   payload: ExternalAttributionSources;
-}
-
-export interface SetAttributionIdMarkedForReplacement {
-  type: typeof ACTION_SET_ATTRIBUTION_ID_MARKED_FOR_REPLACEMENT;
-  payload: string;
 }
 
 export interface SetMultiSelectSelectedAttributionIds {

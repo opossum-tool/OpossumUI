@@ -10,7 +10,7 @@ import {
   SxProps,
 } from '@mui/material';
 import MuiCheckbox from '@mui/material/Checkbox';
-import { ReactElement } from 'react';
+import { forwardRef } from 'react';
 
 const classes = {
   skeleton: {
@@ -26,36 +26,55 @@ interface CheckboxProps extends Pick<FormControlLabelProps, 'labelPlacement'> {
   onChange(event: React.ChangeEvent<HTMLInputElement>): void;
   sx?: SxProps;
   skeleton?: boolean;
+  disableRipple?: boolean;
 }
 
-export function Checkbox(props: CheckboxProps): ReactElement {
-  const Icon = props.checked ? CheckBoxIcon : CheckBoxOutlineBlankIcon;
+export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
+  (
+    {
+      checked,
+      onChange,
+      disableRipple,
+      disabled,
+      label,
+      labelPlacement,
+      skeleton,
+      sx,
+      ...props
+    },
+    ref,
+  ) => {
+    const Icon = checked ? CheckBoxIcon : CheckBoxOutlineBlankIcon;
 
-  return (
-    <FormControlLabel
-      sx={{
-        ...props.sx,
-        marginLeft: 'unset',
-        marginRight: !props.label ? 'unset' : undefined,
-      }}
-      label={props.label}
-      disabled={props.disabled}
-      labelPlacement={props.labelPlacement}
-      control={
-        props.skeleton ? (
-          <Icon sx={classes.skeleton} />
-        ) : (
-          <MuiCheckbox
-            disabled={props.disabled}
-            checked={props.checked}
-            onChange={props.onChange}
-            inputProps={{
-              'aria-label': `checkbox ${props.label}`,
-            }}
-            color={'default'}
-          />
-        )
-      }
-    />
-  );
-}
+    return (
+      <FormControlLabel
+        sx={{
+          ...sx,
+          marginLeft: 'unset',
+          marginRight: !label ? 'unset' : undefined,
+        }}
+        label={label}
+        disabled={disabled}
+        labelPlacement={labelPlacement}
+        control={
+          skeleton ? (
+            <Icon sx={classes.skeleton} />
+          ) : (
+            <MuiCheckbox
+              {...props}
+              ref={ref}
+              disabled={disabled}
+              checked={checked}
+              onChange={onChange}
+              inputProps={{
+                'aria-label': `checkbox ${label}`,
+              }}
+              color={'default'}
+              disableRipple={disableRipple}
+            />
+          )
+        }
+      />
+    );
+  },
+);

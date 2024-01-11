@@ -138,7 +138,6 @@ export function LocatorPopup(): ReactElement {
     <>
       <MuiBox sx={classes.search}>
         <SearchTextField
-          sx={classes.autocomplete}
           onInputChange={(search: string): void => {
             setSearchedSignal(search);
           }}

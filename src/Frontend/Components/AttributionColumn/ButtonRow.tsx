@@ -5,26 +5,18 @@
 import MuiBox from '@mui/material/Box';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
-import { ButtonText, PopupType, View } from '../../enums/enums';
+import { ButtonText } from '../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { setAttributionIdMarkedForReplacement } from '../../state/actions/resource-actions/attribution-view-simple-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getAttributionIdMarkedForReplacement,
-  getDisplayedPackage,
   getIsGlobalSavingDisabled,
   getIsSavingDisabled,
   getManualDisplayPackageInfoOfSelected,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
-import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
-import { getSelectedView } from '../../state/selectors/view-selector';
 import { Button, ButtonProps } from '../Button/Button';
-import { MenuButton } from '../MenuButton/MenuButton';
 import { SplitButton } from '../SplitButton/SplitButton';
-import { getSelectedManualAttributionIdForAuditView } from './AttributionColumn.util';
 
 interface ButtonRowProps {
   areButtonsHidden?: boolean;
@@ -50,14 +42,6 @@ export function ButtonRow({
   additionalActions = [],
 }: ButtonRowProps): React.ReactNode {
   const dispatch = useAppDispatch();
-  const attributionIdMarkedForReplacement = useAppSelector(
-    getAttributionIdMarkedForReplacement,
-  );
-  const selectedPackage = useAppSelector(getDisplayedPackage);
-  const view = useAppSelector(getSelectedView);
-  const selectedAttributionIdInAttributionView = useAppSelector(
-    getSelectedAttributionIdInAttributionView,
-  );
   const packageInfoWereModified = useAppSelector(
     wereTemporaryDisplayPackageInfoModified,
   );
@@ -66,11 +50,6 @@ export function ButtonRow({
     EMPTY_DISPLAY_PACKAGE_INFO;
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
-
-  const selectedAttributionId =
-    view === View.Attribution
-      ? selectedAttributionIdInAttributionView
-      : getSelectedManualAttributionIdForAuditView(selectedPackage);
 
   return (
     !areButtonsHidden && (
@@ -84,7 +63,6 @@ export function ButtonRow({
       >
         {renderSaveButton()}
         {renderDeleteButton()}
-        {renderReplaceButton()}
         {renderRevertButton()}
         {renderAdditionalActions()}
       </MuiBox>
@@ -125,7 +103,7 @@ export function ButtonRow({
   function renderDeleteButton() {
     return (
       <SplitButton
-        color={'error'}
+        color={'secondary'}
         minWidth={130}
         menuButtonProps={{ 'aria-label': 'delete menu button' }}
         options={[
@@ -141,55 +119,6 @@ export function ButtonRow({
               !onDeleteGloballyButtonClick ||
               hideDeleteButtons ||
               !showSaveGloballyButton,
-          },
-        ]}
-      />
-    );
-  }
-
-  function renderReplaceButton() {
-    if (!selectedAttributionId) {
-      return null;
-    }
-
-    return (
-      <MenuButton
-        title={ButtonText.Replace}
-        color={'secondary'}
-        options={[
-          {
-            buttonText: ButtonText.ReplaceMarked,
-            onClick: () => {
-              dispatch(
-                openPopup(
-                  PopupType.ReplaceAttributionPopup,
-                  selectedAttributionId,
-                ),
-              );
-            },
-            disabled:
-              displayPackageInfo.preSelected ||
-              packageInfoWereModified ||
-              !attributionIdMarkedForReplacement ||
-              selectedAttributionId === attributionIdMarkedForReplacement,
-          },
-          {
-            buttonText: ButtonText.MarkForReplacement,
-            onClick: () => {
-              dispatch(
-                setAttributionIdMarkedForReplacement(selectedAttributionId),
-              );
-            },
-            disabled:
-              selectedAttributionId === attributionIdMarkedForReplacement,
-          },
-          {
-            buttonText: ButtonText.UnmarkForReplacement,
-            onClick: () => {
-              dispatch(setAttributionIdMarkedForReplacement(''));
-            },
-            disabled:
-              selectedAttributionId !== attributionIdMarkedForReplacement,
           },
         ]}
       />

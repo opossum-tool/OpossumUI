@@ -289,9 +289,6 @@ The `Attribution Details Column`, if editable, shows the following buttons:
   - _Delete_, deletes the attribution of the selected resource only.
   - _Delete Globally_, (shown only if the attribution of the selected resource is also linked to other resources)
     deletes the attribution for all the linked resources.
-- _Mark for replacement_, allows to mark an attribution for replacement. After marking an attribution.
-  One can navigate to another attribution and press the _Replace marked_ button. This opens a popup. In the popup,
-  clicking the _Replace_ button removes the marked attribution and replaces it by the currently selected one.
 
 The _SAVE_ / _SAVE GLOBALLY_ and _Revert_ buttons are disabled if no change has been made.
 
@@ -301,8 +298,7 @@ the respective attribution.
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
 signal in the App for the current input/output files, and it will not have any consequence in the DB. When clicking _HIDE_ for a merged signal, all individual signals that make up the merged signal are hidden.
 
-Instead of the buttons, the context menu can be used to execute all available actions out of _Delete_,
-_Delete Globally_, _Confirm_, _Confirm Globally_, _Mark for replacement_, _Hide_ and _Show Resources_. To open the
+Instead of the buttons, the context menu can be used to execute all available actions out of _Delete_, _Confirm_, _Hide_ and _Show Resources_. To open the
 context menu, right-click a signal or an attribution, e.g. in the `Attributions Sub-Panel`, `Signals Sub-Panel` or
 `Attribution List`.
 

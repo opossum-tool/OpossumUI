@@ -11,15 +11,6 @@ export function convertResourcesListBatchesToResourcesListItems(
   const resourcesListItems: Array<ResourcesListItem> = [];
 
   resourcesListBatches.sort().forEach((resourcesListBatch) => {
-    if (resourcesListBatch.header) {
-      if (resourcesListItems.length > 0) {
-        resourcesListItems.push({ text: '', isHeader: true });
-      }
-      resourcesListItems.push({
-        text: resourcesListBatch.header,
-        isHeader: true,
-      });
-    }
     resourcesListBatch.resourceIds.forEach((resourceId) => {
       resourcesListItems.push({
         text: resourceId,

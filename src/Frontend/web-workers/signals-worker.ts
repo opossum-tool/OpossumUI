@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  Attributions,
   AttributionsToHashes,
   AutocompleteSignal,
   ExternalAttributionSources,
@@ -13,12 +14,19 @@ import { PanelAttributionData } from '../util/get-contained-packages';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { getAttributionsInFolderContent } from './scripts/get-attributions-in-folder-content';
 import { getAutocompleteSignals } from './scripts/get-autocomplete-signals';
+import {
+  Filter,
+  FilterCounts,
+  getFilteredAttributionCounts,
+  getFilteredAttributions,
+} from './scripts/get-filtered-attributions';
 import { getProgressData } from './scripts/get-progress-data';
 import { getSignalsInFolderContent } from './scripts/get-signals-in-folder-content';
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 export type SignalsWorkerInput =
+  | { name: 'selectedFilters'; data: Array<Filter> }
   | { name: 'attributionBreakpoints'; data: Set<string> }
   | { name: 'attributionsToHashes'; data: AttributionsToHashes }
   | { name: 'externalData'; data: PanelAttributionData }
@@ -50,9 +58,18 @@ export type SignalsWorkerOutput =
   | {
       name: 'folderProgressData';
       data: ProgressBarData;
+    }
+  | {
+      name: 'filteredAttributionCounts';
+      data: FilterCounts;
+    }
+  | {
+      name: 'filteredAttributions';
+      data: Attributions;
     };
 
 interface State {
+  selectedFilters?: Array<Filter>;
   attributionBreakpoints?: Set<string>;
   attributionsToHashes?: AttributionsToHashes;
   externalData?: PanelAttributionData;
@@ -69,6 +86,7 @@ export class SignalsWorker {
   constructor(
     private readonly dispatch: (output: SignalsWorkerOutput) => void,
     private readonly state: State = {
+      selectedFilters: undefined,
       externalData: undefined,
       manualData: undefined,
       resolvedExternalAttributions: undefined,
@@ -85,10 +103,15 @@ export class SignalsWorker {
     this.dispatchFolderProgressData(input);
     this.dispatchOverallProgressData(input);
     this.dispatchAutocompleteSignals(input);
+    this.dispatchFilteredAttributions(input);
+    this.dispatchFilteredAttributionCounts(input);
   }
 
   private setData(input: SignalsWorkerInput) {
     switch (input.name) {
+      case 'selectedFilters':
+        this.state.selectedFilters = input.data;
+        break;
       case 'attributionsToHashes':
         this.state.attributionsToHashes = input.data;
         break;
@@ -237,6 +260,37 @@ export class SignalsWorker {
           resolvedExternalAttributions: this.state.resolvedExternalAttributions,
           resourceId: this.state.resourceId,
           resources: this.state.resources,
+        }),
+      });
+    }
+  }
+
+  private dispatchFilteredAttributionCounts(input: SignalsWorkerInput) {
+    if (this.isHydrated(this.state, input, ['externalData', 'manualData'])) {
+      this.dispatch({
+        name: 'filteredAttributionCounts',
+        data: getFilteredAttributionCounts({
+          externalData: this.state.externalData,
+          manualData: this.state.manualData,
+        }),
+      });
+    }
+  }
+
+  private dispatchFilteredAttributions(input: SignalsWorkerInput) {
+    if (
+      this.isHydrated(this.state, input, [
+        'selectedFilters',
+        'externalData',
+        'manualData',
+      ])
+    ) {
+      this.dispatch({
+        name: 'filteredAttributions',
+        data: getFilteredAttributions({
+          selectedFilters: this.state.selectedFilters,
+          externalData: this.state.externalData,
+          manualData: this.state.manualData,
         }),
       });
     }

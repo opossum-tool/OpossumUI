@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-
 export const text = {
   attributionColumn: {
     packageSubPanel: {
@@ -47,6 +46,18 @@ export const text = {
     sortTooltip: 'Sort',
     filterTooltip: 'Filter',
   },
+  attributionList: {
+    attribution: 'attribution',
+    confirmSelected: 'Confirm Selected',
+    deleteSelected: 'Delete Selected',
+    replaceSelected: 'Replace Selected',
+  },
+  buttons: {
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    filter: 'Filter',
+    sort: 'Sort',
+  },
   changePreferredStatusGloballyPopup: {
     markAsPreferred: 'Do you really want to prefer the attribution globally?',
     unmarkAsPreferred:
@@ -88,10 +99,23 @@ export const text = {
     fetchFailed: (message: string) =>
       `Failed to fetch latest release information: ${message}`,
   },
+  replaceAttributionsPopup: {
+    replace: 'Replace',
+    removeAttributions: (attributions: string) =>
+      `This action will remove the following ${attributions}:`,
+    selectReplacement: 'Please select another attribution as a replacement:',
+    title: 'Replace Attributions',
+  },
+  deleteAttributionsPopup: {
+    title: 'Delete Attributions',
+    deleteAttributions: (attributions: string) =>
+      `Do you really want to delete ${attributions} globally?`,
+  },
   attributionFilters: {
     currentlyPreferred: 'Currently Preferred',
     excludedFromNotice: 'Excluded from Notice',
     firstParty: 'First Party',
+    incomplete: 'Incomplete',
     lowConfidence: 'Low Confidence',
     modifiedPreferred: 'Modified Previously Preferred',
     needsFollowUp: 'Needs Follow-Up',
@@ -101,18 +125,15 @@ export const text = {
     thirdParty: 'Third Party',
   },
   attributionViewSorting: {
-    sorting: 'Sorting',
-    alphabetical: 'Alphabetical',
+    alphabetical: 'Alphabetically',
     byCriticality: 'By Criticality',
   },
   auditViewSorting: {
-    sorting: 'Sorting',
     byOccurrence: 'By Occurrence',
     byCriticality: 'By Criticality',
   },
   resourceDetails: {
-    searchTooltip:
-      'Search signals by name, license name, copyright text and version',
-    sortTooltip: 'Choose sorting algorithm for the displayed signals',
+    searchTooltip: 'Search',
+    sortTooltip: 'Sort',
   },
 } as const;

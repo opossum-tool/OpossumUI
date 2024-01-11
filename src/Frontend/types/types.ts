@@ -48,7 +48,6 @@ export interface ListCardConfig {
   isResource?: true;
   isExternalAttribution?: boolean;
   isSelected?: boolean;
-  isMarkedForReplacement?: boolean;
   isResolved?: boolean;
   isPreSelected?: boolean;
   isPreferred?: boolean;
@@ -57,7 +56,6 @@ export interface ListCardConfig {
   firstParty?: boolean;
   needsReview?: boolean;
   followUp?: boolean;
-  isHeader?: boolean;
   isContextMenuOpen?: boolean;
   isMultiSelected?: boolean;
   criticality?: Criticality;
@@ -70,7 +68,6 @@ export interface PathPredicate {
 
 export interface ResourcesListBatch {
   resourceIds: Array<string>;
-  header?: string;
 }
 
 export interface PopupInfo {

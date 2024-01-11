@@ -42,6 +42,7 @@ export function AuditingOptions({ packageInfo, isEditable }: Props) {
         setAnchorEl={setAnchorEl}
         options={options.filter(({ interactive }) => interactive)}
         sx={{ marginTop: '8px' }}
+        multiple
       />
     </>
   ) : null;
@@ -62,22 +63,18 @@ export function AuditingOptions({ packageInfo, isEditable }: Props) {
   }
 
   function renderSelectedOptions() {
-    return options.map(
-      (
-        { label, icon, deleteIcon, selected, onDelete, interactive, id },
-        index,
-      ) =>
-        selected ? (
-          <MuiChip
-            key={index}
-            label={label}
-            size={'small'}
-            icon={icon}
-            onDelete={interactive ? onDelete : undefined}
-            data-testid={`auditing-option-${id}`}
-            deleteIcon={deleteIcon}
-          />
-        ) : null,
-    );
+    return options
+      .filter(({ selected }) => selected)
+      .map(({ label, icon, deleteIcon, onDelete, interactive, id }, index) => (
+        <MuiChip
+          key={index}
+          label={label}
+          size={'small'}
+          icon={icon}
+          onDelete={interactive ? onDelete : undefined}
+          data-testid={`auditing-option-${id}`}
+          deleteIcon={deleteIcon}
+        />
+      ));
   }
 }

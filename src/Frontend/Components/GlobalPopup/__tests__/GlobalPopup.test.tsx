@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 import { Attributions } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
@@ -80,12 +81,12 @@ describe('The GlobalPopUp', () => {
             manualAttributions: testAttributions,
           }),
         ),
-        openPopup(PopupType.ReplaceAttributionPopup, 'uuid1'),
+        openPopup(PopupType.ReplaceAttributionsPopup, 'uuid1'),
       ],
     });
 
     expect(
-      screen.getByText('This removes the following attribution'),
+      screen.getByText(text.replaceAttributionsPopup.title),
     ).toBeInTheDocument();
   });
 
@@ -125,9 +126,7 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(
-      screen.getByText(
-        'Do you really want to delete the selected attributions for all files? This action will delete 2 attributions.',
-      ),
+      screen.getByText(text.deleteAttributionsPopup.title),
     ).toBeInTheDocument();
   });
 

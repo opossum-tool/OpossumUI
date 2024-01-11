@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ReactElement } from 'react';
-
 import {
   Attributions,
   AttributionsToHashes,
@@ -23,10 +21,8 @@ interface SyncAccordionPanelProps {
   ['aria-label']?: string;
 }
 
-export function SyncAccordionPanel(
-  props: SyncAccordionPanelProps,
-): ReactElement {
-  const [activeSorting] = useActiveSortingInAuditView();
+export function SyncAccordionPanel(props: SyncAccordionPanelProps) {
+  const { activeSorting } = useActiveSortingInAuditView();
 
   const [sortedPackageCardIds, displayPackageInfosWithCount] =
     getExternalDisplayPackageInfosWithCount(

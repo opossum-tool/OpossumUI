@@ -5,7 +5,6 @@
 import { fireEvent, screen } from '@testing-library/react';
 
 import { View } from '../../../enums/enums';
-import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import {
   getExpandedIds,
@@ -72,34 +71,5 @@ describe('The ResourcesList', () => {
     expect(getSelectedResourceId(store.getState())).toBe(examplePath);
     expect(getSelectedView(store.getState())).toBe(View.Audit);
     expect(getExpandedIds(store.getState())).toMatchObject(expectedExpandedIds);
-  });
-
-  it('clicking on a header does nothing', () => {
-    const onClickCallback = jest.fn();
-    const resourcesListBatchesWithHeader: Array<ResourcesListBatch> = [
-      {
-        header: 'Header',
-        resourceIds: [
-          ...resourceIdsOfSelectedAttributionId,
-          '/folder3/folder4/',
-        ],
-      },
-    ];
-
-    const { store } = renderComponent(
-      <ResourcesList
-        resourcesListBatches={resourcesListBatchesWithHeader}
-        onClickCallback={onClickCallback}
-      />,
-    );
-
-    store.dispatch(navigateToView(View.Attribution));
-    store.dispatch(setSelectedResourceId('/'));
-
-    fireEvent.click(screen.getByText('Header'));
-
-    expect(onClickCallback).toHaveBeenCalledTimes(0);
-    expect(getSelectedResourceId(store.getState())).toBe('/');
-    expect(getSelectedView(store.getState())).toBe(View.Attribution);
   });
 });

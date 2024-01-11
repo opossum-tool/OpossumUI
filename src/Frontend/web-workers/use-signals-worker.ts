@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
 
-import { AutocompleteSignal } from '../../shared/shared-types';
+import { Attributions, AutocompleteSignal } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { useAppSelector } from '../state/hooks';
 import {
@@ -26,6 +26,7 @@ import { PanelData, ProgressBarData } from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { useActiveSortingInAuditView } from '../util/use-active-sorting';
 import { useVariable } from '../util/use-variable';
+import { Filter, FilterCounts } from './scripts/get-filtered-attributions';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
 
 export enum WORKER_REDUX_KEYS {
@@ -33,12 +34,30 @@ export enum WORKER_REDUX_KEYS {
   PANEL_DATA = 'panel-data',
   OVERALL_PROGRESS_DATA = 'overall-progress-data',
   FOLDER_PROGRESS_DATA = 'folder-progress-data',
+  FILTERED_ATTRIBUTIONS = 'filtered-attributions',
+  ACTIVE_FILTERS = 'active-filters',
 }
 
 interface WorkerPanelData {
   attributionsInFolderContent: PanelData;
   signalsInFolderContent: PanelData;
 }
+
+export interface FilteredAttributions {
+  selectedFilters: Array<Filter>;
+  attributions: Attributions;
+  counts: FilterCounts | null;
+  loading: boolean;
+  search: string;
+}
+
+export const initialFilteredAttributions: FilteredAttributions = {
+  selectedFilters: [],
+  attributions: {},
+  counts: null,
+  loading: false,
+  search: '',
+};
 
 const initialWorkerPanelData: WorkerPanelData = {
   attributionsInFolderContent: {
@@ -87,6 +106,15 @@ export function useFolderProgressData() {
   return folderProgressData;
 }
 
+export function useFilteredAttributions() {
+  const [data, setFilteredAttributions] = useVariable<FilteredAttributions>(
+    WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+    initialFilteredAttributions,
+  );
+
+  return [data, setFilteredAttributions] as const;
+}
+
 export function useSignalsWorker() {
   const resourceId = useAppSelector(getSelectedResourceId);
   const externalData = useAppSelector(getExternalData);
@@ -101,7 +129,9 @@ export function useSignalsWorker() {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
-  const [activeSorting] = useActiveSortingInAuditView();
+  const { activeSorting } = useActiveSortingInAuditView();
+  const [{ selectedFilters }, setFilteredAttributions] =
+    useFilteredAttributions();
 
   const [worker, setWorker] = useState<Worker>();
   const [, setAutocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
@@ -162,6 +192,19 @@ export function useSignalsWorker() {
           case 'folderProgressData':
             setFolderProgressData(data.data);
             break;
+          case 'filteredAttributionCounts':
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              counts: data.data,
+            }));
+            break;
+          case 'filteredAttributions':
+            setFilteredAttributions((prev) => ({
+              ...prev,
+              loading: false,
+              attributions: data.data,
+            }));
+            break;
           default:
             shouldNotBeCalled(data);
         }
@@ -169,6 +212,7 @@ export function useSignalsWorker() {
     }
   }, [
     setAutocompleteSignals,
+    setFilteredAttributions,
     setFolderProgressData,
     setOverallProgressData,
     setPanelData,
@@ -258,4 +302,16 @@ export function useSignalsWorker() {
       data: activeSorting === text.auditViewSorting.byCriticality,
     } satisfies SignalsWorkerInput);
   }, [activeSorting, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'selectedFilters',
+      data: selectedFilters,
+    } satisfies SignalsWorkerInput);
+
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      loading: true,
+    }));
+  }, [selectedFilters, setFilteredAttributions, worker]);
 }

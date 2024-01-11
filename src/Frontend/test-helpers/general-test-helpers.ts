@@ -14,12 +14,12 @@ import {
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
-import { Filter } from '../Components/Filter/FilterMultiSelect.util';
 import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
 } from '../shared-constants';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
+import { Filter } from '../web-workers/scripts/get-filtered-attributions';
 
 const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   metadata: EMPTY_PROJECT_METADATA,
@@ -122,10 +122,6 @@ export function clickOnCheckbox(screen: Screen, label: string): void {
   fireEvent.click(
     screen.getByRole('checkbox', { name: `checkbox ${label}` }) as Element,
   );
-}
-
-export function expectFilterIsShown(screen: Screen, label: string): void {
-  expect(screen.getByLabelText(label)).toBeInTheDocument();
 }
 
 export async function selectFilter(screen: Screen, filter: Filter) {

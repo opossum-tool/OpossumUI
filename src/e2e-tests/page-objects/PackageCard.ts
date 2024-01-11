@@ -17,11 +17,8 @@ export class PackageCard {
     readonly deleteGloballyButton: Locator;
     readonly deleteSelectedGloballyButton: Locator;
     readonly hideButton: Locator;
-    readonly markForReplacementButton: Locator;
-    readonly replaceMarkedButton: Locator;
     readonly showResourcesButton: Locator;
     readonly unhideButton: Locator;
-    readonly unmarkForReplacementButton: Locator;
   };
 
   constructor(window: Page, context: Locator) {
@@ -40,34 +37,18 @@ export class PackageCard {
       deleteGloballyButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Delete globally', exact: true }),
-      markForReplacementButton: this.window
-        .getByRole('menu')
-        .getByRole('button', {
-          name: 'Mark current for replacement',
-          exact: true,
-        }),
       showResourcesButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Show resources', exact: true }),
       unhideButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Unhide', exact: true }),
-      unmarkForReplacementButton: this.window
-        .getByRole('menu')
-        .getByRole('button', {
-          name: 'Unmark current for replacement',
-          exact: true,
-        }),
       deleteSelectedGloballyButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Delete selected globally', exact: true }),
       hideButton: this.window
         .getByRole('menu')
         .getByRole('button', { name: 'Hide', exact: true }),
-      replaceMarkedButton: this.window.getByRole('menu').getByRole('button', {
-        name: 'Replace marked with current',
-        exact: true,
-      }),
     };
   }
 

@@ -43,12 +43,6 @@ export class AttributionDetails {
     readonly delete: Locator;
     readonly deleteGlobally: Locator;
   };
-  readonly replaceMenuButton: Locator;
-  readonly replaceMenuOptions: {
-    readonly replaceMarked: Locator;
-    readonly markForReplacement: Locator;
-    readonly unmarkForReplacement: Locator;
-  };
   readonly revertButton: Locator;
   readonly showHideSignalButton: Locator;
   readonly addAuditingOptionButton: Locator;
@@ -163,21 +157,6 @@ export class AttributionDetails {
       deleteGlobally: this.window
         .getByRole('menuitem')
         .getByText('Delete globally', { exact: true }),
-    };
-    this.replaceMenuButton = this.node.getByRole('button', {
-      name: 'Replace',
-      exact: true,
-    });
-    this.replaceMenuOptions = {
-      replaceMarked: this.window
-        .getByRole('menuitem')
-        .getByText('Replace marked with current', { exact: true }),
-      markForReplacement: this.window
-        .getByRole('menuitem')
-        .getByText('Mark current for replacement', { exact: true }),
-      unmarkForReplacement: this.window
-        .getByRole('menuitem')
-        .getByText('Unmark current for replacement', { exact: true }),
     };
     this.revertButton = this.node.getByRole('button', {
       name: 'Revert',
@@ -474,12 +453,5 @@ export class AttributionDetails {
   ): Promise<void> {
     await this.deleteMenuButton.click();
     await this.deleteMenuOptions[option].click();
-  }
-
-  async selectReplaceMenuOption(
-    option: keyof typeof this.replaceMenuOptions,
-  ): Promise<void> {
-    await this.replaceMenuButton.click();
-    await this.replaceMenuOptions[option].click();
   }
 }

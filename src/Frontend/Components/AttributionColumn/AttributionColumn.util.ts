@@ -4,16 +4,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { FrequentLicenseName } from '../../../shared/shared-types';
-import { View } from '../../enums/enums';
-import { ADD_NEW_ATTRIBUTION_BUTTON_ID } from '../../shared-constants';
 import {
   addResolvedExternalAttribution,
   removeResolvedExternalAttribution,
 } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { saveManualAndResolvedAttributionsToFile } from '../../state/actions/resource-actions/save-actions';
 import { AppThunkDispatch } from '../../state/types';
-import { PanelPackage } from '../../types/types';
-import { isExternalPackagePanel } from '../../util/is-external-package-panel';
 
 export function getResolvedToggleHandler(
   attributionIds: Array<string>,
@@ -64,74 +60,4 @@ export function getLicenseTextLabelText(
         isEditable ? 'Insert notice text if necessary.' : ''
       }`
     : 'License Text (to appear in attribution document)';
-}
-
-export interface MergeButtonDisplayState {
-  hideMarkForReplacementButton: boolean;
-  hideUnmarkForReplacementButton: boolean;
-  hideReplaceMarkedByButton: boolean;
-  deactivateReplaceMarkedByButton: boolean;
-  hideMarkAsPreferredButton: boolean;
-  hideUnmarkAsPreferredButton: boolean;
-}
-
-export function getMergeButtonsDisplayState(currentState: {
-  attributionIdMarkedForReplacement: string;
-  targetAttributionId: string;
-  selectedAttributionId: string;
-  packageInfoWereModified: boolean;
-  targetAttributionIsPreSelected: boolean;
-  targetAttributionIsExternalAttribution: boolean;
-  isPreferenceFeatureEnabled?: boolean;
-  attributionIsPreferred?: boolean;
-  view?: View;
-}): MergeButtonDisplayState {
-  const anyAttributionMarkedForReplacement =
-    currentState.attributionIdMarkedForReplacement !== '';
-  const targetAttributionIsMarkedForReplacement =
-    currentState.targetAttributionId ===
-    currentState.attributionIdMarkedForReplacement;
-  const selectedAttributionIsPartOfMerge =
-    currentState.selectedAttributionId ===
-      currentState.attributionIdMarkedForReplacement ||
-    currentState.selectedAttributionId === currentState.targetAttributionId;
-
-  return {
-    hideMarkForReplacementButton:
-      currentState.targetAttributionIsExternalAttribution ||
-      targetAttributionIsMarkedForReplacement,
-    hideUnmarkForReplacementButton:
-      currentState.targetAttributionIsExternalAttribution ||
-      !anyAttributionMarkedForReplacement ||
-      !targetAttributionIsMarkedForReplacement,
-    hideReplaceMarkedByButton:
-      currentState.targetAttributionIsExternalAttribution ||
-      !anyAttributionMarkedForReplacement ||
-      targetAttributionIsMarkedForReplacement,
-    deactivateReplaceMarkedByButton:
-      (selectedAttributionIsPartOfMerge &&
-        currentState.packageInfoWereModified) ||
-      currentState.targetAttributionIsPreSelected,
-    hideMarkAsPreferredButton:
-      !currentState.isPreferenceFeatureEnabled ||
-      !currentState.selectedAttributionId ||
-      Boolean(currentState.attributionIsPreferred),
-    hideUnmarkAsPreferredButton:
-      !currentState.isPreferenceFeatureEnabled ||
-      !currentState.selectedAttributionId ||
-      !currentState.attributionIsPreferred,
-  };
-}
-
-export function getSelectedManualAttributionIdForAuditView(
-  selectedPackage: PanelPackage | null,
-): string {
-  if (
-    selectedPackage &&
-    !isExternalPackagePanel(selectedPackage.panel) &&
-    selectedPackage.packageCardId !== ADD_NEW_ATTRIBUTION_BUTTON_ID
-  ) {
-    return selectedPackage.displayPackageInfo.attributionIds[0];
-  }
-  return '';
 }

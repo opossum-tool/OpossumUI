@@ -38,7 +38,7 @@ export function AllAttributionsPanel(
   props: AllAttributionsPanelProps,
 ): ReactElement {
   const dispatch = useAppDispatch();
-  const [activeSorting] = useActiveSortingInAuditView();
+  const { activeSorting } = useActiveSortingInAuditView();
 
   function getPackageCard(packageCardId: string): ReactElement | null {
     const displayPackageInfo = props.displayPackageInfos[packageCardId];

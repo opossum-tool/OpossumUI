@@ -2,24 +2,45 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { fromPairs, remove } from 'lodash';
 
-import { Criticality } from '../../../../shared/shared-types';
+import { Attributions, Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { PopupType } from '../../../enums/enums';
+import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
+import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionIdInAttributionView } from '../../../state/selectors/attribution-view-resource-selectors';
-import {
-  getParsedInputFileEnrichedWithTestData,
-  selectFilter,
-} from '../../../test-helpers/general-test-helpers';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { LOW_CONFIDENCE_THRESHOLD } from '../../Filter/FilterMultiSelect.util';
+import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
+import { AttributionViewSorting } from '../../../util/use-active-sorting';
+import {
+  FilterCounts,
+  filters,
+  qaFilters,
+} from '../../../web-workers/scripts/get-filtered-attributions';
+import {
+  FilteredAttributions,
+  initialFilteredAttributions,
+  WORKER_REDUX_KEYS,
+} from '../../../web-workers/use-signals-worker';
 import { AttributionList } from '../AttributionList';
 
 describe('AttributionList', () => {
+  it('renders nothing when there is no project ID', () => {
+    const { container } = renderComponent(<AttributionList />, {
+      actions: [setProjectMetadata(faker.opossum.metadata({ projectId: '' }))],
+    });
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('sorts attributions alphabetically', () => {
     const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
       packageName: 'B',
@@ -27,15 +48,24 @@ describe('AttributionList', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
       packageName: 'A',
     });
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId1]: packageInfo1,
+      [attributionId2]: packageInfo2,
+    });
     renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
@@ -55,58 +85,76 @@ describe('AttributionList', () => {
 
   it('sorts attributions by criticality', () => {
     const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
-      packageName: 'A',
+      criticality: undefined,
     });
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      packageName: 'B',
       criticality: Criticality.High,
     });
     const [attributionId3, packageInfo3] = faker.opossum.manualAttribution({
-      packageName: 'C',
       criticality: Criticality.Medium,
+    });
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId1]: packageInfo1,
+      [attributionId2]: packageInfo2,
+      [attributionId3]: packageInfo3,
     });
     renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-              [attributionId3]: packageInfo3,
-            }),
+            manualAttributions,
           }),
         ),
-        setVariable(
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
+        ),
+        setVariable<AttributionViewSorting>(
           'active-sorting-attribution-view',
           text.attributionViewSorting.byCriticality,
         ),
       ],
     });
 
-    const packageDisplay1 = screen.getByText(
-      `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
-    );
-    const packageDisplay2 = screen.getByText(
-      `${packageInfo2.packageName}, ${packageInfo2.packageVersion}`,
-    );
-    const packageDisplay3 = screen.getByText(
-      `${packageInfo3.packageName}, ${packageInfo3.packageVersion}`,
-    );
-
-    expect(packageDisplay2.compareDocumentPosition(packageDisplay3)).toBe(4);
-    expect(packageDisplay3.compareDocumentPosition(packageDisplay1)).toBe(4);
+    expect(
+      screen
+        .getByText(new RegExp(packageInfo2.packageName!))
+        .compareDocumentPosition(
+          screen.getByText(new RegExp(packageInfo3.packageName!)),
+        ),
+    ).toBe(4);
+    expect(
+      screen
+        .getByText(new RegExp(packageInfo3.packageName!))
+        .compareDocumentPosition(
+          screen.getByText(new RegExp(packageInfo1.packageName!)),
+        ),
+    ).toBe(4);
   });
 
-  it('sets selected attribution ID on card click', async () => {
+  it('correctly handles selected states on card click', async () => {
     const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId]: packageInfo,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
@@ -122,158 +170,34 @@ describe('AttributionList', () => {
     );
   });
 
-  it('filters follow-ups', async () => {
+  it('searches for attributions', async () => {
     const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      followUp: 'FOLLOW_UP',
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId1]: packageInfo1,
+      [attributionId2]: packageInfo2,
     });
     renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
 
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Needs Follow-Up');
+    await userEvent.click(screen.getByRole('searchbox'));
+    await userEvent.paste(packageInfo1.packageName);
 
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 1, 0, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
-  });
-
-  it('filters needs-review', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      needsReview: true,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
-          }),
-        ),
-      ],
-    });
-
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Needs Review by QA');
-
-    expect(
-      screen.getByText(/Attributions \(2 total, 1, 0, 0, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
-  });
-
-  it('filters pre-selected', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      preSelected: true,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
-          }),
-        ),
-      ],
-    });
-
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Pre-selected');
-
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 1, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
-  });
-
-  it('filters first-party', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      firstParty: true,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
-          }),
-        ),
-      ],
-    });
-
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'First Party');
-
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 0, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
-  });
-
-  it('filters third-party', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      firstParty: true,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
-          }),
-        ),
-      ],
-    });
-
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Third Party');
-
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 0, 0, 0/),
-    ).toBeInTheDocument();
     expect(
       screen.getByText(new RegExp(packageInfo1.packageName!)),
     ).toBeInTheDocument();
@@ -282,133 +206,442 @@ describe('AttributionList', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('filters currently preferred', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      preferred: true,
+  it('deletes selected attribution', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
     });
-    renderComponent(<AttributionList />, {
+    const { store } = renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
 
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Currently Preferred');
+    await userEvent.click(
+      screen.getByText(
+        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+    await userEvent.click(screen.getByLabelText('delete button'));
 
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 0, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
+    expect(getOpenPopup(store.getState())).toBe(
+      PopupType.ConfirmMultiSelectDeletionPopup,
+    );
   });
 
-  it('filters previously preferred', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      wasPreferred: true,
+  it('deletes multi-selected attributions', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
     });
-    renderComponent(<AttributionList />, {
+    const { store } = renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
 
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Previously Preferred');
+    await userEvent.click(
+      within(
+        screen.getByLabelText(
+          `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+    await userEvent.click(screen.getByLabelText('delete button'));
 
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 0, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
+    expect(getOpenPopup(store.getState())).toBe(
+      PopupType.ConfirmMultiSelectDeletionPopup,
+    );
   });
 
-  it('filters low confidence', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
-      attributionConfidence: LOW_CONFIDENCE_THRESHOLD + 1,
+  it('confirms selected attribution', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution({
+      preSelected: true,
     });
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      attributionConfidence: LOW_CONFIDENCE_THRESHOLD,
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
     });
-    renderComponent(<AttributionList />, {
+    const { store } = renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
 
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Low Confidence');
+    await userEvent.click(
+      screen.getByText(
+        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+    await userEvent.click(screen.getByLabelText('confirm button'));
 
-    expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 0, 0, 0/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
+    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+      [attributionId]: getStrippedPackageInfo(packageInfo),
+    });
   });
 
-  it('filters excluded-from-notice', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      excludeFromNotice: true,
+  it('disables confirm button when selected attribution is not pre-selected', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution({
+      preSelected: false,
+    });
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
     });
     renderComponent(<AttributionList />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-            }),
+            manualAttributions,
           }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
         ),
       ],
     });
 
-    await userEvent.click(screen.getByLabelText('Filter'));
-    await selectFilter(screen, 'Excluded from Notice');
+    await userEvent.click(
+      screen.getByText(
+        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(screen.getByLabelText('confirm button')).toBeDisabled();
+  });
+
+  it('confirms multi-selected attributions', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution({
+      preSelected: true,
+    });
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
+    const { store } = renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(
+      within(
+        screen.getByLabelText(
+          `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+    await userEvent.click(screen.getByLabelText('confirm button'));
+
+    expect(getManualAttributions(store.getState())).toEqual<Attributions>({
+      [attributionId]: getStrippedPackageInfo(packageInfo),
+    });
+  });
+
+  it('replaces selected attribution', async () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId1]: packageInfo1,
+      [attributionId2]: packageInfo2,
+    });
+    const { store } = renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(
+      screen.getByText(
+        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
+      ),
+    );
+    await userEvent.click(screen.getByLabelText('replace button'));
+
+    expect(getOpenPopup(store.getState())).toBe(
+      PopupType.ReplaceAttributionsPopup,
+    );
+  });
+
+  it('replaces multi-selected attributions', async () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId1]: packageInfo1,
+      [attributionId2]: packageInfo2,
+    });
+    const { store } = renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(
+      within(
+        screen.getByLabelText(
+          `package card ${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+    await userEvent.click(screen.getByLabelText('replace button'));
+
+    expect(getOpenPopup(store.getState())).toBe(
+      PopupType.ReplaceAttributionsPopup,
+    );
+  });
+
+  it('disables replace button when no replacements exist', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
+    renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(
+      screen.getByText(
+        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+      ),
+    );
+
+    expect(screen.getByLabelText('replace button')).toBeDisabled();
+  });
+
+  it('shows only filters with non-zero counts', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
+    renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+            counts: fromPairs(
+              filters.map((filter) => [
+                filter,
+                filter === text.attributionFilters.firstParty ? 1 : 0,
+              ]),
+            ) as FilterCounts,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(screen.getByLabelText('filter button'));
 
     expect(
-      screen.getByText(/Attributions \(2 total, 0, 0, 0, 0, 0/),
+      screen.getByText(new RegExp(text.attributionFilters.firstParty)),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(new RegExp(packageInfo2.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo1.packageName!)),
-    ).not.toBeInTheDocument();
+    remove(filters, text.attributionFilters.firstParty).forEach((filter) =>
+      expect(screen.queryByText(new RegExp(filter))).not.toBeInTheDocument(),
+    );
+  });
+
+  it('shows QA filters in QA mode', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
+
+    jest.spyOn(window.electronAPI, 'getUserSetting').mockResolvedValue(true);
+
+    renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+            counts: fromPairs(
+              filters.map((filter) => [filter, 1]),
+            ) as FilterCounts,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(screen.getByLabelText('filter button'));
+
+    qaFilters.forEach((filter) =>
+      expect(screen.getByText(new RegExp(filter))).toBeInTheDocument(),
+    );
+  });
+
+  it('does not show QA filters when not in QA mode', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
+
+    jest.spyOn(window.electronAPI, 'getUserSetting').mockResolvedValue(false);
+
+    renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+            counts: fromPairs(
+              filters.map((filter) => [filter, 1]),
+            ) as FilterCounts,
+          },
+        ),
+      ],
+    });
+
+    await userEvent.click(screen.getByLabelText('filter button'));
+
+    qaFilters.forEach((filter) =>
+      expect(screen.queryByText(new RegExp(filter))).not.toBeInTheDocument(),
+    );
+  });
+
+  it('removes filters with zero attributions', async () => {
+    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+    const manualAttributions = faker.opossum.manualAttributions({
+      [attributionId]: packageInfo,
+    });
+    const { store } = renderComponent(<AttributionList />, {
+      actions: [
+        loadFromFile(
+          getParsedInputFileEnrichedWithTestData({
+            manualAttributions,
+          }),
+        ),
+        setProjectMetadata(faker.opossum.metadata()),
+        setVariable<FilteredAttributions>(
+          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
+          {
+            ...initialFilteredAttributions,
+            attributions: manualAttributions,
+            selectedFilters: filters,
+            counts: fromPairs(
+              filters.map((filter) => [filter, 0]),
+            ) as FilterCounts,
+          },
+        ),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(
+        (
+          store.getState().variablesState[
+            WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS
+          ] as FilteredAttributions
+        ).selectedFilters,
+      ).toHaveLength(0),
+    );
   });
 });

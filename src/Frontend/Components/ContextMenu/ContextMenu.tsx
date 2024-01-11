@@ -2,15 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import DoneIcon from '@mui/icons-material/Done';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
-import MergeTypeIcon from '@mui/icons-material/MergeType';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -38,18 +33,11 @@ const classes = {
 const BUTTON_TITLE_TO_ICON_MAP: Record<string, React.ReactElement> = {
   [ButtonText.Confirm]: <DoneIcon fontSize="small" />,
   [ButtonText.ConfirmGlobally]: <DoneOutlineIcon fontSize="small" />,
-  [ButtonText.ConfirmSelectedGlobally]: <DoneAllIcon fontSize="small" />,
   [ButtonText.DeleteGlobally]: <DeleteIcon fontSize="small" />,
-  [ButtonText.DeleteSelectedGlobally]: <DeleteSweepIcon fontSize="small" />,
   [ButtonText.Delete]: <DeleteOutlineIcon fontSize="small" />,
   [ButtonText.Hide]: <VisibilityOffIcon fontSize="small" />,
-  [ButtonText.MarkForReplacement]: (
-    <CheckBoxOutlineBlankIcon fontSize="small" />
-  ),
-  [ButtonText.ReplaceMarked]: <MergeTypeIcon fontSize="small" />,
   [ButtonText.ShowResources]: <OpenInBrowserIcon fontSize="small" />,
   [ButtonText.Unhide]: <VisibilityIcon fontSize="small" />,
-  [ButtonText.UnmarkForReplacement]: <CheckBoxIcon fontSize="small" />,
 };
 
 export interface ContextMenuItem {
