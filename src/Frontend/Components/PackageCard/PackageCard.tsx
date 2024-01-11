@@ -10,10 +10,8 @@ import { memo, ReactElement, useMemo, useState } from 'react';
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { ButtonText, PopupType, View } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
-import {
-  setMultiSelectSelectedAttributionIds,
-  setSelectedAttributionId,
-} from '../../state/actions/resource-actions/attribution-view-simple-actions';
+import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import { setMultiSelectSelectedAttributionIds } from '../../state/actions/resource-actions/attribution-view-simple-actions';
 import {
   deleteAttributionAndSave,
   deleteAttributionGloballyAndSave,
@@ -329,7 +327,9 @@ export const PackageCard = memo(
           ),
         );
         !selectedAttributionIdAttributionView &&
-          dispatch(setSelectedAttributionId(attributionId));
+          dispatch(
+            changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId),
+          );
       }
 
       return props.showCheckBox && !props.hideContextMenuAndMultiSelect ? (

@@ -211,7 +211,7 @@ test('deletes multiple attributions at once in attribution view', async ({
   await attributionList.attributionCard.assert.checkboxIsChecked(packageInfo2);
 
   await attributionList.deleteButton.click();
-  await confirmationPopup.assert.hasText('2');
+  await confirmationPopup.assert.hasText('2 attributions');
 
   await confirmationPopup.confirm();
   await confirmationPopup.assert.isHidden();
