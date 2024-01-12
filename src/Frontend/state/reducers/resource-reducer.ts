@@ -643,7 +643,15 @@ export const resourceState = (
         new Set(state.auditView.resolvedExternalAttributions);
 
       const resourcesWithAttributedChildren = {
-        ...state.allViews.externalData.resourcesWithAttributedChildren,
+        paths:
+          state.allViews.externalData.resourcesWithAttributedChildren.paths,
+        pathsToIndices:
+          state.allViews.externalData.resourcesWithAttributedChildren
+            .pathsToIndices,
+        attributedChildren: {
+          ...state.allViews.externalData.resourcesWithAttributedChildren
+            .attributedChildren,
+        },
       };
       resolvedExternalAttributionsWithAddedAttribution.add(
         resolvedAttributionId,
@@ -699,8 +707,16 @@ export const resourceState = (
             resourcesWithAttributedChildren:
               addUnresolvedAttributionsToResourcesWithAttributedChildren(
                 {
-                  ...state.allViews.externalData
-                    .resourcesWithAttributedChildren,
+                  paths:
+                    state.allViews.externalData.resourcesWithAttributedChildren
+                      .paths,
+                  pathsToIndices:
+                    state.allViews.externalData.resourcesWithAttributedChildren
+                      .pathsToIndices,
+                  attributedChildren: {
+                    ...state.allViews.externalData
+                      .resourcesWithAttributedChildren.attributedChildren,
+                  },
                 },
                 state.allViews.externalData.attributionsToResources[
                   action.payload

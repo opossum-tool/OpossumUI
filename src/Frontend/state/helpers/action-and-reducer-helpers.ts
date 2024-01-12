@@ -228,7 +228,7 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
 ): string {
   let displayedAttributionId = '';
   if (attributionIds && attributionIds.length > 0) {
-    displayedAttributionId = attributionIds.sort(
+    displayedAttributionId = [...attributionIds].sort(
       getAlphabeticalComparerForAttributions(
         state.allViews.manualData.attributions,
         false,
@@ -242,7 +242,7 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
         getAttributionBreakpointCheckForResourceState(state),
       );
     if (closestParentAttributionIds.length > 0) {
-      displayedAttributionId = closestParentAttributionIds.sort(
+      displayedAttributionId = [...closestParentAttributionIds].sort(
         getAlphabeticalComparerForAttributions(
           state.allViews.manualData.attributions,
           false,
