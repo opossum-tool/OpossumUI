@@ -35,7 +35,7 @@ test.use({
   },
 });
 
-test('hides and unhides merged signals via attribution details', async ({
+test('hides and unhides merged signals', async ({
   resourceBrowser,
   resourceDetails,
   attributionDetails,
@@ -66,40 +66,6 @@ test('hides and unhides merged signals via attribution details', async ({
 
   await resourceDetails.signalCard.click(packageInfo1);
   await attributionDetails.showHideSignalButton.click();
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo1);
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
-});
-
-test('hides and unhides merged signals via context menu', async ({
-  resourceBrowser,
-  resourceDetails,
-}) => {
-  await resourceBrowser.goto(resourceName1);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo1);
-  await resourceDetails.signalCard.contextMenu.hideButton.click();
-  await resourceDetails.signalCard.assert.isHidden(packageInfo1, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-
-  await resourceBrowser.goto(resourceName2);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
-    subContext: resourceDetails.signalsPanel,
-  });
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2, {
-    subContext: resourceDetails.signalsPanel,
-  });
-  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo1);
-  await resourceDetails.signalCard.contextMenu.unhideButton.click();
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo1);
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 });

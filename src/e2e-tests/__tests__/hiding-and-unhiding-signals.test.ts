@@ -41,7 +41,7 @@ test.use({
   },
 });
 
-test('hides and unhides signals via attribution details', async ({
+test('hides and unhides signals', async ({
   resourceBrowser,
   resourceDetails,
   attributionDetails,
@@ -79,53 +79,5 @@ test('hides and unhides signals via attribution details', async ({
   await resourceDetails.signalCard.click(packageInfo2);
   await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
   await attributionDetails.showHideSignalButton.click();
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
-});
-
-test('hides and unhides signals via context menu', async ({
-  resourceBrowser,
-  resourceDetails,
-}) => {
-  await resourceBrowser.goto(resourceName1);
-  await resourceDetails.signalCard.assert.isHidden(packageInfo1, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-  await resourceDetails.signalCard.assert.isVisible(packageInfo3, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo3);
-  await resourceDetails.signalCard.assert.contextMenu.buttonsAreVisible(
-    'hideButton',
-  );
-  await resourceDetails.signalCard.assert.contextMenu.buttonsAreHidden(
-    'unhideButton',
-  );
-
-  await resourceDetails.signalCard.contextMenu.hideButton.click();
-  await resourceDetails.signalCard.assert.isHidden(packageInfo3, {
-    subContext: resourceDetails.signalsInFolderContentPanel,
-  });
-
-  await resourceBrowser.goto(resourceName4);
-  await resourceDetails.signalCard.assert.isVisible(packageInfo1, {
-    subContext: resourceDetails.signalsPanel,
-  });
-  await resourceDetails.signalCard.assert.isVisible(packageInfo2, {
-    subContext: resourceDetails.signalsPanel,
-  });
-  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
-  await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo2);
-  await resourceDetails.signalCard.contextMenu.hideButton.click();
-  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo1);
-  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
-
-  await resourceBrowser.goto(resourceName3);
-  await resourceDetails.signalCard.assert.addButtonIsHidden(packageInfo2);
-
-  await resourceDetails.signalCard.openContextMenu(packageInfo2);
-  await resourceDetails.signalCard.contextMenu.unhideButton.click();
   await resourceDetails.signalCard.assert.addButtonIsVisible(packageInfo2);
 });

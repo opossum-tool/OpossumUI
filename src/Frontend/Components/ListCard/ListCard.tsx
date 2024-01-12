@@ -32,10 +32,6 @@ const classes = {
       background: hoveredBackgroundColor,
     },
   },
-  hoveredPackage: {
-    border: packageBorder,
-    background: hoveredBackgroundColor,
-  },
   package: {
     border: packageBorder,
     background: defaultBackgroundColor,
@@ -45,9 +41,6 @@ const classes = {
     '&:hover': {
       background: hoveredBackgroundColor,
     },
-  },
-  hoveredExternalAttribution: {
-    background: hoveredBackgroundColor,
   },
   resource: {
     background: OpossumColors.white,
@@ -61,9 +54,6 @@ const classes = {
     '&:hover': {
       background: hoveredSelectedBackgroundColor,
     },
-  },
-  hoveredSelected: {
-    background: hoveredSelectedBackgroundColor,
   },
   resolved: {
     opacity: 0.5,
@@ -124,9 +114,6 @@ const classes = {
     '&.MuiTypography-body2': {
       fontSize: '0.85rem',
     },
-  },
-  excludeFromNotice: {
-    color: OpossumColors.darkBlue,
   },
 };
 
@@ -258,18 +245,12 @@ function getSx(
 
   if (cardConfig.isResource) {
     sxProps = merge(sxProps, classes.resource);
-  } else if (cardConfig.isContextMenuOpen) {
-    sxProps = merge(sxProps, classes.hoveredPackage);
   } else {
     sxProps = merge(sxProps, classes.package);
   }
 
   if (cardConfig.isExternalAttribution) {
-    if (cardConfig.isContextMenuOpen) {
-      sxProps = merge(sxProps, classes.hoveredExternalAttribution);
-    } else {
-      sxProps = merge(sxProps, classes.externalAttribution);
-    }
+    sxProps = merge(sxProps, classes.externalAttribution);
   }
 
   if (clickable) {
@@ -281,9 +262,7 @@ function getSx(
   }
 
   if (cardConfig.isSelected) {
-    if (cardConfig.isContextMenuOpen) {
-      sxProps = merge(sxProps, classes.hoveredSelected);
-    } else if (highlighting) {
+    if (highlighting) {
       sxProps = merge(
         sxProps,
         getHighlightedListCardStyle(highlighting, true, clickable),

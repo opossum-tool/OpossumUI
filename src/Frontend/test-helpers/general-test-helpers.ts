@@ -110,12 +110,8 @@ function getResourcesToAttributions(
   return testResourcesToExternalAttributions;
 }
 
-export function getButton(screen: Screen, buttonLabel: string): HTMLElement {
-  return screen.getByRole('button', { name: buttonLabel });
-}
-
 export function clickOnButton(screen: Screen, buttonLabel: string): void {
-  fireEvent.click(getButton(screen, buttonLabel));
+  fireEvent.click(screen.getByRole('button', { name: buttonLabel }));
 }
 
 export function clickOnCheckbox(screen: Screen, label: string): void {

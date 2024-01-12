@@ -37,7 +37,7 @@ export function ReplaceAttributionsPopup() {
     getMultiSelectSelectedAttributionIds,
   );
   const selectedAttributionId = useAppSelector(getCurrentAttributionId);
-  const idsToReplace = compact(
+  const attributionIdsToReplace = compact(
     multiSelectSelectedAttributionIds.length
       ? multiSelectSelectedAttributionIds
       : [selectedAttributionId],
@@ -50,9 +50,9 @@ export function ReplaceAttributionsPopup() {
     () =>
       pickBy(
         attributions,
-        (_, attributionId) => !idsToReplace.includes(attributionId),
+        (_, attributionId) => !attributionIdsToReplace.includes(attributionId),
       ),
-    [attributions, idsToReplace],
+    [attributions, attributionIdsToReplace],
   );
   const { filteredAndSortedIds, filteredAndSortedAttributions } = useMemo(
     () =>
@@ -91,13 +91,13 @@ export function ReplaceAttributionsPopup() {
         ),
       );
     }
-    idsToReplace.forEach((markedAttributionId) => {
+    attributionIdsToReplace.forEach((attributionId) => {
       dispatch(
         savePackageInfo(
           null,
-          markedAttributionId,
+          attributionId,
           attributions[targetAttributionId],
-          markedAttributionId !== targetAttributionId,
+          attributionId !== targetAttributionId,
         ),
       );
     });
@@ -138,14 +138,14 @@ export function ReplaceAttributionsPopup() {
         <MuiTypography paragraph>
           {text.replaceAttributionsPopup.removeAttributions(
             maybePluralize(
-              idsToReplace.length,
+              attributionIdsToReplace.length,
               text.attributionList.attribution,
             ),
           )}
         </MuiTypography>
         <List
           getListItem={(index) => {
-            const attributionId = idsToReplace[index];
+            const attributionId = attributionIdsToReplace[index];
             const attribution = attributions[attributionId];
 
             if (!attribution) {
@@ -162,12 +162,10 @@ export function ReplaceAttributionsPopup() {
                   attribution,
                   [],
                 )}
-                hideResourceSpecificButtons
-                hideContextMenuAndMultiSelect
               />
             );
           }}
-          length={idsToReplace.length}
+          length={attributionIdsToReplace.length}
           cardHeight={PACKAGE_CARD_HEIGHT}
           maxNumberOfItems={MAX_NUMBER_OF_PACKAGE_CARDS_PER_LIST}
         />
@@ -208,15 +206,13 @@ export function ReplaceAttributionsPopup() {
                   isPreSelected: attribution.preSelected,
                 }}
                 displayPackageInfo={attribution}
-                hideResourceSpecificButtons
-                hideContextMenuAndMultiSelect
               />
             );
           }}
           length={filteredAndSortedIds.length}
           cardHeight={PACKAGE_CARD_HEIGHT}
           maxNumberOfItems={Math.max(
-            TOTAL_MAX_NUMBER_OF_PACKAGE_CARDS - idsToReplace.length,
+            TOTAL_MAX_NUMBER_OF_PACKAGE_CARDS - attributionIdsToReplace.length,
             MAX_NUMBER_OF_PACKAGE_CARDS_PER_LIST,
           )}
           minNumberOfItems={Object.keys(filteredAttributions).length}

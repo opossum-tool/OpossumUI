@@ -94,8 +94,6 @@ export function ConfirmMultiSelectDeletionPopup() {
                   attribution,
                   [],
                 )}
-                hideResourceSpecificButtons
-                hideContextMenuAndMultiSelect
               />
             );
           }}

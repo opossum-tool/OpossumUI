@@ -166,7 +166,6 @@ export function AttributionList() {
         }}
         key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
         displayPackageInfo={displayPackageInfo}
-        hideResourceSpecificButtons
         showCheckBox
         isScrolling={isScrolling}
       />
@@ -253,14 +252,14 @@ export function AttributionList() {
               (multiSelectSelectedAttributionIds.length
                 ? multiSelectSelectedAttributionIds
                 : [selectedAttributionIdAttributionView]
-              ).forEach((id) => {
-                filteredAndSortedAttributions[id]?.preSelected &&
+              ).forEach((attributionId) => {
+                filteredAndSortedAttributions[attributionId]?.preSelected &&
                   dispatch(
                     savePackageInfo(
                       null,
-                      id,
-                      filteredAndSortedAttributions[id],
-                      id !== selectedAttributionIdAttributionView,
+                      attributionId,
+                      filteredAndSortedAttributions[attributionId],
+                      attributionId !== selectedAttributionIdAttributionView,
                     ),
                   );
               });

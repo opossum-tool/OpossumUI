@@ -107,7 +107,7 @@ export function savePackageInfo(
   resourceId: string | null,
   attributionId: string | null,
   packageInfo: PackageInfo,
-  applyContextMenuActionOnDifferentAttribution?: boolean,
+  isSavedPackageInactive?: boolean,
   noReplace?: boolean,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
@@ -134,7 +134,7 @@ export function savePackageInfo(
         dispatch(
           createAttributionForSelectedResource(
             strippedPackageInfo,
-            !applyContextMenuActionOnDifferentAttribution,
+            !isSavedPackageInactive,
           ),
         );
         break;
@@ -144,7 +144,7 @@ export function savePackageInfo(
             updateAttribution(
               attributionId,
               strippedPackageInfo,
-              !applyContextMenuActionOnDifferentAttribution,
+              !isSavedPackageInactive,
             ),
           );
         break;
@@ -157,7 +157,7 @@ export function savePackageInfo(
             replaceAttributionWithMatchingAttribution(
               attributionId,
               strippedPackageInfo,
-              !applyContextMenuActionOnDifferentAttribution,
+              !isSavedPackageInactive,
             ),
           );
         break;
@@ -168,7 +168,7 @@ export function savePackageInfo(
     }
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
-    if (!applyContextMenuActionOnDifferentAttribution) {
+    if (!isSavedPackageInactive) {
       dispatch(resetTemporaryDisplayPackageInfo());
     }
     dispatch(

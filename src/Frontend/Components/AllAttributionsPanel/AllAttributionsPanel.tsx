@@ -72,7 +72,6 @@ export function AllAttributionsPanel(
         cardConfig={cardConfig}
         key={`PackageCard-${displayPackageInfo.packageName}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
-        hideResourceSpecificButtons={true}
         showOpenResourcesIcon={true}
       />
     );

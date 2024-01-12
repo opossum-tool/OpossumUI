@@ -67,8 +67,8 @@ export class ResourceDetails {
     );
     this.localTab = this.node.getByLabel('local tab');
     this.globalTab = this.node.getByLabel('global tab');
-    this.attributionCard = new PackageCard(window, this.attributions);
-    this.signalCard = new PackageCard(window, this.signals);
+    this.attributionCard = new PackageCard(this.attributions);
+    this.signalCard = new PackageCard(this.signals);
     this.pathBar = this.node.getByLabel('path bar');
   }
 

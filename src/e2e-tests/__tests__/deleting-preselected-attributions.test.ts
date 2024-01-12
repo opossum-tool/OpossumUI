@@ -55,71 +55,7 @@ test.use({
   },
 });
 
-test('deletes pre-selected attributions via context menu', async ({
-  attributionDetails,
-  attributionList,
-  confirmationPopup,
-  resourceBrowser,
-  resourceDetails,
-  topBar,
-}) => {
-  await resourceBrowser.goto(resourceName1);
-  await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo3);
-  await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
-    filesWithOnlyPreSelectedAttributions: 5,
-  });
-
-  await resourceDetails.attributionCard.openContextMenu(packageInfo3);
-  await resourceDetails.attributionCard.contextMenu.deleteGloballyButton.click();
-  await confirmationPopup.assert.isHidden();
-  await attributionDetails.assert.isEmpty();
-
-  await resourceDetails.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await resourceDetails.attributionCard.openContextMenu(packageInfo1);
-  await resourceDetails.attributionCard.contextMenu.deleteButton.click();
-  await attributionDetails.assert.isEmpty();
-  await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
-    filesWithOnlyPreSelectedAttributions: 4,
-  });
-
-  await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
-
-  await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-
-  await resourceDetails.gotoGlobalTab();
-  await resourceDetails.signalCard.openContextMenu(packageInfo1);
-  await resourceDetails.signalCard.contextMenu.deleteGloballyButton.click();
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-
-  await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.isEmpty();
-  await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
-    filesWithOnlyPreSelectedAttributions: 2,
-  });
-
-  await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.isEmpty();
-
-  await topBar.gotoAttributionView();
-  await resourceBrowser.assert.isHidden();
-
-  await attributionList.attributionCard.openContextMenu(packageInfo2);
-  await attributionList.attributionCard.contextMenu.deleteGloballyButton.click();
-  await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 5,
-    filesWithAttributions: 0,
-  });
-});
-
-test('deletes pre-selected attributions via attribution details button', async ({
+test('deletes pre-selected attributions', async ({
   attributionDetails,
   attributionList,
   confirmationPopup,
