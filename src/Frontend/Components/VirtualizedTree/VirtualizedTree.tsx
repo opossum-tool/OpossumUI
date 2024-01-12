@@ -3,21 +3,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { SxProps } from '@mui/system';
-import { ReactElement, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { List } from '../../Components/List/List';
-import { ResizableBox } from '../../Components/ResizableBox/ResizableBox';
-import { usePrevious } from '../../util/use-previous';
+import { List } from '../List/List';
+import { ResizableBox } from '../ResizableBox/ResizableBox';
 import {
   getTreeNodeProps,
   NodeIdPredicateForTree,
   NodesForTree,
   TreeNodeStyle,
 } from './VirtualizedTree.util';
-import {
-  VirtualizedTreeNode,
-  VirtualizedTreeNodeData,
-} from './VirtualizedTreeNode/VirtualizedTreeNode';
+import { VirtualizedTreeNode } from './VirtualizedTreeNode/VirtualizedTreeNode';
 
 interface VirtualizedTreeProps {
   nodes: NodesForTree;
@@ -25,7 +21,7 @@ interface VirtualizedTreeProps {
     nodeName: string,
     node: NodesForTree | 1,
     nodeId: string,
-  ) => ReactElement;
+  ) => React.ReactElement;
   expandedIds: Array<string>;
   selectedNodeId: string;
   isFakeNonExpandableNode: NodeIdPredicateForTree;
@@ -33,23 +29,20 @@ interface VirtualizedTreeProps {
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   cardHeight: number;
   width?: number | string;
-  expandedNodeIcon?: ReactElement;
-  nonExpandedNodeIcon?: ReactElement;
+  expandedNodeIcon?: React.ReactElement;
+  nonExpandedNodeIcon?: React.ReactElement;
   sx?: SxProps;
   treeNodeStyle?: TreeNodeStyle;
   breakpoints?: Set<string>;
-  locatorIcon?: ReactElement;
-  locatedResourceIcon?: ReactElement;
+  locatorIcon?: React.ReactElement;
+  locatedResourceIcon?: React.ReactElement;
   locatedResources?: Set<string>;
   resourcesWithLocatedChildren?: Set<string>;
   resizable?: boolean;
 }
 
-export function VirtualizedTree(
-  props: VirtualizedTreeProps,
-): ReactElement | null {
-  const previousSelectedNodeId = usePrevious(props.selectedNodeId);
-  const treeNodeProps: Array<VirtualizedTreeNodeData> = getTreeNodeProps(
+export function VirtualizedTree(props: VirtualizedTreeProps) {
+  const treeNodeProps = getTreeNodeProps(
     props.nodes,
     '',
     props.expandedIds,
@@ -62,29 +55,11 @@ export function VirtualizedTree(
     props.resourcesWithLocatedChildren,
     props.breakpoints,
   );
-
-  const [indexToScrollTo, setIndexToScrollTo] = useState(0);
-  const newIndex = useMemo(
+  const indexToScrollTo = useMemo(
     () =>
-      treeNodeProps.findIndex((datum) => datum.nodeId === props.selectedNodeId),
+      treeNodeProps.findIndex(({ nodeId }) => nodeId === props.selectedNodeId),
     [props.selectedNodeId, treeNodeProps],
   );
-  const previousIndex = usePrevious(newIndex, 0);
-
-  useEffect(() => {
-    if (
-      (previousSelectedNodeId !== props.selectedNodeId || previousIndex < 0) &&
-      newIndex > 0
-    ) {
-      setIndexToScrollTo(newIndex);
-    }
-  }, [
-    newIndex,
-    previousIndex,
-    previousSelectedNodeId,
-    props.expandedIds,
-    props.selectedNodeId,
-  ]);
 
   return props.nodes ? (
     <ResizableBox
@@ -97,7 +72,7 @@ export function VirtualizedTree(
       <List
         length={treeNodeProps.length}
         cardHeight={props.cardHeight}
-        getListItem={(index: number): ReactElement => (
+        getListItem={(index) => (
           <VirtualizedTreeNode
             {...treeNodeProps[index]}
             expandedNodeIcon={props.expandedNodeIcon}

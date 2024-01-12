@@ -21,7 +21,7 @@ import {
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
+import { VirtualizedTree } from '../VirtualizedTree/VirtualizedTree';
 import {
   getGeneralTreeItemLabel,
   getInitialExpandedIds,

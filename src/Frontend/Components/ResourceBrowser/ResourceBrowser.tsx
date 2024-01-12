@@ -40,7 +40,7 @@ import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpo
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
 import { IconButton } from '../IconButton/IconButton';
 import { LocateSignalsIcon } from '../Icons/Icons';
-import { VirtualizedTree } from '../VirtualisedTree/VirtualizedTree';
+import { VirtualizedTree } from '../VirtualizedTree/VirtualizedTree';
 import { getResourceBrowserTreeItemLabel } from './get-resource-browser-tree-item-label';
 
 const classes = {
