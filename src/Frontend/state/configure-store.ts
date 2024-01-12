@@ -19,8 +19,8 @@ export function createAppStore() {
         // TECH DEBT: we should not be putting sets into the store
         // https://redux.js.org/style-guide/#do-not-put-non-serializable-values-in-state-or-actions
         serializableCheck: false,
-        // We set this to false because it significantly reduces performance in development mode.
-        immutableCheck: false,
+        // We only use this check in the CI because it significantly slows down the development server.
+        immutableCheck: process.env.CI === 'true',
       }),
   });
 }
