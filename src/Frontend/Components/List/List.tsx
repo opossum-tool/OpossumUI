@@ -56,13 +56,12 @@ export function List({
 
   useEffect(() => {
     if (indexToScrollTo > 0) {
-      defer(
-        () =>
-          ref.current?.scrollToIndex({
-            index: indexToScrollTo,
-            align: 'center',
-            behavior: 'smooth',
-          }),
+      defer(() =>
+        ref.current?.scrollToIndex({
+          index: indexToScrollTo,
+          align: 'center',
+          behavior: 'smooth',
+        }),
       );
     }
   }, [indexToScrollTo]);
