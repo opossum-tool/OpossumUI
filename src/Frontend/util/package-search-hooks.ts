@@ -11,11 +11,10 @@ import { toast } from '../Components/Toaster';
 import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
-function usePackageNames({
-  packageName,
-  packageNamespace,
-  packageType,
-}: DisplayPackageInfo) {
+function usePackageNames(
+  { packageName, packageNamespace, packageType }: DisplayPackageInfo,
+  { disabled }: Partial<{ disabled: boolean }> = {},
+) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-name-suggestions',
@@ -25,7 +24,7 @@ function usePackageNames({
     ],
     queryFn: () =>
       PackageSearchApi.getNames({ packageName, packageNamespace, packageType }),
-    enabled: !!packageName,
+    enabled: !!packageName && !disabled,
   });
   return {
     packageNames: data,
@@ -34,11 +33,10 @@ function usePackageNames({
   };
 }
 
-function usePackageNamespaces({
-  packageName,
-  packageNamespace,
-  packageType,
-}: DisplayPackageInfo) {
+function usePackageNamespaces(
+  { packageName, packageNamespace, packageType }: DisplayPackageInfo,
+  { disabled }: Partial<{ disabled: boolean }> = {},
+) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-namespace-suggestions',
@@ -52,7 +50,7 @@ function usePackageNamespaces({
         packageNamespace,
         packageType,
       }),
-    enabled: !!packageName && !!packageType,
+    enabled: !!packageName && !!packageType && !disabled,
   });
   return {
     packageNamespaces: data,
@@ -61,12 +59,15 @@ function usePackageNamespaces({
   };
 }
 
-function usePackageVersions({
-  packageName,
-  packageNamespace,
-  packageType,
-  packageVersion,
-}: DisplayPackageInfo) {
+function usePackageVersions(
+  {
+    packageName,
+    packageNamespace,
+    packageType,
+    packageVersion,
+  }: DisplayPackageInfo,
+  { disabled }: Partial<{ disabled: boolean }> = {},
+) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-version-suggestions',
@@ -82,7 +83,7 @@ function usePackageVersions({
         packageType,
         packageVersion,
       }),
-    enabled: !!packageName && !!packageType,
+    enabled: !!packageName && !!packageType && !disabled,
   });
   return {
     packageVersions: data,

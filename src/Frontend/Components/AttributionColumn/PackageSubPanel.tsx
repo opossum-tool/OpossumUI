@@ -98,12 +98,18 @@ export function PackageSubPanel({
 
   const debouncedPackageInfo = useDebouncedInput(displayPackageInfo);
 
-  const { packageNames } =
-    PackageSearchHooks.usePackageNames(debouncedPackageInfo);
-  const { packageNamespaces } =
-    PackageSearchHooks.usePackageNamespaces(debouncedPackageInfo);
-  const { packageVersions } =
-    PackageSearchHooks.usePackageVersions(debouncedPackageInfo);
+  const { packageNames } = PackageSearchHooks.usePackageNames(
+    debouncedPackageInfo,
+    { disabled: !isEditable },
+  );
+  const { packageNamespaces } = PackageSearchHooks.usePackageNamespaces(
+    debouncedPackageInfo,
+    { disabled: !isEditable },
+  );
+  const { packageVersions } = PackageSearchHooks.usePackageVersions(
+    debouncedPackageInfo,
+    { disabled: !isEditable },
+  );
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo({
     showToasts: true,
   });

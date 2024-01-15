@@ -177,7 +177,7 @@ export function useAuditingOptions({
               followUp: undefined,
             }),
           ),
-        interactive: true,
+        interactive: isEditable,
       },
       {
         id: 'needs-review',
@@ -198,7 +198,7 @@ export function useAuditingOptions({
               needsReview: false,
             }),
           ),
-        interactive: true,
+        interactive: isEditable,
       },
       {
         id: 'excluded-from-notice',
@@ -219,7 +219,7 @@ export function useAuditingOptions({
               excludeFromNotice: false,
             }),
           ),
-        interactive: true,
+        interactive: isEditable,
       },
       {
         id: 'source',
