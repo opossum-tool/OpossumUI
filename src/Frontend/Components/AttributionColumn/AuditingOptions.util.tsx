@@ -73,9 +73,8 @@ export function useAuditingOptions({
 
     const originSource = (
       packageInfo.originIds?.length
-        ? Object.values(externalAttributions).find(
-            ({ originIds }) =>
-              originIds?.some((id) => packageInfo.originIds?.includes(id)),
+        ? Object.values(externalAttributions).find(({ originIds }) =>
+            originIds?.some((id) => packageInfo.originIds?.includes(id)),
           )
         : undefined
     )?.source;
