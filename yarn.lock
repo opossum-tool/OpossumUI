@@ -2171,32 +2171,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fast-csv/format@npm:4.3.5":
-  version: 4.3.5
-  resolution: "@fast-csv/format@npm:4.3.5"
+"@fast-csv/format@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@fast-csv/format@npm:5.0.0"
   dependencies:
-    "@types/node": "npm:^14.0.1"
     lodash.escaperegexp: "npm:^4.1.2"
     lodash.isboolean: "npm:^3.0.3"
     lodash.isequal: "npm:^4.5.0"
     lodash.isfunction: "npm:^3.0.9"
     lodash.isnil: "npm:^4.0.0"
-  checksum: 94fcc061422ad82c7973926acba96c7f0e539d39f8c9c986f4d369ba0bbda535407a5243ddafa0a41a310261205824577b66e74bd0ed81aaaff0d9c33db9e426
+  checksum: c2ef812401b9167ca2a883dfee953c8273687b8433a17ba29008fd02d3f0cba6fdc7c6415be97c3f7fa0a6dbe8aa788d4e1cafbbecb9253790572e844f1b9f71
   languageName: node
   linkType: hard
 
-"@fast-csv/parse@npm:4.3.6":
-  version: 4.3.6
-  resolution: "@fast-csv/parse@npm:4.3.6"
+"@fast-csv/parse@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@fast-csv/parse@npm:5.0.0"
   dependencies:
-    "@types/node": "npm:^14.0.1"
     lodash.escaperegexp: "npm:^4.1.2"
     lodash.groupby: "npm:^4.6.0"
     lodash.isfunction: "npm:^3.0.9"
     lodash.isnil: "npm:^4.0.0"
     lodash.isundefined: "npm:^3.0.1"
     lodash.uniq: "npm:^4.5.0"
-  checksum: 12b338134de8801c895f50f8bb5315b67a6181d5b39d99445be80898633541b06be77a2b14a8395fc51c3f028138e9fb8a2b5bc5258f50c08bef22fd9dd07ee0
+  checksum: 1bd8e3a2066c7c09678f5373be60d5e78296f775d3e31b7b38356109457c8005cafc075541734732b042e764ae722c814852bee5a93e0317c73f9febedcf9914
   languageName: node
   linkType: hard
 
@@ -3633,13 +3631,6 @@ __metadata:
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 8da60a8ccb65181c3d6f7686ddc5f1b1616cafa14d9e520a866adff82c17cc99336a78dd7ce7bee8f54e2332946f678b0e3aa377fbaaf751d3c05b64600872c6
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^14.0.1":
-  version: 14.18.63
-  resolution: "@types/node@npm:14.18.63"
-  checksum: 82a7775898c2ea6db0b610a463512206fb2c7adc1af482c7eb44b99d94375fff51c74f67ae75a63c5532971159f30c866a4d308000624ef02fd9a7175e277019
   languageName: node
   linkType: hard
 
@@ -6715,13 +6706,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-csv@npm:^4.3.6":
-  version: 4.3.6
-  resolution: "fast-csv@npm:4.3.6"
+"fast-csv@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "fast-csv@npm:5.0.0"
   dependencies:
-    "@fast-csv/format": "npm:4.3.5"
-    "@fast-csv/parse": "npm:4.3.6"
-  checksum: eaa7ae48b3c7087f01a4827c5e0ad630685d0fada2f93489b2da1dcecd56b758eeb445a245f48a43e18815a03e8b848ecbc3951a65e60fed381d9056d9aa6768
+    "@fast-csv/format": "npm:5.0.0"
+    "@fast-csv/parse": "npm:5.0.0"
+  checksum: 909e8f5824a4a9292496524d639e00428f2d7f97948ee9990490ed09604563718fcd608088ee0cac7fba7c68f2f6585b27365bae78464255663cf039af5510d7
   languageName: node
   linkType: hard
 
@@ -9940,7 +9931,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.33.2"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-plugin-testing-library: "npm:^6.2.0"
-    fast-csv: "npm:^4.3.6"
+    fast-csv: "npm:^5.0.0"
     fflate: "npm:^0.8.1"
     husky: "npm:8.0.3"
     jest: "npm:^29.7.0"
