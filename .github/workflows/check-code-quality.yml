@@ -20,6 +20,7 @@ jobs:
     if: |
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
     env:
+      CI: true
       TARGET_BRANCH: origin/${{ github.event_name == 'pull_request' && github.base_ref || 'main' }}
     steps:
       - uses: actions/checkout@v4

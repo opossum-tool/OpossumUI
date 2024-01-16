@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => ({
           entry: 'src/ElectronBackend/main/main.ts',
         })),
   ],
+  define: {
+    'process.env.CI': loadEnv(mode, process.cwd()).CI,
+  },
   build: {
     outDir: 'build',
   },
