@@ -6,8 +6,8 @@ import { DependencyList, useCallback, useEffect } from 'react';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { UserSettings } from '../../shared/shared-types';
+import { useVariable } from '../state/variables/use-variable';
 import { useIpcRenderer } from './use-ipc-renderer';
-import { useVariable } from './use-variable';
 
 /**
  * Use this hook to get and set app-wide user settings.

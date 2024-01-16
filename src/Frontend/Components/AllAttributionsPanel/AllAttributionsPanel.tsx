@@ -11,10 +11,10 @@ import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../state/hooks';
+import { useActiveSortingInAuditView } from '../../state/variables/use-active-sorting';
 import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
-import { useActiveSortingInAuditView } from '../../util/use-active-sorting';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
 

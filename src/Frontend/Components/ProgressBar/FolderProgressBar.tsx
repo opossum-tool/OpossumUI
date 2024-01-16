@@ -5,7 +5,7 @@
 import MuiSkeleton from '@mui/material/Skeleton';
 import { ReactElement } from 'react';
 
-import { useFolderProgressData } from '../../web-workers/use-signals-worker';
+import { useFolderProgressData } from '../../state/variables/use-folder-progress-data';
 import { ProgressBar } from './ProgressBar';
 
 const classes = {
@@ -15,7 +15,7 @@ const classes = {
 };
 
 export function FolderProgressBar(): ReactElement {
-  const progressData = useFolderProgressData();
+  const [progressData] = useFolderProgressData();
 
   return progressData ? (
     <ProgressBar

@@ -28,9 +28,9 @@ import {
 import {
   SORT_ICONS,
   useActiveSortingInAttributionView,
-} from '../../util/use-active-sorting';
+} from '../../state/variables/use-active-sorting';
+import { useFilteredAttributions } from '../../state/variables/use-filtered-attributions';
 import { usePrevious } from '../../util/use-previous';
-import { useFilteredAttributions } from '../../web-workers/use-signals-worker';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';

@@ -5,7 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useState } from 'react';
 
-import { useOverallProgressData } from '../../web-workers/use-signals-worker';
+import { useOverallProgressData } from '../../state/variables/use-overall-progress-data';
 import { SwitchWithTooltip } from '../SwitchWithTooltip/SwitchWithTooltip';
 import { ProgressBar } from './ProgressBar';
 
@@ -32,7 +32,7 @@ export function TopProgressBar(): ReactElement {
     ? 'Critical signals progress bar selected'
     : 'Progress bar selected';
 
-  const progressData = useOverallProgressData();
+  const [progressData] = useOverallProgressData();
 
   return progressData ? (
     <MuiBox sx={classes.root}>

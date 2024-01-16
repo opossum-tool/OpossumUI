@@ -7,10 +7,10 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import { useMemo } from 'react';
 
-import { text } from '../../shared/text';
-import { MenuItem } from '../Components/InputElements/Dropdown';
-import { SelectMenuOption } from '../Components/SelectMenu/SelectMenu';
-import { baseIcon } from '../shared-styles';
+import { text } from '../../../shared/text';
+import { MenuItem } from '../../Components/InputElements/Dropdown';
+import { SelectMenuOption } from '../../Components/SelectMenu/SelectMenu';
+import { baseIcon } from '../../shared-styles';
 import { useVariable } from './use-variable';
 
 export const auditViewSorting = Object.values(text.auditViewSorting);

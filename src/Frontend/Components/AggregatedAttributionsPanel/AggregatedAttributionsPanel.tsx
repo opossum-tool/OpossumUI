@@ -11,10 +11,10 @@ import {
   getExternalData,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedResourceId } from '../../state/selectors/audit-view-resource-selectors';
+import { usePanelData } from '../../state/variables/use-panel-data';
 import { AttributionIdWithCount } from '../../types/types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getExternalAttributionIdsWithCount } from '../../util/get-contained-packages';
-import { usePanelData } from '../../web-workers/use-signals-worker';
 import { AccordionPanel } from './AccordionPanel';
 import { SyncAccordionPanel } from './SyncAccordionPanel';
 
@@ -30,7 +30,7 @@ export const AggregatedAttributionsPanel = memo(
     );
     const selectedResourceId = useAppSelector(getSelectedResourceId);
 
-    const { signalsInFolderContent, attributionsInFolderContent } =
+    const [{ signalsInFolderContent, attributionsInFolderContent }] =
       usePanelData();
 
     return (

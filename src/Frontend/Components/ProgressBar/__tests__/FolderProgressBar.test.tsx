@@ -6,9 +6,9 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
+import { FOLDER_PROGRESS_DATA } from '../../../state/variables/use-folder-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
-import { WORKER_REDUX_KEYS } from '../../../web-workers/use-signals-worker';
 import { FolderProgressBar } from '../FolderProgressBar';
 
 describe('FolderProgressBar', () => {
@@ -17,7 +17,7 @@ describe('FolderProgressBar', () => {
   it('renders correctly when folder has no attributions', async () => {
     renderComponent(<FolderProgressBar />, {
       actions: [
-        setVariable<ProgressBarData>(WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA, {
+        setVariable<ProgressBarData>(FOLDER_PROGRESS_DATA, {
           fileCount: 2,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
           filesWithMediumCriticalExternalAttributionsCount: 1,
@@ -46,7 +46,7 @@ describe('FolderProgressBar', () => {
   it('renders correctly if folder has an attribution', async () => {
     renderComponent(<FolderProgressBar />, {
       actions: [
-        setVariable<ProgressBarData>(WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA, {
+        setVariable<ProgressBarData>(FOLDER_PROGRESS_DATA, {
           fileCount: 2,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
           filesWithMediumCriticalExternalAttributionsCount: 1,
