@@ -16,20 +16,20 @@ import { setVariable } from '../../../state/actions/variables-actions/variables-
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionIdInAttributionView } from '../../../state/selectors/attribution-view-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { AttributionViewSorting } from '../../../state/variables/use-active-sorting';
+import {
+  FILTERED_ATTRIBUTIONS,
+  FilteredAttributions,
+  initialFilteredAttributions,
+} from '../../../state/variables/use-filtered-attributions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
-import { AttributionViewSorting } from '../../../util/use-active-sorting';
 import {
   FilterCounts,
   filters,
   qaFilters,
 } from '../../../web-workers/scripts/get-filtered-attributions';
-import {
-  FilteredAttributions,
-  initialFilteredAttributions,
-  WORKER_REDUX_KEYS,
-} from '../../../web-workers/use-signals-worker';
 import { AttributionList } from '../AttributionList';
 
 describe('AttributionList', () => {
@@ -60,13 +60,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -106,13 +103,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
         setVariable<AttributionViewSorting>(
           'active-sorting-attribution-view',
           text.attributionViewSorting.byCriticality,
@@ -149,13 +143,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -185,13 +176,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -219,13 +207,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -254,13 +239,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -293,13 +275,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -330,13 +309,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -364,13 +340,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -403,13 +376,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -440,13 +410,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -477,13 +444,10 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
       ],
     });
 
@@ -509,19 +473,16 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-            counts: fromPairs(
-              filters.map((filter) => [
-                filter,
-                filter === text.attributionFilters.firstParty ? 1 : 0,
-              ]),
-            ) as FilterCounts,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+          counts: fromPairs(
+            filters.map((filter) => [
+              filter,
+              filter === text.attributionFilters.firstParty ? 1 : 0,
+            ]),
+          ) as FilterCounts,
+        }),
       ],
     });
 
@@ -551,16 +512,13 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-            counts: fromPairs(
-              filters.map((filter) => [filter, 1]),
-            ) as FilterCounts,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+          counts: fromPairs(
+            filters.map((filter) => [filter, 1]),
+          ) as FilterCounts,
+        }),
       ],
     });
 
@@ -587,16 +545,13 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-            counts: fromPairs(
-              filters.map((filter) => [filter, 1]),
-            ) as FilterCounts,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+          counts: fromPairs(
+            filters.map((filter) => [filter, 1]),
+          ) as FilterCounts,
+        }),
       ],
     });
 
@@ -620,17 +575,14 @@ describe('AttributionList', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-            selectedFilters: filters,
-            counts: fromPairs(
-              filters.map((filter) => [filter, 0]),
-            ) as FilterCounts,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+          selectedFilters: filters,
+          counts: fromPairs(
+            filters.map((filter) => [filter, 0]),
+          ) as FilterCounts,
+        }),
       ],
     });
 
@@ -638,7 +590,7 @@ describe('AttributionList', () => {
       expect(
         (
           store.getState().variablesState[
-            WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS
+            FILTERED_ATTRIBUTIONS
           ] as FilteredAttributions
         ).selectedFilters,
       ).toHaveLength(0),

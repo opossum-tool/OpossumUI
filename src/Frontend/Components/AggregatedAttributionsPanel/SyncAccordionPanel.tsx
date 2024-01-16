@@ -7,8 +7,8 @@ import {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { PackagePanelTitle } from '../../enums/enums';
+import { useActiveSortingInAuditView } from '../../state/variables/use-active-sorting';
 import { AttributionIdWithCount } from '../../types/types';
-import { useActiveSortingInAuditView } from '../../util/use-active-sorting';
 import { AccordionPanel } from './AccordionPanel';
 import { getExternalDisplayPackageInfosWithCount } from './AccordionPanel.util';
 

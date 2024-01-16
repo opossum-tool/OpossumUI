@@ -26,13 +26,13 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
 import { isAuditViewSelected } from '../../state/selectors/view-selector';
+import { useAutocompleteSignals } from '../../state/variables/use-autocomplete-signals';
 import { generatePurl } from '../../util/handle-purl';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { omit, pick } from '../../util/lodash-extension-utils';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
-import { useAutocompleteSignals } from '../../web-workers/use-signals-worker';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
@@ -91,7 +91,7 @@ export function PackageAutocomplete({
 
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo();
 
-  const autocompleteSignals = useAutocompleteSignals();
+  const [autocompleteSignals] = useAutocompleteSignals();
   const filteredSignals = useMemo(
     () =>
       isAuditView

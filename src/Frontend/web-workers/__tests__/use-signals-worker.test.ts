@@ -8,7 +8,13 @@ import { faker } from '../../../testing/Faker';
 import { View } from '../../enums/enums';
 import { setProjectMetadata } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../state/actions/resource-actions/audit-view-simple-actions';
+import { setVariable } from '../../state/actions/variables-actions/variables-actions';
 import { setView } from '../../state/actions/view-actions/view-actions';
+import {
+  FILTERED_ATTRIBUTIONS,
+  FilteredAttributions,
+  initialFilteredAttributions,
+} from '../../state/variables/use-filtered-attributions';
 import { renderHook } from '../../test-helpers/render';
 import { SignalsWorkerInput } from '../signals-worker';
 import { useSignalsWorker } from '../use-signals-worker';
@@ -103,5 +109,36 @@ describe('useSignalsWorker', () => {
     });
 
     expect(mockTerminate).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not send selected filters when none are set', () => {
+    const metadata = faker.opossum.metadata();
+    renderHook(useSignalsWorker, { actions: [setProjectMetadata(metadata)] });
+
+    expect(mockPostMessage).not.toHaveBeenCalledWith<[SignalsWorkerInput]>({
+      name: 'selectedFilters',
+      data: expect.anything(),
+    });
+  });
+
+  it('sends selected filters when some are set', () => {
+    const metadata = faker.opossum.metadata();
+    const selectedFilters: FilteredAttributions['selectedFilters'] = [
+      'First Party',
+    ];
+    renderHook(useSignalsWorker, {
+      actions: [
+        setProjectMetadata(metadata),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          selectedFilters,
+        }),
+      ],
+    });
+
+    expect(mockPostMessage).toHaveBeenCalledWith<[SignalsWorkerInput]>({
+      name: 'selectedFilters',
+      data: selectedFilters,
+    });
   });
 });

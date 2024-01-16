@@ -11,13 +11,13 @@ import { setProjectMetadata } from '../../../state/actions/resource-actions/all-
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
-import { renderComponent } from '../../../test-helpers/render';
 import {
+  FILTERED_ATTRIBUTIONS,
   FilteredAttributions,
   initialFilteredAttributions,
-  WORKER_REDUX_KEYS,
-} from '../../../web-workers/use-signals-worker';
+} from '../../../state/variables/use-filtered-attributions';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
+import { renderComponent } from '../../../test-helpers/render';
 import { AttributionView } from '../AttributionView';
 
 describe('The Attribution View', () => {
@@ -42,13 +42,10 @@ describe('The Attribution View', () => {
           }),
         ),
         setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(
-          WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-          {
-            ...initialFilteredAttributions,
-            attributions: manualAttributions,
-          },
-        ),
+        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
+          ...initialFilteredAttributions,
+          attributions: manualAttributions,
+        }),
         navigateToView(View.Attribution),
       ],
     });

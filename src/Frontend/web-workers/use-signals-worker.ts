@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
 
-import { Attributions, AutocompleteSignal } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { useAppSelector } from '../state/hooks';
 import {
@@ -22,98 +21,14 @@ import {
   getSelectedResourceId,
 } from '../state/selectors/audit-view-resource-selectors';
 import { isAuditViewSelected } from '../state/selectors/view-selector';
-import { PanelData, ProgressBarData } from '../types/types';
+import { useActiveSortingInAuditView } from '../state/variables/use-active-sorting';
+import { useAutocompleteSignals } from '../state/variables/use-autocomplete-signals';
+import { useFilteredAttributions } from '../state/variables/use-filtered-attributions';
+import { useFolderProgressData } from '../state/variables/use-folder-progress-data';
+import { useOverallProgressData } from '../state/variables/use-overall-progress-data';
+import { usePanelData } from '../state/variables/use-panel-data';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
-import { useActiveSortingInAuditView } from '../util/use-active-sorting';
-import { useVariable } from '../util/use-variable';
-import { Filter, FilterCounts } from './scripts/get-filtered-attributions';
 import { SignalsWorkerInput, SignalsWorkerOutput } from './signals-worker';
-
-export enum WORKER_REDUX_KEYS {
-  AUTOCOMPLETE_SIGNALS = 'autocomplete-signals',
-  PANEL_DATA = 'panel-data',
-  OVERALL_PROGRESS_DATA = 'overall-progress-data',
-  FOLDER_PROGRESS_DATA = 'folder-progress-data',
-  FILTERED_ATTRIBUTIONS = 'filtered-attributions',
-  ACTIVE_FILTERS = 'active-filters',
-}
-
-interface WorkerPanelData {
-  attributionsInFolderContent: PanelData;
-  signalsInFolderContent: PanelData;
-}
-
-export interface FilteredAttributions {
-  selectedFilters: Array<Filter>;
-  attributions: Attributions;
-  counts: FilterCounts | null;
-  loading: boolean;
-  search: string;
-}
-
-export const initialFilteredAttributions: FilteredAttributions = {
-  selectedFilters: [],
-  attributions: {},
-  counts: null,
-  loading: false,
-  search: '',
-};
-
-const initialWorkerPanelData: WorkerPanelData = {
-  attributionsInFolderContent: {
-    sortedPackageCardIds: [],
-    displayPackageInfosWithCount: {},
-  },
-  signalsInFolderContent: {
-    sortedPackageCardIds: [],
-    displayPackageInfosWithCount: {},
-  },
-};
-
-export function useAutocompleteSignals() {
-  const [autocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
-    WORKER_REDUX_KEYS.AUTOCOMPLETE_SIGNALS,
-    [],
-  );
-
-  return autocompleteSignals;
-}
-
-export function usePanelData() {
-  const [panelData] = useVariable<WorkerPanelData>(
-    WORKER_REDUX_KEYS.PANEL_DATA,
-    initialWorkerPanelData,
-  );
-
-  return panelData;
-}
-
-export function useOverallProgressData() {
-  const [overallProgressData] = useVariable<ProgressBarData | null>(
-    WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA,
-    null,
-  );
-
-  return overallProgressData;
-}
-
-export function useFolderProgressData() {
-  const [folderProgressData] = useVariable<ProgressBarData | null>(
-    WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA,
-    null,
-  );
-
-  return folderProgressData;
-}
-
-export function useFilteredAttributions() {
-  const [data, setFilteredAttributions] = useVariable<FilteredAttributions>(
-    WORKER_REDUX_KEYS.FILTERED_ATTRIBUTIONS,
-    initialFilteredAttributions,
-  );
-
-  return [data, setFilteredAttributions] as const;
-}
 
 export function useSignalsWorker() {
   const resourceId = useAppSelector(getSelectedResourceId);
@@ -129,27 +44,15 @@ export function useSignalsWorker() {
   const filesWithChildren = useAppSelector(getFilesWithChildren);
   const isAuditView = useAppSelector(isAuditViewSelected);
   const { projectId } = useAppSelector(getProjectMetadata);
+  const [worker, setWorker] = useState<Worker>();
+
   const { activeSorting } = useActiveSortingInAuditView();
   const [{ selectedFilters }, setFilteredAttributions] =
     useFilteredAttributions();
-
-  const [worker, setWorker] = useState<Worker>();
-  const [, setAutocompleteSignals] = useVariable<Array<AutocompleteSignal>>(
-    WORKER_REDUX_KEYS.AUTOCOMPLETE_SIGNALS,
-    [],
-  );
-  const [, setPanelData] = useVariable<WorkerPanelData>(
-    WORKER_REDUX_KEYS.PANEL_DATA,
-    initialWorkerPanelData,
-  );
-  const [, setOverallProgressData] = useVariable<ProgressBarData | null>(
-    WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA,
-    null,
-  );
-  const [, setFolderProgressData] = useVariable<ProgressBarData | null>(
-    WORKER_REDUX_KEYS.FOLDER_PROGRESS_DATA,
-    null,
-  );
+  const [, setAutocompleteSignals] = useAutocompleteSignals();
+  const [, setPanelData] = usePanelData();
+  const [, setOverallProgressData] = useOverallProgressData();
+  const [, setFolderProgressData] = useFolderProgressData();
 
   useEffect(() => {
     if (!projectId) {
@@ -304,14 +207,16 @@ export function useSignalsWorker() {
   }, [activeSorting, worker]);
 
   useEffect(() => {
-    worker?.postMessage({
-      name: 'selectedFilters',
-      data: selectedFilters,
-    } satisfies SignalsWorkerInput);
+    if (selectedFilters.length) {
+      worker?.postMessage({
+        name: 'selectedFilters',
+        data: selectedFilters,
+      } satisfies SignalsWorkerInput);
 
-    setFilteredAttributions((prev) => ({
-      ...prev,
-      loading: true,
-    }));
+      setFilteredAttributions((prev) => ({
+        ...prev,
+        loading: true,
+      }));
+    }
   }, [selectedFilters, setFilteredAttributions, worker]);
 }

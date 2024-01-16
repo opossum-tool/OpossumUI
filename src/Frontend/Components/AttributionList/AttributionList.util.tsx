@@ -10,6 +10,7 @@ import { useEffect, useMemo } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
 import { baseIcon, OpossumColors } from '../../shared-styles';
+import { useFilteredAttributions } from '../../state/variables/use-filtered-attributions';
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
@@ -20,7 +21,6 @@ import {
   filters,
   qaFilters,
 } from '../../web-workers/scripts/get-filtered-attributions';
-import { useFilteredAttributions } from '../../web-workers/use-signals-worker';
 import {
   ExcludeFromNoticeIcon,
   FirstPartyIcon,

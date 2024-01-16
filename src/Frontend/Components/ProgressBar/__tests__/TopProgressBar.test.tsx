@@ -6,9 +6,9 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
+import { OVERALL_PROGRESS_DATA } from '../../../state/variables/use-overall-progress-data';
 import { renderComponent } from '../../../test-helpers/render';
 import { ProgressBarData } from '../../../types/types';
-import { WORKER_REDUX_KEYS } from '../../../web-workers/use-signals-worker';
 import { TopProgressBar } from '../TopProgressBar';
 
 describe('TopProgressBar', () => {
@@ -17,7 +17,7 @@ describe('TopProgressBar', () => {
   it('renders regular progress bar', async () => {
     renderComponent(<TopProgressBar />, {
       actions: [
-        setVariable<ProgressBarData>(WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA, {
+        setVariable<ProgressBarData>(OVERALL_PROGRESS_DATA, {
           fileCount: 6,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
           filesWithMediumCriticalExternalAttributionsCount: 1,
@@ -46,7 +46,7 @@ describe('TopProgressBar', () => {
   it('renders in criticality view', async () => {
     renderComponent(<TopProgressBar />, {
       actions: [
-        setVariable<ProgressBarData>(WORKER_REDUX_KEYS.OVERALL_PROGRESS_DATA, {
+        setVariable<ProgressBarData>(OVERALL_PROGRESS_DATA, {
           fileCount: 6,
           filesWithHighlyCriticalExternalAttributionsCount: 1,
           filesWithMediumCriticalExternalAttributionsCount: 1,

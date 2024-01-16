@@ -27,13 +27,13 @@ import {
   getPackageSearchTerm,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { DisplayPackageInfos } from '../../types/types';
-import { createPackageCardId } from '../../util/create-package-card-id';
-import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import {
   AuditViewSorting,
   useActiveSortingInAuditView,
-} from '../../util/use-active-sorting';
+} from '../../state/variables/use-active-sorting';
+import { DisplayPackageInfos } from '../../types/types';
+import { createPackageCardId } from '../../util/create-package-card-id';
+import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
 import { AllAttributionsPanel } from '../AllAttributionsPanel/AllAttributionsPanel';
 import { IconButton } from '../IconButton/IconButton';

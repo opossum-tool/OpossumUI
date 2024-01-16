@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import { pickBy } from 'lodash';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
@@ -19,7 +19,6 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { getAttributionsWithResources } from '../../util/get-attributions-with-resources';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import { useVariable } from '../../util/use-variable';
 import {
   Filter,
   FILTER_FUNCTIONS,
@@ -46,10 +45,7 @@ export function ReportView() {
   const externalAttributions = useAppSelector(getExternalAttributions);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
 
-  const [selectedFilters, setActiveFilters] = useVariable<Array<Filter>>(
-    'active-filters',
-    [],
-  );
+  const [selectedFilters, setActiveFilters] = useState<Array<Filter>>([]);
   const isFileWithChildren = getFileWithChildrenCheck(filesWithChildren);
   const dispatch = useAppDispatch();
 

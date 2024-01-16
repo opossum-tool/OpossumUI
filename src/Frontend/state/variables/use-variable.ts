@@ -6,9 +6,9 @@ import { isFunction } from 'lodash';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import { setVariable } from '../state/actions/variables-actions/variables-actions';
-import { useAppDispatch, useAppStore } from '../state/hooks';
-import { State } from '../types/types';
+import { State } from '../../types/types';
+import { setVariable } from '../actions/variables-actions/variables-actions';
+import { useAppDispatch, useAppStore } from '../hooks';
 
 /**
  * Similar to `useState` but persists the value in the redux store.
