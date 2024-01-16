@@ -11,6 +11,7 @@ export class AttributionList {
   private readonly window: Page;
   private readonly node: Locator;
   readonly attributionCard: PackageCard;
+  readonly confirmButton: Locator;
   readonly replaceButton: Locator;
   readonly deleteButton: Locator;
   readonly filterButton: Locator;
@@ -20,12 +21,16 @@ export class AttributionList {
     readonly needsFollowUp: Locator;
     readonly needsReviewByQA: Locator;
     readonly preferred: Locator;
+    readonly preSelected: Locator;
   };
 
   constructor(window: Page) {
     this.window = window;
     this.node = window.getByLabel('attribution list');
-    this.attributionCard = new PackageCard(window, this.node);
+    this.attributionCard = new PackageCard(this.node);
+    this.confirmButton = this.node.getByLabel('confirm button', {
+      exact: true,
+    });
     this.replaceButton = this.node.getByLabel('replace button', {
       exact: true,
     });
@@ -48,6 +53,9 @@ export class AttributionList {
       }),
       preferred: window.getByRole('menuitem', {
         name: text.attributionFilters.currentlyPreferred,
+      }),
+      preSelected: window.getByRole('menuitem', {
+        name: text.attributionFilters.preSelected,
       }),
     };
   }

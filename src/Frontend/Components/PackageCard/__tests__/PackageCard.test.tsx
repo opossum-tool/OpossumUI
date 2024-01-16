@@ -10,12 +10,10 @@ import {
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
-import { ButtonText } from '../../../enums/enums';
 import { setMultiSelectSelectedAttributionIds } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setLocatePopupFilters } from '../../../state/actions/resource-actions/locate-popup-actions';
 import { getMultiSelectSelectedAttributionIds } from '../../../state/selectors/attribution-view-resource-selectors';
-import { clickOnButtonInPackageContextMenu } from '../../../test-helpers/context-menu-test-helpers';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { doNothing } from '../../../util/do-nothing';
@@ -44,106 +42,6 @@ describe('The PackageCard', () => {
       [testAttributionId]: { packageName: 'pkg', preSelected: true },
       [anotherAttributionId]: { packageName: 'pkg2', preSelected: true },
     };
-  });
-
-  it('has working confirm button', () => {
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      'package_1.tr.gz': [testAttributionId],
-    };
-
-    const { store } = renderComponent(
-      <PackageCard
-        cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardId={'some_id'}
-        displayPackageInfo={{
-          packageName: 'packageName',
-          attributionIds: [testAttributionId],
-        }}
-        onClick={doNothing}
-      />,
-      {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources: testResources,
-              manualAttributions: testAttributions,
-              resourcesToManualAttributions: testResourcesToManualAttributions,
-            }),
-          ),
-        ],
-      },
-    );
-    expect(screen.getByText('packageName')).toBeInTheDocument();
-
-    expect(
-      store.getState().resourceState.allViews.manualData.attributions[
-        testAttributionId
-      ],
-    ).toEqual(testAttributions[testAttributionId]);
-    clickOnButtonInPackageContextMenu(
-      screen,
-      'packageName',
-      ButtonText.Confirm,
-    );
-    expect(
-      store.getState().resourceState.allViews.manualData.attributions[
-        testAttributionId
-      ],
-    ).toEqual({
-      ...testAttributions[testAttributionId],
-      preSelected: undefined,
-    });
-  });
-
-  it('has working confirm globally button', () => {
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      'package_1.tr.gz': [testAttributionId],
-      'package_2.tr.gz': [testAttributionId],
-    };
-
-    const { store } = renderComponent(
-      <PackageCard
-        cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
-        cardId={'some_id'}
-        displayPackageInfo={{
-          packageName: 'packageName',
-          attributionIds: [testAttributionId],
-        }}
-        onClick={doNothing}
-      />,
-      {
-        actions: [
-          loadFromFile(
-            getParsedInputFileEnrichedWithTestData({
-              resources: testResources,
-              manualAttributions: testAttributions,
-              resourcesToManualAttributions: testResourcesToManualAttributions,
-            }),
-          ),
-        ],
-      },
-    );
-
-    expect(screen.getByText('packageName')).toBeInTheDocument();
-
-    expect(
-      store.getState().resourceState.allViews.manualData.attributions[
-        testAttributionId
-      ],
-    ).toEqual(testAttributions[testAttributionId]);
-    clickOnButtonInPackageContextMenu(
-      screen,
-      'packageName',
-      ButtonText.ConfirmGlobally,
-    );
-    expect(
-      store.getState().resourceState.allViews.manualData.attributions[
-        testAttributionId
-      ],
-    ).toEqual({
-      ...testAttributions[testAttributionId],
-      preSelected: undefined,
-    });
   });
 
   it('has working multi-select box in multi-select mode', () => {

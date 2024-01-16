@@ -6,10 +6,11 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { faker } from '../../../../testing/Faker';
-import { ContextMenuItem } from '../../ContextMenu/ContextMenu';
-import { SplitButton } from '../SplitButton';
+import { SplitButton, SplitButtonOption } from '../SplitButton';
 
-function fakeMenuItem(props: Partial<ContextMenuItem> = {}): ContextMenuItem {
+function fakeMenuItem(
+  props: Partial<SplitButtonOption> = {},
+): SplitButtonOption {
   return {
     onClick: jest.fn(),
     buttonText: faker.string.sample(),

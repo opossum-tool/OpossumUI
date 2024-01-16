@@ -56,7 +56,6 @@ export interface ListCardConfig {
   firstParty?: boolean;
   needsReview?: boolean;
   followUp?: boolean;
-  isContextMenuOpen?: boolean;
   isMultiSelected?: boolean;
   criticality?: Criticality;
   isLocated?: boolean;

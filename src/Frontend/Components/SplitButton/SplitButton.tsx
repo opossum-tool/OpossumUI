@@ -10,15 +10,22 @@ import MuiTypography from '@mui/material/Typography';
 import { useEffect, useMemo, useState } from 'react';
 
 import { ButtonMenu } from '../ButtonMenu/ButtonMenu';
-import { ContextMenuItem } from '../ContextMenu/ContextMenu';
 
-interface Props extends Pick<MuiButtonProps, 'startIcon' | 'color'> {
-  options: Array<ContextMenuItem>;
+export interface SplitButtonOption {
+  onClick(): void;
+  buttonText: string;
+  disabled?: boolean;
+  hidden?: boolean;
+}
+
+export interface SplitButtonProps
+  extends Pick<MuiButtonProps, 'startIcon' | 'color'> {
+  options: Array<SplitButtonOption>;
   minWidth?: number;
   menuButtonProps?: Partial<MuiButtonProps>;
 }
 
-export const SplitButton: React.FC<Props> = ({
+export const SplitButton: React.FC<SplitButtonProps> = ({
   options,
   color,
   startIcon,

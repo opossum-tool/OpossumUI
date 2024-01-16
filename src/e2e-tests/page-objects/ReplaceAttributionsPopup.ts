@@ -23,7 +23,7 @@ export class ReplaceAttributionsPopup {
       name: text.replaceAttributionsPopup.replace,
     });
     this.searchInput = this.node.getByRole('searchbox');
-    this.attributionCard = new PackageCard(window, this.node);
+    this.attributionCard = new PackageCard(this.node);
   }
 
   public assert = {

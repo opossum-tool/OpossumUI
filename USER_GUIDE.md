@@ -298,10 +298,6 @@ the respective attribution.
 The `Attribution Details Column`, when a signal is selected, shows the _HIDE_ button. It can be used to hide the given
 signal in the App for the current input/output files, and it will not have any consequence in the DB. When clicking _HIDE_ for a merged signal, all individual signals that make up the merged signal are hidden.
 
-Instead of the buttons, the context menu can be used to execute all available actions out of _Delete_, _Confirm_, _Hide_ and _Show Resources_. To open the
-context menu, right-click a signal or an attribution, e.g. in the `Attributions Sub-Panel`, `Signals Sub-Panel` or
-`Attribution List`.
-
 ### Attribution View <a name="attribution_view"></a>
 
 ![integration](./docs/user_guide_screenshots/attribution_view.png)
@@ -319,10 +315,7 @@ attributions are signaled by an `P` icon. They can be confirmed, which converts 
 in all views and in the progress bar. However, that is not a requirement. **Pre-selected** and manual
 attributions are both written in the output file. On top there is an icon for opening the filter section. By clicking
 on it, a dropdown will be shown with filters that allows for filtering for attributions marked for follow-up, first
-party and not first party. The last two are mutually exclusive. Additionally, the attribution view has a multi-select
-mode. If at least one attribution has a checked checkbox, the context menu displays the
-_Delete selected globally_ and the _Confirm selected globally_ options. The first option deletes all selected
-attributions, after confirming the deletions in a pop-up. The second one confirms all selected attributions.
+party, third party, and other aspects. Additionally, the attribution view has a multi-select mode.
 
 #### Selected Attribution Panel
 
@@ -351,7 +344,7 @@ In the audit view, an attributions can be marked as preferred, to indicate that 
 
 Only signals with a source marked as `isRelevantForPreference` can be preferred over. If no signal source has this flag set, then the feature is disabled.
 
-To mark an attribution as preferred, choose an attribution in the audit view, and open the `...` context menu. From there, you can mark or unmark an attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the `.opossum` file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
+To mark an attribution as preferred, choose an attribution in the audit view, and open the auditing options menu. You will see an option to mark the attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the `.opossum` file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
 
 Note that you are only able to mark an attribution as preferred (or unmark if it was preferred beforehand) if you are in
 "QA Mode". To enable this mode click the item "QA Mode" in the `View` submenu.

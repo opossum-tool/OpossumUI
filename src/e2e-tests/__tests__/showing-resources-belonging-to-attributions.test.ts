@@ -56,23 +56,26 @@ test('shows resources belonging to attributions', async ({
   await resourceDetails.assert.signalsInFolderContentAccordionIsVisible();
   await resourceDetails.signalCard.assert.isVisible(externalPackageInfo);
 
-  await resourceDetails.signalCard.openContextMenu(externalPackageInfo);
-  await resourceDetails.signalCard.contextMenu.showResourcesButton.click();
+  await resourceDetails.signalCard
+    .showResourcesButton(externalPackageInfo)
+    .click();
   await resourcePathPopup.assert.titleIsVisible();
 
   await resourcePathPopup.goto(resourceName1);
   await resourceDetails.assert.breadcrumbsAreVisible(resourceName1);
   await resourceDetails.signalCard.assert.isVisible(externalPackageInfo);
 
-  await resourceDetails.attributionCard.openContextMenu(manualPackageInfo1);
-  await resourceDetails.attributionCard.contextMenu.showResourcesButton.click();
+  await resourceDetails.attributionCard
+    .showResourcesButton(manualPackageInfo1)
+    .click();
   await resourcePathPopup.goto(resourceName4);
   await resourceDetails.assert.breadcrumbsAreVisible(resourceName4);
   await attributionDetails.assert.matchesPackageInfo(manualPackageInfo1);
 
   await resourceDetails.gotoGlobalTab();
-  await resourceDetails.signalCard.openContextMenu(manualPackageInfo2);
-  await resourceDetails.signalCard.contextMenu.showResourcesButton.click();
+  await resourceDetails.signalCard
+    .showResourcesButton(manualPackageInfo2)
+    .click();
   await resourcePathPopup.goto(resourceName3);
   await resourceDetails.assert.breadcrumbsAreVisible(resourceName3);
   await attributionDetails.assert.matchesPackageInfo(manualPackageInfo2);
@@ -80,12 +83,6 @@ test('shows resources belonging to attributions', async ({
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();
 
-  await attributionList.attributionCard.openContextMenu(manualPackageInfo2);
-  await attributionList.attributionCard.contextMenu.showResourcesButton.click();
-  await resourcePathPopup.goto(resourceName3);
-  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo2);
-
-  await topBar.gotoAttributionView();
   await attributionList.attributionCard.click(manualPackageInfo1);
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.assert.breadcrumbsAreVisible(resourceName1);

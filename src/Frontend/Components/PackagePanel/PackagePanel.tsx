@@ -137,7 +137,6 @@ export function PackagePanel(
         onIconClick={props.isAddToPackageEnabled ? onIconClick : undefined}
         key={`PackageCard-${displayPackageInfo.packageName}-${packageCardId}`}
         packageCount={packageCount}
-        hideResourceSpecificButtons={true}
         cardId={`package-${selectedResourceId}-${packageCardId}`}
         displayPackageInfo={displayPackageInfo}
         cardConfig={cardConfig}

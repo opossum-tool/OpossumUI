@@ -113,7 +113,7 @@ export class AttributionDetails {
       name: 'Confirm globally',
       exact: true,
     });
-    this.confirmMenuButton = this.node.getByLabel('confirm menu button');
+    this.confirmMenuButton = this.node.getByLabel('save menu button');
     this.confirmMenuOptions = {
       confirm: this.window.getByRole('menuitem').getByText('Confirm', {
         exact: true,

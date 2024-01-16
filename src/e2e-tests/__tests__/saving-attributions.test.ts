@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { DiscreteConfidence } from '../../shared/shared-types';
-import { expect, faker, test } from '../utils';
+import { faker, test } from '../utils';
 
 const [
   resourceName1,
@@ -60,7 +60,6 @@ test('adds a new third-party attribution in audit view', async ({
   notSavedPopup,
   resourceBrowser,
   resourceDetails,
-  window,
 }) => {
   const newPackageInfo = faker.opossum.manualPackageInfo({
     attributionConfidence: DiscreteConfidence.High,
@@ -69,7 +68,6 @@ test('adds a new third-party attribution in audit view', async ({
   });
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.addNewAttributionButton.click({ button: 'right' });
-  await expect(window.getByRole('menu')).toBeHidden(); // add new attribution button has no context menu
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
   await resourceDetails.addNewAttributionButton.click();

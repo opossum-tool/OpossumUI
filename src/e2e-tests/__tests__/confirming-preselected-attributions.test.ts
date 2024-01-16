@@ -38,7 +38,7 @@ test.use({
   },
 });
 
-test('updates progress bar and confidence when user confirms preselected attributions in audit view', async ({
+test('updates progress bar when user confirms preselected attributions in audit view', async ({
   attributionDetails,
   resourceBrowser,
   resourceDetails,
@@ -54,13 +54,7 @@ test('updates progress bar and confidence when user confirms preselected attribu
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
   await attributionDetails.assert.auditingLabelIsVisible('preselectedLabel');
 
-  await resourceDetails.attributionCard.openContextMenu(packageInfo1);
-  await resourceDetails.attributionCard.assert.contextMenu.buttonsAreVisible(
-    'confirmButton',
-    'confirmGloballyButton',
-  );
-
-  await resourceDetails.attributionCard.closeContextMenu();
+  await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.confirmButton.click();
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 4,
@@ -71,18 +65,11 @@ test('updates progress bar and confidence when user confirms preselected attribu
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
   await attributionDetails.assert.auditingLabelIsHidden('preselectedLabel');
 
-  await resourceDetails.attributionCard.openContextMenu(packageInfo1);
-  await resourceDetails.attributionCard.assert.contextMenu.buttonsAreHidden(
-    'confirmButton',
-    'confirmGloballyButton',
-  );
-
-  await resourceDetails.attributionCard.closeContextMenu();
   await resourceBrowser.goto(resourceName2);
   await attributionDetails.assert.matchesPackageInfo(packageInfo1);
 
-  await resourceDetails.attributionCard.openContextMenu(packageInfo1);
-  await resourceDetails.attributionCard.contextMenu.confirmGloballyButton.click();
+  await attributionDetails.selectConfirmMenuOption('confirmGlobally');
+  await attributionDetails.confirmGloballyButton.click();
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 4,
     filesWithAttributions: 3,
@@ -92,49 +79,25 @@ test('updates progress bar and confidence when user confirms preselected attribu
   await resourceBrowser.goto(resourceName3);
   await attributionDetails.assert.confirmButtonIsHidden();
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
-
-  await resourceDetails.gotoGlobalTab();
-  await resourceDetails.signalCard.openContextMenu(packageInfo2);
-  await resourceDetails.signalCard.contextMenu.confirmGloballyButton.click();
-  await topBar.assert.progressBarTooltipShowsValues({
-    numberOfFiles: 4,
-    filesWithAttributions: 4,
-    filesWithOnlyPreSelectedAttributions: 0,
-  });
-
-  await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
-  await attributionDetails.assert.confirmButtonIsHidden();
-  await attributionDetails.assert.confirmGloballyButtonIsHidden();
 });
 
-test('updates confidence when user confirms preselected attributions in attribution view', async ({
-  attributionDetails,
+test('confirms multiple preselected attributions in attribution view', async ({
   attributionList,
-  resourceBrowser,
+  attributionDetails,
   topBar,
 }) => {
   await topBar.gotoAttributionView();
-  await attributionList.attributionCard.openContextMenu(packageInfo1);
-  await attributionList.attributionCard.assert.contextMenu.buttonsAreHidden(
-    'confirmButton',
-  );
-  await attributionList.attributionCard.assert.contextMenu.buttonsAreVisible(
-    'confirmGloballyButton',
-  );
-
-  await attributionList.attributionCard.contextMenu.confirmGloballyButton.click();
-  await attributionList.attributionCard.openContextMenu(packageInfo1);
-  await attributionList.attributionCard.assert.contextMenu.buttonsAreHidden(
-    'confirmButton',
-    'confirmGloballyButton',
-  );
-
-  await attributionList.attributionCard.closeContextMenu();
   await attributionList.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.assert.confirmButtonIsVisible();
+  await attributionList.attributionCard.click(packageInfo2);
+  await attributionDetails.assert.confirmButtonIsVisible();
 
-  await topBar.gotoAuditView();
-  await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionList.attributionCard.checkbox(packageInfo1).click();
+  await attributionList.attributionCard.checkbox(packageInfo2).click();
+  await attributionList.confirmButton.click();
+
+  await attributionList.attributionCard.click(packageInfo1);
+  await attributionDetails.assert.confirmButtonIsHidden();
+  await attributionList.attributionCard.click(packageInfo2);
+  await attributionDetails.assert.confirmButtonIsHidden();
 });

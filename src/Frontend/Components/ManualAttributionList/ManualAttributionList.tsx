@@ -56,7 +56,6 @@ export function ManualAttributionList(
     return (
       <PackageCard
         onClick={onClick}
-        hideContextMenuAndMultiSelect={isButton}
         cardConfig={cardConfig}
         key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
         cardId={`manual-${props.selectedResourceId}-${packageCardId}`}
