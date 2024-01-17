@@ -37,7 +37,7 @@ export function SyncAccordionPanel(props: SyncAccordionPanelProps) {
     <AccordionPanel
       panelData={{
         sortedPackageCardIds,
-        displayPackageInfosWithCount,
+        displayPackageInfos: displayPackageInfosWithCount,
       }}
       title={props.title}
       isAddToPackageEnabled={props.isAddToPackageEnabled}

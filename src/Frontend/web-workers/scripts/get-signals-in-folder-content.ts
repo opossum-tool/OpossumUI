@@ -23,7 +23,7 @@ export function getSignalsInFolderContent({
   resourceId,
   sortByCriticality,
 }: Props): PanelData {
-  const [sortedPackageCardIds, displayAttributionIdsWithCount] =
+  const [sortedPackageCardIds, displayPackageInfos] =
     getContainedExternalDisplayPackageInfosWithCount({
       selectedResourceId: resourceId,
       externalData,
@@ -35,6 +35,6 @@ export function getSignalsInFolderContent({
 
   return {
     sortedPackageCardIds,
-    displayPackageInfosWithCount: displayAttributionIdsWithCount,
+    displayPackageInfos,
   };
 }

@@ -15,11 +15,11 @@ interface WorkerPanelData {
 const initialWorkerPanelData: WorkerPanelData = {
   attributionsInFolderContent: {
     sortedPackageCardIds: [],
-    displayPackageInfosWithCount: {},
+    displayPackageInfos: {},
   },
   signalsInFolderContent: {
     sortedPackageCardIds: [],
-    displayPackageInfosWithCount: {},
+    displayPackageInfos: {},
   },
 };
 

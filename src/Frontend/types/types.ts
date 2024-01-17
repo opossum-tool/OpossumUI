@@ -76,13 +76,13 @@ export interface PopupInfo {
 
 export interface PanelData {
   sortedPackageCardIds: Array<string>;
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount;
+  displayPackageInfos: DisplayPackageInfos;
 }
 
 export interface DisplayPackageInfosWithCountAndResourceId {
   resourceId: string;
   sortedPackageCardIds: Array<string>;
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount;
+  displayPackageInfos: DisplayPackageInfos;
 }
 
 export interface ProgressBarDataAndResourceId {
@@ -116,17 +116,8 @@ export interface AttributionIdWithCount {
   count?: number;
 }
 
-export interface DisplayPackageInfoWithCount {
-  displayPackageInfo: DisplayPackageInfo;
-  count: number;
-}
-
 export interface DisplayPackageInfos {
-  [packageCardId: string]: DisplayPackageInfo;
-}
-
-export interface DisplayPackageInfosWithCount {
-  [packageCardId: string]: DisplayPackageInfoWithCount;
+  [id: string]: DisplayPackageInfo;
 }
 
 export interface LocatePopupFilters {

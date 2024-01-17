@@ -47,8 +47,8 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
   const [expanded, setExpanded] = useState<boolean>(false);
 
   useMemo(() => {
-    setExpanded(!isEmpty(props.panelData.displayPackageInfosWithCount));
-  }, [props.panelData.displayPackageInfosWithCount]);
+    setExpanded(!isEmpty(props.panelData.displayPackageInfos));
+  }, [props.panelData.displayPackageInfos]);
 
   function handleExpansionChange(
     _: React.ChangeEvent<unknown>,
@@ -68,7 +68,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       key={`PackagePanel-${props.title}`}
       expanded={expanded}
       onChange={handleExpansionChange}
-      disabled={isEmpty(props.panelData.displayPackageInfosWithCount)}
+      disabled={isEmpty(props.panelData.displayPackageInfos)}
       aria-label={props['aria-label']}
     >
       <MuiAccordionSummary
@@ -86,9 +86,7 @@ export function AccordionPanel(props: AccordionPanelProps): ReactElement {
       >
         <PackagePanel
           title={props.title}
-          displayPackageInfosWithCount={
-            props.panelData.displayPackageInfosWithCount
-          }
+          displayPackageInfos={props.panelData.displayPackageInfos}
           sortedPackageCardIds={props.panelData.sortedPackageCardIds}
           isAddToPackageEnabled={props.isAddToPackageEnabled}
         />

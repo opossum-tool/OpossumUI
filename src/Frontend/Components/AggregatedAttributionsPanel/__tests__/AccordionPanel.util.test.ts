@@ -12,7 +12,7 @@ import {
 import { PackagePanelTitle } from '../../../enums/enums';
 import {
   AttributionIdWithCount,
-  DisplayPackageInfosWithCount,
+  DisplayPackageInfos,
 } from '../../../types/types';
 import { PanelAttributionData } from '../../../util/get-contained-packages';
 import {
@@ -39,13 +39,11 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
     };
 
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
+        attributionIds: ['uuid1', 'uuid2'],
+        packageName: 'Typescript',
         count: 3,
-        displayPackageInfo: {
-          attributionIds: ['uuid1', 'uuid2'],
-          packageName: 'Typescript',
-        },
       },
     };
 
@@ -57,7 +55,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testPackagePanelTitle,
         false,
       ),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 
   it('does not merge attributions without hash', () => {
@@ -71,20 +69,16 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       `${testPackagePanelTitle}-0`,
       `${testPackagePanelTitle}-1`,
     ];
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        displayPackageInfo: {
-          packageName: 'Typescript',
-          attributionIds: ['uuid1'],
-        },
+        packageName: 'Typescript',
+        attributionIds: ['uuid1'],
       },
       [expectedPackageCardIds[1]]: {
         count: 2,
-        displayPackageInfo: {
-          packageName: 'Typescript',
-          attributionIds: ['uuid2'],
-        },
+        packageName: 'Typescript',
+        attributionIds: ['uuid2'],
       },
     };
 
@@ -96,7 +90,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testPackagePanelTitle,
         false,
       ),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 
   it('keeps the minimum confidence in the merged attribution', () => {
@@ -109,13 +103,11 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       uuid2: 'a',
     };
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        displayPackageInfo: {
-          attributionIds: ['uuid1', 'uuid2'],
-          attributionConfidence: 20,
-        },
+        attributionIds: ['uuid1', 'uuid2'],
+        attributionConfidence: 20,
       },
     };
 
@@ -127,7 +119,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testPackagePanelTitle,
         false,
       ),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 
   it('appends comments, skipping empty ones', () => {
@@ -150,13 +142,11 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       uuid4: 'a',
     };
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
         count: 0,
-        displayPackageInfo: {
-          attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
-          comments: ['comment A', 'comment B'],
-        },
+        attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
+        comments: ['comment A', 'comment B'],
       },
     };
 
@@ -168,7 +158,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testPackagePanelTitle,
         false,
       ),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 
   it('merges originIds, de-duplicating them', () => {
@@ -181,13 +171,11 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       uuid2: 'a',
     };
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        displayPackageInfo: {
-          attributionIds: ['uuid1', 'uuid2'],
-          originIds: ['uuid3', 'uuid4', 'uuid5'],
-        },
+        attributionIds: ['uuid1', 'uuid2'],
+        originIds: ['uuid3', 'uuid4', 'uuid5'],
       },
     };
 
@@ -199,7 +187,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testPackagePanelTitle,
         false,
       ),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 
   it('sorts ordinary and merged attributions according to the count', () => {
@@ -223,20 +211,16 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       `${testPackagePanelTitle}-0`,
     ];
 
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        displayPackageInfo: {
-          attributionIds: ['uuidToMerge1', 'uuidToMerge2'],
-          packageName: 'Typescript',
-        },
+        attributionIds: ['uuidToMerge1', 'uuidToMerge2'],
+        packageName: 'Typescript',
       },
       [expectedPackageCardIds[1]]: {
         count: 1,
-        displayPackageInfo: {
-          attributionIds: ['uuidNotToMerge'],
-          packageName: 'React',
-        },
+        attributionIds: ['uuidNotToMerge'],
+        packageName: 'React',
       },
     };
 
@@ -248,7 +232,7 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
         testPackagePanelTitle,
         false,
       ),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 });
 
@@ -289,27 +273,21 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
       `${testPackagePanelTitle}-0`,
     ];
 
-    const expectedDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const expectedDisplayPackageInfos: DisplayPackageInfos = {
       [expectedPackageCardIds[0]]: {
-        displayPackageInfo: {
-          packageName: 'Vue',
-          attributionIds: ['uuid_2'],
-        },
         count: 2,
+        packageName: 'Vue',
+        attributionIds: ['uuid_2'],
       },
       [expectedPackageCardIds[1]]: {
-        displayPackageInfo: {
-          packageName: 'Angular',
-          attributionIds: ['uuid_3'],
-        },
         count: 1,
+        packageName: 'Angular',
+        attributionIds: ['uuid_3'],
       },
       [expectedPackageCardIds[2]]: {
-        displayPackageInfo: {
-          packageName: 'React',
-          attributionIds: ['uuid_1'],
-        },
         count: 1,
+        packageName: 'React',
+        attributionIds: ['uuid_1'],
       },
     };
 
@@ -320,7 +298,7 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
         panelTitle: testPackagePanelTitle,
         sortByCriticality: false,
       }),
-    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfosWithCount]);
+    ).toEqual([expectedPackageCardIds, expectedDisplayPackageInfos]);
   });
 });
 
@@ -334,31 +312,13 @@ describe('sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName', 
       'pcid5',
       'pcid6',
     ];
-    const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
-      pcid1: {
-        displayPackageInfo: { attributionIds: ['uuid1'] },
-        count: 10,
-      },
-      pcid2: {
-        displayPackageInfo: { attributionIds: ['uuid2'], packageName: 'c' },
-        count: 11,
-      },
-      pcid3: {
-        displayPackageInfo: { attributionIds: ['uuid3'], packageName: 'b' },
-        count: 10,
-      },
-      pcid4: {
-        displayPackageInfo: { attributionIds: ['uuid4'], packageName: 'e' },
-        count: 1,
-      },
-      pcid5: {
-        displayPackageInfo: { attributionIds: ['uuid5'], packageName: 'z' },
-        count: 10,
-      },
-      pcid6: {
-        displayPackageInfo: { attributionIds: ['uuid6'], packageName: 'd' },
-        count: 1,
-      },
+    const testDisplayPackageInfosWithCount: DisplayPackageInfos = {
+      pcid1: { attributionIds: ['uuid1'], count: 10 },
+      pcid2: { attributionIds: ['uuid2'], packageName: 'c', count: 11 },
+      pcid3: { attributionIds: ['uuid3'], packageName: 'b', count: 10 },
+      pcid4: { attributionIds: ['uuid4'], packageName: 'e', count: 1 },
+      pcid5: { attributionIds: ['uuid5'], packageName: 'z', count: 10 },
+      pcid6: { attributionIds: ['uuid6'], packageName: 'd', count: 1 },
     };
     const expectedPackageCardIds: Array<string> = [
       'pcid2',
@@ -391,61 +351,35 @@ describe('sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName', 
       'pcid9',
       'pcid10',
     ];
-    const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
-      pcid1: {
-        displayPackageInfo: { attributionIds: ['uuid1'] },
-        count: 10,
-      },
-      pcid2: {
-        displayPackageInfo: { attributionIds: ['uuid2'], packageName: 'c' },
-        count: 11,
-      },
-      pcid3: {
-        displayPackageInfo: { attributionIds: ['uuid3'], packageName: 'b' },
-        count: 10,
-      },
-      pcid4: {
-        displayPackageInfo: { attributionIds: ['uuid4'], packageName: 'e' },
-        count: 1,
-      },
-      pcid5: {
-        displayPackageInfo: { attributionIds: ['uuid5'], packageName: 'z' },
-        count: 10,
-      },
-      pcid6: {
-        displayPackageInfo: { attributionIds: ['uuid6'], packageName: 'd' },
-        count: 1,
-      },
+    const testDisplayPackageInfosWithCount: DisplayPackageInfos = {
+      pcid1: { attributionIds: ['uuid1'], count: 10 },
+      pcid2: { attributionIds: ['uuid2'], packageName: 'c', count: 11 },
+      pcid3: { attributionIds: ['uuid3'], packageName: 'b', count: 10 },
+      pcid4: { attributionIds: ['uuid4'], packageName: 'e', count: 1 },
+      pcid5: { attributionIds: ['uuid5'], packageName: 'z', count: 10 },
+      pcid6: { attributionIds: ['uuid6'], packageName: 'd', count: 1 },
       pcid7: {
-        displayPackageInfo: {
-          attributionIds: ['uuid7'],
-          packageName: 'a',
-          criticality: Criticality.Medium,
-        },
+        attributionIds: ['uuid7'],
+        packageName: 'a',
+        criticality: Criticality.Medium,
         count: 10,
       },
       pcid8: {
-        displayPackageInfo: {
-          attributionIds: ['uuid7'],
-          packageName: 'a',
-          criticality: Criticality.Medium,
-        },
+        attributionIds: ['uuid7'],
+        packageName: 'a',
+        criticality: Criticality.Medium,
         count: 11,
       },
       pcid9: {
-        displayPackageInfo: {
-          attributionIds: ['uuid7'],
-          packageName: 'b',
-          criticality: Criticality.Medium,
-        },
+        attributionIds: ['uuid7'],
+        packageName: 'b',
+        criticality: Criticality.Medium,
         count: 10,
       },
       pcid10: {
-        displayPackageInfo: {
-          attributionIds: ['uuid7'],
-          packageName: 'a',
-          criticality: Criticality.High,
-        },
+        attributionIds: ['uuid7'],
+        packageName: 'a',
+        criticality: Criticality.High,
         count: 10,
       },
     };

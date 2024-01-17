@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { pick } from 'lodash';
+
 import { ExternalAttributionSources } from '../../../../shared/shared-types';
-import {
-  DisplayPackageInfos,
-  DisplayPackageInfosWithCount,
-} from '../../../types/types';
+import { DisplayPackageInfos } from '../../../types/types';
 import {
   getPackageCardIdsAndDisplayPackageInfosForSource,
   getSortedSourcesFromDisplayPackageInfosWithCount,
@@ -22,83 +21,60 @@ const testSortedPackageCardIds = [
   'Signals-6',
 ];
 
-const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+const testDisplayPackageInfos: DisplayPackageInfos = {
   [testSortedPackageCardIds[0]]: {
+    source: { name: 'MERGER', documentConfidence: 100 },
+    packageName: 'React',
+    packageVersion: '16.5.0',
+    attributionIds: ['react'],
     count: 5,
-    displayPackageInfo: {
-      source: { name: 'MERGER', documentConfidence: 100 },
-      packageName: 'React',
-      packageVersion: '16.5.0',
-      attributionIds: ['react'],
-    },
   },
   [testSortedPackageCardIds[1]]: {
+    source: { name: 'HC', documentConfidence: 100 },
+    packageName: 'JQuery',
+    attributionIds: ['jquery'],
     count: 1,
-    displayPackageInfo: {
-      source: { name: 'HC', documentConfidence: 100 },
-      packageName: 'JQuery',
-      attributionIds: ['jquery'],
-    },
   },
   [testSortedPackageCardIds[2]]: {
+    source: { name: 'HINT', documentConfidence: 10 },
+    packageName: 'Blub',
+    attributionIds: ['blub'],
     count: 1,
-    displayPackageInfo: {
-      source: { name: 'HINT', documentConfidence: 10 },
-      packageName: 'Blub',
-      attributionIds: ['blub'],
-    },
   },
   [testSortedPackageCardIds[3]]: {
+    source: { name: 'a_unknown', documentConfidence: 100 },
+    attributionIds: ['b_unknown'],
     count: 5,
-    displayPackageInfo: {
-      source: { name: 'a_unknown', documentConfidence: 100 },
-      attributionIds: ['b_unknown'],
-    },
   },
   [testSortedPackageCardIds[4]]: {
+    source: { name: 'SC', documentConfidence: 100 },
+    packageName: 'Vue',
+    attributionIds: ['vue'],
     count: 500,
-    displayPackageInfo: {
-      source: { name: 'SC', documentConfidence: 100 },
-      packageName: 'Vue',
-      attributionIds: ['vue'],
-    },
   },
   [testSortedPackageCardIds[5]]: {
+    source: { name: 'b_unknown', documentConfidence: 100 },
+    attributionIds: ['a_unknown'],
     count: 3,
-    displayPackageInfo: {
-      source: { name: 'b_unknown', documentConfidence: 100 },
-      attributionIds: ['a_unknown'],
-    },
   },
   [testSortedPackageCardIds[6]]: {
+    source: { name: 'REUSER:HHC', documentConfidence: 100 },
+    attributionIds: ['reuser'],
     count: 3,
-    displayPackageInfo: {
-      source: { name: 'REUSER:HHC', documentConfidence: 100 },
-      attributionIds: ['reuser'],
-    },
   },
 };
-// eslint-enable @typescript-eslint/no-magic-numbers
 
 describe('getPackageCardIdsAndDisplayPackageInfosForSource', () => {
   it('filters for source correctly', () => {
     const sourceName = 'MERGER';
     const expectedPackageCardIdsForSource = [testSortedPackageCardIds[0]];
-    const expectedDisplayPackageInfosForSource: DisplayPackageInfos = {
-      [expectedPackageCardIdsForSource[0]]: {
-        source: {
-          name: 'MERGER',
-          documentConfidence: 100,
-        },
-        packageName: 'React',
-        packageVersion: '16.5.0',
-        attributionIds: ['react'],
-      },
-    };
+    const expectedDisplayPackageInfosForSource = pick(testDisplayPackageInfos, [
+      testSortedPackageCardIds[0],
+    ]);
 
     expect(
       getPackageCardIdsAndDisplayPackageInfosForSource(
-        testDisplayPackageInfosWithCount,
+        testDisplayPackageInfos,
         testSortedPackageCardIds,
         sourceName,
       ),
@@ -112,7 +88,7 @@ describe('getPackageCardIdsAndDisplayPackageInfosForSource', () => {
     const sourceName = 'something';
     expect(
       getPackageCardIdsAndDisplayPackageInfosForSource(
-        testDisplayPackageInfosWithCount,
+        testDisplayPackageInfos,
         testSortedPackageCardIds,
         sourceName,
       ),
@@ -146,7 +122,7 @@ describe('getSortedSourcesFromDisplayPackageInfosWithCount', () => {
     ];
     expect(
       getSortedSourcesFromDisplayPackageInfosWithCount(
-        testDisplayPackageInfosWithCount,
+        testDisplayPackageInfos,
         testAttributionSources,
       ),
     ).toEqual(expectedSortedSources);
@@ -176,7 +152,7 @@ describe('getSortedSourcesFromDisplayPackageInfosWithCount', () => {
     };
     expect(
       getSortedSourcesFromDisplayPackageInfosWithCount(
-        testDisplayPackageInfosWithCount,
+        testDisplayPackageInfos,
         testAttributionSourcesEqualPrio,
       ),
     ).toEqual([

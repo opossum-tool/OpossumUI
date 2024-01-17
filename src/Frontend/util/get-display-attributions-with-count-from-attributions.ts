@@ -3,13 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
-import { DisplayPackageInfoWithCount } from '../types/types';
 
 export function getDisplayPackageInfoWithCountFromAttributions(
   attributionsWithIdsAndCounts: Array<
     [string, PackageInfo, number | undefined]
   >,
-): DisplayPackageInfoWithCount {
+): DisplayPackageInfo {
   const displayAttributionConfidences: Array<number> =
     attributionsWithIdsAndCounts.reduce(
       (filteredConfidences, attributionWithIdAndCount) => {
@@ -86,7 +85,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
   }
 
   return {
+    ...attributionToShow,
     count: Math.max(...counts, 0),
-    displayPackageInfo: attributionToShow,
   };
 }

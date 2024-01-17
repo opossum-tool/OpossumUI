@@ -79,6 +79,7 @@ const strippedDisplayPackageInfoTemplate: {
   [P in keyof Required<DisplayPackageInfo>]: boolean;
 } = {
   ...strippedPackageInfoCoreTemplate,
+  count: false,
   attributionIds: true,
   comments: true,
 };

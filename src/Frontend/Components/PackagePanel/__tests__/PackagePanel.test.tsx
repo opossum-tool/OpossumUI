@@ -13,7 +13,7 @@ import { setExternalAttributionSources } from '../../../state/actions/resource-a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { DisplayPackageInfosWithCount } from '../../../types/types';
+import { DisplayPackageInfos } from '../../../types/types';
 import { PackagePanel } from '../PackagePanel';
 
 describe('The PackagePanel', () => {
@@ -24,29 +24,23 @@ describe('The PackagePanel', () => {
       'Contained Signals-1',
       'Contained Signals-2',
     ];
-    const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const testDisplayPackageInfos: DisplayPackageInfos = {
       [testSortedPackageCardIds[0]]: {
-        displayPackageInfo: {
-          source: testSource,
-          packageName: 'React',
-          packageVersion: '16.5.0',
-          attributionIds: ['uuid1'],
-        },
+        source: testSource,
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        attributionIds: ['uuid1'],
         count: 1,
       },
       [testSortedPackageCardIds[1]]: {
-        displayPackageInfo: {
-          source: testSource,
-          packageName: 'JQuery',
-          attributionIds: ['uuid2'],
-        },
+        source: testSource,
+        packageName: 'JQuery',
+        attributionIds: ['uuid2'],
         count: 1,
       },
       [testSortedPackageCardIds[2]]: {
-        displayPackageInfo: {
-          source: testSource,
-          attributionIds: ['uuid3'],
-        },
+        source: testSource,
+        attributionIds: ['uuid3'],
         count: 1,
       },
     };
@@ -65,7 +59,7 @@ describe('The PackagePanel', () => {
     };
     renderComponent(
       <PackagePanel
-        displayPackageInfosWithCount={testDisplayPackageInfosWithCount}
+        displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
@@ -92,29 +86,23 @@ describe('The PackagePanel', () => {
       'Contained Signals-1',
       'Contained Signals-2',
     ];
-    const testDisplayPackageInfosWithCount: DisplayPackageInfosWithCount = {
+    const testDisplayPackageInfos: DisplayPackageInfos = {
       [testSortedPackageCardIds[0]]: {
-        displayPackageInfo: {
-          source: { name: 'other', documentConfidence: 1 },
-          packageName: 'React',
-          packageVersion: '16.5.0',
-          attributionIds: ['uuid1'],
-        },
+        source: { name: 'other', documentConfidence: 1 },
+        packageName: 'React',
+        packageVersion: '16.5.0',
+        attributionIds: ['uuid1'],
         count: 1,
       },
       [testSortedPackageCardIds[1]]: {
-        displayPackageInfo: {
-          source: { name: 'SC', documentConfidence: 1 },
-          packageName: 'JQuery',
-          attributionIds: ['uuid2'],
-        },
+        source: { name: 'SC', documentConfidence: 1 },
+        packageName: 'JQuery',
+        attributionIds: ['uuid2'],
         count: 1,
       },
       [testSortedPackageCardIds[2]]: {
-        displayPackageInfo: {
-          packageName: 'JQuery 2',
-          attributionIds: ['uuid3'],
-        },
+        packageName: 'JQuery 2',
+        attributionIds: ['uuid3'],
         count: 1,
       },
     };
@@ -138,7 +126,7 @@ describe('The PackagePanel', () => {
     };
     renderComponent(
       <PackagePanel
-        displayPackageInfosWithCount={testDisplayPackageInfosWithCount}
+        displayPackageInfos={testDisplayPackageInfos}
         sortedPackageCardIds={testSortedPackageCardIds}
         title={PackagePanelTitle.ContainedExternalPackages}
         isAddToPackageEnabled={true}
