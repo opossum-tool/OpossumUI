@@ -5,8 +5,8 @@
     "outDir": "../../build",
     "rootDir": "../",
     "noEmitOnError": true,
-    "noEmit": false
+    "noEmit": false,
   },
   "include": ["**/*"],
-  "exclude": []
+  "exclude": [],
 }
