@@ -18,7 +18,7 @@ export function getAttributionsInFolderContent({
   resourceId,
   sortByCriticality,
 }: Props): PanelData {
-  const [sortedPackageCardIds, displayPackageInfosWithCount] =
+  const [sortedPackageCardIds, displayPackageInfos] =
     getContainedManualDisplayPackageInfosWithCount({
       selectedResourceId: resourceId,
       manualData,
@@ -28,6 +28,6 @@ export function getAttributionsInFolderContent({
 
   return {
     sortedPackageCardIds,
-    displayPackageInfosWithCount,
+    displayPackageInfos,
   };
 }

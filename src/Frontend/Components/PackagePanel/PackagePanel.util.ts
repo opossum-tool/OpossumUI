@@ -3,13 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { ExternalAttributionSources } from '../../../shared/shared-types';
-import {
-  DisplayPackageInfos,
-  DisplayPackageInfosWithCount,
-} from '../../types/types';
+import { DisplayPackageInfos } from '../../types/types';
 
 export function getPackageCardIdsAndDisplayPackageInfosForSource(
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
+  displayPackageInfos: DisplayPackageInfos,
   sortedPackageCardIds: Array<string>,
   sourceName: string | null,
 ): [Array<string>, DisplayPackageInfos] {
@@ -18,13 +15,11 @@ export function getPackageCardIdsAndDisplayPackageInfosForSource(
 
   sortedPackageCardIds.forEach((packageCardId) => {
     if (
-      sourceName ===
-      (displayPackageInfosWithCount[packageCardId].displayPackageInfo?.source
-        ?.name || null)
+      sourceName === (displayPackageInfos[packageCardId]?.source?.name || null)
     ) {
       filteredAndSortedPackageCardIds.push(packageCardId);
       filteredDisplayPackageInfos[packageCardId] =
-        displayPackageInfosWithCount[packageCardId].displayPackageInfo;
+        displayPackageInfos[packageCardId];
     }
   });
 
@@ -32,16 +27,13 @@ export function getPackageCardIdsAndDisplayPackageInfosForSource(
 }
 
 export function getSortedSourcesFromDisplayPackageInfosWithCount(
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
+  displayPackageInfos: DisplayPackageInfos,
   attributionSources: ExternalAttributionSources,
 ): Array<string | null> {
   const sourceNames = new Set<string | null>();
-  Object.values(displayPackageInfosWithCount).forEach(
-    ({ displayPackageInfo }) => {
-      sourceNames.add(displayPackageInfo?.source?.name || null);
-    },
-    sourceNames,
-  );
+  Object.values(displayPackageInfos).forEach((displayPackageInfo) => {
+    sourceNames.add(displayPackageInfo?.source?.name || null);
+  }, sourceNames);
   return sortSources(Array.from(sourceNames), attributionSources);
 }
 

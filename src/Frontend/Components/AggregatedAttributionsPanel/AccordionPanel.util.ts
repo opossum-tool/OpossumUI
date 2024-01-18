@@ -10,10 +10,7 @@ import {
   PackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
-import {
-  AttributionIdWithCount,
-  DisplayPackageInfosWithCount,
-} from '../../types/types';
+import { AttributionIdWithCount, DisplayPackageInfos } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import {
   getContainedExternalPackages,
@@ -29,7 +26,7 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
   attributionsToHashes: Readonly<AttributionsToHashes>;
   panelTitle: PackagePanelTitle;
   sortByCriticality: boolean;
-}): [Array<string>, DisplayPackageInfosWithCount] {
+}): [Array<string>, DisplayPackageInfos] {
   const externalAttributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
     args.externalData.resourcesWithAttributedChildren,
@@ -50,13 +47,13 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
   manualData: Readonly<PanelAttributionData>;
   panelTitle: PackagePanelTitle;
   sortByCriticality: boolean;
-}): [Array<string>, DisplayPackageInfosWithCount] {
+}): [Array<string>, DisplayPackageInfos] {
   const manualAttributionIdsWithCount = getContainedManualPackages(
     args.selectedResourceId,
     args.manualData,
   );
   const packageCardIds: Array<string> = [];
-  const displayPackageInfosWithCount: DisplayPackageInfosWithCount = {};
+  const displayPackageInfos: DisplayPackageInfos = {};
 
   manualAttributionIdsWithCount.forEach(
     ({ attributionId, count }, index): void => {
@@ -64,7 +61,7 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
         args.manualData.attributions[attributionId];
       const packageCardId = createPackageCardId(args.panelTitle, index);
       packageCardIds.push(packageCardId);
-      displayPackageInfosWithCount[packageCardId] =
+      displayPackageInfos[packageCardId] =
         getDisplayPackageInfoWithCountFromAttributions([
           [attributionId, packageInfo, count],
         ]);
@@ -73,12 +70,12 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
 
   packageCardIds.sort(
     sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
-      displayPackageInfosWithCount,
+      displayPackageInfos,
       args.sortByCriticality,
     ),
   );
 
-  return [packageCardIds, displayPackageInfosWithCount];
+  return [packageCardIds, displayPackageInfos];
 }
 
 export function getExternalDisplayPackageInfosWithCount(
@@ -87,9 +84,9 @@ export function getExternalDisplayPackageInfosWithCount(
   externalAttributionsToHashes: AttributionsToHashes,
   panelTitle: PackagePanelTitle,
   sortByCriticality: boolean,
-): [Array<string>, DisplayPackageInfosWithCount] {
+): [Array<string>, DisplayPackageInfos] {
   const packageCardIds: Array<string> = [];
-  const displayPackageInfosWithCount: DisplayPackageInfosWithCount = {};
+  const displayPackageInfos: DisplayPackageInfos = {};
   const hashToAttributions: {
     [hash: string]: Array<[string, PackageInfo, number | undefined]>;
   } = {};
@@ -107,7 +104,7 @@ export function getExternalDisplayPackageInfosWithCount(
     } else {
       const packageCardId = createPackageCardId(panelTitle, indexCounter);
       packageCardIds.push(packageCardId);
-      displayPackageInfosWithCount[packageCardId] =
+      displayPackageInfos[packageCardId] =
         getDisplayPackageInfoWithCountFromAttributions([
           [attributionId, packageInfo, count],
         ]);
@@ -117,7 +114,7 @@ export function getExternalDisplayPackageInfosWithCount(
 
   addMergedSignals(
     packageCardIds,
-    displayPackageInfosWithCount,
+    displayPackageInfos,
     hashToAttributions,
     panelTitle,
     indexCounter,
@@ -125,17 +122,17 @@ export function getExternalDisplayPackageInfosWithCount(
 
   packageCardIds.sort(
     sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
-      displayPackageInfosWithCount,
+      displayPackageInfos,
       sortByCriticality,
     ),
   );
 
-  return [packageCardIds, displayPackageInfosWithCount];
+  return [packageCardIds, displayPackageInfos];
 }
 
 function addMergedSignals(
   packageCardIds: Array<string>,
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
+  displayPackageInfos: DisplayPackageInfos,
   hashToAttributions: {
     [hash: string]: Array<[string, PackageInfo, number | undefined]>;
   },
@@ -145,7 +142,7 @@ function addMergedSignals(
   Object.keys(hashToAttributions).forEach((hash: string): void => {
     const packageCardId = createPackageCardId(panelTitle, indexCounter);
     packageCardIds.push(packageCardId);
-    displayPackageInfosWithCount[packageCardId] =
+    displayPackageInfos[packageCardId] =
       getDisplayPackageInfoWithCountFromAttributions(hashToAttributions[hash]);
     indexCounter++;
   });
@@ -164,16 +161,13 @@ export function getNumericalCriticalityValue(
   }
 }
 
-//exported for testing
 export function sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount,
+  displayPackageInfos: DisplayPackageInfos,
   sortByCriticality: boolean = false,
 ) {
   return function (id1: string, id2: string): number {
-    const p1: DisplayPackageInfo =
-      displayPackageInfosWithCount[id1].displayPackageInfo;
-    const p2: DisplayPackageInfo =
-      displayPackageInfosWithCount[id2].displayPackageInfo;
+    const p1 = displayPackageInfos[id1] as DisplayPackageInfo | undefined;
+    const p2 = displayPackageInfos[id2] as DisplayPackageInfo | undefined;
 
     if (sortByCriticality && p1?.criticality !== p2?.criticality) {
       return (
@@ -182,14 +176,8 @@ export function sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageN
       );
     }
 
-    if (
-      displayPackageInfosWithCount[id1].count !==
-      displayPackageInfosWithCount[id2].count
-    ) {
-      return (
-        displayPackageInfosWithCount[id2].count -
-        displayPackageInfosWithCount[id1].count
-      );
+    if (p1?.count !== p2?.count) {
+      return (p2?.count ?? 0) - (p1?.count ?? 0);
     }
 
     if (p1?.packageName && p2?.packageName) {

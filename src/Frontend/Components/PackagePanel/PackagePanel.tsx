@@ -19,10 +19,7 @@ import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import {
-  DisplayPackageInfosWithCount,
-  PackageCardConfig,
-} from '../../types/types';
+import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { prettifySource } from '../../util/prettify-source';
 import { PackageCard } from '../PackageCard/PackageCard';
@@ -40,7 +37,7 @@ const classes = {
 };
 
 interface PackagePanelProps {
-  displayPackageInfosWithCount: DisplayPackageInfosWithCount;
+  displayPackageInfos: DisplayPackageInfos;
   sortedPackageCardIds: Array<string>;
   title: PackagePanelTitle;
   isAddToPackageEnabled: boolean;
@@ -82,14 +79,13 @@ export function PackagePanel(
       selectPackageCardInAuditViewOrOpenUnsavedPopup(
         props.title,
         packageCardId,
-        props.displayPackageInfosWithCount[packageCardId].displayPackageInfo,
+        props.displayPackageInfos[packageCardId],
       ),
     );
   }
 
   function onAddAttributionClick(packageCardId: string): void {
-    const displayPackageInfo =
-      props.displayPackageInfosWithCount[packageCardId].displayPackageInfo;
+    const displayPackageInfo = props.displayPackageInfos[packageCardId];
     const packageInfoToAdd =
       convertDisplayPackageInfoToPackageInfo(displayPackageInfo);
 
@@ -97,11 +93,9 @@ export function PackagePanel(
   }
 
   function getPackageCard(packageCardId: string): ReactElement {
-    const displayPackageInfo =
-      props.displayPackageInfosWithCount[packageCardId].displayPackageInfo;
+    const displayPackageInfo = props.displayPackageInfos[packageCardId];
 
-    const packageCount =
-      props.displayPackageInfosWithCount[packageCardId].count;
+    const packageCount = props.displayPackageInfos[packageCardId].count;
 
     const isExternalAttribution =
       props.title === PackagePanelTitle.ExternalPackages ||
@@ -146,14 +140,14 @@ export function PackagePanel(
   }
 
   const sortedSources = getSortedSourcesFromDisplayPackageInfosWithCount(
-    props.displayPackageInfosWithCount,
+    props.displayPackageInfos,
     attributionSources,
   );
 
   function getPackageListForSource(sourceName: string | null): ReactElement {
     const [sortedPackageCardIdsForSource, displayPackageInfosForSource] =
       getPackageCardIdsAndDisplayPackageInfosForSource(
-        props.displayPackageInfosWithCount,
+        props.displayPackageInfos,
         props.sortedPackageCardIds,
         sourceName,
       );

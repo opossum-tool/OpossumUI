@@ -263,7 +263,7 @@ function getAssignableManualAttributionIdsAndDisplayPackageInfos(
     displayPackageInfos[packageCardId] =
       getDisplayPackageInfoWithCountFromAttributions([
         [attributionId, manualAttributions[attributionId], undefined],
-      ]).displayPackageInfo;
+      ]);
   });
 
   return { assignableManualAttributionIds, displayPackageInfos };

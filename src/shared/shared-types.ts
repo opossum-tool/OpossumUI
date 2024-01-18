@@ -65,6 +65,7 @@ export interface PackageInfo extends PackageInfoCore {
 }
 
 export interface DisplayPackageInfo extends PackageInfoCore {
+  count?: number;
   comments?: Array<string>;
   attributionIds: Array<string>;
 }
@@ -275,7 +276,6 @@ export interface UserSettings {
 }
 
 export type AutocompleteSignal = DisplayPackageInfo & {
-  count?: number;
   suffix?: string;
   default?: boolean;
 };
