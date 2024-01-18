@@ -7,6 +7,7 @@ import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
 export function convertPackageInfoToDisplayPackageInfo(
   packageInfo: PackageInfo,
   attributionIds: Array<string>,
+  count?: number,
 ): DisplayPackageInfo {
   const { comment, ...packageInfoWithoutComment } = packageInfo;
   const displayPackageInfo: DisplayPackageInfo = {
@@ -15,6 +16,9 @@ export function convertPackageInfoToDisplayPackageInfo(
   };
   if (comment) {
     displayPackageInfo.comments = [comment];
+  }
+  if (count !== undefined) {
+    displayPackageInfo.count = count;
   }
 
   return displayPackageInfo;

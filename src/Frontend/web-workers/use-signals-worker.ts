@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useState } from 'react';
 
-import { text } from '../../shared/text';
 import { useAppSelector } from '../state/hooks';
 import {
   getAttributionBreakpoints,
@@ -21,7 +20,10 @@ import {
   getSelectedResourceId,
 } from '../state/selectors/audit-view-resource-selectors';
 import { isAuditViewSelected } from '../state/selectors/view-selector';
-import { useActiveSortingInAuditView } from '../state/variables/use-active-sorting';
+import {
+  useAttributionSorting,
+  useSignalSorting,
+} from '../state/variables/use-active-sorting';
 import { useAutocompleteSignals } from '../state/variables/use-autocomplete-signals';
 import { useFilteredAttributions } from '../state/variables/use-filtered-attributions';
 import { useFolderProgressData } from '../state/variables/use-folder-progress-data';
@@ -46,8 +48,9 @@ export function useSignalsWorker() {
   const { projectId } = useAppSelector(getProjectMetadata);
   const [worker, setWorker] = useState<Worker>();
 
-  const { activeSorting } = useActiveSortingInAuditView();
-  const [{ selectedFilters }, setFilteredAttributions] =
+  const { signalSorting } = useSignalSorting();
+  const { attributionSorting } = useAttributionSorting();
+  const [{ selectedFilters, search }, setFilteredAttributions] =
     useFilteredAttributions();
   const [, setAutocompleteSignals] = useAutocompleteSignals();
   const [, setPanelData] = usePanelData();
@@ -139,6 +142,7 @@ export function useSignalsWorker() {
         resourcesWithAttributedChildren:
           externalData.resourcesWithAttributedChildren,
         resourcesToAttributions: externalData.resourcesToAttributions,
+        attributionsToResources: externalData.attributionsToResources,
       },
     } satisfies SignalsWorkerInput);
   }, [externalData, worker]);
@@ -146,12 +150,7 @@ export function useSignalsWorker() {
   useEffect(() => {
     worker?.postMessage({
       name: 'manualData',
-      data: {
-        attributions: manualData.attributions,
-        resourcesWithAttributedChildren:
-          manualData.resourcesWithAttributedChildren,
-        resourcesToAttributions: manualData.resourcesToAttributions,
-      },
+      data: manualData,
     } satisfies SignalsWorkerInput);
   }, [manualData, worker]);
 
@@ -201,22 +200,39 @@ export function useSignalsWorker() {
 
   useEffect(() => {
     worker?.postMessage({
-      name: 'sortByCriticality',
-      data: activeSorting === text.auditViewSorting.byCriticality,
+      name: 'signalSorting',
+      data: signalSorting,
     } satisfies SignalsWorkerInput);
-  }, [activeSorting, worker]);
+  }, [signalSorting, worker]);
 
   useEffect(() => {
-    if (selectedFilters.length) {
-      worker?.postMessage({
-        name: 'selectedFilters',
-        data: selectedFilters,
-      } satisfies SignalsWorkerInput);
+    worker?.postMessage({
+      name: 'attributionSorting',
+      data: attributionSorting,
+    } satisfies SignalsWorkerInput);
+  }, [attributionSorting, worker]);
 
-      setFilteredAttributions((prev) => ({
-        ...prev,
-        loading: true,
-      }));
-    }
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'selectedFilters',
+      data: selectedFilters,
+    } satisfies SignalsWorkerInput);
+
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      loading: true,
+    }));
   }, [selectedFilters, setFilteredAttributions, worker]);
+
+  useEffect(() => {
+    worker?.postMessage({
+      name: 'attributionSearch',
+      data: search,
+    } satisfies SignalsWorkerInput);
+
+    setFilteredAttributions((prev) => ({
+      ...prev,
+      loading: true,
+    }));
+  }, [search, setFilteredAttributions, worker]);
 }

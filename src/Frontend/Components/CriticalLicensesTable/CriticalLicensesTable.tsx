@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { sortBy } from 'lodash';
 import { ReactElement } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -10,7 +11,6 @@ import { locateSignalsFromProjectStatisticsPopup } from '../../state/actions/pop
 import { useAppDispatch } from '../../state/hooks';
 import { AppThunkDispatch } from '../../state/types';
 import { LicenseNamesWithCriticality } from '../../types/types';
-import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { IconButton } from '../IconButton/IconButton';
 import { LocateSignalsIcon } from '../Icons/Icons';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
@@ -190,7 +190,8 @@ function sortLicenseNamesWithTotalAttributions(
     totalNumberOfAttributions: number;
   }>,
 ): Array<{ licenseName: string; totalNumberOfAttributions: number }> {
-  return licenseNamesWithTotalAttributions.sort((a, b) =>
-    compareAlphabeticalStrings(a.licenseName, b.licenseName),
+  return sortBy(
+    licenseNamesWithTotalAttributions,
+    ({ licenseName }) => licenseName,
   );
 }

@@ -7,6 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 import { compact, pickBy } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
+import { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setMultiSelectSelectedAttributionIds } from '../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -18,9 +19,11 @@ import {
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
+import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { getPackageSorter } from '../../util/get-package-sorter';
 import { maybePluralize } from '../../util/maybe-pluralize';
-import { getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos } from '../AttributionList/AttributionList.util';
+import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 import { List } from '../List/List';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
@@ -59,7 +62,6 @@ export function ReplaceAttributionsPopup() {
       getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
         filteredAttributions,
         search,
-        false,
       ),
     [filteredAttributions, search],
   );
@@ -220,4 +222,28 @@ export function ReplaceAttributionsPopup() {
       </MuiBox>
     );
   }
+}
+
+export function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
+  attributions: Attributions,
+  search: string,
+) {
+  const sortedAttributionIds = Object.keys(attributions).sort(
+    getPackageSorter(attributions, text.sortings.name),
+  );
+
+  const filteredAndSortedIds: Array<string> = [];
+  const filteredAndSortedAttributions: DisplayPackageInfos = {};
+
+  sortedAttributionIds.forEach((attributionId) => {
+    const packageInfo = convertPackageInfoToDisplayPackageInfo(
+      attributions[attributionId],
+      [attributionId],
+    );
+    if (packageInfoContainsSearchTerm(packageInfo, search)) {
+      filteredAndSortedIds.push(attributionId);
+      filteredAndSortedAttributions[attributionId] = packageInfo;
+    }
+  });
+  return { filteredAndSortedIds, filteredAndSortedAttributions };
 }

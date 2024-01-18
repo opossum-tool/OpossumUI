@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { PackagePanelTitle } from '../../enums/enums';
+import { Sorting } from '../../shared-constants';
 import { OpossumColors } from '../../shared-styles';
 import {
   setPackageSearchTerm,
@@ -27,10 +28,7 @@ import {
   getPackageSearchTerm,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import {
-  AuditViewSorting,
-  useActiveSortingInAuditView,
-} from '../../state/variables/use-active-sorting';
+import { useSignalSorting } from '../../state/variables/use-active-sorting';
 import { DisplayPackageInfos } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
@@ -114,14 +112,11 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
   const searchTerm = useAppSelector(getPackageSearchTerm);
 
   const {
-    activeSorting,
-    setActiveSorting,
+    signalSorting,
+    setSignalSorting,
     options: sortingOptions,
-    isDefaultSortingActive,
-  } = useActiveSortingInAuditView();
-  const [showSortingSelect, setShowSortingSelect] = useState(
-    !isDefaultSortingActive,
-  );
+  } = useSignalSorting();
+  const [showSortingSelect, setShowSortingSelect] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -182,16 +177,7 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
           tooltipTitle={text.resourceDetails.sortTooltip}
           tooltipPlacement={'right'}
           onClick={() => setShowSortingSelect(!showSortingSelect)}
-          disabled={!isDefaultSortingActive}
-          icon={
-            <SortAttributionsIcon
-              sx={
-                isDefaultSortingActive
-                  ? classes.largeClickableIcon
-                  : classes.disabledLargeClickableIcon
-              }
-            />
-          }
+          icon={<SortAttributionsIcon sx={classes.largeClickableIcon} />}
         />
         <IconButton
           tooltipTitle={text.resourceDetails.searchTooltip}
@@ -208,10 +194,10 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
           sx={classes.dropdown}
           isEditable
           title={text.buttons.sort}
-          value={activeSorting}
+          value={signalSorting}
           menuItems={sortingOptions}
           handleChange={(event) =>
-            setActiveSorting(event.target.value as AuditViewSorting)
+            setSignalSorting(event.target.value as Sorting)
           }
         />
       ) : null}

@@ -3,29 +3,29 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  AttributionData,
   Attributions,
   AttributionsToHashes,
-  Criticality,
-  DisplayPackageInfo,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
+import { Sorting } from '../../shared-constants';
 import { AttributionIdWithCount, DisplayPackageInfos } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import {
   getContainedExternalPackages,
   getContainedManualPackages,
-  PanelAttributionData,
 } from '../../util/get-contained-packages';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
+import { getPackageSorter } from '../../util/get-package-sorter';
 
 export function getContainedExternalDisplayPackageInfosWithCount(args: {
   selectedResourceId: string;
-  externalData: Readonly<PanelAttributionData>;
+  externalData: AttributionData;
   resolvedExternalAttributions: Readonly<Set<string>>;
   attributionsToHashes: Readonly<AttributionsToHashes>;
   panelTitle: PackagePanelTitle;
-  sortByCriticality: boolean;
+  sorting: Sorting;
 }): [Array<string>, DisplayPackageInfos] {
   const externalAttributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
@@ -38,15 +38,15 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
     args.externalData.attributions,
     args.attributionsToHashes,
     args.panelTitle,
-    args.sortByCriticality,
+    args.sorting,
   );
 }
 
 export function getContainedManualDisplayPackageInfosWithCount(args: {
   selectedResourceId: string;
-  manualData: Readonly<PanelAttributionData>;
+  manualData: AttributionData;
   panelTitle: PackagePanelTitle;
-  sortByCriticality: boolean;
+  sorting: Sorting;
 }): [Array<string>, DisplayPackageInfos] {
   const manualAttributionIdsWithCount = getContainedManualPackages(
     args.selectedResourceId,
@@ -68,12 +68,7 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
     },
   );
 
-  packageCardIds.sort(
-    sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
-      displayPackageInfos,
-      args.sortByCriticality,
-    ),
-  );
+  packageCardIds.sort(getPackageSorter(displayPackageInfos, args.sorting));
 
   return [packageCardIds, displayPackageInfos];
 }
@@ -83,7 +78,7 @@ export function getExternalDisplayPackageInfosWithCount(
   attributions: Attributions,
   externalAttributionsToHashes: AttributionsToHashes,
   panelTitle: PackagePanelTitle,
-  sortByCriticality: boolean,
+  sorting: Sorting,
 ): [Array<string>, DisplayPackageInfos] {
   const packageCardIds: Array<string> = [];
   const displayPackageInfos: DisplayPackageInfos = {};
@@ -120,12 +115,7 @@ export function getExternalDisplayPackageInfosWithCount(
     indexCounter,
   );
 
-  packageCardIds.sort(
-    sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
-      displayPackageInfos,
-      sortByCriticality,
-    ),
-  );
+  packageCardIds.sort(getPackageSorter(displayPackageInfos, sorting));
 
   return [packageCardIds, displayPackageInfos];
 }
@@ -146,49 +136,4 @@ function addMergedSignals(
       getDisplayPackageInfoWithCountFromAttributions(hashToAttributions[hash]);
     indexCounter++;
   });
-}
-
-export function getNumericalCriticalityValue(
-  criticality: Criticality | undefined,
-) {
-  switch (criticality) {
-    case Criticality.High:
-      return 2;
-    case Criticality.Medium:
-      return 1;
-    default:
-      return 0;
-  }
-}
-
-export function sortDisplayPackageInfosWithCountByCriticalityAndCountAndPackageName(
-  displayPackageInfos: DisplayPackageInfos,
-  sortByCriticality: boolean = false,
-) {
-  return function (id1: string, id2: string): number {
-    const p1 = displayPackageInfos[id1] as DisplayPackageInfo | undefined;
-    const p2 = displayPackageInfos[id2] as DisplayPackageInfo | undefined;
-
-    if (sortByCriticality && p1?.criticality !== p2?.criticality) {
-      return (
-        getNumericalCriticalityValue(p2?.criticality) -
-        getNumericalCriticalityValue(p1?.criticality)
-      );
-    }
-
-    if (p1?.count !== p2?.count) {
-      return (p2?.count ?? 0) - (p1?.count ?? 0);
-    }
-
-    if (p1?.packageName && p2?.packageName) {
-      return p1.packageName.toLowerCase() < p2.packageName.toLowerCase()
-        ? -1
-        : 1;
-    } else if (p1?.packageName) {
-      return -1;
-    } else if (p2?.packageName) {
-      return 1;
-    }
-    return 0;
-  };
 }

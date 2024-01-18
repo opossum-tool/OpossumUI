@@ -7,23 +7,19 @@ import { pickBy } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { View } from '../../enums/enums';
+import { Filter, filters } from '../../shared-constants';
 import { OpossumColors } from '../../shared-styles';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { navigateToView } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
-  getExternalAttributions,
   getFilesWithChildren,
   getManualAttributions,
   getManualAttributionsToResources,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getAttributionsWithResources } from '../../util/get-attributions-with-resources';
 import { getFileWithChildrenCheck } from '../../util/is-file-with-children';
-import {
-  Filter,
-  FILTER_FUNCTIONS,
-  filters,
-} from '../../web-workers/scripts/get-filtered-attributions';
+import { FILTER_FUNCTIONS } from '../../web-workers/scripts/get-filtered-attributions';
 import { AttributionCountsPanel } from '../AttributionCountsPanel/AttributionCountsPanel';
 import { FILTER_ICONS } from '../AttributionList/AttributionList.util';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
@@ -42,7 +38,6 @@ export function ReportView() {
     getManualAttributionsToResources,
   );
   const manualAttributions = useAppSelector(getManualAttributions);
-  const externalAttributions = useAppSelector(getExternalAttributions);
   const filesWithChildren = useAppSelector(getFilesWithChildren);
 
   const [selectedFilters, setActiveFilters] = useState<Array<Filter>>([]);
@@ -55,11 +50,11 @@ export function ReportView() {
         selectedFilters.length
           ? pickBy(manualAttributions, (attribution) =>
               selectedFilters.every((filter) =>
-                FILTER_FUNCTIONS[filter](attribution, externalAttributions),
+                FILTER_FUNCTIONS[filter](attribution),
               ),
             )
           : manualAttributions,
-      [selectedFilters, externalAttributions, manualAttributions],
+      [selectedFilters, manualAttributions],
     ),
     attributionsToResources,
   );

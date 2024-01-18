@@ -2,18 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionsToHashes } from '../../../shared/shared-types';
+import {
+  AttributionData,
+  AttributionsToHashes,
+} from '../../../shared/shared-types';
 import { getContainedExternalDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
 import { PackagePanelTitle } from '../../enums/enums';
+import { Sorting } from '../../shared-constants';
 import { PanelData } from '../../types/types';
-import { PanelAttributionData } from '../../util/get-contained-packages';
 
 interface Props {
-  externalData: PanelAttributionData;
+  externalData: AttributionData;
   attributionsToHashes: AttributionsToHashes;
   resolvedExternalAttributions: Set<string>;
   resourceId: string;
-  sortByCriticality: boolean;
+  sorting: Sorting;
 }
 
 export function getSignalsInFolderContent({
@@ -21,7 +24,7 @@ export function getSignalsInFolderContent({
   attributionsToHashes,
   resolvedExternalAttributions,
   resourceId,
-  sortByCriticality,
+  sorting,
 }: Props): PanelData {
   const [sortedPackageCardIds, displayPackageInfos] =
     getContainedExternalDisplayPackageInfosWithCount({
@@ -30,7 +33,7 @@ export function getSignalsInFolderContent({
       resolvedExternalAttributions,
       attributionsToHashes,
       panelTitle: PackagePanelTitle.ContainedExternalPackages,
-      sortByCriticality,
+      sorting,
     });
 
   return {

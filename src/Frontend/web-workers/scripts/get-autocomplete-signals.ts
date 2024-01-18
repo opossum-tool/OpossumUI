@@ -5,6 +5,7 @@
 import { compact, orderBy } from 'lodash';
 
 import {
+  AttributionData,
   AutocompleteSignal,
   ExternalAttributionSources,
   PackageInfo,
@@ -12,13 +13,12 @@ import {
 import {
   getContainedExternalPackages,
   getContainedManualPackages,
-  PanelAttributionData,
 } from '../../util/get-contained-packages';
 import { generatePurl } from '../../util/handle-purl';
 
 export interface Props {
-  externalData: PanelAttributionData;
-  manualData: PanelAttributionData;
+  externalData: AttributionData;
+  manualData: AttributionData;
   resolvedExternalAttributions: Set<string>;
   resourceId: string;
   sources: ExternalAttributionSources;

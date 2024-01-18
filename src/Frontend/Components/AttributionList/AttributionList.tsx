@@ -27,7 +27,7 @@ import {
 } from '../../state/selectors/attribution-view-resource-selectors';
 import {
   SORT_ICONS,
-  useActiveSortingInAttributionView,
+  useAttributionSorting,
 } from '../../state/variables/use-active-sorting';
 import { useFilteredAttributions } from '../../state/variables/use-filtered-attributions';
 import { usePrevious } from '../../util/use-previous';
@@ -38,17 +38,14 @@ import { SearchTextField } from '../SearchTextField/SearchTextField';
 import { SelectMenu } from '../SelectMenu/SelectMenu';
 import { Spinner } from '../Spinner/Spinner';
 import { ActionBar, ButtonGroup, Container } from './AttributionList.style';
-import {
-  getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos,
-  useFilterMenuOptions,
-} from './AttributionList.util';
+import { useFilterMenuOptions } from './AttributionList.util';
 
 export function AttributionList() {
   const dispatch = useAppDispatch();
   const multiSelectSelectedAttributionIds = useAppSelector(
     getMultiSelectSelectedAttributionIds,
   );
-  const selectedAttributionIdAttributionView = useAppSelector(
+  const selectedAttributionIdInAttributionView = useAppSelector(
     getSelectedAttributionIdInAttributionView,
   );
   const projectMetadata = useAppSelector(getProjectMetadata);
@@ -56,23 +53,16 @@ export function AttributionList() {
   const [filterAnchorEl, setFilterAnchorEl] = useState<HTMLElement>();
   const [sortAnchorEl, setSortAnchorEl] = useState<HTMLElement>();
 
-  const { activeSorting, options: sortingOptions } =
-    useActiveSortingInAttributionView();
-  const [{ attributions, loading, search }, setFilteredAttributions] =
-    useFilteredAttributions();
-  const { filteredAndSortedIds, filteredAndSortedAttributions } = useMemo(
-    () =>
-      getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
-        attributions,
-        search,
-        activeSorting === text.attributionViewSorting.byCriticality,
-      ),
-    [activeSorting, attributions, search],
-  );
+  const { attributionSorting, options: sortingOptions } =
+    useAttributionSorting();
+  const [
+    { attributions, attributionIds, loading, search },
+    setFilteredAttributions,
+  ] = useFilteredAttributions();
 
   const effectiveSelectedIds = useMemo(
-    () => intersection(filteredAndSortedIds, multiSelectSelectedAttributionIds),
-    [filteredAndSortedIds, multiSelectSelectedAttributionIds],
+    () => intersection(attributionIds, multiSelectSelectedAttributionIds),
+    [attributionIds, multiSelectSelectedAttributionIds],
   );
   const prevEffectiveSelectedIds = usePrevious(
     effectiveSelectedIds,
@@ -90,17 +80,16 @@ export function AttributionList() {
   const someSelectedAttributionsArePreSelected = useMemo(
     () =>
       multiSelectSelectedAttributionIds.some(
-        (id) => filteredAndSortedAttributions[id]?.preSelected,
+        (id) => attributions[id]?.preSelected,
       ),
-    [filteredAndSortedAttributions, multiSelectSelectedAttributionIds],
+    [attributions, multiSelectSelectedAttributionIds],
   );
 
   const areAllAttributionsSelected = useMemo(
     () =>
-      !!filteredAndSortedIds.length &&
-      !difference(filteredAndSortedIds, multiSelectSelectedAttributionIds)
-        .length,
-    [filteredAndSortedIds, multiSelectSelectedAttributionIds],
+      !!attributionIds.length &&
+      !difference(attributionIds, multiSelectSelectedAttributionIds).length,
+    [attributionIds, multiSelectSelectedAttributionIds],
   );
 
   if (!projectMetadata.projectId) {
@@ -121,13 +110,13 @@ export function AttributionList() {
       {renderActionBar()}
       <List
         getListItem={(index, { isScrolling }) =>
-          renderAttributionCard(filteredAndSortedIds[index], isScrolling)
+          renderAttributionCard(attributionIds[index], isScrolling)
         }
-        length={filteredAndSortedIds.length}
+        length={attributionIds.length}
         cardHeight={PACKAGE_CARD_HEIGHT}
         fullHeight
-        indexToScrollTo={filteredAndSortedIds.indexOf(
-          selectedAttributionIdAttributionView,
+        indexToScrollTo={attributionIds.indexOf(
+          selectedAttributionIdInAttributionView,
         )}
       />
       <SelectMenu
@@ -147,13 +136,13 @@ export function AttributionList() {
   );
 
   function renderAttributionCard(attributionId: string, isScrolling: boolean) {
-    const displayPackageInfo = filteredAndSortedAttributions[attributionId];
+    const displayPackageInfo = attributions[attributionId];
 
     return (
       <PackageCard
         cardId={`attribution-list-${attributionId}`}
         onClick={() => {
-          if (selectedAttributionIdAttributionView === attributionId) {
+          if (selectedAttributionIdInAttributionView === attributionId) {
             return;
           }
           dispatch(
@@ -161,7 +150,7 @@ export function AttributionList() {
           );
         }}
         cardConfig={{
-          isSelected: attributionId === selectedAttributionIdAttributionView,
+          isSelected: attributionId === selectedAttributionIdInAttributionView,
           isPreSelected: displayPackageInfo.preSelected,
         }}
         key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
@@ -194,12 +183,12 @@ export function AttributionList() {
       <Tooltip title={'Select'} disableInteractive>
         <span>
           <Checkbox
-            disabled={!filteredAndSortedIds.length}
+            disabled={!attributionIds.length}
             checked={areAllAttributionsSelected}
             onChange={() =>
               dispatch(
                 setMultiSelectSelectedAttributionIds(
-                  areAllAttributionsSelected ? [] : filteredAndSortedIds,
+                  areAllAttributionsSelected ? [] : attributionIds,
                 ),
               )
             }
@@ -217,9 +206,9 @@ export function AttributionList() {
             aria-label={'delete button'}
             disabled={
               !multiSelectSelectedAttributionIds.length &&
-              (!selectedAttributionIdAttributionView ||
-                !filteredAndSortedIds.includes(
-                  selectedAttributionIdAttributionView,
+              (!selectedAttributionIdInAttributionView ||
+                !attributionIds.includes(
+                  selectedAttributionIdInAttributionView,
                 ))
             }
             onClick={() => {
@@ -242,24 +231,24 @@ export function AttributionList() {
             disabled={
               (!multiSelectSelectedAttributionIds.length ||
                 !someSelectedAttributionsArePreSelected) &&
-              (!attributions[selectedAttributionIdAttributionView]
+              (!attributions[selectedAttributionIdInAttributionView]
                 ?.preSelected ||
-                !filteredAndSortedIds.includes(
-                  selectedAttributionIdAttributionView,
+                !attributionIds.includes(
+                  selectedAttributionIdInAttributionView,
                 ))
             }
             onClick={() => {
               (multiSelectSelectedAttributionIds.length
                 ? multiSelectSelectedAttributionIds
-                : [selectedAttributionIdAttributionView]
+                : [selectedAttributionIdInAttributionView]
               ).forEach((attributionId) => {
-                filteredAndSortedAttributions[attributionId]?.preSelected &&
+                attributions[attributionId]?.preSelected &&
                   dispatch(
                     savePackageInfo(
                       null,
                       attributionId,
-                      filteredAndSortedAttributions[attributionId],
-                      attributionId !== selectedAttributionIdAttributionView,
+                      attributions[attributionId],
+                      attributionId !== selectedAttributionIdInAttributionView,
                     ),
                   );
               });
@@ -280,15 +269,14 @@ export function AttributionList() {
             aria-label={'replace button'}
             disabled={
               (!multiSelectSelectedAttributionIds.length &&
-                (!selectedAttributionIdAttributionView ||
-                  !filteredAndSortedIds.includes(
-                    selectedAttributionIdAttributionView,
+                (!selectedAttributionIdInAttributionView ||
+                  !attributionIds.includes(
+                    selectedAttributionIdInAttributionView,
                   ))) ||
               !(
-                filteredAndSortedIds.length -
-                multiSelectSelectedAttributionIds.length
+                attributionIds.length - multiSelectSelectedAttributionIds.length
               ) ||
-              filteredAndSortedIds.length < 2
+              attributionIds.length < 2
             }
             onClick={() => {
               dispatch(openPopup(PopupType.ReplaceAttributionsPopup));
@@ -312,7 +300,7 @@ export function AttributionList() {
           >
             <MuiBadge
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              badgeContent={SORT_ICONS[activeSorting]}
+              badgeContent={SORT_ICONS[attributionSorting]}
             >
               <SortIcon />
             </MuiBadge>

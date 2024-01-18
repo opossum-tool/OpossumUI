@@ -2,16 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Resources } from '../../../shared/shared-types';
+import { AttributionData, Resources } from '../../../shared/shared-types';
 import { getUpdatedProgressBarData } from '../../state/helpers/progress-bar-data-helpers';
 import { ProgressBarData } from '../../types/types';
-import { PanelAttributionData } from '../../util/get-contained-packages';
 
 interface Props {
   attributionBreakpoints: Set<string>;
-  externalData: PanelAttributionData;
+  externalData: AttributionData;
   filesWithChildren: Set<string>;
-  manualData: PanelAttributionData;
+  manualData: AttributionData;
   resolvedExternalAttributions: Set<string>;
   resourceId: string;
   resources: Resources;

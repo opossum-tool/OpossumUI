@@ -6,17 +6,17 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fromPairs, remove } from 'lodash';
 
-import { Attributions, Criticality } from '../../../../shared/shared-types';
+import { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
+import { FilterCounts, filters, qaFilters } from '../../../shared-constants';
 import { setProjectMetadata } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionIdInAttributionView } from '../../../state/selectors/attribution-view-resource-selectors';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
-import { AttributionViewSorting } from '../../../state/variables/use-active-sorting';
 import {
   FILTERED_ATTRIBUTIONS,
   FilteredAttributions,
@@ -24,12 +24,8 @@ import {
 } from '../../../state/variables/use-filtered-attributions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
-import {
-  FilterCounts,
-  filters,
-  qaFilters,
-} from '../../../web-workers/scripts/get-filtered-attributions';
 import { AttributionList } from '../AttributionList';
 
 describe('AttributionList', () => {
@@ -39,95 +35,6 @@ describe('AttributionList', () => {
     });
 
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it('sorts attributions alphabetically', () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
-      packageName: 'B',
-    });
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      packageName: 'A',
-    });
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId1]: packageInfo1,
-      [attributionId2]: packageInfo2,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
-          ...initialFilteredAttributions,
-          attributions: manualAttributions,
-        }),
-      ],
-    });
-
-    expect(
-      screen
-        .getByText(
-          `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
-        )
-        .compareDocumentPosition(
-          screen.getByText(
-            `${packageInfo2.packageName}, ${packageInfo2.packageVersion}`,
-          ),
-        ),
-    ).toBe(2);
-  });
-
-  it('sorts attributions by criticality', () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
-      criticality: undefined,
-    });
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      criticality: Criticality.High,
-    });
-    const [attributionId3, packageInfo3] = faker.opossum.manualAttribution({
-      criticality: Criticality.Medium,
-    });
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId1]: packageInfo1,
-      [attributionId2]: packageInfo2,
-      [attributionId3]: packageInfo3,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
-          ...initialFilteredAttributions,
-          attributions: manualAttributions,
-        }),
-        setVariable<AttributionViewSorting>(
-          'active-sorting-attribution-view',
-          text.attributionViewSorting.byCriticality,
-        ),
-      ],
-    });
-
-    expect(
-      screen
-        .getByText(new RegExp(packageInfo2.packageName!))
-        .compareDocumentPosition(
-          screen.getByText(new RegExp(packageInfo3.packageName!)),
-        ),
-    ).toBe(4);
-    expect(
-      screen
-        .getByText(new RegExp(packageInfo3.packageName!))
-        .compareDocumentPosition(
-          screen.getByText(new RegExp(packageInfo1.packageName!)),
-        ),
-    ).toBe(4);
   });
 
   it('correctly handles selected states on card click', async () => {
@@ -145,7 +52,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -159,39 +71,6 @@ describe('AttributionList', () => {
     expect(getSelectedAttributionIdInAttributionView(store.getState())).toBe(
       attributionId,
     );
-  });
-
-  it('searches for attributions', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId1]: packageInfo1,
-      [attributionId2]: packageInfo2,
-    });
-    renderComponent(<AttributionList />, {
-      actions: [
-        loadFromFile(
-          getParsedInputFileEnrichedWithTestData({
-            manualAttributions,
-          }),
-        ),
-        setProjectMetadata(faker.opossum.metadata()),
-        setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
-          ...initialFilteredAttributions,
-          attributions: manualAttributions,
-        }),
-      ],
-    });
-
-    await userEvent.click(screen.getByRole('searchbox'));
-    await userEvent.paste(packageInfo1.packageName);
-
-    expect(
-      screen.getByText(new RegExp(packageInfo1.packageName!)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(new RegExp(packageInfo2.packageName!)),
-    ).not.toBeInTheDocument();
   });
 
   it('deletes selected attribution', async () => {
@@ -209,7 +88,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -241,7 +125,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -277,7 +166,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -311,7 +205,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -342,7 +241,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -378,7 +282,16 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo1,
+              [attributionId1],
+            ),
+            [attributionId2]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo2,
+              [attributionId2],
+            ),
+          },
         }),
       ],
     });
@@ -412,7 +325,16 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo1,
+              [attributionId1],
+            ),
+            [attributionId2]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo2,
+              [attributionId2],
+            ),
+          },
         }),
       ],
     });
@@ -446,7 +368,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
       ],
     });
@@ -475,11 +402,16 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
           counts: fromPairs(
             filters.map((filter) => [
               filter,
-              filter === text.attributionFilters.firstParty ? 1 : 0,
+              filter === text.filters.firstParty ? 1 : 0,
             ]),
           ) as FilterCounts,
         }),
@@ -489,9 +421,9 @@ describe('AttributionList', () => {
     await userEvent.click(screen.getByLabelText('filter button'));
 
     expect(
-      screen.getByText(new RegExp(text.attributionFilters.firstParty)),
+      screen.getByText(new RegExp(text.filters.firstParty)),
     ).toBeInTheDocument();
-    remove(filters, text.attributionFilters.firstParty).forEach((filter) =>
+    remove(filters, text.filters.firstParty).forEach((filter) =>
       expect(screen.queryByText(new RegExp(filter))).not.toBeInTheDocument(),
     );
   });
@@ -514,7 +446,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
           counts: fromPairs(
             filters.map((filter) => [filter, 1]),
           ) as FilterCounts,
@@ -547,7 +484,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
           counts: fromPairs(
             filters.map((filter) => [filter, 1]),
           ) as FilterCounts,
@@ -577,7 +519,12 @@ describe('AttributionList', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
           selectedFilters: filters,
           counts: fromPairs(
             filters.map((filter) => [filter, 0]),

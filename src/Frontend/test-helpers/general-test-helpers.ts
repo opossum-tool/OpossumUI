@@ -17,9 +17,9 @@ import {
 import {
   EMPTY_FREQUENT_LICENSES,
   EMPTY_PROJECT_METADATA,
+  Filter,
 } from '../shared-constants';
 import { canResourceHaveChildren } from '../util/can-resource-have-children';
-import { Filter } from '../web-workers/scripts/get-filtered-attributions';
 
 const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
   metadata: EMPTY_PROJECT_METADATA,
