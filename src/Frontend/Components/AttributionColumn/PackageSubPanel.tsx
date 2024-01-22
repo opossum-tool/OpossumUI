@@ -72,7 +72,7 @@ interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
   isEditable: boolean;
   showHighlight?: boolean;
-  confirmEditWasPreferred: Confirm;
+  confirmEditWasPreferred?: Confirm;
 }
 
 export function PackageSubPanel({
@@ -269,7 +269,7 @@ export function PackageSubPanel({
                 )
               }
               onClick={() =>
-                confirmEditWasPreferred(async () => {
+                confirmEditWasPreferred?.(async () => {
                   const enriched = await enrichPackageInfo({
                     ...displayPackageInfo,
                     wasPreferred: undefined,

@@ -17,7 +17,7 @@ interface CopyrightSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
-  confirmEditWasPreferred: Confirm;
+  confirmEditWasPreferred?: Confirm;
 }
 
 export function CopyrightSubPanel({
@@ -39,7 +39,7 @@ export function CopyrightSubPanel({
         maxRows={10}
         multiline={true}
         handleChange={({ target: { value } }) =>
-          confirmEditWasPreferred(() =>
+          confirmEditWasPreferred?.(() =>
             dispatch(
               setTemporaryDisplayPackageInfo({
                 ...displayPackageInfo,

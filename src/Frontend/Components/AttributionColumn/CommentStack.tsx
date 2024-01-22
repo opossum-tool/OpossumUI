@@ -15,7 +15,7 @@ import { attributionColumnClasses } from './shared-attribution-column-styles';
 interface Props {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  confirmEditWasPreferred: Confirm;
+  confirmEditWasPreferred?: Confirm;
 }
 
 export function CommentStack({
@@ -46,7 +46,7 @@ export function CommentStack({
           maxRows={10}
           multiline={true}
           handleChange={({ target: { value } }) =>
-            confirmEditWasPreferred(() =>
+            confirmEditWasPreferred?.(() =>
               dispatch(
                 setTemporaryDisplayPackageInfo({
                   ...displayPackageInfo,

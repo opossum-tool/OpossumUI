@@ -69,7 +69,7 @@ interface LicenseSubPanelProps {
   isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
-  confirmEditWasPreferred: Confirm;
+  confirmEditWasPreferred?: Confirm;
 }
 
 export function LicenseSubPanel({
@@ -148,7 +148,7 @@ export function LicenseSubPanel({
             )}
             text={displayPackageInfo.licenseText}
             handleChange={({ target: { value } }) =>
-              confirmEditWasPreferred(() =>
+              confirmEditWasPreferred?.(() =>
                 dispatch(
                   setTemporaryDisplayPackageInfo({
                     ...displayPackageInfo,
