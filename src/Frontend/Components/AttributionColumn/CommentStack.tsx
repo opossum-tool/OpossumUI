@@ -13,15 +13,13 @@ import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 interface Props {
-  isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
-  confirmEditWasPreferred: Confirm;
+  onEdit?: Confirm;
 }
 
 export function CommentStack({
-  confirmEditWasPreferred,
   displayPackageInfo,
-  isEditable,
+  onEdit,
 }: Props): ReactElement {
   const dispatch = useAppDispatch();
   const filteredComments = (displayPackageInfo.comments || [])?.filter(
@@ -37,7 +35,7 @@ export function CommentStack({
       {filteredComments.map((comment, index) => (
         <TextBox
           key={index}
-          isEditable={isEditable}
+          isEditable={!!onEdit}
           title={`Comment ${
             filteredComments.length === 1 ? '' : index + 1
           }`.trim()}
@@ -46,7 +44,7 @@ export function CommentStack({
           maxRows={10}
           multiline={true}
           handleChange={({ target: { value } }) =>
-            confirmEditWasPreferred(() =>
+            onEdit?.(() =>
               dispatch(
                 setTemporaryDisplayPackageInfo({
                   ...displayPackageInfo,

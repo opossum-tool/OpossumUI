@@ -70,16 +70,14 @@ const DisplayRow = styled('div')({
 
 interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
-  isEditable: boolean;
   showHighlight?: boolean;
-  confirmEditWasPreferred: Confirm;
+  onEdit?: Confirm;
 }
 
 export function PackageSubPanel({
-  confirmEditWasPreferred,
   displayPackageInfo,
-  isEditable,
   showHighlight,
+  onEdit,
 }: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
@@ -100,15 +98,15 @@ export function PackageSubPanel({
 
   const { packageNames } = PackageSearchHooks.usePackageNames(
     debouncedPackageInfo,
-    { disabled: !isEditable },
+    { disabled: !onEdit },
   );
   const { packageNamespaces } = PackageSearchHooks.usePackageNamespaces(
     debouncedPackageInfo,
-    { disabled: !isEditable },
+    { disabled: !onEdit },
   );
   const { packageVersions } = PackageSearchHooks.usePackageVersions(
     debouncedPackageInfo,
-    { disabled: !isEditable },
+    { disabled: !onEdit },
   );
   const { enrichPackageInfo } = PackageSearchHooks.useEnrichPackageInfo({
     showToasts: true,
@@ -135,10 +133,10 @@ export function PackageSubPanel({
         attribute={'packageName'}
         title={text.attributionColumn.packageSubPanel.packageName}
         highlight={'dark'}
-        disabled={!isEditable}
+        disabled={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNames}
-        confirmEditWasPreferred={confirmEditWasPreferred}
+        onEdit={onEdit}
       />
     );
   }
@@ -149,10 +147,10 @@ export function PackageSubPanel({
         attribute={'packageNamespace'}
         title={text.attributionColumn.packageSubPanel.packageNamespace}
         highlight={'dark'}
-        disabled={!isEditable}
+        disabled={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNamespaces}
-        confirmEditWasPreferred={confirmEditWasPreferred}
+        onEdit={onEdit}
       />
     );
   }
@@ -162,10 +160,10 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageVersion'}
         title={text.attributionColumn.packageSubPanel.packageVersion}
-        disabled={!isEditable}
+        disabled={!onEdit}
         showHighlight={showHighlight}
         defaults={packageVersions}
-        confirmEditWasPreferred={confirmEditWasPreferred}
+        onEdit={onEdit}
       />
     );
   }
@@ -176,10 +174,10 @@ export function PackageSubPanel({
         attribute={'packageType'}
         title={text.attributionColumn.packageSubPanel.packageType}
         highlight={'dark'}
-        disabled={!isEditable}
+        disabled={!onEdit}
         showHighlight={showHighlight}
         defaults={defaultPackageTypes}
-        confirmEditWasPreferred={confirmEditWasPreferred}
+        onEdit={onEdit}
       />
     );
   }
@@ -214,7 +212,7 @@ export function PackageSubPanel({
               tooltipTitle={
                 text.attributionColumn.packageSubPanel.pasteFromClipboard
               }
-              hidden={!isEditable}
+              hidden={!onEdit}
               tooltipPlacement="left"
               onClick={async () => {
                 const parsedPurl = parsePurl(
@@ -251,9 +249,9 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'url'}
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
-        disabled={!isEditable}
+        disabled={!onEdit}
         showHighlight={showHighlight}
-        confirmEditWasPreferred={confirmEditWasPreferred}
+        onEdit={onEdit}
         endAdornment={
           <>
             <IconButton
@@ -269,7 +267,7 @@ export function PackageSubPanel({
                 )
               }
               onClick={() =>
-                confirmEditWasPreferred(async () => {
+                onEdit?.(async () => {
                   const enriched = await enrichPackageInfo({
                     ...displayPackageInfo,
                     wasPreferred: undefined,

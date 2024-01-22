@@ -5,22 +5,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
-import MuiDivider from '@mui/material/Divider';
 import MuiToggleButton from '@mui/material/ToggleButton';
-import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import MuiTypography from '@mui/material/Typography';
 import { ReactElement, useEffect } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
-import {
-  AllowedSaveOperations,
-  AttributionType,
-  ButtonText,
-  View,
-} from '../../enums/enums';
+import { AllowedSaveOperations, ButtonText, View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { setAllowedSaveOperations } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -42,26 +33,14 @@ import {
   getResolvedToggleHandler,
   selectedPackagesAreResolved,
 } from './AttributionColumn.util';
-import { AuditingOptions } from './AuditingOptions';
+import { AttributionForm } from './AttributionForm';
 import { ButtonRow } from './ButtonRow';
-import { CommentStack } from './CommentStack';
-import { CopyrightSubPanel } from './CopyrightSubPanel';
-import { LicenseSubPanel } from './LicenseSubPanel';
-import { PackageSubPanel } from './PackageSubPanel';
 
 const classes = {
   root: {
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
-  },
-  panelsContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    padding: '6px',
-    gap: '12px',
-    overflow: 'hidden auto',
   },
   buttonsContainer: {
     display: 'flex',
@@ -147,50 +126,11 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   return (
     <>
       <MuiBox aria-label={'attribution column'} sx={classes.root}>
-        <MuiBox sx={classes.panelsContainer}>
-          <AuditingOptions
-            packageInfo={temporaryDisplayPackageInfo}
-            isEditable={props.isEditable}
-          />
-          <MuiDivider variant={'middle'}>
-            <MuiTypography>
-              {text.attributionColumn.packageCoordinates}
-            </MuiTypography>
-          </MuiDivider>
-          <PackageSubPanel
-            displayPackageInfo={temporaryDisplayPackageInfo}
-            isEditable={props.isEditable}
-            showHighlight={showHighlight}
-            confirmEditWasPreferred={confirmEditWasPreferred}
-          />
-          <MuiDivider variant={'middle'}>
-            <MuiTypography>
-              {text.attributionColumn.legalInformation}
-            </MuiTypography>
-          </MuiDivider>
-          {renderAttributionType()}
-          {temporaryDisplayPackageInfo.firstParty ? null : (
-            <>
-              <CopyrightSubPanel
-                isEditable={props.isEditable}
-                displayPackageInfo={temporaryDisplayPackageInfo}
-                showHighlight={showHighlight}
-                confirmEditWasPreferred={confirmEditWasPreferred}
-              />
-              <LicenseSubPanel
-                displayPackageInfo={temporaryDisplayPackageInfo}
-                isEditable={props.isEditable}
-                showHighlight={showHighlight}
-                confirmEditWasPreferred={confirmEditWasPreferred}
-              />
-            </>
-          )}
-          <CommentStack
-            isEditable={props.isEditable}
-            displayPackageInfo={temporaryDisplayPackageInfo}
-            confirmEditWasPreferred={confirmEditWasPreferred}
-          />
-        </MuiBox>
+        <AttributionForm
+          packageInfo={temporaryDisplayPackageInfo}
+          showHighlight={showHighlight}
+          onEdit={props.isEditable ? confirmEditWasPreferred : undefined}
+        />
         <MuiBox sx={classes.buttonsContainer}>
           {props.showHideButton ? (
             renderShowHideButton()
@@ -211,35 +151,6 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
       {renderConfirmationDialog()}
     </>
   );
-
-  function renderAttributionType() {
-    return (
-      <MuiToggleButtonGroup
-        value={temporaryDisplayPackageInfo.firstParty || false}
-        exclusive
-        onChange={(_, newValue) =>
-          confirmEditWasPreferred(() =>
-            dispatch(
-              setTemporaryDisplayPackageInfo({
-                ...temporaryDisplayPackageInfo,
-                firstParty: newValue,
-                wasPreferred: undefined,
-              }),
-            ),
-          )
-        }
-        size={'small'}
-        fullWidth
-      >
-        <MuiToggleButton value={false} disableRipple>
-          {AttributionType.ThirdParty}
-        </MuiToggleButton>
-        <MuiToggleButton value={true} disableRipple>
-          {AttributionType.FirstParty}
-        </MuiToggleButton>
-      </MuiToggleButtonGroup>
-    );
-  }
 
   function renderShowHideButton() {
     return (

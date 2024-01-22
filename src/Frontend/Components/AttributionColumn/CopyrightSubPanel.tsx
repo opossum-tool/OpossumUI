@@ -14,16 +14,14 @@ import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 interface CopyrightSubPanelProps {
-  isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
-  confirmEditWasPreferred: Confirm;
+  onEdit?: Confirm;
 }
 
 export function CopyrightSubPanel({
-  confirmEditWasPreferred,
   displayPackageInfo,
-  isEditable,
+  onEdit,
   showHighlight,
 }: CopyrightSubPanelProps): ReactElement {
   const dispatch = useAppDispatch();
@@ -31,7 +29,7 @@ export function CopyrightSubPanel({
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
       <TextBox
-        isEditable={isEditable}
+        isEditable={!!onEdit}
         sx={attributionColumnClasses.textBox}
         title={'Copyright'}
         text={displayPackageInfo.copyright}
@@ -39,7 +37,7 @@ export function CopyrightSubPanel({
         maxRows={10}
         multiline={true}
         handleChange={({ target: { value } }) =>
-          confirmEditWasPreferred(() =>
+          onEdit?.(() =>
             dispatch(
               setTemporaryDisplayPackageInfo({
                 ...displayPackageInfo,
