@@ -16,6 +16,7 @@ interface TextProps extends InputElementProps {
   multiline?: boolean;
   highlightingColor?: HighlightingColor;
   error?: boolean;
+  expanded?: boolean;
 }
 
 export function TextBox(props: TextProps) {
@@ -62,7 +63,7 @@ export function TextBox(props: TextProps) {
           ),
         }}
         multiline={props.multiline}
-        minRows={props.minRows}
+        minRows={props.expanded ? props.maxRows : props.minRows}
         maxRows={props.maxRows}
         variant="outlined"
         size="small"

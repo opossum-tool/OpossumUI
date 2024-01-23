@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import { ReactElement } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -17,25 +16,35 @@ interface CopyrightSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  expanded?: boolean;
+  hidden?: boolean;
 }
 
 export function CopyrightSubPanel({
   displayPackageInfo,
   onEdit,
   showHighlight,
-}: CopyrightSubPanelProps): ReactElement {
+  expanded,
+  hidden,
+}: CopyrightSubPanelProps) {
   const dispatch = useAppDispatch();
 
-  return (
-    <MuiBox sx={attributionColumnClasses.panel}>
+  return hidden && !expanded ? null : (
+    <MuiBox
+      sx={{
+        ...attributionColumnClasses.panel,
+        visibility: hidden ? 'hidden' : 'visible',
+      }}
+    >
       <TextBox
         isEditable={!!onEdit}
         sx={attributionColumnClasses.textBox}
         title={'Copyright'}
         text={displayPackageInfo.copyright}
         minRows={3}
-        maxRows={10}
-        multiline={true}
+        maxRows={7}
+        multiline
+        expanded={expanded}
         handleChange={({ target: { value } }) =>
           onEdit?.(() =>
             dispatch(

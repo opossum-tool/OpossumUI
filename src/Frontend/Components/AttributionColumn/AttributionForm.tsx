@@ -35,16 +35,26 @@ interface AttributionFormProps {
   packageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  variant?: 'default' | 'diff';
+  label?: string;
 }
 
-export function AttributionForm(props: AttributionFormProps) {
+export function AttributionForm({
+  packageInfo,
+  label,
+  onEdit,
+  showHighlight,
+  variant = 'default',
+}: AttributionFormProps) {
   const dispatch = useAppDispatch();
+  const isDiff = variant === 'diff';
 
   return (
-    <MuiBox sx={classes.formContainer}>
+    <MuiBox sx={classes.formContainer} aria-label={label}>
       <AuditingOptions
-        packageInfo={props.packageInfo}
-        isEditable={!!props.onEdit}
+        packageInfo={packageInfo}
+        isEditable={!!onEdit}
+        sx={{ flex: isDiff ? 1 : undefined }}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>
@@ -52,45 +62,44 @@ export function AttributionForm(props: AttributionFormProps) {
         </MuiTypography>
       </MuiDivider>
       <PackageSubPanel
-        displayPackageInfo={props.packageInfo}
-        showHighlight={props.showHighlight}
-        onEdit={props.onEdit}
+        displayPackageInfo={packageInfo}
+        showHighlight={showHighlight}
+        onEdit={onEdit}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
       </MuiDivider>
       {renderAttributionType()}
-      {props.packageInfo.firstParty ? null : (
-        <>
-          <CopyrightSubPanel
-            displayPackageInfo={props.packageInfo}
-            showHighlight={props.showHighlight}
-            onEdit={props.onEdit}
-          />
-          <LicenseSubPanel
-            displayPackageInfo={props.packageInfo}
-            showHighlight={props.showHighlight}
-            onEdit={props.onEdit}
-          />
-        </>
-      )}
-      <CommentStack
-        displayPackageInfo={props.packageInfo}
-        onEdit={props.onEdit}
+      <CopyrightSubPanel
+        displayPackageInfo={packageInfo}
+        showHighlight={showHighlight}
+        onEdit={onEdit}
+        expanded={isDiff}
+        hidden={packageInfo.firstParty}
       />
+      <LicenseSubPanel
+        displayPackageInfo={packageInfo}
+        showHighlight={showHighlight}
+        onEdit={onEdit}
+        expanded={isDiff}
+        hidden={packageInfo.firstParty}
+      />
+      {isDiff ? null : (
+        <CommentStack displayPackageInfo={packageInfo} onEdit={onEdit} />
+      )}
     </MuiBox>
   );
 
   function renderAttributionType() {
     return (
       <MuiToggleButtonGroup
-        value={props.packageInfo.firstParty || false}
+        value={packageInfo.firstParty || false}
         exclusive
         onChange={(_, newValue) =>
-          props.onEdit?.(() =>
+          onEdit?.(() =>
             dispatch(
               setTemporaryDisplayPackageInfo({
-                ...props.packageInfo,
+                ...packageInfo,
                 firstParty: newValue,
                 wasPreferred: undefined,
               }),
@@ -99,6 +108,7 @@ export function AttributionForm(props: AttributionFormProps) {
         }
         size={'small'}
         fullWidth
+        disabled={!onEdit}
       >
         <MuiToggleButton value={false} disableRipple>
           {AttributionType.ThirdParty}
