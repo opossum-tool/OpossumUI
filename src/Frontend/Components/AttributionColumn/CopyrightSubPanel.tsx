@@ -9,6 +9,7 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import { useAppDispatch } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { AttributionFormConfigAttribute } from '../DiffPopup/DiffPopup';
 import { TextBox } from '../InputElements/TextBox';
 import { PanelVariantProp } from './AttributionForm';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
@@ -18,6 +19,7 @@ interface CopyrightSubPanelProps {
   showHighlight?: boolean;
   onEdit?: Confirm;
   variant?: PanelVariantProp;
+  configAttribute?: AttributionFormConfigAttribute;
 }
 
 export function CopyrightSubPanel({
@@ -25,6 +27,7 @@ export function CopyrightSubPanel({
   onEdit,
   showHighlight,
   variant,
+  configAttribute,
 }: CopyrightSubPanelProps) {
   const dispatch = useAppDispatch();
 
@@ -62,6 +65,7 @@ export function CopyrightSubPanel({
             displayPackageInfo,
           )
         }
+        configAttribute={configAttribute}
       />
     </MuiBox>
   );

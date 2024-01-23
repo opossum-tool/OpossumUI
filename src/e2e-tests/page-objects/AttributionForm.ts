@@ -147,8 +147,20 @@ export class AttributionForm {
     nameIs: async (name: string): Promise<void> => {
       await expect(this.name).toHaveValue(name);
     },
+    nameHasColor: async (expectedColor: string): Promise<void> => {
+      const actualColor = await this.name.evaluate((element) => {
+        return window.getComputedStyle(element).webkitTextFillColor;
+      });
+      expect(actualColor).toBe(expectedColor);
+    },
     versionIs: async (version: string): Promise<void> => {
       await expect(this.version).toHaveValue(version);
+    },
+    versionHasColor: async (expectedColor: string): Promise<void> => {
+      const actualColor = await this.version.evaluate((element) => {
+        return window.getComputedStyle(element).webkitTextFillColor;
+      });
+      expect(actualColor).toBe(expectedColor);
     },
     purlIs: async (purl: string): Promise<void> => {
       await expect(this.purl).toHaveValue(purl);
@@ -158,6 +170,12 @@ export class AttributionForm {
     },
     copyrightIs: async (copyright: string): Promise<void> => {
       await expect(this.copyright).toHaveValue(copyright);
+    },
+    copyrightHasColor: async (expectedColor: string): Promise<void> => {
+      const actualColor = await this.copyright.evaluate((element) => {
+        return window.getComputedStyle(element).webkitTextFillColor;
+      });
+      expect(actualColor).toBe(expectedColor);
     },
     confidenceIs: async (confidence: number): Promise<void> => {
       await expect(
@@ -182,6 +200,12 @@ export class AttributionForm {
     },
     licenseTextIsHidden: async (): Promise<void> => {
       await expect(this.licenseText).toBeHidden();
+    },
+    licenseTextHasColor: async (expectedColor: string): Promise<void> => {
+      const actualColor = await this.licenseText.evaluate((element) => {
+        return window.getComputedStyle(element).webkitTextFillColor;
+      });
+      expect(actualColor).toBe(expectedColor);
     },
     commentIs: async (comment: string, number = 0): Promise<void> => {
       await expect(this.comment(number)).toHaveValue(comment);

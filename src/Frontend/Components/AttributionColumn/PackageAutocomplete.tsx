@@ -32,6 +32,7 @@ import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { Autocomplete } from '../Autocomplete/Autocomplete';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { AttributionFormConfigAttribute } from '../DiffPopup/DiffPopup';
 import { IconButton } from '../IconButton/IconButton';
 import { PreferredIcon, SourceIcon, WasPreferredIcon } from '../Icons/Icons';
 
@@ -55,6 +56,7 @@ interface Props {
   disabled: boolean;
   showHighlight: boolean | undefined;
   onEdit?: Confirm;
+  configAttribute?: AttributionFormConfigAttribute;
 }
 
 const Badge = styled(MuiBadge)({
@@ -80,6 +82,7 @@ export function PackageAutocomplete({
   disabled,
   showHighlight,
   onEdit,
+  configAttribute,
 }: Props) {
   const dispatch = useAppDispatch();
   const attributeValue = packageInfo[attribute] || '';
@@ -197,6 +200,7 @@ export function PackageAutocomplete({
         })
       }
       endAdornment={endAdornment}
+      configAttribute={configAttribute}
     />
   );
 

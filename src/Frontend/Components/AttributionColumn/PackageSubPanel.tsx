@@ -25,6 +25,7 @@ import { openUrl } from '../../util/open-url';
 import { PackageSearchHooks } from '../../util/package-search-hooks';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { AttributionFormConfig } from '../DiffPopup/DiffPopup';
 import { IconButton } from '../IconButton/IconButton';
 import { TextBox } from '../InputElements/TextBox';
 import { toast } from '../Toaster';
@@ -72,12 +73,14 @@ interface PackageSubPanelProps {
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  config?: AttributionFormConfig;
 }
 
 export function PackageSubPanel({
   displayPackageInfo,
   showHighlight,
   onEdit,
+  config,
 }: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
@@ -138,6 +141,9 @@ export function PackageSubPanel({
         showHighlight={showHighlight}
         defaults={packageNames}
         onEdit={onEdit}
+        configAttribute={{
+          colorValue: config?.packageName,
+        }}
       />
     );
   }
@@ -153,6 +159,9 @@ export function PackageSubPanel({
         showHighlight={showHighlight}
         defaults={packageNamespaces}
         onEdit={onEdit}
+        configAttribute={{
+          colorValue: config?.packageNamespace,
+        }}
       />
     );
   }
@@ -167,6 +176,9 @@ export function PackageSubPanel({
         showHighlight={showHighlight}
         defaults={packageVersions}
         onEdit={onEdit}
+        configAttribute={{
+          colorValue: config?.packageVersion,
+        }}
       />
     );
   }
@@ -182,6 +194,9 @@ export function PackageSubPanel({
         showHighlight={showHighlight}
         defaults={defaultPackageTypes}
         onEdit={onEdit}
+        configAttribute={{
+          colorValue: config?.packageType,
+        }}
       />
     );
   }
@@ -257,6 +272,9 @@ export function PackageSubPanel({
         disabled={!onEdit}
         showHighlight={showHighlight}
         onEdit={onEdit}
+        configAttribute={{
+          colorValue: config?.url,
+        }}
         endAdornment={
           <>
             <IconButton

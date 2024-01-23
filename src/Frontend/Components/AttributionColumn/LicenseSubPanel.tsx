@@ -21,6 +21,7 @@ import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-act
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { AttributionFormConfig } from '../DiffPopup/DiffPopup';
 import { TextBox } from '../InputElements/TextBox';
 import { getLicenseTextLabelText } from './AttributionColumn.util';
 import { PanelVariantProp } from './AttributionForm';
@@ -74,6 +75,7 @@ interface LicenseSubPanelProps {
   showHighlight?: boolean;
   onEdit?: Confirm;
   variant?: PanelVariantProp;
+  config?: AttributionFormConfig;
 }
 
 export function LicenseSubPanel({
@@ -81,6 +83,7 @@ export function LicenseSubPanel({
   showHighlight,
   onEdit,
   variant,
+  config,
 }: LicenseSubPanelProps) {
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
@@ -151,6 +154,9 @@ export function LicenseSubPanel({
               ) : undefined
             }
             defaults={defaultLicenses}
+            configAttribute={{
+              colorValue: config?.licenseName,
+            }}
           />
         </MuiAccordionSummary>
         <MuiAccordionDetails
@@ -184,6 +190,9 @@ export function LicenseSubPanel({
                 ),
               )
             }
+            configAttribute={{
+              colorValue: config?.licenseText,
+            }}
           />
         </MuiAccordionDetails>
       </MuiAccordion>

@@ -4,9 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
+import { InputBaseComponentProps as MuiInputBaseComponentProps } from '@mui/material/InputBase/InputBase';
 import MuiTextField from '@mui/material/TextField';
 
 import { HighlightingColor } from '../../enums/enums';
+import { AttributionFormConfigAttribute } from '../DiffPopup/DiffPopup';
 import { inputElementClasses, InputElementProps } from './shared';
 
 interface TextProps extends InputElementProps {
@@ -17,6 +19,8 @@ interface TextProps extends InputElementProps {
   multiline?: boolean;
   highlightingColor?: HighlightingColor;
   error?: boolean;
+  inputProps?: MuiInputBaseComponentProps;
+  configAttribute?: AttributionFormConfigAttribute;
 }
 
 export function TextBox(props: TextProps) {
@@ -54,6 +58,13 @@ export function TextBox(props: TextProps) {
               overflowX: 'hidden',
               textOverflow: 'ellipsis',
               padding: '8.5px 14px',
+              ...(props.configAttribute?.colorValue
+                ? {
+                    '&.Mui-disabled': {
+                      WebkitTextFillColor: props.configAttribute.colorValue,
+                    },
+                  }
+                : {}),
             },
           },
           endAdornment: props.endIcon && (
@@ -62,6 +73,7 @@ export function TextBox(props: TextProps) {
             </MuiInputAdornment>
           ),
         }}
+        inputProps={props.inputProps}
         multiline={props.multiline}
         rows={props.rows}
         minRows={props.minRows}

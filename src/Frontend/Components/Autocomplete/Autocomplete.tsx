@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { VirtuosoHandle } from 'react-virtuoso';
 
 import { ClearButton } from '../ClearButton/ClearButton';
+import { AttributionFormConfigAttribute } from '../DiffPopup/DiffPopup';
 import { PopupIndicator } from '../PopupIndicator/PopupIndicator';
 import {
   Container,
@@ -54,6 +55,7 @@ type AutocompleteProps<
     ) => void;
     sx?: SxProps;
     title: string;
+    configAttribute?: AttributionFormConfigAttribute;
   };
 
 export function Autocomplete<
@@ -79,6 +81,7 @@ export function Autocomplete<
   renderOptionStartIcon,
   sx,
   title,
+  configAttribute,
   ...props
 }: AutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>) {
   const [open, setOpen] = useState(false);
@@ -173,6 +176,17 @@ export function Autocomplete<
           InputProps={{
             startAdornment: renderStartAdornment(),
             endAdornment: renderEndAdornment(),
+            ...(configAttribute?.colorValue
+              ? {
+                  inputProps: {
+                    sx: {
+                      '&.Mui-disabled': {
+                        WebkitTextFillColor: configAttribute.colorValue,
+                      },
+                    },
+                  },
+                }
+              : {}),
           }}
           onKeyDown={(event) => {
             // https://github.com/mui/material-ui/issues/21129

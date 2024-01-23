@@ -22,11 +22,11 @@ export const OpossumColors = {
   lightGrey: 'hsla(0, 0%, 0%, 0.09)',
   mediumGrey: 'hsla(0, 0%, 0%, 0.36)',
   darkGrey: 'hsla(0, 0%, 0%, 0.7)',
-  black: 'hsl(0, 0%, 0%)',
+  black: 'rgb(0, 0, 0)',
   pastelLightGreen: 'hsl(146, 50%, 80%)',
   pastelMiddleGreen: 'hsl(146, 50%, 68%)',
   pastelDarkGreen: 'hsl(146, 50%, 55%)',
-  green: 'hsl(146, 50%, 45%)',
+  green: 'rgb(57, 172, 107)',
   lightOrange: 'hsl(27, 100%, 94%)',
   lightOrangeOnHover: 'hsl(27, 100%, 89%)',
   mediumOrange: 'hsl(20, 100%, 72%)',
@@ -34,7 +34,7 @@ export const OpossumColors = {
   pastelRed: 'hsl(0, 70%, 70%)',
   darkOrange: 'hsl(20, 80%, 78%)',
   darkOrangeOnHover: 'hsl(20, 80%, 65%)',
-  red: 'hsl(0, 100%, 45%)',
+  red: 'rgb(230, 0, 0)',
   brown: 'hsl(33, 55%, 44%)',
 };
 
