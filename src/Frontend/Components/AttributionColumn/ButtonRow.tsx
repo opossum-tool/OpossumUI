@@ -3,19 +3,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
+import { useMemo, useState } from 'react';
 
 import { PackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { ButtonText } from '../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getExternalAttributions,
   getIsGlobalSavingDisabled,
   getIsSavingDisabled,
   getManualDisplayPackageInfoOfSelected,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
 import { Button, ButtonProps } from '../Button/Button';
+import { DiffPopup } from '../DiffPopup/DiffPopup';
 import { SplitButton } from '../SplitButton/SplitButton';
 
 interface ButtonRowProps {
@@ -50,6 +54,18 @@ export function ButtonRow({
   );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
+  const externalAttributions = useAppSelector(getExternalAttributions);
+  const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
+
+  const originalDisplayPackageInfo = useMemo(
+    () =>
+      !!packageInfo.originIds?.length
+        ? Object.values(externalAttributions).find(({ originIds }) =>
+            originIds?.some((id) => packageInfo.originIds?.includes(id)),
+          )
+        : undefined,
+    [externalAttributions, packageInfo.originIds],
+  );
 
   return (
     !areButtonsHidden && (
@@ -64,7 +80,9 @@ export function ButtonRow({
         {renderSaveButton()}
         {renderDeleteButton()}
         {renderRevertButton()}
+        {renderCompareButton()}
         {renderAdditionalActions()}
+        {renderDiffPopup()}
       </MuiBox>
     )
   );
@@ -142,6 +160,16 @@ export function ButtonRow({
     );
   }
 
+  function renderCompareButton() {
+    return originalDisplayPackageInfo ? (
+      <Button
+        onClick={() => setIsDiffPopupOpen(true)}
+        color={'secondary'}
+        buttonText={text.buttons.compareToOrigin}
+      />
+    ) : null;
+  }
+
   function renderAdditionalActions() {
     return additionalActions.map((action) => (
       <Button
@@ -152,5 +180,16 @@ export function ButtonRow({
         disabled={action.disabled}
       />
     ));
+  }
+
+  function renderDiffPopup() {
+    return originalDisplayPackageInfo ? (
+      <DiffPopup
+        original={originalDisplayPackageInfo}
+        current={packageInfo}
+        isOpen={isDiffPopupOpen}
+        setOpen={setIsDiffPopupOpen}
+      />
+    ) : null;
   }
 }
