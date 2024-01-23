@@ -3,8 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
-import isDev from 'electron-is-dev';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import upath from 'upath';
 
@@ -23,7 +22,7 @@ export async function createWindow(): Promise<BrowserWindow> {
     icon: getIconPath(),
   });
 
-  if (isDev) {
+  if (!app.isPackaged) {
     await mainWindow.loadURL('http://localhost:5173/');
 
     mainWindow.webContents.openDevTools();

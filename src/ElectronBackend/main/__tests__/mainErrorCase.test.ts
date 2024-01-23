@@ -16,6 +16,7 @@ jest.mock('electron', () => ({
     getName: jest.fn(),
     getVersion: jest.fn(),
     whenReady: (): Promise<boolean> => Promise.resolve(true),
+    isPackaged: true,
   },
   BrowserWindow: class BrowserWindowMock {
     constructor() {

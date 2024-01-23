@@ -7,7 +7,6 @@ import installExtension, {
   REACT_DEVELOPER_TOOLS,
   REDUX_DEVTOOLS,
 } from 'electron-devtools-installer';
-import isDev from 'electron-is-dev';
 
 import { main } from './main/main';
 
@@ -18,7 +17,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', () => {
-  if (isDev) {
+  if (!app.isPackaged) {
     [REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS].forEach((extension) => {
       installExtension(extension)
         .then((name) => console.log(`Added Extension: ${name}`))

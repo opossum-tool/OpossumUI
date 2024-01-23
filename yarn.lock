@@ -5933,13 +5933,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-is-dev@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "electron-is-dev@npm:2.0.0"
-  checksum: 7393f46f06153d70a427ea904c60a092e50fbf1015c26c342cebb8324ada8c9e0c0f1f02867af56d9cc76f47be17da8cb311ea6bdc83343e7ebd2323ec4014c8
-  languageName: node
-  linkType: hard
-
 "electron-log@npm:^5.0.4":
   version: 5.1.0
   resolution: "electron-log@npm:5.1.0"
@@ -9918,7 +9911,6 @@ __metadata:
     electron: "npm:28.1.4"
     electron-builder: "npm:^24.9.1"
     electron-devtools-installer: "npm:^3.2.0"
-    electron-is-dev: "npm:^2.0.0"
     electron-log: "npm:^5.0.4"
     electron-playwright-helpers: "npm:^1.7.0"
     electron-settings: "npm:^4.0.2"
