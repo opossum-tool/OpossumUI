@@ -128,6 +128,7 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageName'}
         title={text.attributionColumn.packageSubPanel.packageName}
+        packageInfo={packageInfo}
         highlight={'dark'}
         disabled={!onEdit}
         showHighlight={showHighlight}
@@ -142,6 +143,7 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageNamespace'}
         title={text.attributionColumn.packageSubPanel.packageNamespace}
+        packageInfo={packageInfo}
         highlight={'dark'}
         disabled={!onEdit}
         showHighlight={showHighlight}
@@ -156,6 +158,7 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageVersion'}
         title={text.attributionColumn.packageSubPanel.packageVersion}
+        packageInfo={packageInfo}
         disabled={!onEdit}
         showHighlight={showHighlight}
         defaults={packageVersions}
@@ -169,6 +172,7 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'packageType'}
         title={text.attributionColumn.packageSubPanel.packageType}
+        packageInfo={packageInfo}
         highlight={'dark'}
         disabled={!onEdit}
         showHighlight={showHighlight}
@@ -245,6 +249,7 @@ export function PackageSubPanel({
       <PackageAutocomplete
         attribute={'url'}
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
+        packageInfo={packageInfo}
         disabled={!onEdit}
         showHighlight={showHighlight}
         onEdit={onEdit}
@@ -260,7 +265,8 @@ export function PackageSubPanel({
                   packageInfo.url &&
                   packageInfo.copyright &&
                   packageInfo.licenseName
-                )
+                ) ||
+                !onEdit
               }
               onClick={() =>
                 onEdit?.(async () => {
