@@ -11,6 +11,7 @@ jest.mock('electron', () => ({
     getName: jest.fn(),
     getVersion: jest.fn(),
     whenReady: async (): Promise<unknown> => Promise.resolve(true),
+    isPackaged: true,
   },
   BrowserWindow: class BrowserWindowMock {
     constructor() {
@@ -34,7 +35,6 @@ jest.mock('electron', () => ({
   },
 }));
 
-jest.mock('electron-is-dev', () => false);
 jest.mock('../iconHelpers', () => ({
   getIconPath: (): string => {
     return 'icon/path.png';

@@ -7,13 +7,15 @@ import { Menu, MenuItem } from 'electron';
 import { makeFirstIconVisibleAndSecondHidden } from '../iconHelpers';
 
 jest.mock('electron', () => ({
+  app: {
+    isPackaged: true,
+  },
   Menu: {
     setApplicationMenu: jest.fn(),
     buildFromTemplate: jest.fn(),
     getApplicationMenu: jest.fn(),
   },
 }));
-jest.mock('electron-is-dev', () => false);
 
 describe('makeFirstIconVisibleAndSecondHidden', () => {
   let toBeVisibleMenuItem: Partial<MenuItem>;

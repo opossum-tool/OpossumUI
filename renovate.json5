@@ -28,7 +28,6 @@
         'cross-env',
         'dayjs',
         'electron-devtools-installer',
-        'electron-is-dev',
         'electron-log',
         'electron-playwright-helpers',
         'electron-settings',

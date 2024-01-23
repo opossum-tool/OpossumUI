@@ -11,6 +11,7 @@ jest.mock('electron', () => ({
     getName: jest.fn(),
     getVersion: jest.fn(),
     whenReady: async (): Promise<unknown> => Promise.resolve(true),
+    isPackaged: false,
   },
   BrowserWindow: class BrowserWindowMock {
     constructor() {
@@ -33,8 +34,6 @@ jest.mock('electron', () => ({
     getApplicationMenu: jest.fn(),
   },
 }));
-
-jest.mock('electron-is-dev', () => true);
 
 describe('createWindow', () => {
   it('returns correct BrowserWindow in devMode', async () => {
