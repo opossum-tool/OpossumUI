@@ -2,28 +2,29 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { AttributionData } from '../../../shared/shared-types';
 import { getContainedManualDisplayPackageInfosWithCount } from '../../Components/AggregatedAttributionsPanel/AccordionPanel.util';
 import { PackagePanelTitle } from '../../enums/enums';
+import { Sorting } from '../../shared-constants';
 import { PanelData } from '../../types/types';
-import { PanelAttributionData } from '../../util/get-contained-packages';
 
 interface Props {
-  manualData: PanelAttributionData;
+  manualData: AttributionData;
   resourceId: string;
-  sortByCriticality: boolean;
+  sorting: Sorting;
 }
 
 export function getAttributionsInFolderContent({
   manualData,
   resourceId,
-  sortByCriticality,
+  sorting,
 }: Props): PanelData {
   const [sortedPackageCardIds, displayPackageInfos] =
     getContainedManualDisplayPackageInfosWithCount({
       selectedResourceId: resourceId,
       manualData,
       panelTitle: PackagePanelTitle.ContainedManualPackages,
-      sortByCriticality,
+      sorting,
     });
 
   return {

@@ -2,8 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Attributions } from '../../../../shared/shared-types';
+import { Criticality } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { DisplayPackageInfos } from '../../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import {
   getFilteredAttributions,
   LOW_CONFIDENCE_THRESHOLD,
@@ -16,7 +19,8 @@ describe('get-filtered-attributions', () => {
 
     const attributions = getFilteredAttributions({
       selectedFilters: [],
-      externalData: faker.opossum.externalAttributionData(),
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -28,9 +32,173 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
-      [attributionId2]: packageInfo2,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
+      [attributionId2]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo2,
+        [attributionId2],
+        0,
+      ),
+    });
+  });
+
+  it('returns attributions with count', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+
+    const attributions = getFilteredAttributions({
+      selectedFilters: [],
+      sorting: text.sortings.name,
+      search: '',
+      manualData: faker.opossum.manualAttributionData({
+        attributions: faker.opossum.manualAttributions({
+          [attributionId1]: packageInfo1,
+          [attributionId2]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [attributionId1, attributionId2],
+        }),
+        attributionsToResources: faker.opossum.attributionsToResources({
+          [attributionId1]: [
+            faker.opossum.filePath(),
+            faker.opossum.filePath(),
+          ],
+        }),
+      }),
+    });
+
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        2,
+      ),
+      [attributionId2]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo2,
+        [attributionId2],
+        0,
+      ),
+    });
+  });
+
+  it('sorts attributions alphabetically', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+      packageName: 'b',
+    });
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+      packageName: 'a',
+    });
+
+    const attributions = getFilteredAttributions({
+      selectedFilters: [],
+      sorting: text.sortings.name,
+      search: '',
+      manualData: faker.opossum.manualAttributionData({
+        attributions: faker.opossum.manualAttributions({
+          [attributionId1]: packageInfo1,
+          [attributionId2]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [attributionId1, attributionId2],
+        }),
+      }),
+    });
+
+    expect(Object.keys(attributions)).toEqual<Array<string>>([
+      attributionId2,
+      attributionId1,
+    ]);
+  });
+
+  it('sorts attributions by criticality', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+      criticality: Criticality.Medium,
+    });
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+      criticality: Criticality.High,
+    });
+
+    const attributions = getFilteredAttributions({
+      selectedFilters: [],
+      sorting: text.sortings.criticality,
+      search: '',
+      manualData: faker.opossum.manualAttributionData({
+        attributions: faker.opossum.manualAttributions({
+          [attributionId1]: packageInfo1,
+          [attributionId2]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [attributionId1, attributionId2],
+        }),
+      }),
+    });
+
+    expect(Object.keys(attributions)).toEqual<Array<string>>([
+      attributionId2,
+      attributionId1,
+    ]);
+  });
+
+  it('sorts attributions by frequency', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+
+    const attributions = getFilteredAttributions({
+      selectedFilters: [],
+      sorting: text.sortings.occurrence,
+      search: '',
+      manualData: faker.opossum.manualAttributionData({
+        attributions: faker.opossum.manualAttributions({
+          [attributionId1]: packageInfo1,
+          [attributionId2]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [attributionId1, attributionId2],
+        }),
+        attributionsToResources: faker.opossum.attributionsToResources({
+          [attributionId2]: [
+            faker.opossum.filePath(),
+            faker.opossum.filePath(),
+          ],
+        }),
+      }),
+    });
+
+    expect(Object.keys(attributions)).toEqual<Array<string>>([
+      attributionId2,
+      attributionId1,
+    ]);
+  });
+
+  it('returns filtered attributions based on search term', () => {
+    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
+    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+
+    const attributions = getFilteredAttributions({
+      selectedFilters: [],
+      sorting: text.sortings.name,
+      search: packageInfo1.packageName!,
+      manualData: faker.opossum.manualAttributionData({
+        attributions: faker.opossum.manualAttributions({
+          [attributionId1]: packageInfo1,
+          [attributionId2]: packageInfo2,
+        }),
+        resourcesToAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath()]: [attributionId1, attributionId2],
+        }),
+      }),
+    });
+
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -41,8 +209,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Needs Follow-Up'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.needsFollowUp],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -54,8 +223,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -66,8 +239,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Pre-selected'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.preSelected],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -79,8 +253,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -91,8 +269,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Excluded from Notice'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.excludedFromNotice],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -104,8 +283,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -118,8 +301,9 @@ describe('get-filtered-attributions', () => {
     });
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Low Confidence'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.lowConfidence],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -131,8 +315,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -143,8 +331,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['First Party'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.firstParty],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -156,8 +345,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -168,8 +361,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Third Party'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.thirdParty],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -181,8 +375,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId2]: packageInfo2,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId2]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo2,
+        [attributionId2],
+        0,
+      ),
     });
   });
 
@@ -193,8 +391,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Needs Review by QA'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.needsReview],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -206,8 +405,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -218,8 +421,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Currently Preferred'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.currentlyPreferred],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -231,8 +435,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -243,8 +451,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Previously Preferred'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.previouslyPreferred],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -256,8 +465,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 
@@ -268,8 +481,9 @@ describe('get-filtered-attributions', () => {
     const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
 
     const attributions = getFilteredAttributions({
-      selectedFilters: ['Incomplete'],
-      externalData: faker.opossum.externalAttributionData(),
+      selectedFilters: [text.filters.incomplete],
+      sorting: text.sortings.name,
+      search: '',
       manualData: faker.opossum.manualAttributionData({
         attributions: faker.opossum.manualAttributions({
           [attributionId1]: packageInfo1,
@@ -281,55 +495,12 @@ describe('get-filtered-attributions', () => {
       }),
     });
 
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
-    });
-  });
-
-  it('returns filtered attributions with modified-preferred filter', () => {
-    const originId1 = faker.string.uuid();
-    const originId2 = faker.string.uuid();
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
-      originIds: [originId1],
-      wasPreferred: false,
-    });
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
-      originIds: [originId2],
-      wasPreferred: false,
-    });
-    const [attributionId3, packageInfo3] = faker.opossum.externalAttribution({
-      originIds: [originId1],
-      wasPreferred: true,
-    });
-    const [attributionId4, packageInfo4] = faker.opossum.externalAttribution({
-      originIds: [originId2],
-      wasPreferred: false,
-    });
-
-    const attributions = getFilteredAttributions({
-      selectedFilters: ['Modified Previously Preferred'],
-      externalData: faker.opossum.externalAttributionData({
-        attributions: faker.opossum.externalAttributions({
-          [attributionId3]: packageInfo3,
-          [attributionId4]: packageInfo4,
-        }),
-        resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.filePath()]: [attributionId3, attributionId4],
-        }),
-      }),
-      manualData: faker.opossum.manualAttributionData({
-        attributions: faker.opossum.manualAttributions({
-          [attributionId1]: packageInfo1,
-          [attributionId2]: packageInfo2,
-        }),
-        resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.filePath()]: [attributionId1, attributionId2],
-        }),
-      }),
-    });
-
-    expect(attributions).toEqual<Attributions>({
-      [attributionId1]: packageInfo1,
+    expect(attributions).toEqual<DisplayPackageInfos>({
+      [attributionId1]: convertPackageInfoToDisplayPackageInfo(
+        packageInfo1,
+        [attributionId1],
+        0,
+      ),
     });
   });
 });

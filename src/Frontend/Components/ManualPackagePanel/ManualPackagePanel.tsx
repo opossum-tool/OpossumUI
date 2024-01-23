@@ -8,6 +8,7 @@ import MuiTypography from '@mui/material/Typography';
 import { ReactElement } from 'react';
 
 import { Attributions } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { PackagePanelTitle } from '../../enums/enums';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
@@ -25,7 +26,7 @@ import {
 import { DisplayPackageInfos } from '../../types/types';
 import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { createPackageCardId } from '../../util/create-package-card-id';
-import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
+import { getPackageSorter } from '../../util/get-package-sorter';
 import { Button } from '../Button/Button';
 import { ManualAttributionList } from '../ManualAttributionList/ManualAttributionList';
 
@@ -131,7 +132,7 @@ function getSortedPackageCardIdsAndDisplayPackageInfos(
   displayPackageInfos: DisplayPackageInfos;
 } {
   const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
-    getAlphabeticalComparerForAttributions(shownAttributionsOfResource, false),
+    getPackageSorter(shownAttributionsOfResource, text.sortings.name),
   );
 
   const sortedPackageCardIds: Array<string> = [];

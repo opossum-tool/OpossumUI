@@ -5,16 +5,15 @@
 import MuiPaper from '@mui/material/Paper';
 import { ReactElement } from 'react';
 
-import { text } from '../../../shared/text';
 import { PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { useActiveSortingInAuditView } from '../../state/variables/use-active-sorting';
+import { useSignalSorting } from '../../state/variables/use-active-sorting';
 import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
 import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
-import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
+import { getPackageSorter } from '../../util/get-package-sorter';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
 
@@ -38,7 +37,7 @@ export function AllAttributionsPanel(
   props: AllAttributionsPanelProps,
 ): ReactElement {
   const dispatch = useAppDispatch();
-  const { activeSorting } = useActiveSortingInAuditView();
+  const { signalSorting } = useSignalSorting();
 
   function getPackageCard(packageCardId: string): ReactElement | null {
     const displayPackageInfo = props.displayPackageInfos[packageCardId];
@@ -78,10 +77,7 @@ export function AllAttributionsPanel(
   }
 
   const sortedPackageCardIds = Object.keys(props.displayPackageInfos).sort(
-    getAlphabeticalComparerForAttributions(
-      props.displayPackageInfos,
-      activeSorting === text.auditViewSorting.byCriticality,
-    ),
+    getPackageSorter(props.displayPackageInfos, signalSorting),
   );
 
   return (

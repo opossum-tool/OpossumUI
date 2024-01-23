@@ -128,7 +128,7 @@ class OpossumModule {
   }
 
   public static displayPackageInfo(
-    props: Partial<ManualPackageInfo> = {},
+    props: Partial<DisplayPackageInfo> = {},
   ): DisplayPackageInfo {
     return {
       ...this.manualPackageInfo(props),

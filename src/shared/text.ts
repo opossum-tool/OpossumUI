@@ -111,26 +111,22 @@ export const text = {
     deleteAttributions: (attributions: string) =>
       `Do you really want to delete ${attributions} globally?`,
   },
-  attributionFilters: {
+  filters: {
     currentlyPreferred: 'Currently Preferred',
     excludedFromNotice: 'Excluded from Notice',
     firstParty: 'First Party',
     incomplete: 'Incomplete',
     lowConfidence: 'Low Confidence',
-    modifiedPreferred: 'Modified Previously Preferred',
     needsFollowUp: 'Needs Follow-Up',
     needsReview: 'Needs Review by QA',
     preSelected: 'Pre-selected',
     previouslyPreferred: 'Previously Preferred',
     thirdParty: 'Third Party',
   },
-  attributionViewSorting: {
-    alphabetical: 'Alphabetically',
-    byCriticality: 'By Criticality',
-  },
-  auditViewSorting: {
-    byOccurrence: 'By Occurrence',
-    byCriticality: 'By Criticality',
+  sortings: {
+    criticality: 'By Criticality',
+    name: 'By Name',
+    occurrence: 'By Occurrence',
   },
   resourceDetails: {
     searchTooltip: 'Search',

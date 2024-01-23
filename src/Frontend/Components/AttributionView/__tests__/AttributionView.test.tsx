@@ -18,6 +18,7 @@ import {
 } from '../../../state/variables/use-filtered-attributions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { AttributionView } from '../AttributionView';
 
 describe('The Attribution View', () => {
@@ -44,7 +45,12 @@ describe('The Attribution View', () => {
         setProjectMetadata(faker.opossum.metadata()),
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
-          attributions: manualAttributions,
+          attributions: {
+            [attributionId]: convertPackageInfoToDisplayPackageInfo(
+              packageInfo,
+              [attributionId],
+            ),
+          },
         }),
         navigateToView(View.Attribution),
       ],

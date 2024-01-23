@@ -16,9 +16,10 @@ import {
   ResourcesWithAttributedChildren,
   SelectedCriticality,
 } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { LocatePopupFilters } from '../../types/types';
-import { getAlphabeticalComparerForAttributions } from '../../util/get-alphabetical-comparer';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
+import { getPackageSorter } from '../../util/get-package-sorter';
 import { getAttributionBreakpointCheckForResourceState } from '../../util/is-attribution-breakpoint';
 import {
   licenseNameContainsSearchTerm,
@@ -229,9 +230,9 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
   let displayedAttributionId = '';
   if (attributionIds && attributionIds.length > 0) {
     displayedAttributionId = [...attributionIds].sort(
-      getAlphabeticalComparerForAttributions(
+      getPackageSorter(
         state.allViews.manualData.attributions,
-        false,
+        text.sortings.name,
       ),
     )[0];
   } else {
@@ -243,9 +244,9 @@ export function getAttributionIdOfFirstPackageCardInManualPackagePanel(
       );
     if (closestParentAttributionIds.length > 0) {
       displayedAttributionId = [...closestParentAttributionIds].sort(
-        getAlphabeticalComparerForAttributions(
+        getPackageSorter(
           state.allViews.manualData.attributions,
-          false,
+          text.sortings.name,
         ),
       )[0];
     }
@@ -266,7 +267,7 @@ export function getIndexOfAttributionInManualPackagePanel(
   }
 
   const sortedAttributionIds = manualAttributionIdsOnResource.sort(
-    getAlphabeticalComparerForAttributions(manualData.attributions, false),
+    getPackageSorter(manualData.attributions, text.sortings.name),
   );
 
   const packageCardIndex = sortedAttributionIds.findIndex(

@@ -3,20 +3,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  Attributions,
+  AttributionData,
   AttributionsToHashes,
   AutocompleteSignal,
   ExternalAttributionSources,
   Resources,
 } from '../../shared/shared-types';
-import { PanelData, ProgressBarData } from '../types/types';
-import { PanelAttributionData } from '../util/get-contained-packages';
+import { Filter, FilterCounts, Sorting } from '../shared-constants';
+import {
+  DisplayPackageInfos,
+  PanelData,
+  ProgressBarData,
+} from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { getAttributionsInFolderContent } from './scripts/get-attributions-in-folder-content';
 import { getAutocompleteSignals } from './scripts/get-autocomplete-signals';
 import {
-  Filter,
-  FilterCounts,
   getFilteredAttributionCounts,
   getFilteredAttributions,
 } from './scripts/get-filtered-attributions';
@@ -26,17 +28,19 @@ import { getSignalsInFolderContent } from './scripts/get-signals-in-folder-conte
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 export type SignalsWorkerInput =
-  | { name: 'selectedFilters'; data: Array<Filter> }
   | { name: 'attributionBreakpoints'; data: Set<string> }
+  | { name: 'attributionSorting'; data: Sorting }
+  | { name: 'attributionSearch'; data: string }
   | { name: 'attributionsToHashes'; data: AttributionsToHashes }
-  | { name: 'externalData'; data: PanelAttributionData }
+  | { name: 'externalData'; data: AttributionData }
   | { name: 'filesWithChildren'; data: Set<string> }
-  | { name: 'manualData'; data: PanelAttributionData }
+  | { name: 'manualData'; data: AttributionData }
   | { name: 'resolvedExternalAttributions'; data: Set<string> }
   | { name: 'resourceId'; data: string }
   | { name: 'resources'; data: Resources }
-  | { name: 'sources'; data: ExternalAttributionSources }
-  | { name: 'sortByCriticality'; data: boolean };
+  | { name: 'selectedFilters'; data: Array<Filter> }
+  | { name: 'signalSorting'; data: Sorting }
+  | { name: 'sources'; data: ExternalAttributionSources };
 
 export type SignalsWorkerOutput =
   | {
@@ -65,35 +69,29 @@ export type SignalsWorkerOutput =
     }
   | {
       name: 'filteredAttributions';
-      data: Attributions;
+      data: DisplayPackageInfos;
     };
 
 interface State {
-  selectedFilters?: Array<Filter>;
   attributionBreakpoints?: Set<string>;
+  attributionSearch?: string;
+  attributionSorting?: Sorting;
   attributionsToHashes?: AttributionsToHashes;
-  externalData?: PanelAttributionData;
+  externalData?: AttributionData;
   filesWithChildren?: Set<string>;
-  manualData?: PanelAttributionData;
+  manualData?: AttributionData;
   resolvedExternalAttributions?: Set<string>;
   resourceId?: string;
   resources?: Resources;
+  selectedFilters?: Array<Filter>;
+  signalSorting?: Sorting;
   sources?: ExternalAttributionSources;
-  sortByCriticality?: boolean;
 }
 
 export class SignalsWorker {
   constructor(
     private readonly dispatch: (output: SignalsWorkerOutput) => void,
-    private readonly state: State = {
-      selectedFilters: undefined,
-      externalData: undefined,
-      manualData: undefined,
-      resolvedExternalAttributions: undefined,
-      sources: undefined,
-      resourceId: undefined,
-      sortByCriticality: undefined,
-    },
+    private readonly state: State = {},
   ) {}
 
   public processInput(input: SignalsWorkerInput) {
@@ -139,8 +137,14 @@ export class SignalsWorker {
       case 'filesWithChildren':
         this.state.filesWithChildren = input.data;
         break;
-      case 'sortByCriticality':
-        this.state.sortByCriticality = input.data;
+      case 'signalSorting':
+        this.state.signalSorting = input.data;
+        break;
+      case 'attributionSorting':
+        this.state.attributionSorting = input.data;
+        break;
+      case 'attributionSearch':
+        this.state.attributionSearch = input.data;
         break;
       default:
         shouldNotBeCalled(input);
@@ -175,7 +179,7 @@ export class SignalsWorker {
       this.isHydrated(this.state, input, [
         'resourceId',
         'manualData',
-        'sortByCriticality',
+        'signalSorting',
       ])
     ) {
       this.dispatch({
@@ -183,7 +187,7 @@ export class SignalsWorker {
         data: getAttributionsInFolderContent({
           resourceId: this.state.resourceId,
           manualData: this.state.manualData,
-          sortByCriticality: this.state.sortByCriticality,
+          sorting: this.state.signalSorting,
         }),
       });
     }
@@ -196,7 +200,7 @@ export class SignalsWorker {
         'attributionsToHashes',
         'externalData',
         'resolvedExternalAttributions',
-        'sortByCriticality',
+        'signalSorting',
       ])
     ) {
       this.dispatch({
@@ -206,7 +210,7 @@ export class SignalsWorker {
           attributionsToHashes: this.state.attributionsToHashes,
           externalData: this.state.externalData,
           resolvedExternalAttributions: this.state.resolvedExternalAttributions,
-          sortByCriticality: this.state.sortByCriticality,
+          sorting: this.state.signalSorting,
         }),
       });
     }
@@ -266,11 +270,10 @@ export class SignalsWorker {
   }
 
   private dispatchFilteredAttributionCounts(input: SignalsWorkerInput) {
-    if (this.isHydrated(this.state, input, ['externalData', 'manualData'])) {
+    if (this.isHydrated(this.state, input, ['manualData'])) {
       this.dispatch({
         name: 'filteredAttributionCounts',
         data: getFilteredAttributionCounts({
-          externalData: this.state.externalData,
           manualData: this.state.manualData,
         }),
       });
@@ -281,16 +284,18 @@ export class SignalsWorker {
     if (
       this.isHydrated(this.state, input, [
         'selectedFilters',
-        'externalData',
         'manualData',
+        'attributionSorting',
+        'attributionSearch',
       ])
     ) {
       this.dispatch({
         name: 'filteredAttributions',
         data: getFilteredAttributions({
           selectedFilters: this.state.selectedFilters,
-          externalData: this.state.externalData,
           manualData: this.state.manualData,
+          sorting: this.state.attributionSorting,
+          search: this.state.attributionSearch,
         }),
       });
     }

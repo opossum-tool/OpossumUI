@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { sortBy } from 'lodash';
 import { ReactElement } from 'react';
 
 import { LicenseCounts, LicenseNamesWithCriticality } from '../../types/types';
-import { compareAlphabeticalStrings } from '../../util/get-alphabetical-comparer';
 import { ProjectLicensesTable } from '../ProjectLicensesTable/ProjectLicensesTable';
 
 const classes = {
@@ -65,9 +65,7 @@ export function AttributionCountPerSourcePerLicenseTable(
       containerStyle={classes.container}
       columnHeaders={headerRow}
       columnNames={headerRow}
-      rowNames={Object.keys(props.licenseNamesWithCriticality).sort((a, b) =>
-        compareAlphabeticalStrings(a, b),
-      )}
+      rowNames={sortBy(Object.keys(props.licenseNamesWithCriticality))}
       tableContent={props.licenseCounts.attributionCountPerSourcePerLicense}
       tableFooter={footerRow}
       licenseNamesWithCriticality={props.licenseNamesWithCriticality}

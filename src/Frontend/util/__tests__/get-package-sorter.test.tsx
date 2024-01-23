@@ -3,15 +3,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Attributions, Criticality } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
 import {
   compareAlphabeticalStrings,
-  getAlphabeticalComparerForAttributions,
-} from '../get-alphabetical-comparer';
+  getPackageSorter,
+} from '../get-package-sorter';
 
-describe('getAlphabeticalComparerForAttributions', () => {
+describe('getPackageSorter', () => {
   it('sorts alphabetically by list card title', () => {
-    const testAttributions: Attributions = {
+    const attributions: Attributions = {
       '1': {
         packageName: 'zz Test package',
       },
@@ -36,15 +37,15 @@ describe('getAlphabeticalComparerForAttributions', () => {
         licenseText: 'Some license text',
       },
     };
-    const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions, false),
+    const sortedAttributionIds = Object.keys(attributions).sort(
+      getPackageSorter(attributions, text.sortings.name),
     );
 
-    expect(sortedAttributionIds).toEqual(['3', '5', '4', '2', '1']);
+    expect(sortedAttributionIds).toEqual(['5', '4', '2', '1', '3']);
   });
 
   it('sorts empty attributions to the end of the list', () => {
-    const testAttributions: Attributions = {
+    const attributions: Attributions = {
       '1': {},
       '2': {
         attributionConfidence: 0,
@@ -56,15 +57,15 @@ describe('getAlphabeticalComparerForAttributions', () => {
         copyright: '(C) Copyright John Doe',
       },
     };
-    const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions, false),
+    const sortedAttributionIds = Object.keys(attributions).sort(
+      getPackageSorter(attributions, text.sortings.name),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '3', '1']);
   });
 
   it('sorts non-alphabetical chars behind alphabetical chars', () => {
-    const testAttributions: Attributions = {
+    const attributions: Attributions = {
       '1': {
         packageName: 'Test package',
         packageVersion: '1.0',
@@ -79,15 +80,15 @@ describe('getAlphabeticalComparerForAttributions', () => {
         copyright: 'John Doe',
       },
     };
-    const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions, false),
+    const sortedAttributionIds = Object.keys(attributions).sort(
+      getPackageSorter(attributions, text.sortings.name),
     );
 
     expect(sortedAttributionIds).toEqual(['2', '1', '3']);
   });
 
   it('sorts by criticality', () => {
-    const testAttributions: Attributions = {
+    const attributions: Attributions = {
       '1': faker.opossum.manualPackageInfo({
         packageName: 'Test package 1',
         packageVersion: '1.0',
@@ -102,8 +103,31 @@ describe('getAlphabeticalComparerForAttributions', () => {
         packageName: 'Test package 2',
       }),
     };
-    const sortedAttributionIds = Object.keys(testAttributions).sort(
-      getAlphabeticalComparerForAttributions(testAttributions, true),
+    const sortedAttributionIds = Object.keys(attributions).sort(
+      getPackageSorter(attributions, text.sortings.criticality),
+    );
+
+    expect(sortedAttributionIds).toEqual(['3', '2', '1', '4']);
+  });
+
+  it('sorts by occurrence', () => {
+    const attributions: Attributions = {
+      '1': faker.opossum.displayPackageInfo({
+        packageName: 'Test package 1',
+        packageVersion: '1.0',
+      }),
+      '2': faker.opossum.displayPackageInfo({
+        count: 2,
+      }),
+      '3': faker.opossum.displayPackageInfo({
+        count: 3,
+      }),
+      '4': faker.opossum.displayPackageInfo({
+        packageName: 'Test package 2',
+      }),
+    };
+    const sortedAttributionIds = Object.keys(attributions).sort(
+      getPackageSorter(attributions, text.sortings.occurrence),
     );
 
     expect(sortedAttributionIds).toEqual(['3', '2', '1', '4']);

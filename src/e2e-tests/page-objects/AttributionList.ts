@@ -40,22 +40,22 @@ export class AttributionList {
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
     this.filters = {
       thirdParty: window.getByRole('menuitem', {
-        name: text.attributionFilters.thirdParty,
+        name: text.filters.thirdParty,
       }),
       firstParty: window.getByRole('menuitem', {
-        name: text.attributionFilters.firstParty,
+        name: text.filters.firstParty,
       }),
       needsFollowUp: window.getByRole('menuitem', {
-        name: text.attributionFilters.needsFollowUp,
+        name: text.filters.needsFollowUp,
       }),
       needsReviewByQA: window.getByRole('menuitem', {
-        name: text.attributionFilters.needsReview,
+        name: text.filters.needsReview,
       }),
       preferred: window.getByRole('menuitem', {
-        name: text.attributionFilters.currentlyPreferred,
+        name: text.filters.currentlyPreferred,
       }),
       preSelected: window.getByRole('menuitem', {
-        name: text.attributionFilters.preSelected,
+        name: text.filters.preSelected,
       }),
     };
   }

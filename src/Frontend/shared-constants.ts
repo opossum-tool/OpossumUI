@@ -9,6 +9,7 @@ import {
   FrequentLicenses,
   ProjectMetadata,
 } from '../shared/shared-types';
+import { text } from '../shared/text';
 
 export const EMPTY_ATTRIBUTION_DATA: AttributionData = {
   attributions: {},
@@ -38,3 +39,13 @@ export const EMPTY_DISPLAY_PACKAGE_INFO: DisplayPackageInfo = {
 
 export const ADD_NEW_ATTRIBUTION_BUTTON_ID = 'ADD_NEW_ATTRIBUTION_ID';
 export const ADD_NEW_ATTRIBUTION_BUTTON_TEXT = 'Add new attribution';
+
+export const filters = Object.values(text.filters);
+export type Filter = (typeof filters)[number];
+export const qaFilters = ['Currently Preferred'] satisfies Array<Filter>;
+export type FilterCounts = Record<Filter, number>;
+
+export const sortings = Object.values(text.sortings);
+export type Sorting = (typeof sortings)[number];
+export const attributionDefaultSorting = text.sortings.name;
+export const signalDefaultSorting = text.sortings.occurrence;

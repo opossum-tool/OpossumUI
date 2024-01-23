@@ -64,7 +64,7 @@ interface PackageCardProps {
 export const PackageCard = memo((props: PackageCardProps) => {
   const dispatch = useAppDispatch();
   const selectedView = useAppSelector(getSelectedView);
-  const selectedAttributionIdAttributionView = useAppSelector(
+  const selectedAttributionIdInAttributionView = useAppSelector(
     getSelectedAttributionIdInAttributionView,
   );
   const multiSelectSelectedAttributionIds = useAppSelector(
@@ -150,7 +150,7 @@ export const PackageCard = memo((props: PackageCardProps) => {
           newMultiSelectSelectedAttributionIds,
         ),
       );
-      !selectedAttributionIdAttributionView &&
+      !selectedAttributionIdInAttributionView &&
         dispatch(changeSelectedAttributionIdOrOpenUnsavedPopup(attributionId));
     }
 

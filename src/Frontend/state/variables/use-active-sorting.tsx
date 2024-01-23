@@ -2,50 +2,46 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import BarChartIcon from '@mui/icons-material/BarChart';
 import CopyrightIcon from '@mui/icons-material/Copyright';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import { useMemo } from 'react';
 
 import { text } from '../../../shared/text';
 import { MenuItem } from '../../Components/InputElements/Dropdown';
 import { SelectMenuOption } from '../../Components/SelectMenu/SelectMenu';
+import {
+  attributionDefaultSorting,
+  signalDefaultSorting,
+  Sorting,
+  sortings,
+} from '../../shared-constants';
 import { baseIcon } from '../../shared-styles';
 import { useVariable } from './use-variable';
 
-export const auditViewSorting = Object.values(text.auditViewSorting);
-export const attributionViewSorting = Object.values(
-  text.attributionViewSorting,
-);
-export const AUDIT_VIEW_DEFAULT_SORTING = text.auditViewSorting.byOccurrence;
-export const ATTRIBUTION_VIEW_DEFAULT_SORTING =
-  text.attributionViewSorting.alphabetical;
+export const SIGNAL_SORTING = 'signal-sorting';
+export const ATTRIBUTION_SORTING = 'attribution-sorting';
 
-export type AuditViewSorting = (typeof auditViewSorting)[number];
-export type AttributionViewSorting = (typeof attributionViewSorting)[number];
-
-export const SORT_ICONS: Record<
-  AuditViewSorting | AttributionViewSorting,
-  React.ReactElement
-> = {
-  Alphabetically: <SortByAlphaIcon color={'action'} sx={baseIcon} />,
-  'By Criticality': <CopyrightIcon color={'warning'} sx={baseIcon} />,
-  'By Occurrence': <FormatListNumberedIcon color={'action'} sx={baseIcon} />,
+export const SORT_ICONS: Record<Sorting, React.ReactElement> = {
+  [text.sortings.name]: <SortByAlphaIcon color={'action'} sx={baseIcon} />,
+  [text.sortings.criticality]: (
+    <CopyrightIcon color={'warning'} sx={baseIcon} />
+  ),
+  [text.sortings.occurrence]: <BarChartIcon color={'action'} sx={baseIcon} />,
 };
 
-export function useActiveSortingInAuditView() {
-  const [activeSorting, setActiveSorting] = useVariable<AuditViewSorting>(
-    'active-sorting-audit-view',
-    AUDIT_VIEW_DEFAULT_SORTING,
+export function useSignalSorting() {
+  const [signalSorting, setSignalSorting] = useVariable<Sorting>(
+    SIGNAL_SORTING,
+    signalDefaultSorting,
   );
 
   return {
-    activeSorting,
-    setActiveSorting,
-    isDefaultSortingActive: activeSorting === AUDIT_VIEW_DEFAULT_SORTING,
+    signalSorting,
+    setSignalSorting,
     options: useMemo(
       () =>
-        auditViewSorting.map<MenuItem>((sorting) => ({
+        sortings.map<MenuItem>((sorting) => ({
           name: sorting,
           value: sorting,
         })),
@@ -54,26 +50,25 @@ export function useActiveSortingInAuditView() {
   };
 }
 
-export function useActiveSortingInAttributionView() {
-  const [activeSorting, setActiveSorting] = useVariable<AttributionViewSorting>(
-    'active-sorting-attribution-view',
-    ATTRIBUTION_VIEW_DEFAULT_SORTING,
+export function useAttributionSorting() {
+  const [attributionSorting, setAttributionSorting] = useVariable<Sorting>(
+    ATTRIBUTION_SORTING,
+    attributionDefaultSorting,
   );
 
   return {
-    activeSorting,
-    setActiveSorting,
-    isDefaultSortingActive: activeSorting === ATTRIBUTION_VIEW_DEFAULT_SORTING,
+    attributionSorting,
+    setAttributionSorting,
     options: useMemo(
       () =>
-        attributionViewSorting.map<SelectMenuOption>((sorting) => ({
+        sortings.map<SelectMenuOption>((sorting) => ({
           id: sorting,
           label: sorting,
-          selected: sorting === activeSorting,
+          selected: sorting === attributionSorting,
           icon: SORT_ICONS[sorting],
-          onAdd: () => setActiveSorting(sorting),
+          onAdd: () => setAttributionSorting(sorting),
         })),
-      [activeSorting, setActiveSorting],
+      [attributionSorting, setAttributionSorting],
     ),
   };
 }

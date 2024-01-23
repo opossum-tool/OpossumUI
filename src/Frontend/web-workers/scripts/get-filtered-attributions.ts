@@ -2,58 +2,56 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fromPairs, pickBy } from 'lodash';
+import { fromPairs, ListIterator, orderBy } from 'lodash';
 
-import { Attributions, PackageInfo } from '../../../shared/shared-types';
+import {
+  AttributionData,
+  DisplayPackageInfo,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { PanelAttributionData } from '../../util/get-contained-packages';
+import { Filter, FilterCounts, filters, Sorting } from '../../shared-constants';
+import { DisplayPackageInfos } from '../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
+import { getCardLabels } from '../../util/get-card-labels';
+import { getNumericalCriticalityValue } from '../../util/get-package-sorter';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
-
-export const filters = Object.values(text.attributionFilters);
-export type Filter = (typeof filters)[number];
-export const qaFilters = ['Currently Preferred'] satisfies Array<Filter>;
-export type FilterCounts = Record<Filter, number>;
+import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 
 export const LOW_CONFIDENCE_THRESHOLD = 60;
+const LARGEST_UNICODE_CHAR = '\u10FFFF';
 
 export const FILTER_FUNCTIONS: Record<
   Filter,
-  (packageInfo: PackageInfo, attributions: Attributions) => boolean
+  (packageInfo: PackageInfo) => boolean
 > = {
-  'Currently Preferred': (packageInfo) => !!packageInfo.preferred,
-  'Excluded from Notice': (packageInfo) => !!packageInfo.excludeFromNotice,
-  'First Party': (packageInfo) => !!packageInfo.firstParty,
-  Incomplete: (packageInfo) => isPackageInfoIncomplete(packageInfo),
-  'Low Confidence': (packageInfo) =>
+  [text.filters.currentlyPreferred]: (packageInfo) => !!packageInfo.preferred,
+  [text.filters.excludedFromNotice]: (packageInfo) =>
+    !!packageInfo.excludeFromNotice,
+  [text.filters.firstParty]: (packageInfo) => !!packageInfo.firstParty,
+  [text.filters.incomplete]: (packageInfo) =>
+    isPackageInfoIncomplete(packageInfo),
+  [text.filters.lowConfidence]: (packageInfo) =>
     packageInfo.attributionConfidence !== undefined &&
     packageInfo.attributionConfidence <= LOW_CONFIDENCE_THRESHOLD,
-  'Modified Previously Preferred': (packageInfo, attributions) =>
-    !!packageInfo.originIds?.length &&
-    !packageInfo.wasPreferred &&
-    !!Object.values(attributions).find(
-      ({ originIds, wasPreferred }) =>
-        wasPreferred &&
-        originIds?.some((id) => packageInfo.originIds?.includes(id)),
-    ),
-  'Needs Follow-Up': (packageInfo) => !!packageInfo.followUp,
-  'Needs Review by QA': (packageInfo) => !!packageInfo.needsReview,
-  'Pre-selected': (packageInfo) => !!packageInfo.preSelected,
-  'Previously Preferred': (packageInfo) => !!packageInfo.wasPreferred,
-  'Third Party': (packageInfo) => !packageInfo.firstParty,
+  [text.filters.needsFollowUp]: (packageInfo) => !!packageInfo.followUp,
+  [text.filters.needsReview]: (packageInfo) => !!packageInfo.needsReview,
+  [text.filters.preSelected]: (packageInfo) => !!packageInfo.preSelected,
+  [text.filters.previouslyPreferred]: (packageInfo) =>
+    !!packageInfo.wasPreferred,
+  [text.filters.thirdParty]: (packageInfo) => !packageInfo.firstParty,
 };
 
 export function getFilteredAttributionCounts({
-  externalData,
   manualData,
 }: {
-  externalData: PanelAttributionData;
-  manualData: PanelAttributionData;
+  manualData: AttributionData;
 }): FilterCounts {
   return fromPairs(
     filters.map((filter) => [
       filter,
       Object.values(manualData.attributions).filter((attribution) =>
-        FILTER_FUNCTIONS[filter](attribution, externalData.attributions),
+        FILTER_FUNCTIONS[filter](attribution),
       ).length,
     ]),
   ) as FilterCounts;
@@ -61,18 +59,55 @@ export function getFilteredAttributionCounts({
 
 export function getFilteredAttributions({
   selectedFilters,
-  externalData,
   manualData,
+  sorting,
+  search,
 }: {
   selectedFilters: Array<Filter>;
-  externalData: PanelAttributionData;
-  manualData: PanelAttributionData;
-}): Attributions {
-  return selectedFilters.length
-    ? pickBy(manualData.attributions, (attribution) =>
-        selectedFilters.every((filter) =>
-          FILTER_FUNCTIONS[filter](attribution, externalData.attributions),
-        ),
-      )
-    : manualData.attributions;
+  manualData: AttributionData;
+  sorting: Sorting;
+  search: string;
+}): DisplayPackageInfos {
+  // Item is alphabetical if starts with a letter. Sort empty attributions to the end of the list.
+  const iteratees: Array<ListIterator<[string, DisplayPackageInfo], unknown>> =
+    [
+      ([, packageInfo]) => {
+        const title = getCardLabels(packageInfo)[0];
+        return title >= 'a' ? title : LARGEST_UNICODE_CHAR;
+      },
+    ];
+  const orders: Array<'asc' | 'desc'> = ['asc'];
+
+  if (sorting === text.sortings.criticality) {
+    iteratees.unshift(([, { criticality }]) =>
+      getNumericalCriticalityValue(criticality),
+    );
+    orders.unshift('desc');
+  } else if (sorting === text.sortings.occurrence) {
+    iteratees.unshift(([, { count }]) => count ?? 0);
+    orders.unshift('desc');
+  }
+
+  return fromPairs(
+    orderBy(
+      Object.entries(manualData.attributions)
+        .filter(
+          ([attributionId, attribution]) =>
+            packageInfoContainsSearchTerm(attribution, search) &&
+            selectedFilters.every((filter) =>
+              FILTER_FUNCTIONS[filter](manualData.attributions[attributionId]),
+            ),
+        )
+        .map<[string, DisplayPackageInfo]>(([attributionId, attribution]) => [
+          attributionId,
+          convertPackageInfoToDisplayPackageInfo(
+            attribution,
+            [attributionId],
+            manualData.attributionsToResources[attributionId]?.length ?? 0,
+          ),
+        ]),
+      iteratees,
+      orders,
+    ),
+  );
 }

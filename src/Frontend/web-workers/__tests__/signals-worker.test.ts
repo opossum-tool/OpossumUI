@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
 import { SignalsWorker, SignalsWorkerOutput } from '../signals-worker';
 
@@ -45,7 +46,7 @@ describe('SignalsWorker', () => {
     const dispatch = jest.fn();
     const worker = new SignalsWorker(dispatch, {
       manualData: faker.opossum.manualAttributionData(),
-      sortByCriticality: false,
+      signalSorting: text.sortings.name,
     });
 
     worker.processInput({
@@ -77,7 +78,7 @@ describe('SignalsWorker', () => {
       externalData: faker.opossum.externalAttributionData(),
       resolvedExternalAttributions: new Set<string>(),
       attributionsToHashes: {},
-      sortByCriticality: false,
+      signalSorting: text.sortings.name,
     });
 
     worker.processInput({

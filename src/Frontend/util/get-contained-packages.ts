@@ -9,11 +9,6 @@ import {
 import { AttributionIdWithCount } from '../types/types';
 import { getAttributedChildren } from './get-attributed-children';
 
-export type PanelAttributionData = Pick<
-  AttributionData,
-  'attributions' | 'resourcesToAttributions' | 'resourcesWithAttributedChildren'
->;
-
 export function getExternalAttributionIdsWithCount(
   attributionIds: Array<string>,
 ): Array<AttributionIdWithCount> {
@@ -42,7 +37,7 @@ export function getContainedExternalPackages(
 
 export function getContainedManualPackages(
   selectedResourceId: string,
-  manualData: Readonly<PanelAttributionData>,
+  manualData: Readonly<AttributionData>,
 ): Array<AttributionIdWithCount> {
   const manualAttributedChildren = getAttributedChildren(
     manualData.resourcesWithAttributedChildren,
