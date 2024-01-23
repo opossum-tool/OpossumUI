@@ -16,14 +16,25 @@ import { useAuditingOptions } from './AuditingOptions.util';
 
 const classes = {
   container: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
+  containerFixedHeight: {
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+    height: '10%',
+  },
 } satisfies SxProps;
 
 interface Props {
   packageInfo: DisplayPackageInfo;
   isEditable: boolean;
+  isDiffView?: boolean;
 }
 
-export function AuditingOptions({ packageInfo, isEditable }: Props) {
+export function AuditingOptions({
+  packageInfo,
+  isEditable,
+  isDiffView,
+}: Props) {
   const options = useAuditingOptions({ packageInfo, isEditable });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const unselectedOptions = options.filter(
@@ -32,7 +43,9 @@ export function AuditingOptions({ packageInfo, isEditable }: Props) {
 
   return options.length ? (
     <>
-      <MuiBox sx={classes.container}>
+      <MuiBox
+        sx={isDiffView ? classes.containerFixedHeight : classes.container}
+      >
         {renderTriggerButton()}
         {renderSelectedOptions()}
       </MuiBox>

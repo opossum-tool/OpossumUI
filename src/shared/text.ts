@@ -132,4 +132,7 @@ export const text = {
     searchTooltip: 'Search',
     sortTooltip: 'Sort',
   },
+  diffPopup: {
+    title: 'Compare to original signal',
+  },
 } as const;

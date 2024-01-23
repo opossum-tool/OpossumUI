@@ -6,15 +6,17 @@
 import MuiBox from '@mui/material/Box';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiToggleButton from '@mui/material/ToggleButton';
-import { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AllowedSaveOperations, ButtonText, View } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { setAllowedSaveOperations } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
+  getExternalAttributions,
   getTemporaryDisplayPackageInfo,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../state/selectors/all-views-resource-selectors';
@@ -24,10 +26,12 @@ import {
   ResetStateListener,
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
+import { ButtonProps } from '../Button/Button';
 import {
   ConfirmationDialog,
   useConfirmationDialog,
 } from '../ConfirmationDialog/ConfirmationDialog';
+import { DiffPopup } from '../DiffPopup/DiffPopup';
 import { WasPreferredIcon } from '../Icons/Icons';
 import {
   getResolvedToggleHandler,
@@ -78,6 +82,7 @@ interface AttributionColumnProps {
 
 export function AttributionColumn(props: AttributionColumnProps): ReactElement {
   const dispatch = useAppDispatch();
+  const externalAttributions = useAppSelector(getExternalAttributions);
   const resolvedExternalAttributions = useAppSelector(
     getResolvedExternalAttributions,
   );
@@ -92,6 +97,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     wereTemporaryDisplayPackageInfoModified,
   );
   const view = useAppSelector(getSelectedView);
+  const [displayDiffPopup, setDisplayDiffPopup] = useState(false);
 
   useIpcRenderer<ResetStateListener>(
     AllowedFrontendChannels.SaveFileRequest,
@@ -108,6 +114,26 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     temporaryDisplayPackageInfo.attributionIds,
     resolvedExternalAttributions,
   );
+
+  // I am not sure I understand this logic. I would have expected something like: check the originIds and see if there is a single origin that I can find in externalAttributions?
+  const originPackageInfo = useMemo(
+    () =>
+      !!temporaryDisplayPackageInfo.originIds?.length
+        ? Object.values(externalAttributions).find(({ originIds }) =>
+            originIds?.some((id) =>
+              temporaryDisplayPackageInfo.originIds?.includes(id),
+            ),
+          )
+        : undefined,
+    [externalAttributions, temporaryDisplayPackageInfo.originIds],
+  );
+
+  const compareToOriginAction: ButtonProps = {
+    disabled: !originPackageInfo,
+    onClick: originPackageInfo ? () => setDisplayDiffPopup(true) : undefined,
+    color: 'secondary',
+    buttonText: ButtonText.CompareToOrigin,
+  };
 
   useEffect(() => {
     dispatch(
@@ -131,7 +157,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           isEditable={props.isEditable}
           showHighlight={showHighlight}
           confirmEditWasPreferred={confirmEditWasPreferred}
-        ></AttributionForm>
+        />
         <MuiBox sx={classes.buttonsContainer}>
           {props.showHideButton ? (
             renderShowHideButton()
@@ -145,11 +171,13 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
               onSaveButtonClick={props.onSaveButtonClick}
               onSaveGloballyButtonClick={props.onSaveGloballyButtonClick}
               showSaveGloballyButton={props.showSaveGloballyButton}
+              additionalActions={[compareToOriginAction]}
             />
           )}
         </MuiBox>
       </MuiBox>
       {renderConfirmationDialog()}
+      {renderDiffPopup()}
     </>
   );
 
@@ -185,6 +213,25 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           </MuiDialogContentText>
         }
         title={text.modifyWasPreferredPopup.header}
+      />
+    );
+  }
+
+  function renderDiffPopup() {
+    // TODO quick solution to get a DisplayPackageInfo. Can this be improved? Also: Non-null assertion is forbidden. What to do?
+    const originDisplayedPackageInfo: DisplayPackageInfo = {
+      ...originPackageInfo,
+      attributionIds: [],
+    };
+
+    return (
+      <DiffPopup
+        packagesForDiff={{
+          originDisplayPackageInfo: originDisplayedPackageInfo,
+          currentDisplayPackageInfo: temporaryDisplayPackageInfo,
+        }}
+        isOpen={displayDiffPopup}
+        setDisplayState={setDisplayDiffPopup}
       />
     );
   }

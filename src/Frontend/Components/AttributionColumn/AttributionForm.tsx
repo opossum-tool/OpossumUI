@@ -38,6 +38,7 @@ interface AttributionFormProps {
   isEditable: boolean;
   showHighlight?: boolean;
   confirmEditWasPreferred?: Confirm;
+  isDiffView?: boolean;
 }
 
 export function AttributionForm(props: AttributionFormProps): ReactElement {
@@ -48,6 +49,7 @@ export function AttributionForm(props: AttributionFormProps): ReactElement {
       <AuditingOptions
         packageInfo={props.packageInfo}
         isEditable={props.isEditable}
+        isDiffView={props.isDiffView}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>
@@ -106,6 +108,7 @@ export function AttributionForm(props: AttributionFormProps): ReactElement {
         }
         size={'small'}
         fullWidth
+        disabled={!props.isEditable}
       >
         <MuiToggleButton value={false} disableRipple>
           {AttributionType.ThirdParty}

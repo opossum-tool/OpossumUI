@@ -53,6 +53,7 @@ export enum PackagePanelTitle {
 
 export enum ButtonText {
   Apply = 'Apply',
+  ApplyChanges = 'Apply changes',
   Back = 'Back',
   Cancel = 'Cancel',
   Clear = 'Clear',
@@ -60,6 +61,7 @@ export enum ButtonText {
   Confirm = 'Confirm',
   ConfirmGlobally = 'Confirm globally',
   CreateAndProceed = 'Create and proceed',
+  CompareToOrigin = 'Compare to origin',
   Delete = 'Delete',
   DeleteGlobally = 'Delete globally',
   Discard = 'Discard',
@@ -69,6 +71,7 @@ export enum ButtonText {
   Ok = 'Ok',
   OpenDotOpossumFile = 'Open ".opossum" file',
   Revert = 'Revert',
+  RevertAll = 'Revert all',
   Save = 'Save',
   SaveGlobally = 'Save globally',
   ShowResources = 'Show resources',

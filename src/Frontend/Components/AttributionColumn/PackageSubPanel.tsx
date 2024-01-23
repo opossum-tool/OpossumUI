@@ -266,7 +266,8 @@ export function PackageSubPanel({
                   displayPackageInfo.url &&
                   displayPackageInfo.copyright &&
                   displayPackageInfo.licenseName
-                )
+                ) ||
+                !isEditable
               }
               onClick={() =>
                 confirmEditWasPreferred?.(async () => {
