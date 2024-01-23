@@ -21,10 +21,7 @@ import { text } from '../../../shared/text';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getExternalAttributionSources,
-  getTemporaryDisplayPackageInfo,
-} from '../../state/selectors/all-views-resource-selectors';
+import { getExternalAttributionSources } from '../../state/selectors/all-views-resource-selectors';
 import { isAuditViewSelected } from '../../state/selectors/view-selector';
 import { useAutocompleteSignals } from '../../state/variables/use-autocomplete-signals';
 import { generatePurl } from '../../util/handle-purl';
@@ -51,6 +48,7 @@ type AutocompleteAttribute = Extract<
 interface Props {
   title: string;
   attribute: AutocompleteAttribute;
+  packageInfo: DisplayPackageInfo;
   highlight?: 'default' | 'dark';
   endAdornment?: React.ReactElement;
   defaults?: Array<AutocompleteSignal>;
@@ -75,6 +73,7 @@ const AddIconButton = styled(MuiIconButton)({
 export function PackageAutocomplete({
   attribute,
   title,
+  packageInfo,
   highlight = 'default',
   endAdornment,
   defaults = [],
@@ -83,8 +82,7 @@ export function PackageAutocomplete({
   onEdit,
 }: Props) {
   const dispatch = useAppDispatch();
-  const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
-  const attributeValue = temporaryPackageInfo[attribute] || '';
+  const attributeValue = packageInfo[attribute] || '';
   const [inputValue, setInputValue] = useState(attributeValue);
   const sources = useAppSelector(getExternalAttributionSources);
   const isAuditView = useAppSelector(isAuditViewSelected);
@@ -118,10 +116,7 @@ export function PackageAutocomplete({
       inputValue={inputValue}
       highlight={
         showHighlight &&
-        isImportantAttributionInformationMissing(
-          attribute,
-          temporaryPackageInfo,
-        )
+        isImportantAttributionInformationMissing(attribute, packageInfo)
           ? highlight
           : undefined
       }
@@ -141,7 +136,7 @@ export function PackageAutocomplete({
       }
       renderOptionStartIcon={renderOptionStartIcon}
       renderOptionEndIcon={renderOptionEndIcon}
-      value={temporaryPackageInfo}
+      value={packageInfo}
       filterOptions={createFilterOptions({
         stringify: (option) => {
           switch (attribute) {
@@ -189,11 +184,11 @@ export function PackageAutocomplete({
       }}
       onInputChange={(event, value) =>
         event &&
-        temporaryPackageInfo[attribute] !== value &&
+        packageInfo[attribute] !== value &&
         onEdit?.(() => {
           dispatch(
             setTemporaryDisplayPackageInfo({
-              ...temporaryPackageInfo,
+              ...packageInfo,
               [attribute]: value,
               wasPreferred: undefined,
             }),
@@ -269,7 +264,7 @@ export function PackageAutocomplete({
                 'source',
                 'suffix',
               ]),
-              ...pick(temporaryPackageInfo, [
+              ...pick(packageInfo, [
                 'attributionConfidence',
                 'excludeFromNotice',
                 'followUp',

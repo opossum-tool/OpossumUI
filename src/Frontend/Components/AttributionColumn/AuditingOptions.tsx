@@ -5,7 +5,7 @@
 import AddIcon from '@mui/icons-material/Add';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
-import { SxProps } from '@mui/system';
+import { SxProps, Theme } from '@mui/system';
 import { useState } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
@@ -21,9 +21,10 @@ const classes = {
 interface Props {
   packageInfo: DisplayPackageInfo;
   isEditable: boolean;
+  sx?: SxProps<Theme>;
 }
 
-export function AuditingOptions({ packageInfo, isEditable }: Props) {
+export function AuditingOptions({ packageInfo, isEditable, sx }: Props) {
   const options = useAuditingOptions({ packageInfo, isEditable });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const unselectedOptions = options.filter(
@@ -32,7 +33,7 @@ export function AuditingOptions({ packageInfo, isEditable }: Props) {
 
   return options.length ? (
     <>
-      <MuiBox sx={classes.container}>
+      <MuiBox sx={{ ...classes.container, ...sx }}>
         {renderTriggerButton()}
         {renderSelectedOptions()}
       </MuiBox>

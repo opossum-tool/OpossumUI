@@ -7,6 +7,7 @@ import MuiDivider from '@mui/material/Divider';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
+import { useMemo } from 'react';
 
 import { DisplayPackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -31,20 +32,41 @@ const classes = {
   },
 };
 
+export type PanelVariantProp =
+  | 'default'
+  | 'expanded'
+  | 'expanded-invisible'
+  | 'hidden';
+
 interface AttributionFormProps {
   packageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  isDiffView?: boolean;
+  label?: string;
 }
 
 export function AttributionForm(props: AttributionFormProps) {
   const dispatch = useAppDispatch();
+  const variant = useMemo<PanelVariantProp>(() => {
+    if (!!props.isDiffView && props.packageInfo.firstParty) {
+      return 'expanded-invisible';
+    }
+    if (props.isDiffView && !props.packageInfo.firstParty) {
+      return 'expanded';
+    }
+    if (!props.isDiffView && props.packageInfo.firstParty) {
+      return 'hidden';
+    }
+    return 'default';
+  }, [props.packageInfo.firstParty, props.isDiffView]);
 
   return (
-    <MuiBox sx={classes.formContainer}>
+    <MuiBox sx={classes.formContainer} aria-label={props.label}>
       <AuditingOptions
         packageInfo={props.packageInfo}
         isEditable={!!props.onEdit}
+        sx={{ flex: props.isDiffView ? 1 : undefined }}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>
@@ -60,24 +82,24 @@ export function AttributionForm(props: AttributionFormProps) {
         <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
       </MuiDivider>
       {renderAttributionType()}
-      {props.packageInfo.firstParty ? null : (
-        <>
-          <CopyrightSubPanel
-            displayPackageInfo={props.packageInfo}
-            showHighlight={props.showHighlight}
-            onEdit={props.onEdit}
-          />
-          <LicenseSubPanel
-            displayPackageInfo={props.packageInfo}
-            showHighlight={props.showHighlight}
-            onEdit={props.onEdit}
-          />
-        </>
-      )}
-      <CommentStack
+      <CopyrightSubPanel
         displayPackageInfo={props.packageInfo}
+        showHighlight={props.showHighlight}
         onEdit={props.onEdit}
+        variant={variant}
       />
+      <LicenseSubPanel
+        displayPackageInfo={props.packageInfo}
+        showHighlight={props.showHighlight}
+        onEdit={props.onEdit}
+        variant={variant}
+      />
+      {props.isDiffView ? null : (
+        <CommentStack
+          displayPackageInfo={props.packageInfo}
+          onEdit={props.onEdit}
+        />
+      )}
     </MuiBox>
   );
 
@@ -99,6 +121,7 @@ export function AttributionForm(props: AttributionFormProps) {
         }
         size={'small'}
         fullWidth
+        disabled={!props.onEdit}
       >
         <MuiToggleButton value={false} disableRipple>
           {AttributionType.ThirdParty}

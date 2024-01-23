@@ -10,6 +10,7 @@ import { HighlightingColor } from '../../enums/enums';
 import { inputElementClasses, InputElementProps } from './shared';
 
 interface TextProps extends InputElementProps {
+  rows?: number;
   minRows?: number;
   maxRows?: number;
   endIcon?: React.ReactElement;
@@ -62,6 +63,7 @@ export function TextBox(props: TextProps) {
           ),
         }}
         multiline={props.multiline}
+        rows={props.rows}
         minRows={props.minRows}
         maxRows={props.maxRows}
         variant="outlined"

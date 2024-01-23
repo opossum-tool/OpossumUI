@@ -123,7 +123,7 @@ export function useAuditingOptions({
               preferred: false,
             }),
           ),
-        interactive: isPreferenceFeatureEnabled && qaMode,
+        interactive: isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
         id: 'was-preferred',
@@ -137,7 +137,7 @@ export function useAuditingOptions({
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
         selected: !!originalPreferred,
-        interactive: !!originalPreferred,
+        interactive: !!originalPreferred && isEditable,
         deleteIcon: <ReplayIcon aria-label={'undo modified preferred'} />,
         onDelete: originalPreferred
           ? () =>
