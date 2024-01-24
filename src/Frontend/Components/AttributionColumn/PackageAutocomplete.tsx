@@ -56,7 +56,7 @@ interface Props {
   defaults?: Array<AutocompleteSignal>;
   disabled: boolean;
   showHighlight: boolean | undefined;
-  confirmEditWasPreferred: Confirm;
+  onEdit?: Confirm;
 }
 
 const Badge = styled(MuiBadge)({
@@ -80,7 +80,7 @@ export function PackageAutocomplete({
   defaults = [],
   disabled,
   showHighlight,
-  confirmEditWasPreferred,
+  onEdit,
 }: Props) {
   const dispatch = useAppDispatch();
   const temporaryPackageInfo = useAppSelector(getTemporaryDisplayPackageInfo);
@@ -186,7 +186,7 @@ export function PackageAutocomplete({
       onInputChange={(event, value) =>
         event &&
         temporaryPackageInfo[attribute] !== value &&
-        confirmEditWasPreferred(() => {
+        onEdit?.(() => {
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...temporaryPackageInfo,

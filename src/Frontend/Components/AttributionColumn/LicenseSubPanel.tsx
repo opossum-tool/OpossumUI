@@ -66,17 +66,15 @@ const classes = {
 };
 
 interface LicenseSubPanelProps {
-  isEditable: boolean;
   displayPackageInfo: DisplayPackageInfo;
   showHighlight?: boolean;
-  confirmEditWasPreferred: Confirm;
+  onEdit?: Confirm;
 }
 
 export function LicenseSubPanel({
-  confirmEditWasPreferred,
   displayPackageInfo,
-  isEditable,
   showHighlight,
+  onEdit,
 }: LicenseSubPanelProps): ReactElement {
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
@@ -121,9 +119,9 @@ export function LicenseSubPanel({
           <PackageAutocomplete
             attribute={'licenseName'}
             title={text.attributionColumn.licenseName}
-            disabled={!isEditable}
+            disabled={!onEdit}
             showHighlight={showHighlight}
-            confirmEditWasPreferred={confirmEditWasPreferred}
+            onEdit={onEdit}
             endAdornment={
               displayPackageInfo.licenseText ? (
                 <MuiInputAdornment position="end" sx={classes.endAdornment}>
@@ -136,19 +134,19 @@ export function LicenseSubPanel({
         </MuiAccordionSummary>
         <MuiAccordionDetails sx={classes.expansionPanelDetails}>
           <TextBox
-            isEditable={isEditable}
+            isEditable={!!onEdit}
             sx={classes.licenseText}
             minRows={3}
             maxRows={10}
             multiline={true}
             title={getLicenseTextLabelText(
               displayPackageInfo.licenseName,
-              isEditable,
+              !!onEdit,
               frequentLicensesNames,
             )}
             text={displayPackageInfo.licenseText}
             handleChange={({ target: { value } }) =>
-              confirmEditWasPreferred(() =>
+              onEdit?.(() =>
                 dispatch(
                   setTemporaryDisplayPackageInfo({
                     ...displayPackageInfo,
