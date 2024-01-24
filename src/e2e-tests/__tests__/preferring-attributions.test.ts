@@ -50,43 +50,47 @@ test('allows QA user to mark and unmark attributions as preferred in audit view'
   resourceBrowser,
 }) => {
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    manualPackageInfo,
+  );
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.saveGloballyButtonIsHidden();
-  await attributionDetails.assert.auditingLabelIsHidden(
+  await attributionDetails.attributionForm.assert.auditingLabelIsHidden(
     'currentlyPreferredLabel',
   );
 
-  await attributionDetails.openAuditingOptionsMenu();
-  await attributionDetails.assert.auditingMenuOptionIsHidden(
+  await attributionDetails.attributionForm.openAuditingOptionsMenu();
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsHidden(
     'currentlyPreferredOption',
   );
 
   await menuBar.toggleQaMode();
-  await attributionDetails.assert.auditingMenuOptionIsVisible(
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsVisible(
     'currentlyPreferredOption',
   );
 
-  await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
-  await attributionDetails.closeAuditingOptionsMenu();
-  await attributionDetails.assert.auditingLabelIsVisible(
+  await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
+  await attributionDetails.attributionForm.closeAuditingOptionsMenu();
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
     'currentlyPreferredLabel',
   );
   await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.assert.saveGloballyButtonIsHidden();
 
-  await attributionDetails.openAuditingOptionsMenu();
-  await attributionDetails.assert.auditingMenuOptionIsHidden(
+  await attributionDetails.attributionForm.openAuditingOptionsMenu();
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsHidden(
     'currentlyPreferredOption',
   );
 
-  await attributionDetails.closeAuditingOptionsMenu();
-  await attributionDetails.removeAuditingLabel('currentlyPreferredLabel');
+  await attributionDetails.attributionForm.closeAuditingOptionsMenu();
+  await attributionDetails.attributionForm.removeAuditingLabel(
+    'currentlyPreferredLabel',
+  );
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.saveGloballyButtonIsHidden();
 
-  await attributionDetails.openAuditingOptionsMenu();
-  await attributionDetails.assert.auditingMenuOptionIsVisible(
+  await attributionDetails.attributionForm.openAuditingOptionsMenu();
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsVisible(
     'currentlyPreferredOption',
   );
 });
@@ -100,39 +104,45 @@ test('allows QA user to mark and unmark attributions as preferred in attribution
 }) => {
   await topBar.gotoAttributionView();
   await attributionList.attributionCard.click(manualPackageInfo);
-  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    manualPackageInfo,
+  );
   await attributionDetails.assert.saveButtonIsDisabled();
 
-  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(faker.lorem.sentence());
   await attributionDetails.assert.saveButtonIsEnabled();
 
-  await attributionDetails.openAuditingOptionsMenu();
-  await attributionDetails.assert.auditingMenuOptionIsHidden(
+  await attributionDetails.attributionForm.openAuditingOptionsMenu();
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsHidden(
     'currentlyPreferredOption',
   );
 
   await menuBar.toggleQaMode();
-  await attributionDetails.assert.auditingMenuOptionIsVisible(
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsVisible(
     'currentlyPreferredOption',
   );
 
-  await attributionDetails.auditingOptionsMenu.currentlyPreferredOption.click();
-  await attributionDetails.closeAuditingOptionsMenu();
+  await attributionDetails.attributionForm.auditingOptionsMenu.currentlyPreferredOption.click();
+  await attributionDetails.attributionForm.closeAuditingOptionsMenu();
   await attributionDetails.assert.saveButtonIsEnabled();
 
   await attributionDetails.saveButton.click();
   await changePreferredStatusGloballyPopup.assert.markAsPreferredWarningIsVisible();
 
   await changePreferredStatusGloballyPopup.okButton.click();
-  await attributionDetails.assert.auditingLabelIsVisible(
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
     'currentlyPreferredLabel',
   );
 
-  await attributionDetails.removeAuditingLabel('currentlyPreferredLabel');
+  await attributionDetails.attributionForm.removeAuditingLabel(
+    'currentlyPreferredLabel',
+  );
   await attributionDetails.assert.saveButtonIsEnabled();
 
-  await attributionDetails.openAuditingOptionsMenu();
-  await attributionDetails.assert.auditingMenuOptionIsVisible(
+  await attributionDetails.attributionForm.openAuditingOptionsMenu();
+  await attributionDetails.attributionForm.assert.auditingMenuOptionIsVisible(
     'currentlyPreferredOption',
   );
 });

@@ -68,18 +68,28 @@ test('adds a new third-party attribution in audit view', async ({
   });
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.addNewAttributionButton.click({ button: 'right' });
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
 
   await resourceDetails.addNewAttributionButton.click();
-  await attributionDetails.assert.isEmpty();
+  await attributionDetails.attributionForm.assert.isEmpty();
 
-  await attributionDetails.name.fill(newPackageInfo.packageName!);
-  await attributionDetails.version.fill(newPackageInfo.packageVersion!);
-  await attributionDetails.url.fill(newPackageInfo.url!);
-  await attributionDetails.copyright.fill(newPackageInfo.copyright!);
-  await attributionDetails.licenseName.click();
-  await attributionDetails.selectLicense(license1);
-  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
+  await attributionDetails.attributionForm.name.fill(
+    newPackageInfo.packageName!,
+  );
+  await attributionDetails.attributionForm.version.fill(
+    newPackageInfo.packageVersion!,
+  );
+  await attributionDetails.attributionForm.url.fill(newPackageInfo.url!);
+  await attributionDetails.attributionForm.copyright.fill(
+    newPackageInfo.copyright!,
+  );
+  await attributionDetails.attributionForm.licenseName.click();
+  await attributionDetails.attributionForm.selectLicense(license1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    newPackageInfo,
+  );
 
   await resourceBrowser.goto(resourceName2);
   await notSavedPopup.assert.isVisible();
@@ -101,35 +111,53 @@ test('allows user to edit an existing attribution locally and globally in audit 
     packageType: undefined,
   });
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.assert.licenseTextIsHidden();
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.saveGloballyButtonIsHidden();
   await attributionDetails.assert.revertButtonIsDisabled();
 
-  await attributionDetails.toggleLicenseTextVisibility();
-  await attributionDetails.assert.licenseTextIsVisible();
+  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
+  await attributionDetails.attributionForm.assert.licenseTextIsVisible();
 
-  await attributionDetails.licenseText.fill(newPackageInfo.licenseText!);
-  await attributionDetails.assert.licenseTextIs(newPackageInfo.licenseText!);
+  await attributionDetails.attributionForm.licenseText.fill(
+    newPackageInfo.licenseText!,
+  );
+  await attributionDetails.attributionForm.assert.licenseTextIs(
+    newPackageInfo.licenseText!,
+  );
 
-  await attributionDetails.toggleLicenseTextVisibility();
-  await attributionDetails.assert.licenseTextIsHidden();
+  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
+  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
 
-  await attributionDetails.selectAttributionType('First Party');
-  await attributionDetails.assert.matchesPackageInfo({
+  await attributionDetails.attributionForm.selectAttributionType('First Party');
+  await attributionDetails.attributionForm.assert.matchesPackageInfo({
     ...packageInfo1,
     firstParty: true,
   });
 
-  await attributionDetails.selectAttributionType('Third Party');
-  await attributionDetails.name.fill(newPackageInfo.packageName!);
-  await attributionDetails.version.fill(newPackageInfo.packageVersion!);
-  await attributionDetails.url.fill(newPackageInfo.url!);
-  await attributionDetails.copyright.fill(newPackageInfo.copyright!);
-  await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
-  await attributionDetails.comment().fill(newPackageInfo.comment!);
-  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
+  await attributionDetails.attributionForm.selectAttributionType('Third Party');
+  await attributionDetails.attributionForm.name.fill(
+    newPackageInfo.packageName!,
+  );
+  await attributionDetails.attributionForm.version.fill(
+    newPackageInfo.packageVersion!,
+  );
+  await attributionDetails.attributionForm.url.fill(newPackageInfo.url!);
+  await attributionDetails.attributionForm.copyright.fill(
+    newPackageInfo.copyright!,
+  );
+  await attributionDetails.attributionForm.licenseName.fill(
+    newPackageInfo.licenseName!,
+  );
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(newPackageInfo.comment!);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    newPackageInfo,
+  );
   await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.assert.revertButtonIsEnabled();
 
@@ -138,18 +166,20 @@ test('allows user to edit an existing attribution locally and globally in audit 
   await attributionDetails.assert.revertButtonIsDisabled();
 
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
 
   const newPackageName = faker.internet.domainWord();
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.name.fill(newPackageName);
+  await attributionDetails.attributionForm.name.fill(newPackageName);
   await attributionDetails.selectSaveMenuOption('saveGlobally');
   await attributionDetails.assert.saveButtonIsHidden();
   await attributionDetails.assert.saveGloballyButtonIsVisible();
 
   await attributionDetails.saveGloballyButton.click();
   await resourceBrowser.goto(resourceName4);
-  await attributionDetails.assert.nameIs(newPackageName);
+  await attributionDetails.attributionForm.assert.nameIs(newPackageName);
 });
 
 test('displays and edits an existing attribution in attribution view', async ({
@@ -175,27 +205,45 @@ test('displays and edits an existing attribution in attribution view', async ({
   await resourceBrowser.assert.resourceIsVisible(resourceName2);
   await resourceBrowser.assert.resourceIsHidden(resourceName3);
   await resourceBrowser.assert.resourceIsHidden(resourceName4);
-  await attributionDetails.assert.licenseTextIsHidden();
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
   await attributionDetails.assert.saveButtonIsDisabled();
   await attributionDetails.assert.revertButtonIsDisabled();
 
-  await attributionDetails.toggleLicenseTextVisibility();
-  await attributionDetails.assert.licenseTextIsVisible();
+  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
+  await attributionDetails.attributionForm.assert.licenseTextIsVisible();
 
-  await attributionDetails.licenseText.fill(newPackageInfo.licenseText!);
-  await attributionDetails.assert.licenseTextIs(newPackageInfo.licenseText!);
+  await attributionDetails.attributionForm.licenseText.fill(
+    newPackageInfo.licenseText!,
+  );
+  await attributionDetails.attributionForm.assert.licenseTextIs(
+    newPackageInfo.licenseText!,
+  );
 
-  await attributionDetails.toggleLicenseTextVisibility();
-  await attributionDetails.assert.licenseTextIsHidden();
+  await attributionDetails.attributionForm.toggleLicenseTextVisibility();
+  await attributionDetails.attributionForm.assert.licenseTextIsHidden();
 
-  await attributionDetails.name.fill(newPackageInfo.packageName!);
-  await attributionDetails.version.fill(newPackageInfo.packageVersion!);
-  await attributionDetails.url.fill(newPackageInfo.url!);
-  await attributionDetails.copyright.fill(newPackageInfo.copyright!);
-  await attributionDetails.licenseName.fill(newPackageInfo.licenseName!);
-  await attributionDetails.comment().fill(newPackageInfo.comment!);
-  await attributionDetails.assert.matchesPackageInfo(newPackageInfo);
+  await attributionDetails.attributionForm.name.fill(
+    newPackageInfo.packageName!,
+  );
+  await attributionDetails.attributionForm.version.fill(
+    newPackageInfo.packageVersion!,
+  );
+  await attributionDetails.attributionForm.url.fill(newPackageInfo.url!);
+  await attributionDetails.attributionForm.copyright.fill(
+    newPackageInfo.copyright!,
+  );
+  await attributionDetails.attributionForm.licenseName.fill(
+    newPackageInfo.licenseName!,
+  );
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(newPackageInfo.comment!);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    newPackageInfo,
+  );
   await attributionDetails.assert.saveButtonIsEnabled();
   await attributionDetails.assert.revertButtonIsEnabled();
 
@@ -213,15 +261,19 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
   topBar,
 }) => {
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.comment().fill(faker.lorem.sentences());
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(faker.lorem.sentences());
 
   await resourceDetails.addNewAttributionButton.click();
   await notSavedPopup.assert.isVisible();
 
   await notSavedPopup.discardButton.click();
-  await attributionDetails.assert.isEmpty();
+  await attributionDetails.attributionForm.assert.isEmpty();
 
-  await attributionDetails.comment().fill(faker.lorem.sentences());
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(faker.lorem.sentences());
   await topBar.gotoReportView();
   await notSavedPopup.assert.isVisible();
 
@@ -231,7 +283,9 @@ test('warns user of unsaved changes if user attempts to navigate away before sav
 
   await notSavedPopup.discardButton.click();
   await attributionList.attributionCard.click(packageInfo1);
-  await attributionDetails.comment().fill(faker.lorem.sentences());
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(faker.lorem.sentences());
   await topBar.gotoAuditView();
   await notSavedPopup.assert.isVisible();
 });
@@ -246,11 +300,13 @@ test('removes was-preferred status from attribution when user saves changes', as
   await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
     wasPreferredPackageInfo,
   );
-  await attributionDetails.assert.auditingLabelIsVisible(
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
     'previouslyPreferredLabel',
   );
 
-  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(faker.lorem.sentence());
   await confirmationDialog.assert.isVisible();
 
   await confirmationDialog.cancelButton.click();
@@ -258,12 +314,14 @@ test('removes was-preferred status from attribution when user saves changes', as
     wasPreferredPackageInfo,
   );
 
-  await attributionDetails.comment().fill(faker.lorem.sentence());
+  await attributionDetails.attributionForm
+    .comment()
+    .fill(faker.lorem.sentence());
   await confirmationDialog.okButton.click();
   await resourceDetails.attributionCard.assert.wasPreferredIconIsVisible(
     wasPreferredPackageInfo,
   );
-  await attributionDetails.assert.auditingLabelIsHidden(
+  await attributionDetails.attributionForm.assert.auditingLabelIsHidden(
     'previouslyPreferredLabel',
   );
 

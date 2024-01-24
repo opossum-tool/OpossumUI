@@ -45,14 +45,18 @@ test('updates progress bar when user confirms preselected attributions in audit 
   topBar,
 }) => {
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 4,
     filesWithOnlyPreSelectedAttributions: 4,
   });
   await attributionDetails.assert.confirmButtonIsVisible();
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
-  await attributionDetails.assert.auditingLabelIsVisible('preselectedLabel');
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'preselectedLabel',
+  );
 
   await resourceDetails.attributionCard.click(packageInfo1);
   await attributionDetails.confirmButton.click();
@@ -63,10 +67,14 @@ test('updates progress bar when user confirms preselected attributions in audit 
   });
   await attributionDetails.assert.confirmButtonIsHidden();
   await attributionDetails.assert.confirmGloballyButtonIsHidden();
-  await attributionDetails.assert.auditingLabelIsHidden('preselectedLabel');
+  await attributionDetails.attributionForm.assert.auditingLabelIsHidden(
+    'preselectedLabel',
+  );
 
   await resourceBrowser.goto(resourceName2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
 
   await attributionDetails.selectConfirmMenuOption('confirmGlobally');
   await attributionDetails.confirmGloballyButton.click();
