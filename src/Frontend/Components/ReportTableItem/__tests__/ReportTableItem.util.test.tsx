@@ -118,7 +118,6 @@ describe('The table helpers', () => {
     ${'licenseName'}
     ${'packageName'}
     ${'url'}
-    ${'packageVersion'}
   `(
     'isImportantAttributionInformationMissing handles $property correctly',
     ({ property }) => {

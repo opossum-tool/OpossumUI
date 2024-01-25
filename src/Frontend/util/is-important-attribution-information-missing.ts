@@ -32,7 +32,6 @@ export function isImportantAttributionInformationMissing(
     case 'licenseName':
     case 'packageName':
     case 'packageType':
-    case 'packageVersion':
     case 'url':
       return !packageInfo[attributionProperty];
     case 'packageNamespace':
