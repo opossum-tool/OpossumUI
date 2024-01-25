@@ -63,7 +63,9 @@ test('replaces attributions in attribution view', async ({
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsHidden(resourceName4);
 
@@ -80,7 +82,9 @@ test('replaces attributions in attribution view', async ({
   await attributionList.attributionCard.assert.isHidden(packageInfo1);
 
   await attributionList.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo2,
+  );
   await resourceBrowser.assert.resourceIsVisible(resourceName3);
   await resourceBrowser.assert.resourceIsVisible(resourceName4);
 });

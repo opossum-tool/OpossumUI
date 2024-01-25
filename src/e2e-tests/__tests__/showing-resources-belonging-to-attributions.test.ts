@@ -70,7 +70,9 @@ test('shows resources belonging to attributions', async ({
     .click();
   await resourcePathPopup.goto(resourceName4);
   await resourceDetails.assert.breadcrumbsAreVisible(resourceName4);
-  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    manualPackageInfo1,
+  );
 
   await resourceDetails.gotoGlobalTab();
   await resourceDetails.signalCard
@@ -78,7 +80,9 @@ test('shows resources belonging to attributions', async ({
     .click();
   await resourcePathPopup.goto(resourceName3);
   await resourceDetails.assert.breadcrumbsAreVisible(resourceName3);
-  await attributionDetails.assert.matchesPackageInfo(manualPackageInfo2);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    manualPackageInfo2,
+  );
 
   await topBar.gotoAttributionView();
   await resourceBrowser.assert.isHidden();

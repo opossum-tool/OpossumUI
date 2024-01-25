@@ -41,13 +41,13 @@ test('warns user of unsaved changes if user attempts to open new file before sav
 }) => {
   const comment = faker.lorem.sentences();
   await resourceBrowser.goto(resourceName1);
-  await attributionDetails.comment().fill(comment);
+  await attributionDetails.attributionForm.comment().fill(comment);
 
   await topBar.openFileButton.click();
   await notSavedPopup.assert.isVisible();
 
   await notSavedPopup.cancelButton.click();
-  await attributionDetails.assert.commentIs(comment);
+  await attributionDetails.attributionForm.assert.commentIs(comment);
 
   await topBar.openFileButton.click();
   await notSavedPopup.assert.isVisible();

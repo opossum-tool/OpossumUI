@@ -59,7 +59,9 @@ test('deletes attributions in audit view', async ({
 }) => {
   await resourceBrowser.goto(resourceName1);
   await resourceDetails.attributionCard.click(packageInfo3);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo3);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo3,
+  );
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithAttributions: 5,
@@ -70,18 +72,20 @@ test('deletes attributions in audit view', async ({
   await confirmationPopup.assert.isVisible();
 
   await confirmationPopup.confirm();
-  await attributionDetails.assert.isEmpty();
+  await attributionDetails.attributionForm.assert.isEmpty();
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithAttributions: 5,
   });
 
   await resourceDetails.attributionCard.click(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
 
   await attributionDetails.deleteButton.click();
   await confirmationPopup.confirm();
-  await attributionDetails.assert.isEmpty();
+  await attributionDetails.attributionForm.assert.isEmpty();
   await topBar.assert.progressBarTooltipShowsValues({
     numberOfFiles: 5,
     filesWithAttributions: 4,
@@ -97,7 +101,7 @@ test('deletes attributions in audit view', async ({
   });
 
   await resourceBrowser.goto(resourceName3);
-  await attributionDetails.assert.isEmpty();
+  await attributionDetails.attributionForm.assert.isEmpty();
   await attributionDetails.assert.deleteButtonIsHidden();
   await attributionDetails.assert.deleteGloballyButtonIsHidden();
 
@@ -105,7 +109,9 @@ test('deletes attributions in audit view', async ({
   await resourceBrowser.assert.isHidden();
 
   await attributionList.attributionCard.click(packageInfo2);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo2);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo2,
+  );
   await attributionDetails.assert.deleteButtonIsVisible();
   await attributionDetails.assert.deleteGloballyButtonIsHidden();
 

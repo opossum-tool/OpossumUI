@@ -115,14 +115,14 @@ test('adds attribution and displays it correctly on parent and children', async 
   });
 
   await resourceDetails.signalCard.click(packageInfo4a);
-  await attributionDetails.assert.matchesPackageInfo({
+  await attributionDetails.attributionForm.assert.matchesPackageInfo({
     ...packageInfo4a,
     comment: undefined,
     comments: [packageInfo4a.comment!, packageInfo4b.comment!],
   });
 
   await resourceDetails.signalCard.addButton(packageInfo4a).click();
-  await attributionDetails.assert.matchesPackageInfo({
+  await attributionDetails.attributionForm.assert.matchesPackageInfo({
     ...packageInfo4a,
     attributionConfidence: DiscreteConfidence.High,
     comment: undefined,
@@ -139,7 +139,9 @@ test('adds attribution to child via parent override', async ({
 
   await resourceBrowser.goto(resourceName2);
   await resourceDetails.attributionCard.assert.isVisible(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
   await resourceDetails.assert.globalTabIsDisabled();
   await resourceDetails.assert.overrideParentButtonIsVisible();
   await attributionDetails.assert.deleteButtonIsHidden();
@@ -149,13 +151,15 @@ test('adds attribution to child via parent override', async ({
   await resourceDetails.attributionCard.assert.isHidden(packageInfo1);
 
   await resourceDetails.gotoGlobalTab();
-  await attributionDetails.assert.isEmpty();
+  await attributionDetails.attributionForm.assert.isEmpty();
   await resourceDetails.signalCard.assert.isVisible(packageInfo1);
   await resourceDetails.signalCard.assert.isVisible(packageInfo2);
   await resourceDetails.signalCard.assert.isVisible(packageInfo3);
 
   await resourceDetails.signalCard.click(packageInfo1);
-  await attributionDetails.assert.matchesPackageInfo(packageInfo1);
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    packageInfo1,
+  );
 
   await resourceDetails.signalCard.addButton(packageInfo1).click();
   await resourceDetails.attributionCard.assert.isVisible(packageInfo1);
@@ -163,7 +167,7 @@ test('adds attribution to child via parent override', async ({
   await resourceDetails.signalCard.assert.isVisible(packageInfo2);
   await resourceDetails.signalCard.assert.isVisible(packageInfo3);
 
-  await attributionDetails.assert.matchesPackageInfo({
+  await attributionDetails.attributionForm.assert.matchesPackageInfo({
     ...packageInfo1,
     attributionConfidence: DiscreteConfidence.High,
   });
