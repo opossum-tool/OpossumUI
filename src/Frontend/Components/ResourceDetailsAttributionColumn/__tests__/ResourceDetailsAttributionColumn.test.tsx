@@ -8,6 +8,7 @@ import {
   Attributions,
   DiscreteConfidence,
   DisplayPackageInfo,
+  PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -19,26 +20,25 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
 
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
-const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageName: 'React',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
-  attributionIds: [],
 };
-const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo2: PackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
-  attributionIds: [],
 };
 
 function getActions(
   selectedResourceId: string,
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: PackageInfo,
 ) {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryDisplayPackageInfo,
@@ -58,7 +58,9 @@ function getActions(
     ),
     setManualData(manualAttributions, resourcesToManualAttributions),
     setSelectedResourceId(selectedResourceId),
-    setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+    setTemporaryDisplayPackageInfo(
+      convertPackageInfoToDisplayPackageInfo(temporaryDisplayPackageInfo, []),
+    ),
   ];
 }
 

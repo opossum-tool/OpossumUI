@@ -17,7 +17,10 @@ import {
 } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
   getDisplayedPackage,
@@ -306,10 +309,10 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
     };
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      ...testReact,
-      attributionIds: ['uuid1'],
-    };
+    const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+      testReact,
+      ['uuid1'],
+    );
     const testResources: Resources = {
       parent: { child: 1 },
     };

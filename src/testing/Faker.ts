@@ -12,6 +12,7 @@ import type {
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../Frontend/util/convert-package-info';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
   AdvisorySuggestion,
@@ -127,12 +128,19 @@ class OpossumModule {
     };
   }
 
-  public static displayPackageInfo(
-    props: Partial<DisplayPackageInfo> = {},
-  ): DisplayPackageInfo {
+  public static displayPackageInfo({
+    attributionIds,
+    comments,
+    count,
+    ...props
+  }: Partial<DisplayPackageInfo> = {}): DisplayPackageInfo {
     return {
-      ...this.manualPackageInfo(props),
-      attributionIds: [faker.string.uuid()],
+      ...convertPackageInfoToDisplayPackageInfo(
+        this.manualPackageInfo(props),
+        attributionIds || [faker.string.uuid()],
+        count,
+      ),
+      comments,
     };
   }
 

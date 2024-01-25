@@ -7,9 +7,11 @@ import { compact, orderBy } from 'lodash';
 import {
   AttributionData,
   AutocompleteSignal,
+  DisplayPackageInfo,
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import {
   getContainedExternalPackages,
   getContainedManualPackages,
@@ -45,7 +47,7 @@ export function getAutocompleteSignals({
     manualData,
   ).map(({ attributionId }) => manualData.attributions[attributionId]);
 
-  const getUniqueKey = (item: PackageInfo) =>
+  const getUniqueKey = (item: PackageInfo | DisplayPackageInfo) =>
     compact([
       item.source && sources[item.source.name]?.name,
       item.copyright,
@@ -57,7 +59,7 @@ export function getAutocompleteSignals({
     ...signalsOnResource,
     ...signalsOnChildren,
     ...attributionsOnChildren,
-  ].reduce<Array<AutocompleteSignal>>((acc, { comment, ...signal }) => {
+  ].reduce<Array<AutocompleteSignal>>((acc, signal) => {
     if (!generatePurl(signal) || signal.preferred) {
       return acc;
     }
@@ -66,12 +68,7 @@ export function getAutocompleteSignals({
     const dupeIndex = acc.findIndex((item) => getUniqueKey(item) === key);
 
     if (dupeIndex === -1) {
-      acc.push({
-        attributionIds: [],
-        count: 1,
-        comments: comment ? [comment] : undefined,
-        ...signal,
-      });
+      acc.push(convertPackageInfoToDisplayPackageInfo(signal, [], 1));
     } else {
       acc[dupeIndex] = {
         ...acc[dupeIndex],

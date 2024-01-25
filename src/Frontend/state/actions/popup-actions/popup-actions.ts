@@ -169,7 +169,7 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavi
       unlinkAttributionAndSavePackageInfo(
         selectedResourceId,
         attributionId,
-        temporaryDisplayPackageInfo,
+        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
       ),
     );
     dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());

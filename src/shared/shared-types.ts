@@ -62,10 +62,14 @@ export interface PackageInfoCore {
 
 export interface PackageInfo extends PackageInfoCore {
   comment?: string;
+  comments?: never;
+  count?: never;
+  attributionIds?: never;
 }
 
 export interface DisplayPackageInfo extends PackageInfoCore {
   count?: number;
+  comment?: never;
   comments?: Array<string>;
   attributionIds: Array<string>;
 }

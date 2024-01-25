@@ -5,6 +5,7 @@
 import { Attributions, Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
+import { DisplayPackageInfos } from '../../types/types';
 import {
   compareAlphabeticalStrings,
   getPackageSorter,
@@ -111,7 +112,7 @@ describe('getPackageSorter', () => {
   });
 
   it('sorts by occurrence', () => {
-    const attributions: Attributions = {
+    const attributions: DisplayPackageInfos = {
       '1': faker.opossum.displayPackageInfo({
         packageName: 'Test package 1',
         packageVersion: '1.0',

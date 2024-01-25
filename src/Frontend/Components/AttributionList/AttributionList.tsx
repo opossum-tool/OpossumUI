@@ -30,6 +30,7 @@ import {
   useAttributionSorting,
 } from '../../state/variables/use-active-sorting';
 import { useFilteredAttributions } from '../../state/variables/use-filtered-attributions';
+import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { usePrevious } from '../../util/use-previous';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { List } from '../List/List';
@@ -247,7 +248,9 @@ export function AttributionList() {
                     savePackageInfo(
                       null,
                       attributionId,
-                      attributions[attributionId],
+                      convertDisplayPackageInfoToPackageInfo(
+                        attributions[attributionId],
+                      ),
                       attributionId !== selectedAttributionIdInAttributionView,
                     ),
                   );

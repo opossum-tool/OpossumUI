@@ -8,7 +8,6 @@ import { compact, mapValues, partition } from 'lodash';
 import {
   AutocompleteSignal,
   DisplayPackageInfo,
-  PackageInfo,
   Source,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
@@ -134,7 +133,7 @@ export class PackageSearchApi {
   constructor(private readonly httpClient: HttpClient) {}
 
   private deserialize(
-    input: PackageInfo,
+    input: DisplayPackageInfo,
   ): Partial<SearchSuggestion> & { isComplete: boolean } {
     const { packageName, packageNamespace, packageType } = mapValues(
       pick(input, ['packageName', 'packageNamespace', 'packageType']),
@@ -257,7 +256,7 @@ export class PackageSearchApi {
   }
 
   public async getNames(
-    props: PackageInfo,
+    props: DisplayPackageInfo,
   ): Promise<Array<AutocompleteSignal>> {
     const { name } = this.deserialize(props);
 
@@ -282,7 +281,7 @@ export class PackageSearchApi {
   }
 
   public async getNamespaces(
-    props: PackageInfo,
+    props: DisplayPackageInfo,
   ): Promise<Array<AutocompleteSignal>> {
     const { kind, name, system, projectType } = this.deserialize(props);
 
@@ -310,7 +309,7 @@ export class PackageSearchApi {
   public getVersions({
     packageVersion,
     ...props
-  }: PackageInfo): Promise<Array<AutocompleteSignal>> {
+  }: DisplayPackageInfo): Promise<Array<AutocompleteSignal>> {
     const { isComplete, kind, name, projectType, system } =
       this.deserialize(props);
 

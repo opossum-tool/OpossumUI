@@ -20,7 +20,7 @@ import {
 describe('PackageSearchApi', () => {
   describe('getNames', () => {
     it('serializes project with deterministic URL', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo();
+      const packageInfo = faker.opossum.displayPackageInfo();
       const name = faker.internet.domainWord();
       const namespace = faker.internet.domainWord();
       const projectSuggestion = faker.packageSearch.projectSuggestion({
@@ -48,7 +48,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('serializes maven package', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo();
+      const packageInfo = faker.opossum.displayPackageInfo();
       const name = faker.internet.domainWord();
       const namespace = faker.internet.domainWord();
       const projectSuggestion = faker.packageSearch.packageSuggestion({
@@ -75,7 +75,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('serializes golang package', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo();
+      const packageInfo = faker.opossum.displayPackageInfo();
       const projectSuggestion = faker.packageSearch.packageSuggestion({
         system: 'GO',
       });
@@ -99,7 +99,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('serializes NPM package', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo();
+      const packageInfo = faker.opossum.displayPackageInfo();
       const projectSuggestion = faker.packageSearch.packageSuggestion({
         system: 'NPM',
       });
@@ -123,7 +123,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('removes advisories from results', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo();
+      const packageInfo = faker.opossum.displayPackageInfo();
       const advisorySuggestion = faker.packageSearch.advisorySuggestion();
       const httpClient = faker.httpClient(
         faker.packageSearch.searchSuggestionResponse({
@@ -140,7 +140,7 @@ describe('PackageSearchApi', () => {
 
     it('deserializes input name', async () => {
       const deserializedPackageName = faker.internet.domainWord();
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageName: ` ${deserializedPackageName.toUpperCase()} `,
       });
       const httpClient = faker.httpClient(
@@ -161,7 +161,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('does not perform request when no package name present', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageName: '   ',
       });
       const httpClient = faker.httpClient(
@@ -179,7 +179,7 @@ describe('PackageSearchApi', () => {
 
   describe('getNamespaces', () => {
     it('gets namespaces for project', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: faker.packageSearch.projectType(),
       });
       const httpClient = faker.httpClient(
@@ -201,7 +201,7 @@ describe('PackageSearchApi', () => {
       const system = faker.helpers.arrayElement(
         packageSystemsRequiringNamespace,
       );
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: system,
       });
       const httpClient = faker.httpClient(
@@ -220,7 +220,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('does not get namespaces for package system which does not require one', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: faker.helpers.arrayElement(
           difference(packageSystems, packageSystemsRequiringNamespace),
         ),
@@ -236,7 +236,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('does not get namespaces for unknown package type', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo();
+      const packageInfo = faker.opossum.displayPackageInfo();
       const httpClient = faker.httpClient(
         faker.packageSearch.searchSuggestionResponse(),
       );
@@ -250,7 +250,7 @@ describe('PackageSearchApi', () => {
 
   describe('getVersions', () => {
     it('provides semantically sorted default and non-default versions for known package types', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: 'npm',
       });
       const defaultVersion = faker.packageSearch.versionResponse({
@@ -313,7 +313,7 @@ describe('PackageSearchApi', () => {
     it('provides tags as versions for GitHub packages', async () => {
       const packageName = faker.internet.domainWord();
       const packageNamespace = faker.internet.domainWord();
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: 'github',
         packageName,
         packageNamespace,
@@ -345,7 +345,7 @@ describe('PackageSearchApi', () => {
     it('provides tags as versions for GitLab packages', async () => {
       const packageName = faker.internet.domainWord();
       const packageNamespace = faker.internet.domainWord();
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: 'gitlab',
         packageName,
         packageNamespace,
@@ -375,7 +375,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('deserializes "golang" package type', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: 'golang',
       });
       const httpClient = faker.httpClient(
@@ -393,7 +393,7 @@ describe('PackageSearchApi', () => {
     });
 
     it('deserializes "go" package type', async () => {
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: 'go',
       });
       const httpClient = faker.httpClient(
@@ -413,7 +413,7 @@ describe('PackageSearchApi', () => {
     it('deserializes maven name and namespace', async () => {
       const name = faker.internet.domainWord();
       const namespace = faker.internet.domainWord();
-      const packageInfo = faker.opossum.externalPackageInfo({
+      const packageInfo = faker.opossum.displayPackageInfo({
         packageType: 'maven',
         packageName: name,
         packageNamespace: namespace,

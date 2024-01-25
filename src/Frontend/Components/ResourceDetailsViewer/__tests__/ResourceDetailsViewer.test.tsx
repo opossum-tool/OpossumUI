@@ -7,6 +7,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import {
   Attributions,
   DisplayPackageInfo,
+  PackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -31,28 +32,27 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { PanelPackage } from '../../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
 
 const testExternalLicense = 'Computed attribution license.';
 const testExternalLicense2 = 'Other computed attribution license.';
 const testManualLicense = 'Manual attribution license.';
 const testManualLicense2 = 'Another manual attribution license.';
-const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageName: 'jQuery',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
-  attributionIds: [],
 };
-const testTemporaryDisplayPackageInfo2: DisplayPackageInfo = {
+const testTemporaryDisplayPackageInfo2: PackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
-  attributionIds: [],
 };
 
 function getActions(
   selectedResourceId: string,
-  temporaryDisplayPackageInfo: DisplayPackageInfo,
+  temporaryDisplayPackageInfo: PackageInfo,
 ) {
   const manualAttributions: Attributions = {
     uuid_1: testTemporaryDisplayPackageInfo,
@@ -71,7 +71,9 @@ function getActions(
       }),
     ),
     setSelectedResourceId(selectedResourceId),
-    setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
+    setTemporaryDisplayPackageInfo(
+      convertPackageInfoToDisplayPackageInfo(temporaryDisplayPackageInfo, []),
+    ),
   ];
 }
 
