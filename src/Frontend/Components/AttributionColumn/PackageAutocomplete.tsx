@@ -143,10 +143,14 @@ export function PackageAutocomplete({
       renderOptionEndIcon={renderOptionEndIcon}
       value={temporaryPackageInfo}
       filterOptions={createFilterOptions({
-        stringify: (option) =>
-          attribute === 'packageName'
-            ? `${option.packageName || ''}${option.packageNamespace || ''}`
-            : option[attribute] || '',
+        stringify: (option) => {
+          switch (attribute) {
+            case 'packageName':
+              return `${option.packageName || ''}${option.packageNamespace || ''}`;
+            default:
+              return `${option[attribute] || ''} ${option.suffix || ''}`.trim();
+          }
+        },
       })}
       isOptionEqualToValue={(option, value) =>
         option[attribute] === value[attribute]

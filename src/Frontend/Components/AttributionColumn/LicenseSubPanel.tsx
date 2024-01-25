@@ -82,15 +82,18 @@ export function LicenseSubPanel({
   const defaultLicenses = useMemo(
     () =>
       sortBy(
-        frequentLicensesNames.map<AutocompleteSignal>(({ fullName }) => ({
-          attributionIds: [],
-          default: true,
-          licenseName: fullName,
-          source: {
-            documentConfidence: 100,
-            name: text.attributionColumn.commonLicenses,
-          },
-        })),
+        frequentLicensesNames.map<AutocompleteSignal>(
+          ({ fullName, shortName }) => ({
+            attributionIds: [],
+            default: true,
+            licenseName: fullName,
+            source: {
+              documentConfidence: 100,
+              name: text.attributionColumn.commonLicenses,
+            },
+            suffix: `(${shortName})`,
+          }),
+        ),
         ({ licenseName }) => licenseName?.toLowerCase(),
       ),
     [frequentLicensesNames],
