@@ -31,7 +31,7 @@ export const text = {
     invalidPurl: 'INVALID PURL',
     legalInformation: 'Legal Information',
     licenseName: 'License Name',
-    licenseTextModified: '(License text modified)',
+    licenseTextModified: 'License text modified',
     manualAttributions: 'Manual Attributions',
     occurrence: 'occurrence',
     openSourceInsights: 'Open Source Insights',

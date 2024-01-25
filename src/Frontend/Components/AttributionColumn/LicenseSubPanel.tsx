@@ -2,21 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiBox from '@mui/material/Box';
-import MuiInputAdornment from '@mui/material/InputAdornment';
+import MuiTooltip from '@mui/material/Tooltip';
 import { sortBy } from 'lodash';
-import { ReactElement, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
   AutocompleteSignal,
   DisplayPackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import { baseIcon, OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
@@ -59,10 +60,6 @@ const classes = {
   licenseText: {
     marginTop: '12px',
   },
-  endAdornment: {
-    paddingRight: '6px',
-    paddingTop: '2px',
-  },
 };
 
 interface LicenseSubPanelProps {
@@ -75,7 +72,7 @@ export function LicenseSubPanel({
   displayPackageInfo,
   showHighlight,
   onEdit,
-}: LicenseSubPanelProps): ReactElement {
+}: LicenseSubPanelProps) {
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
   const frequentLicensesNames = useAppSelector(getFrequentLicensesNameOrder);
@@ -124,9 +121,12 @@ export function LicenseSubPanel({
             onEdit={onEdit}
             endAdornment={
               displayPackageInfo.licenseText ? (
-                <MuiInputAdornment position="end" sx={classes.endAdornment}>
-                  {text.attributionColumn.licenseTextModified}
-                </MuiInputAdornment>
+                <MuiTooltip title={text.attributionColumn.licenseTextModified}>
+                  <EditNoteIcon
+                    color={'warning'}
+                    sx={{ ...baseIcon, cursor: 'default' }}
+                  />
+                </MuiTooltip>
               ) : undefined
             }
             defaults={defaultLicenses}
