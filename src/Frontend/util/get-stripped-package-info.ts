@@ -73,6 +73,9 @@ const strippedPackageInfoTemplate: {
 } = {
   ...strippedPackageInfoCoreTemplate,
   comment: true,
+  comments: false,
+  attributionIds: false,
+  count: false,
 };
 
 const strippedDisplayPackageInfoTemplate: {
@@ -81,6 +84,7 @@ const strippedDisplayPackageInfoTemplate: {
   ...strippedPackageInfoCoreTemplate,
   count: false,
   attributionIds: true,
+  comment: false,
   comments: true,
 };
 

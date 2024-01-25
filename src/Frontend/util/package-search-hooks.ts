@@ -12,7 +12,12 @@ import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
 function usePackageNames(
-  { packageName, packageNamespace, packageType }: DisplayPackageInfo,
+  {
+    packageName,
+    packageNamespace,
+    packageType,
+    attributionIds,
+  }: DisplayPackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
@@ -21,9 +26,15 @@ function usePackageNames(
       packageName,
       packageNamespace,
       packageType,
+      attributionIds,
     ],
     queryFn: () =>
-      PackageSearchApi.getNames({ packageName, packageNamespace, packageType }),
+      PackageSearchApi.getNames({
+        packageName,
+        packageNamespace,
+        packageType,
+        attributionIds,
+      }),
     enabled: !!packageName && !disabled,
   });
   return {
@@ -34,7 +45,12 @@ function usePackageNames(
 }
 
 function usePackageNamespaces(
-  { packageName, packageNamespace, packageType }: DisplayPackageInfo,
+  {
+    packageName,
+    packageNamespace,
+    packageType,
+    attributionIds,
+  }: DisplayPackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
@@ -43,12 +59,14 @@ function usePackageNamespaces(
       packageName,
       packageNamespace,
       packageType,
+      attributionIds,
     ],
     queryFn: () =>
       PackageSearchApi.getNamespaces({
         packageName,
         packageNamespace,
         packageType,
+        attributionIds,
       }),
     enabled: !!packageName && !!packageType && !disabled,
   });
@@ -65,6 +83,7 @@ function usePackageVersions(
     packageNamespace,
     packageType,
     packageVersion,
+    attributionIds,
   }: DisplayPackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
@@ -75,6 +94,7 @@ function usePackageVersions(
       packageNamespace,
       packageType,
       packageVersion,
+      attributionIds,
     ],
     queryFn: () =>
       PackageSearchApi.getVersions({
@@ -82,6 +102,7 @@ function usePackageVersions(
         packageNamespace,
         packageType,
         packageVersion,
+        attributionIds,
       }),
     enabled: !!packageName && !!packageType && !disabled,
   });

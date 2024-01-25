@@ -10,6 +10,7 @@ import {
   Attributions,
   AttributionsToHashes,
   AttributionsToResources,
+  DisplayPackageInfo,
   FrequentLicenseName,
   PackageInfo,
   ResourcesToAttributions,
@@ -315,7 +316,7 @@ export function anyLocateFilterIsSet(
   return licenseIsSet || criticalityIsSet || searchTermIsSet;
 }
 export function attributionMatchesLocateFilter(
-  attribution: PackageInfo,
+  attribution: PackageInfo | DisplayPackageInfo,
   locatePopupFilter: LocatePopupFilters,
   frequentLicenseNames: Array<FrequentLicenseName>,
 ): boolean {

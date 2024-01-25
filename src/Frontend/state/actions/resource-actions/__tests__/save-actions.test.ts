@@ -21,7 +21,10 @@ import {
 } from '../../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../../util/convert-package-info';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
   getAttributionIdOfDisplayedPackageInManualPanel,
@@ -90,14 +93,14 @@ const secondTestPackageInfo: PackageInfo = {
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
 };
-const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-  ...testPackageInfo,
-  attributionIds: [testManualAttributionUuid_1],
-};
-const secondTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
-  ...secondTestPackageInfo,
-  attributionIds: [testManualAttributionUuid_2],
-};
+const testTemporaryDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+  testPackageInfo,
+  [testManualAttributionUuid_1],
+);
+const secondTestTemporaryDisplayPackageInfo =
+  convertPackageInfoToDisplayPackageInfo(secondTestPackageInfo, [
+    testManualAttributionUuid_2,
+  ]);
 const testManualAttributions: Attributions = {
   [testManualAttributionUuid_1]: testPackageInfo,
   [testManualAttributionUuid_2]: secondTestPackageInfo,
@@ -155,7 +158,7 @@ describe('The savePackageInfo action', () => {
       savePackageInfoIfSavingIsNotDisabled(
         '/root/src/something.js',
         getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-        testTemporaryDisplayPackageInfo,
+        convertDisplayPackageInfoToPackageInfo(testTemporaryDisplayPackageInfo),
       ),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
@@ -192,7 +195,9 @@ describe('The savePackageInfo action', () => {
         savePackageInfo(
           '/my/src/',
           getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-          testTemporaryDisplayPackageInfo,
+          convertDisplayPackageInfoToPackageInfo(
+            testTemporaryDisplayPackageInfo,
+          ),
         ),
       ),
     ).toThrow('/my/src/ is a breakpoint, saving not allowed');
@@ -239,7 +244,11 @@ describe('The savePackageInfo action', () => {
     );
 
     testStore.dispatch(
-      savePackageInfo('/root/src/', null, testTemporaryDisplayPackageInfo),
+      savePackageInfo(
+        '/root/src/',
+        null,
+        convertDisplayPackageInfoToPackageInfo(testTemporaryDisplayPackageInfo),
+      ),
     );
     expectDisplayPackageInfosMatchExceptAttributionIds(
       getManualDisplayPackageInfoOfSelected(testStore.getState()),
@@ -312,7 +321,7 @@ describe('The savePackageInfo action', () => {
       savePackageInfo(
         '/root/src/something.js',
         getAttributionIdOfDisplayedPackageInManualPanel(testStore.getState()),
-        testTemporaryDisplayPackageInfo,
+        convertDisplayPackageInfoToPackageInfo(testTemporaryDisplayPackageInfo),
       ),
     );
 
@@ -509,7 +518,9 @@ describe('The savePackageInfo action', () => {
       savePackageInfo(
         '/something.js',
         null,
-        emptyTestTemporaryDisplayPackageInfo,
+        convertDisplayPackageInfoToPackageInfo(
+          emptyTestTemporaryDisplayPackageInfo,
+        ),
       ),
     );
     expect(
@@ -946,7 +957,7 @@ describe('The savePackageInfo action', () => {
       savePackageInfo(
         null,
         testManualAttributionUuid_2,
-        packageInfoToUpdate,
+        convertDisplayPackageInfoToPackageInfo(packageInfoToUpdate),
         true,
       ),
     );
@@ -1246,7 +1257,11 @@ describe('The addToSelectedResource action', () => {
       ],
     ).toEqual(['/root/src/something.js']);
 
-    testStore.dispatch(addToSelectedResource(testTemporaryDisplayPackageInfo));
+    testStore.dispatch(
+      addToSelectedResource(
+        convertDisplayPackageInfoToPackageInfo(testTemporaryDisplayPackageInfo),
+      ),
+    );
     const manualData: AttributionData = getManualData(testStore.getState());
     expect(manualData.resourcesToAttributions['/root/']).toEqual([
       testManualAttributionUuid_1,
@@ -1284,7 +1299,11 @@ describe('The addToSelectedResource action', () => {
         attributionIds: [],
       }),
     );
-    testStore.dispatch(addToSelectedResource(testTemporaryDisplayPackageInfo));
+    testStore.dispatch(
+      addToSelectedResource(
+        convertDisplayPackageInfoToPackageInfo(testTemporaryDisplayPackageInfo),
+      ),
+    );
     expect(getOpenPopup(testStore.getState())).toBe('NotSavedPopup');
   });
 

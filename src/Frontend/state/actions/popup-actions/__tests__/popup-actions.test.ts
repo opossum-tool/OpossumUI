@@ -25,6 +25,7 @@ import {
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage, State } from '../../../../types/types';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
   getDisplayedPackage,
@@ -324,10 +325,10 @@ describe('The actions checking for unsaved changes', () => {
   describe('selectPackageCardInAuditViewOrOpenUnsavedPopup', () => {
     it('selects an attribution in an accordion panel', () => {
       const testPackageInfo: PackageInfo = { packageName: 'test name' };
-      const testDisplayPackageInfo: DisplayPackageInfo = {
-        ...testPackageInfo,
-        attributionIds: ['uuid'],
-      };
+      const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+        testPackageInfo,
+        ['uuid'],
+      );
       const testPackageCardId = 'All Attributions-0';
       const testResources: Resources = {
         file1: 1,
@@ -377,10 +378,10 @@ describe('The actions checking for unsaved changes', () => {
     it('ss an attribution in the manual package panel', () => {
       const testPackageInfo: PackageInfo = { packageName: 'test name' };
       const testPackageCardId = 'All Attributions-0';
-      const testDisplayPackageInfo: DisplayPackageInfo = {
-        ...testPackageInfo,
-        attributionIds: ['uuid'],
-      };
+      const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
+        testPackageInfo,
+        ['uuid'],
+      );
       const testResources: Resources = {
         file1: 1,
       };

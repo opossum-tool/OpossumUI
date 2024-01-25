@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AutocompleteSignal } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { getAutocompleteSignals } from '../get-autocomplete-signals';
 
 describe('getAutocompleteSignals', () => {
@@ -61,7 +61,7 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(1);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 2 },
+      convertPackageInfoToDisplayPackageInfo(attribution1, [], 2),
     ]);
   });
 
@@ -156,8 +156,8 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(2);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 2 },
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
+      convertPackageInfoToDisplayPackageInfo(attribution1, [], 2),
+      convertPackageInfoToDisplayPackageInfo(attribution2, [], 1),
     ]);
   });
 
@@ -207,8 +207,8 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(2);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 1 },
+      convertPackageInfoToDisplayPackageInfo(attribution2, [], 1),
+      convertPackageInfoToDisplayPackageInfo(attribution1, [], 1),
     ]);
   });
 
@@ -263,8 +263,8 @@ describe('getAutocompleteSignals', () => {
 
     expect(signals).toHaveLength(2);
     expect(signals).toEqual<Array<AutocompleteSignal>>([
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution2, count: 1 },
-      { ...EMPTY_DISPLAY_PACKAGE_INFO, ...attribution1, count: 1 },
+      convertPackageInfoToDisplayPackageInfo(attribution2, [], 1),
+      convertPackageInfoToDisplayPackageInfo(attribution1, [], 1),
     ]);
   });
 });

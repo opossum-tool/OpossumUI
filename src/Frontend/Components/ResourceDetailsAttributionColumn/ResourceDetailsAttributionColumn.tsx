@@ -141,7 +141,7 @@ export function ResourceDetailsAttributionColumn(
         unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          temporaryDisplayPackageInfo,
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
         ),
       );
     } else {
@@ -149,7 +149,7 @@ export function ResourceDetailsAttributionColumn(
         savePackageInfoIfSavingIsNotDisabled(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          temporaryDisplayPackageInfo,
+          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
         ),
       );
     }

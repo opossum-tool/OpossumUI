@@ -6,6 +6,7 @@ import {
   Attributions,
   DiscreteConfidence,
   DisplayPackageInfo,
+  PackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -39,18 +40,16 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
 
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: PackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
-    attributionIds: [],
   };
-  const secondTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+  const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
-    attributionIds: [],
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,

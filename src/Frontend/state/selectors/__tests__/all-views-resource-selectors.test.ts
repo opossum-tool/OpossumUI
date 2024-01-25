@@ -14,7 +14,10 @@ import {
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
 import { PanelPackage } from '../../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../../util/convert-package-info';
 import {
   setAttributionBreakpoints,
   setFilesWithChildren,
@@ -216,7 +219,7 @@ describe('The resource actions', () => {
 
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryDisplayPackageInfo: PackageInfo = {
+  const testPackageInfo: PackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
@@ -225,10 +228,10 @@ describe('The resource actions', () => {
   const testSelectedPackage: PanelPackage = {
     panel: PackagePanelTitle.ManualPackages,
     packageCardId: 'Attributions-0',
-    displayPackageInfo: {
-      ...testTemporaryDisplayPackageInfo,
-      attributionIds: [testManualAttributionUuid_1],
-    },
+    displayPackageInfo: convertPackageInfoToDisplayPackageInfo(
+      testPackageInfo,
+      [testManualAttributionUuid_1],
+    ),
   };
   const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
@@ -238,13 +241,13 @@ describe('The resource actions', () => {
   const secondTestSelectedPackage: PanelPackage = {
     panel: PackagePanelTitle.ManualPackages,
     packageCardId: 'Attributions-1',
-    displayPackageInfo: {
-      ...secondTestTemporaryDisplayPackageInfo,
-      attributionIds: [testManualAttributionUuid_2],
-    },
+    displayPackageInfo: convertPackageInfoToDisplayPackageInfo(
+      secondTestTemporaryDisplayPackageInfo,
+      [testManualAttributionUuid_2],
+    ),
   };
   const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+    [testManualAttributionUuid_1]: testPackageInfo,
     [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {

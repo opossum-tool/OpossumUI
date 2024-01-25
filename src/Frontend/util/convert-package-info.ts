@@ -27,7 +27,7 @@ export function convertPackageInfoToDisplayPackageInfo(
 export function convertDisplayPackageInfoToPackageInfo(
   displayPackageInfo: DisplayPackageInfo,
 ): PackageInfo {
-  const { comments, attributionIds, ...packageInfoWithoutComment } =
+  const { comments, attributionIds, count, ...packageInfoWithoutComment } =
     displayPackageInfo;
 
   const packageInfo: PackageInfo = packageInfoWithoutComment;

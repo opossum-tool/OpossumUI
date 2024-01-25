@@ -119,6 +119,7 @@ test('adds attribution and displays it correctly on parent and children', async 
     ...packageInfo4a,
     comment: undefined,
     comments: [packageInfo4a.comment!, packageInfo4b.comment!],
+    attributionIds: [attributionId4a, attributionId4b],
   });
 
   await resourceDetails.signalCard.addButton(packageInfo4a).click();

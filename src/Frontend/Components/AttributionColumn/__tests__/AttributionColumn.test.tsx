@@ -35,7 +35,10 @@ import {
   getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
+import {
+  convertDisplayPackageInfoToPackageInfo,
+  convertPackageInfoToDisplayPackageInfo,
+} from '../../../util/convert-package-info';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
 
@@ -426,7 +429,9 @@ describe('The AttributionColumn', () => {
           setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
           setManualData(
             faker.opossum.manualAttributions({
-              [manualAttributionId]: temporaryDisplayPackageInfo,
+              [manualAttributionId]: convertDisplayPackageInfoToPackageInfo(
+                temporaryDisplayPackageInfo,
+              ),
             }),
             faker.opossum.resourcesToAttributions({
               [faker.opossum.filePath()]: [manualAttributionId],
