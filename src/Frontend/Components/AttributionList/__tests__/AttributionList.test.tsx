@@ -24,8 +24,6 @@ import {
 } from '../../../state/variables/use-filtered-attributions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
-import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import { AttributionList } from '../AttributionList';
 
 describe('AttributionList', () => {
@@ -38,9 +36,9 @@ describe('AttributionList', () => {
   });
 
   it('correctly handles selected states on card click', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -53,10 +51,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -69,14 +64,14 @@ describe('AttributionList', () => {
     );
 
     expect(getSelectedAttributionIdInAttributionView(store.getState())).toBe(
-      attributionId,
+      packageInfo.id,
     );
   });
 
   it('deletes selected attribution', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -89,10 +84,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -111,9 +103,9 @@ describe('AttributionList', () => {
   });
 
   it('deletes multi-selected attributions', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -126,10 +118,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -150,11 +139,11 @@ describe('AttributionList', () => {
   });
 
   it('confirms selected attribution', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution({
+    const packageInfo = faker.opossum.packageInfo({
       preSelected: true,
     });
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -167,10 +156,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -184,16 +170,16 @@ describe('AttributionList', () => {
     await userEvent.click(screen.getByLabelText('confirm button'));
 
     expect(getManualAttributions(store.getState())).toEqual<Attributions>({
-      [attributionId]: getStrippedPackageInfo(packageInfo),
+      [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
   });
 
   it('disables confirm button when selected attribution is not pre-selected', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution({
+    const packageInfo = faker.opossum.packageInfo({
       preSelected: false,
     });
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     renderComponent(<AttributionList />, {
       actions: [
@@ -206,10 +192,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -225,11 +208,11 @@ describe('AttributionList', () => {
   });
 
   it('confirms multi-selected attributions', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution({
+    const packageInfo = faker.opossum.packageInfo({
       preSelected: true,
     });
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -242,10 +225,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -261,16 +241,16 @@ describe('AttributionList', () => {
     await userEvent.click(screen.getByLabelText('confirm button'));
 
     expect(getManualAttributions(store.getState())).toEqual<Attributions>({
-      [attributionId]: getStrippedPackageInfo(packageInfo),
+      [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
   });
 
   it('replaces selected attribution', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId1]: packageInfo1,
-      [attributionId2]: packageInfo2,
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -283,14 +263,8 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId1]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo1,
-              [attributionId1],
-            ),
-            [attributionId2]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo2,
-              [attributionId2],
-            ),
+            [packageInfo1.id]: packageInfo1,
+            [packageInfo2.id]: packageInfo2,
           },
         }),
       ],
@@ -309,11 +283,11 @@ describe('AttributionList', () => {
   });
 
   it('replaces multi-selected attributions', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId1]: packageInfo1,
-      [attributionId2]: packageInfo2,
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo1.id]: packageInfo1,
+      [packageInfo2.id]: packageInfo2,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -326,14 +300,8 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId1]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo1,
-              [attributionId1],
-            ),
-            [attributionId2]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo2,
-              [attributionId2],
-            ),
+            [packageInfo1.id]: packageInfo1,
+            [packageInfo2.id]: packageInfo2,
           },
         }),
       ],
@@ -354,9 +322,9 @@ describe('AttributionList', () => {
   });
 
   it('disables replace button when no replacements exist', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     renderComponent(<AttributionList />, {
       actions: [
@@ -369,10 +337,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
       ],
@@ -388,9 +353,9 @@ describe('AttributionList', () => {
   });
 
   it('shows only filters with non-zero counts', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     renderComponent(<AttributionList />, {
       actions: [
@@ -403,10 +368,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
           counts: fromPairs(
             filters.map((filter) => [
@@ -429,9 +391,9 @@ describe('AttributionList', () => {
   });
 
   it('shows QA filters in QA mode', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
 
     jest.spyOn(window.electronAPI, 'getUserSetting').mockResolvedValue(true);
@@ -447,10 +409,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
           counts: fromPairs(
             filters.map((filter) => [filter, 1]),
@@ -467,9 +426,9 @@ describe('AttributionList', () => {
   });
 
   it('does not show QA filters when not in QA mode', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
 
     jest.spyOn(window.electronAPI, 'getUserSetting').mockResolvedValue(false);
@@ -485,10 +444,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
           counts: fromPairs(
             filters.map((filter) => [filter, 1]),
@@ -505,9 +461,9 @@ describe('AttributionList', () => {
   });
 
   it('removes filters with zero attributions', async () => {
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     const { store } = renderComponent(<AttributionList />, {
       actions: [
@@ -520,10 +476,7 @@ describe('AttributionList', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
           selectedFilters: filters,
           counts: fromPairs(

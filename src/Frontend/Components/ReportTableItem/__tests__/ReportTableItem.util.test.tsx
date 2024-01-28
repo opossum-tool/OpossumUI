@@ -2,48 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionInfo, FollowUp } from '../../../../shared/shared-types';
+import { FollowUp, PackageInfo } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
 import { TableConfig } from '../../Table/TableConfig';
 import { getFormattedCellData } from '../ReportTableItem.util';
 
 describe('The table helpers', () => {
-  const testPathOfFileWithChildren = '/test/path/';
-  const testIsFileWithChildren = (path: string): boolean =>
-    path === testPathOfFileWithChildren;
-
   it('getFormattedCellData replaces undefined by empty string', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'attributionConfidence',
       displayName: 'confidence',
     };
-    const testAttributionInfo: AttributionInfo = {
+    const testAttributionInfo: PackageInfo = {
       resources: ['a', 'b'],
+      id: faker.string.uuid(),
     };
-    expect(
-      getFormattedCellData(
-        testTableConfig,
-        testAttributionInfo,
-        testIsFileWithChildren,
-      ),
-    ).toBe('');
-  });
-
-  it('getFormattedCellData formats resources', () => {
-    const testTableConfig: TableConfig = {
-      attributionProperty: 'resources',
-      displayName: 'resources',
-    };
-    const testAttributionInfo: AttributionInfo = {
-      resources: [testPathOfFileWithChildren, 'b'],
-    };
-    expect(
-      getFormattedCellData(
-        testTableConfig,
-        testAttributionInfo,
-        testIsFileWithChildren,
-      ),
-    ).toBe(`${testPathOfFileWithChildren.slice(0, -1)}\nb`);
+    expect(getFormattedCellData(testTableConfig, testAttributionInfo)).toBe('');
   });
 
   it('getFormattedCellData handles first-party boolean', () => {
@@ -51,38 +26,29 @@ describe('The table helpers', () => {
       attributionProperty: 'firstParty',
       displayName: 'First Party',
     };
-    const testAttributionInfo1: AttributionInfo = {
+    const testAttributionInfo1: PackageInfo = {
       firstParty: true,
       resources: ['1'],
+      id: faker.string.uuid(),
     };
-    const testAttributionInfo2: AttributionInfo = {
+    const testAttributionInfo2: PackageInfo = {
       firstParty: false,
       resources: ['1'],
+      id: faker.string.uuid(),
     };
-    const testAttributionInfo3: AttributionInfo = {
+    const testAttributionInfo3: PackageInfo = {
       resources: ['1'],
+      id: faker.string.uuid(),
     };
-    expect(
-      getFormattedCellData(
-        testTableConfig,
-        testAttributionInfo1,
-        testIsFileWithChildren,
-      ),
-    ).toBe('Yes');
-    expect(
-      getFormattedCellData(
-        testTableConfig,
-        testAttributionInfo2,
-        testIsFileWithChildren,
-      ),
-    ).toBe('No');
-    expect(
-      getFormattedCellData(
-        testTableConfig,
-        testAttributionInfo3,
-        testIsFileWithChildren,
-      ),
-    ).toBe('No');
+    expect(getFormattedCellData(testTableConfig, testAttributionInfo1)).toBe(
+      'Yes',
+    );
+    expect(getFormattedCellData(testTableConfig, testAttributionInfo2)).toBe(
+      'No',
+    );
+    expect(getFormattedCellData(testTableConfig, testAttributionInfo3)).toBe(
+      'No',
+    );
   });
 
   it.each`
@@ -97,17 +63,14 @@ describe('The table helpers', () => {
         displayName: 'Follow-up',
       };
 
-      const testAttributionInfo: AttributionInfo = {
+      const testAttributionInfo: PackageInfo = {
         followUp,
         resources: ['1'],
+        id: faker.string.uuid(),
       };
 
       expect(
-        getFormattedCellData(
-          testTableConfig,
-          testAttributionInfo,
-          testIsFileWithChildren,
-        ),
+        getFormattedCellData(testTableConfig, testAttributionInfo),
       ).toEqual(expected);
     },
   );
@@ -126,9 +89,10 @@ describe('The table helpers', () => {
         displayName: 'Follow-up',
       };
 
-      let testAttributionInfo: AttributionInfo = {
+      let testAttributionInfo: PackageInfo = {
         [property]: '',
         resources: ['1'],
+        id: faker.string.uuid(),
       };
 
       expect(
@@ -140,6 +104,7 @@ describe('The table helpers', () => {
 
       testAttributionInfo = {
         resources: ['1'],
+        id: faker.string.uuid(),
       };
 
       expect(
@@ -152,6 +117,7 @@ describe('The table helpers', () => {
       testAttributionInfo = {
         [property]: 'test',
         resources: ['1'],
+        id: faker.string.uuid(),
       };
 
       expect(
@@ -169,8 +135,9 @@ describe('The table helpers', () => {
       displayName: 'Unimportant',
     };
 
-    let testAttributionInfo: AttributionInfo = {
+    let testAttributionInfo: PackageInfo = {
       resources: ['1'],
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(
@@ -182,6 +149,7 @@ describe('The table helpers', () => {
     testAttributionInfo = {
       resources: ['1'],
       firstParty: true,
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(
@@ -193,6 +161,7 @@ describe('The table helpers', () => {
     testAttributionInfo = {
       resources: ['1'],
       excludeFromNotice: true,
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(
@@ -205,6 +174,7 @@ describe('The table helpers', () => {
       resources: ['1'],
       firstParty: false,
       excludeFromNotice: false,
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(

@@ -7,7 +7,6 @@ import {
   Attributions,
   AttributionsToHashes,
   BaseUrlsForSources,
-  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
   PackageInfo,
@@ -153,7 +152,7 @@ export interface SetProgressBarDataPayload {
 
 export interface SetTemporaryDisplayPackageInfoAction {
   type: typeof ACTION_SET_TEMPORARY_PACKAGE_INFO;
-  payload: DisplayPackageInfo;
+  payload: PackageInfo;
 }
 
 export interface SetSelectedResourceIdAction {
@@ -208,7 +207,7 @@ export interface SetFilesWithChildren {
 export interface CreateAttributionForSelectedResource {
   type: typeof ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE;
   payload: {
-    strippedPackageInfo: PackageInfo;
+    packageInfo: PackageInfo;
     jumpToCreatedAttribution: boolean;
   };
 }
@@ -217,7 +216,7 @@ export interface UpdateAttribution {
   type: typeof ACTION_UPDATE_ATTRIBUTION;
   payload: {
     attributionId: string;
-    strippedPackageInfo: PackageInfo;
+    packageInfo: PackageInfo;
     jumpToUpdatedAttribution: boolean;
   };
 }
@@ -230,8 +229,8 @@ export interface DeleteAttribution {
 export interface ReplaceAttributionWithMatchingAttributionAction {
   type: typeof ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING;
   payload: {
-    attributionId: string;
-    strippedPackageInfo: PackageInfo;
+    attributionIdToReplace: string;
+    attributionIdToReplaceWith: string;
     jumpToMatchingAttribution: boolean;
   };
 }
@@ -240,7 +239,7 @@ export interface LinkToAttributionAction {
   type: typeof ACTION_LINK_TO_ATTRIBUTION;
   payload: {
     resourceId: string;
-    strippedPackageInfo: PackageInfo;
+    attributionId: string;
   };
 }
 

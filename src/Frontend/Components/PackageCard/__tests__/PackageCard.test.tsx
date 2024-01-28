@@ -39,8 +39,16 @@ describe('The PackageCard', () => {
     testAttributionId = 'attributionId';
     anotherAttributionId = 'another_id';
     testAttributions = {
-      [testAttributionId]: { packageName: 'pkg', preSelected: true },
-      [anotherAttributionId]: { packageName: 'pkg2', preSelected: true },
+      [testAttributionId]: {
+        packageName: 'pkg',
+        preSelected: true,
+        id: testAttributionId,
+      },
+      [anotherAttributionId]: {
+        packageName: 'pkg2',
+        preSelected: true,
+        id: anotherAttributionId,
+      },
     };
   });
 
@@ -55,9 +63,9 @@ describe('The PackageCard', () => {
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        displayPackageInfo={{
+        packageInfo={{
           packageName: 'packageName',
-          attributionIds: [testAttributionId],
+          id: testAttributionId,
         }}
         onClick={doNothing}
         showCheckBox={true}
@@ -103,9 +111,9 @@ describe('The PackageCard', () => {
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        displayPackageInfo={{
+        packageInfo={{
           packageName: 'packageName',
-          attributionIds: [testAttributionId],
+          id: testAttributionId,
           preferred: true,
         }}
         onClick={doNothing}
@@ -140,9 +148,9 @@ describe('The PackageCard', () => {
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        displayPackageInfo={{
+        packageInfo={{
           packageName: 'packageName',
-          attributionIds: [testAttributionId],
+          id: testAttributionId,
           preferred: true,
           wasPreferred: true,
         }}
@@ -173,9 +181,9 @@ describe('The PackageCard', () => {
       <PackageCard
         cardConfig={{ isExternalAttribution: false, isPreSelected: true }}
         cardId={'some_id'}
-        displayPackageInfo={{
+        packageInfo={{
           packageName: 'packageName',
-          attributionIds: [testAttributionId],
+          id: testAttributionId,
           wasPreferred: true,
         }}
         onClick={doNothing}
@@ -207,8 +215,8 @@ describe('The PackageCard', () => {
       <PackageCard
         cardConfig={{ isExternalAttribution: true }}
         cardId={'some_id'}
-        displayPackageInfo={{
-          attributionIds: [testAttributionId],
+        packageInfo={{
+          id: testAttributionId,
           licenseName: 'MIT',
         }}
         onClick={doNothing}
@@ -238,8 +246,8 @@ describe('The PackageCard', () => {
       <PackageCard
         cardConfig={{ isExternalAttribution: true }}
         cardId={'some_id'}
-        displayPackageInfo={{
-          attributionIds: [testAttributionId],
+        packageInfo={{
+          id: testAttributionId,
           licenseName: 'Apache',
         }}
         onClick={doNothing}

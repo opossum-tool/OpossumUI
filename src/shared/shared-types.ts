@@ -36,48 +36,61 @@ export enum DiscreteConfidence {
   Low = 20,
 }
 
-export interface PackageInfoCore {
-  attributionConfidence?: number;
-  packageName?: string;
-  packageVersion?: string;
-  packageNamespace?: string;
-  packageType?: string;
-  packagePURLAppendix?: string;
-  url?: string;
-  copyright?: string;
-  licenseName?: string;
-  licenseText?: string;
-  firstParty?: boolean;
-  followUp?: FollowUp;
-  source?: Source;
-  originIds?: Array<string>;
-  preSelected?: boolean;
-  excludeFromNotice?: boolean;
-  criticality?: Criticality;
-  needsReview?: boolean;
-  preferred?: boolean;
-  preferredOverOriginIds?: Array<string>;
-  wasPreferred?: boolean;
-}
-
-export interface PackageInfo extends PackageInfoCore {
-  comment?: string;
-  comments?: never;
-  count?: never;
-  attributionIds?: never;
-}
-
-export interface DisplayPackageInfo extends PackageInfoCore {
-  count?: number;
-  comment?: never;
-  comments?: Array<string>;
-  attributionIds: Array<string>;
-}
-
 export interface Source {
   name: string;
   documentConfidence: number;
   additionalName?: string;
+}
+
+export type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
+
+export type Never<T, K extends keyof T> = Expand<
+  Omit<T, K> & Partial<Record<K, never>>
+>;
+
+interface EphemeralPackageInfoProps {
+  comments?: Array<string>;
+  count?: number;
+  synthetic?: boolean;
+  id: string;
+  linkedAttributionIds?: Array<string>;
+  resources?: Array<string>;
+  suffix?: string;
+}
+
+export interface PackageInfo extends EphemeralPackageInfoProps {
+  attributionConfidence?: number;
+  copyright?: string;
+  count?: number;
+  criticality?: Criticality;
+  excludeFromNotice?: boolean;
+  firstParty?: boolean;
+  followUp?: FollowUp;
+  licenseName?: string;
+  licenseText?: string;
+  needsReview?: boolean;
+  originIds?: Array<string>;
+  packageName?: string;
+  packageNamespace?: string;
+  packagePURLAppendix?: string;
+  packageType?: string;
+  packageVersion?: string;
+  preSelected?: boolean;
+  preferred?: boolean;
+  preferredOverOriginIds?: Array<string>;
+  source?: Source;
+  url?: string;
+  wasPreferred?: boolean;
+}
+
+export interface RawPackageInfo
+  extends Never<PackageInfo, keyof EphemeralPackageInfoProps> {
+  originId?: string;
+  comment?: string;
+}
+
+export interface RawAttributions {
+  [uuid: string]: RawPackageInfo;
 }
 
 export interface Attributions {
@@ -110,14 +123,6 @@ export interface InputFileAttributionData {
 export interface AttributionData extends InputFileAttributionData {
   attributionsToResources: AttributionsToResources;
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren;
-}
-
-export interface AttributionInfo extends PackageInfo {
-  resources: Array<string>;
-}
-
-export interface AttributionsWithResources {
-  [uuid: string]: AttributionInfo;
 }
 
 export interface FrequentLicenseName {
@@ -179,7 +184,7 @@ export enum ExportType {
 
 export interface ExportFollowUpArgs {
   type: ExportType.FollowUp;
-  followUpAttributionsWithResources: AttributionsWithResources;
+  followUpAttributionsWithResources: Attributions;
 }
 
 export interface ExportCompactBomArgs {
@@ -189,7 +194,7 @@ export interface ExportCompactBomArgs {
 
 export interface ExportDetailedBomArgs {
   type: ExportType.DetailedBom;
-  bomAttributionsWithResources: AttributionsWithResources;
+  bomAttributionsWithResources: Attributions;
 }
 
 export interface ExportSpdxDocumentYamlArgs {
@@ -277,8 +282,3 @@ export interface UserSettings {
   showProjectStatistics: boolean;
   qaMode: boolean;
 }
-
-export type AutocompleteSignal = DisplayPackageInfo & {
-  suffix?: string;
-  default?: boolean;
-};

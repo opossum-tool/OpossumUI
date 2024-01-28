@@ -9,7 +9,7 @@ import MuiTypography from '@mui/material/Typography';
 import { compact } from 'lodash';
 import { ReactElement } from 'react';
 
-import { AttributionInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { clickableIcon, OpossumColors } from '../../shared-styles';
 import { useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesTexts } from '../../state/selectors/all-views-resource-selectors';
@@ -133,7 +133,7 @@ const CELLS_WITHOUT_TEXT_WRAP = [
 ];
 
 interface ReportTableItemProps {
-  attributionInfo: AttributionInfo;
+  attributionInfo: PackageInfo;
   attributionId: string;
   isFileWithChildren: PathPredicate;
   onIconClick(attributionId: string): void;
@@ -144,7 +144,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   const frequentLicenseTexts = useAppSelector(getFrequentLicensesTexts);
 
   function getTableRow(
-    attributionInfo: AttributionInfo,
+    attributionInfo: PackageInfo,
     attributionId: string,
   ): ReactElement {
     return (
@@ -164,7 +164,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   }
 
   function getTableCell(
-    attributionInfo: AttributionInfo,
+    attributionInfo: PackageInfo,
     attributionId: string,
     config: TableConfig,
     index: number,
@@ -182,11 +182,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
           }
         : attributionInfo;
 
-    const cellData = getFormattedCellData(
-      config,
-      displayAttributionInfo,
-      props.isFileWithChildren,
-    );
+    const cellData = getFormattedCellData(config, displayAttributionInfo);
 
     return (
       <MuiBox
@@ -250,7 +246,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
 
   function getCellData(
     cellData: string | number,
-    attributionProperty: keyof AttributionInfo,
+    attributionProperty: keyof PackageInfo,
   ): ReactElement {
     if (attributionProperty === 'resources' && typeof cellData === 'string') {
       return (
@@ -281,7 +277,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
   }
 
   function getIcons(
-    attributionInfo: AttributionInfo,
+    attributionInfo: PackageInfo,
     attributionId: string,
   ): ReactElement {
     return (
@@ -329,7 +325,7 @@ export function ReportTableItem(props: ReportTableItemProps): ReactElement {
             <br />
           </>
         )}
-        {attributionInfo.comment && (
+        {attributionInfo.comments?.length && (
           <>
             <CommentIcon
               sx={{

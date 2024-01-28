@@ -5,35 +5,30 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 
-import { DisplayPackageInfo } from '../../shared/shared-types';
+import { PackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { toast } from '../Components/Toaster';
 import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
 function usePackageNames(
-  {
-    packageName,
-    packageNamespace,
-    packageType,
-    attributionIds,
-  }: DisplayPackageInfo,
+  { id, packageName, packageNamespace, packageType }: PackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-name-suggestions',
+      id,
       packageName,
       packageNamespace,
       packageType,
-      attributionIds,
     ],
     queryFn: () =>
       PackageSearchApi.getNames({
+        id,
         packageName,
         packageNamespace,
         packageType,
-        attributionIds,
       }),
     enabled: !!packageName && !disabled,
   });
@@ -45,28 +40,23 @@ function usePackageNames(
 }
 
 function usePackageNamespaces(
-  {
-    packageName,
-    packageNamespace,
-    packageType,
-    attributionIds,
-  }: DisplayPackageInfo,
+  { id, packageName, packageNamespace, packageType }: PackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-namespace-suggestions',
+      id,
       packageName,
       packageNamespace,
       packageType,
-      attributionIds,
     ],
     queryFn: () =>
       PackageSearchApi.getNamespaces({
+        id,
         packageName,
         packageNamespace,
         packageType,
-        attributionIds,
       }),
     enabled: !!packageName && !!packageType && !disabled,
   });
@@ -79,30 +69,30 @@ function usePackageNamespaces(
 
 function usePackageVersions(
   {
+    id,
     packageName,
     packageNamespace,
     packageType,
     packageVersion,
-    attributionIds,
-  }: DisplayPackageInfo,
+  }: PackageInfo,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
     queryKey: [
       'package-version-suggestions',
+      id,
       packageName,
       packageNamespace,
       packageType,
       packageVersion,
-      attributionIds,
     ],
     queryFn: () =>
       PackageSearchApi.getVersions({
+        id,
         packageName,
         packageNamespace,
         packageType,
         packageVersion,
-        attributionIds,
       }),
     enabled: !!packageName && !!packageType && !disabled,
   });
@@ -118,12 +108,12 @@ function useEnrichPackageInfo({ showToasts }: { showToasts?: boolean } = {}) {
     onError: showToasts
       ? () => toast.error(text.attributionColumn.enrichFailure)
       : undefined,
-    mutationFn: (packageInfo: DisplayPackageInfo) =>
+    mutationFn: (packageInfo: PackageInfo) =>
       PackageSearchApi.enrichPackageInfo(packageInfo),
   });
 
   return {
-    enrichPackageInfo: (packageInfo: DisplayPackageInfo) =>
+    enrichPackageInfo: (packageInfo: PackageInfo) =>
       tryit(mutateAsync)(packageInfo, {
         onSuccess: showToasts
           ? (result) => {

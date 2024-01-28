@@ -29,23 +29,25 @@ describe('The ReportView', () => {
   const testResourcesToManualAttributions: ResourcesToAttributions = {};
   testManualAttributions[testManualUuid] = {
     attributionConfidence: 0,
-    comment: 'Some comment',
+    comments: ['Some comment'],
     packageName: 'Test package',
     packageVersion: '1.0',
     copyright: 'Copyright John Doe',
     licenseName: 'MIT',
     firstParty: true,
+    id: testManualUuid,
   };
   testResourcesToManualAttributions['test resource'] = [testManualUuid];
   testManualAttributions[testOtherManualUuid] = {
     attributionConfidence: 0,
-    comment: 'Some other comment',
+    comments: ['Some other comment'],
     packageName: 'Test other package',
     packageVersion: '2.0',
     copyright: 'other Copyright John Doe',
     licenseText: 'Some other license text',
     followUp: FollowUp,
     excludeFromNotice: true,
+    id: testOtherManualUuid,
   };
   testResourcesToManualAttributions['test other resource'] = [
     testOtherManualUuid,

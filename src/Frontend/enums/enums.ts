@@ -29,14 +29,6 @@ export enum PopupType {
   ChangePreferredStatusGloballyPopup = 'ChangePreferredStatusGloballyPopup',
 }
 
-export enum SavePackageInfoOperation {
-  Create = 'Create',
-  Delete = 'Delete',
-  Link = 'Link',
-  Replace = 'Replace',
-  Update = 'Update',
-}
-
 export enum AllowedSaveOperations {
   All = 'All',
   Local = 'Local',

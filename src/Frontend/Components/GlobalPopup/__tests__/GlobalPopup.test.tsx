@@ -72,7 +72,7 @@ describe('The GlobalPopUp', () => {
 
   it('opens the ReplaceAttributionPopup', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'name 1' },
+      uuid1: { packageName: 'name 1', id: 'uuid1' },
     };
     renderComponent(<GlobalPopup />, {
       actions: [

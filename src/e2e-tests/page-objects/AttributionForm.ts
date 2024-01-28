@@ -5,11 +5,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 import { RawFrequentLicense } from '../../ElectronBackend/types/types';
-import {
-  DiscreteConfidence,
-  DisplayPackageInfo,
-  PackageInfo,
-} from '../../shared/shared-types';
+import { DiscreteConfidence, RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 
 export class AttributionForm {
@@ -199,7 +195,9 @@ export class AttributionForm {
       packageType,
       packageVersion,
       url,
-    }: PackageInfo | DisplayPackageInfo): Promise<void> => {
+    }: Omit<RawPackageInfo, 'comments'> & {
+      comments?: Array<string>;
+    }): Promise<void> => {
       await Promise.all([
         ...(packageType ? [this.assert.typeIs(packageType)] : []),
         ...(packageNamespace

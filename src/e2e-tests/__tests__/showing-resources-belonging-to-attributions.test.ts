@@ -7,11 +7,11 @@ import { faker, test } from '../utils';
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
 const [externalAttributionId, externalPackageInfo] =
-  faker.opossum.externalAttribution();
+  faker.opossum.rawAttribution();
 const [manualAttributionId1, manualPackageInfo1] =
-  faker.opossum.manualAttribution();
+  faker.opossum.rawAttribution();
 const [manualAttributionId2, manualPackageInfo2] =
-  faker.opossum.manualAttribution();
+  faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -23,7 +23,7 @@ test.use({
         [resourceName3]: 1,
         [resourceName4]: 1,
       }),
-      externalAttributions: faker.opossum.externalAttributions({
+      externalAttributions: faker.opossum.rawAttributions({
         [externalAttributionId]: externalPackageInfo,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({
@@ -31,7 +31,7 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({
-      manualAttributions: faker.opossum.manualAttributions({
+      manualAttributions: faker.opossum.rawAttributions({
         [manualAttributionId1]: manualPackageInfo1,
         [manualAttributionId2]: manualPackageInfo2,
       }),

@@ -2,24 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Criticality,
-  DisplayPackageInfo,
-  PackageInfo,
-} from '../../../shared/shared-types';
-import {
-  getStrippedDisplayPackageInfo,
-  getStrippedPackageInfo,
-} from '../get-stripped-package-info';
+import { Criticality, PackageInfo } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
+import { getStrippedPackageInfo } from '../get-stripped-package-info';
 
-describe('The getStrippedPackageInfo function', () => {
+describe('getStrippedPackageInfo', () => {
   it('strips falsy values', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       packageVersion: '',
+      id: faker.string.uuid(),
     };
 
-    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
+    expect(getStrippedPackageInfo(testPackageInfo)).toEqual<
+      Partial<PackageInfo>
+    >({
       packageName: 'React',
     });
   });
@@ -31,9 +28,12 @@ describe('The getStrippedPackageInfo function', () => {
         name: 'HC',
         documentConfidence: 10,
       },
+      id: faker.string.uuid(),
     };
 
-    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
+    expect(getStrippedPackageInfo(testPackageInfo)).toEqual<
+      Partial<PackageInfo>
+    >({
       packageName: 'React',
     });
   });
@@ -42,9 +42,12 @@ describe('The getStrippedPackageInfo function', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       preSelected: true,
+      id: faker.string.uuid(),
     };
 
-    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
+    expect(getStrippedPackageInfo(testPackageInfo)).toEqual<
+      Partial<PackageInfo>
+    >({
       packageName: 'React',
     });
   });
@@ -53,9 +56,12 @@ describe('The getStrippedPackageInfo function', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
       criticality: Criticality.High,
+      id: faker.string.uuid(),
     };
 
-    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
+    expect(getStrippedPackageInfo(testPackageInfo)).toEqual<
+      Partial<PackageInfo>
+    >({
       packageName: 'React',
     });
   });
@@ -64,80 +70,13 @@ describe('The getStrippedPackageInfo function', () => {
     const testPackageInfo = {
       packageName: 'React',
       foo: 0,
+      id: faker.string.uuid(),
     };
 
-    expect(getStrippedPackageInfo(testPackageInfo)).toEqual({
+    expect(getStrippedPackageInfo(testPackageInfo)).toEqual<
+      Partial<PackageInfo>
+    >({
       packageName: 'React',
-    });
-  });
-});
-
-describe('The getStrippedDisplayPackageInfo function', () => {
-  it('strips falsy values', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      packageName: 'React',
-      packageVersion: '',
-      attributionIds: [],
-    };
-
-    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
-      packageName: 'React',
-      attributionIds: [],
-    });
-  });
-
-  it('strips source', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      packageName: 'React',
-      source: {
-        name: 'HC',
-        documentConfidence: 10,
-      },
-      attributionIds: [],
-    };
-
-    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
-      packageName: 'React',
-      attributionIds: [],
-    });
-  });
-
-  it('strips preSelected', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      packageName: 'React',
-      preSelected: true,
-      attributionIds: [],
-    };
-
-    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
-      packageName: 'React',
-      attributionIds: [],
-    });
-  });
-
-  it('strips criticality', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      packageName: 'React',
-      criticality: Criticality.High,
-      attributionIds: [],
-    };
-
-    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
-      packageName: 'React',
-      attributionIds: [],
-    });
-  });
-
-  it('strips excess values', () => {
-    const testDisplayPackageInfo = {
-      packageName: 'React',
-      count: 0,
-      attributionIds: [],
-    };
-
-    expect(getStrippedDisplayPackageInfo(testDisplayPackageInfo)).toEqual({
-      packageName: 'React',
-      attributionIds: [],
     });
   });
 });

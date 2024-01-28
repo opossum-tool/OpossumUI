@@ -49,7 +49,6 @@ export class ReportView {
         this.assert.attributeIsVisible(info, 'copyright'),
         this.assert.attributeIsVisible(info, 'licenseName'),
         this.assert.attributeIsVisible(info, 'licenseText'),
-        this.assert.attributeIsVisible(info, 'comment'),
         this.assert.attributeIsVisible(info, 'attributionConfidence'),
       ]);
     },

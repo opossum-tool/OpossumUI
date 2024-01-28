@@ -3,14 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { isEmpty } from 'lodash';
-import { NIL as uuidNil } from 'uuid';
 
 import {
   AttributionData,
+  Attributions,
   AttributionsToResources,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { loadFromFile } from '../../actions/resource-actions/load-actions';
@@ -29,7 +30,7 @@ import {
   updateManualAttribution,
 } from '../save-action-helpers';
 
-const testUuid: string = uuidNil;
+const testUuid: string = faker.string.uuid();
 
 describe('The createManualAttribution function', () => {
   it('adds a new manual attribution', () => {
@@ -37,6 +38,7 @@ describe('The createManualAttribution function', () => {
     const testSelectedResourceId = '/something.js';
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
+      id: expect.any(String),
     };
 
     const { newManualData, newAttributionId } = createManualAttribution(
@@ -57,6 +59,7 @@ describe('The createManualAttribution function', () => {
     const testSelectedResourceId = '/child';
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
+      id: faker.string.uuid(),
     };
 
     const testStore = createAppStore();
@@ -71,6 +74,7 @@ describe('The createManualAttribution function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              id: 'externalUuid',
             },
           },
           externalAttributionSources: {
@@ -84,6 +88,7 @@ describe('The createManualAttribution function', () => {
             manualUuid1: {
               preferred: true,
               preferredOverOriginIds: ['originId'],
+              id: 'manualUuid1',
             },
           },
           resourcesToManualAttributions: {
@@ -102,7 +107,8 @@ describe('The createManualAttribution function', () => {
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
-    expect(newManualData.attributions['manualUuid1']).toEqual({
+    expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
+      id: 'manualUuid1',
       preferred: true,
       preferredOverOriginIds: [],
     });
@@ -117,6 +123,7 @@ describe('The deleteManualAttribution function', () => {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          id: testUuid,
         },
       },
       resourcesToAttributions: {
@@ -161,11 +168,13 @@ describe('The deleteManualAttribution function', () => {
       attributions: {
         [testAnotherUuid]: {
           packageName: 'another testpackage',
+          id: testAnotherUuid,
         },
         [testUuid]: {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          id: testUuid,
         },
       },
       resourcesToAttributions: {
@@ -192,8 +201,8 @@ describe('The deleteManualAttribution function', () => {
       () => false,
       getCalculatePreferredOverOriginIds(initialResourceState),
     );
-    expect(newManualData.attributions).toEqual({
-      '000': { packageName: 'another testpackage' },
+    expect(newManualData.attributions).toEqual<Attributions>({
+      '000': { packageName: 'another testpackage', id: '000' },
     });
     expect(newManualData.resourcesToAttributions).toEqual({
       '/first/': ['000'],
@@ -226,6 +235,7 @@ describe('The deleteManualAttribution function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              id: 'externalUuid',
             },
           },
           externalAttributionSources: {
@@ -236,8 +246,12 @@ describe('The deleteManualAttribution function', () => {
             },
           },
           manualAttributions: {
-            manualUuid1: { preferred: true, preferredOverOriginIds: [] },
-            manualUuid2: {},
+            manualUuid1: {
+              preferred: true,
+              preferredOverOriginIds: [],
+              id: 'manualUuid1',
+            },
+            manualUuid2: { id: 'manualUuid2' },
           },
           resourcesToManualAttributions: {
             '/': ['manualUuid1'],
@@ -256,7 +270,8 @@ describe('The deleteManualAttribution function', () => {
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
-    expect(newManualData.attributions['manualUuid1']).toEqual({
+    expect(newManualData.attributions['manualUuid1']).toEqual<PackageInfo>({
+      id: 'manualUuid1',
       preferred: true,
       preferredOverOriginIds: ['originId'],
     });
@@ -265,9 +280,10 @@ describe('The deleteManualAttribution function', () => {
 
 describe('The updateManualAttribution function', () => {
   it('updates an existing manual attribution', () => {
-    const testPackageInfo: PackageInfo = { packageName: 'Vue' };
+    const testPackageInfo: PackageInfo = { packageName: 'Vue', id: testUuid };
     const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
+      id: testUuid,
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       '/something.js': [testUuid],
@@ -276,7 +292,6 @@ describe('The updateManualAttribution function', () => {
     const expectedManualAttributionsToResources: AttributionsToResources = {
       [testUuid]: ['/something.js', 'somethingElse.js'],
     };
-    const expectedPackageInfo: PackageInfo = { packageName: 'React' };
     const testManualData: AttributionData = {
       attributions: { [testUuid]: testPackageInfo },
       resourcesToAttributions: testResourcesToManualAttributions,
@@ -297,7 +312,7 @@ describe('The updateManualAttribution function', () => {
     );
 
     expect(newManualData.attributions).toEqual({
-      [testUuid]: expectedPackageInfo,
+      [testUuid]: testTemporaryDisplayPackageInfo,
     });
     expect(newManualData.resourcesToAttributions).toEqual(
       testResourcesToManualAttributions,
@@ -316,6 +331,7 @@ describe('The linkToAttributionManualData function', () => {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          id: testUuid,
         },
       },
       resourcesToAttributions: {},
@@ -372,6 +388,7 @@ describe('The linkToAttributionManualData function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              id: 'externalUuid',
             },
           },
           externalAttributionSources: {
@@ -385,8 +402,12 @@ describe('The linkToAttributionManualData function', () => {
             parentAttriubtionUuid: {
               preferred: true,
               preferredOverOriginIds: [],
+              id: 'parentAttriubtionUuid',
             },
-            childAttributionUuid: { preferred: false },
+            childAttributionUuid: {
+              preferred: false,
+              id: 'childAttributionUuid',
+            },
           },
           resourcesToManualAttributions: {
             '/': ['parentAttriubtionUuid'],
@@ -406,7 +427,10 @@ describe('The linkToAttributionManualData function', () => {
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
-    expect(newManualData.attributions['parentAttriubtionUuid']).toEqual({
+    expect(
+      newManualData.attributions['parentAttriubtionUuid'],
+    ).toEqual<PackageInfo>({
+      id: 'parentAttriubtionUuid',
       preferred: true,
       preferredOverOriginIds: [],
     });
@@ -421,6 +445,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
           packageName: 'testpackage',
           packageVersion: '2.0',
           licenseText: 'Permission is hereby granted',
+          id: testUuid,
         },
       },
       resourcesToAttributions: {
@@ -476,6 +501,7 @@ describe('The unlinkResourceFromAttributionId function', () => {
             externalUuid: {
               source: { name: 'testSource', documentConfidence: 0 },
               originIds: ['originId'],
+              id: 'externalUuid',
             },
           },
           externalAttributionSources: {
@@ -489,8 +515,12 @@ describe('The unlinkResourceFromAttributionId function', () => {
             parentAttriubtionUuid: {
               preferred: true,
               preferredOverOriginIds: [],
+              id: 'parentAttriubtionUuid',
             },
-            childAttributionUuid: { preferred: false },
+            childAttributionUuid: {
+              preferred: false,
+              id: 'childAttributionUuid',
+            },
           },
           resourcesToManualAttributions: {
             '/': ['parentAttriubtionUuid'],
@@ -509,7 +539,10 @@ describe('The unlinkResourceFromAttributionId function', () => {
       getCalculatePreferredOverOriginIds(resourceState),
     );
 
-    expect(newManualData.attributions['parentAttriubtionUuid']).toEqual({
+    expect(
+      newManualData.attributions['parentAttriubtionUuid'],
+    ).toEqual<PackageInfo>({
+      id: 'parentAttriubtionUuid',
       preferred: true,
       preferredOverOriginIds: ['originId'],
     });
@@ -522,6 +555,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
       },
       resourcesToAttributions: {
@@ -552,6 +586,7 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
       },
       resourcesToAttributions: {
@@ -587,12 +622,15 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          id: 'uuid3',
         },
       },
       resourcesToAttributions: {
@@ -639,12 +677,15 @@ describe('_removeManualAttributionFromChildrenIfAllAreIdentical', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          id: 'uuid3',
         },
       },
       resourcesToAttributions: {
@@ -705,12 +746,15 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          id: 'uuid3',
         },
       },
       resourcesToAttributions: {
@@ -759,12 +803,15 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          id: 'uuid2',
         },
         uuid3: {
           packageName: 'Angular',
+          id: 'uuid3',
         },
       },
       resourcesToAttributions: {
@@ -818,9 +865,11 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          id: 'uuid2',
         },
       },
       resourcesToAttributions: {
@@ -861,9 +910,11 @@ describe('_removeAttributionsFromChildrenAndParents', () => {
       attributions: {
         uuid1: {
           packageName: 'React',
+          id: 'uuid1',
         },
         uuid2: {
           packageName: 'Vue',
+          id: 'uuid2',
         },
       },
       resourcesToAttributions: {

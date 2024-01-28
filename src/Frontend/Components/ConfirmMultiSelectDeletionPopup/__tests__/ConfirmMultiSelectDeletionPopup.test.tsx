@@ -48,9 +48,11 @@ describe('The ConfirmMultiSelectDeletionPopup', () => {
     const testManualAttributions: Attributions = {
       uuid1: {
         packageName: 'React',
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
+        id: 'uuid2',
       },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {

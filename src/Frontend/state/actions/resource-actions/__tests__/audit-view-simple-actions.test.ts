@@ -63,7 +63,7 @@ describe('The audit view simple actions', () => {
     const testSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.AllAttributions,
       packageCardId: 'All Attributions-0',
-      displayPackageInfo: { packageName: 'react', attributionIds: ['uuid'] },
+      displayPackageInfo: { packageName: 'react', id: 'uuid' },
     };
 
     const testStore = createAppStore();
@@ -79,7 +79,7 @@ describe('The audit view simple actions', () => {
     const testTargetSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.AllAttributions,
       packageCardId: 'All Attributions-0',
-      displayPackageInfo: { packageName: 'react', attributionIds: ['uuid'] },
+      displayPackageInfo: { packageName: 'react', id: 'uuid' },
     };
 
     const testStore = createAppStore();
@@ -97,8 +97,8 @@ describe('The audit view simple actions', () => {
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';
     const expectedResolvedExternalAttributions: Set<string> = new Set();
     const testExternalAttributions: Attributions = {
-      [uuid1]: { packageName: 'jquery' },
-      [uuid2]: { packageName: 'react' },
+      [uuid1]: { packageName: 'jquery', id: uuid1 },
+      [uuid2]: { packageName: 'react', id: uuid2 },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/src/': [uuid1],
@@ -160,9 +160,9 @@ describe('The audit view simple actions', () => {
     const uuid2 = 'd3a7565e-5100-11eb-ae93-0242ac130002';
     const uuid3 = 'd3a75926-5100-11eb-ae93-0242ac130002';
     const testExternalAttributions: Attributions = {
-      [uuid1]: { packageName: 'jquery' },
-      [uuid2]: { packageName: 'react' },
-      [uuid3]: { packageName: 'angular' },
+      [uuid1]: { packageName: 'jquery', id: uuid1 },
+      [uuid2]: { packageName: 'react', id: uuid2 },
+      [uuid3]: { packageName: 'angular', id: uuid3 },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/src/': [uuid1, uuid3],

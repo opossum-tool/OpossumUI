@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
@@ -43,7 +43,7 @@ export function navigateToView(view: View): AppThunkAction {
     dispatch(setTargetView(null));
     dispatch(setView(view));
 
-    const updatedTemporaryDisplayPackageInfo: DisplayPackageInfo =
+    const updatedTemporaryDisplayPackageInfo: PackageInfo =
       (view === View.Audit
         ? getDisplayPackageInfoOfDisplayedPackage(getState())
         : getDisplayPackageInfoOfSelectedAttributionInAttributionView(

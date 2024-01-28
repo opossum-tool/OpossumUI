@@ -6,9 +6,9 @@ import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
-const [attributionId1, packageInfo1] = faker.opossum.externalAttribution();
-const [attributionId2, packageInfo2] = faker.opossum.externalAttribution();
-const [attributionId3, packageInfo3] = faker.opossum.externalAttribution();
+const [attributionId1, packageInfo1] = faker.opossum.rawAttribution();
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution();
+const [attributionId3, packageInfo3] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -18,7 +18,7 @@ test.use({
         [resourceName3]: 1,
         [resourceName4]: 1,
       }),
-      externalAttributions: faker.opossum.externalAttributions({
+      externalAttributions: faker.opossum.rawAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
         [attributionId3]: packageInfo3,

@@ -4,12 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { compareVersions, validate } from 'compare-versions';
 import { compact, mapValues, partition } from 'lodash';
+import { v4 as uuid4 } from 'uuid';
 
-import {
-  AutocompleteSignal,
-  DisplayPackageInfo,
-  Source,
-} from '../../shared/shared-types';
+import { PackageInfo, Source } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { HttpClient } from './http-client';
 import { pick } from './lodash-extension-utils';
@@ -133,7 +130,7 @@ export class PackageSearchApi {
   constructor(private readonly httpClient: HttpClient) {}
 
   private deserialize(
-    input: DisplayPackageInfo,
+    input: PackageInfo,
   ): Partial<SearchSuggestion> & { isComplete: boolean } {
     const { packageName, packageNamespace, packageType } = mapValues(
       pick(input, ['packageName', 'packageNamespace', 'packageType']),
@@ -196,7 +193,7 @@ export class PackageSearchApi {
     version?: string;
     system?: PackageSystem;
     projectType?: ProjectType;
-  }): AutocompleteSignal {
+  }): PackageInfo {
     const type = system || projectType;
     const source: Source = {
       name: text.attributionColumn.openSourceInsights,
@@ -206,8 +203,8 @@ export class PackageSearchApi {
       case 'MAVEN': {
         const [packageNamespace, packageName] = name.split(':');
         return {
-          default: true,
-          attributionIds: [],
+          synthetic: true,
+          id: uuid4(),
           packageName,
           packageNamespace,
           packageType: 'maven',
@@ -220,8 +217,8 @@ export class PackageSearchApi {
       case 'BITBUCKET': {
         const [packageNamespace, packageName] = name.split('/');
         return {
-          default: true,
-          attributionIds: [],
+          synthetic: true,
+          id: uuid4(),
           packageName,
           packageNamespace,
           packageType: type.toLowerCase(),
@@ -232,8 +229,8 @@ export class PackageSearchApi {
       }
       case 'GO': {
         return {
-          default: true,
-          attributionIds: [],
+          synthetic: true,
+          id: uuid4(),
           packageName: name,
           packageNamespace: undefined,
           packageType: 'golang',
@@ -243,8 +240,8 @@ export class PackageSearchApi {
       }
       default: {
         return {
-          default: true,
-          attributionIds: [],
+          synthetic: true,
+          id: uuid4(),
           packageName: name,
           packageNamespace: undefined,
           packageType: type?.toLowerCase(),
@@ -255,9 +252,7 @@ export class PackageSearchApi {
     }
   }
 
-  public async getNames(
-    props: DisplayPackageInfo,
-  ): Promise<Array<AutocompleteSignal>> {
+  public async getNames(props: PackageInfo): Promise<Array<PackageInfo>> {
     const { name } = this.deserialize(props);
 
     if (!name) {
@@ -275,14 +270,12 @@ export class PackageSearchApi {
 
     return data.results
       .filter(({ kind }) => kind !== 'ADVISORY')
-      .map<AutocompleteSignal>(({ name, system, projectType }) =>
+      .map<PackageInfo>(({ name, system, projectType }) =>
         this.serialize({ name, system, projectType }),
       );
   }
 
-  public async getNamespaces(
-    props: DisplayPackageInfo,
-  ): Promise<Array<AutocompleteSignal>> {
+  public async getNamespaces(props: PackageInfo): Promise<Array<PackageInfo>> {
     const { kind, name, system, projectType } = this.deserialize(props);
 
     if (
@@ -300,16 +293,15 @@ export class PackageSearchApi {
     });
     const data: SearchSuggestionResponse = await response.json();
 
-    return data.results.map<AutocompleteSignal>(
-      ({ name, system, projectType }) =>
-        this.serialize({ name, system, projectType }),
+    return data.results.map<PackageInfo>(({ name, system, projectType }) =>
+      this.serialize({ name, system, projectType }),
     );
   }
 
   public getVersions({
     packageVersion,
     ...props
-  }: DisplayPackageInfo): Promise<Array<AutocompleteSignal>> {
+  }: PackageInfo): Promise<Array<PackageInfo>> {
     const { isComplete, kind, name, projectType, system } =
       this.deserialize(props);
 
@@ -333,7 +325,7 @@ export class PackageSearchApi {
   private async getSystemPackageVersions({
     name,
     system,
-  }: PackageSuggestion): Promise<Array<AutocompleteSignal>> {
+  }: PackageSuggestion): Promise<Array<PackageInfo>> {
     const response = await this.httpClient.request({
       baseUrl: this.baseUrls.DEPS_DEV_API,
       path: `systems/${system}/packages/${encodeURIComponent(name)}`,
@@ -352,13 +344,13 @@ export class PackageSearchApi {
     );
 
     return [
-      ...defaultVersions.map<AutocompleteSignal>(
+      ...defaultVersions.map<PackageInfo>(
         ({ versionKey: { name, system, version } }) => ({
           ...this.serialize({ name, system, version }),
           suffix: '(default)',
         }),
       ),
-      ...otherVersions.map<AutocompleteSignal>(
+      ...otherVersions.map<PackageInfo>(
         ({ versionKey: { name, system, version } }) =>
           this.serialize({ name, system, version }),
       ),
@@ -371,7 +363,7 @@ export class PackageSearchApi {
     system,
     packageVersion,
   }: ProjectSuggestion & { packageVersion: string | undefined }): Promise<
-    Array<AutocompleteSignal>
+    Array<PackageInfo>
   > {
     switch (projectType) {
       case 'GITHUB': {
@@ -406,8 +398,8 @@ export class PackageSearchApi {
   }
 
   public async enrichPackageInfo(
-    packageInfo: DisplayPackageInfo,
-  ): Promise<DisplayPackageInfo> {
+    packageInfo: PackageInfo,
+  ): Promise<PackageInfo> {
     if (packageInfo.url && packageInfo.copyright && packageInfo.licenseName) {
       return packageInfo;
     }
@@ -441,7 +433,7 @@ export class PackageSearchApi {
     name,
     system,
     ...packageInfo
-  }: PackageSuggestion & DisplayPackageInfo): Promise<DisplayPackageInfo> {
+  }: PackageSuggestion & PackageInfo): Promise<PackageInfo> {
     const effectiveVersion =
       packageInfo.packageVersion ||
       (await this.getSystemPackageDefaultVersion({
@@ -516,7 +508,7 @@ export class PackageSearchApi {
     name,
     projectType,
     ...packageInfo
-  }: ProjectSuggestion & DisplayPackageInfo): Promise<DisplayPackageInfo> {
+  }: ProjectSuggestion & PackageInfo): Promise<PackageInfo> {
     return this.enrichPackageInfoViaRepoUrl({
       ...packageInfo,
       url:
@@ -526,8 +518,8 @@ export class PackageSearchApi {
   }
 
   private async enrichPackageInfoViaRepoUrl(
-    packageInfo: DisplayPackageInfo,
-  ): Promise<DisplayPackageInfo> {
+    packageInfo: PackageInfo,
+  ): Promise<PackageInfo> {
     if (packageInfo.copyright && packageInfo.licenseName) {
       return packageInfo;
     }

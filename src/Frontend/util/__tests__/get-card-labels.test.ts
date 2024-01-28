@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import {
   addFirstLineOfPackageLabelFromAttribute,
@@ -12,7 +13,7 @@ import {
 } from '../get-card-labels';
 
 describe('Test getPackageLabel', () => {
-  const testProps: DisplayPackageInfo = {
+  const testProps: PackageInfo = {
     packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: '(c) Test copyright',
@@ -20,57 +21,57 @@ describe('Test getPackageLabel', () => {
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsWithoutVersion: DisplayPackageInfo = {
+  const testPropsWithoutVersion: PackageInfo = {
     packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsWithUndefinedName: DisplayPackageInfo = {
+  const testPropsWithUndefinedName: PackageInfo = {
     packageName: undefined,
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsWithoutName: DisplayPackageInfo = {
+  const testPropsWithoutName: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsCopyrightLicenseTextAndComment: DisplayPackageInfo = {
+  const testPropsCopyrightLicenseTextAndComment: PackageInfo = {
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comments: ['Test comment'],
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsWithLicenseTextAndComment: DisplayPackageInfo = {
+  const testPropsWithLicenseTextAndComment: PackageInfo = {
     licenseText: 'Test license text',
     comments: ['Test comment'],
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsJustComment: DisplayPackageInfo = {
+  const testPropsJustComment: PackageInfo = {
     comments: ['Test comment'],
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsJustUrlAndCopyright: DisplayPackageInfo = {
+  const testPropsJustUrlAndCopyright: PackageInfo = {
     copyright: 'Test copyright',
     url: 'Test url',
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
-  const testPropsJustFirstParty: DisplayPackageInfo = {
+  const testPropsJustFirstParty: PackageInfo = {
     firstParty: true,
-    attributionIds: [],
+    id: faker.string.uuid(),
   };
 
   it('finds label for package', () => {
@@ -136,7 +137,7 @@ describe('Test getPackageLabel', () => {
 });
 
 describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
-  const testProps: DisplayPackageInfo = {
+  const testProps: PackageInfo = {
     packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: 'Test copyright',
@@ -144,16 +145,16 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: ['abc'],
+    id: faker.string.uuid(),
   };
-  const testPropsWithoutVersion: DisplayPackageInfo = {
+  const testPropsWithoutVersion: PackageInfo = {
     packageName: 'Test package name',
     copyright: 'Test copyright',
     licenseText: 'Test license text',
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: ['abc'],
+    id: faker.string.uuid(),
   };
 
   it('adds name and version', () => {
@@ -198,7 +199,7 @@ describe('Test addFirstLineOfPackageLabelFromAttribute', () => {
 });
 
 describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
-  const testProps: DisplayPackageInfo = {
+  const testProps: PackageInfo = {
     packageName: 'Test package name',
     packageVersion: '1.2',
     copyright: 'Test copyright',
@@ -206,7 +207,7 @@ describe('Test addSecondLineOfPackageLabelFromAttribute', () => {
     comments: ['Test comment'],
     url: 'Test url',
     licenseName: 'Test license name',
-    attributionIds: ['abc'],
+    id: faker.string.uuid(),
   };
   it('adds copyright', () => {
     const testPackageLabels: Array<string> = ['Test package name'];

@@ -9,34 +9,38 @@ import { getBomAttributions } from '../BackendCommunication';
 describe('BackendCommunication', () => {
   it('filters the correct BOM attributions', () => {
     const testAttributions: Attributions = {
-      genericAttrib: {},
-      firstPartyAttrib: { firstParty: true },
-      followupAttrib: { followUp: 'FOLLOW_UP' },
-      excludeAttrib: { excludeFromNotice: true },
-      firstPartyExcludeAttrib: { firstParty: true, excludeFromNotice: true },
+      genericAttrib: { id: 'genericAttrib' },
+      firstPartyAttrib: { firstParty: true, id: 'firstPartyAttrib' },
+      followupAttrib: { followUp: 'FOLLOW_UP', id: 'followupAttrib' },
+      excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
+      firstPartyExcludeAttrib: {
+        firstParty: true,
+        excludeFromNotice: true,
+        id: 'firstPartyExcludeAttrib',
+      },
     };
 
     const detailedBomAttributions = getBomAttributions(
       testAttributions,
       ExportType.DetailedBom,
     );
-    expect(detailedBomAttributions).toEqual({
-      genericAttrib: {},
-      excludeAttrib: { excludeFromNotice: true },
+    expect(detailedBomAttributions).toEqual<Attributions>({
+      genericAttrib: { id: 'genericAttrib' },
+      excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
     });
 
     const compactBomAttributions = getBomAttributions(
       testAttributions,
       ExportType.CompactBom,
     );
-    expect(compactBomAttributions).toEqual({
-      genericAttrib: {},
+    expect(compactBomAttributions).toEqual<Attributions>({
+      genericAttrib: { id: 'genericAttrib' },
     });
 
     const completeTestAttributions: Attributions = {
       completeAttrib: {
         attributionConfidence: 1,
-        comment: 'Test',
+        comments: ['Test'],
         packageName: 'Test component',
         packageVersion: '',
         packageNamespace: 'org.apache.xmlgraphics',
@@ -49,6 +53,7 @@ describe('BackendCommunication', () => {
         licenseText: 'Permission is hereby granted, free of charge, to...',
         originIds: [''],
         preSelected: true,
+        id: 'completeAttrib',
       },
     };
 

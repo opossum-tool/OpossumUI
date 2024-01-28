@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 
 import {
-  AttributionsWithResources,
+  Attributions,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
 import { renderComponent } from '../../../test-helpers/render';
@@ -14,7 +14,7 @@ import { Table } from '../Table';
 
 describe('The Table', () => {
   it('renders', () => {
-    const testAttributionsWithResources: AttributionsWithResources = {
+    const testAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         packageVersion: '1.0',
@@ -22,14 +22,16 @@ describe('The Table', () => {
         licenseName: 'licenseName',
         licenseText: 'licenseText',
         attributionConfidence: DiscreteConfidence.Low,
-        comment: 'test comment',
+        comments: ['test comment'],
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: [],
+        id: 'uuid2',
       },
     };
     renderComponent(
@@ -61,14 +63,11 @@ describe('The Table', () => {
     expect(screen.getByText('Confidence')).toBeInTheDocument();
     expect(screen.getByText('20')).toBeInTheDocument();
 
-    expect(screen.getByText('Comment')).toBeInTheDocument();
+    expect(screen.getByText('Comments')).toBeInTheDocument();
     expect(screen.getByText('test comment')).toBeInTheDocument();
 
     expect(screen.getByText('URL')).toBeInTheDocument();
     expect(screen.getByText('packageWebsite')).toBeInTheDocument();
-
-    expect(screen.getByText('Resources')).toBeInTheDocument();
-    expect(screen.getByText('/')).toBeInTheDocument();
 
     expect(screen.getByText('Redux')).toBeInTheDocument();
     expect(screen.getByLabelText('First party icon')).toBeInTheDocument();

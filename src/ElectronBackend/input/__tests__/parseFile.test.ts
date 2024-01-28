@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { cloneDeep, set } from 'lodash';
-import { NIL as uuidNil } from 'uuid';
 import zlib from 'zlib';
 
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
@@ -20,7 +19,7 @@ import {
   parseOutputJsonFile,
 } from '../parseFile';
 
-const testUuid: string = uuidNil;
+const testUuid: string = faker.string.uuid();
 const correctInput: ParsedOpossumInputFile = {
   metadata: {
     projectId: '2a58a469-738e-4508-98d3-a27bce6e71f7',

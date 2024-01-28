@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { cloneDeep, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 
 import {
   AttributionData,
@@ -10,10 +10,10 @@ import {
   AttributionsToHashes,
   AttributionsToResources,
   BaseUrlsForSources,
-  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenseName,
   LicenseTexts,
+  PackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -26,8 +26,7 @@ import {
 } from '../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { PanelPackage, State } from '../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { getStrippedDisplayPackageInfo } from '../../util/get-stripped-package-info';
+import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import { getSelectedAttributionIdInAttributionView } from './attribution-view-resource-selectors';
 import { getPopupAttributionId, getSelectedView } from './view-selector';
 
@@ -99,9 +98,7 @@ export function getFrequentLicensesTexts(state: State): LicenseTexts {
   return state.resourceState.allViews.frequentLicenses.texts;
 }
 
-export function getTemporaryDisplayPackageInfo(
-  state: State,
-): DisplayPackageInfo {
+export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
   return state.resourceState.allViews.temporaryDisplayPackageInfo;
 }
 
@@ -130,7 +127,7 @@ export function getCurrentAttributionId(state: State): string | null {
 
 export function getDisplayPackageInfoOfSelectedAttributionInAttributionView(
   state: State,
-): DisplayPackageInfo | null {
+): PackageInfo | null {
   const selectedAttributionIdInAttributionView =
     getSelectedAttributionIdInAttributionView(state);
 
@@ -141,16 +138,13 @@ export function getDisplayPackageInfoOfSelectedAttributionInAttributionView(
   const selectedPackageInfo =
     attributions[selectedAttributionIdInAttributionView];
   return selectedPackageInfo
-    ? convertPackageInfoToDisplayPackageInfo(
-        attributions[selectedAttributionIdInAttributionView],
-        [selectedAttributionIdInAttributionView],
-      )
+    ? attributions[selectedAttributionIdInAttributionView]
     : null;
 }
 
 export function getManualDisplayPackageInfoOfSelected(
   state: State,
-): DisplayPackageInfo | null {
+): PackageInfo | null {
   return getSelectedView(state) === View.Audit
     ? getDisplayPackageInfoOfDisplayedPackageInManualPanel(state)
     : getDisplayPackageInfoOfSelectedAttributionInAttributionView(state);
@@ -158,7 +152,7 @@ export function getManualDisplayPackageInfoOfSelected(
 
 export function getDisplayPackageInfoOfSelected(
   state: State,
-): DisplayPackageInfo | null {
+): PackageInfo | null {
   return getSelectedView(state) === View.Audit
     ? getDisplayPackageInfoOfDisplayedPackage(state)
     : getDisplayPackageInfoOfSelectedAttributionInAttributionView(state);
@@ -172,36 +166,15 @@ export function wereTemporaryDisplayPackageInfoModified(state: State): boolean {
     return false;
   }
 
-  const temporaryDisplayPackageInfo: DisplayPackageInfo =
+  const temporaryDisplayPackageInfo: PackageInfo =
     getTemporaryDisplayPackageInfo(state);
-  const displayPackageInfoOfSelected: DisplayPackageInfo =
+  const displayPackageInfoOfSelected: PackageInfo =
     getManualDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
 
-  function hasPackageInfoChanged(): boolean {
-    const strippedTemporaryDisplayPackageInfo = getStrippedDisplayPackageInfo(
-      cloneDeep(temporaryDisplayPackageInfo),
-    );
-    const strippedDisplayPackageInfoOfSelected = getStrippedDisplayPackageInfo(
-      cloneDeep(displayPackageInfoOfSelected),
-    );
-    delete strippedTemporaryDisplayPackageInfo.attributionConfidence;
-    delete strippedDisplayPackageInfoOfSelected.attributionConfidence;
-
-    return !isEqual(
-      strippedTemporaryDisplayPackageInfo,
-      strippedDisplayPackageInfoOfSelected,
-    );
-  }
-
-  function hasConfidenceChanged(): boolean {
-    return (
-      Boolean(displayPackageInfoOfSelected.attributionConfidence) &&
-      displayPackageInfoOfSelected.attributionConfidence !==
-        temporaryDisplayPackageInfo.attributionConfidence
-    );
-  }
-
-  return hasPackageInfoChanged() || hasConfidenceChanged();
+  return !isEqual(
+    getStrippedPackageInfo(temporaryDisplayPackageInfo),
+    getStrippedPackageInfo(displayPackageInfoOfSelected),
+  );
 }
 
 export function getIsSavingDisabled(state: State): boolean {
@@ -254,7 +227,7 @@ export function getAttributionIdOfDisplayedPackageInManualPanel(
   ) {
     return (
       state.resourceState.auditView.displayedPanelPackage.displayPackageInfo
-        .attributionIds[0] || null
+        .id || null
     );
   }
   return null;
@@ -262,22 +235,20 @@ export function getAttributionIdOfDisplayedPackageInManualPanel(
 
 export function getDisplayPackageInfoOfDisplayedPackage(
   state: State,
-): DisplayPackageInfo | null {
-  const displayedPackage = state.resourceState.auditView.displayedPanelPackage;
-  return displayedPackage ? displayedPackage.displayPackageInfo : null;
+): PackageInfo | null {
+  return (
+    state.resourceState.auditView.displayedPanelPackage?.displayPackageInfo ||
+    null
+  );
 }
 
 export function getDisplayPackageInfoOfDisplayedPackageInManualPanel(
   state: State,
-): DisplayPackageInfo | null {
-  const attributionId: string | null =
-    getAttributionIdOfDisplayedPackageInManualPanel(state);
+): PackageInfo | null {
+  const attributionId = getAttributionIdOfDisplayedPackageInManualPanel(state);
   if (attributionId) {
     const manualAttributions: Attributions = getManualAttributions(state);
-    return convertPackageInfoToDisplayPackageInfo(
-      manualAttributions[attributionId],
-      [attributionId],
-    );
+    return manualAttributions[attributionId];
   }
   return null;
 }

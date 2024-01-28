@@ -5,14 +5,14 @@
 import MuiPaper from '@mui/material/Paper';
 import { ReactElement } from 'react';
 
+import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { OpossumColors } from '../../shared-styles';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useSignalSorting } from '../../state/variables/use-active-sorting';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { PackageCardConfig } from '../../types/types';
 import { getPackageSorter } from '../../util/get-package-sorter';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
@@ -28,7 +28,7 @@ const classes = {
 };
 
 interface AllAttributionsPanelProps {
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
   selectedPackageCardId?: string;
   isAddToPackageEnabled: boolean;
 }
@@ -53,9 +53,7 @@ export function AllAttributionsPanel(
     }
 
     function onAddClick(): void {
-      const packageInfo =
-        convertDisplayPackageInfoToPackageInfo(displayPackageInfo);
-      dispatch(addToSelectedResource(packageInfo));
+      dispatch(addToSelectedResource(displayPackageInfo));
     }
 
     const cardConfig: PackageCardConfig = {
@@ -70,7 +68,7 @@ export function AllAttributionsPanel(
         onIconClick={props.isAddToPackageEnabled ? onAddClick : undefined}
         cardConfig={cardConfig}
         key={`PackageCard-${displayPackageInfo.packageName}-${packageCardId}`}
-        displayPackageInfo={displayPackageInfo}
+        packageInfo={displayPackageInfo}
         showOpenResourcesIcon={true}
       />
     );

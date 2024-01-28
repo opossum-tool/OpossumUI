@@ -8,7 +8,6 @@ import { cloneDeep } from 'lodash';
 import {
   Attributions,
   AttributionsToResources,
-  DisplayPackageInfo,
   ExternalAttributionSources,
   PackageInfo,
   Resources,
@@ -33,7 +32,7 @@ import { AppThunkAction, AppThunkDispatch } from '../../types';
 import { setTemporaryDisplayPackageInfo } from './all-views-simple-actions';
 
 export function toggleIsSelectedPackagePreferred(
-  packageInfo: DisplayPackageInfo,
+  packageInfo: PackageInfo,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const state = getState();
@@ -63,7 +62,7 @@ export function toggleIsSelectedPackagePreferred(
 }
 
 export function setOriginIdsToPreferOverGlobally(
-  packageInfo: DisplayPackageInfo,
+  packageInfo: PackageInfo,
 ): AppThunkAction {
   return (dispatch, getState): void => {
     const state = getState();

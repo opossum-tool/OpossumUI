@@ -25,7 +25,7 @@ interface HelperComponentProps {
 function HelperComponent(props: HelperComponentProps): ReactElement {
   const dispatch = useAppDispatch();
   const attributions: Attributions = {
-    uuid_1: { packageName: 'Test package' },
+    uuid_1: { packageName: 'Test package', id: 'uuid_1' },
   };
   const resourcesToManualAttributions: ResourcesToAttributions = {
     '/thirdParty': ['uuid_1'],

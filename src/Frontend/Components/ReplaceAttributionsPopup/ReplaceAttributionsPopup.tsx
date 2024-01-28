@@ -19,8 +19,6 @@ import {
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
-import { DisplayPackageInfos } from '../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getPackageSorter } from '../../util/get-package-sorter';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
@@ -160,10 +158,7 @@ export function ReplaceAttributionsPopup() {
                 cardConfig={{
                   isPreSelected: attribution.preSelected,
                 }}
-                displayPackageInfo={convertPackageInfoToDisplayPackageInfo(
-                  attribution,
-                  [],
-                )}
+                packageInfo={attribution}
               />
             );
           }}
@@ -207,7 +202,7 @@ export function ReplaceAttributionsPopup() {
                   isSelected: attributionId === targetAttributionId,
                   isPreSelected: attribution.preSelected,
                 }}
-                displayPackageInfo={attribution}
+                packageInfo={attribution}
               />
             );
           }}
@@ -233,13 +228,10 @@ export function getFilteredAndSortedPackageCardIdsAndDisplayPackageInfos(
   );
 
   const filteredAndSortedIds: Array<string> = [];
-  const filteredAndSortedAttributions: DisplayPackageInfos = {};
+  const filteredAndSortedAttributions: Attributions = {};
 
   sortedAttributionIds.forEach((attributionId) => {
-    const packageInfo = convertPackageInfoToDisplayPackageInfo(
-      attributions[attributionId],
-      [attributionId],
-    );
+    const packageInfo = attributions[attributionId];
     if (packageInfoContainsSearchTerm(packageInfo, search)) {
       filteredAndSortedIds.push(attributionId);
       filteredAndSortedAttributions[attributionId] = packageInfo;

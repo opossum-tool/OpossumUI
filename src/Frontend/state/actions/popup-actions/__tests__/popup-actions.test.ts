@@ -3,29 +3,25 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { expect } from '@playwright/test';
-
 import {
   AttributionData,
   Attributions,
   Criticality,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../../shared/shared-types';
+import { faker } from '../../../../../testing/Faker';
 import {
   AllowedSaveOperations,
   PackagePanelTitle,
   PopupType,
   View,
 } from '../../../../enums/enums';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage, State } from '../../../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
   getDisplayedPackage,
@@ -116,7 +112,7 @@ describe('The actions checking for unsaved changes', () => {
           newSelectedResource: 1,
         };
         const testManualAttributions: Attributions = {
-          uuid_1: { packageName: 'React' },
+          uuid_1: { packageName: 'React', id: 'uuid_1' },
         };
         const testStore = createAppStore();
         testStore.dispatch(
@@ -131,12 +127,15 @@ describe('The actions checking for unsaved changes', () => {
         testStore.dispatch(setSelectedResourceId('selectedResource'));
         testStore.dispatch(navigateToView(View.Attribution));
         testStore.dispatch(
-          savePackageInfo(null, null, { packageName: 'Test' }),
+          savePackageInfo(null, null, {
+            packageName: 'Test',
+            id: faker.string.uuid(),
+          }),
         );
         testStore.dispatch(
           setTemporaryDisplayPackageInfo({
             packageName: 'Test 2',
-            attributionIds: [],
+            id: faker.string.uuid(),
           }),
         );
 
@@ -154,9 +153,10 @@ describe('The actions checking for unsaved changes', () => {
         expect(
           getSelectedAttributionIdInAttributionView(testStore.getState()),
         ).toBe('');
-        expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
+        expect(
+          getTemporaryDisplayPackageInfo(testStore.getState()),
+        ).toMatchObject<Partial<PackageInfo>>({
           packageName: 'Test 2',
-          attributionIds: [],
         });
       },
     );
@@ -167,7 +167,7 @@ describe('The actions checking for unsaved changes', () => {
         newSelectedResource: 1,
       };
       const testManualAttributions: Attributions = {
-        uuid_1: { packageName: 'React' },
+        uuid_1: { packageName: 'React', id: 'uuid_1' },
       };
       const testStore = createAppStore();
       testStore.dispatch(
@@ -185,12 +185,13 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'Test',
-          attributionIds: [],
+          id: faker.string.uuid(),
         }),
       );
       testStore.dispatch(
         savePackageInfo('selectedResource', 'selectedAttributionId', {
           packageName: 'Test',
+          id: faker.string.uuid(),
         }),
       );
 
@@ -203,9 +204,11 @@ describe('The actions checking for unsaved changes', () => {
       expect(
         getSelectedAttributionIdInAttributionView(testStore.getState()),
       ).toBe('uuid_1');
-      expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
+      expect(
+        getTemporaryDisplayPackageInfo(testStore.getState()),
+      ).toEqual<PackageInfo>({
         packageName: 'React',
-        attributionIds: ['uuid_1'],
+        id: 'uuid_1',
       });
     });
   });
@@ -225,7 +228,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
-          attributionIds: [],
+          id: faker.string.uuid(),
         }),
       );
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Attribution));
@@ -259,11 +262,13 @@ describe('The actions checking for unsaved changes', () => {
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
+      id: testManualAttributionUuid_1,
     };
     const secondTestPackageInfo: PackageInfo = {
       packageVersion: '2.0',
       packageName: 'not assigned test Package',
       licenseText: ' test not assigned License text',
+      id: testManualAttributionUuid_2,
     };
     const testManualAttributions: Attributions = {
       [testManualAttributionUuid_1]: testPackageInfo,
@@ -307,7 +312,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
-          attributionIds: [],
+          id: faker.string.uuid(),
         }),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
@@ -324,11 +329,10 @@ describe('The actions checking for unsaved changes', () => {
 
   describe('selectPackageCardInAuditViewOrOpenUnsavedPopup', () => {
     it('selects an attribution in an accordion panel', () => {
-      const testPackageInfo: PackageInfo = { packageName: 'test name' };
-      const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
-        testPackageInfo,
-        ['uuid'],
-      );
+      const testPackageInfo: PackageInfo = {
+        packageName: 'test name',
+        id: 'uuid',
+      };
       const testPackageCardId = 'All Attributions-0';
       const testResources: Resources = {
         file1: 1,
@@ -342,7 +346,7 @@ describe('The actions checking for unsaved changes', () => {
       const testSelectedPackage: PanelPackage = {
         panel: PackagePanelTitle.AllAttributions,
         packageCardId: testPackageCardId,
-        displayPackageInfo: testDisplayPackageInfo,
+        displayPackageInfo: testPackageInfo,
       };
 
       const testStore = createAppStore();
@@ -369,19 +373,18 @@ describe('The actions checking for unsaved changes', () => {
         testSelectedPackage,
       );
       expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-        testDisplayPackageInfo,
+        testPackageInfo,
       );
     });
   });
 
   describe('selectAttributionInManualPackagePanelOrOpenUnsavedPopup', () => {
     it('ss an attribution in the manual package panel', () => {
-      const testPackageInfo: PackageInfo = { packageName: 'test name' };
+      const testPackageInfo: PackageInfo = {
+        packageName: 'test name',
+        id: 'uuid',
+      };
       const testPackageCardId = 'All Attributions-0';
-      const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
-        testPackageInfo,
-        ['uuid'],
-      );
       const testResources: Resources = {
         file1: 1,
       };
@@ -394,7 +397,7 @@ describe('The actions checking for unsaved changes', () => {
       const testSelectedPackage: PanelPackage = {
         panel: PackagePanelTitle.ManualPackages,
         packageCardId: testPackageCardId,
-        displayPackageInfo: testDisplayPackageInfo,
+        displayPackageInfo: testPackageInfo,
       };
 
       const testStore = createAppStore();
@@ -420,9 +423,11 @@ describe('The actions checking for unsaved changes', () => {
       expect(getDisplayedPackage(testStore.getState())).toEqual(
         testSelectedPackage,
       );
-      expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual({
+      expect(
+        getTemporaryDisplayPackageInfo(testStore.getState()),
+      ).toEqual<PackageInfo>({
         ...testPackageInfo,
-        attributionIds: ['uuid'],
+        id: 'uuid',
       });
     });
   });
@@ -440,10 +445,7 @@ describe('The actions called from the unsaved popup', () => {
     '/something.js': ['id1'],
   };
 
-  function prepareTestStore(
-    view: View,
-    testDisplayPackageInfo: DisplayPackageInfo,
-  ) {
+  function prepareTestStore(view: View, testDisplayPackageInfo: PackageInfo) {
     const testStore = createAppStore();
     testStore.dispatch(navigateToView(view));
     // load data that is sufficient to call unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled
@@ -482,9 +484,9 @@ describe('The actions called from the unsaved popup', () => {
         (viewCandidate) => viewCandidate !== view,
       );
       it('saves and navigates to target view', () => {
-        const testDisplayPackageInfo: DisplayPackageInfo = {
+        const testDisplayPackageInfo: PackageInfo = {
           ...testPackage,
-          attributionIds: ['id1'],
+          id: faker.string.uuid(),
         };
         const testStore = prepareTestStore(view, testDisplayPackageInfo);
         testStore.dispatch(setTargetView(notSelectedViews[0]));
@@ -505,7 +507,7 @@ describe('The actions called from the unsaved popup', () => {
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'Test',
-          attributionIds: [],
+          id: faker.string.uuid(),
         }),
       );
       testStore.dispatch(navigateToView(View.Audit));
@@ -519,41 +521,38 @@ describe('The actions called from the unsaved popup', () => {
     }
 
     it('closes popup', () => {
-      const state: State = prepareTestState();
+      const state = prepareTestState();
       expect(getOpenPopup(state)).toBeFalsy();
     });
 
     it('sets the view', () => {
-      const state: State = prepareTestState();
+      const state = prepareTestState();
       expect(getSelectedView(state)).toBe(View.Attribution);
     });
 
     it('sets targetSelectedResourceOrAttribution', () => {
-      const state: State = prepareTestState();
+      const state = prepareTestState();
       expect(getSelectedResourceId(state)).toBe('newSelectedResource');
     });
 
     it('sets temporaryDisplayPackageInfo', () => {
-      const state: State = prepareTestState();
+      const state = prepareTestState();
       expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({});
     });
 
     it('does not save temporaryDisplayPackageInfo', () => {
-      const state: State = prepareTestState();
+      const state = prepareTestState();
       expect(getManualAttributions(state)).toMatchObject({});
     });
   });
 });
 
 describe('unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled', () => {
-  const testReact = {
+  const testReact: PackageInfo = {
     packageName: 'React',
+    id: 'reactUuid',
   };
   const testPackageCardId = 'Attributions-0';
-  const testDisplayPackageInfo: DisplayPackageInfo = {
-    ...testReact,
-    attributionIds: ['reactUuid'],
-  };
   const testResources: Resources = {
     'something.js': 1,
     'somethingElse.js': 1,
@@ -583,45 +582,36 @@ describe('unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNo
       setDisplayedPackage({
         panel: PackagePanelTitle.ManualPackages,
         packageCardId: testPackageCardId,
-        displayPackageInfo: testDisplayPackageInfo,
+        displayPackageInfo: testReact,
       }),
-    );
-    testStore.dispatch(
-      setTemporaryDisplayPackageInfo(EMPTY_DISPLAY_PACKAGE_INFO),
     );
     return testStore;
   }
 
   it('unlinks and navigates to target view', () => {
-    const expectedManualData: AttributionData = {
-      attributions: testInitialManualAttributions,
-      resourcesToAttributions: {
-        '/somethingElse.js': ['reactUuid'],
-      },
-      attributionsToResources: {
-        reactUuid: ['/somethingElse.js'],
-      },
-      resourcesWithAttributedChildren: {
-        attributedChildren: {
-          '1': new Set<number>().add(2),
-        },
-        pathsToIndices: {
-          '/': 1,
-          '/something.js': 0,
-          '/somethingElse.js': 2,
-        },
-        paths: ['/something.js', '/', '/somethingElse.js'],
-      },
+    const updatedPackageInfo: PackageInfo = {
+      ...testReact,
+      packageName: 'VueJS',
     };
 
     const testStore = prepareTestStore();
+    testStore.dispatch(setTemporaryDisplayPackageInfo(updatedPackageInfo));
     testStore.dispatch(setTargetView(View.Attribution));
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
 
     testStore.dispatch(
       unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(),
     );
-    expect(getManualData(testStore.getState())).toEqual(expectedManualData);
+
+    const newManualData = getManualData(testStore.getState());
+    const newAttributionId =
+      newManualData.resourcesToAttributions['/something.js'][0];
+
+    expect(newAttributionId).not.toBe('reactUuid');
+    expect(newManualData.attributions[newAttributionId]).toEqual({
+      ...updatedPackageInfo,
+      id: newAttributionId,
+    });
     expect(getSelectedView(testStore.getState())).toBe(View.Attribution);
   });
 
@@ -675,7 +665,7 @@ describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDis
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         packageName: 'Test',
-        attributionIds: [],
+        id: faker.string.uuid(),
       }),
     );
     testStore.dispatch(navigateToView(View.Audit));
@@ -695,25 +685,18 @@ describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDis
     return testStore.getState();
   }
 
-  it('saves temporaryDisplayPackageInfo', () => {
-    const state: State = prepareTestState();
-    expect(getTemporaryDisplayPackageInfo(state)).toMatchObject({
-      attributionIds: [],
-    });
-  });
-
   it('sets TargetSelectedResourceOrAttribution', () => {
-    const state: State = prepareTestState();
+    const state = prepareTestState();
     expect(getSelectedResourceId(state)).toBe('newSelectedResource');
   });
 
   it('sets View', () => {
-    const state: State = prepareTestState();
+    const state = prepareTestState();
     expect(getSelectedView(state)).toBe(View.Attribution);
   });
 
   it('closes popup', () => {
-    const state: State = prepareTestState();
+    const state = prepareTestState();
     expect(getOpenPopup(state)).toBeFalsy();
   });
 
@@ -727,9 +710,10 @@ describe('saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIsNotDis
     expect(getOpenPopup(testStore.getState())).toBe(
       PopupType.UnableToSavePopup,
     );
-    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject({
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toMatchObject<
+      Partial<PackageInfo>
+    >({
       packageName: 'Test',
-      attributionIds: [],
     });
     expect(getSelectedView(testStore.getState())).toBe(View.Audit);
   });
@@ -748,14 +732,16 @@ describe('closePopupAndReopenEditAttributionPopupIfItWasPreviouslyOpen', () => {
         const testSelectedPackage: PanelPackage = {
           panel: PackagePanelTitle.AllAttributions,
           packageCardId: 'All Attributions-0',
-          displayPackageInfo: { attributionIds: ['id1'] },
+          displayPackageInfo: {
+            id: 'id1',
+          },
         };
         testStore.dispatch(setDisplayedPackage(testSelectedPackage));
       }
       testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
       testStore.dispatch(closePopupAndUnsetTargets());
-      expect(getTargetView(testStore.getState())).toBe(null);
+      expect(getTargetView(testStore.getState())).toBeNull();
       expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
       expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
       expect(getOpenPopup(testStore.getState())).toBeFalsy();
@@ -767,10 +753,10 @@ describe('closePopupAndReopenEditAttributionPopupIfItWasPreviouslyOpen', () => {
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
     testStore.dispatch(closePopupAndUnsetTargets());
-    expect(getTargetView(testStore.getState())).toBe(null);
+    expect(getTargetView(testStore.getState())).toBeNull();
     expect(getTargetSelectedResourceId(testStore.getState())).toBe('');
     expect(getTargetSelectedAttributionId(testStore.getState())).toBe('');
-    expect(getOpenPopup(testStore.getState())).toBe(null);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 });
 
@@ -802,6 +788,7 @@ describe('locateSignalsFromLocatorPopup', () => {
         packageName: 'react',
         criticality: Criticality.High,
         licenseName: 'GPL-2.0',
+        id: 'uuid1',
       },
     };
 
@@ -832,23 +819,25 @@ describe('locateSignalsFromLocatorPopup', () => {
 
   it('navigates to audit view if unsaved changes are handled but does not change selected resource', () => {
     const testStore = createAppStore();
-    const testInitalPackageInfo: PackageInfo = {
+    const testInitialPackageInfo: PackageInfo = {
       packageName: 'react',
       packageVersion: '18',
+      id: 'uuid',
     };
     const testManualAttributions: Attributions = {
-      uuid: testInitalPackageInfo,
+      uuid: testInitialPackageInfo,
     };
-    const changedDisplayPackageInfo: DisplayPackageInfo = {
+    const changedDisplayPackageInfo: PackageInfo = {
       packageName: 'react',
       packageVersion: '19',
-      attributionIds: ['uuid'],
+      id: 'uuid',
     };
     const testExternalAttributions: Attributions = {
       uuid_ext: {
         packageName: 'vue',
         licenseName: 'GPL-2.0',
         criticality: Criticality.High,
+        id: 'uuid_ext',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
@@ -894,12 +883,15 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
     const testExternalAttributions: Attributions = {
       uuid1: {
         licenseName: 'Apache-2.0',
+        id: 'uuid1',
       },
       uuid2: {
         licenseName: 'Apache 2.0',
+        id: 'uuid2',
       },
       uuid3: {
         licenseName: 'MIT',
+        id: 'uuid3',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
@@ -943,15 +935,18 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
         packageName: 'react',
         criticality: Criticality.High,
         licenseName: 'MIT',
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'angular',
         criticality: Criticality.Medium,
         licenseName: 'MIT',
+        id: 'uuid2',
       },
       uuid3: {
         packageName: 'vue',
         licenseName: 'MIT',
+        id: 'uuid3',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
@@ -998,6 +993,7 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
         packageName: 'react',
         criticality: Criticality.High,
         licenseName: 'GPL-2.0',
+        id: 'uuid1',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
@@ -1026,20 +1022,25 @@ describe('locateSignalsFromProjectStatisticsPopup', () => {
 
   it('navigates to audit view if unsaved changes are handled', () => {
     const testStore = createAppStore();
-    const testInitalPackageInfo: PackageInfo = {
+    const testInitialPackageInfo: PackageInfo = {
       packageName: 'react',
       packageVersion: '18',
+      id: 'uuid',
     };
     const testManualAttributions: Attributions = {
-      uuid: testInitalPackageInfo,
+      uuid: testInitialPackageInfo,
     };
-    const changedDisplayPackageInfo: DisplayPackageInfo = {
+    const changedDisplayPackageInfo: PackageInfo = {
       packageName: 'react',
       packageVersion: '19',
-      attributionIds: ['uuid'],
+      id: 'uuid',
     };
     const testExternalAttributions: Attributions = {
-      uuid_ext: { packageName: 'vue', licenseName: 'GPL-2.0' },
+      uuid_ext: {
+        packageName: 'vue',
+        licenseName: 'GPL-2.0',
+        id: 'uuid_ext',
+      },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/folder/file': ['uuid_ext'],

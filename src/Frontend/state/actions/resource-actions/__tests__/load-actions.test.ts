@@ -53,11 +53,13 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
+  id: testManualAttributionUuid_1,
 };
 const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
+  id: testManualAttributionUuid_2,
 };
 const testManualAttributions: Attributions = {
   [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
@@ -78,20 +80,23 @@ describe('loadFromFile', () => {
           name: 'Test document',
           documentConfidence: 99,
         },
+        id: testManualAttributionUuid_1,
       },
       doNotChangeMe1: {
         packageName: 'name',
-        comment: 'comment1',
+        comments: ['comment1'],
         originIds: ['abc'],
         preSelected: true,
         attributionConfidence: 1,
+        id: 'doNotChangeMe1',
       },
       doNotChangeMe2: {
         packageName: 'name',
-        comment: 'comment2',
+        comments: ['comment2'],
         originIds: ['def'],
         preSelected: false,
         attributionConfidence: 2,
+        id: 'doNotChangeMe2',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {

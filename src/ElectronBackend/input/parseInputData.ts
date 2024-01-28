@@ -10,11 +10,12 @@ import {
   Criticality,
   FollowUp,
   FrequentLicenses,
+  RawAttributions,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import logger from '../main/logger';
-import { RawAttributions, RawFrequentLicense } from '../types/types';
+import { RawFrequentLicense } from '../types/types';
 
 function addTrailingSlashIfAbsent(resourcePath: string): string {
   return resourcePath.endsWith('/') ? resourcePath : resourcePath.concat('/');
@@ -116,39 +117,73 @@ export function cleanNonExistentResolvedExternalAttributions(
   return resolvedExternalAttributions;
 }
 
-export function parseRawAttributions(
+export function deserializeAttributions(
   rawAttributions: RawAttributions,
 ): [Attributions, boolean] {
-  let inputContainsCriticalExternalAttributions = false;
+  return Object.entries(rawAttributions).reduce<[Attributions, boolean]>(
+    (
+      [attributions, inputContainsCriticalExternalAttributions],
+      [
+        attributionId,
+        { followUp, comment, criticality, originId, originIds, ...attribution },
+      ],
+    ) => {
+      const isCritical =
+        !!criticality && Object.values(Criticality).includes(criticality);
+      const sanitizedComment = comment?.replace(/^\s+|\s+$/g, '');
+      attributions[attributionId] = {
+        ...attribution,
+        ...((originId || originIds?.length) && {
+          originIds: (originIds ?? []).concat(originId ?? []),
+        }),
+        ...(followUp === FollowUp && { followUp }),
+        ...(sanitizedComment && { comments: [sanitizedComment] }),
+        ...(isCritical && { criticality }),
+        id: attributionId,
+      };
+      return [
+        attributions,
+        inputContainsCriticalExternalAttributions || isCritical,
+      ];
+    },
+    [{}, false],
+  );
+}
 
-  for (const attributionId of Object.keys(rawAttributions)) {
-    if (rawAttributions[attributionId]?.followUp !== FollowUp) {
-      delete rawAttributions[attributionId].followUp;
-    }
-    if (rawAttributions[attributionId]?.comment === '') {
-      delete rawAttributions[attributionId].comment;
-    }
-    const criticality = rawAttributions[attributionId]?.criticality;
-    if (criticality && !Object.values(Criticality).includes(criticality)) {
-      delete rawAttributions[attributionId].criticality;
-    }
-    if (rawAttributions[attributionId]?.criticality) {
-      inputContainsCriticalExternalAttributions = true;
-    }
-
-    const originId = rawAttributions[attributionId]?.originId;
-    if (originId) {
-      const originIds = rawAttributions[attributionId]?.originIds ?? [];
-      originIds.push(originId);
-      rawAttributions[attributionId].originIds = originIds;
-      delete rawAttributions[attributionId].originId;
-    }
-  }
-
-  return [
-    rawAttributions as Attributions,
-    inputContainsCriticalExternalAttributions,
-  ];
+export function serializeAttributions(
+  attributions: Attributions,
+): RawAttributions {
+  return Object.entries(attributions).reduce<RawAttributions>(
+    (
+      rawAttributions,
+      [
+        attributionId,
+        {
+          comments,
+          count,
+          id,
+          linkedAttributionIds,
+          resources,
+          source,
+          suffix,
+          synthetic,
+          ...attribution
+        },
+      ],
+    ) => {
+      const sanitizedComments = comments
+        ?.map((comment) => comment.replace(/^\s+|\s+$/g, ''))
+        .filter((comment) => !!comment);
+      rawAttributions[attributionId] = {
+        ...attribution,
+        ...(sanitizedComments?.length && {
+          comment: sanitizedComments.join('\n'),
+        }),
+      };
+      return rawAttributions;
+    },
+    {},
+  );
 }
 
 export function parseFrequentLicenses(

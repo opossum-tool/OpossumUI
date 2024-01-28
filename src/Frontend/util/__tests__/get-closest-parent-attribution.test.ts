@@ -12,10 +12,16 @@ import {
   getClosestParentWithAttributions,
 } from '../get-closest-parent-attributions';
 
-const expectedPackage: PackageInfo = { packageName: 'right' };
-const otherPackage: PackageInfo = { packageName: 'wrong' };
 const expectedPackageUuid = '8ef8dff4-8e9d-4cab-b70b-44fa498957a9';
 const otherPackageUuid = 'd8ff89ae-34d0-4899-9519-7f736e7fd7da';
+const expectedPackage: PackageInfo = {
+  packageName: 'right',
+  id: expectedPackageUuid,
+};
+const otherPackage: PackageInfo = {
+  packageName: 'wrong',
+  id: otherPackageUuid,
+};
 const testManualAttributions: Attributions = {
   [expectedPackageUuid]: expectedPackage,
   [otherPackageUuid]: otherPackage,

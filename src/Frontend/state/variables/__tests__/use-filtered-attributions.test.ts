@@ -15,7 +15,7 @@ import {
 
 describe('useFilteredAttributions', () => {
   it('returns all manual attributions when no filters set', () => {
-    const manualAttributions = faker.opossum.manualAttributions();
+    const manualAttributions = faker.opossum.attributions();
     const { result } = renderHook(() => useFilteredAttributions(), {
       actions: [
         setManualData(
@@ -29,7 +29,7 @@ describe('useFilteredAttributions', () => {
   });
 
   it('returns filtered manual attributions when filters set', () => {
-    const manualAttributions = faker.opossum.manualAttributions();
+    const manualAttributions = faker.opossum.attributions();
     const { result } = renderHook(() => useFilteredAttributions(), {
       actions: [
         setManualData(

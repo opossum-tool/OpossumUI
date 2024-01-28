@@ -4,24 +4,22 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { Attributions, PackageInfo } from '../../../shared/shared-types';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
   ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
-  EMPTY_DISPLAY_PACKAGE_INFO,
 } from '../../shared-constants';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
+import { PackageCardConfig } from '../../types/types';
 import { List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT, PackageCard } from '../PackageCard/PackageCard';
 
-const DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON: DisplayPackageInfo =
-  {
-    ...EMPTY_DISPLAY_PACKAGE_INFO,
-    packageName: ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
-  };
+const DISPLAY_PACKAGE_INFO_FOR_ADD_NEW_ATTRIBUTION_BUTTON: PackageInfo = {
+  id: ADD_NEW_ATTRIBUTION_BUTTON_ID,
+  packageName: ADD_NEW_ATTRIBUTION_BUTTON_TEXT,
+};
 
 interface ManualAttributionListProps {
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
   sortedPackageCardIds: Array<string>;
   selectedResourceId: string;
   selectedPackageCardId?: string;
@@ -59,7 +57,7 @@ export function ManualAttributionList(
         cardConfig={cardConfig}
         key={`AttributionCard-${displayPackageInfo.packageName}-${packageCardId}`}
         cardId={`manual-${props.selectedResourceId}-${packageCardId}`}
-        displayPackageInfo={displayPackageInfo}
+        packageInfo={displayPackageInfo}
         showOpenResourcesIcon={!isButton}
       />
     );

@@ -9,7 +9,6 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { DisplayPackageInfos } from '../../../types/types';
 import { AllAttributionsPanel } from '../AllAttributionsPanel';
 
 describe('The AllAttributionsPanel', () => {
@@ -19,24 +18,24 @@ describe('The AllAttributionsPanel', () => {
   const testPackageCardId1 = 'All Attributions-0';
   const testPackageCardId2 = 'All Attributions-1';
   const testPackageCardId3 = 'All Attributions-2';
-  const testManualDisplayPackageInfos: DisplayPackageInfos = {
+  const testManualDisplayPackageInfos: Attributions = {
     [testPackageCardId1]: {
       packageVersion: '1.0',
       packageName: 'Typescript',
       licenseText: ' test License text',
-      attributionIds: [testManualAttributionUuid1],
+      id: testManualAttributionUuid1,
     },
     [testPackageCardId2]: {
       packageVersion: '2.0',
       packageName: 'React',
       licenseText: ' test license text',
-      attributionIds: [testManualAttributionUuid2],
+      id: testManualAttributionUuid2,
     },
     [testPackageCardId3]: {
       packageVersion: '3.0',
       packageName: 'Vue',
       licenseText: ' test license text',
-      attributionIds: [testManualAttributionUuid3],
+      id: testManualAttributionUuid3,
     },
   };
   const testManualAttributions: Attributions = {
@@ -44,34 +43,37 @@ describe('The AllAttributionsPanel', () => {
       packageVersion: '1.0',
       packageName: 'Typescript',
       licenseText: ' test License text',
+      id: testManualAttributionUuid1,
     },
     [testManualAttributionUuid2]: {
       packageVersion: '2.0',
       packageName: 'React',
       licenseText: ' test license text',
+      id: testManualAttributionUuid2,
     },
     [testManualAttributionUuid3]: {
       packageVersion: '3.0',
       packageName: 'Vue',
       licenseText: ' test license text',
+      id: testManualAttributionUuid3,
     },
   };
 
   it('renders non-empty list', () => {
-    const testDisplayPackageInfos: DisplayPackageInfos = {
+    const testDisplayPackageInfos: Attributions = {
       [testPackageCardId1]: {
         packageName: 'name 1',
-        attributionIds: ['uuid1'],
+        id: 'uuid1',
       },
 
       [testPackageCardId2]: {
         packageName: 'name 2',
-        attributionIds: ['uuid2'],
+        id: 'uuid2',
       },
     };
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'name 1' },
-      uuid2: { packageName: 'name 2' },
+      uuid1: { packageName: 'name 1', id: 'uuid1' },
+      uuid2: { packageName: 'name 2', id: 'uuid2' },
     };
     renderComponent(
       <AllAttributionsPanel

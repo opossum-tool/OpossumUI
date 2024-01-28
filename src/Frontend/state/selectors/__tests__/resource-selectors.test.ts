@@ -5,11 +5,11 @@
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { PackagePanelTitle } from '../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import {
@@ -45,11 +45,13 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
+    id: testManualAttributionUuid_1,
   };
   const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
+    id: testManualAttributionUuid_2,
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
@@ -61,11 +63,11 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
 
   it('returns true  when TemporaryDisplayPackageInfo have been modified', () => {
     const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),
@@ -85,12 +87,12 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
 
   it('returns true  when confidence is changed', () => {
     const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.Low,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),
@@ -121,7 +123,7 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
       setTemporaryDisplayPackageInfo({
         attributionConfidence: DiscreteConfidence.Low,
         packageName: 'test Package',
-        attributionIds: [],
+        id: faker.string.uuid(),
       }),
     );
     expect(wereTemporaryDisplayPackageInfoModified(testStore.getState())).toBe(
@@ -131,12 +133,12 @@ describe('wereTemporaryDisplayPackageInfoModified', () => {
 
   it('returns false when TemporaryDisplayPackageInfo have not been modified', () => {
     const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionIds: [testManualAttributionUuid_1],
+      id: testManualAttributionUuid_1,
     };
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),

@@ -13,11 +13,11 @@ const [
   resourceName4,
   resourceName5,
 ] = faker.opossum.resourceNames({ count: 5 });
-const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+const [attributionId1, packageInfo1] = faker.opossum.rawAttribution();
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   attributionConfidence: DiscreteConfidence.High,
 });
-const [attributionId3, packageInfo3] = faker.opossum.manualAttribution({
+const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   preSelected: true,
 });
 
@@ -34,7 +34,7 @@ test.use({
     }),
     outputData: faker.opossum.outputData({
       metadata,
-      manualAttributions: faker.opossum.manualAttributions({
+      manualAttributions: faker.opossum.rawAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
         [attributionId3]: packageInfo3,

@@ -2,14 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import { isImportantAttributionInformationMissing } from '../is-important-attribution-information-missing';
 
 describe('isImportantAttributionInformationMissing', () => {
   it('returns true for a github purl without namespace', () => {
-    const testAttributionInfo: AttributionInfo = {
+    const testAttributionInfo: PackageInfo = {
       packageType: 'github',
-      resources: ['1'],
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(
@@ -20,9 +21,9 @@ describe('isImportantAttributionInformationMissing', () => {
   });
 
   it('returns false if exclude from notice', () => {
-    const testAttributionInfo: AttributionInfo = {
+    const testAttributionInfo: PackageInfo = {
       excludeFromNotice: true,
-      resources: ['1'],
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(
@@ -33,8 +34,8 @@ describe('isImportantAttributionInformationMissing', () => {
   });
 
   it('returns true if package name is missing', () => {
-    const testAttributionInfo: AttributionInfo = {
-      resources: ['1'],
+    const testAttributionInfo: PackageInfo = {
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(
@@ -45,9 +46,9 @@ describe('isImportantAttributionInformationMissing', () => {
   });
 
   it('returns false if copyright is not missing', () => {
-    const testAttributionInfo: AttributionInfo = {
+    const testAttributionInfo: PackageInfo = {
       copyright: 'test',
-      resources: ['1'],
+      id: faker.string.uuid(),
     };
     expect(
       isImportantAttributionInformationMissing(

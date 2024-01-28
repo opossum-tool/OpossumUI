@@ -6,12 +6,9 @@ import { compact, orderBy } from 'lodash';
 
 import {
   AttributionData,
-  AutocompleteSignal,
-  DisplayPackageInfo,
   ExternalAttributionSources,
   PackageInfo,
 } from '../../../shared/shared-types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import {
   getContainedExternalPackages,
   getContainedManualPackages,
@@ -47,19 +44,19 @@ export function getAutocompleteSignals({
     manualData,
   ).map(({ attributionId }) => manualData.attributions[attributionId]);
 
-  const getUniqueKey = (item: PackageInfo | DisplayPackageInfo) =>
+  const getUniqueKey = (packageInfo: PackageInfo) =>
     compact([
-      item.source && sources[item.source.name]?.name,
-      item.copyright,
-      item.licenseName,
-      generatePurl(item),
+      packageInfo.source && sources[packageInfo.source.name]?.name,
+      packageInfo.copyright,
+      packageInfo.licenseName,
+      generatePurl(packageInfo),
     ]).join();
 
   const signals = [
     ...signalsOnResource,
     ...signalsOnChildren,
     ...attributionsOnChildren,
-  ].reduce<Array<AutocompleteSignal>>((acc, signal) => {
+  ].reduce<Array<PackageInfo>>((acc, signal) => {
     if (!generatePurl(signal) || signal.preferred) {
       return acc;
     }
@@ -68,7 +65,7 @@ export function getAutocompleteSignals({
     const dupeIndex = acc.findIndex((item) => getUniqueKey(item) === key);
 
     if (dupeIndex === -1) {
-      acc.push(convertPackageInfoToDisplayPackageInfo(signal, [], 1));
+      acc.push({ ...signal, count: 1 });
     } else {
       acc[dupeIndex] = {
         ...acc[dupeIndex],

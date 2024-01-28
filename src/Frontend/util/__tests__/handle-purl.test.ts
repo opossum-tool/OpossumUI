@@ -2,18 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
+import { faker } from '../../../testing/Faker';
 import { generatePurl } from '../handle-purl';
 
 describe('generatePurlFromPackageInfo', () => {
   it('generates a valid Purl', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
+    const testDisplayPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
       packagePURLAppendix: '?appendix',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     const expectedPurl = 'pkg:type/namespace/name@version';
 
@@ -21,12 +22,12 @@ describe('generatePurlFromPackageInfo', () => {
   });
 
   it('generates a valid Purl without appendix', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
+    const testDisplayPackageInfo: PackageInfo = {
       packageName: 'name',
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     const expectedPurl = 'pkg:type/namespace/name@version';
 
@@ -34,11 +35,11 @@ describe('generatePurlFromPackageInfo', () => {
   });
 
   it('returns undefined when no packageName is given', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
+    const testDisplayPackageInfo: PackageInfo = {
       packageNamespace: 'namespace',
       packageType: 'type',
       packageVersion: 'version',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
 
     expect(generatePurl(testDisplayPackageInfo)).toBe('');

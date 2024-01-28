@@ -6,7 +6,6 @@ import { act, fireEvent, screen } from '@testing-library/react';
 
 import {
   Attributions,
-  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
@@ -32,7 +31,6 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { clickOnTab } from '../../../test-helpers/package-panel-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { PanelPackage } from '../../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { ResourceDetailsViewer } from '../ResourceDetailsViewer';
 
 const testExternalLicense = 'Computed attribution license.';
@@ -43,11 +41,13 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageName: 'jQuery',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
+  id: 'uuid_1',
 };
 const testTemporaryDisplayPackageInfo2: PackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
+  id: 'uuid_2',
 };
 
 function getActions(
@@ -71,9 +71,7 @@ function getActions(
       }),
     ),
     setSelectedResourceId(selectedResourceId),
-    setTemporaryDisplayPackageInfo(
-      convertPackageInfoToDisplayPackageInfo(temporaryDisplayPackageInfo, []),
-    ),
+    setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
   ];
 }
 
@@ -81,8 +79,8 @@ describe('The ResourceDetailsViewer', () => {
   it('renders an Attribution column', () => {
     const testTemporaryDisplayPackageInfo = {
       packageName: 'jQuery',
-      attributionIds: [],
-    } satisfies DisplayPackageInfo;
+      id: 'uuid_1',
+    } satisfies PackageInfo;
     renderComponent(<ResourceDetailsViewer />, {
       actions: [
         setSelectedResourceId('test_id'),
@@ -106,10 +104,12 @@ describe('The ResourceDetailsViewer', () => {
         alphabetically_first: {
           packageName: 'aaaaa',
           licenseName: 'MIT',
+          id: 'alphabetically_first',
         },
         alphabetically_second: {
           packageName: 'bbbbb',
           licenseName: 'MIT',
+          id: 'alphabetically_second',
         },
       };
       const expectedPanelPackage: PanelPackage = {
@@ -118,7 +118,7 @@ describe('The ResourceDetailsViewer', () => {
         displayPackageInfo: {
           packageName: 'aaaaa',
           licenseName: 'MIT',
-          attributionIds: ['alphabetically_first'],
+          id: 'alphabetically_first',
         },
       };
       const { store } = renderComponent(<ResourceDetailsViewer />, {
@@ -160,6 +160,7 @@ describe('The ResourceDetailsViewer', () => {
       uuid_1: {
         source: { name: 'HC', documentConfidence: -1 },
         packageName: 'JQuery',
+        id: 'uuid_1',
       },
     };
     const resourcesToExternalAttributions: ResourcesToAttributions = {
@@ -188,11 +189,12 @@ describe('The ResourceDetailsViewer', () => {
       uuid_1: testTemporaryDisplayPackageInfo,
     };
     const resourcesToManualAttributions = { '/test_id': ['uuid_1'] };
-    const externalAttributions = {
+    const externalAttributions: Attributions = {
       uuid_2: {
         source: { name: 'HC', documentConfidence: 1 },
         packageName: 'React',
         licenseText: testExternalLicense,
+        id: 'uuid_2',
       },
     };
     const resourcesToExternalAttributions = { '/test_id': ['uuid_2'] };
@@ -256,20 +258,22 @@ describe('The ResourceDetailsViewer', () => {
   });
 
   it('selects a merged external package, showing the right info', () => {
-    const externalAttributions = {
+    const externalAttributions: Attributions = {
       uuid_1: {
         source: { name: 'HC', documentConfidence: 1 },
         packageName: 'React',
         copyright: 'Meta 2022',
         attributionConfidence: 80,
-        comment: 'Comment 1',
+        comments: ['Comment 1'],
+        id: 'uuid_1',
       },
       uuid_2: {
         source: { name: 'HC', documentConfidence: 1 },
         packageName: 'React',
         copyright: 'Meta 2022',
         attributionConfidence: 40,
-        comment: 'Comment 2',
+        comments: ['Comment 2'],
+        id: 'uuid_2',
       },
     };
     const resourcesToExternalAttributions = {
@@ -314,6 +318,7 @@ describe('The ResourceDetailsViewer', () => {
         source: { name: 'HC', documentConfidence: 1 },
         packageName: 'JQuery',
         licenseText: testExternalLicense,
+        id: 'uuid_2',
       },
     };
     const resourcesToExternalAttributions: ResourcesToAttributions = {
@@ -398,11 +403,13 @@ describe('The ResourceDetailsViewer', () => {
         source: { name: 'HC', documentConfidence: -1 },
         packageName: 'JQuery',
         licenseText: testExternalLicense,
+        id: 'uuid_2',
       },
       uuid_3: {
         source: { name: 'SC', documentConfidence: 1 },
         packageName: 'Other package',
         licenseText: testExternalLicense2,
+        id: 'uuid_3',
       },
     };
     const resourcesToExternalAttributions: ResourcesToAttributions = {
@@ -595,6 +602,7 @@ describe('The ResourceDetailsViewer', () => {
         source: { name: 'SC', documentConfidence: 1 },
         packageName: 'Other package',
         licenseText: testExternalLicense2,
+        id: 'uuid_3',
       },
     };
     const resourcesToExternalAttributions: ResourcesToAttributions = {

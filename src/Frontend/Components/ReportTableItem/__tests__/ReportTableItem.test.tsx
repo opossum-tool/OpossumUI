@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 
 import {
-  AttributionsWithResources,
+  Attributions,
   DiscreteConfidence,
 } from '../../../../shared/shared-types';
 import { renderComponent } from '../../../test-helpers/render';
@@ -14,7 +14,7 @@ import { ReportTableItem } from '../ReportTableItem';
 
 describe('The ReportTableItem', () => {
   it('renders', () => {
-    const testAttributionsWithResources: AttributionsWithResources = {
+    const testAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         packageVersion: '1.0',
@@ -22,10 +22,11 @@ describe('The ReportTableItem', () => {
         licenseName: 'licenseName',
         licenseText: 'licenseText',
         attributionConfidence: DiscreteConfidence.Low,
-        comment: 'test comment',
+        comments: ['test comment'],
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
+        id: 'uuid1',
       },
     };
     renderComponent(
@@ -52,12 +53,10 @@ describe('The ReportTableItem', () => {
     expect(screen.getByText('test comment')).toBeInTheDocument();
 
     expect(screen.getByText('packageWebsite')).toBeInTheDocument();
-
-    expect(screen.getByText('/')).toBeInTheDocument();
   });
 
   it('renders icons correctly', () => {
-    const testAttributionsWithResources: AttributionsWithResources = {
+    const testAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         packageVersion: '1.0',
@@ -65,18 +64,20 @@ describe('The ReportTableItem', () => {
         licenseName: 'licenseName',
         licenseText: 'licenseText',
         attributionConfidence: DiscreteConfidence.Low,
-        comment: 'test comment',
+        comments: ['test comment'],
         url: 'packageWebsite',
         firstParty: true,
         resources: ['/'],
         needsReview: true,
         preferred: true,
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: [],
         followUp: 'FOLLOW_UP',
         excludeFromNotice: true,
+        id: 'uuid2',
       },
     };
     renderComponent(

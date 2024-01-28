@@ -4,17 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   AttributionData,
+  Attributions,
   AttributionsToHashes,
-  AutocompleteSignal,
   ExternalAttributionSources,
+  PackageInfo,
   Resources,
 } from '../../shared/shared-types';
 import { Filter, FilterCounts, Sorting } from '../shared-constants';
-import {
-  DisplayPackageInfos,
-  PanelData,
-  ProgressBarData,
-} from '../types/types';
+import { PanelData, ProgressBarData } from '../types/types';
 import { shouldNotBeCalled } from '../util/should-not-be-called';
 import { getAttributionsInFolderContent } from './scripts/get-attributions-in-folder-content';
 import { getAutocompleteSignals } from './scripts/get-autocomplete-signals';
@@ -45,7 +42,7 @@ export type SignalsWorkerInput =
 export type SignalsWorkerOutput =
   | {
       name: 'autocompleteSignals';
-      data: Array<AutocompleteSignal>;
+      data: Array<PackageInfo>;
     }
   | {
       name: 'attributionsInFolderContent';
@@ -69,7 +66,7 @@ export type SignalsWorkerOutput =
     }
   | {
       name: 'filteredAttributions';
-      data: DisplayPackageInfos;
+      data: Attributions;
     };
 
 interface State {

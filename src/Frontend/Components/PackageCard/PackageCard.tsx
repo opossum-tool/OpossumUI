@@ -7,7 +7,7 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import MuiBox from '@mui/material/Box';
 import { memo, useMemo, useState } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
 import { clickableIcon, disabledIcon } from '../../shared-styles';
 import { changeSelectedAttributionIdOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
@@ -52,7 +52,7 @@ export const PACKAGE_CARD_HEIGHT = 42;
 
 interface PackageCardProps {
   cardId: string;
-  displayPackageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   packageCount?: number;
   cardConfig: PackageCardConfig;
   onClick?(): void;
@@ -76,38 +76,37 @@ export const PackageCard = memo((props: PackageCardProps) => {
     useState<boolean>(false);
 
   const isExternalAttribution = Boolean(props.cardConfig.isExternalAttribution);
-  const packageLabels = getCardLabels(props.displayPackageInfo);
-  const attributionIds = props.displayPackageInfo.attributionIds;
+  const packageLabels = getCardLabels(props.packageInfo);
 
   const frequentLicenseNames = useAppSelector(getFrequentLicensesNameOrder);
   const listCardConfig = useMemo((): ListCardConfig => {
     let listCardConfig: ListCardConfig = {
       ...props.cardConfig,
-      firstParty: props.displayPackageInfo.firstParty,
-      excludeFromNotice: props.displayPackageInfo.excludeFromNotice,
-      needsReview: Boolean(props.displayPackageInfo.needsReview),
-      followUp: Boolean(props.displayPackageInfo.followUp),
-      isPreferred: Boolean(props.displayPackageInfo.preferred),
-      wasPreferred: Boolean(props.displayPackageInfo.wasPreferred),
+      firstParty: props.packageInfo.firstParty,
+      excludeFromNotice: props.packageInfo.excludeFromNotice,
+      needsReview: Boolean(props.packageInfo.needsReview),
+      followUp: Boolean(props.packageInfo.followUp),
+      isPreferred: Boolean(props.packageInfo.preferred),
+      wasPreferred: Boolean(props.packageInfo.wasPreferred),
       criticality: props.cardConfig.isExternalAttribution
-        ? props.displayPackageInfo.criticality
-        : props.displayPackageInfo.preSelected
-          ? props.displayPackageInfo.criticality
+        ? props.packageInfo.criticality
+        : props.packageInfo.preSelected
+          ? props.packageInfo.criticality
           : undefined,
     };
     if (!isExternalAttribution) {
-      const attributionId = attributionIds[0];
       listCardConfig = {
         ...listCardConfig,
-        isMultiSelected:
-          multiSelectSelectedAttributionIds.includes(attributionId),
+        isMultiSelected: multiSelectSelectedAttributionIds.includes(
+          props.packageInfo.id,
+        ),
       };
     } else {
       listCardConfig = {
         ...listCardConfig,
         isLocated: anyLocateFilterIsSet(locatePopupFilter)
           ? attributionMatchesLocateFilter(
-              props.displayPackageInfo,
+              props.packageInfo,
               locatePopupFilter,
               frequentLicenseNames,
             )
@@ -117,24 +116,21 @@ export const PackageCard = memo((props: PackageCardProps) => {
 
     return listCardConfig;
   }, [
-    attributionIds,
     frequentLicenseNames,
     isExternalAttribution,
     locatePopupFilter,
     multiSelectSelectedAttributionIds,
     props.cardConfig,
-    props.displayPackageInfo,
+    props.packageInfo,
   ]);
 
   const highlighting =
     selectedView === View.Attribution
-      ? getPackageCardHighlighting(props.displayPackageInfo)
+      ? getPackageCardHighlighting(props.packageInfo)
       : undefined;
 
-  const displayAttributionIds = props.displayPackageInfo.attributionIds;
-
   function getLeftElementForManualAttribution() {
-    const attributionId = attributionIds[0];
+    const attributionId = props.packageInfo.id;
 
     function handleMultiSelectAttributionSelected(
       event: React.ChangeEvent<HTMLInputElement>,
@@ -168,18 +164,18 @@ export const PackageCard = memo((props: PackageCardProps) => {
     props.onIconClick && !props.cardConfig.isResolved ? (
       <IconButton
         tooltipTitle={
-          props.displayPackageInfo.preferred
+          props.packageInfo.preferred
             ? CANNOT_ADD_PREFERRED_ATTRIBUTION_TOOLTIP
             : 'add'
         }
         tooltipPlacement="left"
-        disabled={props.displayPackageInfo.preferred}
+        disabled={props.packageInfo.preferred}
         onClick={props.onIconClick}
         key={getKey('add-icon', props.cardId)}
         icon={
           <PlusIcon
             sx={
-              props.displayPackageInfo.preferred
+              props.packageInfo.preferred
                 ? classes.disabledIcon
                 : classes.clickableIcon
             }
@@ -198,13 +194,13 @@ export const PackageCard = memo((props: PackageCardProps) => {
           onClick={(): void => {
             setShowAssociatedResourcesPopup(true);
           }}
-          key={`open-resources-icon-${props.displayPackageInfo.packageName}-${props.displayPackageInfo.packageVersion}`}
+          key={`open-resources-icon-${props.packageInfo.packageName}-${props.packageInfo.packageVersion}`}
           icon={<OpenInBrowserIcon sx={classes.clickableIcon} />}
         />
       ) : undefined,
     [
-      props.displayPackageInfo.packageName,
-      props.displayPackageInfo.packageVersion,
+      props.packageInfo.packageName,
+      props.packageInfo.packageVersion,
       props.showOpenResourcesIcon,
     ],
   );
@@ -222,7 +218,10 @@ export const PackageCard = memo((props: PackageCardProps) => {
       {showAssociatedResourcesPopup && (
         <ResourcePathPopup
           closePopup={(): void => setShowAssociatedResourcesPopup(false)}
-          attributionIds={displayAttributionIds}
+          attributionIds={[
+            props.packageInfo.id,
+            ...(props.packageInfo.linkedAttributionIds ?? []),
+          ]}
           isExternalAttribution={Boolean(
             props.cardConfig.isExternalAttribution,
           )}

@@ -6,10 +6,10 @@ import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
-const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
   preSelected: true,
 });
-const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   preSelected: true,
 });
 
@@ -24,7 +24,7 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({
-      manualAttributions: faker.opossum.manualAttributions({
+      manualAttributions: faker.opossum.rawAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
       }),

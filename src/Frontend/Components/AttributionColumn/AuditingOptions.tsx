@@ -8,7 +8,7 @@ import MuiChip from '@mui/material/Chip';
 import { SxProps } from '@mui/system';
 import { useState } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
 import { SelectMenu } from '../SelectMenu/SelectMenu';
@@ -19,7 +19,7 @@ const classes = {
 } satisfies SxProps;
 
 interface Props {
-  packageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   isEditable: boolean;
 }
 

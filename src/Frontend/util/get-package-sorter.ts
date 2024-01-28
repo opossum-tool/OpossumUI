@@ -5,22 +5,21 @@
 import {
   Attributions,
   Criticality,
-  DisplayPackageInfo,
+  PackageInfo,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import { Sorting } from '../shared-constants';
-import { DisplayPackageInfos } from '../types/types';
 import { getCardLabels } from './get-card-labels';
 
 const DEFAULT_NAME = '\u10FFFF'; // largest unicode character
 
 export function getPackageSorter(
-  displayPackageInfos: Attributions | DisplayPackageInfos,
+  displayPackageInfos: Attributions,
   sorting: Sorting,
 ) {
   return function (id1: string, id2: string): number {
-    const p1 = displayPackageInfos[id1] as DisplayPackageInfo | undefined;
-    const p2 = displayPackageInfos[id2] as DisplayPackageInfo | undefined;
+    const p1 = displayPackageInfos[id1] as PackageInfo | undefined;
+    const p2 = displayPackageInfos[id2] as PackageInfo | undefined;
 
     if (!p1 && !p2) {
       return 0;

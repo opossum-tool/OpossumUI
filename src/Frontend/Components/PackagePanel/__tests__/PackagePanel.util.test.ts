@@ -4,8 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { pick } from 'lodash';
 
-import { ExternalAttributionSources } from '../../../../shared/shared-types';
-import { DisplayPackageInfos } from '../../../types/types';
+import {
+  Attributions,
+  ExternalAttributionSources,
+} from '../../../../shared/shared-types';
 import {
   getPackageCardIdsAndDisplayPackageInfosForSource,
   getSortedSourcesFromDisplayPackageInfosWithCount,
@@ -21,45 +23,45 @@ const testSortedPackageCardIds = [
   'Signals-6',
 ];
 
-const testDisplayPackageInfos: DisplayPackageInfos = {
+const testDisplayPackageInfos: Attributions = {
   [testSortedPackageCardIds[0]]: {
     source: { name: 'MERGER', documentConfidence: 100 },
     packageName: 'React',
     packageVersion: '16.5.0',
-    attributionIds: ['react'],
+    id: testSortedPackageCardIds[0],
     count: 5,
   },
   [testSortedPackageCardIds[1]]: {
     source: { name: 'HC', documentConfidence: 100 },
     packageName: 'JQuery',
-    attributionIds: ['jquery'],
+    id: testSortedPackageCardIds[1],
     count: 1,
   },
   [testSortedPackageCardIds[2]]: {
     source: { name: 'HINT', documentConfidence: 10 },
     packageName: 'Blub',
-    attributionIds: ['blub'],
+    id: testSortedPackageCardIds[2],
     count: 1,
   },
   [testSortedPackageCardIds[3]]: {
     source: { name: 'a_unknown', documentConfidence: 100 },
-    attributionIds: ['b_unknown'],
+    id: testSortedPackageCardIds[3],
     count: 5,
   },
   [testSortedPackageCardIds[4]]: {
     source: { name: 'SC', documentConfidence: 100 },
     packageName: 'Vue',
-    attributionIds: ['vue'],
+    id: testSortedPackageCardIds[4],
     count: 500,
   },
   [testSortedPackageCardIds[5]]: {
     source: { name: 'b_unknown', documentConfidence: 100 },
-    attributionIds: ['a_unknown'],
+    id: testSortedPackageCardIds[5],
     count: 3,
   },
   [testSortedPackageCardIds[6]]: {
     source: { name: 'REUSER:HHC', documentConfidence: 100 },
-    attributionIds: ['reuser'],
+    id: testSortedPackageCardIds[6],
     count: 3,
   },
 };

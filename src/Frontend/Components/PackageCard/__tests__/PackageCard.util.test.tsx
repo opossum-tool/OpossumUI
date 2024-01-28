@@ -2,25 +2,25 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { HighlightingColor } from '../../../enums/enums';
 import { getPackageCardHighlighting } from '../PackageCard.util';
 
 describe('The PackageCardHelper', () => {
   it.each([
-    [{ attributionIds: ['abc'] }, HighlightingColor.DarkOrange],
-    [{ firstParty: true, attributionIds: ['abc'] }, undefined],
+    [{ id: 'abc' }, HighlightingColor.DarkOrange],
+    [{ firstParty: true, id: 'abc' }, undefined],
     [
       {
         excludeFromNotice: true,
-        attributionIds: ['abc'],
+        id: 'abc',
       },
       undefined,
     ],
     [
       {
         packageName: 'some package name',
-        attributionIds: ['abc'],
+        id: 'abc',
       },
       HighlightingColor.LightOrange,
     ],
@@ -28,7 +28,7 @@ describe('The PackageCardHelper', () => {
       {
         licenseName: 'some license name',
         packageVersion: 'some package version',
-        attributionIds: ['abc'],
+        id: 'abc',
       },
       HighlightingColor.DarkOrange,
     ],
@@ -41,7 +41,7 @@ describe('The PackageCardHelper', () => {
         packageVersion: 'some package version',
         url: 'some url',
         copyright: 'some copyright',
-        attributionIds: ['abc'],
+        id: 'abc',
       },
       undefined,
     ],
@@ -53,14 +53,14 @@ describe('The PackageCardHelper', () => {
         packageVersion: 'some package version',
         url: 'some url',
         copyright: 'some copyright',
-        attributionIds: ['abc'],
+        id: 'abc',
       },
       undefined,
     ],
   ])(
     'for %s packageInfo gives %s highlighting',
     (
-      displayPackageInfo: DisplayPackageInfo,
+      displayPackageInfo: PackageInfo,
       expectedHighlighting: HighlightingColor | undefined,
     ) => {
       const actualHighlighting = getPackageCardHighlighting(displayPackageInfo);

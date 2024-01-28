@@ -11,7 +11,6 @@ import {
   screen,
 } from '@testing-library/react';
 import { isEqual } from 'lodash';
-import { NIL as uuidNil } from 'uuid';
 
 import {
   Attributions,
@@ -20,6 +19,7 @@ import {
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
 import {
   setExternalData,
@@ -140,11 +140,15 @@ describe('ResourceBrowser', () => {
         'readme.md': 1,
       },
     };
-    const testUuid: string = uuidNil;
+    const testUuid: string = faker.string.uuid();
     const testManualAttributions: Attributions = {};
     const testResourcesToManualAttributions: ResourcesToAttributions = {};
     const testExternalAttributions: Attributions = {
-      [testUuid]: { packageName: 'jquery', criticality: Criticality.High },
+      [testUuid]: {
+        packageName: 'jquery',
+        criticality: Criticality.High,
+        id: testUuid,
+      },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
       '/root/src/': [testUuid],

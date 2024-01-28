@@ -10,7 +10,7 @@ import {
 } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { Sorting } from '../../shared-constants';
-import { AttributionIdWithCount, DisplayPackageInfos } from '../../types/types';
+import { AttributionIdWithCount } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import {
   getContainedExternalPackages,
@@ -26,7 +26,7 @@ export function getContainedExternalDisplayPackageInfosWithCount(args: {
   attributionsToHashes: Readonly<AttributionsToHashes>;
   panelTitle: PackagePanelTitle;
   sorting: Sorting;
-}): [Array<string>, DisplayPackageInfos] {
+}): [Array<string>, Attributions] {
   const externalAttributionIdsWithCount = getContainedExternalPackages(
     args.selectedResourceId,
     args.externalData.resourcesWithAttributedChildren,
@@ -47,13 +47,13 @@ export function getContainedManualDisplayPackageInfosWithCount(args: {
   manualData: AttributionData;
   panelTitle: PackagePanelTitle;
   sorting: Sorting;
-}): [Array<string>, DisplayPackageInfos] {
+}): [Array<string>, Attributions] {
   const manualAttributionIdsWithCount = getContainedManualPackages(
     args.selectedResourceId,
     args.manualData,
   );
   const packageCardIds: Array<string> = [];
-  const displayPackageInfos: DisplayPackageInfos = {};
+  const displayPackageInfos: Attributions = {};
 
   manualAttributionIdsWithCount.forEach(
     ({ attributionId, count }, index): void => {
@@ -79,9 +79,9 @@ export function getExternalDisplayPackageInfosWithCount(
   externalAttributionsToHashes: AttributionsToHashes,
   panelTitle: PackagePanelTitle,
   sorting: Sorting,
-): [Array<string>, DisplayPackageInfos] {
+): [Array<string>, Attributions] {
   const packageCardIds: Array<string> = [];
-  const displayPackageInfos: DisplayPackageInfos = {};
+  const displayPackageInfos: Attributions = {};
   const hashToAttributions: {
     [hash: string]: Array<[string, PackageInfo, number | undefined]>;
   } = {};
@@ -122,7 +122,7 @@ export function getExternalDisplayPackageInfosWithCount(
 
 function addMergedSignals(
   packageCardIds: Array<string>,
-  displayPackageInfos: DisplayPackageInfos,
+  displayPackageInfos: Attributions,
   hashToAttributions: {
     [hash: string]: Array<[string, PackageInfo, number | undefined]>;
   },

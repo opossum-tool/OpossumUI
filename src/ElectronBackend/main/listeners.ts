@@ -18,6 +18,7 @@ import {
   ExportSpdxDocumentYamlArgs,
   ExportType,
   OpenLinkArgs,
+  PackageInfo,
   SaveFileArgs,
   SendErrorInformationArgs,
 } from '../../shared/shared-types';
@@ -32,13 +33,10 @@ import {
   getMessageBoxForErrors,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
+import { serializeAttributions } from '../input/parseInputData';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
-import {
-  GlobalBackendState,
-  KeysOfAttributionInfo,
-  OpossumOutputFile,
-} from '../types/types';
+import { GlobalBackendState, OpossumOutputFile } from '../types/types';
 import { getFilePathWithAppendix } from '../utils/getFilePathWithAppendix';
 import { getLoadedFileType } from '../utils/getLoadedFile';
 import { isOpossumFileFormat } from '../utils/isOpossumFileFormat';
@@ -74,7 +72,7 @@ export function getSaveFileListener(
           fileCreationDate: String(Date.now()),
           inputFileMD5Checksum: globalBackendState.inputFileChecksum,
         },
-        manualAttributions: args.manualAttributions,
+        manualAttributions: serializeAttributions(args.manualAttributions),
         resourcesToAttributions: args.resourcesToAttributions,
         resolvedExternalAttributions: Array.from(
           args.resolvedExternalAttributions,
@@ -391,7 +389,7 @@ async function createFollowUp(
   followUpFilePath: string,
   args: ExportFollowUpArgs,
 ): Promise<void> {
-  const followUpColumnOrder: Array<KeysOfAttributionInfo> = [
+  const followUpColumnOrder: Array<keyof PackageInfo> = [
     'packageName',
     'packageVersion',
     'url',
@@ -412,7 +410,7 @@ async function createCompactBom(
   compactBomFilePath: string,
   args: ExportCompactBomArgs,
 ): Promise<void> {
-  const miniBomColumnOrder: Array<KeysOfAttributionInfo> = [
+  const miniBomColumnOrder: Array<keyof PackageInfo> = [
     'packageName',
     'packageVersion',
     'licenseName',
@@ -431,7 +429,7 @@ async function createDetailedBom(
   detailedBomFilePath: string,
   args: ExportDetailedBomArgs,
 ): Promise<void> {
-  const detailedBomColumnOrder: Array<KeysOfAttributionInfo> = [
+  const detailedBomColumnOrder: Array<keyof PackageInfo> = [
     'packageName',
     'packageVersion',
     'packageNamespace',

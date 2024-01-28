@@ -7,7 +7,6 @@ import get from 'lodash/get';
 import {
   Attributions,
   AttributionsToResources,
-  AttributionsWithResources,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -21,7 +20,7 @@ import { removeTrailingSlashIfFileWithChildren } from './remove-trailing-slash-i
 export function getAttributionsWithResources(
   attributions: Attributions,
   attributionsToResources: AttributionsToResources,
-): AttributionsWithResources {
+): Attributions {
   return getAttributionsWithResourcePaths(
     attributions,
     attributionsToResources,
@@ -36,7 +35,7 @@ export function getAttributionsWithAllChildResourcesWithoutFolders(
   resources: Resources,
   isAttributionBreakpoint: PathPredicate,
   isFileWithChildren: PathPredicate,
-): AttributionsWithResources {
+): Attributions {
   function getGetResourcesRecursively() {
     return (
       attributionsToResources: AttributionsToResources,
@@ -65,11 +64,11 @@ function getAttributionsWithResourcePaths(
     attributionsToResources: AttributionsToResources,
     attributionId: string,
   ) => Array<string>,
-): AttributionsWithResources {
+): Attributions {
   const reducer = (
-    attributionsWithResources: AttributionsWithResources,
+    attributionsWithResources: Attributions,
     attributionId: string,
-  ): AttributionsWithResources => ({
+  ): Attributions => ({
     ...attributionsWithResources,
     [attributionId]: {
       ...attributions[attributionId],
@@ -168,16 +167,16 @@ function getAllChildPathsOfFolder(
 }
 
 export function removeSlashesFromFilesWithChildren(
-  attributionsWithResources: AttributionsWithResources,
+  attributionsWithResources: Attributions,
   isFileWithChildren: PathPredicate,
-): AttributionsWithResources {
+): Attributions {
   return Object.fromEntries(
     Object.entries(attributionsWithResources).map(([id, attributionInfo]) => {
       return [
         id,
         {
           ...attributionInfo,
-          resources: attributionInfo.resources.map((path) =>
+          resources: attributionInfo.resources?.map((path) =>
             removeTrailingSlashIfFileWithChildren(path, isFileWithChildren),
           ),
         },

@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import isEqual from 'lodash/isEqual';
 import objectHash from 'object-hash';
 
 import {
@@ -10,7 +9,6 @@ import {
   Attributions,
   AttributionsToHashes,
   AttributionsToResources,
-  DisplayPackageInfo,
   FrequentLicenseName,
   PackageInfo,
   ResourcesToAttributions,
@@ -33,17 +31,6 @@ import {
   addPathToIndexesIfMissingInResourcesWithAttributedChildren,
   deleteChildrenFromAttributedResources,
 } from './save-action-helpers';
-
-export function getMatchingAttributionId(
-  packageInfoToMatch: PackageInfo,
-  attributions: Attributions,
-): string {
-  return (
-    Object.keys(attributions).find((id) =>
-      isEqual(attributions[id], packageInfoToMatch),
-    ) || ''
-  );
-}
 
 export function computeChildrenWithAttributions(
   resourcesToAttributions: ResourcesToAttributions,
@@ -169,22 +156,18 @@ export function removeResolvedAttributionsFromResourcesWithAttributedChildren(
   });
 }
 
+const HASH_EXCLUDE_KEYS: Array<keyof PackageInfo> = [
+  'attributionConfidence',
+  'comments',
+  'id',
+  'originIds',
+  'preSelected',
+  'wasPreferred',
+];
+
 export function createExternalAttributionsToHashes(
   externalAttributions: Attributions,
 ): AttributionsToHashes {
-  const excludeKeys = function (key: string): boolean {
-    return [
-      'comment',
-      'attributionConfidence',
-      'originIds',
-      'preSelected',
-      'wasPreferred',
-    ].includes(key);
-  };
-  const hashOptions = {
-    excludeKeys,
-  };
-
   const externalAttributionsToHashes: AttributionsToHashes = {};
   const hashesToExternalAttributions: { [hash: string]: Array<string> } = {};
 
@@ -201,7 +184,10 @@ export function createExternalAttributionsToHashes(
           delete attribution[key],
       );
 
-      const hash = objectHash(attribution, hashOptions);
+      const hash = objectHash(attribution, {
+        excludeKeys: (key) =>
+          HASH_EXCLUDE_KEYS.includes(key as keyof PackageInfo),
+      });
 
       hashesToExternalAttributions[hash]
         ? hashesToExternalAttributions[hash].push(attributionId)
@@ -316,7 +302,7 @@ export function anyLocateFilterIsSet(
   return licenseIsSet || criticalityIsSet || searchTermIsSet;
 }
 export function attributionMatchesLocateFilter(
-  attribution: PackageInfo | DisplayPackageInfo,
+  attribution: PackageInfo,
   locatePopupFilter: LocatePopupFilters,
   frequentLicenseNames: Array<FrequentLicenseName>,
 ): boolean {

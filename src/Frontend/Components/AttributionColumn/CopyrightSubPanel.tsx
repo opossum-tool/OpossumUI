@@ -5,7 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { ReactElement } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
@@ -14,13 +14,13 @@ import { TextBox } from '../InputElements/TextBox';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 interface CopyrightSubPanelProps {
-  displayPackageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
 }
 
 export function CopyrightSubPanel({
-  displayPackageInfo,
+  packageInfo,
   onEdit,
   showHighlight,
 }: CopyrightSubPanelProps): ReactElement {
@@ -32,7 +32,7 @@ export function CopyrightSubPanel({
         isEditable={!!onEdit}
         sx={attributionColumnClasses.textBox}
         title={'Copyright'}
-        text={displayPackageInfo.copyright}
+        text={packageInfo.copyright}
         minRows={3}
         maxRows={10}
         multiline={true}
@@ -40,7 +40,7 @@ export function CopyrightSubPanel({
           onEdit?.(() =>
             dispatch(
               setTemporaryDisplayPackageInfo({
-                ...displayPackageInfo,
+                ...packageInfo,
                 copyright: value,
                 wasPreferred: undefined,
               }),
@@ -49,10 +49,7 @@ export function CopyrightSubPanel({
         }
         isHighlighted={
           showHighlight &&
-          isImportantAttributionInformationMissing(
-            'copyright',
-            displayPackageInfo,
-          )
+          isImportantAttributionInformationMissing('copyright', packageInfo)
         }
       />
     </MuiBox>

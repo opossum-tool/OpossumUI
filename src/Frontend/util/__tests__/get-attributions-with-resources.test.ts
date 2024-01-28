@@ -5,7 +5,6 @@
 import {
   Attributions,
   AttributionsToResources,
-  AttributionsWithResources,
   Resources,
 } from '../../../shared/shared-types';
 import {
@@ -17,9 +16,9 @@ import {
 describe('getAttributionsWithResources', () => {
   it('returns attributions with resources', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
-      uuid2: { packageName: 'Redux' },
-      uuid3: { packageName: 'root package' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid2: { packageName: 'Redux', id: 'uuid2' },
+      uuid3: { packageName: 'root package', id: 'uuid3' },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -28,18 +27,21 @@ describe('getAttributionsWithResources', () => {
       uuid3: ['/'],
     };
 
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/', '/some/path2/'],
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path1/'],
+        id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
         resources: ['/'],
+        id: 'uuid3',
       },
     };
 
@@ -59,10 +61,10 @@ describe('getAttributionsWithResources', () => {
 describe('getAttributionsWithAllChildResources', () => {
   it('returns attributions with resources recursively', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
-      uuid2: { packageName: 'Redux' },
-      uuid3: { packageName: 'JQuery' },
-      uuid4: { packageName: 'root package' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid2: { packageName: 'Redux', id: 'uuid2' },
+      uuid3: { packageName: 'JQuery', id: 'uuid3' },
+      uuid4: { packageName: 'root package', id: 'uuid4' },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -79,22 +81,26 @@ describe('getAttributionsWithAllChildResources', () => {
       '/some/': ['uuid4'],
     };
 
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/something.js', '/some/file1'],
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path1/something.js'],
+        id: 'uuid2',
       },
       uuid3: {
         packageName: 'JQuery',
         resources: ['/some/path3/some_other_thing.js'],
+        id: 'uuid3',
       },
       uuid4: {
         packageName: 'root package',
         resources: [],
+        id: 'uuid4',
       },
     };
 
@@ -123,7 +129,7 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('returns attributions with resources recursively in the edge case of same folder names', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -142,10 +148,11 @@ describe('getAttributionsWithAllChildResources', () => {
       },
     };
 
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: ['/foo/foo/foo'],
+        id: 'uuid1',
       },
     };
 
@@ -163,7 +170,7 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('returns attributions with resources recursively for a deep file tree', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -202,7 +209,7 @@ describe('getAttributionsWithAllChildResources', () => {
       file: 1,
     };
 
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: [
@@ -212,6 +219,7 @@ describe('getAttributionsWithAllChildResources', () => {
           '/folder/folder2/file',
           '/folder/file',
         ],
+        id: 'uuid1',
       },
     };
 
@@ -242,8 +250,8 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('does not return resources inside a breakpoint', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
-      uuid2: { packageName: 'Vue' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid2: { packageName: 'Vue', id: 'uuid2' },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -271,14 +279,16 @@ describe('getAttributionsWithAllChildResources', () => {
       file: 1,
     };
 
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: ['/folder/folder/file'],
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
         resources: ['/folder/folder/folder/folder/file'],
+        id: 'uuid2',
       },
     };
 
@@ -296,8 +306,8 @@ describe('getAttributionsWithAllChildResources', () => {
 
   it('does return resources that are files with children', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
-      uuid2: { packageName: 'Vue' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid2: { packageName: 'Vue', id: 'uuid2' },
     };
 
     const testAttributionsToResources: AttributionsToResources = {
@@ -319,14 +329,16 @@ describe('getAttributionsWithAllChildResources', () => {
       file: 1,
     };
 
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: ['/fileWithChildren/folder/file'],
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Vue',
         resources: ['/fileWithChildren/'],
+        id: 'uuid2',
       },
     };
 
@@ -347,7 +359,7 @@ describe('getAttributionsWithAllChildResources', () => {
       ' if it has inferred attributions',
     () => {
       const testAttributions: Attributions = {
-        uuid2: { packageName: 'Vue' },
+        uuid2: { packageName: 'Vue', id: 'uuid2' },
       };
 
       const testAttributionsToResources: AttributionsToResources = {
@@ -369,7 +381,7 @@ describe('getAttributionsWithAllChildResources', () => {
         },
       };
 
-      const expectedAttributionsWithResources: AttributionsWithResources = {
+      const expectedAttributionsWithResources: Attributions = {
         uuid2: {
           packageName: 'Vue',
           resources: [
@@ -377,6 +389,7 @@ describe('getAttributionsWithAllChildResources', () => {
             '/root/fileWithChildren/',
             '/root/file',
           ],
+          id: 'uuid2',
         },
       };
 
@@ -396,21 +409,24 @@ describe('getAttributionsWithAllChildResources', () => {
 
 describe('removeSlashesFromFilesWithChildren', () => {
   it('formats files with children', () => {
-    const testAttributionsWithResources: AttributionsWithResources = {
+    const testAttributionsWithResources: Attributions = {
       uuid1: {
         packageName: 'React',
         resources: ['/some/path1/', '/some/path2/'],
+        id: 'uuid1',
       },
       uuid2: {
         packageName: 'Redux',
         resources: ['/some/path3/'],
+        id: 'uuid2',
       },
       uuid3: {
         packageName: 'root package',
         resources: ['/'],
+        id: 'uuid3',
       },
     };
-    const expectedAttributionsWithResources: AttributionsWithResources = {
+    const expectedAttributionsWithResources: Attributions = {
       ...testAttributionsWithResources,
       uuid2: {
         ...testAttributionsWithResources.uuid2,

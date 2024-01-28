@@ -30,7 +30,6 @@ import {
   useAttributionSorting,
 } from '../../state/variables/use-active-sorting';
 import { useFilteredAttributions } from '../../state/variables/use-filtered-attributions';
-import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { usePrevious } from '../../util/use-previous';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { List } from '../List/List';
@@ -155,7 +154,7 @@ export function AttributionList() {
           isPreSelected: displayPackageInfo.preSelected,
         }}
         key={`AttributionCard-${displayPackageInfo.packageName}-${attributionId}`}
-        displayPackageInfo={displayPackageInfo}
+        packageInfo={displayPackageInfo}
         showCheckBox
         isScrolling={isScrolling}
       />
@@ -248,9 +247,7 @@ export function AttributionList() {
                     savePackageInfo(
                       null,
                       attributionId,
-                      convertDisplayPackageInfoToPackageInfo(
-                        attributions[attributionId],
-                      ),
+                      attributions[attributionId],
                       attributionId !== selectedAttributionIdInAttributionView,
                     ),
                   );

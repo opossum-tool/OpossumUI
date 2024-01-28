@@ -2,8 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { NIL as uuidNil } from 'uuid';
-
 import {
   AttributionData,
   Attributions,
@@ -11,15 +9,12 @@ import {
   Criticality,
   FrequentLicenseName,
   PackageInfo,
-  Resources,
   ResourcesToAttributions,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
+import { faker } from '../../../../testing/Faker';
 import { EMPTY_ATTRIBUTION_DATA } from '../../../shared-constants';
-import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { LocatePopupFilters } from '../../../types/types';
-import { loadFromFile } from '../../actions/resource-actions/load-actions';
-import { createAppStore } from '../../configure-store';
 import {
   initialResourceState,
   ResourceState,
@@ -35,87 +30,10 @@ import {
   getIndexOfAttributionInManualPackagePanel,
   getResourcesWithLocatedChildren,
 } from '../action-and-reducer-helpers';
-import { attributionForTemporaryDisplayPackageInfoExists } from '../save-action-helpers';
-
-describe('The attributionForTemporaryDisplayPackageInfoExists function', () => {
-  it('checks if manual attributions exist', () => {
-    const testResources: Resources = {
-      thirdParty: {
-        'package_1.tr.gz': 1,
-        'package_2.tr.gz': 1,
-      },
-      root: {
-        src: {
-          'something.js': 1,
-        },
-        'readme.md': 1,
-      },
-    };
-    const testManualAttributionUuid1 = '374ba87a-f68b-11ea-adc1-0242ac120002';
-    const testManualAttributionUuid2 = '374bac4e-f68b-11ea-adc1-0242ac120002';
-    const testManualAttributionUuid3 = '374bar8a-f68b-11ea-adc1-0242ac120002';
-    const testManualAttributions: Attributions = {
-      [testManualAttributionUuid1]: {
-        packageVersion: '1.0',
-        packageName: 'Typescript',
-        licenseText: ' test License text',
-      },
-      [testManualAttributionUuid2]: {
-        packageVersion: '2.0',
-        packageName: 'React',
-        licenseText: ' test license text',
-      },
-      [testManualAttributionUuid3]: {
-        packageVersion: '3.0',
-        packageName: 'Vue',
-        licenseText: ' test license text',
-      },
-    };
-    const testResourcesToManualAttributions: ResourcesToAttributions = {
-      '/root/': [testManualAttributionUuid1],
-      '/root/src/': [testManualAttributionUuid2],
-      '/thirdParty/': [testManualAttributionUuid3],
-    };
-    const testExistingPackageInfo: PackageInfo = {
-      packageVersion: '2.0',
-      packageName: 'React',
-      licenseText: ' test license text',
-    };
-    const testNotExistingPackageInfo: PackageInfo = {
-      packageVersion: '4.0',
-      packageName: 'React',
-      licenseText: ' test license text',
-    };
-
-    const testStore = createAppStore();
-    testStore.dispatch(
-      loadFromFile(
-        getParsedInputFileEnrichedWithTestData({
-          resources: testResources,
-          manualAttributions: testManualAttributions,
-          resourcesToManualAttributions: testResourcesToManualAttributions,
-        }),
-      ),
-    );
-
-    expect(
-      attributionForTemporaryDisplayPackageInfoExists(
-        testExistingPackageInfo,
-        testStore.getState(),
-      ),
-    ).toBeTruthy();
-    expect(
-      attributionForTemporaryDisplayPackageInfoExists(
-        testNotExistingPackageInfo,
-        testStore.getState(),
-      ),
-    ).toBeFalsy();
-  });
-});
 
 describe('computeChildrenWithAttributions', () => {
   it('parses ResourcesWithAttributionsFromDb', () => {
-    const testUuid: string = uuidNil;
+    const testUuid = faker.string.uuid();
     const mockResourcesWithAttributionsFromDb: ResourcesToAttributions = {
       '/root/src/': [testUuid],
       '/root/src/something.js/subfolder': [testUuid],
@@ -154,35 +72,42 @@ describe('createExternalAttributionsToHashes', () => {
     const testExternalAttributions: Attributions = {
       uuid1: {
         attributionConfidence: 1,
-        comment: 'comment1',
+        comments: ['comment1'],
         packageName: 'name',
         originIds: ['abc'],
         preSelected: true,
         wasPreferred: false,
+        id: 'uuid1',
       },
       uuid2: {
         attributionConfidence: 2,
-        comment: 'comment2',
+        comments: ['comment2'],
         packageName: 'name',
         originIds: ['def'],
         preSelected: false,
         wasPreferred: true,
+        id: 'uuid2',
       },
       uuid3: {
         packageName: 'name',
+        id: 'uuid3',
       },
       uuid4: {
         licenseName: '',
         firstParty: true,
+        id: 'uuid4',
       },
       uuid5: {
         firstParty: true,
+        id: 'uuid5',
       },
       uuid6: {
         packageName: '',
+        id: 'uuid6',
       },
       uuid7: {
         firstParty: false,
+        id: 'uuid7',
       },
     };
 
@@ -224,8 +149,8 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
         manualData: {
           ...initialResourceState.allViews.manualData,
           attributions: {
-            uuid_0: { packageName: 'Vue' },
-            uuid_1: { packageName: 'React' },
+            uuid_0: { packageName: 'Vue', id: 'uuid_0' },
+            uuid_1: { packageName: 'React', id: 'uuid_1' },
           },
           resourcesToAttributions: { file1: ['uuid_0', 'uuid_1'] },
         },
@@ -253,8 +178,8 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
         manualData: {
           ...initialResourceState.allViews.manualData,
           attributions: {
-            uuid_0: { packageName: 'Vue' },
-            uuid_1: { packageName: 'React' },
+            uuid_0: { packageName: 'Vue', id: 'uuid_0' },
+            uuid_1: { packageName: 'React', id: 'uuid_1' },
           },
           resourcesToAttributions: { file1: ['uuid_0', 'uuid_1'] },
         },
@@ -282,10 +207,10 @@ describe('getAttributionIdOfFirstPackageCardInManualPackagePanel', () => {
         manualData: {
           ...initialResourceState.allViews.manualData,
           attributions: {
-            uuid_0: { packageName: 'Vue' },
-            uuid_1: { packageName: 'React' },
-            uuid_2: { packageName: 'Jest' },
-            uuid_3: { packageName: 'Angular' },
+            uuid_0: { packageName: 'Vue', id: 'uuid_0' },
+            uuid_1: { packageName: 'React', id: 'uuid_1' },
+            uuid_2: { packageName: 'Jest', id: 'uuid_2' },
+            uuid_3: { packageName: 'Angular', id: 'uuid_3' },
           },
           resourcesToAttributions: {
             folder: ['uuid_2', 'uuid_3'],
@@ -311,8 +236,8 @@ describe('getIndexOfAttributionInManualPackagePanel', () => {
   const testManualData: AttributionData = {
     ...EMPTY_ATTRIBUTION_DATA,
     attributions: {
-      uuid_0: { packageName: 'Vue' },
-      uuid_1: { packageName: 'React' },
+      uuid_0: { packageName: 'Vue', id: 'uuid_0' },
+      uuid_1: { packageName: 'React', id: 'uuid_1' },
     },
     resourcesToAttributions: { file: ['uuid_0', 'uuid_1'] },
   };
@@ -357,7 +282,9 @@ describe('getAttributionDataFromSetAttributionDataPayload', () => {
   it('prunes attributions without linked resources', () => {
     const expectedAttributionData: AttributionData = EMPTY_ATTRIBUTION_DATA;
 
-    const testAttributions: Attributions = { uuid_0: { packageName: 'Vue' } };
+    const testAttributions: Attributions = {
+      uuid_0: { packageName: 'Vue', id: 'uuid_0' },
+    };
     const testResourcesToAttributions: ResourcesToAttributions = {};
     const attributionData = getAttributionDataFromSetAttributionDataPayload({
       attributions: testAttributions,
@@ -377,11 +304,13 @@ describe('calculateResourcesWithLocatedAttributions', () => {
         packageName: 'react',
         licenseName: 'GPL-2.0-or-later',
         criticality: Criticality.High,
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'react',
         licenseName: 'GPL-2.0-only',
         criticality: Criticality.High,
+        id: 'uuid_2',
       },
     };
     const externalAttributionsToResources: AttributionsToResources = {
@@ -413,6 +342,7 @@ describe('calculateResourcesWithLocatedAttributions', () => {
         packageName: 'react',
         licenseName: 'GNU General Public License v2.0 or later',
         criticality: Criticality.High,
+        id: 'uuid_1',
       },
     };
     const externalAttributionsToResources: AttributionsToResources = {
@@ -448,16 +378,19 @@ describe('calculateResourcesWithLocatedAttributions', () => {
         packageName: 'react',
         licenseName: 'GPL-2.0-or-later',
         criticality: Criticality.High,
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'angular',
         licenseName: 'GPL-2.0-or-later',
         criticality: Criticality.Medium,
+        id: 'uuid_2',
       },
       uuid_3: {
         packageName: 'vue',
         licenseName: 'GPL-2.0-or-later',
         criticality: undefined,
+        id: 'uuid_3',
       },
     };
     const externalAttributionsToResources: AttributionsToResources = {
@@ -494,16 +427,19 @@ describe('calculateResourcesWithLocatedAttributions', () => {
         packageName: 'react',
         licenseName: 'GPL-2.0-or-later',
         criticality: Criticality.High,
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'angular',
         licenseName: 'GPL-2.0-only',
         criticality: Criticality.High,
+        id: 'uuid_2',
       },
       uuid_3: {
         packageName: 'vue',
         licenseName: 'MIT',
         criticality: Criticality.High,
+        id: 'uuid_3',
       },
     };
     const externalAttributionsToResources: AttributionsToResources = {
@@ -539,16 +475,19 @@ describe('calculateResourcesWithLocatedAttributions', () => {
         packageName: 'react',
         licenseName: 'GPL-2.0-or-later',
         criticality: Criticality.High,
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'angular',
         licenseName: 'GPL-2.0-only',
         criticality: Criticality.High,
+        id: 'uuid_2',
       },
       uuid_3: {
         packageName: 'vue',
         licenseName: 'MIT',
         criticality: Criticality.High,
+        id: 'uuid_3',
       },
     };
     const externalAttributionsToResources: AttributionsToResources = {
@@ -604,6 +543,7 @@ describe('attributionMatchesLocatedFilters', () => {
     const testPackageInfo: PackageInfo = {
       criticality: Criticality.High,
       licenseName: 'MIT',
+      id: faker.string.uuid(),
     };
     const locatePopupFilter: LocatePopupFilters = {
       selectedCriticality: SelectedCriticality.High,
@@ -620,6 +560,7 @@ describe('attributionMatchesLocatedFilters', () => {
     const testPackageInfo: PackageInfo = {
       criticality: Criticality.High,
       licenseName: 'Apache',
+      id: faker.string.uuid(),
     };
     const locatePopupFilter: LocatePopupFilters = {
       selectedCriticality: SelectedCriticality.High,
@@ -635,6 +576,7 @@ describe('attributionMatchesLocatedFilters', () => {
     const testPackageInfo: PackageInfo = {
       criticality: Criticality.High,
       licenseName: 'Apache',
+      id: faker.string.uuid(),
     };
     const locatePopupFilter: LocatePopupFilters = {
       selectedCriticality: SelectedCriticality.Any,
@@ -651,6 +593,7 @@ describe('attributionMatchesLocatedFilters', () => {
     const testPackageInfo: PackageInfo = {
       criticality: Criticality.High,
       licenseName: 'MIT License',
+      id: faker.string.uuid(),
     };
     const locatePopupFilter: LocatePopupFilters = {
       selectedCriticality: SelectedCriticality.Any,

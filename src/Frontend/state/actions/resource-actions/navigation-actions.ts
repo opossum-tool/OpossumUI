@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionData } from '../../../../shared/shared-types';
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
@@ -73,6 +72,7 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
     const selectedView = getSelectedView(getState());
     const targetSelectedView = getTargetView(getState());
     const targetSelectedResourceId = getTargetSelectedResourceId(getState());
+
     if (selectedView === View.Audit) {
       const targetDisplayedPackage = getTargetDisplayedPackage(getState());
       if (targetDisplayedPackage) {
@@ -123,17 +123,18 @@ export function setDisplayedPackageAndResetTemporaryDisplayPackageInfo(
 
 export function resetSelectedPackagePanelIfContainedAttributionWasRemoved(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const selectedResourceId: string = getSelectedResourceId(getState());
-    const manualData: AttributionData = getManualData(getState());
-    const attributionIdsOfResource: Array<string> =
+    const selectedResourceId = getSelectedResourceId(getState());
+    const manualData = getManualData(getState());
+    const attributionIdsOfResource =
       (selectedResourceId &&
         manualData.resourcesToAttributions[selectedResourceId]) ||
       [];
 
     const displayedPanelPackage = getDisplayedPackage(getState());
     const selectedAttributionId =
-      displayedPanelPackage?.displayPackageInfo.attributionIds[0] || '';
+      displayedPanelPackage?.displayPackageInfo.id || '';
     const panelTitle = displayedPanelPackage?.panel;
+
     if (
       panelTitle &&
       !isExternalPackagePanel(panelTitle) &&

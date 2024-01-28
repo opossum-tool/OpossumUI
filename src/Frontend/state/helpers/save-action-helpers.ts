@@ -12,15 +12,15 @@ import {
   PackageInfo,
   ResourcesWithAttributedChildren,
 } from '../../../shared/shared-types';
-import { PathPredicate, State } from '../../types/types';
+import { PathPredicate } from '../../types/types';
 import { isIdOfResourceWithChildren } from '../../util/can-resource-have-children';
 import { getClosestParentWithAttributions } from '../../util/get-closest-parent-attributions';
+import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import {
   removeFromArrayCloneAndDeleteKeyFromObjectIfEmpty,
   removeFromSetCloneAndDeleteKeyFromObjectIfEmpty,
   replaceInArray,
 } from '../../util/lodash-extension-utils';
-import { getManualAttributions } from '../selectors/all-views-resource-selectors';
 import { getParents } from './get-parents';
 
 export type CalculatePreferredOverOriginIds = (
@@ -31,7 +31,7 @@ export type CalculatePreferredOverOriginIds = (
 export function createManualAttribution(
   manualData: AttributionData,
   selectedResourceId: string,
-  strippedTemporaryDisplayPackageInfo: PackageInfo,
+  packageInfo: PackageInfo,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
 ): { newManualData: AttributionData; newAttributionId: string } {
   const newAttributionId = uuid4();
@@ -45,7 +45,10 @@ export function createManualAttribution(
   const newManualData: AttributionData = {
     attributions: {
       ...manualData.attributions,
-      [newAttributionId]: strippedTemporaryDisplayPackageInfo,
+      [newAttributionId]: {
+        ...getStrippedPackageInfo(packageInfo),
+        id: newAttributionId,
+      },
     },
     resourcesToAttributions: {
       ...manualData.resourcesToAttributions,
@@ -71,7 +74,7 @@ export function createManualAttribution(
     newManualData.resourcesWithAttributedChildren,
   );
 
-  recalulatePreferencesOfParents(
+  recalculatePreferencesOfParents(
     selectedResourceId,
     newManualData,
     calculatePreferredOverOriginIds,
@@ -81,15 +84,18 @@ export function createManualAttribution(
 }
 
 export function updateManualAttribution(
-  attributionToUpdateId: string,
+  attributionIdToUpdate: string,
   manualData: AttributionData,
-  strippedPackageInfo: PackageInfo,
+  packageInfo: PackageInfo,
 ): AttributionData {
   return {
     ...manualData,
     attributions: {
       ...manualData.attributions,
-      [attributionToUpdateId]: strippedPackageInfo,
+      [attributionIdToUpdate]: {
+        ...getStrippedPackageInfo(packageInfo),
+        id: attributionIdToUpdate,
+      },
     },
   };
 }
@@ -133,7 +139,7 @@ export function deleteManualAttribution(
   );
 
   resourcesLinkedToAttributionThatIsDeleted.forEach((resourceId) => {
-    recalulatePreferencesOfParents(
+    recalculatePreferencesOfParents(
       resourceId,
       newManualData,
       calculatePreferredOverOriginIds,
@@ -220,7 +226,7 @@ export function unlinkResourceFromAttributionId(
       );
   }
 
-  recalulatePreferencesOfParents(
+  recalculatePreferencesOfParents(
     resourceId,
     newManualData,
     calculatePreferredOverOriginIds,
@@ -231,22 +237,21 @@ export function unlinkResourceFromAttributionId(
 
 export function replaceAttributionWithMatchingAttributionId(
   manualData: AttributionData,
-  matchingAttributionId: string,
-  attributionToReplaceId: string,
+  attributionIdToReplaceWith: string,
+  attributionIdToReplace: string,
   isAttributionBreakpoint: PathPredicate,
 ): AttributionData {
-  const newManualData: AttributionData =
-    getAttributionDataShallowCopy(manualData);
+  const newManualData = getAttributionDataShallowCopy(manualData);
 
   replaceAndDeleteAttribution(
     newManualData,
-    attributionToReplaceId,
-    matchingAttributionId,
+    attributionIdToReplace,
+    attributionIdToReplaceWith,
   );
 
   _removeManualAttributionFromChildrenIfAllAreIdentical(
     newManualData,
-    newManualData.attributionsToResources[matchingAttributionId],
+    newManualData.attributionsToResources[attributionIdToReplaceWith],
     isAttributionBreakpoint,
   );
 
@@ -255,11 +260,11 @@ export function replaceAttributionWithMatchingAttributionId(
 
 function replaceAndDeleteAttribution(
   manualData: AttributionData,
-  attributionToReplaceId: string,
-  replacementAttributionId: string,
+  attributionIdToReplace: string,
+  attributionIdToReplaceWith: string,
 ): void {
   const resourcesToRelink =
-    manualData.attributionsToResources[attributionToReplaceId];
+    manualData.attributionsToResources[attributionIdToReplace];
 
   resourcesToRelink.forEach((resourceId: string) => {
     manualData.resourcesToAttributions[resourceId] = [
@@ -268,31 +273,31 @@ function replaceAndDeleteAttribution(
 
     if (
       manualData.resourcesToAttributions[resourceId].includes(
-        replacementAttributionId,
+        attributionIdToReplaceWith,
       )
     ) {
       remove(
         manualData.resourcesToAttributions[resourceId],
-        (attributionId: string) => attributionId === attributionToReplaceId,
+        (attributionId: string) => attributionId === attributionIdToReplace,
       );
     } else {
       replaceInArray(
         manualData.resourcesToAttributions[resourceId],
-        attributionToReplaceId,
-        replacementAttributionId,
+        attributionIdToReplace,
+        attributionIdToReplaceWith,
       );
 
-      manualData.attributionsToResources[replacementAttributionId] = [
-        ...manualData.attributionsToResources[replacementAttributionId],
+      manualData.attributionsToResources[attributionIdToReplaceWith] = [
+        ...manualData.attributionsToResources[attributionIdToReplaceWith],
       ];
-      manualData.attributionsToResources[replacementAttributionId].push(
+      manualData.attributionsToResources[attributionIdToReplaceWith].push(
         resourceId,
       );
     }
   });
 
-  delete manualData.attributionsToResources[attributionToReplaceId];
-  delete manualData.attributions[attributionToReplaceId];
+  delete manualData.attributionsToResources[attributionIdToReplace];
+  delete manualData.attributions[attributionIdToReplace];
 }
 
 export function linkToAttributionManualData(
@@ -323,7 +328,7 @@ export function linkToAttributionManualData(
     isAttributionBreakpoint,
   );
 
-  recalulatePreferencesOfParents(
+  recalculatePreferencesOfParents(
     selectedResourceId,
     newManualData,
     calculatePreferredOverOriginIds,
@@ -365,7 +370,7 @@ function linkAttributionAndResource(
   }
 }
 
-export function recalulatePreferencesOfParents(
+export function recalculatePreferencesOfParents(
   pathToChangedResource: string,
   newManualData: AttributionData,
   calculatePreferredOverOriginIds: CalculatePreferredOverOriginIds,
@@ -580,16 +585,6 @@ function removeManualAttributionFromChildrenOfParentsIfInferable(
       childId,
       isAttributionBreakpoint,
     ),
-  );
-}
-
-export function attributionForTemporaryDisplayPackageInfoExists(
-  packageInfoToMatch: PackageInfo,
-  state: State,
-): boolean {
-  const manualAttributions = getManualAttributions(state);
-  return Object.values(manualAttributions).some((packageInfo) =>
-    isEqual(packageInfo, packageInfoToMatch),
   );
 }
 

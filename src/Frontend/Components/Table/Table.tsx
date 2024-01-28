@@ -5,7 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { ReactElement, useMemo } from 'react';
 
-import { AttributionsWithResources } from '../../../shared/shared-types';
+import { Attributions } from '../../../shared/shared-types';
 import { OpossumColors } from '../../shared-styles';
 import { PathPredicate } from '../../types/types';
 import { List } from '../List/List';
@@ -48,7 +48,7 @@ const classes = {
 };
 
 interface TableProps {
-  attributionsWithResources: AttributionsWithResources;
+  attributionsWithResources: Attributions;
   isFileWithChildren: PathPredicate;
   onIconClick(attributionId: string): void;
   topElement?: JSX.Element;

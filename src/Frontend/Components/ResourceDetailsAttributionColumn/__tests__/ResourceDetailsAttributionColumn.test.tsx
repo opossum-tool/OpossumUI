@@ -7,11 +7,11 @@ import { act, screen } from '@testing-library/react';
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { faker } from '../../../../testing/Faker';
 import {
   setManualData,
   setTemporaryDisplayPackageInfo,
@@ -20,7 +20,6 @@ import { setSelectedResourceId } from '../../../state/actions/resource-actions/a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { ResourceDetailsAttributionColumn } from '../ResourceDetailsAttributionColumn';
 
 const testManualLicense = 'Manual attribution license.';
@@ -29,11 +28,13 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageName: 'React',
   packageVersion: '16.5.0',
   licenseText: testManualLicense,
+  id: 'uuid_1',
 };
 const testTemporaryDisplayPackageInfo2: PackageInfo = {
   packageName: 'Vue.js',
   packageVersion: '2.6.11',
   licenseText: testManualLicense2,
+  id: 'uuid_2',
 };
 
 function getActions(
@@ -58,9 +59,7 @@ function getActions(
     ),
     setManualData(manualAttributions, resourcesToManualAttributions),
     setSelectedResourceId(selectedResourceId),
-    setTemporaryDisplayPackageInfo(
-      convertPackageInfoToDisplayPackageInfo(temporaryDisplayPackageInfo, []),
-    ),
+    setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
   ];
 }
 
@@ -73,8 +72,8 @@ describe('The ResourceDetailsAttributionColumn', () => {
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe Inc. 2019',
       licenseText: 'Permission is hereby granted',
-      attributionIds: [],
-    } satisfies DisplayPackageInfo;
+      id: faker.string.uuid(),
+    } satisfies PackageInfo;
     const { store } = renderComponent(
       <ResourceDetailsAttributionColumn showParentAttributions={true} />,
     );

@@ -14,15 +14,15 @@ const [
 ] = faker.opossum.resourceNames({ count: 5 });
 const license1 = faker.opossum.license();
 const license2 = faker.opossum.license();
-const [attributionId1, packageInfo1] = faker.opossum.manualAttribution({
+const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
   packageType: undefined,
 });
-const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   packageType: undefined,
   licenseName: license1.fullName,
 });
 const [wasPreferredAttributionId, wasPreferredPackageInfo] =
-  faker.opossum.manualAttribution({
+  faker.opossum.rawAttribution({
     wasPreferred: true,
   });
 
@@ -39,7 +39,7 @@ test.use({
       frequentLicenses: [license1, license2],
     }),
     outputData: faker.opossum.outputData({
-      manualAttributions: faker.opossum.manualAttributions({
+      manualAttributions: faker.opossum.rawAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
         [wasPreferredAttributionId]: wasPreferredPackageInfo,
@@ -61,7 +61,7 @@ test('adds a new third-party attribution in audit view', async ({
   resourceBrowser,
   resourceDetails,
 }) => {
-  const newPackageInfo = faker.opossum.manualPackageInfo({
+  const newPackageInfo = faker.opossum.rawPackageInfo({
     attributionConfidence: DiscreteConfidence.High,
     licenseName: license1.fullName,
     packageType: undefined,
@@ -104,7 +104,7 @@ test('allows user to edit an existing attribution locally and globally in audit 
   attributionDetails,
   resourceBrowser,
 }) => {
-  const newPackageInfo = faker.opossum.manualPackageInfo({
+  const newPackageInfo = faker.opossum.rawPackageInfo({
     comment: faker.lorem.sentences(),
     licenseText: faker.lorem.sentences(),
     attributionConfidence: packageInfo1.attributionConfidence,
@@ -188,7 +188,7 @@ test('displays and edits an existing attribution in attribution view', async ({
   resourceBrowser,
   topBar,
 }) => {
-  const newPackageInfo = faker.opossum.manualPackageInfo({
+  const newPackageInfo = faker.opossum.rawPackageInfo({
     comment: faker.lorem.sentences(),
     licenseText: faker.lorem.sentences(),
     attributionConfidence: packageInfo1.attributionConfidence,

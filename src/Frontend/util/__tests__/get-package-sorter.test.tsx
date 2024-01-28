@@ -5,7 +5,6 @@
 import { Attributions, Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { faker } from '../../../testing/Faker';
-import { DisplayPackageInfos } from '../../types/types';
 import {
   compareAlphabeticalStrings,
   getPackageSorter,
@@ -16,46 +15,53 @@ describe('getPackageSorter', () => {
     const attributions: Attributions = {
       '1': {
         packageName: 'zz Test package',
+        id: '1',
       },
       '2': {
         attributionConfidence: 0,
-        comment: 'Some comment',
+        comments: ['Some comment'],
         packageName: 'Test package',
         packageVersion: '1.0',
         copyright: 'Copyright John Doe',
         licenseText: 'Some license text',
+        id: '2',
       },
       '3': {
-        comment: 'Example comment',
+        comments: ['Example comment'],
+        id: '3',
       },
       '4': {
         packageName: 'JQuery',
         packageVersion: '1.0',
+        id: '4',
       },
       '5': {
         attributionConfidence: 0,
         packageName: 'JQuery',
         licenseText: 'Some license text',
+        id: '5',
       },
     };
     const sortedAttributionIds = Object.keys(attributions).sort(
       getPackageSorter(attributions, text.sortings.name),
     );
 
-    expect(sortedAttributionIds).toEqual(['5', '4', '2', '1', '3']);
+    expect(sortedAttributionIds).toEqual(['3', '5', '4', '2', '1']);
   });
 
   it('sorts empty attributions to the end of the list', () => {
     const attributions: Attributions = {
-      '1': {},
+      '1': { id: '1' },
       '2': {
         attributionConfidence: 0,
-        comment: 'Some comment',
+        comments: ['Some comment'],
         copyright: 'Copyright John Doe',
         licenseText: 'Some license text',
+        id: '2',
       },
       '3': {
         copyright: '(C) Copyright John Doe',
+        id: '3',
       },
     };
     const sortedAttributionIds = Object.keys(attributions).sort(
@@ -70,15 +76,18 @@ describe('getPackageSorter', () => {
       '1': {
         packageName: 'Test package',
         packageVersion: '1.0',
+        id: '1',
       },
       '2': {
         attributionConfidence: 0,
-        comment: 'Some comment',
+        comments: ['Some comment'],
         copyright: 'Copyright John Doe',
         licenseText: 'Some license text',
+        id: '2',
       },
       '3': {
         copyright: 'John Doe',
+        id: '3',
       },
     };
     const sortedAttributionIds = Object.keys(attributions).sort(
@@ -90,17 +99,17 @@ describe('getPackageSorter', () => {
 
   it('sorts by criticality', () => {
     const attributions: Attributions = {
-      '1': faker.opossum.manualPackageInfo({
+      '1': faker.opossum.packageInfo({
         packageName: 'Test package 1',
         packageVersion: '1.0',
       }),
-      '2': faker.opossum.manualPackageInfo({
+      '2': faker.opossum.packageInfo({
         criticality: Criticality.Medium,
       }),
-      '3': faker.opossum.manualPackageInfo({
+      '3': faker.opossum.packageInfo({
         criticality: Criticality.High,
       }),
-      '4': faker.opossum.manualPackageInfo({
+      '4': faker.opossum.packageInfo({
         packageName: 'Test package 2',
       }),
     };
@@ -112,18 +121,18 @@ describe('getPackageSorter', () => {
   });
 
   it('sorts by occurrence', () => {
-    const attributions: DisplayPackageInfos = {
-      '1': faker.opossum.displayPackageInfo({
+    const attributions: Attributions = {
+      '1': faker.opossum.packageInfo({
         packageName: 'Test package 1',
         packageVersion: '1.0',
       }),
-      '2': faker.opossum.displayPackageInfo({
+      '2': faker.opossum.packageInfo({
         count: 2,
       }),
-      '3': faker.opossum.displayPackageInfo({
+      '3': faker.opossum.packageInfo({
         count: 3,
       }),
-      '4': faker.opossum.displayPackageInfo({
+      '4': faker.opossum.packageInfo({
         packageName: 'Test package 2',
       }),
     };
