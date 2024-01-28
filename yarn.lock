@@ -3628,12 +3628,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.11.7":
-  version: 20.11.7
-  resolution: "@types/node@npm:20.11.7"
+"@types/node@npm:*, @types/node@npm:^20.11.8":
+  version: 20.11.9
+  resolution: "@types/node@npm:20.11.9"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: ff0428c093987f1f6e3400b91450077cf006d7f0e4ff316e20636218562c53761565ceb06bd7a161badf46e6884d78b554c7b1c3a7717cf5cb8c97f461ecd754
+  checksum: 5683ec162f7975119b9c9b026f00bfc8e4fcd02d87ba106787685765fe042b8c16b71241baec043b6ac19caa343fe4e0edcb252c74943c36b98fadd72c8924fe
   languageName: node
   linkType: hard
 
@@ -9893,7 +9893,7 @@ __metadata:
     "@types/jest": "npm:^29.5.11"
     "@types/js-yaml": "npm:^4.0.9"
     "@types/lodash": "npm:^4.14.202"
-    "@types/node": "npm:^20.11.7"
+    "@types/node": "npm:^20.11.8"
     "@types/object-hash": "npm:^3.0.6"
     "@types/prop-types": "npm:^15.7.11"
     "@types/react": "npm:^18.2.48"
