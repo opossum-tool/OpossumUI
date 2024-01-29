@@ -3,24 +3,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { render, screen } from '@testing-library/react';
-import { ChangeEvent } from 'react';
 
-import { doNothing } from '../../../util/do-nothing';
 import { TextBox } from '../TextBox';
 
 describe('The TextBox', () => {
   it('renders text and label', () => {
-    render(
-      <TextBox
-        title={'Test Title'}
-        text={'Test Content'}
-        handleChange={
-          doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) => void
-        }
-      />,
-    );
+    render(<TextBox title={'Test Title'} text={'Test Content'} />);
 
     expect(screen.queryAllByText('Test Title')).toHaveLength(2);
     expect(screen.getByDisplayValue('Test Content')).toBeInTheDocument();
@@ -31,11 +19,6 @@ describe('The TextBox', () => {
       <TextBox
         title={'Test Title'}
         text={'Test Content'}
-        handleChange={
-          doNothing as unknown as (
-            event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-          ) => void
-        }
         endIcon={<div>Test Icon</div>}
       />,
     );

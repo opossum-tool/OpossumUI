@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getFrequentLicensesNameOrder } from '../../state/selectors/all-views-resource-selectors';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../InputElements/TextBox';
+import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -70,6 +71,7 @@ interface LicenseSubPanelProps {
   onEdit?: Confirm;
   expanded?: boolean;
   hidden?: boolean;
+  config?: AttributionFormConfig;
 }
 
 export function LicenseSubPanel({
@@ -78,6 +80,7 @@ export function LicenseSubPanel({
   onEdit,
   expanded: expandedOverride,
   hidden,
+  config,
 }: LicenseSubPanelProps) {
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(expandedOverride);
@@ -147,7 +150,7 @@ export function LicenseSubPanel({
             attribute={'licenseName'}
             title={text.attributionColumn.licenseName}
             packageInfo={packageInfo}
-            disabled={!onEdit}
+            readOnly={!onEdit}
             showHighlight={showHighlight}
             onEdit={onEdit}
             endAdornment={
@@ -158,6 +161,8 @@ export function LicenseSubPanel({
               ) : undefined
             }
             defaults={defaultLicenses}
+            color={config?.licenseName?.color}
+            focused={config?.licenseName?.focused}
           />
         </MuiAccordionSummary>
         <MuiAccordionDetails
@@ -168,10 +173,12 @@ export function LicenseSubPanel({
           }
         >
           <TextBox
-            isEditable={!!onEdit}
+            readOnly={!onEdit}
             sx={classes.licenseText}
             maxRows={7}
             minRows={3}
+            color={config?.licenseText?.color}
+            focused={config?.licenseText?.focused}
             multiline
             expanded={expandedOverride}
             title={label}

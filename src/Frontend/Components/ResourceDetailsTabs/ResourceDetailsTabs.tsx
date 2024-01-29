@@ -186,7 +186,6 @@ export function ResourceDetailsTabs(props: ResourceDetailsTabsProps) {
       {showSortingSelect ? (
         <Dropdown
           sx={classes.dropdown}
-          isEditable
           title={text.buttons.sort}
           value={signalSorting}
           menuItems={sortingOptions}

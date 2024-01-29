@@ -13,7 +13,6 @@ describe('The Dropdown', () => {
   it('renders value', () => {
     render(
       <Dropdown
-        isEditable={true}
         title={'Confidence'}
         value={DiscreteConfidence.High.toString()}
         menuItems={[
@@ -40,7 +39,6 @@ describe('The Dropdown', () => {
   it('renders value not in menuItems', () => {
     render(
       <Dropdown
-        isEditable={true}
         title={'Confidence'}
         value={'10'}
         menuItems={[

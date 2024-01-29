@@ -22,7 +22,7 @@ export function Comment({ packageInfo, onEdit }: Props) {
   return (
     <MuiBox sx={attributionColumnClasses.panel}>
       <TextBox
-        isEditable={!!onEdit}
+        readOnly={!onEdit}
         title={'Comment'}
         text={packageInfo.comment}
         minRows={3}
