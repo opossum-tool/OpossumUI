@@ -37,7 +37,6 @@ global.window.electronAPI = {
   deleteFile: jest.fn(),
   keepFile: jest.fn(),
   convertInputFileToDotOpossum: jest.fn(),
-  useOutdatedInputFileFormat: jest.fn(),
   openDotOpossumFile: jest.fn(),
   sendErrorInformation: jest.fn(),
   exportFile: jest.fn(),

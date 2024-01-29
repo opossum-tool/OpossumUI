@@ -14,12 +14,10 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 const HEADER = 'Warning: Outdated input file format';
 const INFO_TEXT_PART_1 =
   'You are trying to open a file with an outdated extension (".json" or ".json.gz"). \
-    OpossumUI now reads files with a ".opossum" extension by default. \
-    However, older file formats can still be opened but support may be \
-    discontinued in the future.';
+    OpossumUI now reads files with a ".opossum" extension by default.';
 const INFO_TEXT_PART_2 =
   'Would you like to create a new file with a ".opossum" extension from the current \
-    input file and proceed (recommended), or keep working with the old format?';
+    input file and proceed?';
 
 const classes = {
   content: {
@@ -41,10 +39,6 @@ export function FileSupportPopup(): ReactElement {
     window.electronAPI.convertInputFileToDotOpossum();
     close();
   };
-  const handleKeepButtonClick = (): void => {
-    window.electronAPI.useOutdatedInputFileFormat();
-    close();
-  };
 
   return (
     <NotificationPopup
@@ -52,11 +46,6 @@ export function FileSupportPopup(): ReactElement {
       leftButtonConfig={{
         onClick: handleCreateAndProceedButtonClick,
         buttonText: ButtonText.CreateAndProceed,
-      }}
-      rightButtonConfig={{
-        onClick: handleKeepButtonClick,
-        buttonText: ButtonText.Keep,
-        color: 'secondary',
       }}
       isOpen={true}
       content={

@@ -11,14 +11,6 @@ test.use({
   },
 });
 
-test('allows user to keep outdated extension when user opens deprecated file', async ({
-  fileSupportPopup,
-}) => {
-  await fileSupportPopup.assert.titleIsVisible();
-  await fileSupportPopup.keepOutdated();
-  await fileSupportPopup.assert.titleIsHidden();
-});
-
 test('allows user to switch to .opossum extension when user opens deprecated file', async ({
   fileSupportPopup,
 }) => {

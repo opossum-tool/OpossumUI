@@ -7,7 +7,6 @@ import { BrowserWindow, dialog, shell, WebContents } from 'electron';
 import { strFromU8, unzip } from 'fflate';
 import fs from 'fs';
 
-import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import {
   AllowedFrontendChannels,
   IpcChannel,
@@ -18,14 +17,12 @@ import {
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
-  PackageInfo,
 } from '../../../shared/shared-types';
 import { writeFile } from '../../../shared/write-file';
 import { faker } from '../../../testing/Faker';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { writeCsvToFile } from '../../output/writeCsvToFile';
 import { writeSpdxFile } from '../../output/writeSpdxFile';
-import { OpossumOutputFile, ParsedOpossumInputFile } from '../../types/types';
 import { createWindow } from '../createWindow';
 import { openFileDialog, selectBaseURLDialog } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
@@ -38,7 +35,6 @@ import {
   getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
   getOpenLinkListener,
-  getOpenOutdatedInputFileListener,
   getSelectBaseURLListener,
   linkHasHttpSchema,
 } from '../listeners';
@@ -214,127 +210,6 @@ describe('getOpenFileListener', () => {
       AllowedFrontendChannels.ShowFileSupportPopup,
       { showFileSupportPopup: true, dotOpossumFileAlreadyExists: false },
     );
-  });
-});
-
-describe('getUseOutdatedInputFileFormatListener', () => {
-  it('handles encoding correctly', async () => {
-    const seed = faker.string.uuid();
-    const fileName = `${seed}%20with%2Fencoding`;
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const jsonPath = await writeFile({
-      content: faker.string.sample(),
-      path: faker.outputPath(`${fileName}.json`),
-    });
-
-    setGlobalBackendState({
-      resourceFilePath: jsonPath,
-    });
-
-    await getOpenOutdatedInputFileListener(mainWindow)();
-
-    expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
-      expect.anything(),
-      jsonPath,
-    );
-    expect(mainWindow.setTitle).toHaveBeenCalledWith(
-      `${seed} with/encoding.json`,
-    );
-  });
-
-  it('checks the case with non-matching checksums', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    const validAttribution: PackageInfo = {
-      packageName: 'Package',
-      packageVersion: '1.0',
-      licenseText: 'MIT',
-      followUp: 'FOLLOW_UP',
-    };
-    const attributions_data: OpossumOutputFile = {
-      metadata: {
-        projectId: 'test_id',
-        fileCreationDate: '1',
-        inputFileMD5Checksum: 'fake_checksum',
-      },
-      manualAttributions: {
-        test_uuid: validAttribution,
-      },
-      resourcesToAttributions: {
-        '/path/1': ['test_uuid'],
-      },
-      resolvedExternalAttributions: [],
-    };
-
-    const fileName = faker.string.uuid();
-    await writeFile({
-      path: faker.outputPath(`${fileName}_attributions.json`),
-      content: attributions_data,
-    });
-    const jsonPath = await writeFile({
-      path: faker.outputPath(`${fileName}.json`),
-      content: {},
-    });
-
-    setGlobalBackendState({
-      resourceFilePath: jsonPath,
-    });
-
-    await getOpenOutdatedInputFileListener(mainWindow)();
-
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.ShowChangedInputFilePopup,
-      {
-        showChangedInputFilePopup: true,
-      },
-    );
-  });
-
-  it('sets title to project title if available', async () => {
-    const mainWindow = {
-      webContents: {
-        send: jest.fn(),
-      },
-      setTitle: jest.fn(),
-    } as unknown as BrowserWindow;
-
-    (loadInputAndOutputFromFilePath as jest.Mock).mockImplementationOnce(
-      jest.requireActual('../../input/importFromFile')
-        .loadInputAndOutputFromFilePath,
-    );
-
-    const inputFileContent: ParsedOpossumInputFile = {
-      metadata: {
-        ...EMPTY_PROJECT_METADATA,
-        projectTitle: 'Test Title',
-      },
-      resources: {},
-      externalAttributions: {},
-      frequentLicenses: [],
-      resourcesToAttributions: {},
-      externalAttributionSources: {},
-    };
-
-    setGlobalBackendState({
-      resourceFilePath: await writeFile({
-        content: inputFileContent,
-        path: faker.outputPath('path.json'),
-      }),
-    });
-
-    await getOpenOutdatedInputFileListener(mainWindow)();
-    expect(mainWindow.setTitle).toHaveBeenCalledWith('Test Title');
   });
 });
 

@@ -16,7 +16,6 @@ import {
   getOpenDotOpossumFileInsteadListener,
   getOpenFileListener,
   getOpenLinkListener,
-  getOpenOutdatedInputFileListener,
   getSaveFileListener,
   getSendErrorInformationListener,
 } from './listeners';
@@ -62,10 +61,6 @@ export async function main(): Promise<void> {
     ipcMain.handle(
       IpcChannel.ConvertInputFile,
       getConvertInputFileToDotOpossumAndOpenListener(mainWindow),
-    );
-    ipcMain.handle(
-      IpcChannel.UseOutdatedInputFile,
-      getOpenOutdatedInputFileListener(mainWindow),
     );
     ipcMain.handle(
       IpcChannel.OpenDotOpossumFile,
