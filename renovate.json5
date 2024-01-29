@@ -48,6 +48,7 @@
         'proxy-memoize',
         'react-hot-toast',
         'react-hotkeys-hook',
+        'recharts',
         'run-script-os',
         'spdx-license-ids',
         'start-server-and-test',
