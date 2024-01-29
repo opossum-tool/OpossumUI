@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { AttributionType } from '../../Frontend/enums/enums';
 import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2] = faker.opossum.resourceNames({
@@ -62,4 +63,17 @@ test('enables comparing attribution to origin if origin is present', async ({
   await diffPopup.currentAttributionForm.assert.matchesPackageInfo(
     manualPackageInfo2,
   );
+});
+
+test('hides copyright and license fields if package is first party', async ({
+  attributionDetails,
+  diffPopup,
+  resourceBrowser,
+}) => {
+  await resourceBrowser.goto(resourceName2);
+  await attributionDetails.attributionForm.selectAttributionType(
+    AttributionType.FirstParty,
+  );
+  await attributionDetails.compareButton.click();
+  await diffPopup.currentAttributionForm.assert.licenseTextIsHidden();
 });

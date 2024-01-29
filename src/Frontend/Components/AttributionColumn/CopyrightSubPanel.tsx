@@ -10,6 +10,7 @@ import { useAppDispatch } from '../../state/hooks';
 import { isImportantAttributionInformationMissing } from '../../util/is-important-attribution-information-missing';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { TextBox } from '../InputElements/TextBox';
+import { AttributeConfig } from './AttributionForm';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
 interface CopyrightSubPanelProps {
@@ -18,6 +19,7 @@ interface CopyrightSubPanelProps {
   onEdit?: Confirm;
   expanded?: boolean;
   hidden?: boolean;
+  config?: AttributeConfig;
 }
 
 export function CopyrightSubPanel({
@@ -26,6 +28,7 @@ export function CopyrightSubPanel({
   showHighlight,
   expanded,
   hidden,
+  config,
 }: CopyrightSubPanelProps) {
   const dispatch = useAppDispatch();
 
@@ -37,12 +40,14 @@ export function CopyrightSubPanel({
       }}
     >
       <TextBox
-        isEditable={!!onEdit}
+        readOnly={!onEdit}
         sx={attributionColumnClasses.textBox}
         title={'Copyright'}
         text={packageInfo.copyright}
         minRows={3}
         maxRows={7}
+        color={config?.color}
+        focused={config?.focused}
         multiline
         expanded={expanded}
         handleChange={({ target: { value } }) =>
