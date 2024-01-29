@@ -9,6 +9,7 @@ import { text } from '../../../shared/text';
 import { AttributionForm } from '../AttributionColumn/AttributionForm';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { DiffPopupContainer } from './DiffPopup.style';
+import { useAttributionFormConfigs } from './DiffPopup.util';
 
 interface DiffPopupProps {
   original: PackageInfo;
@@ -17,7 +18,17 @@ interface DiffPopupProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function DiffPopup(props: DiffPopupProps): React.ReactElement {
+export function DiffPopup({
+  current,
+  isOpen,
+  original,
+  setOpen,
+}: DiffPopupProps) {
+  const [originalFormConfig, currentFormConfig] = useAttributionFormConfigs({
+    current,
+    original,
+  });
+
   return (
     <NotificationPopup
       header={text.diffPopup.title}
@@ -31,11 +42,11 @@ export function DiffPopup(props: DiffPopupProps): React.ReactElement {
         buttonText: text.buttons.diffPopup.revertAll,
       }}
       rightButtonConfig={{
-        onClick: () => props.setOpen(false),
+        onClick: () => setOpen(false),
         buttonText: text.buttons.cancel,
         color: 'secondary',
       }}
-      isOpen={props.isOpen}
+      isOpen={isOpen}
       background={'lightestBlue'}
       fullWidth={true}
       aria-label={'diff popup'}
@@ -46,9 +57,10 @@ export function DiffPopup(props: DiffPopupProps): React.ReactElement {
     return (
       <DiffPopupContainer>
         <AttributionForm
-          packageInfo={props.original}
+          packageInfo={original}
           variant={'diff'}
           label={'original'}
+          config={originalFormConfig}
         />
         <MuiDivider
           variant={'middle'}
@@ -56,9 +68,10 @@ export function DiffPopup(props: DiffPopupProps): React.ReactElement {
           orientation={'vertical'}
         />
         <AttributionForm
-          packageInfo={props.current}
+          packageInfo={current}
           variant={'diff'}
           label={'current'}
+          config={currentFormConfig}
         />
       </DiffPopupContainer>
     );

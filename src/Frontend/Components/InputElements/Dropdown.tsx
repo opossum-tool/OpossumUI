@@ -40,7 +40,9 @@ export function Dropdown(props: DropdownProps): ReactElement {
   return (
     <MuiBox sx={props.sx}>
       <MuiTextField
-        disabled={!props.isEditable}
+        disabled={props.disabled}
+        color={props.color}
+        focused={props.focused}
         sx={{
           ...inputElementClasses.textField,
           ...(props.isHighlighted
@@ -54,6 +56,7 @@ export function Dropdown(props: DropdownProps): ReactElement {
           inputProps: {
             'aria-label': props.title,
           },
+          readOnly: props.readOnly,
         }}
         id={`dropdown ${props.title}`}
         value={props.value}

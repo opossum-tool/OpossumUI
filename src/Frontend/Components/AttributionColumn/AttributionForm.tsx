@@ -14,11 +14,33 @@ import { AttributionType } from '../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
+import { InputElementProps } from '../InputElements/shared';
 import { AuditingOptions } from './AuditingOptions';
 import { CommentStack } from './CommentStack';
 import { CopyrightSubPanel } from './CopyrightSubPanel';
 import { LicenseSubPanel } from './LicenseSubPanel';
 import { PackageSubPanel } from './PackageSubPanel';
+
+export const FORM_ATTRIBUTES = [
+  'packageName',
+  'packageVersion',
+  'packageNamespace',
+  'packageType',
+  'url',
+  'copyright',
+  'licenseName',
+  'licenseText',
+  'firstParty',
+] satisfies Array<keyof PackageInfo>;
+
+export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
+
+export interface AttributeConfig
+  extends Pick<InputElementProps, 'color' | 'focused'> {}
+
+export type AttributionFormConfig = Partial<
+  Record<FormAttribute, AttributeConfig>
+>;
 
 const classes = {
   formContainer: {
@@ -37,6 +59,7 @@ interface AttributionFormProps {
   onEdit?: Confirm;
   variant?: 'default' | 'diff';
   label?: string;
+  config?: AttributionFormConfig;
 }
 
 export function AttributionForm({
@@ -45,6 +68,7 @@ export function AttributionForm({
   onEdit,
   showHighlight,
   variant = 'default',
+  config,
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
   const isDiff = variant === 'diff';
@@ -65,6 +89,7 @@ export function AttributionForm({
         packageInfo={packageInfo}
         showHighlight={showHighlight}
         onEdit={onEdit}
+        config={config}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
@@ -76,6 +101,7 @@ export function AttributionForm({
         onEdit={onEdit}
         expanded={isDiff}
         hidden={packageInfo.firstParty}
+        config={config?.copyright}
       />
       <LicenseSubPanel
         packageInfo={packageInfo}
@@ -83,6 +109,7 @@ export function AttributionForm({
         onEdit={onEdit}
         expanded={isDiff}
         hidden={packageInfo.firstParty}
+        config={config}
       />
       {isDiff ? null : (
         <CommentStack packageInfo={packageInfo} onEdit={onEdit} />

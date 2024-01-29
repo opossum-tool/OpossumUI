@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import AddIcon from '@mui/icons-material/Add';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { createFilterOptions, styled } from '@mui/material';
+import { createFilterOptions, styled, TextFieldProps } from '@mui/material';
 import MuiBadge from '@mui/material/Badge';
 import MuiChip from '@mui/material/Chip';
 import MuiIconButton from '@mui/material/IconButton';
@@ -48,9 +48,12 @@ interface Props {
   highlight?: 'default' | 'dark';
   endAdornment?: React.ReactElement;
   defaults?: Array<PackageInfo>;
-  disabled: boolean;
+  readOnly?: boolean;
+  disabled?: boolean;
   showHighlight: boolean | undefined;
   onEdit?: Confirm;
+  color?: TextFieldProps['color'];
+  focused?: boolean;
 }
 
 const Badge = styled(MuiBadge)({
@@ -73,9 +76,12 @@ export function PackageAutocomplete({
   highlight = 'default',
   endAdornment,
   defaults = [],
+  readOnly,
   disabled,
   showHighlight,
   onEdit,
+  color,
+  focused,
 }: Props) {
   const dispatch = useAppDispatch();
   const attributeValue = packageInfo[attribute] || '';
@@ -106,10 +112,12 @@ export function PackageAutocomplete({
     <Autocomplete
       title={title}
       disabled={disabled}
+      readOnly={readOnly}
       autoHighlight
       disableClearable
       freeSolo
       inputValue={inputValue}
+      inputProps={{ color, focused }}
       highlight={
         showHighlight &&
         isImportantAttributionInformationMissing(attribute, packageInfo)

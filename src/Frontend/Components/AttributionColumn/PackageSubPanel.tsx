@@ -24,6 +24,7 @@ import { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import { IconButton } from '../IconButton/IconButton';
 import { TextBox } from '../InputElements/TextBox';
 import { toast } from '../Toaster';
+import { AttributionFormConfig } from './AttributionForm';
 import { PackageAutocomplete } from './PackageAutocomplete';
 import { attributionColumnClasses } from './shared-attribution-column-styles';
 
@@ -68,12 +69,14 @@ interface PackageSubPanelProps {
   packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
+  config?: AttributionFormConfig;
 }
 
 export function PackageSubPanel({
   packageInfo,
   showHighlight,
   onEdit,
+  config,
 }: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
@@ -130,10 +133,12 @@ export function PackageSubPanel({
         title={text.attributionColumn.packageSubPanel.packageName}
         packageInfo={packageInfo}
         highlight={'dark'}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNames}
         onEdit={onEdit}
+        color={config?.packageName?.color}
+        focused={config?.packageName?.focused}
       />
     );
   }
@@ -145,10 +150,12 @@ export function PackageSubPanel({
         title={text.attributionColumn.packageSubPanel.packageNamespace}
         packageInfo={packageInfo}
         highlight={'dark'}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageNamespaces}
         onEdit={onEdit}
+        color={config?.packageNamespace?.color}
+        focused={config?.packageNamespace?.focused}
       />
     );
   }
@@ -159,10 +166,12 @@ export function PackageSubPanel({
         attribute={'packageVersion'}
         title={text.attributionColumn.packageSubPanel.packageVersion}
         packageInfo={packageInfo}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={packageVersions}
         onEdit={onEdit}
+        color={config?.packageVersion?.color}
+        focused={config?.packageVersion?.focused}
       />
     );
   }
@@ -174,10 +183,12 @@ export function PackageSubPanel({
         title={text.attributionColumn.packageSubPanel.packageType}
         packageInfo={packageInfo}
         highlight={'dark'}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         defaults={defaultPackageTypes}
         onEdit={onEdit}
+        color={config?.packageType?.color}
+        focused={config?.packageType?.focused}
       />
     );
   }
@@ -190,7 +201,7 @@ export function PackageSubPanel({
         sx={attributionColumnClasses.textBox}
         title={text.attributionColumn.packageSubPanel.purl}
         text={purl}
-        isEditable={false}
+        disabled
         endIcon={
           <>
             <IconButton
@@ -250,9 +261,11 @@ export function PackageSubPanel({
         attribute={'url'}
         title={text.attributionColumn.packageSubPanel.repositoryUrl}
         packageInfo={packageInfo}
-        disabled={!onEdit}
+        readOnly={!onEdit}
         showHighlight={showHighlight}
         onEdit={onEdit}
+        color={config?.url?.color}
+        focused={config?.url?.focused}
         endAdornment={
           <>
             <IconButton

@@ -9,7 +9,7 @@ import MuiTextField from '@mui/material/TextField';
 import { HighlightingColor } from '../../enums/enums';
 import { inputElementClasses, InputElementProps } from './shared';
 
-interface TextProps extends InputElementProps {
+interface TextBoxProps extends InputElementProps {
   minRows?: number;
   maxRows?: number;
   endIcon?: React.ReactElement;
@@ -19,7 +19,7 @@ interface TextProps extends InputElementProps {
   expanded?: boolean;
 }
 
-export function TextBox(props: TextProps) {
+export function TextBox(props: TextBoxProps) {
   const isDefaultHighlighting =
     props.highlightingColor === HighlightingColor.LightOrange ||
     props.highlightingColor === undefined;
@@ -33,14 +33,17 @@ export function TextBox(props: TextProps) {
   return (
     <MuiBox sx={props.sx}>
       <MuiTextField
-        disabled={!props.isEditable}
+        disabled={props.disabled}
         error={props.error}
         sx={{
           ...(props.isHighlighted ? highlightedStyling : {}),
           ...inputElementClasses.textField,
         }}
         label={props.title}
+        focused={props.focused}
+        color={props.color}
         InputProps={{
+          readOnly: props.readOnly,
           slotProps: {
             root: {
               sx: {

@@ -26,8 +26,8 @@ export function CommentStack({ packageInfo, onEdit }: Props): ReactElement {
       {comments.map((comment, index) => (
         <TextBox
           key={index}
-          isEditable={!!onEdit}
           title={`Comment ${comments.length === 1 ? '' : index + 1}`.trim()}
+          readOnly={!onEdit}
           text={comment}
           minRows={3}
           maxRows={10}

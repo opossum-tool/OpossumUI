@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { SxProps } from '@mui/material';
+import { SxProps, TextFieldProps } from '@mui/material';
 import { ChangeEvent } from 'react';
 
 import { OpossumColors } from '../../shared-styles';
@@ -52,11 +52,14 @@ export const inputElementClasses = {
 
 export interface InputElementProps {
   title?: string;
-  isEditable?: boolean;
+  readOnly?: boolean;
+  disabled?: boolean;
   text?: string;
   sx?: SxProps;
   handleChange?(
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void;
   isHighlighted?: boolean;
+  color?: TextFieldProps['color'];
+  focused?: boolean;
 }
