@@ -56,7 +56,7 @@ export function TextBox(props: TextProps) {
             },
           },
           endAdornment: props.endIcon && (
-            <MuiInputAdornment position="end">
+            <MuiInputAdornment sx={{ paddingRight: '14px' }} position="end">
               {props.endIcon}
             </MuiInputAdornment>
           ),

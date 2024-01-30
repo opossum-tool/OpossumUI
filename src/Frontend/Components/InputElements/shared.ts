@@ -8,11 +8,6 @@ import { ChangeEvent } from 'react';
 import { OpossumColors } from '../../shared-styles';
 
 export const inputElementClasses = {
-  textFieldBoldText: {
-    '& input': {
-      fontWeight: 'bold',
-    },
-  },
   textField: {
     width: '100%',
     '& div': {
@@ -33,11 +28,6 @@ export const inputElementClasses = {
       },
     },
   },
-  textFieldMultiple: {
-    '& span': {
-      padding: '0px 6px',
-    },
-  },
   defaultHighlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
@@ -56,13 +46,6 @@ export const inputElementClasses = {
     '& label': {
       backgroundColor: OpossumColors.darkOrange,
       padding: '1px 3px',
-    },
-  },
-  popper: {
-    '& popper': {
-      '& div': {
-        fontWeight: 'bold',
-      },
     },
   },
 };
