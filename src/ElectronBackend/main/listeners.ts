@@ -5,7 +5,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BrowserWindow, shell, WebContents } from 'electron';
 import fs from 'fs';
-import hash from 'object-hash';
 import upath from 'upath';
 import zlib from 'zlib';
 
@@ -33,7 +32,6 @@ import {
   getMessageBoxForErrors,
 } from '../errorHandling/errorHandling';
 import { loadInputAndOutputFromFilePath } from '../input/importFromFile';
-import { parseOutputJsonFile } from '../input/parseFile';
 import { writeCsvToFile } from '../output/writeCsvToFile';
 import { writeSpdxFile } from '../output/writeSpdxFile';
 import {
@@ -146,26 +144,6 @@ export async function handleOpeningFile(
   }
 
   await openFile(mainWindow, filePath);
-}
-
-function getActualAndParsedChecksums(resourceFilePath: string): {
-  actualInputFileChecksum: string;
-  parsedInputFileChecksum: string;
-} {
-  const manualAttributionFilePath = getFilePathWithAppendix(
-    resourceFilePath,
-    outputFileEnding,
-  );
-  const inputFileContent = fs.readFileSync(resourceFilePath, 'utf8');
-  const actualInputFileChecksum = hash.MD5(inputFileContent);
-  let parsedInputFileChecksum = '';
-
-  if (fs.existsSync(manualAttributionFilePath)) {
-    const opossumOutputData = parseOutputJsonFile(manualAttributionFilePath);
-    parsedInputFileChecksum =
-      opossumOutputData.metadata.inputFileMD5Checksum ?? '';
-  }
-  return { actualInputFileChecksum, parsedInputFileChecksum };
 }
 
 function initializeGlobalBackendState(
@@ -552,46 +530,6 @@ function getOutputJson(resourceFilePath: string): string | undefined {
   }
 
   return undefined;
-}
-
-export function getOpenOutdatedInputFileListener(
-  mainWindow: BrowserWindow,
-): () => Promise<void> {
-  return createListenerCallbackWithErrorHandling(mainWindow, async () => {
-    const isOpossumFormat = false;
-    const globalBackendState = getGlobalBackendState();
-    const resourceFilePath = globalBackendState.resourceFilePath;
-
-    if (!resourceFilePath) {
-      throw new Error(`Resource file path is invalid: ${resourceFilePath}`);
-    }
-
-    const checksums = getActualAndParsedChecksums(resourceFilePath);
-
-    logger.info('Updating global backend state');
-    initializeGlobalBackendState(
-      resourceFilePath,
-      isOpossumFormat,
-      checksums?.actualInputFileChecksum,
-    );
-
-    const inputFileChanged =
-      !isOpossumFormat &&
-      checksums?.parsedInputFileChecksum &&
-      checksums.actualInputFileChecksum !== checksums.parsedInputFileChecksum;
-
-    if (inputFileChanged) {
-      logger.info('Notifying user that checksum of the input file has changed');
-      mainWindow.webContents.send(
-        AllowedFrontendChannels.ShowChangedInputFilePopup,
-        {
-          showChangedInputFilePopup: true,
-        },
-      );
-    } else {
-      await openFile(mainWindow, resourceFilePath);
-    }
-  });
 }
 
 export function getOpenDotOpossumFileInsteadListener(

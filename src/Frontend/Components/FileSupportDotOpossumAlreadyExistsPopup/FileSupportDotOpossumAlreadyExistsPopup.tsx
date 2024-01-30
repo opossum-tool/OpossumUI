@@ -14,9 +14,7 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 const HEADER = 'Warning: Outdated input file format';
 const INFO_TEXT_PART_1 =
   'You are trying to open a file with an outdated extension (".json" or ".json.gz"). \
-    OpossumUI now reads files with a ".opossum" extension by default. \
-    However, older file formats can still be opened but support may be \
-    discontinued in the future.';
+    OpossumUI now reads files with a ".opossum" extension by default.';
 const INFO_TEXT_PART_2 =
   'A ".opossum" file with the same name of the current input file \
   was found. This file will be opened instead.';

@@ -24,12 +24,4 @@ describe('FileSupportPopup', () => {
       global.window.electronAPI.convertInputFileToDotOpossum,
     ).toHaveBeenCalled();
   });
-
-  it('sends correct signal to backend when clicking keepButton', () => {
-    renderComponent(<FileSupportPopup />);
-    fireEvent.click(screen.getByRole('button', { name: ButtonText.Keep }));
-    expect(
-      global.window.electronAPI.useOutdatedInputFileFormat,
-    ).toHaveBeenCalled();
-  });
 });

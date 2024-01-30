@@ -245,7 +245,6 @@ export interface ElectronAPI {
   deleteFile: () => Promise<unknown>;
   keepFile: () => Promise<unknown>;
   convertInputFileToDotOpossum: () => void;
-  useOutdatedInputFileFormat: () => void;
   openDotOpossumFile: () => void;
   sendErrorInformation: (
     errorInformationArgs: SendErrorInformationArgs,

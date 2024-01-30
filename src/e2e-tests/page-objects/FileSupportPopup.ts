@@ -28,10 +28,6 @@ export class FileSupportPopup {
     },
   };
 
-  async keepOutdated(): Promise<void> {
-    await this.keepButton.click();
-  }
-
   async convertToNew(): Promise<void> {
     await this.convertButton.click();
   }

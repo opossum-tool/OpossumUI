@@ -23,18 +23,4 @@ describe('ChangedInputFilePopup', () => {
     expect(window.electronAPI.deleteFile).toHaveBeenCalledTimes(1);
     expect(getOpenPopup(store.getState())).toBeNull();
   });
-
-  it('renders a ChangedInputFilePopup and clicks Keep', () => {
-    const content =
-      'The input file has changed. Do you want to keep the old attribution file or delete it?';
-
-    const { store } = renderComponent(<ChangedInputFilePopup />);
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    expect(screen.getByText(content)).toBeInTheDocument();
-
-    expect(screen.getByText(ButtonText.Keep)).toBeInTheDocument();
-    fireEvent.click(screen.getByText(ButtonText.Keep));
-    expect(window.electronAPI.keepFile).toHaveBeenCalledTimes(1);
-    expect(getOpenPopup(store.getState())).toBeNull();
-  });
 });

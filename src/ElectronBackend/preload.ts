@@ -15,8 +15,6 @@ const electronAPI: ElectronAPI = {
   keepFile: () => ipcRenderer.invoke(IpcChannel.KeepFile),
   convertInputFileToDotOpossum: () =>
     ipcRenderer.invoke(IpcChannel.ConvertInputFile),
-  useOutdatedInputFileFormat: () =>
-    ipcRenderer.invoke(IpcChannel.UseOutdatedInputFile),
   openDotOpossumFile: () => ipcRenderer.invoke(IpcChannel.OpenDotOpossumFile),
   sendErrorInformation: (errorInformationArgs) =>
     ipcRenderer.invoke(IpcChannel.SendErrorInformation, errorInformationArgs),
