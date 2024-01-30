@@ -11,7 +11,7 @@ describe('BackendCommunication', () => {
     const testAttributions: Attributions = {
       genericAttrib: { id: 'genericAttrib' },
       firstPartyAttrib: { firstParty: true, id: 'firstPartyAttrib' },
-      followupAttrib: { followUp: 'FOLLOW_UP', id: 'followupAttrib' },
+      followupAttrib: { followUp: true, id: 'followupAttrib' },
       excludeAttrib: { excludeFromNotice: true, id: 'excludeAttrib' },
       firstPartyExcludeAttrib: {
         firstParty: true,

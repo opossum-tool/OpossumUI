@@ -13,7 +13,7 @@ import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfi
 import MuiRating from '@mui/material/Rating';
 import { useMemo } from 'react';
 
-import { FollowUp, PackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -157,14 +157,14 @@ export function useAuditingOptions({
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...getTemporaryDisplayPackageInfo(store.getState()),
-              followUp: FollowUp,
+              followUp: true,
             }),
           ),
         onDelete: () =>
           dispatch(
             setTemporaryDisplayPackageInfo({
               ...getTemporaryDisplayPackageInfo(store.getState()),
-              followUp: undefined,
+              followUp: false,
             }),
           ),
         interactive: isEditable,

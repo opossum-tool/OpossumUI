@@ -8,7 +8,6 @@ import {
   Attributions,
   BaseUrlsForSources,
   Criticality,
-  FollowUp,
   FrequentLicenses,
   RawAttributions,
   Resources,
@@ -119,10 +118,10 @@ export function cleanNonExistentResolvedExternalAttributions(
 
 export function deserializeAttributions(
   rawAttributions: RawAttributions,
-): [Attributions, boolean] {
-  return Object.entries(rawAttributions).reduce<[Attributions, boolean]>(
+): Attributions {
+  return Object.entries(rawAttributions).reduce<Attributions>(
     (
-      [attributions, inputContainsCriticalExternalAttributions],
+      attributions,
       [
         attributionId,
         { followUp, comment, criticality, originId, originIds, ...attribution },
@@ -136,17 +135,14 @@ export function deserializeAttributions(
         ...((originId || originIds?.length) && {
           originIds: (originIds ?? []).concat(originId ?? []),
         }),
-        ...(followUp === FollowUp && { followUp }),
+        ...(followUp === 'FOLLOW_UP' && { followUp: true }),
         ...(sanitizedComment && { comments: [sanitizedComment] }),
         ...(isCritical && { criticality }),
         id: attributionId,
       };
-      return [
-        attributions,
-        inputContainsCriticalExternalAttributions || isCritical,
-      ];
+      return attributions;
     },
-    [{}, false],
+    {},
   );
 }
 
@@ -161,6 +157,7 @@ export function serializeAttributions(
         {
           comments,
           count,
+          followUp,
           id,
           linkedAttributionIds,
           resources,
@@ -179,6 +176,7 @@ export function serializeAttributions(
         ...(sanitizedComments?.length && {
           comment: sanitizedComments.join('\n'),
         }),
+        ...(followUp && { followUp: 'FOLLOW_UP' }),
       };
       return rawAttributions;
     },

@@ -75,7 +75,7 @@ describe('The ReportTableItem', () => {
       uuid2: {
         packageName: 'Redux',
         resources: [],
-        followUp: 'FOLLOW_UP',
+        followUp: true,
         excludeFromNotice: true,
         id: 'uuid2',
       },

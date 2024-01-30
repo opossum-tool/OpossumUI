@@ -7,7 +7,6 @@ import { act } from 'react-dom/test-utils';
 
 import {
   Attributions,
-  FollowUp,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
 import { View } from '../../../enums/enums';
@@ -38,7 +37,7 @@ describe('The Attribution Counts Panel', () => {
       packageVersion: '2.0',
       copyright: 'other Copyright John Doe',
       licenseText: 'Some other license text',
-      followUp: FollowUp,
+      followUp: true,
       id: testOtherManualUuid,
     },
   };

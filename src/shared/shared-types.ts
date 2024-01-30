@@ -12,9 +12,6 @@ export interface Resources {
   [resourceName: string]: Resources | 1;
 }
 
-export type FollowUp = 'FOLLOW_UP';
-export const FollowUp = 'FOLLOW_UP';
-
 export enum Criticality {
   High = 'high',
   Medium = 'medium',
@@ -65,7 +62,7 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
   criticality?: Criticality;
   excludeFromNotice?: boolean;
   firstParty?: boolean;
-  followUp?: FollowUp;
+  followUp?: boolean;
   licenseName?: string;
   licenseText?: string;
   needsReview?: boolean;
@@ -84,9 +81,13 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
 }
 
 export interface RawPackageInfo
-  extends Never<PackageInfo, keyof EphemeralPackageInfoProps> {
+  extends Never<
+    Omit<PackageInfo, 'followUp'>,
+    keyof EphemeralPackageInfoProps
+  > {
   originId?: string;
   comment?: string;
+  followUp?: 'FOLLOW_UP';
 }
 
 export interface RawAttributions {
@@ -241,7 +242,7 @@ export interface FileSupportPopupArgs {
   dotOpossumFileAlreadyExists: boolean;
 }
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
 export interface ElectronAPI {

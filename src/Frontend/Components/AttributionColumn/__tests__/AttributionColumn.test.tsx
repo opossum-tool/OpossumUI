@@ -10,7 +10,6 @@ import { noop } from 'lodash';
 import {
   Attributions,
   DiscreteConfidence,
-  FollowUp,
   FrequentLicenses,
   PackageInfo,
   ResourcesToAttributions,
@@ -337,7 +336,7 @@ describe('The AttributionColumn', () => {
     await userEvent.keyboard('{Escape}');
 
     expect(getTemporaryDisplayPackageInfo(store.getState()).followUp).toBe(
-      FollowUp,
+      true,
     );
   });
 

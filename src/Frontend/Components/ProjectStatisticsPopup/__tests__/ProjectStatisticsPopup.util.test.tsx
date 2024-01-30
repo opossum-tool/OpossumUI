@@ -7,7 +7,6 @@ import {
   AttributionsToHashes,
   Criticality,
   ExternalAttributionSources,
-  FollowUp,
 } from '../../../../shared/shared-types';
 import {
   LicenseCounts,
@@ -54,7 +53,7 @@ const testAttributions_1: Attributions = {
       documentConfidence: 90,
     },
     licenseName: ' Apache license version-2.0 ',
-    followUp: FollowUp,
+    followUp: true,
     needsReview: true,
     id: 'uuid3',
   },

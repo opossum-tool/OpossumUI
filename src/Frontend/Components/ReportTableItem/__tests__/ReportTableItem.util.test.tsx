@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FollowUp, PackageInfo } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { isImportantAttributionInformationMissing } from '../../../util/is-important-attribution-information-missing';
 import { TableConfig } from '../../Table/TableConfig';
@@ -54,7 +54,7 @@ describe('The table helpers', () => {
   it.each`
     followUp     | expected
     ${undefined} | ${'No'}
-    ${FollowUp}  | ${'Yes'}
+    ${true}      | ${'Yes'}
   `(
     'getFormattedCellData handles follow-up value $followUp',
     ({ followUp, expected }) => {
