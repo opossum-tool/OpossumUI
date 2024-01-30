@@ -5,7 +5,6 @@
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
   ProjectMetadata,
   Resources,
@@ -14,10 +13,6 @@ import {
 import { PackagePanelTitle, View } from '../../../enums/enums';
 import { EMPTY_PROJECT_METADATA } from '../../../shared-constants';
 import { PanelPackage } from '../../../types/types';
-import {
-  convertDisplayPackageInfoToPackageInfo,
-  convertPackageInfoToDisplayPackageInfo,
-} from '../../../util/convert-package-info';
 import {
   setAttributionBreakpoints,
   setFilesWithChildren,
@@ -40,17 +35,15 @@ import {
 
 describe('getPackageInfoOfSelectedAttribution', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
-  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: PackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
-    attributionIds: [testManualAttributionUuid_1],
+    id: testManualAttributionUuid_1,
   };
   const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryDisplayPackageInfo,
-    ),
+    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
@@ -144,14 +137,14 @@ describe('get displayPackageInfo', () => {
     const testDisplayedPackage: PanelPackage = {
       panel: PackagePanelTitle.ContainedExternalPackages,
       packageCardId: 'someId',
-      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid_0'] },
+      displayPackageInfo: { packageName: 'React', id: 'uuid_0' },
     };
     const testStore = createAppStore();
     testStore.dispatch(setDisplayedPackage(testDisplayedPackage));
     testStore.dispatch(navigateToView(View.Audit));
-    const expectedDisplayPackageInfo = {
+    const expectedDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid_0'],
+      id: 'uuid_0',
     };
     const testDisplayPackageInfo = getDisplayPackageInfoOfSelected(
       testStore.getState(),
@@ -163,14 +156,14 @@ describe('get displayPackageInfo', () => {
     const testDisplayedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
       packageCardId: 'someId',
-      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid_0'] },
+      displayPackageInfo: { packageName: 'React', id: 'uuid_0' },
     };
     const testStore = createAppStore();
     testStore.dispatch(setDisplayedPackage(testDisplayedPackage));
     testStore.dispatch(navigateToView(View.Audit));
-    const expectedDisplayPackageInfo = {
+    const expectedDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid_0'],
+      id: 'uuid_0',
     };
     const testDisplayPackageInfo = getDisplayPackageInfoOfSelected(
       testStore.getState(),
@@ -181,7 +174,7 @@ describe('get displayPackageInfo', () => {
   it('gets displayPackageInfo via selectedAttributionId in AttributionView', () => {
     const testSelectedAttributionId = 'uuid_0';
     const testManualAttributions: Attributions = {
-      uuid_0: { packageName: 'React' },
+      uuid_0: { packageName: 'React', id: 'uuid_0' },
     };
     const testResourcesToManualAttributions: ResourcesToAttributions = {
       file: [testSelectedAttributionId],
@@ -192,9 +185,9 @@ describe('get displayPackageInfo', () => {
     );
     testStore.dispatch(setSelectedAttributionId(testSelectedAttributionId));
     testStore.dispatch(navigateToView(View.Attribution));
-    const expectedDisplayPackageInfo = {
+    const expectedDisplayPackageInfo: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid_0'],
+      id: 'uuid_0',
     };
     const testDisplayPackageInfo = getDisplayPackageInfoOfSelected(
       testStore.getState(),
@@ -224,27 +217,23 @@ describe('The resource actions', () => {
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
+    id: testManualAttributionUuid_1,
   };
   const testSelectedPackage: PanelPackage = {
     panel: PackagePanelTitle.ManualPackages,
     packageCardId: 'Attributions-0',
-    displayPackageInfo: convertPackageInfoToDisplayPackageInfo(
-      testPackageInfo,
-      [testManualAttributionUuid_1],
-    ),
+    displayPackageInfo: testPackageInfo,
   };
   const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
+    id: testManualAttributionUuid_2,
   };
   const secondTestSelectedPackage: PanelPackage = {
     panel: PackagePanelTitle.ManualPackages,
     packageCardId: 'Attributions-1',
-    displayPackageInfo: convertPackageInfoToDisplayPackageInfo(
-      secondTestTemporaryDisplayPackageInfo,
-      [testManualAttributionUuid_2],
-    ),
+    displayPackageInfo: secondTestTemporaryDisplayPackageInfo,
   };
   const testManualAttributions: Attributions = {
     [testManualAttributionUuid_1]: testPackageInfo,

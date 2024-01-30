@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { PackageInfo } from '../../../shared/shared-types';
 import {
   licenseNameContainsSearchTerm,
   packageInfoContainsSearchTerm,
@@ -9,9 +10,9 @@ import {
 
 describe('packageInfoContainsSearchTerm', () => {
   it('searches by package name', () => {
-    const testPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       packageName: 'Search_term package',
-      attributionIds: ['uuid1'],
+      id: 'uuid1',
     };
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
@@ -20,9 +21,9 @@ describe('packageInfoContainsSearchTerm', () => {
   });
 
   it('searches by copyright', () => {
-    const testPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       copyright: '(c) Search_term 2022',
-      attributionIds: ['uuid2'],
+      id: 'uuid2',
     };
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
@@ -31,9 +32,9 @@ describe('packageInfoContainsSearchTerm', () => {
   });
 
   it('searches by license name', () => {
-    const testPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       licenseName: 'Search_term licence',
-      attributionIds: ['uuid3'],
+      id: 'uuid3',
     };
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
@@ -42,9 +43,9 @@ describe('packageInfoContainsSearchTerm', () => {
   });
 
   it('searches by package version', () => {
-    const testPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       packageVersion: 'version search_term',
-      attributionIds: ['uuid4'],
+      id: 'uuid4',
     };
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
@@ -53,11 +54,11 @@ describe('packageInfoContainsSearchTerm', () => {
   });
 
   it('ignores other fields', () => {
-    const testPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       comments: ['comment search_term'],
       licenseText: 'text search_term',
       url: 'www.search_term.com',
-      attributionIds: ['uuid5'],
+      id: 'uuid5',
     };
 
     expect(packageInfoContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(
@@ -68,9 +69,9 @@ describe('packageInfoContainsSearchTerm', () => {
 
 describe('licenseNameContainsSearchTerm', () => {
   it('searches by license name', () => {
-    const testPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       licenseName: 'Search_term licence',
-      attributionIds: ['uuid3'],
+      id: 'uuid3',
     };
 
     expect(licenseNameContainsSearchTerm(testPackageInfo, 'SeArCh_TeRm')).toBe(

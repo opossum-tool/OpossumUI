@@ -106,7 +106,8 @@ describe('Locator popup', () => {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'MIT',
-      comment: 'ManualPackage',
+      comments: ['ManualPackage'],
+      id: 'uuid_1',
     };
     const testExternalAttributions: Attributions = {
       uuid_1: testExternalAttribution,
@@ -148,13 +149,15 @@ describe('Locator popup', () => {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'MIT',
-      comment: 'ManualPackage',
+      comments: ['ManualPackage'],
+      id: 'uuid_1',
     };
     const otherTestExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
       licenseName: 'GPL-2.0',
-      comment: 'ManualPackage',
+      comments: ['ManualPackage'],
+      id: 'uuid_2',
     };
     const testExternalAttributions: Attributions = {
       uuid_1: testExternalAttribution,
@@ -304,23 +307,28 @@ describe('locateResourcesByCriticalityAndLicense', () => {
     MITHighAttribution: {
       licenseName: 'MIT',
       criticality: Criticality.High,
+      id: 'MITHighAttribution',
     },
     MITMediumAttribution: {
       licenseName: 'MIT',
       criticality: Criticality.Medium,
+      id: 'MITMediumAttribution',
     },
     ApacheHighAttribution: {
       licenseName: 'Apache-2.0',
       criticality: Criticality.High,
+      id: 'ApacheHighAttribution',
     },
     ApacheMediumAttribution: {
       licenseName: 'Apache-2.0',
       criticality: Criticality.Medium,
+      id: 'ApacheMediumAttribution',
     },
     GPLMediumAttribution: {
       licenseName: 'GPL',
       criticality: Criticality.Medium,
       packageVersion: '2.0',
+      id: 'GPLMediumAttribution',
     },
   };
   const testResourcesToAttributions: ResourcesToAttributions = {

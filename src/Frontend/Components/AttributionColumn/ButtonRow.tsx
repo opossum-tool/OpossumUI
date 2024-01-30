@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { ButtonText } from '../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -20,7 +20,7 @@ import { SplitButton } from '../SplitButton/SplitButton';
 
 interface ButtonRowProps {
   areButtonsHidden?: boolean;
-  displayPackageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   onSaveButtonClick?(): void;
   onSaveGloballyButtonClick?(): void;
   onDeleteButtonClick?(): void;
@@ -31,7 +31,7 @@ interface ButtonRowProps {
 }
 
 export function ButtonRow({
-  displayPackageInfo,
+  packageInfo,
   areButtonsHidden,
   onDeleteButtonClick,
   onDeleteGloballyButtonClick,
@@ -45,9 +45,9 @@ export function ButtonRow({
   const packageInfoWereModified = useAppSelector(
     wereTemporaryDisplayPackageInfoModified,
   );
-  const initialManualDisplayPackageInfo =
-    useAppSelector(getManualDisplayPackageInfoOfSelected) ||
-    EMPTY_DISPLAY_PACKAGE_INFO;
+  const initialManualDisplayPackageInfo = useAppSelector(
+    getManualDisplayPackageInfoOfSelected,
+  );
   const isSavingDisabled = useAppSelector(getIsSavingDisabled);
   const isGlobalSavingDisabled = useAppSelector(getIsGlobalSavingDisabled);
 
@@ -76,7 +76,7 @@ export function ButtonRow({
         menuButtonProps={{ 'aria-label': 'save menu button' }}
         options={[
           {
-            buttonText: displayPackageInfo.preSelected
+            buttonText: packageInfo.preSelected
               ? ButtonText.Confirm
               : ButtonText.Save,
             disabled: isSavingDisabled,
@@ -86,7 +86,7 @@ export function ButtonRow({
             hidden: !onSaveButtonClick,
           },
           {
-            buttonText: displayPackageInfo.preSelected
+            buttonText: packageInfo.preSelected
               ? ButtonText.ConfirmGlobally
               : ButtonText.SaveGlobally,
             disabled: isGlobalSavingDisabled,
@@ -133,7 +133,9 @@ export function ButtonRow({
         disabled={!packageInfoWereModified}
         onClick={() => {
           dispatch(
-            setTemporaryDisplayPackageInfo(initialManualDisplayPackageInfo),
+            setTemporaryDisplayPackageInfo(
+              initialManualDisplayPackageInfo || EMPTY_DISPLAY_PACKAGE_INFO,
+            ),
           );
         }}
       />

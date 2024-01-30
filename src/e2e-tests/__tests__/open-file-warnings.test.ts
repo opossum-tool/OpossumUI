@@ -10,7 +10,7 @@ const [resourceName1, resourceName2] = faker.opossum.resourceNames({
 });
 const license1 = faker.opossum.license();
 const license2 = faker.opossum.license();
-const [attributionId, packageInfo] = faker.opossum.manualAttribution();
+const [attributionId, packageInfo] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -22,7 +22,7 @@ test.use({
       frequentLicenses: [license1, license2],
     }),
     outputData: faker.opossum.outputData({
-      manualAttributions: faker.opossum.manualAttributions({
+      manualAttributions: faker.opossum.rawAttributions({
         [attributionId]: packageInfo,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({

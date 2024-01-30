@@ -52,7 +52,7 @@ function getSpdxDocument(
       packageInfo.packageType,
       packageInfo.packagePURLAppendix,
       packageInfo.url,
-      packageInfo.comment,
+      packageInfo.comments?.join('\n'),
     ),
   );
 

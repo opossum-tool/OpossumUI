@@ -23,8 +23,6 @@ import {
   getAttributionsOfSelectedResourceOrClosestParent,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { DisplayPackageInfos } from '../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getPackageSorter } from '../../util/get-package-sorter';
 import { Button } from '../Button/Button';
@@ -129,24 +127,22 @@ function getSortedPackageCardIdsAndDisplayPackageInfos(
   shownAttributionsOfResource: Attributions,
 ): {
   sortedPackageCardIds: Array<string>;
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
 } {
   const sortedAttributionIds = Object.keys(shownAttributionsOfResource).sort(
     getPackageSorter(shownAttributionsOfResource, text.sortings.name),
   );
 
   const sortedPackageCardIds: Array<string> = [];
-  const displayPackageInfos: DisplayPackageInfos = {};
+  const displayPackageInfos: Attributions = {};
   sortedAttributionIds.forEach((attributionId, index) => {
     const packageCardId = createPackageCardId(
       PackagePanelTitle.ManualPackages,
       index,
     );
     sortedPackageCardIds.push(packageCardId);
-    displayPackageInfos[packageCardId] = convertPackageInfoToDisplayPackageInfo(
-      shownAttributionsOfResource[attributionId],
-      [attributionId],
-    );
+    displayPackageInfos[packageCardId] =
+      shownAttributionsOfResource[attributionId];
   });
   return { sortedPackageCardIds, displayPackageInfos };
 }

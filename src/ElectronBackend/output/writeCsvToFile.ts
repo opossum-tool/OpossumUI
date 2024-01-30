@@ -5,21 +5,16 @@
 import * as csv from 'fast-csv';
 import { CsvFormatterStream } from 'fast-csv';
 import * as fs from 'fs';
+import { pick } from 'lodash';
 
-import {
-  AttributionInfo,
-  Attributions,
-  AttributionsWithResources,
-  PackageInfo,
-} from '../../shared/shared-types';
-import { KeysOfAttributionInfo } from '../types/types';
+import { Attributions, PackageInfo } from '../../shared/shared-types';
 
-const CUT_OFF_LENGTH = 30000;
+export const CUT_OFF_LENGTH = 30000;
 
 export async function writeCsvToFile(
   filePath: string,
-  attributionsToWrite: AttributionsWithResources | Attributions,
-  columns: Array<KeysOfAttributionInfo>,
+  attributionsToWrite: Attributions,
+  columns: Array<keyof PackageInfo>,
   shortenResources = false,
 ): Promise<unknown> {
   try {
@@ -55,7 +50,7 @@ export async function writeCsvToFile(
 }
 
 function writeHeaders(
-  columns: Array<KeysOfAttributionInfo>,
+  columns: Array<keyof PackageInfo>,
   csvStream: CsvFormatterStream<
     Record<string, unknown>,
     Record<string, unknown>
@@ -69,22 +64,23 @@ function writeHeaders(
 }
 
 // exported for unit testing
-export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
+export function getHeadersFromColumns(columns: Array<keyof PackageInfo>): {
   [key: string]: string;
 } {
-  const availableHeaders: { [key in KeysOfAttributionInfo]: string } = {
+  const availableHeaders: { [key in keyof PackageInfo]: string } = {
     attributionConfidence: 'Confidence',
-    attributionIds: 'Attribution IDs',
-    comment: 'Comment',
     comments: 'Comments',
     copyright: 'Copyright',
     count: 'Count',
     criticality: 'criticality',
+    synthetic: 'Synthetic',
     excludeFromNotice: 'exclude-from-notice',
     firstParty: 'First Party',
     followUp: 'Follow-up',
+    id: 'ID',
     licenseName: 'License Name',
     licenseText: 'License Text (truncated)',
+    linkedAttributionIds: 'Linked Attribution IDs',
     needsReview: 'needs-review',
     originIds: 'Origin Attribution IDs',
     packageName: 'Package Name',
@@ -97,20 +93,16 @@ export function getHeadersFromColumns(columns: Array<KeysOfAttributionInfo>): {
     preferredOverOriginIds: 'preferred-over-origin-ids',
     resources: 'Resources',
     source: 'Source',
+    suffix: 'Suffix',
     url: 'URL',
     wasPreferred: 'was-preferred',
   };
 
-  const headers: { [key: string]: string } = {};
-  for (const key of columns) {
-    headers[key] = availableHeaders[key];
-  }
-
-  return headers;
+  return pick(availableHeaders, columns);
 }
 
 function writeAttributionsWithResourceToCsv(
-  attributionsToWrite: AttributionsWithResources | Attributions,
+  attributionsToWrite: Attributions,
   columns: Array<string>,
   shortenResources = false,
   csvStream: CsvFormatterStream<
@@ -122,10 +114,7 @@ function writeAttributionsWithResourceToCsv(
   Object.values(attributionsToWrite).forEach((attributionToWrite) => {
     attributionNumber = attributionNumber + 1;
 
-    if (
-      isAttributionInfo(attributionToWrite) &&
-      columns.includes('resources')
-    ) {
+    if (columns.includes('resources')) {
       writeAttributionWithResources(
         attributionToWrite,
         attributionNumber,
@@ -138,14 +127,8 @@ function writeAttributionsWithResourceToCsv(
   });
 }
 
-function isAttributionInfo(
-  attribution: AttributionInfo | PackageInfo,
-): attribution is AttributionInfo {
-  return 'resources' in attribution;
-}
-
 function writeAttributionWithResources(
-  attributionWithResource: AttributionInfo,
+  attributionWithResource: PackageInfo,
   attributionNumber: number,
   shortenResources = false,
   csvStream: CsvFormatterStream<
@@ -166,9 +149,9 @@ function writeAttributionWithResources(
       attributionNumber,
     });
   } else {
-    attributionWithResource.resources.forEach((resource) => {
+    attributionWithResource.resources?.forEach((resource) => {
       const isFirstResource =
-        attributionWithResource.resources.indexOf(resource) === 0;
+        attributionWithResource.resources?.indexOf(resource) === 0;
 
       if (isFirstResource) {
         csvStream.write({
@@ -215,7 +198,11 @@ function getShortenedLicenseText(attributionWithResource: PackageInfo): string {
     : '';
 }
 
-function getShortenedResources(resources: Array<string>): string {
+function getShortenedResources(resources: Array<string> | undefined): string {
+  if (!resources) {
+    return '';
+  }
+
   if (resources.length === 1) {
     return resources[0];
   }

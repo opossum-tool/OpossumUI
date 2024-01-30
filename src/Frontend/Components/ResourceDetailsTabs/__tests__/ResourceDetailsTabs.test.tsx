@@ -25,7 +25,7 @@ describe('The ResourceDetailsTabs', () => {
       },
     };
     const manualAttributions: Attributions = {
-      uuid_1: { packageName: 'jQuery' },
+      uuid_1: { packageName: 'jQuery', id: 'uuid_1' },
     };
 
     const { store } = renderComponent(
@@ -60,7 +60,7 @@ describe('The ResourceDetailsTabs', () => {
       fileWithAttribution: 1,
     };
     const manualAttributions: Attributions = {
-      uuid_1: { packageName: 'jQuery', packageVersion: '16.2.0' },
+      uuid_1: { packageName: 'jQuery', packageVersion: '16.2.0', id: 'uuid_1' },
     };
     const resourcesToManualAttributions: ResourcesToAttributions = {
       '/fileWithAttribution': ['uuid_1'],
@@ -106,18 +106,21 @@ describe('The ResourceDetailsTabs', () => {
         packageName: 'package name 1',
         licenseText: 'text',
         licenseName: 'license name 2',
-        comment: 'comment bla',
+        comments: ['comment bla'],
         packageVersion: '1.1.1',
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'package name 2',
         copyright: '(c)',
-        comment: 'comment blub',
+        comments: ['comment blub'],
         url: 'www.url.de',
+        id: 'uuid_2',
       },
       uuid_3: {
         packageName: 'package name 3',
         packageVersion: 'packageVersion',
+        id: 'uuid_3',
       },
     };
 

@@ -5,7 +5,6 @@
 import { pick } from 'lodash';
 
 import { Attributions } from '../../../shared/shared-types';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { PanelPackage, State } from '../../types/types';
 import { getClosestParentAttributionIds } from '../../util/get-closest-parent-attributions';
 import { getAttributionBreakpointCheckForState } from '../../util/is-attribution-breakpoint';
@@ -97,8 +96,9 @@ export function getPackageSearchTerm(state: State): string {
 export function getDidPreferredFieldChange(state: State): boolean {
   const temporaryDisplayPackageInfo = getTemporaryDisplayPackageInfo(state);
   const initialManualDisplayPackageInfo =
-    getManualDisplayPackageInfoOfSelected(state) || EMPTY_DISPLAY_PACKAGE_INFO;
-  const initialIsPreferred = initialManualDisplayPackageInfo.preferred ?? false;
+    getManualDisplayPackageInfoOfSelected(state);
+  const initialIsPreferred =
+    initialManualDisplayPackageInfo?.preferred ?? false;
   const tempIsPreferred =
     temporaryDisplayPackageInfo.preferred ?? initialIsPreferred;
   return initialIsPreferred !== tempIsPreferred;

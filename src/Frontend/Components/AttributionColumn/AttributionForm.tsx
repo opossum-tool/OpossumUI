@@ -8,7 +8,7 @@ import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { AttributionType } from '../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -32,7 +32,7 @@ const classes = {
 };
 
 interface AttributionFormProps {
-  packageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
 }
@@ -52,7 +52,7 @@ export function AttributionForm(props: AttributionFormProps) {
         </MuiTypography>
       </MuiDivider>
       <PackageSubPanel
-        displayPackageInfo={props.packageInfo}
+        packageInfo={props.packageInfo}
         showHighlight={props.showHighlight}
         onEdit={props.onEdit}
       />
@@ -63,21 +63,18 @@ export function AttributionForm(props: AttributionFormProps) {
       {props.packageInfo.firstParty ? null : (
         <>
           <CopyrightSubPanel
-            displayPackageInfo={props.packageInfo}
+            packageInfo={props.packageInfo}
             showHighlight={props.showHighlight}
             onEdit={props.onEdit}
           />
           <LicenseSubPanel
-            displayPackageInfo={props.packageInfo}
+            packageInfo={props.packageInfo}
             showHighlight={props.showHighlight}
             onEdit={props.onEdit}
           />
         </>
       )}
-      <CommentStack
-        displayPackageInfo={props.packageInfo}
-        onEdit={props.onEdit}
-      />
+      <CommentStack packageInfo={props.packageInfo} onEdit={props.onEdit} />
     </MuiBox>
   );
 

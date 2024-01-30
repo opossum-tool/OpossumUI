@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo, PackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../get-display-attributions-with-count-from-attributions';
 
 describe('getDisplayAttributionWithCountFromAttributions', () => {
@@ -14,7 +14,8 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_1',
         {
           packageName: 'React',
-          comment: 'comment A',
+          comments: ['comment A'],
+          id: 'uuid_1',
         },
         1,
       ],
@@ -22,16 +23,18 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_2',
         {
           packageName: 'React',
-          comment: '',
+          comments: [''],
+          id: 'uuid_2',
         },
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
       comments: ['comment A'],
-      attributionIds: ['uuid_1', 'uuid_2'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2'],
       count: 2,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -52,6 +55,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         {
           packageName: 'React',
           attributionConfidence: 20,
+          id: 'uuid_1',
         },
         1,
       ],
@@ -60,15 +64,17 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         {
           packageName: 'React',
           attributionConfidence: 80,
+          id: 'uuid_2',
         },
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
       attributionConfidence: 20,
-      attributionIds: ['uuid_1', 'uuid_2'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2'],
       count: 2,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -89,6 +95,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         {
           packageName: 'React',
           originIds: ['id_1', 'id_2'],
+          id: 'uuid_1',
         },
         1,
       ],
@@ -97,15 +104,17 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         {
           packageName: 'React',
           originIds: ['id_2', 'id_3'],
+          id: 'uuid_2',
         },
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid_1', 'uuid_2'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2'],
       originIds: ['id_1', 'id_2', 'id_3'],
       count: 2,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -125,15 +134,17 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_1',
         {
           packageName: 'React',
+          id: 'uuid_1',
         },
         1,
       ],
-      ['uuid_2', { packageName: 'React' }, undefined],
+      ['uuid_2', { packageName: 'React', id: 'uuid_2' }, undefined],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid_1', 'uuid_2'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2'],
       count: 1,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -153,6 +164,7 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_1',
         {
           packageName: 'React',
+          id: 'uuid_1',
         },
         1,
       ],
@@ -160,14 +172,16 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_2',
         {
           packageName: 'React',
+          id: 'uuid_2',
         },
         2,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid_1', 'uuid_2'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2'],
       count: 2,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -187,9 +201,10 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_1',
         {
           packageName: 'React',
-          comment: 'comment A',
+          comments: ['comment A'],
           attributionConfidence: 20,
           originIds: ['id_1', 'id_2'],
+          id: 'uuid_1',
         },
         1,
       ],
@@ -197,21 +212,27 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_2',
         {
           packageName: 'React',
-          comment: 'comment B',
+          comments: ['comment B'],
           attributionConfidence: 80,
           originIds: ['id_2', 'id_3'],
+          id: 'uuid_2',
         },
         2,
       ],
-      ['uuid_3', { packageName: 'React', comment: '' }, undefined],
+      [
+        'uuid_3',
+        { packageName: 'React', comments: [''], id: 'uuid_3' },
+        undefined,
+      ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
       comments: ['comment A', 'comment B'],
       attributionConfidence: 20,
-      attributionIds: ['uuid_1', 'uuid_2', 'uuid_3'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2', 'uuid_3'],
       originIds: ['id_1', 'id_2', 'id_3'],
       count: 2,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(
@@ -230,10 +251,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_1',
         {
           packageName: 'React',
-          comment: 'comment A',
+          comments: ['comment A'],
           attributionConfidence: 20,
           originIds: ['id_1', 'id_2'],
           wasPreferred: false,
+          id: 'uuid_1',
         },
         1,
       ],
@@ -241,10 +263,11 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_2',
         {
           packageName: 'React',
-          comment: 'comment B',
+          comments: ['comment B'],
           attributionConfidence: 80,
           originIds: ['id_2', 'id_3'],
           wasPreferred: true,
+          id: 'uuid_2',
         },
         2,
       ],
@@ -252,22 +275,24 @@ describe('getDisplayAttributionWithCountFromAttributions', () => {
         'uuid_3',
         {
           packageName: 'React',
-          comment: 'comment C',
+          comments: ['comment C'],
           attributionConfidence: 80,
           originIds: ['id_2', 'id_3'],
           wasPreferred: false,
+          id: 'uuid_3',
         },
         1,
       ],
     ];
-    const expectedDisplayAttributionWithCount: DisplayPackageInfo = {
+    const expectedDisplayAttributionWithCount: PackageInfo = {
       packageName: 'React',
       comments: ['comment A', 'comment B', 'comment C'],
       attributionConfidence: 20,
-      attributionIds: ['uuid_1', 'uuid_2', 'uuid_3'],
+      linkedAttributionIds: ['uuid_1', 'uuid_2', 'uuid_3'],
       originIds: ['id_1', 'id_2', 'id_3'],
       wasPreferred: true,
       count: 2,
+      id: 'uuid_1',
     };
     const testDisplayAttributionWithCount =
       getDisplayPackageInfoWithCountFromAttributions(

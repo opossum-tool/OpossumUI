@@ -2,15 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { pickBy } from 'lodash';
+import { isEqual, pickBy } from 'lodash';
 
-import {
-  DisplayPackageInfo,
-  PackageInfo,
-  PackageInfoCore,
-} from '../../shared/shared-types';
+import { PackageInfo } from '../../shared/shared-types';
 
-export function getStrippedPackageInfo(packageInfo: PackageInfo): PackageInfo {
+export function getStrippedPackageInfo(packageInfo: PackageInfo) {
   return pickBy(
     packageInfo,
     (value, key) =>
@@ -19,20 +15,8 @@ export function getStrippedPackageInfo(packageInfo: PackageInfo): PackageInfo {
         ? !thirdPartyKeys.includes(key as keyof PackageInfo)
         : true) &&
       strippedPackageInfoTemplate[key as keyof PackageInfo] &&
-      !!value,
-  );
-}
-
-export function getStrippedDisplayPackageInfo(packageInfo: DisplayPackageInfo) {
-  return pickBy(
-    packageInfo,
-    (value, key) =>
-      key in strippedDisplayPackageInfoTemplate &&
-      (packageInfo.firstParty
-        ? !thirdPartyKeys.includes(key as keyof PackageInfo)
-        : true) &&
-      strippedDisplayPackageInfoTemplate[key as keyof DisplayPackageInfo] &&
-      !!value,
+      !!value &&
+      !isEqual(value, []),
   );
 }
 
@@ -42,17 +26,22 @@ const thirdPartyKeys: Array<keyof PackageInfo> = [
   'licenseText',
 ];
 
-const strippedPackageInfoCoreTemplate: {
-  [P in keyof Required<PackageInfoCore>]: boolean;
+const strippedPackageInfoTemplate: {
+  [P in keyof Required<PackageInfo>]: boolean;
 } = {
   attributionConfidence: true,
+  comments: true,
   copyright: true,
+  count: false,
   criticality: false,
+  synthetic: false,
   excludeFromNotice: true,
   firstParty: true,
   followUp: true,
+  id: false,
   licenseName: true,
   licenseText: true,
+  linkedAttributionIds: false,
   needsReview: true,
   originIds: true,
   packageName: true,
@@ -63,29 +52,11 @@ const strippedPackageInfoCoreTemplate: {
   preSelected: false,
   preferred: true,
   preferredOverOriginIds: true,
+  resources: false,
   source: false,
+  suffix: false,
   url: true,
   wasPreferred: true,
-};
-
-const strippedPackageInfoTemplate: {
-  [P in keyof Required<PackageInfo>]: boolean;
-} = {
-  ...strippedPackageInfoCoreTemplate,
-  comment: true,
-  comments: false,
-  attributionIds: false,
-  count: false,
-};
-
-const strippedDisplayPackageInfoTemplate: {
-  [P in keyof Required<DisplayPackageInfo>]: boolean;
-} = {
-  ...strippedPackageInfoCoreTemplate,
-  count: false,
-  attributionIds: true,
-  comment: false,
-  comments: true,
 };
 
 export const packageInfoKeys = Object.keys(

@@ -6,13 +6,13 @@ import {
   Attributions,
   AttributionsToResources,
   DiscreteConfidence,
-  DisplayPackageInfo,
   FrequentLicenses,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../../../shared/shared-types';
+import { faker } from '../../../../../testing/Faker';
 import { AllowedSaveOperations } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import { initialResourceState } from '../../../reducers/resource-reducer';
@@ -71,11 +71,13 @@ const testTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '1.0',
   packageName: 'test Package',
   licenseText: ' test License text',
+  id: testManualAttributionUuid_1,
 };
 const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
   packageVersion: '2.0',
   packageName: 'not assigned test Package',
   licenseText: ' test not assigned License text',
+  id: testManualAttributionUuid_2,
 };
 const testManualAttributions: Attributions = {
   [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
@@ -88,11 +90,11 @@ const testResourcesToManualAttributions: ResourcesToAttributions = {
 describe('The load and navigation simple actions', () => {
   it('resets the state', () => {
     const testStore = createAppStore();
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       packageVersion: '1.1',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionIds: [],
+      id: testManualAttributionUuid_1,
     };
     testStore.dispatch(
       setManualData(testManualAttributions, testResourcesToManualAttributions),
@@ -117,8 +119,8 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets manual attribution data', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
-      uuid2: { packageName: 'Redux' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid2: { packageName: 'Redux', id: 'uuid2' },
     };
     const testResourcesToAttributions: ResourcesToAttributions = {
       '/some/path1': ['uuid1', 'uuid2'],
@@ -174,8 +176,8 @@ describe('The load and navigation simple actions', () => {
 
   it('sets and gets external attribution data', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'React' },
-      uuid2: { packageName: 'Redux' },
+      uuid1: { packageName: 'React', id: 'uuid1' },
+      uuid2: { packageName: 'Redux', id: 'uuid2' },
     };
     const testResourcesToAttributions: ResourcesToAttributions = {
       '/some/path1': ['uuid1', 'uuid2'],
@@ -255,11 +257,11 @@ describe('The load and navigation simple actions', () => {
   });
 
   it('sets and gets temporaryDisplayPackageInfo', () => {
-    const testDisplayPackageInfo: DisplayPackageInfo = {
+    const testDisplayPackageInfo: PackageInfo = {
       packageName: 'test',
       packageVersion: '1.0',
       licenseText: 'License Text',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     const testStore = createAppStore();
     testStore.dispatch(setTemporaryDisplayPackageInfo(testDisplayPackageInfo));

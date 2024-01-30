@@ -5,11 +5,11 @@
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
   Resources,
   ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
+import { faker } from '../../../../../testing/Faker';
 import { PackagePanelTitle, View } from '../../../../enums/enums';
 import {
   ADD_NEW_ATTRIBUTION_BUTTON_ID,
@@ -17,10 +17,6 @@ import {
 } from '../../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../../types/types';
-import {
-  convertDisplayPackageInfoToPackageInfo,
-  convertPackageInfoToDisplayPackageInfo,
-} from '../../../../util/convert-package-info';
 import { createAppStore } from '../../../configure-store';
 import {
   getDisplayedPackage,
@@ -58,10 +54,7 @@ describe('resetTemporaryDisplayPackageInfo', () => {
   it('works correctly on audit view', () => {
     const testPackageInfo: PackageInfo = {
       packageName: 'React',
-    };
-    const testDisplayPackageInfo: DisplayPackageInfo = {
-      packageName: 'React',
-      attributionIds: ['uuid1'],
+      id: 'uuid1',
     };
     const testResources: Resources = {
       file: 1,
@@ -75,11 +68,11 @@ describe('resetTemporaryDisplayPackageInfo', () => {
     const initialSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
       packageCardId: 'Attributions-0',
-      displayPackageInfo: testDisplayPackageInfo,
+      displayPackageInfo: testPackageInfo,
     };
-    const initialTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const initialTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'Vue',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
 
     const testStore = createAppStore();
@@ -104,20 +97,21 @@ describe('resetTemporaryDisplayPackageInfo', () => {
 
     testStore.dispatch(resetTemporaryDisplayPackageInfo());
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testDisplayPackageInfo,
+      testPackageInfo,
     );
   });
 
   it('works correctly on attribution view', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
+      id: 'uuid1',
     };
     const testManualAttributions: Attributions = {
       uuid1: testReact,
     };
-    const initialTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const initialTemporaryDisplayPackageInfo: PackageInfo = {
       packageName: 'Vue',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
 
     const testStore = createAppStore();
@@ -138,11 +132,9 @@ describe('resetTemporaryDisplayPackageInfo', () => {
     );
 
     testStore.dispatch(resetTemporaryDisplayPackageInfo());
-    expect(
-      convertDisplayPackageInfoToPackageInfo(
-        getTemporaryDisplayPackageInfo(testStore.getState()),
-      ),
-    ).toEqual(testReact);
+    expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
+      testReact,
+    );
   });
 });
 
@@ -210,7 +202,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
         packageCardId: 'previousPackageCardId',
         displayPackageInfo: {
           packageName: 'react',
-          attributionIds: ['uuid_1'],
+          id: faker.string.uuid(),
         },
       }),
     );
@@ -218,7 +210,7 @@ describe('setSelectedResourceOrAttributionIdFromTarget', () => {
       setTargetDisplayedPackage({
         panel: PackagePanelTitle.AllAttributions,
         packageCardId: 'newPackageCardId',
-        displayPackageInfo: { packageName: 'vue', attributionIds: ['uuid_2'] },
+        displayPackageInfo: { packageName: 'vue', id: faker.string.uuid() },
       }),
     );
 
@@ -254,10 +246,9 @@ describe('setSelectedResourceIdAndExpand', () => {
 
 describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
   it('sets the displayedPackage and loads the right initial temporaryDisplayPackageInfo', () => {
-    const testPackageInfo: PackageInfo = { packageName: 'React' };
-    const testDisplayPackageInfo: DisplayPackageInfo = {
+    const testPackageInfo: PackageInfo = {
       packageName: 'React',
-      attributionIds: ['uuid'],
+      id: 'uuid',
     };
     const testResources: Resources = {
       file1: 1,
@@ -271,7 +262,7 @@ describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
     const expectedDisplayedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
       packageCardId: 'Attributions-0',
-      displayPackageInfo: testDisplayPackageInfo,
+      displayPackageInfo: testPackageInfo,
     };
 
     const testStore = createAppStore();
@@ -298,7 +289,7 @@ describe('setDisplayedPackageAndResetTemporaryDisplayPackageInfo', () => {
       expectedDisplayedPackage,
     );
     expect(getTemporaryDisplayPackageInfo(testStore.getState())).toEqual(
-      testDisplayPackageInfo,
+      testPackageInfo,
     );
   });
 });
@@ -308,11 +299,8 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
     const testReact: PackageInfo = {
       packageName: 'React',
       attributionConfidence: DiscreteConfidence.High,
+      id: 'uuid1',
     };
-    const testDisplayPackageInfo = convertPackageInfoToDisplayPackageInfo(
-      testReact,
-      ['uuid1'],
-    );
     const testResources: Resources = {
       parent: { child: 1 },
     };
@@ -325,7 +313,7 @@ describe('resetSelectedPackagePanelIfContainedAttributionWasRemoved', () => {
     const initialSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
       packageCardId: 'Attributions-0',
-      displayPackageInfo: testDisplayPackageInfo,
+      displayPackageInfo: testReact,
     };
 
     const expectedResourcesToManualAttributions: ResourcesToAttributions = {

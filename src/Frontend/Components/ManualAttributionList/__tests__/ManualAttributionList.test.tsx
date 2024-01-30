@@ -9,13 +9,12 @@ import { ADD_NEW_ATTRIBUTION_BUTTON_TEXT } from '../../../shared-constants';
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { DisplayPackageInfos } from '../../../types/types';
 import { doNothing } from '../../../util/do-nothing';
 import { ManualAttributionList } from '../ManualAttributionList';
 
 describe('The ManualAttributionList', () => {
   const testSortedPackageCardIds = ['Manual Attributions-0'];
-  const testDisplayPackageInfos: DisplayPackageInfos = {
+  const testDisplayPackageInfos: Attributions = {
     [testSortedPackageCardIds[0]]: {
       attributionConfidence: 0,
       comments: ['Some comment'],
@@ -24,19 +23,20 @@ describe('The ManualAttributionList', () => {
       copyright: 'Copyright John Doe',
       licenseText: 'Some license text',
       firstParty: true,
-      attributionIds: ['1'],
+      id: testSortedPackageCardIds[0],
     },
   };
 
   const packages: Attributions = {
     '1': {
       attributionConfidence: 0,
-      comment: 'Some comment',
+      comments: ['Some comment'],
       packageName: 'Test package',
       packageVersion: '1.0',
       copyright: 'Copyright John Doe',
       licenseText: 'Some license text',
       firstParty: true,
+      id: '1',
     },
   };
   const mockCallback = jest.fn((attributionId: string) => {

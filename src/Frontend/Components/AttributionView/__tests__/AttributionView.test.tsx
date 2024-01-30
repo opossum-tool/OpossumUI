@@ -18,15 +18,14 @@ import {
 } from '../../../state/variables/use-filtered-attributions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { AttributionView } from '../AttributionView';
 
 describe('The Attribution View', () => {
   it('renders', async () => {
     const resourceName = faker.opossum.resourceName();
-    const [attributionId, packageInfo] = faker.opossum.manualAttribution();
-    const manualAttributions = faker.opossum.manualAttributions({
-      [attributionId]: packageInfo,
+    const packageInfo = faker.opossum.packageInfo();
+    const manualAttributions = faker.opossum.attributions({
+      [packageInfo.id]: packageInfo,
     });
     renderComponent(<AttributionView />, {
       actions: [
@@ -38,7 +37,7 @@ describe('The Attribution View', () => {
             manualAttributions,
             resourcesToManualAttributions:
               faker.opossum.resourcesToAttributions({
-                [faker.opossum.filePath(resourceName)]: [attributionId],
+                [faker.opossum.filePath(resourceName)]: [packageInfo.id],
               }),
           }),
         ),
@@ -46,10 +45,7 @@ describe('The Attribution View', () => {
         setVariable<FilteredAttributions>(FILTERED_ATTRIBUTIONS, {
           ...initialFilteredAttributions,
           attributions: {
-            [attributionId]: convertPackageInfoToDisplayPackageInfo(
-              packageInfo,
-              [attributionId],
-            ),
+            [packageInfo.id]: packageInfo,
           },
         }),
         navigateToView(View.Attribution),

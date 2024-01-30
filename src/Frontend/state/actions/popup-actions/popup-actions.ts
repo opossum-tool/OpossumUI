@@ -4,17 +4,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  DisplayPackageInfo,
+  PackageInfo,
   SelectedCriticality,
 } from '../../../../shared/shared-types';
 import { getLicenseNameVariants } from '../../../Components/ProjectStatisticsPopup/ProjectStatisticsPopup.util';
 import { PackagePanelTitle, PopupType, View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { State } from '../../../types/types';
-import {
-  convertDisplayPackageInfoToPackageInfo,
-  convertPackageInfoToDisplayPackageInfo,
-} from '../../../util/convert-package-info';
 import { hasAttributionMultipleResources } from '../../../util/has-attribution-multiple-resources';
 import {
   getCurrentAttributionId,
@@ -91,12 +87,7 @@ export function changeSelectedAttributionIdOrOpenUnsavedPopup(
     } else {
       dispatch(setSelectedAttributionId(attributionId));
       dispatch(
-        setTemporaryDisplayPackageInfo(
-          convertPackageInfoToDisplayPackageInfo(
-            manualAttributions[attributionId],
-            [attributionId],
-          ),
-        ),
+        setTemporaryDisplayPackageInfo(manualAttributions[attributionId]),
       );
     }
   };
@@ -130,7 +121,7 @@ export function setSelectedResourceIdOrOpenUnsavedPopup(
 export function selectPackageCardInAuditViewOrOpenUnsavedPopup(
   packagePanelTitle: PackagePanelTitle,
   packageCardId: string,
-  displayPackageInfo: DisplayPackageInfo,
+  displayPackageInfo: PackageInfo,
 ): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     if (wereTemporaryDisplayPackageInfoModified(getState())) {
@@ -157,10 +148,10 @@ export function selectPackageCardInAuditViewOrOpenUnsavedPopup(
 export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavingIsNotDisabled(): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
     const selectedResourceId = getSelectedResourceId(getState());
-    const attributionId = getCurrentAttributionId(getState()) as string;
+    const attributionId = getCurrentAttributionId(getState());
     const temporaryDisplayPackageInfo =
       getTemporaryDisplayPackageInfo(getState());
-    if (getIsSavingDisabled(getState())) {
+    if (getIsSavingDisabled(getState()) || !attributionId) {
       dispatch(closePopup());
       dispatch(openPopup(PopupType.UnableToSavePopup));
       return;
@@ -169,7 +160,7 @@ export function unlinkAttributionAndSavePackageInfoAndNavigateToTargetViewIfSavi
       unlinkAttributionAndSavePackageInfo(
         selectedResourceId,
         attributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+        temporaryDisplayPackageInfo,
       ),
     );
     dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());
@@ -191,7 +182,7 @@ export function saveTemporaryDisplayPackageInfoAndNavigateToTargetViewIfSavingIs
       savePackageInfo(
         selectedResourceId,
         attributionId,
-        convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+        temporaryDisplayPackageInfo,
       ),
     );
     dispatch(navigateToTargetResourceOrAttributionOrOpenFileDialog());

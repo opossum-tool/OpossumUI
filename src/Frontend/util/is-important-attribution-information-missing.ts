@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
+import { PackageInfo } from '../../shared/shared-types';
 import { packageInfoKeys } from './get-stripped-package-info';
 
 const TYPES_REQUIRING_NAMESPACE = [
@@ -14,9 +14,7 @@ const TYPES_REQUIRING_NAMESPACE = [
   'maven',
 ];
 
-export function isPackageInfoIncomplete(
-  packageInfo: PackageInfo | DisplayPackageInfo,
-): boolean {
+export function isPackageInfoIncomplete(packageInfo: PackageInfo): boolean {
   return packageInfoKeys.some((attributionProperty) =>
     isImportantAttributionInformationMissing(attributionProperty, packageInfo),
   );
@@ -24,7 +22,7 @@ export function isPackageInfoIncomplete(
 
 export function isImportantAttributionInformationMissing(
   attributionProperty: string,
-  packageInfo: PackageInfo | DisplayPackageInfo,
+  packageInfo: PackageInfo,
 ): boolean {
   if (packageInfo.excludeFromNotice || packageInfo.firstParty) {
     return false;

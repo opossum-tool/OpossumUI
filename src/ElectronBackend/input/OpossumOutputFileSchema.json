@@ -127,7 +127,7 @@
           }
         },
         "required": [],
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
     "resourcesToAttributions": {

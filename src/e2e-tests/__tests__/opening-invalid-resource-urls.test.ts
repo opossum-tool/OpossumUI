@@ -6,7 +6,7 @@ import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2, resourceName3] =
   faker.opossum.resourceNames({ count: 3 });
-const [attributionId, packageInfo] = faker.opossum.externalAttribution();
+const [attributionId, packageInfo] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -17,7 +17,7 @@ test.use({
         },
         [resourceName2]: 1,
       }),
-      externalAttributions: faker.opossum.externalAttributions({
+      externalAttributions: faker.opossum.rawAttributions({
         [attributionId]: packageInfo,
       }),
       resourcesToAttributions: faker.opossum.resourcesToAttributions({

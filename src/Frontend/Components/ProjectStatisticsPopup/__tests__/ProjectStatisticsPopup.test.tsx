@@ -40,6 +40,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        id: 'uuid_1',
       },
       uuid_2: {
         source: {
@@ -47,6 +48,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        id: 'uuid_2',
       },
     };
 
@@ -70,10 +72,12 @@ describe('The ProjectStatisticsPopup', () => {
       uuid_1: {
         licenseName: 'GNU General Public License v2.0',
         criticality: Criticality.High,
+        id: 'uuid_1',
       },
       uuid_2: {
         licenseName: 'The MIT License (MIT)',
         criticality: Criticality.Medium,
+        id: 'uuid_2',
       },
     };
     renderComponent(<ProjectStatisticsPopup />, {
@@ -104,6 +108,7 @@ describe('The ProjectStatisticsPopup', () => {
       uuid_1: {
         licenseName: 'MIT',
         criticality: Criticality.Medium,
+        id: 'uuid_1',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {
@@ -162,6 +167,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        id: 'uuid_1',
       },
       uuid_2: {
         source: {
@@ -169,6 +175,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        id: 'uuid_2',
       },
     };
     const testExternalAttributions: Attributions = {
@@ -178,6 +185,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'Apache License Version 3.0',
+        id: 'uuid_3',
       },
       uuid_2: {
         source: {
@@ -185,6 +193,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        id: 'uuid_2',
       },
     };
 
@@ -256,6 +265,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 10,
         },
         licenseName: 'Apache License Version 2.0',
+        id: 'uuid_1',
       },
       uuid_2: {
         source: {
@@ -263,6 +273,7 @@ describe('The ProjectStatisticsPopup', () => {
           documentConfidence: 90,
         },
         licenseName: 'The MIT License (MIT)',
+        id: 'uuid_2',
       },
     };
     renderComponent(<ProjectStatisticsPopup />, {

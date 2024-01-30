@@ -21,7 +21,6 @@ import {
 } from '../../state/selectors/all-views-resource-selectors';
 import { getSelectedAttributionIdInAttributionView } from '../../state/selectors/attribution-view-resource-selectors';
 import { getDidPreferredFieldChange } from '../../state/selectors/audit-view-resource-selectors';
-import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { ResourcesTree } from '../ResourcesTree/ResourcesTree';
@@ -74,7 +73,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         savePackageInfoIfSavingIsNotDisabled(
           null,
           selectedAttributionId,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+          temporaryDisplayPackageInfo,
         ),
       );
     }
@@ -97,7 +96,7 @@ export function AttributionDetailsViewer(): ReactElement | null {
         savePackageInfo(
           null,
           selectedAttributionId,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+          temporaryDisplayPackageInfo,
         ),
       );
     }

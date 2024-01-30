@@ -37,10 +37,11 @@ import {
 import {
   cleanNonExistentAttributions,
   cleanNonExistentResolvedExternalAttributions,
+  deserializeAttributions,
   parseFrequentLicenses,
-  parseRawAttributions,
   sanitizeRawBaseUrlsForSources,
   sanitizeResourcesToAttributions,
+  serializeAttributions,
 } from './parseInputData';
 
 function isJsonParsingError(object: unknown): object is JsonParsingError {
@@ -98,37 +99,7 @@ export async function loadInputAndOutputFromFilePath(
   }
 
   const [externalAttributions, inputContainsCriticalExternalAttributions] =
-    parseRawAttributions(parsedInputData.externalAttributions);
-  const projectId = parsedInputData.metadata.projectId;
-  const resourcesToAttributions = parsedInputData.resourcesToAttributions;
-
-  if (parsedOutputData === null) {
-    if (isOpossumFileFormat(filePath)) {
-      parsedOutputData = await createOutputInOpossumFile(
-        filePath,
-        externalAttributions,
-        resourcesToAttributions,
-        projectId,
-      );
-    } else {
-      const outputJsonPath = getFilePathWithAppendix(
-        filePath,
-        '_attributions.json',
-      );
-      const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
-      parsedOutputData = await parseOrCreateOutputJsonFile(
-        outputJsonPath,
-        externalAttributions,
-        resourcesToAttributions,
-        projectId,
-        inputFileMD5Checksum,
-      );
-    }
-  }
-
-  const [manualAttributions] = parseRawAttributions(
-    parsedOutputData.manualAttributions,
-  );
+    deserializeAttributions(parsedInputData.externalAttributions);
 
   logger.info('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
@@ -140,6 +111,36 @@ export async function loadInputAndOutputFromFilePath(
     parsedInputData.resources,
     parsedInputData.resourcesToAttributions,
   );
+
+  if (parsedOutputData === null) {
+    logger.info('Creating output file');
+    if (isOpossumFileFormat(filePath)) {
+      parsedOutputData = await createOutputInOpossumFile(
+        filePath,
+        externalAttributions,
+        resourcesToExternalAttributions,
+        parsedInputData.metadata.projectId,
+      );
+    } else {
+      const outputJsonPath = getFilePathWithAppendix(
+        filePath,
+        '_attributions.json',
+      );
+      const inputFileMD5Checksum = getGlobalBackendState().inputFileChecksum;
+      parsedOutputData = await parseOrCreateOutputJsonFile(
+        outputJsonPath,
+        externalAttributions,
+        resourcesToExternalAttributions,
+        parsedInputData.metadata.projectId,
+        inputFileMD5Checksum,
+      );
+    }
+  }
+
+  const [manualAttributions] = deserializeAttributions(
+    parsedOutputData.manualAttributions,
+  );
+
   logger.info('Converting and cleaning data');
   const parsedFileContent: ParsedFileContent = {
     metadata: parsedInputData.metadata,
@@ -180,7 +181,7 @@ export async function loadInputAndOutputFromFilePath(
 
   logger.info('Finalizing global state');
   getGlobalBackendState().projectTitle = parsedInputData.metadata.projectTitle;
-  getGlobalBackendState().projectId = projectId;
+  getGlobalBackendState().projectId = parsedInputData.metadata.projectId;
   getGlobalBackendState().inputContainsCriticalExternalAttributions =
     inputContainsCriticalExternalAttributions;
 }
@@ -288,7 +289,7 @@ function createJsonOutputFile(
       fileCreationDate: String(Date.now()),
       inputFileMD5Checksum,
     },
-    manualAttributions,
+    manualAttributions: serializeAttributions(manualAttributions),
     resourcesToAttributions,
     resolvedExternalAttributions: [],
   };

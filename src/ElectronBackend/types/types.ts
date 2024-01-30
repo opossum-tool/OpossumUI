@@ -3,12 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  AttributionInfo,
-  Attributions,
   BaseUrlsForSources,
   ExternalAttributionSources,
-  PackageInfo,
   ProjectMetadata,
+  RawAttributions,
   Resources,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
@@ -37,12 +35,6 @@ export interface GlobalBackendState {
   inputContainsCriticalExternalAttributions?: boolean;
   inputFileChecksum?: string;
   inputFileRaw?: Uint8Array;
-}
-
-export type RawPackageInfo = PackageInfo & { originId?: string };
-
-export interface RawAttributions {
-  [uuid: string]: RawPackageInfo;
 }
 
 export interface RawFrequentLicense {
@@ -85,9 +77,7 @@ export interface OpossumOutputFile {
     fileCreationDate: string;
     inputFileMD5Checksum?: string;
   };
-  manualAttributions: Attributions;
+  manualAttributions: RawAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   resolvedExternalAttributions: Array<string>;
 }
-
-export type KeysOfAttributionInfo = keyof AttributionInfo;

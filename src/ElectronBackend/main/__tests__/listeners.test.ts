@@ -13,7 +13,6 @@ import {
 } from '../../../shared/ipc-channels';
 import {
   Attributions,
-  AttributionsWithResources,
   ExportSpdxDocumentJsonArgs,
   ExportSpdxDocumentYamlArgs,
   ExportType,
@@ -399,16 +398,18 @@ describe('getExportFollowUpListener', () => {
 
     const listener = getExportFileListener(mainWindow);
 
-    const followUpAttributionsWithResources: AttributionsWithResources = {
+    const followUpAttributionsWithResources: Attributions = {
       key1: {
         followUp: undefined,
         licenseText: 'license text',
         firstParty: true,
         resources: ['/'],
+        id: faker.string.uuid(),
       },
       key2: {
         packageName: 'license text',
         resources: ['/a', '/b'],
+        id: faker.string.uuid(),
       },
     };
 
@@ -466,9 +467,11 @@ describe('getExportBomListener', () => {
         followUp: undefined,
         licenseText: 'license text',
         firstParty: true,
+        id: faker.string.uuid(),
       },
       key2: {
         packageName: 'license text',
+        id: faker.string.uuid(),
       },
     };
 
@@ -494,16 +497,18 @@ describe('getExportBomListener', () => {
       detailedBomFilePath: '/somefile.csv',
     });
 
-    const attributionsWithResources: AttributionsWithResources = {
+    const attributionsWithResources: Attributions = {
       key1: {
         followUp: undefined,
         licenseText: 'license text',
         firstParty: true,
         resources: ['/somefile.csv'],
+        id: faker.string.uuid(),
       },
       key2: {
         packageName: 'license text',
         resources: ['/a', '/b'],
+        id: faker.string.uuid(),
       },
     };
 

@@ -6,9 +6,9 @@ import {
   Attributions,
   AttributionsToHashes,
   BaseUrlsForSources,
-  DisplayPackageInfo,
   ExternalAttributionSources,
   FrequentLicenses,
+  PackageInfo,
   ProjectMetadata,
   Resources,
   ResourcesToAttributions,
@@ -84,7 +84,7 @@ export function setFrequentLicenses(
 }
 
 export function setTemporaryDisplayPackageInfo(
-  packageInfo: DisplayPackageInfo,
+  packageInfo: PackageInfo,
 ): SetTemporaryDisplayPackageInfoAction {
   return { type: ACTION_SET_TEMPORARY_PACKAGE_INFO, payload: packageInfo };
 }

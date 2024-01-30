@@ -6,22 +6,11 @@
 import { isEmpty, isEqual, sortBy } from 'lodash';
 
 import {
-  Attributions,
-  AttributionsToResources,
   DiscreteConfidence,
   PackageInfo,
-  SaveFileArgs,
 } from '../../../../shared/shared-types';
-import {
-  AllowedSaveOperations,
-  PopupType,
-  SavePackageInfoOperation,
-} from '../../../enums/enums';
-import { State } from '../../../types/types';
+import { AllowedSaveOperations, PopupType } from '../../../enums/enums';
 import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
-import { getAttributionBreakpointCheckForState } from '../../../util/is-attribution-breakpoint';
-import { packageInfoHasNoSignificantFields } from '../../../util/package-info-has-no-significant-fields';
-import { attributionForTemporaryDisplayPackageInfoExists } from '../../helpers/save-action-helpers';
 import {
   getIsSavingDisabled,
   getManualAttributions,
@@ -29,16 +18,14 @@ import {
   getResourcesToManualAttributions,
   wereTemporaryDisplayPackageInfoModified,
 } from '../../selectors/all-views-resource-selectors';
-import { getMultiSelectSelectedAttributionIds } from '../../selectors/attribution-view-resource-selectors';
 import {
   getAttributionIdsOfSelectedResource,
   getAttributionIdsOfSelectedResourceClosestParent,
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../selectors/audit-view-resource-selectors';
-import { AppThunkAction, AppThunkDispatch } from '../../types';
+import { AppThunkAction } from '../../types';
 import { openPopup } from '../view-actions/view-actions';
-import { setMultiSelectSelectedAttributionIds } from './attribution-view-simple-actions';
 import {
   resetSelectedPackagePanelIfContainedAttributionWasRemoved,
   resetTemporaryDisplayPackageInfo,
@@ -74,12 +61,12 @@ export function savePackageInfoIfSavingIsNotDisabled(
   attributionId: string | null,
   packageInfo: PackageInfo,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (dispatch, getState) => {
     if (getIsSavingDisabled(getState())) {
       dispatch(openPopup(PopupType.UnableToSavePopup));
-      return;
+    } else {
+      dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
     }
-    dispatch(savePackageInfo(resourceId, attributionId, packageInfo));
   };
 }
 
@@ -88,18 +75,18 @@ export function unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
   attributionId: string,
   packageInfo: PackageInfo,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (dispatch, getState) => {
     if (getIsSavingDisabled(getState())) {
       dispatch(openPopup(PopupType.UnableToSavePopup));
-      return;
+    } else {
+      dispatch(
+        unlinkAttributionAndSavePackageInfo(
+          resourceId,
+          attributionId,
+          packageInfo,
+        ),
+      );
     }
-    dispatch(
-      unlinkAttributionAndSavePackageInfo(
-        resourceId,
-        attributionId,
-        packageInfo,
-      ),
-    );
   };
 }
 
@@ -108,115 +95,63 @@ export function savePackageInfo(
   attributionId: string | null,
   packageInfo: PackageInfo,
   isSavedPackageInactive?: boolean,
-  noReplace?: boolean,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (dispatch, getState) => {
     const strippedPackageInfo = getStrippedPackageInfo(packageInfo);
-    const state = getState();
-
-    if (
-      resourceId &&
-      getAttributionBreakpointCheckForState(state)(resourceId)
-    ) {
-      throw new Error(`${resourceId} is a breakpoint, saving not allowed`);
-    }
-
-    const saveOperation: SavePackageInfoOperation = getSavePackageInfoOperation(
-      attributionId,
-      resourceId,
-      strippedPackageInfo,
-      noReplace,
-      state,
+    const matchedPackageInfo = Object.values(
+      getManualAttributions(getState()),
+    ).find(
+      (attribution) =>
+        !attribution.preSelected &&
+        isEqual(getStrippedPackageInfo(attribution), strippedPackageInfo),
     );
 
-    switch (saveOperation) {
-      case SavePackageInfoOperation.Create:
-        dispatch(
-          createAttributionForSelectedResource(
-            strippedPackageInfo,
-            !isSavedPackageInactive,
-          ),
-        );
-        break;
-      case SavePackageInfoOperation.Update:
-        attributionId &&
-          dispatch(
-            updateAttribution(
-              attributionId,
-              strippedPackageInfo,
-              !isSavedPackageInactive,
-            ),
-          );
-        break;
-      case SavePackageInfoOperation.Delete:
-        attributionId && dispatch(deleteAttribution(attributionId));
-        break;
-      case SavePackageInfoOperation.Replace:
-        attributionId &&
-          dispatch(
-            replaceAttributionWithMatchingAttribution(
-              attributionId,
-              strippedPackageInfo,
-              !isSavedPackageInactive,
-            ),
-          );
-        break;
-      case SavePackageInfoOperation.Link:
-        resourceId &&
-          dispatch(linkToAttribution(resourceId, strippedPackageInfo));
-        break;
+    if (attributionId && isEmpty(strippedPackageInfo)) {
+      // DELETE
+      dispatch(deleteAttribution(attributionId));
+    } else if (matchedPackageInfo && attributionId) {
+      // REPLACE
+      dispatch(
+        replaceAttributionWithMatchingAttribution(
+          attributionId,
+          matchedPackageInfo.id,
+          !isSavedPackageInactive,
+        ),
+      );
+    } else if (matchedPackageInfo && resourceId) {
+      // LINK
+      dispatch(linkToAttribution(resourceId, matchedPackageInfo.id));
+    } else if (resourceId && !attributionId) {
+      // CREATE
+      dispatch(
+        createAttributionForSelectedResource(
+          packageInfo,
+          !isSavedPackageInactive,
+        ),
+      );
+    } else if (attributionId) {
+      // UPDATE
+      dispatch(
+        updateAttribution(attributionId, packageInfo, !isSavedPackageInactive),
+      );
     }
 
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     if (!isSavedPackageInactive) {
       dispatch(resetTemporaryDisplayPackageInfo());
     }
-    dispatch(
-      filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
-        attributionId,
-      ),
-    );
 
     dispatch(saveManualAndResolvedAttributionsToFile());
   };
 }
 
-function getSavePackageInfoOperation(
-  attributionId: string | null,
-  resourceId: string | null,
-  strippedPackageInfo: PackageInfo,
-  noReplace: boolean | undefined,
-  state: State,
-): SavePackageInfoOperation {
-  if (packageInfoHasNoSignificantFields(strippedPackageInfo)) {
-    return SavePackageInfoOperation.Delete;
-  }
-
-  if (
-    !noReplace &&
-    attributionForTemporaryDisplayPackageInfoExists(strippedPackageInfo, state)
-  ) {
-    return attributionId
-      ? SavePackageInfoOperation.Replace
-      : SavePackageInfoOperation.Link;
-  }
-
-  if (resourceId && !attributionId) {
-    return SavePackageInfoOperation.Create;
-  }
-
-  return SavePackageInfoOperation.Update;
-}
-
 export function saveManualAndResolvedAttributionsToFile(): AppThunkAction {
-  return (_: AppThunkDispatch, getState: () => State): void => {
-    const saveFileArgs: SaveFileArgs = {
+  return (_, getState) => {
+    window.electronAPI.saveFile({
       manualAttributions: getManualAttributions(getState()),
       resourcesToAttributions: getResourcesToManualAttributions(getState()),
       resolvedExternalAttributions: getResolvedExternalAttributions(getState()),
-    };
-
-    window.electronAPI.saveFile(saveFileArgs);
+    });
   };
 }
 
@@ -226,11 +161,11 @@ export function unlinkAttributionAndSavePackageInfo(
   packageInfo: PackageInfo,
   selectedAttributionId?: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const attributionsToResources: AttributionsToResources =
+  return (dispatch, getState) => {
+    const attributionsToResources =
       getManualAttributionsToResources(getState());
 
-    if (attributionsToResources[attributionId].length > 1) {
+    if (attributionsToResources[attributionId]?.length > 1) {
       dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
     }
 
@@ -250,16 +185,19 @@ export function unlinkAttributionAndSavePackageInfo(
 export function addToSelectedResource(
   packageInfo: PackageInfo,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (dispatch, getState) => {
     if (wereTemporaryDisplayPackageInfoModified(getState())) {
       dispatch(openPopup(PopupType.NotSavedPopup));
     } else {
       dispatch(
-        savePackageInfo(
-          getSelectedResourceId(getState()),
-          null,
-          getPackageInfoWithDefaultConfidence(packageInfo),
-        ),
+        savePackageInfo(getSelectedResourceId(getState()), null, {
+          ...packageInfo,
+          attributionConfidence: DiscreteConfidence.High,
+          comments:
+            (packageInfo.comments?.length ?? 0) > 1
+              ? undefined
+              : packageInfo.comments,
+        }),
       );
     }
   };
@@ -269,12 +207,12 @@ export function deleteAttributionGloballyAndSave(
   attributionId: string,
   selectedAttributionId?: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch): void => {
+  return (dispatch) => {
     dispatch(
       savePackageInfo(
         null,
         attributionId,
-        {},
+        { id: attributionId },
         selectedAttributionId
           ? attributionId !== selectedAttributionId
           : undefined,
@@ -288,8 +226,8 @@ export function deleteAttributionAndSave(
   attributionId: string,
   selectedAttributionId?: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const attributionsToResources: AttributionsToResources =
+  return (dispatch, getState) => {
+    const attributionsToResources =
       getManualAttributionsToResources(getState());
 
     if (attributionsToResources[attributionId].length > 1) {
@@ -308,41 +246,18 @@ export function deleteAttributionAndSave(
   };
 }
 
-function filterMultiSelectSelectedAttributionIdsIfAttributionWasRemoved(
-  attributionId: string | null,
-): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
-    const multiSelectSelectedAttributionIds =
-      getMultiSelectSelectedAttributionIds(getState());
-    const attributions: Attributions = getManualAttributions(getState());
-    if (
-      attributionId &&
-      !attributions[attributionId] &&
-      multiSelectSelectedAttributionIds.includes(attributionId)
-    ) {
-      dispatch(
-        setMultiSelectSelectedAttributionIds(
-          multiSelectSelectedAttributionIds.filter(
-            (id) => id !== attributionId,
-          ),
-        ),
-      );
-    }
-  };
-}
-
 function unlinkResourceFromAttributionAndSave(
   resourceId: string,
   attributionId: string,
   selectedAttributionId?: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch): void => {
+  return (dispatch) => {
     const differentAttributionIsDeleted = selectedAttributionId
       ? attributionId !== selectedAttributionId
       : undefined;
     dispatch(unlinkResourceFromAttribution(resourceId, attributionId));
 
-    dispatch(unlinkAttribtionsIfParentAttributionsAreIdentical(resourceId));
+    dispatch(unlinkAttributionsIfParentAttributionsAreIdentical(resourceId));
     dispatch(resetSelectedPackagePanelIfContainedAttributionWasRemoved());
     if (!differentAttributionIsDeleted) {
       dispatch(resetTemporaryDisplayPackageInfo());
@@ -351,10 +266,10 @@ function unlinkResourceFromAttributionAndSave(
   };
 }
 
-function unlinkAttribtionsIfParentAttributionsAreIdentical(
+function unlinkAttributionsIfParentAttributionsAreIdentical(
   resourceId: string,
 ): AppThunkAction {
-  return (dispatch: AppThunkDispatch, getState: () => State): void => {
+  return (dispatch, getState) => {
     const attributionsIdsForResource =
       getAttributionIdsOfSelectedResource(getState());
     const attributionIdsForClosestParent =
@@ -373,23 +288,27 @@ function unlinkAttribtionsIfParentAttributionsAreIdentical(
 }
 
 function createAttributionForSelectedResource(
-  strippedPackageInfo: PackageInfo,
+  packageInfo: PackageInfo,
   jumpToCreatedAttribution = true,
 ): CreateAttributionForSelectedResource {
   return {
     type: ACTION_CREATE_ATTRIBUTION_FOR_SELECTED_RESOURCE,
-    payload: { strippedPackageInfo, jumpToCreatedAttribution },
+    payload: { packageInfo, jumpToCreatedAttribution },
   };
 }
 
 function updateAttribution(
   attributionId: string,
-  strippedPackageInfo: PackageInfo,
+  packageInfo: PackageInfo,
   jumpToUpdatedAttribution = true,
 ): UpdateAttribution {
   return {
     type: ACTION_UPDATE_ATTRIBUTION,
-    payload: { attributionId, strippedPackageInfo, jumpToUpdatedAttribution },
+    payload: {
+      attributionId,
+      packageInfo,
+      jumpToUpdatedAttribution,
+    },
   };
 }
 
@@ -401,23 +320,27 @@ function deleteAttribution(attributionIdToDelete: string): DeleteAttribution {
 }
 
 function replaceAttributionWithMatchingAttribution(
-  attributionId: string,
-  strippedPackageInfo: PackageInfo,
+  attributionIdToReplace: string,
+  attributionIdToReplaceWith: string,
   jumpToMatchingAttribution = true,
 ): ReplaceAttributionWithMatchingAttributionAction {
   return {
     type: ACTION_REPLACE_ATTRIBUTION_WITH_MATCHING,
-    payload: { attributionId, strippedPackageInfo, jumpToMatchingAttribution },
+    payload: {
+      attributionIdToReplace,
+      attributionIdToReplaceWith,
+      jumpToMatchingAttribution,
+    },
   };
 }
 
 function linkToAttribution(
   resourceId: string,
-  strippedPackageInfo: PackageInfo,
+  attributionId: string,
 ): LinkToAttributionAction {
   return {
     type: ACTION_LINK_TO_ATTRIBUTION,
-    payload: { resourceId, strippedPackageInfo },
+    payload: { resourceId, attributionId },
   };
 }
 
@@ -429,15 +352,4 @@ function unlinkResourceFromAttribution(
     type: ACTION_UNLINK_RESOURCE_FROM_ATTRIBUTION,
     payload: { resourceId, attributionId },
   };
-}
-
-function getPackageInfoWithDefaultConfidence(
-  packageInfo: PackageInfo,
-): PackageInfo {
-  return isEmpty(packageInfo)
-    ? packageInfo
-    : {
-        ...packageInfo,
-        attributionConfidence: DiscreteConfidence.High,
-      };
 }

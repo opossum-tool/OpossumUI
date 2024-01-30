@@ -10,10 +10,9 @@ import { noop } from 'lodash';
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   FollowUp,
   FrequentLicenses,
-  Resources,
+  PackageInfo,
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../../../shared/shared-types';
@@ -35,10 +34,6 @@ import {
   getParsedInputFileEnrichedWithTestData,
 } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import {
-  convertDisplayPackageInfoToPackageInfo,
-  convertPackageInfoToDisplayPackageInfo,
-} from '../../../util/convert-package-info';
 import { generatePurl } from '../../../util/handle-purl';
 import { AttributionColumn } from '../AttributionColumn';
 
@@ -56,8 +51,8 @@ describe('The AttributionColumn', () => {
       licenseText: 'Permission is hereby granted',
       licenseName: 'Made up license name',
       url: 'www.1999.com',
-      attributionIds: [],
-    } satisfies DisplayPackageInfo;
+      id: faker.string.uuid(),
+    } satisfies PackageInfo;
     renderComponent(
       <AttributionColumn
         isEditable={true}
@@ -152,7 +147,7 @@ describe('The AttributionColumn', () => {
   it('copies PURL to clipboard', async () => {
     const writeText = jest.fn();
     (navigator.clipboard as unknown) = { writeText };
-    const packageInfo = faker.opossum.displayPackageInfo();
+    const packageInfo = faker.opossum.packageInfo();
     renderComponent(
       <AttributionColumn
         isEditable={true}
@@ -176,7 +171,7 @@ describe('The AttributionColumn', () => {
   });
 
   it('pastes PURL from clipboard', async () => {
-    const packageInfo = faker.opossum.displayPackageInfo();
+    const packageInfo = faker.opossum.packageInfo();
     const purl = generatePurl(packageInfo);
     const readText = jest.fn().mockReturnValue(purl.toString());
     (navigator.clipboard as unknown) = { readText };
@@ -210,9 +205,9 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a source name, if it is defined', () => {
-    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: PackageInfo = {
       source: faker.opossum.source(),
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     renderComponent(
       <AttributionColumn
@@ -237,11 +232,11 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders the name of the original source', () => {
-    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: PackageInfo = {
       source: faker.opossum.source({
         additionalName: faker.company.name(),
       }),
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
 
     renderComponent(
@@ -264,31 +259,31 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders original signal source for manual attributions', () => {
-    const [resourceName] = faker.opossum.resourceNames({ count: 1 });
-    const resources: Resources = faker.opossum.resources({
+    const resourceName = faker.opossum.resourceName();
+    const resources = faker.opossum.resources({
       [resourceName]: 1,
     });
-    const originId = faker.string.uuid();
-    const [externalAttributionId, externalPackageInfo] =
-      faker.opossum.externalAttribution({ originIds: [originId] });
-    const externalAttributions: Attributions =
-      faker.opossum.externalAttributions({
-        [externalAttributionId]: externalPackageInfo,
-      });
+    const source = faker.opossum.source();
+    const externalPackageInfo = faker.opossum.packageInfo({
+      originIds: [faker.string.uuid()],
+      source,
+    });
+    const externalAttributions = faker.opossum.attributions({
+      [externalPackageInfo.id]: externalPackageInfo,
+    });
     const resourcesToExternalAttributions: ResourcesToAttributions =
       faker.opossum.resourcesToAttributions({
-        [faker.opossum.folderPath(resourceName)]: [externalAttributionId],
+        [faker.opossum.folderPath(resourceName)]: [externalPackageInfo.id],
       });
-    const [manualAttributionId, manualPackageInfo] =
-      faker.opossum.manualAttribution({
-        originIds: externalPackageInfo.originIds,
-      });
-    const manualAttributions: Attributions = faker.opossum.manualAttributions({
-      [manualAttributionId]: manualPackageInfo,
+    const manualPackageInfo = faker.opossum.packageInfo({
+      originIds: externalPackageInfo.originIds,
+    });
+    const manualAttributions: Attributions = faker.opossum.attributions({
+      [manualPackageInfo.id]: manualPackageInfo,
     });
     const resourcesToManualAttributions: ResourcesToAttributions =
       faker.opossum.resourcesToAttributions({
-        [faker.opossum.folderPath(resourceName)]: [manualAttributionId],
+        [faker.opossum.folderPath(resourceName)]: [manualPackageInfo.id],
       });
 
     renderComponent(
@@ -311,20 +306,13 @@ describe('The AttributionColumn', () => {
               resourcesToExternalAttributions,
             }),
           ),
-          setTemporaryDisplayPackageInfo(
-            convertPackageInfoToDisplayPackageInfo(manualPackageInfo, [
-              manualAttributionId,
-            ]),
-          ),
+          setTemporaryDisplayPackageInfo(manualPackageInfo),
         ],
       },
     );
 
     expect(
-      screen.getByText(
-        text.attributionColumn.originallyFrom +
-          externalPackageInfo.source!.name,
-      ),
+      screen.getByText(text.attributionColumn.originallyFrom + source.name),
     ).toBeInTheDocument();
   });
 
@@ -406,12 +394,11 @@ describe('The AttributionColumn', () => {
 
   it('renders a chip for modified preferred and reverts to original state', async () => {
     const originId = faker.string.uuid();
-    const manualAttributionId = faker.opossum.attributionId();
-    const temporaryDisplayPackageInfo = faker.opossum.displayPackageInfo({
+    const temporaryDisplayPackageInfo = faker.opossum.packageInfo({
       originIds: [originId],
       wasPreferred: false,
     });
-    const [attributionId, packageInfo] = faker.opossum.externalAttribution({
+    const packageInfo = faker.opossum.packageInfo({
       originIds: [originId],
       wasPreferred: true,
     });
@@ -428,21 +415,19 @@ describe('The AttributionColumn', () => {
         actions: [
           setTemporaryDisplayPackageInfo(temporaryDisplayPackageInfo),
           setManualData(
-            faker.opossum.manualAttributions({
-              [manualAttributionId]: convertDisplayPackageInfoToPackageInfo(
-                temporaryDisplayPackageInfo,
-              ),
+            faker.opossum.attributions({
+              [temporaryDisplayPackageInfo.id]: temporaryDisplayPackageInfo,
             }),
             faker.opossum.resourcesToAttributions({
-              [faker.opossum.filePath()]: [manualAttributionId],
+              [faker.opossum.filePath()]: [temporaryDisplayPackageInfo.id],
             }),
           ),
           setExternalData(
-            faker.opossum.externalAttributions({
-              [attributionId]: packageInfo,
+            faker.opossum.attributions({
+              [packageInfo.id]: packageInfo,
             }),
             faker.opossum.resourcesToAttributions({
-              [faker.opossum.filePath()]: [attributionId],
+              [faker.opossum.filePath()]: [packageInfo.id],
             }),
           ),
         ],
@@ -461,9 +446,9 @@ describe('The AttributionColumn', () => {
   });
 
   it('renders a URL icon and opens a link in browser', () => {
-    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: PackageInfo = {
       url: 'https://www.testurl.com/',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     renderComponent(
       <AttributionColumn
@@ -487,9 +472,9 @@ describe('The AttributionColumn', () => {
   });
 
   it('opens a link without protocol', () => {
-    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: PackageInfo = {
       url: 'www.testurl.com',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     renderComponent(
       <AttributionColumn
@@ -512,9 +497,9 @@ describe('The AttributionColumn', () => {
   });
 
   it('hides url icon if empty url', () => {
-    const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const temporaryDisplayPackageInfo: PackageInfo = {
       url: '',
-      attributionIds: [],
+      id: faker.string.uuid(),
     };
     renderComponent(
       <AttributionColumn
@@ -535,9 +520,9 @@ describe('The AttributionColumn', () => {
 
   describe('there are different license text labels', () => {
     it('shows standard text if editable and non frequent license', () => {
-      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: PackageInfo = {
         packageName: 'jQuery',
-        attributionIds: [],
+        id: faker.string.uuid(),
       };
       renderComponent(
         <AttributionColumn
@@ -563,10 +548,10 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows shortened text if not editable and frequent license', () => {
-      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: PackageInfo = {
         packageName: 'jQuery',
         licenseName: 'Mit',
-        attributionIds: [],
+        id: faker.string.uuid(),
       };
       const frequentLicenses: FrequentLicenses = {
         nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
@@ -595,10 +580,10 @@ describe('The AttributionColumn', () => {
     });
 
     it('shows long text if editable and frequent license', () => {
-      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
+      const temporaryDisplayPackageInfo: PackageInfo = {
         packageName: 'jQuery',
         licenseName: 'mit',
-        attributionIds: [],
+        id: faker.string.uuid(),
       };
       const frequentLicenses: FrequentLicenses = {
         nameOrder: [{ shortName: 'MIT', fullName: 'MIT license' }],
@@ -660,12 +645,14 @@ describe('The AttributionColumn', () => {
 
   describe('The ResolveButton', () => {
     it('saves resolved external attributions', () => {
-      const temporaryDisplayPackageInfo: DisplayPackageInfo = {
-        attributionIds: ['TestId'],
+      const temporaryDisplayPackageInfo: PackageInfo = {
+        id: faker.string.uuid(),
       };
       const expectedSaveFileArgs: SaveFileArgs = {
         manualAttributions: {},
-        resolvedExternalAttributions: new Set<string>().add('TestId'),
+        resolvedExternalAttributions: new Set<string>().add(
+          temporaryDisplayPackageInfo.id,
+        ),
         resourcesToAttributions: {},
       };
       renderComponent(

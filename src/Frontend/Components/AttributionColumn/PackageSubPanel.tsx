@@ -11,12 +11,8 @@ import MuiBox from '@mui/material/Box';
 import { styled } from '@mui/system';
 import { useMemo } from 'react';
 
-import {
-  AutocompleteSignal,
-  DisplayPackageInfo,
-} from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -69,22 +65,22 @@ const DisplayRow = styled('div')({
 });
 
 interface PackageSubPanelProps {
-  displayPackageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
 }
 
 export function PackageSubPanel({
-  displayPackageInfo,
+  packageInfo,
   showHighlight,
   onEdit,
 }: PackageSubPanelProps) {
   const dispatch = useAppDispatch();
   const defaultPackageTypes = useMemo(
     () =>
-      COMMON_PACKAGE_TYPES.map<AutocompleteSignal>((packageType) => ({
-        attributionIds: [],
-        default: true,
+      COMMON_PACKAGE_TYPES.map<PackageInfo>((packageType) => ({
+        id: packageType,
+        synthetic: true,
         packageType,
         source: {
           name: text.attributionColumn.commonEcosystems,
@@ -94,7 +90,7 @@ export function PackageSubPanel({
     [],
   );
 
-  const debouncedPackageInfo = useDebouncedInput(displayPackageInfo);
+  const debouncedPackageInfo = useDebouncedInput(packageInfo);
 
   const { packageNames } = PackageSearchHooks.usePackageNames(
     debouncedPackageInfo,
@@ -183,7 +179,7 @@ export function PackageSubPanel({
   }
 
   function renderPurl(): React.ReactElement {
-    const purl = generatePurl(displayPackageInfo);
+    const purl = generatePurl(packageInfo);
 
     return (
       <TextBox
@@ -221,7 +217,7 @@ export function PackageSubPanel({
                 if (parsedPurl) {
                   dispatch(
                     setTemporaryDisplayPackageInfo({
-                      ...EMPTY_DISPLAY_PACKAGE_INFO,
+                      ...packageInfo,
                       packageName: parsedPurl.name,
                       packageVersion: parsedPurl.version ?? undefined,
                       packageType: parsedPurl.type,
@@ -258,18 +254,18 @@ export function PackageSubPanel({
               tooltipTitle={text.attributionColumn.getUrlAndLegal}
               tooltipPlacement={'left'}
               hidden={
-                !displayPackageInfo.packageName ||
-                !displayPackageInfo.packageType ||
+                !packageInfo.packageName ||
+                !packageInfo.packageType ||
                 !!(
-                  displayPackageInfo.url &&
-                  displayPackageInfo.copyright &&
-                  displayPackageInfo.licenseName
+                  packageInfo.url &&
+                  packageInfo.copyright &&
+                  packageInfo.licenseName
                 )
               }
               onClick={() =>
                 onEdit?.(async () => {
                   const enriched = await enrichPackageInfo({
-                    ...displayPackageInfo,
+                    ...packageInfo,
                     wasPreferred: undefined,
                   });
                   if (enriched) {
@@ -284,8 +280,8 @@ export function PackageSubPanel({
                 text.attributionColumn.packageSubPanel.openLinkInBrowser
               }
               tooltipPlacement={'left'}
-              onClick={() => openUrl(displayPackageInfo.url)}
-              hidden={!displayPackageInfo.url}
+              onClick={() => openUrl(packageInfo.url)}
+              hidden={!packageInfo.url}
               icon={
                 <OpenInNewIcon aria-label={'Url icon'} sx={clickableIcon} />
               }

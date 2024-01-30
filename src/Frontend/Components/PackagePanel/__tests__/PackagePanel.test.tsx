@@ -13,7 +13,6 @@ import { setExternalAttributionSources } from '../../../state/actions/resource-a
 import { loadFromFile } from '../../../state/actions/resource-actions/load-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { DisplayPackageInfos } from '../../../types/types';
 import { PackagePanel } from '../PackagePanel';
 
 describe('The PackagePanel', () => {
@@ -24,23 +23,23 @@ describe('The PackagePanel', () => {
       'Contained Signals-1',
       'Contained Signals-2',
     ];
-    const testDisplayPackageInfos: DisplayPackageInfos = {
+    const testDisplayPackageInfos: Attributions = {
       [testSortedPackageCardIds[0]]: {
         source: testSource,
         packageName: 'React',
         packageVersion: '16.5.0',
-        attributionIds: ['uuid1'],
+        id: testSortedPackageCardIds[0],
         count: 1,
       },
       [testSortedPackageCardIds[1]]: {
         source: testSource,
         packageName: 'JQuery',
-        attributionIds: ['uuid2'],
+        id: testSortedPackageCardIds[1],
         count: 1,
       },
       [testSortedPackageCardIds[2]]: {
         source: testSource,
-        attributionIds: ['uuid3'],
+        id: testSortedPackageCardIds[2],
         count: 1,
       },
     };
@@ -50,12 +49,14 @@ describe('The PackagePanel', () => {
         source: testSource,
         packageName: 'React',
         packageVersion: '16.5.0',
+        id: 'uuid1',
       },
       uuid2: {
         source: testSource,
         packageName: 'JQuery',
+        id: 'uuid2',
       },
-      uuid3: { source: testSource },
+      uuid3: { source: testSource, id: 'uuid3' },
     };
     renderComponent(
       <PackagePanel
@@ -86,23 +87,23 @@ describe('The PackagePanel', () => {
       'Contained Signals-1',
       'Contained Signals-2',
     ];
-    const testDisplayPackageInfos: DisplayPackageInfos = {
+    const testDisplayPackageInfos: Attributions = {
       [testSortedPackageCardIds[0]]: {
         source: { name: 'other', documentConfidence: 1 },
         packageName: 'React',
         packageVersion: '16.5.0',
-        attributionIds: ['uuid1'],
+        id: testSortedPackageCardIds[0],
         count: 1,
       },
       [testSortedPackageCardIds[1]]: {
         source: { name: 'SC', documentConfidence: 1 },
         packageName: 'JQuery',
-        attributionIds: ['uuid2'],
+        id: testSortedPackageCardIds[1],
         count: 1,
       },
       [testSortedPackageCardIds[2]]: {
         packageName: 'JQuery 2',
-        attributionIds: ['uuid3'],
+        id: testSortedPackageCardIds[2],
         count: 1,
       },
     };
@@ -112,13 +113,16 @@ describe('The PackagePanel', () => {
         source: { name: 'other', documentConfidence: 1 },
         packageName: 'React',
         packageVersion: '16.5.0',
+        id: 'uuid1',
       },
       uuid2: {
         source: { name: 'SC', documentConfidence: 1 },
         packageName: 'JQuery',
+        id: 'uuid2',
       },
       uuid3: {
         packageName: 'JQuery 2',
+        id: 'uuid3',
       },
     };
     const testAttributionSources: ExternalAttributionSources = {

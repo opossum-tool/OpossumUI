@@ -5,6 +5,7 @@
 import MuiBox from '@mui/material/Box';
 import { Fragment, ReactElement } from 'react';
 
+import { Attributions } from '../../../shared/shared-types';
 import { PackagePanelTitle } from '../../enums/enums';
 import { selectPackageCardInAuditViewOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { addToSelectedResource } from '../../state/actions/resource-actions/save-actions';
@@ -19,8 +20,7 @@ import {
   getResolvedExternalAttributions,
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
-import { DisplayPackageInfos, PackageCardConfig } from '../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
+import { PackageCardConfig } from '../../types/types';
 import { prettifySource } from '../../util/prettify-source';
 import { PackageCard } from '../PackageCard/PackageCard';
 import { PackageList } from '../PackageList/PackageList';
@@ -37,7 +37,7 @@ const classes = {
 };
 
 interface PackagePanelProps {
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
   sortedPackageCardIds: Array<string>;
   title: PackagePanelTitle;
   isAddToPackageEnabled: boolean;
@@ -85,11 +85,7 @@ export function PackagePanel(
   }
 
   function onAddAttributionClick(packageCardId: string): void {
-    const displayPackageInfo = props.displayPackageInfos[packageCardId];
-    const packageInfoToAdd =
-      convertDisplayPackageInfoToPackageInfo(displayPackageInfo);
-
-    dispatch(addToSelectedResource(packageInfoToAdd));
+    dispatch(addToSelectedResource(props.displayPackageInfos[packageCardId]));
   }
 
   function getPackageCard(packageCardId: string): ReactElement {
@@ -115,7 +111,10 @@ export function PackagePanel(
     const cardConfig: PackageCardConfig = {
       isSelected: packageCardId === selectedPackageCardId,
       isPreSelected: isPreselected,
-      isResolved: displayPackageInfo.attributionIds.every((attributionId) =>
+      isResolved: [
+        ...(displayPackageInfo.linkedAttributionIds ?? []),
+        displayPackageInfo.id,
+      ].every((attributionId) =>
         resolvedExternalAttributionIds.has(attributionId),
       ),
       isExternalAttribution,
@@ -132,7 +131,7 @@ export function PackagePanel(
         key={`PackageCard-${displayPackageInfo.packageName}-${packageCardId}`}
         packageCount={packageCount}
         cardId={`package-${selectedResourceId}-${packageCardId}`}
-        displayPackageInfo={displayPackageInfo}
+        packageInfo={displayPackageInfo}
         cardConfig={cardConfig}
         showOpenResourcesIcon={true}
       />

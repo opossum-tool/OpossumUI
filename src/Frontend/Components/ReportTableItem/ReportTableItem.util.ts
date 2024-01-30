@@ -2,28 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AttributionInfo } from '../../../shared/shared-types';
-import { PathPredicate } from '../../types/types';
-import { removeTrailingSlashIfFileWithChildren } from '../../util/remove-trailing-slash-if-file-with-children';
+import { PackageInfo } from '../../../shared/shared-types';
 import { TableConfig } from '../Table/TableConfig';
 
 export function getFormattedCellData(
   config: TableConfig,
-  attributionInfo: AttributionInfo,
-  isFileWithChildren: PathPredicate,
+  packageInfo: PackageInfo,
 ): string | number {
   let cellData: string | number;
   switch (config.attributionProperty) {
-    case 'resources':
-      cellData = attributionInfo[config.attributionProperty]
-        .map((resourcePath) =>
-          removeTrailingSlashIfFileWithChildren(
-            resourcePath,
-            isFileWithChildren,
-          ),
-        )
-        .join('\n');
-      break;
     case 'firstParty':
     case 'followUp':
     case 'preSelected':
@@ -31,20 +18,24 @@ export function getFormattedCellData(
     case 'excludeFromNotice':
     case 'preferred':
     case 'wasPreferred':
-      cellData = attributionInfo[config.attributionProperty] ? 'Yes' : 'No';
-      break;
-    case 'icons':
-      cellData = '';
+      cellData = packageInfo[config.attributionProperty] ? 'Yes' : 'No';
       break;
     case 'source':
-      cellData = attributionInfo[config.attributionProperty]?.name.trim() || '';
+      cellData = packageInfo[config.attributionProperty]?.name.trim() || '';
+      break;
+    case 'comments':
+      cellData = packageInfo[config.attributionProperty]?.join('') || '';
       break;
     case 'originIds':
     case 'preferredOverOriginIds':
+    case 'linkedAttributionIds':
+    case 'synthetic':
+    case 'icons':
+    case 'resources':
       cellData = '';
       break;
     default:
-      cellData = attributionInfo[config.attributionProperty] || '';
+      cellData = packageInfo[config.attributionProperty] || '';
       cellData = typeof cellData === 'string' ? cellData.trim() : cellData;
   }
 

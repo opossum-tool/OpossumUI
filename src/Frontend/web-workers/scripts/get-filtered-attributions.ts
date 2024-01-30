@@ -6,13 +6,11 @@ import { fromPairs, ListIterator, orderBy } from 'lodash';
 
 import {
   AttributionData,
-  DisplayPackageInfo,
+  Attributions,
   PackageInfo,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { Filter, FilterCounts, filters, Sorting } from '../../shared-constants';
-import { DisplayPackageInfos } from '../../types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { getCardLabels } from '../../util/get-card-labels';
 import { getNumericalCriticalityValue } from '../../util/get-package-sorter';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
@@ -67,15 +65,14 @@ export function getFilteredAttributions({
   manualData: AttributionData;
   sorting: Sorting;
   search: string;
-}): DisplayPackageInfos {
+}): Attributions {
   // Item is alphabetical if starts with a letter. Sort empty attributions to the end of the list.
-  const iteratees: Array<ListIterator<[string, DisplayPackageInfo], unknown>> =
-    [
-      ([, packageInfo]) => {
-        const title = getCardLabels(packageInfo)[0];
-        return title >= 'a' ? title : LARGEST_UNICODE_CHAR;
-      },
-    ];
+  const iteratees: Array<ListIterator<[string, PackageInfo], unknown>> = [
+    ([, packageInfo]) => {
+      const title = getCardLabels(packageInfo)[0];
+      return title >= 'a' ? title : LARGEST_UNICODE_CHAR;
+    },
+  ];
   const orders: Array<'asc' | 'desc'> = ['asc'];
 
   if (sorting === text.sortings.criticality) {
@@ -98,13 +95,13 @@ export function getFilteredAttributions({
               FILTER_FUNCTIONS[filter](manualData.attributions[attributionId]),
             ),
         )
-        .map<[string, DisplayPackageInfo]>(([attributionId, attribution]) => [
+        .map<[string, PackageInfo]>(([attributionId, attribution]) => [
           attributionId,
-          convertPackageInfoToDisplayPackageInfo(
-            attribution,
-            [attributionId],
-            manualData.attributionsToResources[attributionId]?.length ?? 0,
-          ),
+          {
+            ...attribution,
+            count:
+              manualData.attributionsToResources[attributionId]?.length ?? 0,
+          },
         ]),
       iteratees,
       orders,

@@ -2,31 +2,53 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Resources } from '../../../../../shared/shared-types';
+import {
+  Attributions,
+  ExternalAttributionSources,
+  Resources,
+  ResourcesToAttributions,
+  Source,
+} from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { getOriginIdsToPreferOver } from '../preference-actions';
 
 describe('getOriginIdsToPreferOver', () => {
   it('finds all external attributions in the subtree', () => {
-    const testSource = { name: 'testSource', documentConfidence: 100 };
+    const testSource: Source = { name: 'testSource', documentConfidence: 100 };
     const resources: Resources = {
       folder: { subfolder: { file1: 1 }, file2: 1 },
     };
     const pathToRootResource = '/folder/';
-    const resourcesToExternalAttributions = {
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/folder/': ['uuid0'],
       '/folder/subfolder/file1': ['uuid1'],
       '/folder/file2': ['uuid2'],
       '/': ['uuid3'],
     };
-    const resourcesToManualAttributions = {};
-    const externalAttributions = {
-      uuid0: { originIds: ['originUuid0'], source: testSource },
-      uuid1: { originIds: ['originUuid1'], source: testSource },
-      uuid2: { originIds: ['originUuid2'], source: testSource },
-      uuid3: { originIds: ['originUuid3'], source: testSource },
+    const resourcesToManualAttributions: ResourcesToAttributions = {};
+    const externalAttributions: Attributions = {
+      uuid0: {
+        originIds: ['originUuid0'],
+        source: testSource,
+        id: 'uuid0',
+      },
+      uuid1: {
+        originIds: ['originUuid1'],
+        source: testSource,
+        id: 'uuid1',
+      },
+      uuid2: {
+        originIds: ['originUuid2'],
+        source: testSource,
+        id: 'uuid2',
+      },
+      uuid3: {
+        originIds: ['originUuid3'],
+        source: testSource,
+        id: 'uuid3',
+      },
     };
-    const externalAttributionsSources = {
+    const externalAttributionsSources: ExternalAttributionSources = {
       testSource: {
         name: 'Test Source',
         priority: 0,
@@ -48,20 +70,28 @@ describe('getOriginIdsToPreferOver', () => {
   });
 
   it('combines and deduplicates origin ids', () => {
-    const testSource = { name: 'testSource', documentConfidence: 100 };
+    const testSource: Source = { name: 'testSource', documentConfidence: 100 };
     const resources: Resources = { file1: 1, file2: 1 };
     const pathToRootResource = '/';
-    const resourcesToExternalAttributions = {
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/file1': ['uuid1', 'uuid2'],
       '/file2': ['uuid2', 'uuid3'],
     };
-    const resourcesToManualAttributions = {};
-    const externalAttributions = {
-      uuid1: { originIds: ['originUuid1'], source: testSource },
-      uuid2: { originIds: ['originUuid2', 'originUuid3'], source: testSource },
-      uuid3: { originIds: ['originUuid3', 'originUuid4'], source: testSource },
+    const resourcesToManualAttributions: ResourcesToAttributions = {};
+    const externalAttributions: Attributions = {
+      uuid1: { originIds: ['originUuid1'], source: testSource, id: 'uuid1' },
+      uuid2: {
+        originIds: ['originUuid2', 'originUuid3'],
+        source: testSource,
+        id: 'uuid2',
+      },
+      uuid3: {
+        originIds: ['originUuid3', 'originUuid4'],
+        source: testSource,
+        id: 'uuid3',
+      },
     };
-    const externalAttributionsSources = {
+    const externalAttributionsSources: ExternalAttributionSources = {
       testSource: {
         name: 'Test Source',
         priority: 0,
@@ -88,19 +118,21 @@ describe('getOriginIdsToPreferOver', () => {
   });
 
   it('breaks on manual attributions', () => {
-    const testSource = { name: 'testSource', documentConfidence: 100 };
+    const testSource: Source = { name: 'testSource', documentConfidence: 100 };
     const resources: Resources = { folder: { file1: 1 } };
     const pathToRootResource = '/';
-    const resourcesToExternalAttributions = {
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/folder/': ['uuid0'],
       '/folder/file1': ['uuid1'],
     };
-    const resourcesToManualAttributions = { '/folder/file1': ['uuid2'] };
-    const externalAttributions = {
-      uuid0: { originIds: ['originUuid0'], source: testSource },
-      uuid1: { originIds: ['originUuid1'], source: testSource },
+    const resourcesToManualAttributions: ResourcesToAttributions = {
+      '/folder/file1': ['uuid2'],
     };
-    const externalAttributionsSources = {
+    const externalAttributions: Attributions = {
+      uuid0: { originIds: ['originUuid0'], source: testSource, id: 'uuid0' },
+      uuid1: { originIds: ['originUuid1'], source: testSource, id: 'uuid1' },
+    };
+    const externalAttributionsSources: ExternalAttributionSources = {
       testSource: {
         name: 'Test Source',
         priority: 0,
@@ -122,20 +154,30 @@ describe('getOriginIdsToPreferOver', () => {
   });
 
   it('only returns origin ids with sources relevant for preferred', () => {
-    const relevantSource = { name: 'relevantSource', documentConfidence: 100 };
-    const otherSource = { name: 'otherSource', documentConfidence: 100 };
+    const relevantSource: Source = {
+      name: 'relevantSource',
+      documentConfidence: 100,
+    };
+    const otherSource: Source = {
+      name: 'otherSource',
+      documentConfidence: 100,
+    };
     const resources: Resources = { file1: 1, file2: 1 };
     const pathToRootResource = '/';
-    const resourcesToExternalAttributions = {
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/file1': ['uuid1'],
       '/file2': ['uuid2'],
     };
-    const resourcesToManualAttributions = {};
-    const externalAttributions = {
-      uuid1: { originIds: ['originUuid1'], source: relevantSource },
-      uuid2: { originIds: ['originUuid2'], source: otherSource },
+    const resourcesToManualAttributions: ResourcesToAttributions = {};
+    const externalAttributions: Attributions = {
+      uuid1: {
+        originIds: ['originUuid1'],
+        source: relevantSource,
+        id: 'uuid1',
+      },
+      uuid2: { originIds: ['originUuid2'], source: otherSource, id: 'uuid2' },
     };
-    const externalAttributionsSources = {
+    const externalAttributionsSources: ExternalAttributionSources = {
       relevantSource: {
         name: 'Relevant Source',
         priority: 0,
@@ -178,9 +220,17 @@ describe('getOriginIdsToPreferOver', () => {
 
     const originUuid1 = faker.string.uuid();
     const originUuid2 = faker.string.uuid();
-    const externalAttributions = faker.opossum.externalAttributions({
-      [uuid1]: { originIds: [originUuid1], source: attributionSource },
-      [uuid2]: { originIds: [originUuid2], source: attributionSource },
+    const externalAttributions = faker.opossum.attributions({
+      [uuid1]: {
+        originIds: [originUuid1],
+        source: attributionSource,
+        id: uuid1,
+      },
+      [uuid2]: {
+        originIds: [originUuid2],
+        source: attributionSource,
+        id: uuid2,
+      },
     });
 
     const externalAttributionSource = faker.opossum.externalAttributionSource({

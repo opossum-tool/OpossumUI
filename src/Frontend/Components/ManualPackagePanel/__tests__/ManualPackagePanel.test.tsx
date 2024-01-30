@@ -30,8 +30,8 @@ describe('The ManualPackagePanel', () => {
           getParsedInputFileEnrichedWithTestData({
             resources: { file: 1 },
             manualAttributions: {
-              uuid1: { packageName: 'React' },
-              uuid2: { packageName: 'Angular' },
+              uuid1: { packageName: 'React', id: 'uuid1' },
+              uuid2: { packageName: 'Angular', id: 'uuid2' },
             },
             resourcesToManualAttributions: { '/file': ['uuid1'] },
           }),
@@ -68,17 +68,20 @@ describe('The ManualPackagePanel', () => {
     const testManualAttributions: Attributions = {
       uuid_1: {
         packageName: 'zz Test package',
+        id: 'uuid_1',
       },
       uuid_2: {
         attributionConfidence: 0,
-        comment: 'Some comment',
+        comments: ['Some comment'],
         packageName: 'Test package',
         packageVersion: '1.0',
         copyright: 'Copyright John Doe',
         licenseText: 'Some license text',
+        id: 'uuid_2',
       },
       uuid_3: {
         copyright: '(C) Copyright John Doe 2',
+        id: 'uuid_3',
       },
     };
     const testResourcesToManualAttributions = {

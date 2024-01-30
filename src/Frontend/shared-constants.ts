@@ -5,8 +5,8 @@
 import {
   AttributionData,
   DiscreteConfidence,
-  DisplayPackageInfo,
   FrequentLicenses,
+  PackageInfo,
   ProjectMetadata,
 } from '../shared/shared-types';
 import { text } from '../shared/text';
@@ -32,9 +32,9 @@ export const EMPTY_PROJECT_METADATA: ProjectMetadata = {
   fileCreationDate: '',
 };
 
-export const EMPTY_DISPLAY_PACKAGE_INFO: DisplayPackageInfo = {
+export const EMPTY_DISPLAY_PACKAGE_INFO: PackageInfo = {
   attributionConfidence: DiscreteConfidence.High,
-  attributionIds: [],
+  id: '',
 };
 
 export const ADD_NEW_ATTRIBUTION_BUTTON_ID = 'ADD_NEW_ATTRIBUTION_ID';

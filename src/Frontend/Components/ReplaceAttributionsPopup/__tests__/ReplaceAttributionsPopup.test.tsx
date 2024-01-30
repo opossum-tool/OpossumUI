@@ -27,24 +27,23 @@ import {
 } from '../../../state/selectors/attribution-view-resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { getStrippedPackageInfo } from '../../../util/get-stripped-package-info';
 import { ReplaceAttributionsPopup } from '../ReplaceAttributionsPopup';
 
 describe('ReplaceAttributionsPopup', () => {
   it('omits attributions to replace from list of attributions to replace with', () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
     renderComponent(<ReplaceAttributionsPopup />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
+            manualAttributions: faker.opossum.attributions({
+              [packageInfo1.id]: packageInfo1,
+              [packageInfo2.id]: packageInfo2,
             }),
           }),
         ),
-        setMultiSelectSelectedAttributionIds([attributionId1]),
+        setMultiSelectSelectedAttributionIds([packageInfo1.id]),
       ],
     });
 
@@ -71,21 +70,21 @@ describe('ReplaceAttributionsPopup', () => {
   });
 
   it('only displays search hits in list of attributions to replace with', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
-    const [attributionId3, packageInfo3] = faker.opossum.manualAttribution();
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
+    const packageInfo3 = faker.opossum.packageInfo();
     renderComponent(<ReplaceAttributionsPopup />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
-              [attributionId3]: packageInfo3,
+            manualAttributions: faker.opossum.attributions({
+              [packageInfo1.id]: packageInfo1,
+              [packageInfo2.id]: packageInfo2,
+              [packageInfo3.id]: packageInfo3,
             }),
           }),
         ),
-        setMultiSelectSelectedAttributionIds([attributionId1]),
+        setMultiSelectSelectedAttributionIds([packageInfo1.id]),
       ],
     });
 
@@ -107,28 +106,28 @@ describe('ReplaceAttributionsPopup', () => {
   });
 
   it('replaces selected attribution with non-pre-selected one', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
     const resourceName = faker.opossum.resourceName();
     const { store } = renderComponent(<ReplaceAttributionsPopup />, {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
+            manualAttributions: faker.opossum.attributions({
+              [packageInfo1.id]: packageInfo1,
+              [packageInfo2.id]: packageInfo2,
             }),
             resourcesToManualAttributions:
               faker.opossum.resourcesToAttributions({
                 [faker.opossum.filePath(resourceName)]: [
-                  attributionId1,
-                  attributionId2,
+                  packageInfo1.id,
+                  packageInfo2.id,
                 ],
               }),
           }),
         ),
-        setMultiSelectSelectedAttributionIds([attributionId1]),
-        setSelectedAttributionId(attributionId1),
+        setMultiSelectSelectedAttributionIds([packageInfo1.id]),
+        setSelectedAttributionId(packageInfo1.id),
       ],
     });
 
@@ -142,22 +141,22 @@ describe('ReplaceAttributionsPopup', () => {
     );
 
     expect(getManualAttributions(store.getState())).toEqual<Attributions>({
-      [attributionId2]: packageInfo2,
+      [packageInfo2.id]: packageInfo2,
     });
     expect(
       getResourcesToManualAttributions(store.getState()),
     ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName)]: [attributionId2],
+      [faker.opossum.filePath(resourceName)]: [packageInfo2.id],
     });
     expect(getSelectedAttributionIdInAttributionView(store.getState())).toBe(
-      attributionId2,
+      packageInfo2.id,
     );
     expect(getMultiSelectSelectedAttributionIds(store.getState())).toEqual([]);
   });
 
   it('replaces selected attribution with pre-selected one', async () => {
-    const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-    const [attributionId2, packageInfo2] = faker.opossum.manualAttribution({
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo({
       preSelected: true,
     });
     const resourceName = faker.opossum.resourceName();
@@ -165,21 +164,21 @@ describe('ReplaceAttributionsPopup', () => {
       actions: [
         loadFromFile(
           getParsedInputFileEnrichedWithTestData({
-            manualAttributions: faker.opossum.manualAttributions({
-              [attributionId1]: packageInfo1,
-              [attributionId2]: packageInfo2,
+            manualAttributions: faker.opossum.attributions({
+              [packageInfo1.id]: packageInfo1,
+              [packageInfo2.id]: packageInfo2,
             }),
             resourcesToManualAttributions:
               faker.opossum.resourcesToAttributions({
                 [faker.opossum.filePath(resourceName)]: [
-                  attributionId1,
-                  attributionId2,
+                  packageInfo1.id,
+                  packageInfo2.id,
                 ],
               }),
           }),
         ),
-        setMultiSelectSelectedAttributionIds([attributionId1]),
-        setSelectedAttributionId(attributionId1),
+        setMultiSelectSelectedAttributionIds([packageInfo1.id]),
+        setSelectedAttributionId(packageInfo1.id),
       ],
     });
 
@@ -193,15 +192,15 @@ describe('ReplaceAttributionsPopup', () => {
     );
 
     expect(getManualAttributions(store.getState())).toEqual<Attributions>({
-      [attributionId2]: getStrippedPackageInfo(packageInfo2),
+      [packageInfo2.id]: { ...packageInfo2, preSelected: undefined },
     });
     expect(
       getResourcesToManualAttributions(store.getState()),
     ).toEqual<ResourcesToAttributions>({
-      [faker.opossum.filePath(resourceName)]: [attributionId2],
+      [faker.opossum.filePath(resourceName)]: [packageInfo2.id],
     });
     expect(getSelectedAttributionIdInAttributionView(store.getState())).toBe(
-      attributionId2,
+      packageInfo2.id,
     );
     expect(getMultiSelectSelectedAttributionIds(store.getState())).toEqual([]);
   });

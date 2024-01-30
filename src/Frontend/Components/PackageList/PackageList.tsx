@@ -5,15 +5,15 @@
 import MuiTypography from '@mui/material/Typography';
 import { ReactElement, useMemo } from 'react';
 
+import { Attributions } from '../../../shared/shared-types';
 import { useAppSelector } from '../../state/hooks';
 import { getPackageSearchTerm } from '../../state/selectors/audit-view-resource-selectors';
-import { DisplayPackageInfos } from '../../types/types';
 import { packageInfoContainsSearchTerm } from '../../util/search-package-info';
 import { List } from '../List/List';
 import { PACKAGE_CARD_HEIGHT } from '../PackageCard/PackageCard';
 
 interface PackageListProps {
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
   sortedPackageCardIds: Array<string>;
   getAttributionCard(attributionId: string): ReactElement | null;
   maxNumberOfDisplayedItems?: number;

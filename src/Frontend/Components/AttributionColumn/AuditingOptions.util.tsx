@@ -13,7 +13,7 @@ import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfi
 import MuiRating from '@mui/material/Rating';
 import { useMemo } from 'react';
 
-import { DisplayPackageInfo, FollowUp } from '../../../shared/shared-types';
+import { FollowUp, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -24,8 +24,6 @@ import {
   getIsPreferenceFeatureEnabled,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/all-views-resource-selectors';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
-import { getStrippedPackageInfo } from '../../util/get-stripped-package-info';
 import { prettifySource } from '../../util/prettify-source';
 import { useUserSetting } from '../../util/use-user-setting';
 import {
@@ -49,7 +47,7 @@ export function useAuditingOptions({
   packageInfo,
   isEditable,
 }: {
-  packageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   isEditable: boolean;
 }) {
   const dispatch = useAppDispatch();
@@ -140,15 +138,7 @@ export function useAuditingOptions({
         interactive: !!originalPreferred,
         deleteIcon: <ReplayIcon aria-label={'undo modified preferred'} />,
         onDelete: originalPreferred
-          ? () =>
-              dispatch(
-                setTemporaryDisplayPackageInfo(
-                  convertPackageInfoToDisplayPackageInfo(
-                    getStrippedPackageInfo(originalPreferred),
-                    [],
-                  ),
-                ),
-              )
+          ? () => dispatch(setTemporaryDisplayPackageInfo(originalPreferred))
           : undefined,
       },
       {

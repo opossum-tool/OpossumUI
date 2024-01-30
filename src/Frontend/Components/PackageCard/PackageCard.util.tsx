@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { ReactElement } from 'react';
 
-import { DisplayPackageInfo } from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { HighlightingColor } from '../../enums/enums';
 import { ListCardConfig } from '../../types/types';
 import { isPackageInfoIncomplete } from '../../util/is-important-attribution-information-missing';
@@ -74,7 +74,7 @@ export function getRightIcons(
 }
 
 export function getPackageCardHighlighting(
-  packageInfo: DisplayPackageInfo,
+  packageInfo: PackageInfo,
 ): HighlightingColor | undefined {
   if (packageInfo.excludeFromNotice || packageInfo.firstParty) {
     return undefined;

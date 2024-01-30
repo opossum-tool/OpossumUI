@@ -2,13 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DisplayPackageInfo, PackageInfo } from '../../shared/shared-types';
+import { compact } from 'lodash';
+
+import { PackageInfo } from '../../shared/shared-types';
 
 export function getDisplayPackageInfoWithCountFromAttributions(
   attributionsWithIdsAndCounts: Array<
     [string, PackageInfo, number | undefined]
   >,
-): DisplayPackageInfo {
+): PackageInfo {
   const displayAttributionConfidences: Array<number> =
     attributionsWithIdsAndCounts.reduce(
       (filteredConfidences, attributionWithIdAndCount) => {
@@ -34,10 +36,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
 
   const comments: Array<string> = attributionsWithIdsAndCounts.reduce(
     (filteredComments, attributionWithIdAndCount) => {
-      const comment = attributionWithIdAndCount[1].comment || '';
-      if (comment !== '') {
-        filteredComments.push(comment);
-      }
+      filteredComments.push(...compact(attributionWithIdAndCount[1].comments));
       return filteredComments;
     },
     Array<string>(),
@@ -54,7 +53,7 @@ export function getDisplayPackageInfoWithCountFromAttributions(
   );
   const originIds: Array<string> = [...originIdsAsSet];
 
-  const attributionIds = attributionsWithIdsAndCounts.map(
+  const linkedAttributionIds = attributionsWithIdsAndCounts.map(
     (attributionWithIdAndCount) => attributionWithIdAndCount[0],
   );
   const atLeastOneAttributionWasPreferred = attributionsWithIdsAndCounts.some(
@@ -62,12 +61,9 @@ export function getDisplayPackageInfoWithCountFromAttributions(
       attributionWithIdAndCount[1].wasPreferred === true,
   );
 
-  const { comment, ...packageInfoWithoutComment } =
-    attributionsWithIdsAndCounts[0][1];
-
-  const attributionToShow: DisplayPackageInfo = {
-    ...packageInfoWithoutComment,
-    attributionIds,
+  const attributionToShow: PackageInfo = {
+    ...attributionsWithIdsAndCounts[0][1],
+    linkedAttributionIds,
   };
   if (displayAttributionConfidences.length > 0) {
     attributionToShow.attributionConfidence = Math.min(

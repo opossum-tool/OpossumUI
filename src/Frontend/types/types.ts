@@ -4,8 +4,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  Attributions,
   Criticality,
-  DisplayPackageInfo,
+  PackageInfo,
   SelectedCriticality,
 } from '../../shared/shared-types';
 import { PackagePanelTitle, PopupType } from '../enums/enums';
@@ -34,7 +35,7 @@ export interface ProgressBarData {
 export interface PanelPackage {
   panel: PackagePanelTitle;
   packageCardId: string;
-  displayPackageInfo: DisplayPackageInfo;
+  displayPackageInfo: PackageInfo;
 }
 
 export interface PackageCardConfig {
@@ -76,13 +77,13 @@ export interface PopupInfo {
 
 export interface PanelData {
   sortedPackageCardIds: Array<string>;
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
 }
 
 export interface DisplayPackageInfosWithCountAndResourceId {
   resourceId: string;
   sortedPackageCardIds: Array<string>;
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
 }
 
 export interface ProgressBarDataAndResourceId {
@@ -114,10 +115,6 @@ export type ProgressBarType = 'FolderProgressBar' | 'TopProgressBar';
 export interface AttributionIdWithCount {
   attributionId: string;
   count?: number;
-}
-
-export interface DisplayPackageInfos {
-  [id: string]: DisplayPackageInfo;
 }
 
 export interface LocatePopupFilters {

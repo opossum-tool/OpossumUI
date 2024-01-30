@@ -7,10 +7,10 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { faker } from '../../../../testing/Faker';
 import { View } from '../../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/attribution-view-simple-actions';
@@ -19,19 +19,18 @@ import { navigateToView } from '../../../state/actions/view-actions/view-actions
 import { getManualAttributions } from '../../../state/selectors/all-views-resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { AttributionDetailsViewer } from '../AttributionDetailsViewer';
 
 describe('The AttributionDetailsViewer', () => {
   it('renders TextBoxes with right titles and content', () => {
-    const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+    const testTemporaryDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       comments: ['some comment'],
       packageName: 'Some package',
       packageVersion: '16.5.0',
       copyright: 'Copyright Doe 2019',
       licenseText: 'Permission is hereby granted',
-      attributionIds: [],
+      id: 'test_id',
     };
     const { store } = renderComponent(<AttributionDetailsViewer />);
     act(() => {
@@ -91,11 +90,10 @@ describe('The AttributionDetailsViewer', () => {
     const expectedPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageName: 'React',
+      id: 'uuid_1',
     };
     const testManualAttributions: Attributions = {
-      uuid_1: {
-        packageName: 'JQuery',
-      },
+      uuid_1: faker.opossum.packageInfo(),
     };
     const { store } = renderComponent(<AttributionDetailsViewer />);
     act(() => {
@@ -108,13 +106,7 @@ describe('The AttributionDetailsViewer', () => {
       );
       store.dispatch(navigateToView(View.Attribution));
       store.dispatch(setSelectedAttributionId('uuid_1'));
-      store.dispatch(
-        setTemporaryDisplayPackageInfo(
-          convertPackageInfoToDisplayPackageInfo(expectedPackageInfo, [
-            'uuid_1',
-          ]),
-        ),
-      );
+      store.dispatch(setTemporaryDisplayPackageInfo(expectedPackageInfo));
     });
     expect(screen.getByDisplayValue('React')).toBeInTheDocument();
 

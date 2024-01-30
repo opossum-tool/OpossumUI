@@ -2,16 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ExternalAttributionSources } from '../../../shared/shared-types';
-import { DisplayPackageInfos } from '../../types/types';
+import {
+  Attributions,
+  ExternalAttributionSources,
+} from '../../../shared/shared-types';
 
 export function getPackageCardIdsAndDisplayPackageInfosForSource(
-  displayPackageInfos: DisplayPackageInfos,
+  displayPackageInfos: Attributions,
   sortedPackageCardIds: Array<string>,
   sourceName: string | null,
-): [Array<string>, DisplayPackageInfos] {
+): [Array<string>, Attributions] {
   const filteredAndSortedPackageCardIds: Array<string> = [];
-  const filteredDisplayPackageInfos: DisplayPackageInfos = {};
+  const filteredDisplayPackageInfos: Attributions = {};
 
   sortedPackageCardIds.forEach((packageCardId) => {
     if (
@@ -27,7 +29,7 @@ export function getPackageCardIdsAndDisplayPackageInfosForSource(
 }
 
 export function getSortedSourcesFromDisplayPackageInfosWithCount(
-  displayPackageInfos: DisplayPackageInfos,
+  displayPackageInfos: Attributions,
   attributionSources: ExternalAttributionSources,
 ): Array<string | null> {
   const sourceNames = new Set<string | null>();

@@ -28,7 +28,9 @@ describe('The AggregatedAttributionsPanel', () => {
     const testExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
-      comment: 'ManualPackage',
+      comments: ['ManualPackage'],
+      id: 'uuid_1',
+      linkedAttributionIds: ['uuid_2'],
     };
     const testExternalAttributions: Attributions = {
       uuid_1: testExternalAttribution,
@@ -71,7 +73,9 @@ describe('The AggregatedAttributionsPanel', () => {
     const testExternalAttribution: PackageInfo = {
       packageName: 'jQuery',
       packageVersion: '16.0.0',
-      comment: 'ManualPackage',
+      comments: ['ManualPackage'],
+      id: 'uuid_1',
+      linkedAttributionIds: ['uuid_2'],
     };
     const testExternalAttributions: Attributions = {
       uuid_1: testExternalAttribution,

@@ -12,7 +12,6 @@ import {
   Criticality,
   DiscreteConfidence,
   FollowUp,
-  PackageInfo,
   ParsedFileContent,
 } from '../../../shared/shared-types';
 import { writeFile, writeOpossumFile } from '../../../shared/write-file';
@@ -138,6 +137,7 @@ const expectedFileContent: ParsedFileContent = {
         preferred: true,
         preferredOverOriginIds: ['test-id'],
         wasPreferred: true,
+        id: externalAttributionUuid,
       },
     },
     resourcesToAttributions: {
@@ -160,13 +160,6 @@ const expectedFileContent: ParsedFileContent = {
     SC: { name: 'ScanCode', priority: 1000 },
     OTHERSOURCE: { name: 'Crystal ball', priority: 2 },
   },
-};
-
-const validAttribution: PackageInfo = {
-  packageName: 'Package',
-  packageVersion: '1.0',
-  licenseText: 'MIT',
-  followUp: 'FOLLOW_UP',
 };
 
 const validMetadata = {
@@ -217,7 +210,12 @@ describe('Test of loading function', () => {
     const attributions: OpossumOutputFile = {
       metadata: validMetadata,
       manualAttributions: {
-        [testUuid]: validAttribution,
+        [testUuid]: {
+          packageName: 'Package',
+          packageVersion: '1.0',
+          licenseText: 'MIT',
+          followUp: 'FOLLOW_UP',
+        },
       },
       resourcesToAttributions: {
         '/path/1': [testUuid],
@@ -325,7 +323,12 @@ describe('Test of loading function', () => {
     const attributions: OpossumOutputFile = {
       metadata: validMetadata,
       manualAttributions: {
-        [testUuid]: validAttribution,
+        [testUuid]: {
+          packageName: 'Package',
+          packageVersion: '1.0',
+          licenseText: 'MIT',
+          followUp: 'FOLLOW_UP',
+        },
       },
       resourcesToAttributions: {
         '/path/1': [testUuid],
@@ -430,10 +433,11 @@ describe('Test of loading function', () => {
             [manualAttributionUuid]: {
               packageName: 'my app',
               packageVersion: '1.2.3',
-              comment: 'some comment',
+              comments: ['some comment'],
               copyright: '(c) first party',
               preSelected: true,
               attributionConfidence: DiscreteConfidence.Low,
+              id: manualAttributionUuid,
             },
           },
           resourcesToAttributions: {
@@ -452,9 +456,10 @@ describe('Test of loading function', () => {
               copyright: '(c) first party',
               preSelected: true,
               attributionConfidence: 17,
-              comment: 'some comment',
+              comments: ['some comment'],
               preferred: true,
               preferredOverOriginIds: ['test-id'],
+              id: externalAttributionUuid,
             },
           },
           resourcesToAttributions: {
@@ -573,6 +578,7 @@ describe('Test of loading function', () => {
             }),
             packageName: 'react',
             originIds: ['abc', 'def'],
+            id: 'uuid',
           },
         },
         resourcesToAttributions: {
@@ -599,6 +605,7 @@ function assertFileLoadedCorrectly(testUuid: string): void {
           packageVersion: '1.0',
           licenseText: 'MIT',
           followUp: FollowUp,
+          id: testUuid,
         },
       },
       resourcesToAttributions: {

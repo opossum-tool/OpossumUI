@@ -28,7 +28,6 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { PanelPackage } from '../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../util/convert-package-info';
 import { hasAttributionMultipleResources } from '../../util/has-attribution-multiple-resources';
 import { getAttributionBreakpointCheck } from '../../util/is-attribution-breakpoint';
 import { AttributionColumn } from '../AttributionColumn/AttributionColumn';
@@ -63,7 +62,7 @@ export function ResourceDetailsAttributionColumn(
         unlinkAttributionAndSavePackageInfo(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+          temporaryDisplayPackageInfo,
         ),
       );
     }
@@ -77,7 +76,7 @@ export function ResourceDetailsAttributionColumn(
         savePackageInfo(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+          temporaryDisplayPackageInfo,
         ),
       );
     }
@@ -141,7 +140,7 @@ export function ResourceDetailsAttributionColumn(
         unlinkAttributionAndSavePackageInfoIfSavingIsNotDisabled(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+          temporaryDisplayPackageInfo,
         ),
       );
     } else {
@@ -149,7 +148,7 @@ export function ResourceDetailsAttributionColumn(
         savePackageInfoIfSavingIsNotDisabled(
           selectedResourceId,
           attributionIdOfSelectedPackageInManualPanel,
-          convertDisplayPackageInfoToPackageInfo(temporaryDisplayPackageInfo),
+          temporaryDisplayPackageInfo,
         ),
       );
     }

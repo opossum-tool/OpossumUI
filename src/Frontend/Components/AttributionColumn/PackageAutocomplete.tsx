@@ -12,11 +12,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { compact } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
-import {
-  AutocompleteSignal,
-  DisplayPackageInfo,
-  PackageInfo,
-} from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { clickableIcon } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -53,7 +49,7 @@ interface Props {
   attribute: AutocompleteAttribute;
   highlight?: 'default' | 'dark';
   endAdornment?: React.ReactElement;
-  defaults?: Array<AutocompleteSignal>;
+  defaults?: Array<PackageInfo>;
   disabled: boolean;
   showHighlight: boolean | undefined;
   onEdit?: Confirm;
@@ -205,7 +201,7 @@ export function PackageAutocomplete({
     />
   );
 
-  function renderOptionStartIcon(option: AutocompleteSignal) {
+  function renderOptionStartIcon(option: PackageInfo) {
     if (!option.count) {
       return null;
     }
@@ -245,7 +241,7 @@ export function PackageAutocomplete({
   }
 
   function renderOptionEndIcon(
-    option: AutocompleteSignal,
+    option: PackageInfo,
     { closePopper }: { closePopper: () => void },
   ) {
     if (!option.packageName || !option.packageType) {
@@ -261,14 +257,8 @@ export function PackageAutocomplete({
         <AddIconButton
           onClick={async (event) => {
             event.stopPropagation();
-            const merged: DisplayPackageInfo = {
-              ...omit(option, [
-                'count',
-                'default',
-                'preSelected',
-                'source',
-                'suffix',
-              ]),
+            const merged: PackageInfo = {
+              ...omit(option, ['preSelected', 'source']),
               ...pick(temporaryPackageInfo, [
                 'attributionConfidence',
                 'excludeFromNotice',
@@ -279,7 +269,8 @@ export function PackageAutocomplete({
             };
             dispatch(
               setTemporaryDisplayPackageInfo(
-                (option.default && (await enrichPackageInfo(merged))) || merged,
+                (option.synthetic && (await enrichPackageInfo(merged))) ||
+                  merged,
               ),
             );
             closePopper();

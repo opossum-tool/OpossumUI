@@ -7,12 +7,10 @@ import { base, en, Faker as NativeFaker } from '@faker-js/faker';
 import path from 'path';
 
 import type {
-  RawPackageInfo as ExternalPackageInfo,
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   RawFrequentLicense,
 } from '../ElectronBackend/types/types';
-import { convertPackageInfoToDisplayPackageInfo } from '../Frontend/util/convert-package-info';
 import { HttpClient } from '../Frontend/util/http-client';
 import {
   AdvisorySuggestion,
@@ -38,20 +36,22 @@ import {
 import { PackageSearchHooks } from '../Frontend/util/package-search-hooks';
 import {
   AttributionData,
+  Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
   DiscreteConfidence,
-  DisplayPackageInfo,
   ExternalAttributionSource,
   ExternalAttributionSources,
+  PackageInfo,
   ProjectMetadata,
+  RawAttributions,
+  RawPackageInfo,
   Resources,
   ResourcesToAttributions,
   ResourcesWithAttributedChildren,
   Source,
 } from '../shared/shared-types';
 
-type ManualPackageInfo = Omit<ExternalPackageInfo, 'source'>;
 type Tuple<N extends number, T> = N extends N
   ? number extends N
     ? Array<T>
@@ -84,7 +84,7 @@ class OpossumModule {
     count: N;
   }): Tuple<N, string> {
     return faker.helpers
-      .multiple(this.resourceName, {
+      .multiple(OpossumModule.resourceName, {
         count,
       })
       .sort() as Tuple<N, string>;
@@ -93,7 +93,7 @@ class OpossumModule {
   public static resources(props?: Resources): Resources {
     return (
       props || {
-        [this.resourceName()]: 1,
+        [OpossumModule.resourceName()]: 1,
       }
     );
   }
@@ -110,9 +110,9 @@ class OpossumModule {
     return `Copyright (c) ${name}`;
   }
 
-  public static manualPackageInfo(
-    props: Partial<ManualPackageInfo> = {},
-  ): ManualPackageInfo {
+  public static rawPackageInfo(
+    props: Partial<RawPackageInfo> = {},
+  ): RawPackageInfo {
     return {
       attributionConfidence: faker.number.int({
         min: DiscreteConfidence.Low + 1,
@@ -121,70 +121,51 @@ class OpossumModule {
       copyright: OpossumModule.copyright(),
       licenseName: faker.commerce.productName(),
       packageName: faker.internet.domainWord(),
-      packageVersion: faker.system.semver(),
-      url: faker.internet.url(),
       packageType: faker.commerce.productMaterial().toLowerCase(),
+      packageVersion: faker.system.semver(),
+      source: OpossumModule.source(),
+      url: faker.internet.url(),
       ...props,
     };
   }
 
-  public static displayPackageInfo({
-    attributionIds,
-    comments,
-    count,
-    ...props
-  }: Partial<DisplayPackageInfo> = {}): DisplayPackageInfo {
+  public static packageInfo(props: Partial<PackageInfo> = {}): PackageInfo {
     return {
-      ...convertPackageInfoToDisplayPackageInfo(
-        this.manualPackageInfo(props),
-        attributionIds || [faker.string.uuid()],
-        count,
-      ),
-      comments,
+      attributionConfidence: faker.number.int({
+        min: DiscreteConfidence.Low + 1,
+        max: DiscreteConfidence.High - 1,
+      }),
+      copyright: OpossumModule.copyright(),
+      id: faker.string.uuid(),
+      licenseName: faker.commerce.productName(),
+      packageName: faker.internet.domainWord(),
+      packageType: faker.commerce.productMaterial().toLowerCase(),
+      packageVersion: faker.system.semver(),
+      url: faker.internet.url(),
+      ...props,
     };
   }
 
-  public static externalPackageInfo(
-    props: Partial<ExternalPackageInfo> = {},
-  ): ExternalPackageInfo {
-    return {
-      source: this.source(),
-      ...this.manualPackageInfo(props),
-    };
+  public static rawAttribution(
+    props?: Partial<RawPackageInfo>,
+  ): [attributionId: string, attribution: RawPackageInfo] {
+    return [faker.string.uuid(), OpossumModule.rawPackageInfo(props)];
   }
 
-  public static attributionId(): string {
-    return faker.string.uuid();
-  }
-
-  public static manualAttribution(
-    props?: Partial<ManualPackageInfo>,
-  ): [attributionId: string, attribution: ManualPackageInfo] {
-    return [this.attributionId(), this.manualPackageInfo(props)];
-  }
-
-  public static manualAttributions(
-    props?: Record<string, ManualPackageInfo>,
-  ): Record<string, ManualPackageInfo> {
+  public static rawAttributions(props?: RawAttributions): RawAttributions {
+    const [attributionId, attribution] = OpossumModule.rawAttribution();
     return (
       props || {
-        [this.attributionId()]: this.manualPackageInfo(),
+        [attributionId]: attribution,
       }
     );
   }
 
-  public static externalAttribution(
-    props?: Partial<ExternalPackageInfo>,
-  ): [attributionId: string, attribution: ExternalPackageInfo] {
-    return [this.attributionId(), this.externalPackageInfo(props)];
-  }
-
-  public static externalAttributions(
-    props?: Record<string, ExternalPackageInfo>,
-  ): Record<string, ExternalPackageInfo> {
+  public static attributions(props?: Attributions): Attributions {
+    const packageInfo = OpossumModule.packageInfo();
     return (
       props || {
-        [this.attributionId()]: this.externalPackageInfo(),
+        [packageInfo.id]: packageInfo,
       }
     );
   }
@@ -247,10 +228,10 @@ class OpossumModule {
   public static externalAttributionSources(
     props?: ExternalAttributionSources,
   ): ExternalAttributionSources {
-    const source = this.externalAttributionSource();
+    const source = OpossumModule.externalAttributionSource();
     return {
       ...(props || {
-        [source.name]: this.externalAttributionSource(),
+        [source.name]: OpossumModule.externalAttributionSource(),
       }),
     };
   }
@@ -272,7 +253,7 @@ class OpossumModule {
     props: Partial<ParsedOpossumInputFile> = {},
   ): ParsedOpossumInputFile {
     return {
-      metadata: this.metadata(),
+      metadata: OpossumModule.metadata(),
       resources: {},
       externalAttributions: {},
       resourcesToAttributions: {},
@@ -284,7 +265,7 @@ class OpossumModule {
     props: Partial<ParsedOpossumOutputFile> = {},
   ): ParsedOpossumOutputFile {
     return {
-      metadata: this.metadata(),
+      metadata: OpossumModule.metadata(),
       manualAttributions: {},
       resourcesToAttributions: {},
       resolvedExternalAttributions: new Set([]),
@@ -307,10 +288,11 @@ class OpossumModule {
     props: Partial<AttributionData> = {},
   ): AttributionData {
     return {
-      attributions: this.manualAttributions(),
-      attributionsToResources: this.attributionsToResources(),
-      resourcesToAttributions: this.resourcesToAttributions(),
-      resourcesWithAttributedChildren: this.resourcesWithAttributedChildren(),
+      attributions: OpossumModule.attributions(),
+      attributionsToResources: OpossumModule.attributionsToResources(),
+      resourcesToAttributions: OpossumModule.resourcesToAttributions(),
+      resourcesWithAttributedChildren:
+        OpossumModule.resourcesWithAttributedChildren(),
       ...props,
     };
   }
@@ -319,10 +301,11 @@ class OpossumModule {
     props: Partial<AttributionData> = {},
   ): AttributionData {
     return {
-      attributions: this.externalAttributions(),
-      attributionsToResources: this.attributionsToResources(),
-      resourcesToAttributions: this.resourcesToAttributions(),
-      resourcesWithAttributedChildren: this.resourcesWithAttributedChildren(),
+      attributions: OpossumModule.attributions(),
+      attributionsToResources: OpossumModule.attributionsToResources(),
+      resourcesToAttributions: OpossumModule.resourcesToAttributions(),
+      resourcesWithAttributedChildren:
+        OpossumModule.resourcesWithAttributedChildren(),
       ...props,
     };
   }

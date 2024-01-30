@@ -15,7 +15,6 @@ import {
   getManualAttributions,
 } from '../../state/selectors/all-views-resource-selectors';
 import { getMultiSelectSelectedAttributionIds } from '../../state/selectors/attribution-view-resource-selectors';
-import { convertPackageInfoToDisplayPackageInfo } from '../../util/convert-package-info';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { List } from '../List/List';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -90,10 +89,7 @@ export function ConfirmMultiSelectDeletionPopup() {
                 cardConfig={{
                   isPreSelected: attribution.preSelected,
                 }}
-                displayPackageInfo={convertPackageInfoToDisplayPackageInfo(
-                  attribution,
-                  [],
-                )}
+                packageInfo={attribution}
               />
             );
           }}

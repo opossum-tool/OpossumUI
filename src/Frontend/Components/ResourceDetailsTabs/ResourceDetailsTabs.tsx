@@ -29,7 +29,6 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/audit-view-resource-selectors';
 import { useSignalSorting } from '../../state/variables/use-active-sorting';
-import { DisplayPackageInfos } from '../../types/types';
 import { createPackageCardId } from '../../util/create-package-card-id';
 import { getDisplayPackageInfoWithCountFromAttributions } from '../../util/get-display-attributions-with-count-from-attributions';
 import { AggregatedAttributionsPanel } from '../AggregatedAttributionsPanel/AggregatedAttributionsPanel';
@@ -232,7 +231,7 @@ function getAssignableManualAttributionIdsAndDisplayPackageInfos(
   attributionIdsOfSelectedResource: Array<string>,
 ): {
   assignableManualAttributionIds: Array<string>;
-  displayPackageInfos: DisplayPackageInfos;
+  displayPackageInfos: Attributions;
 } {
   const assignableManualAttributionIds: Array<string> = remove(
     Object.keys(manualAttributions),
@@ -240,7 +239,7 @@ function getAssignableManualAttributionIdsAndDisplayPackageInfos(
       !attributionIdsOfSelectedResource.includes(attributionId),
   );
 
-  const displayPackageInfos: DisplayPackageInfos = {};
+  const displayPackageInfos: Attributions = {};
   assignableManualAttributionIds.forEach((attributionId, index) => {
     const packageCardId = createPackageCardId(
       PackagePanelTitle.AllAttributions,

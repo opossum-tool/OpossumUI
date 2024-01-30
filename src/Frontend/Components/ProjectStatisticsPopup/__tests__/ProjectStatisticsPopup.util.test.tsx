@@ -37,6 +37,7 @@ const testAttributions_1: Attributions = {
     licenseName: 'Apache License Version 2.0',
     firstParty: true,
     needsReview: true,
+    id: 'uuid1',
   },
   uuid2: {
     source: {
@@ -45,6 +46,7 @@ const testAttributions_1: Attributions = {
     },
     criticality: Criticality.High,
     licenseName: 'Apache License Version 2.0',
+    id: 'uuid2',
   },
   uuid3: {
     source: {
@@ -54,6 +56,7 @@ const testAttributions_1: Attributions = {
     licenseName: ' Apache license version-2.0 ',
     followUp: FollowUp,
     needsReview: true,
+    id: 'uuid3',
   },
   uuid4: {
     source: {
@@ -61,6 +64,7 @@ const testAttributions_1: Attributions = {
       documentConfidence: 90,
     },
     licenseName: ' The-MIT-License (MIT) ',
+    id: 'uuid4',
   },
   uuid5: {
     source: {
@@ -68,6 +72,7 @@ const testAttributions_1: Attributions = {
       documentConfidence: 10,
     },
     licenseName: 'The MIT License (MIT)',
+    id: 'uuid5',
   },
   uuid6: {
     source: {
@@ -76,6 +81,7 @@ const testAttributions_1: Attributions = {
     },
     licenseName: 'The MIT License (MIT)',
     firstParty: true,
+    id: 'uuid6',
   },
   uuid7: {
     source: {
@@ -84,6 +90,7 @@ const testAttributions_1: Attributions = {
     },
     licenseName: 'The MIT License (MIT)',
     firstParty: true,
+    id: 'uuid7',
   },
 };
 
@@ -95,6 +102,7 @@ const testAttributions_2: Attributions = {
     },
     criticality: Criticality.Medium,
     licenseName: 'Apache License Version 2.0',
+    id: 'uuid1',
   },
   uuid2: {
     source: {
@@ -103,6 +111,7 @@ const testAttributions_2: Attributions = {
     },
     criticality: Criticality.Medium,
     licenseName: 'The MIT License (MIT)',
+    id: 'uuid2',
   },
   uuid3: {
     source: {
@@ -110,6 +119,7 @@ const testAttributions_2: Attributions = {
       documentConfidence: 90,
     },
     licenseName: 'apache license version-2.0 ',
+    id: 'uuid3',
   },
   uuid4: {
     source: {
@@ -118,6 +128,7 @@ const testAttributions_2: Attributions = {
     },
     criticality: Criticality.Medium,
     licenseName: 'Apache License Version 2.0',
+    id: 'uuid4',
   },
   uuid5: {
     source: {
@@ -125,6 +136,7 @@ const testAttributions_2: Attributions = {
       documentConfidence: 10,
     },
     licenseName: 'The MIT License (MIT)',
+    id: 'uuid5',
   },
 };
 
@@ -220,9 +232,9 @@ describe('getLicenseNameVariants', () => {
     const gpl2 = 'GPL-2.0';
     const gpl2variant1 = 'gpl 2.0';
     const testAttributions: Attributions = {
-      uuid1: { licenseName: gpl2 },
-      uuid2: { licenseName: gpl2variant1 },
-      uuid3: { licenseName: 'something else' },
+      uuid1: { licenseName: gpl2, id: 'uuid1' },
+      uuid2: { licenseName: gpl2variant1, id: 'uuid2' },
+      uuid3: { licenseName: 'something else', id: 'uuid3' },
     };
     const expectedLicenseNameVariants = new Set([gpl2, gpl2variant1]);
 

@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { AutocompleteSignal } from '../../../../shared/shared-types';
+import { PackageInfo } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { convertPackageInfoToDisplayPackageInfo } from '../../../util/convert-package-info';
 import { getAutocompleteSignals } from '../get-autocomplete-signals';
 
 describe('getAutocompleteSignals', () => {
@@ -13,28 +12,28 @@ describe('getAutocompleteSignals', () => {
       faker.opossum.resourceNames({
         count: 4,
       });
-    const [attributionId1, attribution1] = faker.opossum.externalAttribution();
-    const [attributionId2, attribution2] = faker.opossum.externalAttribution({
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo({
       packageType: undefined,
     });
-    const [attributionId3, attribution3] = faker.opossum.externalAttribution();
+    const packageInfo3 = faker.opossum.packageInfo();
 
     const signals = getAutocompleteSignals({
       externalData: faker.opossum.externalAttributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.folderPath(resourceName1)]: [attributionId1],
+          [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
-            attributionId1,
+            packageInfo1.id,
           ],
           [faker.opossum.filePath(resourceName1, resourceName3)]: [
-            attributionId2,
+            packageInfo2.id,
           ],
-          [faker.opossum.folderPath(resourceName4)]: [attributionId3],
+          [faker.opossum.folderPath(resourceName4)]: [packageInfo3.id],
         }),
-        attributions: faker.opossum.externalAttributions({
-          [attributionId1]: attribution1,
-          [attributionId2]: attribution2,
-          [attributionId3]: attribution3,
+        attributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
+          [packageInfo3.id]: packageInfo3,
         }),
         resourcesWithAttributedChildren:
           faker.opossum.resourcesWithAttributedChildren({
@@ -60,8 +59,8 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(1);
-    expect(signals).toEqual<Array<AutocompleteSignal>>([
-      convertPackageInfoToDisplayPackageInfo(attribution1, [], 2),
+    expect(signals).toEqual<Array<PackageInfo>>([
+      { ...packageInfo1, count: 2 },
     ]);
   });
 
@@ -69,20 +68,20 @@ describe('getAutocompleteSignals', () => {
     const [resourceName1, resourceName2] = faker.opossum.resourceNames({
       count: 2,
     });
-    const [attributionId1, attribution1] = faker.opossum.externalAttribution({
+    const packageInfo1 = faker.opossum.packageInfo({
       preferred: true,
     });
 
     const signals = getAutocompleteSignals({
       externalData: faker.opossum.externalAttributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.folderPath(resourceName1)]: [attributionId1],
+          [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
-            attributionId1,
+            packageInfo1.id,
           ],
         }),
-        attributions: faker.opossum.externalAttributions({
-          [attributionId1]: attribution1,
+        attributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
         }),
         resourcesWithAttributedChildren:
           faker.opossum.resourcesWithAttributedChildren({
@@ -113,23 +112,23 @@ describe('getAutocompleteSignals', () => {
       faker.opossum.resourceNames({
         count: 3,
       });
-    const [attributionId1, attribution1] = faker.opossum.externalAttribution();
-    const [attributionId2, attribution2] = faker.opossum.externalAttribution();
+    const packageInfo1 = faker.opossum.packageInfo();
+    const packageInfo2 = faker.opossum.packageInfo();
 
     const signals = getAutocompleteSignals({
       externalData: faker.opossum.externalAttributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.folderPath(resourceName1)]: [attributionId1],
+          [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
-            attributionId1,
+            packageInfo1.id,
           ],
           [faker.opossum.filePath(resourceName1, resourceName3)]: [
-            attributionId2,
+            packageInfo2.id,
           ],
         }),
-        attributions: faker.opossum.externalAttributions({
-          [attributionId1]: attribution1,
-          [attributionId2]: attribution2,
+        attributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
         }),
         resourcesWithAttributedChildren:
           faker.opossum.resourcesWithAttributedChildren({
@@ -155,9 +154,9 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<AutocompleteSignal>>([
-      convertPackageInfoToDisplayPackageInfo(attribution1, [], 2),
-      convertPackageInfoToDisplayPackageInfo(attribution2, [], 1),
+    expect(signals).toEqual<Array<PackageInfo>>([
+      { ...packageInfo1, count: 2 },
+      { ...packageInfo2, count: 1 },
     ]);
   });
 
@@ -165,24 +164,24 @@ describe('getAutocompleteSignals', () => {
     const [resourceName1, resourceName2] = faker.opossum.resourceNames({
       count: 2,
     });
-    const [attributionId1, attribution1] = faker.opossum.externalAttribution({
+    const packageInfo1 = faker.opossum.packageInfo({
       wasPreferred: false,
     });
-    const [attributionId2, attribution2] = faker.opossum.externalAttribution({
+    const packageInfo2 = faker.opossum.packageInfo({
       wasPreferred: true,
     });
 
     const signals = getAutocompleteSignals({
       externalData: faker.opossum.externalAttributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.folderPath(resourceName1)]: [attributionId1],
+          [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
-            attributionId2,
+            packageInfo2.id,
           ],
         }),
-        attributions: faker.opossum.externalAttributions({
-          [attributionId1]: attribution1,
-          [attributionId2]: attribution2,
+        attributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
         }),
         resourcesWithAttributedChildren:
           faker.opossum.resourcesWithAttributedChildren({
@@ -206,9 +205,9 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<AutocompleteSignal>>([
-      convertPackageInfoToDisplayPackageInfo(attribution2, [], 1),
-      convertPackageInfoToDisplayPackageInfo(attribution1, [], 1),
+    expect(signals).toEqual<Array<PackageInfo>>([
+      { ...packageInfo2, count: 1 },
+      { ...packageInfo1, count: 1 },
     ]);
   });
 
@@ -218,24 +217,24 @@ describe('getAutocompleteSignals', () => {
     const [resourceName1, resourceName2] = faker.opossum.resourceNames({
       count: 2,
     });
-    const [attributionId1, attribution1] = faker.opossum.externalAttribution({
+    const packageInfo1 = faker.opossum.packageInfo({
       source: faker.opossum.source({ name: source1.name }),
     });
-    const [attributionId2, attribution2] = faker.opossum.externalAttribution({
+    const packageInfo2 = faker.opossum.packageInfo({
       source: faker.opossum.source({ name: source2.name }),
     });
 
     const signals = getAutocompleteSignals({
       externalData: faker.opossum.externalAttributionData({
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
-          [faker.opossum.folderPath(resourceName1)]: [attributionId1],
+          [faker.opossum.folderPath(resourceName1)]: [packageInfo1.id],
           [faker.opossum.filePath(resourceName1, resourceName2)]: [
-            attributionId2,
+            packageInfo2.id,
           ],
         }),
-        attributions: faker.opossum.externalAttributions({
-          [attributionId1]: attribution1,
-          [attributionId2]: attribution2,
+        attributions: faker.opossum.attributions({
+          [packageInfo1.id]: packageInfo1,
+          [packageInfo2.id]: packageInfo2,
         }),
         resourcesWithAttributedChildren:
           faker.opossum.resourcesWithAttributedChildren({
@@ -262,9 +261,9 @@ describe('getAutocompleteSignals', () => {
     });
 
     expect(signals).toHaveLength(2);
-    expect(signals).toEqual<Array<AutocompleteSignal>>([
-      convertPackageInfoToDisplayPackageInfo(attribution2, [], 1),
-      convertPackageInfoToDisplayPackageInfo(attribution1, [], 1),
+    expect(signals).toEqual<Array<PackageInfo>>([
+      { ...packageInfo2, count: 1 },
+      { ...packageInfo1, count: 1 },
     ]);
   });
 });

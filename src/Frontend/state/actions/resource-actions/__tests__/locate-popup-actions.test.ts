@@ -23,6 +23,7 @@ describe('The locatePopup actions', () => {
         packageName: 'react',
         criticality: Criticality.High,
         licenseName: 'GPL-2.0',
+        id: 'uuid1',
       },
     };
     const testResourcesToExternalAttributions: ResourcesToAttributions = {

@@ -40,11 +40,13 @@ describe('writeSpdxFile', () => {
         packageVersion: '1.1',
         licenseText: 'test license text',
         licenseName: 'license name',
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'second-test-Package',
         packageVersion: '2.1',
         packageType: 'npm',
+        id: 'uuid_2',
       },
     };
 

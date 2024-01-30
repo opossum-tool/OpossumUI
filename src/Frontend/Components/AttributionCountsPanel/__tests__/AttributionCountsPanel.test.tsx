@@ -23,21 +23,23 @@ describe('The Attribution Counts Panel', () => {
   const testManualAttributions: Attributions = {
     [testManualUuid]: {
       attributionConfidence: 0,
-      comment: 'Some comment',
+      comments: ['Some comment'],
       packageName: 'Test package',
       packageVersion: '1.0',
       copyright: 'Copyright John Doe',
       licenseText: 'Some license text',
       firstParty: true,
+      id: testManualUuid,
     },
     [testOtherManualUuid]: {
       attributionConfidence: 0,
-      comment: 'Some other comment',
+      comments: ['Some other comment'],
       packageName: '',
       packageVersion: '2.0',
       copyright: 'other Copyright John Doe',
       licenseText: 'Some other license text',
       followUp: FollowUp,
+      id: testOtherManualUuid,
     },
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {

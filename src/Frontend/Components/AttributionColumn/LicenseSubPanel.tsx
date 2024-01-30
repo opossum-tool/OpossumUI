@@ -11,10 +11,7 @@ import MuiInputAdornment from '@mui/material/InputAdornment';
 import { sortBy } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 
-import {
-  AutocompleteSignal,
-  DisplayPackageInfo,
-} from '../../../shared/shared-types';
+import { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
@@ -66,13 +63,13 @@ const classes = {
 };
 
 interface LicenseSubPanelProps {
-  displayPackageInfo: DisplayPackageInfo;
+  packageInfo: PackageInfo;
   showHighlight?: boolean;
   onEdit?: Confirm;
 }
 
 export function LicenseSubPanel({
-  displayPackageInfo,
+  packageInfo,
   showHighlight,
   onEdit,
 }: LicenseSubPanelProps): ReactElement {
@@ -82,18 +79,16 @@ export function LicenseSubPanel({
   const defaultLicenses = useMemo(
     () =>
       sortBy(
-        frequentLicensesNames.map<AutocompleteSignal>(
-          ({ fullName, shortName }) => ({
-            attributionIds: [],
-            default: true,
-            licenseName: fullName,
-            source: {
-              documentConfidence: 100,
-              name: text.attributionColumn.commonLicenses,
-            },
-            suffix: `(${shortName})`,
-          }),
-        ),
+        frequentLicensesNames.map<PackageInfo>(({ fullName, shortName }) => ({
+          id: shortName,
+          synthetic: true,
+          licenseName: fullName,
+          source: {
+            documentConfidence: 100,
+            name: text.attributionColumn.commonLicenses,
+          },
+          suffix: `(${shortName})`,
+        })),
         ({ licenseName }) => licenseName?.toLowerCase(),
       ),
     [frequentLicensesNames],
@@ -126,7 +121,7 @@ export function LicenseSubPanel({
             showHighlight={showHighlight}
             onEdit={onEdit}
             endAdornment={
-              displayPackageInfo.licenseText ? (
+              packageInfo.licenseText ? (
                 <MuiInputAdornment position="end" sx={classes.endAdornment}>
                   {text.attributionColumn.licenseTextModified}
                 </MuiInputAdornment>
@@ -143,16 +138,16 @@ export function LicenseSubPanel({
             maxRows={10}
             multiline={true}
             title={getLicenseTextLabelText(
-              displayPackageInfo.licenseName,
+              packageInfo.licenseName,
               !!onEdit,
               frequentLicensesNames,
             )}
-            text={displayPackageInfo.licenseText}
+            text={packageInfo.licenseText}
             handleChange={({ target: { value } }) =>
               onEdit?.(() =>
                 dispatch(
                   setTemporaryDisplayPackageInfo({
-                    ...displayPackageInfo,
+                    ...packageInfo,
                     licenseText: value,
                     wasPreferred: undefined,
                   }),

@@ -105,7 +105,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
     !temporaryDisplayPackageInfo.excludeFromNotice;
 
   const selectedPackageIsResolved = selectedPackagesAreResolved(
-    temporaryDisplayPackageInfo.attributionIds,
+    [
+      temporaryDisplayPackageInfo.id,
+      ...(temporaryDisplayPackageInfo.linkedAttributionIds ?? []),
+    ],
     resolvedExternalAttributions,
   );
 
@@ -137,7 +140,7 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
           ) : (
             <ButtonRow
               areButtonsHidden={props.areButtonsHidden}
-              displayPackageInfo={temporaryDisplayPackageInfo}
+              packageInfo={temporaryDisplayPackageInfo}
               hideDeleteButtons={props.hideDeleteButtons}
               onDeleteButtonClick={props.onDeleteButtonClick}
               onDeleteGloballyButtonClick={props.onDeleteGloballyButtonClick}
@@ -158,7 +161,10 @@ export function AttributionColumn(props: AttributionColumnProps): ReactElement {
         value={'check'}
         selected={selectedPackageIsResolved}
         onChange={getResolvedToggleHandler(
-          temporaryDisplayPackageInfo.attributionIds,
+          [
+            temporaryDisplayPackageInfo.id,
+            ...(temporaryDisplayPackageInfo.linkedAttributionIds ?? []),
+          ],
           resolvedExternalAttributions,
           dispatch,
         )}

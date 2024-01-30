@@ -12,10 +12,7 @@ import {
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { PackagePanelTitle } from '../../../enums/enums';
-import {
-  AttributionIdWithCount,
-  DisplayPackageInfos,
-} from '../../../types/types';
+import { AttributionIdWithCount } from '../../../types/types';
 import {
   getContainedManualDisplayPackageInfosWithCount,
   getExternalDisplayPackageInfosWithCount,
@@ -30,8 +27,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
 
   it('merges attributions with same hash', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'Typescript' },
-      uuid2: { packageName: 'Typescript' },
+      uuid1: { packageName: 'Typescript', id: 'uuid1' },
+      uuid2: { packageName: 'Typescript', id: 'uuid2' },
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {
       uuid1: 'a',
@@ -39,11 +36,12 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
     };
 
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
-        attributionIds: ['uuid1', 'uuid2'],
+        linkedAttributionIds: ['uuid1', 'uuid2'],
         packageName: 'Typescript',
         count: 3,
+        id: 'uuid1',
       },
     };
 
@@ -60,8 +58,8 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
 
   it('does not merge attributions without hash', () => {
     const testAttributions: Attributions = {
-      uuid1: { packageName: 'Typescript' },
-      uuid2: { packageName: 'Typescript' },
+      uuid1: { packageName: 'Typescript', id: 'uuid1' },
+      uuid2: { packageName: 'Typescript', id: 'uuid2' },
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {};
 
@@ -69,16 +67,18 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       `${testPackagePanelTitle}-0`,
       `${testPackagePanelTitle}-1`,
     ];
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
         count: 3,
         packageName: 'Typescript',
-        attributionIds: ['uuid1'],
+        id: 'uuid1',
+        linkedAttributionIds: ['uuid1'],
       },
       [expectedPackageCardIds[1]]: {
         count: 2,
         packageName: 'Typescript',
-        attributionIds: ['uuid2'],
+        id: 'uuid2',
+        linkedAttributionIds: ['uuid2'],
       },
     };
 
@@ -95,19 +95,20 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
 
   it('keeps the minimum confidence in the merged attribution', () => {
     const testAttributions: Attributions = {
-      uuid1: { attributionConfidence: 20 },
-      uuid2: { attributionConfidence: 80 },
+      uuid1: { attributionConfidence: 20, id: 'uuid1' },
+      uuid2: { attributionConfidence: 80, id: 'uuid2' },
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {
       uuid1: 'a',
       uuid2: 'a',
     };
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        attributionIds: ['uuid1', 'uuid2'],
+        linkedAttributionIds: ['uuid1', 'uuid2'],
         attributionConfidence: 20,
+        id: 'uuid1',
       },
     };
 
@@ -130,10 +131,10 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       { attributionId: 'uuid4' },
     ];
     const testAttributions: Attributions = {
-      uuid1: { comment: 'comment A' },
-      uuid2: { comment: 'comment B' },
-      uuid3: {},
-      uuid4: { comment: '' },
+      uuid1: { comments: ['comment A'], id: 'uuid1' },
+      uuid2: { comments: ['comment B'], id: 'uuid2' },
+      uuid3: { id: 'uuid3' },
+      uuid4: { comments: [''], id: 'uuid4' },
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {
       uuid1: 'a',
@@ -142,11 +143,12 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       uuid4: 'a',
     };
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
         count: 0,
-        attributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
+        linkedAttributionIds: ['uuid1', 'uuid2', 'uuid3', 'uuid4'],
         comments: ['comment A', 'comment B'],
+        id: 'uuid1',
       },
     };
 
@@ -163,19 +165,20 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
 
   it('merges originIds, de-duplicating them', () => {
     const testAttributions: Attributions = {
-      uuid1: { originIds: ['uuid3', 'uuid4'] },
-      uuid2: { originIds: ['uuid3', 'uuid5'] },
+      uuid1: { originIds: ['uuid3', 'uuid4'], id: 'uuid1' },
+      uuid2: { originIds: ['uuid3', 'uuid5'], id: 'uuid2' },
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {
       uuid1: 'a',
       uuid2: 'a',
     };
     const expectedPackageCardIds = [`${testPackagePanelTitle}-0`];
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        attributionIds: ['uuid1', 'uuid2'],
+        linkedAttributionIds: ['uuid1', 'uuid2'],
         originIds: ['uuid3', 'uuid4', 'uuid5'],
+        id: 'uuid1',
       },
     };
 
@@ -197,9 +200,9 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       { attributionId: 'uuidNotToMerge', count: 1 },
     ];
     const testAttributions: Attributions = {
-      uuidToMerge1: { packageName: 'Typescript' },
-      uuidToMerge2: { packageName: 'Typescript' },
-      uuidNotToMerge: { packageName: 'React' },
+      uuidToMerge1: { packageName: 'Typescript', id: 'uuidToMerge1' },
+      uuidToMerge2: { packageName: 'Typescript', id: 'uuidToMerge2' },
+      uuidNotToMerge: { packageName: 'React', id: 'uuidNotToMerge' },
     };
     const testExternalAttributionsToHashes: AttributionsToHashes = {
       uuidToMerge1: 'a',
@@ -211,16 +214,18 @@ describe('getExternalDisplayPackageInfosWithCount', () => {
       `${testPackagePanelTitle}-0`,
     ];
 
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
         count: 3,
-        attributionIds: ['uuidToMerge1', 'uuidToMerge2'],
+        linkedAttributionIds: ['uuidToMerge1', 'uuidToMerge2'],
         packageName: 'Typescript',
+        id: 'uuidToMerge1',
       },
       [expectedPackageCardIds[1]]: {
         count: 1,
-        attributionIds: ['uuidNotToMerge'],
+        linkedAttributionIds: ['uuidNotToMerge'],
         packageName: 'React',
+        id: 'uuidNotToMerge',
       },
     };
 
@@ -243,12 +248,15 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
     const testAttributions: Attributions = {
       uuid_1: {
         packageName: 'React',
+        id: 'uuid_1',
       },
       uuid_2: {
         packageName: 'Vue',
+        id: 'uuid_2',
       },
       uuid_3: {
         packageName: 'Angular',
+        id: 'uuid_3',
       },
     };
     const testResourcesToAttributions: ResourcesToAttributions = {
@@ -273,21 +281,24 @@ describe('getContainedManualDisplayPackageInfosWithCount', () => {
       `${testPackagePanelTitle}-0`,
     ];
 
-    const expectedDisplayPackageInfos: DisplayPackageInfos = {
+    const expectedDisplayPackageInfos: Attributions = {
       [expectedPackageCardIds[0]]: {
         count: 2,
         packageName: 'Vue',
-        attributionIds: ['uuid_2'],
+        linkedAttributionIds: ['uuid_2'],
+        id: 'uuid_2',
       },
       [expectedPackageCardIds[1]]: {
         count: 1,
         packageName: 'Angular',
-        attributionIds: ['uuid_3'],
+        linkedAttributionIds: ['uuid_3'],
+        id: 'uuid_3',
       },
       [expectedPackageCardIds[2]]: {
         count: 1,
         packageName: 'React',
-        attributionIds: ['uuid_1'],
+        linkedAttributionIds: ['uuid_1'],
+        id: 'uuid_1',
       },
     };
 

@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { PackageInfoCore } from '../../shared/shared-types';
+import { PackageInfo } from '../../shared/shared-types';
 
 export function packageInfoContainsSearchTerm(
-  attribution: PackageInfoCore,
+  attribution: PackageInfo,
   searchTerm: string,
 ): boolean {
   return Boolean(
@@ -31,7 +31,7 @@ export function packageInfoContainsSearchTerm(
 }
 
 export function licenseNameContainsSearchTerm(
-  attribution: PackageInfoCore,
+  attribution: PackageInfo,
   searchTerm: string,
 ): boolean {
   return Boolean(

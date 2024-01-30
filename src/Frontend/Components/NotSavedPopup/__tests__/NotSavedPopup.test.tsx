@@ -66,7 +66,7 @@ describe('NotSavedPopup and do not change view', () => {
         ...getActions(),
         setTemporaryDisplayPackageInfo({
           packageName: 'test name',
-          attributionIds: [],
+          id: 'abc',
         }),
       ],
     });
@@ -74,7 +74,7 @@ describe('NotSavedPopup and do not change view', () => {
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
-      attributionIds: [],
+      id: 'abc',
     });
 
     fireEvent.click(screen.getByText(ButtonText.Discard));
@@ -118,7 +118,7 @@ describe('NotSavedPopup and change view', () => {
         ...getActions(View.Attribution),
         setTemporaryDisplayPackageInfo({
           packageName: 'test name',
-          attributionIds: [],
+          id: 'abc',
         }),
       ],
     });
@@ -126,7 +126,7 @@ describe('NotSavedPopup and change view', () => {
     expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
       packageName: 'test name',
-      attributionIds: [],
+      id: 'abc',
     });
 
     fireEvent.click(screen.getByText(ButtonText.Discard));

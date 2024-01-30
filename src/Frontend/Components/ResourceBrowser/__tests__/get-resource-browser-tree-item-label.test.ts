@@ -3,7 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  Attributions,
   Criticality,
+  ResourcesToAttributions,
   ResourcesWithAttributedChildren,
 } from '../../../../shared/shared-types';
 import {
@@ -13,15 +15,15 @@ import {
 
 describe('Tree item labels', () => {
   it('checks resource getCriticality', () => {
-    const resourcesToExternalAttributions = {
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
       '/test_file1.ts': ['attr1', 'attr2'],
       '/test_file2.ts': ['attr3'],
       '/test_file3.ts': ['attr2', 'attr3'],
     };
-    const externalAttributions = {
-      attr1: { criticality: Criticality.High },
-      attr2: { criticality: Criticality.Medium },
-      attr3: {},
+    const externalAttributions: Attributions = {
+      attr1: { criticality: Criticality.High, id: 'attr1' },
+      attr2: { criticality: Criticality.Medium, id: 'attr2' },
+      attr3: { id: 'attr3' },
     };
     const expectedCriticalities: {
       [resource: string]: Criticality | undefined;

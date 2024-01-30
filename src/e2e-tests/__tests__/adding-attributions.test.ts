@@ -13,17 +13,17 @@ const [
   resourceName5,
   resourceName6,
 ] = faker.opossum.resourceNames({ count: 6 });
-const [attributionId1, packageInfo1] = faker.opossum.manualAttribution();
-const [attributionId2, packageInfo2] = faker.opossum.manualAttribution();
-const [attributionId3, packageInfo3] = faker.opossum.manualAttribution();
-const [attributionId4a, packageInfo4a] = faker.opossum.externalAttribution({
+const [attributionId1, packageInfo1] = faker.opossum.rawAttribution();
+const [attributionId2, packageInfo2] = faker.opossum.rawAttribution();
+const [attributionId3, packageInfo3] = faker.opossum.rawAttribution();
+const [attributionId4a, packageInfo4a] = faker.opossum.rawAttribution({
   comment: faker.lorem.sentence(),
 });
-const [attributionId4b, packageInfo4b] = faker.opossum.externalAttribution({
+const [attributionId4b, packageInfo4b] = faker.opossum.rawAttribution({
   ...packageInfo4a,
   comment: faker.lorem.sentence(),
 });
-const [attributionId5, packageInfo5] = faker.opossum.externalAttribution();
+const [attributionId5, packageInfo5] = faker.opossum.rawAttribution();
 
 test.use({
   data: {
@@ -35,7 +35,7 @@ test.use({
         [resourceName5]: { [resourceName6]: 1 },
       }),
       attributionBreakpoints: [faker.opossum.folderPath(resourceName5)],
-      externalAttributions: faker.opossum.externalAttributions({
+      externalAttributions: faker.opossum.rawAttributions({
         [attributionId4a]: packageInfo4a,
         [attributionId4b]: packageInfo4b,
         [attributionId5]: packageInfo5,
@@ -49,7 +49,7 @@ test.use({
       }),
     }),
     outputData: faker.opossum.outputData({
-      manualAttributions: faker.opossum.manualAttributions({
+      manualAttributions: faker.opossum.rawAttributions({
         [attributionId1]: packageInfo1,
         [attributionId2]: packageInfo2,
         [attributionId3]: packageInfo3,
@@ -119,7 +119,6 @@ test('adds attribution and displays it correctly on parent and children', async 
     ...packageInfo4a,
     comment: undefined,
     comments: [packageInfo4a.comment!, packageInfo4b.comment!],
-    attributionIds: [attributionId4a, attributionId4b],
   });
 
   await resourceDetails.signalCard.addButton(packageInfo4a).click();

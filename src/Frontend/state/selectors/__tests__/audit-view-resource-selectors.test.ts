@@ -5,7 +5,6 @@
 import {
   Attributions,
   DiscreteConfidence,
-  DisplayPackageInfo,
   PackageInfo,
   ResourcesToAttributions,
 } from '../../../../shared/shared-types';
@@ -16,7 +15,6 @@ import {
 } from '../../../shared-constants';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { PanelPackage } from '../../../types/types';
-import { convertDisplayPackageInfoToPackageInfo } from '../../../util/convert-package-info';
 import { setManualData } from '../../actions/resource-actions/all-views-simple-actions';
 import {
   setDisplayedPackage,
@@ -38,26 +36,22 @@ import {
 describe('The audit view resource selectors', () => {
   const testManualAttributionUuid_1 = '4d9f0b16-fbff-11ea-adc1-0242ac120002';
   const testManualAttributionUuid_2 = 'b5da73d4-f400-11ea-adc1-0242ac120002';
-  const testTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+  const testTemporaryDisplayPackageInfo: PackageInfo = {
     attributionConfidence: DiscreteConfidence.High,
     packageVersion: '1.0',
     packageName: 'test Package',
     licenseText: ' test License text',
-    attributionIds: [testManualAttributionUuid_1],
+    id: testManualAttributionUuid_1,
   };
-  const secondTestTemporaryDisplayPackageInfo: DisplayPackageInfo = {
+  const secondTestTemporaryDisplayPackageInfo: PackageInfo = {
     packageVersion: '2.0',
     packageName: 'not assigned test Package',
     licenseText: ' test not assigned License text',
-    attributionIds: [testManualAttributionUuid_2],
+    id: testManualAttributionUuid_2,
   };
   const testManualAttributions: Attributions = {
-    [testManualAttributionUuid_1]: convertDisplayPackageInfoToPackageInfo(
-      testTemporaryDisplayPackageInfo,
-    ),
-    [testManualAttributionUuid_2]: convertDisplayPackageInfoToPackageInfo(
-      secondTestTemporaryDisplayPackageInfo,
-    ),
+    [testManualAttributionUuid_1]: testTemporaryDisplayPackageInfo,
+    [testManualAttributionUuid_2]: secondTestTemporaryDisplayPackageInfo,
   };
   const testResourcesToManualAttributions: ResourcesToAttributions = {
     '/root/src/something.js': [testManualAttributionUuid_1],
@@ -65,12 +59,12 @@ describe('The audit view resource selectors', () => {
 
   it('sets Attributions and getsAttribution for a ResourceId', () => {
     const testStore = createAppStore();
-    const expectedDisplayPackageInfo: DisplayPackageInfo = {
+    const expectedDisplayPackageInfo: PackageInfo = {
       attributionConfidence: DiscreteConfidence.High,
       packageVersion: '1.0',
       packageName: 'test Package',
       licenseText: ' test License text',
-      attributionIds: [testManualAttributionUuid_1],
+      id: testManualAttributionUuid_1,
     };
     expect(
       getManualDisplayPackageInfoOfSelected(testStore.getState()),
@@ -87,14 +81,14 @@ describe('The audit view resource selectors', () => {
 
   it('gets attributions and attribution ids for the selected resource', () => {
     const testStore = createAppStore();
-    const reactPackage: PackageInfo = { packageName: 'React' };
+    const reactPackage: PackageInfo = { packageName: 'React', id: 'uuid1' };
     testStore.dispatch(
       loadFromFile(
         getParsedInputFileEnrichedWithTestData({
           resources: { file: 1 },
           manualAttributions: {
             uuid1: reactPackage,
-            uuid2: { packageName: 'Angular' },
+            uuid2: { packageName: 'Angular', id: 'uuid2' },
           },
           resourcesToManualAttributions: { '/file': ['uuid1'] },
         }),
@@ -116,7 +110,7 @@ describe('The audit view resource selectors', () => {
     const manualPackagesSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
       packageCardId: 'Attributions-0',
-      displayPackageInfo: { packageName: 'React', attributionIds: ['uuid1'] },
+      displayPackageInfo: { packageName: 'React', id: 'uuid1' },
     };
     const manualPackagesDefaultSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ManualPackages,
@@ -126,7 +120,7 @@ describe('The audit view resource selectors', () => {
     const containedSelectedPackage: PanelPackage = {
       panel: PackagePanelTitle.ContainedManualPackages,
       packageCardId: 'Signals in Folder Content-0',
-      displayPackageInfo: { packageName: 'Vue', attributionIds: ['uuid2'] },
+      displayPackageInfo: { packageName: 'Vue', id: 'uuid2' },
     };
 
     const testStore = createAppStore();
